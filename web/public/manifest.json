@@ -1,0 +1,15 @@
+{
+  "short_name": "Totem",
+  "name": "Totem Household Management",
+  "icons": [
+    { "src": "favicon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" },
+    { "src": "icon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "maskable" },
+    { "src": "icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#00695c",
+  "background_color": "#f4f6f8",
+  "orientation": "portrait",
+  "description": "Smart Household Management System"
+}

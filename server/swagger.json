@@ -1,0 +1,207 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Household Manager API",
+    "version": "1.0.0",
+    "description": "Multi-tenant household management API",
+    "contact": {
+      "name": "Product Manager"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4002"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/register": {
+      "post": {
+        "summary": "Register a new user",
+        "tags": ["Auth"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password", "email"],
+                "properties": {
+                  "username": { "type": "string" },
+                  "password": { "type": "string" },
+                  "email": { "type": "string" },
+                  "secretCode": { "type": "string", "description": "Optional backdoor code for Sysadmin" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "User created successfully" }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "Login to get a JWT token",
+        "tags": ["Auth"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password"],
+                "properties": {
+                  "username": { "type": "string" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": { "type": "string" },
+                    "system_role": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/create-user": {
+      "post": {
+        "summary": "SYSADMIN ONLY: Create user and assign to household",
+        "tags": ["Admin"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password", "email", "householdId"],
+                "properties": {
+                  "username": { "type": "string" },
+                  "password": { "type": "string" },
+                  "email": { "type": "string" },
+                  "householdId": { "type": "integer" },
+                  "role": { "type": "string", "enum": ["admin", "member", "viewer"], "default": "member" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "User created and assigned" },
+          "403": { "description": "Access denied: Sysadmin only" }
+        }
+      }
+    },
+    "/households": {
+      "post": {
+        "summary": "Create a new Household (Tenant)",
+        "description": "Creates a record in the global DB and generates a new SQLite file for the tenant.",
+        "tags": ["Households"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Household created" }
+        }
+      }
+    },
+    "/households/{id}/users": {
+      "post": {
+        "summary": "Add an existing user to a household (Admin only)",
+        "tags": ["Households"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "usernameToAdd": { "type": "string" },
+                  "role": { "type": "string", "enum": ["admin", "member", "viewer"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "User added to household" }
+        }
+      }
+    },
+    "/my-households": {
+      "get": {
+        "summary": "List all households the current user belongs to",
+        "tags": ["Households"],
+        "responses": {
+          "200": { "description": "List of households" }
+        }
+      }
+    },
+    "/households/{id}/data": {
+      "get": {
+        "summary": "Test endpoint for household data access (Viewer+)",
+        "tags": ["Households"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Access granted" },
+          "403": { "description": "Access denied" }
+        }
+      }
+    }
+  }
+}
