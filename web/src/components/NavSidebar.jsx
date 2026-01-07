@@ -1,5 +1,5 @@
 import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar, Divider, IconButton, styled } from '@mui/material';
-import { Settings, Home as HomeIcon, ChevronLeft, Menu } from '@mui/icons-material';
+import { Settings, Home as HomeIcon, ChevronLeft, Menu, People, AdminPanelSettings } from '@mui/icons-material';
 
 const drawerWidth = 240;
 
@@ -42,9 +42,12 @@ const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'ope
 );
 
 export default function NavSidebar({ open, toggleDrawer, currentView, setView }) {
+  // Added Residents and App Access items
   const menuItems = [
     { id: 'home', label: 'Home', icon: <HomeIcon /> },
-    { id: 'settings', label: 'Settings', icon: <Settings /> },
+    { id: 'members', label: 'Residents', icon: <People /> },
+    { id: 'settings', label: 'Household Settings', icon: <Settings /> },
+    { id: 'access', label: 'App Access', icon: <AdminPanelSettings /> },
   ];
 
   return (
