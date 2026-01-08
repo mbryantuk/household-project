@@ -37,8 +37,12 @@ function initGlobalDb() {
             username TEXT UNIQUE,
             password_hash TEXT,
             email TEXT,
+            avatar TEXT,
             system_role TEXT DEFAULT 'sysadmin' -- Mostly 'sysadmin' now
         )`);
+
+        // Migration: Ensure avatar exists in global users
+        globalDb.run(`ALTER TABLE users ADD COLUMN avatar TEXT`, (err) => {});
 
         // Households table: Added access_key
         globalDb.run(`CREATE TABLE IF NOT EXISTS households (
@@ -96,8 +100,12 @@ const getHouseholdDb = (householdId) => {
             username TEXT,
             password_hash TEXT,
             email TEXT,
+            avatar TEXT,
             role TEXT DEFAULT 'member' -- admin, member, viewer
         )`);
+
+        // Migration: Ensure avatar exists in local users
+        db.run(`ALTER TABLE users ADD COLUMN avatar TEXT`, (err) => {});
 
         db.run(`CREATE TABLE IF NOT EXISTS members (
             id INTEGER PRIMARY KEY AUTOINCREMENT, 

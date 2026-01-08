@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { 
-  Box, Paper, Typography, IconButton, Grid, Button, 
+  Box, Paper, Typography, IconButton, Button, 
   Dialog, DialogTitle, DialogContent, DialogActions, TextField,
   Select, MenuItem, FormControl, InputLabel, Stack, Tooltip, Divider
 } from '@mui/material';
 import { 
-  ChevronLeft, ChevronRight, Add, Event, Cake, Favorite, Star, AddReaction 
+  ChevronLeft, ChevronRight, Add, Event, Cake, Favorite, Star 
 } from '@mui/icons-material';
 
 const EVENT_TYPES = [
@@ -21,12 +21,14 @@ const EMOJI_CATEGORIES = [
   { label: 'House & Travel', emojis: ['🏠', '🏡', '🏘️', '🏚️', '🏗️', '🏢', '🏣', '🏤', '🏥', '🏦', '🏨', '🏩', '🏪', '🏫', '🏬', '🏭', '🏯', '🏰', '💒', '🗼', '🗽', '⛪', '🕌', '🕍', '⛩️', '🕋', '⛲', '⛺', '🌁', '🌃', '🏙️', '🌄', '🌅', '🌆', '🌇', '🌉', '♨️', '🎠', '🎡', '🎢', '🚂', '🚃', '🚄', '🚅', '🚆', '🚇', '🚈', '🚉', '🚊', '🚝', '🚞', '🚋', '🚌', '🚍', '🚎', '🚐', '🚑', '🚒', '🚓', '🚔', '🚕', '🚖', '🚗', '🚘', '🚙', '🚚', '🚛', '🚜', '🏎️', '🏍️', '🛵', '🚲', '🛴', '🛍️', '🎁', '🎂', '🎈', '🎆', '🎇', '✨', '🎉', '🎊'] }
 ];
 
-export default function FloatingCalendar({ dates = [], api, householdId, onDateAdded }) {
+export default function FloatingCalendar({ dates = [], api, householdId, onDateAdded, currentUser }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [openAdd, setOpenAdd] = useState(false);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('📅');
+
+  const canEdit = currentUser?.role !== 'viewer';
 
   const daysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
   const firstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
@@ -42,7 +44,8 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const numDays = daysInMonth(year, month);
-  const firstDay = firstDayOfMonth(year, month);
+  const firstDaySun = firstDayOfMonth(year, month);
+  const firstDay = (firstDaySun + 6) % 7; // Shift so 0=Mon, 6=Sun
 
   const days = [];
   for (let i = 0; i < firstDay; i++) {
@@ -53,17 +56,16 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
   }
 
   const eventsOnSelectedDate = useMemo(() => {
-    return dates.filter(d => {
+    return (dates || []).filter(d => {
       const dDate = new Date(d.date);
       return dDate.getDate() === selectedDate.getDate() &&
              dDate.getMonth() === selectedDate.getMonth();
-      // Year is ignored for recurring events like birthdays
     });
   }, [dates, selectedDate]);
 
   const hasEvent = (date) => {
     if (!date) return false;
-    return dates.some(d => {
+    return (dates || []).some(d => {
       const dDate = new Date(d.date);
       return dDate.getDate() === date.getDate() &&
              dDate.getMonth() === date.getMonth();
@@ -72,11 +74,11 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
 
   const handleAddSubmit = (e) => {
     e.preventDefault();
+    if (!canEdit) return;
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     data.emoji = selectedEmoji;
     
-    // Ensure date is in YYYY-MM-DD format
     const y = selectedDate.getFullYear();
     const m = String(selectedDate.getMonth() + 1).padStart(2, '0');
     const d = String(selectedDate.getDate()).padStart(2, '0');
@@ -92,7 +94,6 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
 
   return (
     <Paper elevation={8} sx={{ width: 320, p: 2, borderRadius: 3, bgcolor: 'background.paper' }}>
-      {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h6" fontWeight="bold">
           {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
@@ -103,21 +104,26 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
         </Box>
       </Box>
 
-      {/* Calendar Grid */}
-      <Grid container spacing={0.5} sx={{ mb: 2 }}>
-        {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
-          <Grid item xs={1.7} key={d} sx={{ textAlign: 'center' }}>
-            <Typography variant="caption" fontWeight="bold" color="text.secondary">{d}</Typography>
-          </Grid>
+      {/* Calendar Grid using CSS Grid for perfect alignment */}
+      <Box sx={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(7, 1fr)', 
+        gap: '2px',
+        mb: 2 
+      }}>
+        {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, idx) => (
+          <Typography key={idx} variant="caption" fontWeight="bold" color="text.secondary" sx={{ textAlign: 'center', py: 0.5 }}>
+            {d}
+          </Typography>
         ))}
         {days.map((d, i) => (
-          <Grid item xs={1.7} key={i} sx={{ textAlign: 'center' }}>
+          <Box key={i} sx={{ display: 'flex', justifyContent: 'center' }}>
             {d ? (
               <IconButton 
                 size="small" 
                 onClick={() => setSelectedDate(d)}
                 sx={{ 
-                  width: 32, height: 32, fontSize: '0.85rem',
+                  width: 34, height: 34, fontSize: '0.85rem',
                   bgcolor: d.toDateString() === selectedDate.toDateString() ? 'primary.main' : 'transparent',
                   color: d.toDateString() === selectedDate.toDateString() ? 'primary.contrastText' : 'text.primary',
                   position: 'relative',
@@ -132,22 +138,23 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
                   }} />
                 )}
               </IconButton>
-            ) : <Box sx={{ height: 32 }} />}
-          </Grid>
+            ) : <Box sx={{ width: 34, height: 34 }} />}
+          </Box>
         ))}
-      </Grid>
+      </Box>
 
       <Divider sx={{ mb: 2 }} />
 
-      {/* Selected Day Events */}
       <Box sx={{ minHeight: 100 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
           <Typography variant="subtitle2" fontWeight="bold">
             {selectedDate.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}
           </Typography>
-          <Tooltip title="Add Event">
-            <IconButton size="small" color="primary" onClick={() => setOpenAdd(true)}><Add fontSize="small" /></IconButton>
-          </Tooltip>
+          {canEdit && (
+            <Tooltip title="Add Event">
+              <IconButton size="small" color="primary" onClick={() => setOpenAdd(true)}><Add fontSize="small" /></IconButton>
+            </Tooltip>
+          )}
         </Box>
         
         {eventsOnSelectedDate.length > 0 ? (
@@ -166,7 +173,6 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
         )}
       </Box>
 
-      {/* Add Event Dialog */}
       <Dialog open={openAdd} onClose={() => setOpenAdd(false)} fullWidth maxWidth="xs">
         <form onSubmit={handleAddSubmit}>
           <DialogTitle>Add Event on {selectedDate.toLocaleDateString()}</DialogTitle>
@@ -194,7 +200,6 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
         </form>
       </Dialog>
 
-      {/* Emoji Picker */}
       <Dialog open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} maxWidth="xs" fullWidth>
         <DialogTitle>Select Emoji</DialogTitle>
         <DialogContent dividers sx={{ p: 1 }}>

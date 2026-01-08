@@ -1,8 +1,8 @@
-import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Avatar, Box, Tooltip, Popover } from '@mui/material';
+import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Avatar, Box, Tooltip, Popover, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Grid, Divider } from '@mui/material';
 import { 
   Logout, SwapHoriz, Menu as MenuIcon, 
   DarkMode, LightMode, SettingsBrightness, GetApp, AdminPanelSettings,
-  CalendarMonth, Calculate
+  CalendarMonth, Calculate, Person, Password, Email, AddReaction
 } from '@mui/icons-material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -10,15 +10,44 @@ import TotemIcon from './TotemIcon';
 import FloatingCalendar from './FloatingCalendar';
 import FloatingCalculator from './FloatingCalculator';
 
+const EMOJI_CATEGORIES = [
+  { label: 'Smileys', emojis: ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '🤨', '🧐'] },
+  { label: 'Animals', emojis: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐽', '🐸', '🐵', '🙈', '🙉', '🙊', '🐒', '🐔', '🐧', '🐦', '🐤', '🐣', '🐥', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🦟', '🦗', '🕷️', '🕸️', '🦂', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊', '🐅', '🐆', '🦓', '🦍', '🐘', '🦏', '🦛', '🐪', '🐫', '🦒', '🦘', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑', '🦙', '🐐', '🦌', '🐕', '🐩', '🐈', '🐓', '🦃', '🦚', '🦜', '🦢', '🕊️', '🐇', '🦝', '🦨', '🦡', '🦦', '🦥', '🐁', '🐀', '🐿️', '🦔'] },
+  { label: 'House & Travel', emojis: ['🏠', '🏡', '🏘️', '🏚️', '🏗️', '🏢', '🏣', '🏤', '🏥', '🏦', '🏨', '🏩', '🏪', '🏫', '🏬', '🏭', '🏯', '🏰', '💒', '🗼', '🗽', '⛪', '🕌', '🕍', '⛩️', '🕋', '⛲', '⛺', '🌁', '🌃', '🏙️', '🌄', '🌅', '🌆', '🌇', '🌉', '♨️', '🎠', '🎡', '🎢', '🚂', '🚃', '🚄', '🚅', '🚆', '🚇', '🚈', '🚉', '🚊', '🚝', '🚞', '🚋', '🚌', '🚍', '🚎', '🚐', '🚑', '🚒', '🚓', '🚔', '🚕', '🚖', '🚗', '🚘', '🚙', '🚚', '🚛', '🚜', '🏎️', '🏍️', '🛵', '🚲', '🛴', '🛹', '🛶', '⛵', '🚤', '🛥️', '🛳️', '⛴️', '🚢', '✈️', '🛫', '🛬', '💺', '🚁', '🚟', '🚠', '🚡', '🚀', '🛸', '🛰️', '🪐', '🌠', '🌌', '🌍', '🌎', '🌏', '🌐', '🗺️', '🗾', '🧭'] },
+  { label: 'Food & Drink', emojis: ['🍏', '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌽', '🥕', '🧄', '🧅', '🥔', '🍠', '🥐', '🥯', '🍞', '🥖', '🥨', '🧀', '🥚', '🍳', 'バター', '🥞', '🥓', '🥩', '🍗', '🍖', '🦴', '🌭', '🍔', '🍟', '🍕', '🥪', '🥙', '🧆', '🌮', '🌯', '🥗', '🥘', '🥣', '🍝', '🍜', '🍲', '🍛', '🍣', '🍱', '🥟', '🦪', '🍤', '🍙', '🍚', '🍘', '🍥', '🥠', '🥮', '🍢', '🍡', '🍧', '🍨', '🍦', '🥧', '🧁', '🍰', '🎂', '🍮', '🍭', '🍬', '🍫', '🍿', '🧂', '🍩', '🍪', '🌰', '🥜', '🥤', '🧃', '🥛', '☕', '🍵', '🧉', '🍺', '🍻', '🥂', '🍷', '🥃', '🍸', '🍹', '🍶'] }
+];
+
 export default function TopBar({
   user, currentHousehold, households, onSwitchHousehold,
   onLogout, toggleSidebar, canInstall, onInstall,
-  dates, api, onDateAdded
+  dates, api, onDateAdded, onUpdateProfile
 }) {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [userAnchorEl, setUserAnchorEl] = useState(null);
   const [calAnchor, setCalAnchor] = useState(null);
   const [showCalc, setShowCalc] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const navigate = useNavigate();
+
+  const handleProfileSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const updates = {
+      username: formData.get('username'),
+      email: formData.get('email'),
+      avatar: user.avatar
+    };
+    const password = formData.get('password');
+    if (password) updates.password = password;
+
+    try {
+      await onUpdateProfile(updates);
+      setProfileOpen(false);
+    } catch (err) {
+      alert("Failed to update profile");
+    }
+  };
 
   return (
     <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
@@ -98,6 +127,7 @@ export default function TopBar({
                   dates={dates} 
                   api={api} 
                   householdId={currentHousehold.id} 
+                  currentUser={user}
                   onDateAdded={() => {
                     if (onDateAdded) onDateAdded();
                     // We don't close the popover so they can see it added or add more
@@ -155,24 +185,135 @@ export default function TopBar({
           </Menu>
 
           {/* User Profile & Logout */}
-          <Box sx={{ ml: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Avatar sx={{ 
-                width: 32, 
-                height: 32, 
-                bgcolor: 'white', 
-                color: 'primary.main', 
-                fontWeight: 'bold',
-                fontSize: '0.85rem'
-              }}>
-                {user?.username ? user.username[0].toUpperCase() : 'U'}
-              </Avatar>
-              <IconButton color="inherit" onClick={onLogout} size="small" title="Logout">
-                <Logout fontSize="small" />
-              </IconButton>
+          <Box sx={{ ml: 1, display: 'flex', alignItems: 'center' }}>
+              <Tooltip title="User Settings">
+                <IconButton onClick={(e) => setUserAnchorEl(e.currentTarget)} sx={{ p: 0.5 }}>
+                  <Avatar sx={{ 
+                    width: 36, 
+                    height: 36, 
+                    bgcolor: 'white', 
+                    color: 'primary.main', 
+                    fontWeight: 'bold',
+                    fontSize: user?.avatar ? '1.4rem' : '1rem'
+                  }}>
+                    {user?.avatar ? user.avatar : (user?.username ? user.username[0].toUpperCase() : 'U')}
+                  </Avatar>
+                </IconButton>
+              </Tooltip>
+
+              <Menu
+                anchorEl={userAnchorEl}
+                open={Boolean(userAnchorEl)}
+                onClose={() => setUserAnchorEl(null)}
+                PaperProps={{ sx: { mt: 1, minWidth: 180 } }}
+              >
+                <Box sx={{ px: 2, py: 1 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>{user?.username}</Typography>
+                  <Typography variant="caption" color="text.secondary">{user?.email || 'No email set'}</Typography>
+                </Box>
+                <Divider />
+                <MenuItem onClick={() => { setUserAnchorEl(null); setProfileOpen(true); }}>
+                  <Person sx={{ mr: 1.5, fontSize: 20 }} /> My Profile
+                </MenuItem>
+                <MenuItem onClick={onLogout} sx={{ color: 'error.main' }}>
+                  <Logout sx={{ mr: 1.5, fontSize: 20 }} /> Logout
+                </MenuItem>
+              </Menu>
           </Box>
         </Box>
 
       </Toolbar>
+
+      {/* Profile Dialog */}
+      <Dialog open={profileOpen} onClose={() => setProfileOpen(false)} maxWidth="xs" fullWidth>
+        <form onSubmit={handleProfileSubmit}>
+          <DialogTitle>My Profile</DialogTitle>
+          <DialogContent dividers>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
+               <Box 
+                 sx={{ 
+                   width: 80, height: 80, 
+                   borderRadius: '50%', 
+                   bgcolor: 'background.default', 
+                   display: 'flex', alignItems: 'center', justifyContent: 'center',
+                   border: '2px solid', borderColor: 'primary.main',
+                   boxShadow: 2,
+                   cursor: 'pointer',
+                   fontSize: '2.5rem',
+                   mb: 1
+                 }}
+                 onClick={() => setEmojiPickerOpen(true)}
+               >
+                 {user?.avatar || <Person sx={{ fontSize: 40 }} />}
+               </Box>
+               <Button size="small" startIcon={<AddReaction />} onClick={() => setEmojiPickerOpen(true)}>
+                 Change Avatar
+               </Button>
+            </Box>
+
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField 
+                  fullWidth name="username" label="Username" 
+                  defaultValue={user?.username} required 
+                  InputProps={{ startAdornment: <Person sx={{ mr: 1, color: 'text.secondary' }} /> }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField 
+                  fullWidth name="email" label="Email Address" 
+                  defaultValue={user?.email} 
+                  InputProps={{ startAdornment: <Email sx={{ mr: 1, color: 'text.secondary' }} /> }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField 
+                  fullWidth name="password" label="New Password" type="password" 
+                  placeholder="Leave blank to keep current"
+                  InputProps={{ startAdornment: <Password sx={{ mr: 1, color: 'text.secondary' }} /> }}
+                />
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setProfileOpen(false)}>Cancel</Button>
+            <Button type="submit" variant="contained">Save Changes</Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+
+      {/* Emoji Picker for Profile */}
+      <Dialog open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(null)} maxWidth="sm" fullWidth>
+        <DialogTitle>Choose Avatar Emoji</DialogTitle>
+        <DialogContent dividers sx={{ p: 0 }}>
+          <Box sx={{ p: 2 }}>
+            {EMOJI_CATEGORIES.map((cat) => (
+              <Box key={cat.label} sx={{ mb: 3 }}>
+                <Typography variant="subtitle2" color="primary" gutterBottom sx={{ fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 1 }}>
+                  {cat.label}
+                </Typography>
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(40px, 1fr))', gap: 1 }}>
+                  {cat.emojis.map((emoji) => (
+                    <IconButton 
+                      key={emoji} 
+                      onClick={() => {
+                        onUpdateProfile({ avatar: emoji });
+                        setEmojiPickerOpen(null);
+                      }}
+                      sx={{ fontSize: '1.5rem', '&:hover': { bgcolor: 'action.selected' } }}
+                    >
+                      {emoji}
+                    </IconButton>
+                  ))}
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEmojiPickerOpen(null)}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </AppBar>
   );
 }

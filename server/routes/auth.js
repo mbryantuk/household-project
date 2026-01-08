@@ -25,7 +25,12 @@ router.post('/login', (req, res) => {
                 id: user.id, username: user.username, system_role: 'sysadmin' 
             }, SECRET_KEY, { expiresIn: '24h' });
             
-            res.json({ token, role: 'sysadmin', context: 'global' });
+            res.json({ 
+                token, 
+                role: 'sysadmin', 
+                context: 'global',
+                user: { id: user.id, username: user.username, email: user.email, avatar: user.avatar }
+            });
         });
         return;
     }
@@ -62,6 +67,7 @@ router.post('/login', (req, res) => {
                 token, 
                 role: user.role, 
                 context: 'household',
+                user: { id: user.id, username: user.username, email: user.email, avatar: user.avatar },
                 household: { 
                     id: household.id, 
                     name: household.name, 
@@ -82,8 +88,8 @@ router.post('/login', (req, res) => {
 
 // PROFILE: Update own details (Works for both contexts)
 router.put('/profile', authenticateToken, (req, res) => {
-    const { username, password } = req.body;
-    if (!username && !password) return res.status(400).json({ error: "Nothing to update" });
+    const { username, password, email, avatar } = req.body;
+    if (!username && !password && !email && !avatar) return res.status(400).json({ error: "Nothing to update" });
 
     const isSysAdmin = req.user.system_role === 'sysadmin';
     const targetDb = isSysAdmin ? globalDb : getHouseholdDb(req.user.householdId);
@@ -92,6 +98,9 @@ router.put('/profile', authenticateToken, (req, res) => {
     let values = [];
     if (username) { fields.push('username = ?'); values.push(username); }
     if (password) { fields.push('password_hash = ?'); values.push(bcrypt.hashSync(password, 8)); }
+    if (email !== undefined) { fields.push('email = ?'); values.push(email); }
+    if (avatar !== undefined) { fields.push('avatar = ?'); values.push(avatar); }
+    
     values.push(req.user.id);
 
     const sql = `UPDATE users SET ${fields.join(', ')} WHERE id = ?`;

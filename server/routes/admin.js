@@ -87,34 +87,21 @@ router.put('/households/:id', authenticateToken, (req, res) => {
 
 // POST /create-user (Create Local User)
 router.post('/create-user', authenticateToken, (req, res) => {
-    const { username, password, role } = req.body;
+    const { username, password, role, email, avatar } = req.body;
     
     // Check permissions (Must be Local Admin or SysAdmin)
-    const canCreate = req.user.role === 'admin' || req.user.system_role === 'sysadmin';
-    if (!canCreate) {
-        console.log(`🚫 Create User Denied: Actor=${req.user.username}, Role=${req.user.role}, SysAdmin=${req.user.system_role}`);
-        return res.status(403).json({ error: "Access Denied" });
-    }
+    const targetHhId = req.user.householdId || req.body.householdId;
+    if (!targetHhId) return res.status(400).json({ error: "Household ID required" });
 
-    // Determine target database
-    let targetDb;
-    let targetHhId;
+    const isAuthorized = req.user.role === 'admin' || req.user.system_role === 'sysadmin';
+    if (!isAuthorized) return res.sendStatus(403);
 
-    if (req.user.system_role === 'sysadmin') {
-        // SysAdmin must specify householdId in body
-        if (!req.body.householdId) return res.status(400).json({ error: "SysAdmin must specify householdId" });
-        targetHhId = req.body.householdId;
-    } else {
-        // Local Admin uses their own household
-        targetHhId = req.user.householdId;
-    }
-
-    targetDb = getHouseholdDb(targetHhId);
+    const targetDb = getHouseholdDb(targetHhId);
     const hash = bcrypt.hashSync(password, 8);
     console.log(`📝 Creating user '${username}' in household ${targetHhId}`);
 
-    targetDb.run(`INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)`, 
-        [username, hash, role || 'member'], function(err) {
+    targetDb.run(`INSERT INTO users (username, password_hash, role, email, avatar) VALUES (?, ?, ?, ?, ?)`, 
+        [username, hash, role || 'member', email, avatar], function(err) {
             targetDb.close();
             if (err) {
                 console.error("Create User DB Error:", err);
@@ -136,7 +123,7 @@ router.get('/users', authenticateToken, (req, res) => {
     
     if (targetHhId) {
         const db = getHouseholdDb(targetHhId);
-        db.all("SELECT id, username, role, email FROM users", [], (err, rows) => {
+        db.all("SELECT id, username, role, email, avatar FROM users", [], (err, rows) => {
             db.close();
             if (err) return res.status(500).json({ error: err.message });
             res.json(rows);
@@ -183,55 +170,34 @@ router.delete('/users/:id', authenticateToken, (req, res) => {
 
 
 // PUT /users/:id (Update Local User)
-
 router.put('/users/:id', authenticateToken, (req, res) => {
-
     const targetHhId = req.user.householdId || req.body.householdId;
-
     if (!targetHhId) return res.sendStatus(400);
 
-
-
     const isAuthorized = req.user.role === 'admin' || req.user.system_role === 'sysadmin';
-
     if (!isAuthorized) return res.sendStatus(403);
 
-
-
-    const { role, password } = req.body;
-
-    if (!role && !password) return res.status(400).json({ error: "Nothing to update" });
-
-
+    const { username, role, password, email, avatar } = req.body;
+    if (!username && !role && !password && !email && !avatar) return res.status(400).json({ error: "Nothing to update" });
 
     let fields = [];
-
     let values = [];
-
+    if (username) { fields.push('username = ?'); values.push(username); }
     if (role) { fields.push('role = ?'); values.push(role); }
-
     if (password) { fields.push('password_hash = ?'); values.push(bcrypt.hashSync(password, 8)); }
+    if (email !== undefined) { fields.push('email = ?'); values.push(email); }
+    if (avatar !== undefined) { fields.push('avatar = ?'); values.push(avatar); }
 
     values.push(req.params.id);
 
-
-
     const db = getHouseholdDb(targetHhId);
-
     const sql = `UPDATE users SET ${fields.join(', ')} WHERE id = ?`;
 
-
-
     db.run(sql, values, function(err) {
-
         db.close();
-
         if (err) return res.status(500).json({ error: err.message });
-
         res.json({ message: "User updated" });
-
     });
-
 });
 
 

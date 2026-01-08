@@ -22,8 +22,10 @@ const EMOJI_CATEGORIES = [
 ];
 
 export default function CalendarView() {
-  const { api } = useOutletContext();
+  const { api, user: currentUser } = useOutletContext();
   const { id: householdId } = useParams();
+  
+  const canEdit = currentUser?.role !== 'viewer';
   
   const [dates, setDates] = useState([]);
   const [open, setOpen] = useState(false);

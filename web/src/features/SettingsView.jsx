@@ -58,6 +58,7 @@ export default function SettingsView({
   // Residents State
   const [memberType, setMemberType] = useState('adult');
   const [newMemberEmoji, setNewMemberEmoji] = useState('👤');
+  const [newUserEmoji, setNewUserEmoji] = useState('👤');
   const [editMember, setEditMember] = useState(null);
 
   // 🛡️ PERMISSION CHECK
@@ -93,10 +94,12 @@ export default function SettingsView({
       username: e.target.newUsername.value,
       password: e.target.newPassword.value,
       email: e.target.newEmail.value,
-      role: e.target.newRole.value
+      role: e.target.newRole.value,
+      avatar: newUserEmoji
     };
     onCreateUser(userData);
     setCreateOpen(false);
+    setNewUserEmoji('👤');
   };
 
   const handleEditClick = (u) => {
@@ -107,8 +110,11 @@ export default function SettingsView({
   const handleEditSubmit = (e) => {
     e.preventDefault();
     const updates = {};
+    if (e.target.editUsername.value) updates.username = e.target.editUsername.value;
+    if (e.target.editEmail.value) updates.email = e.target.editEmail.value;
     if (e.target.editRole.value) updates.role = e.target.editRole.value;
     if (e.target.editPassword.value) updates.password = e.target.editPassword.value;
+    if (editingUser.avatar) updates.avatar = editingUser.avatar;
     
     onUpdateUser(editingUser.id, updates);
     setEditOpen(false);
@@ -157,6 +163,10 @@ export default function SettingsView({
       setNewMemberEmoji(emoji);
     } else if (emojiPickerTarget === 'editMember') {
       setEditMember({ ...editMember, emoji });
+    } else if (emojiPickerTarget === 'editUser') {
+      setEditingUser({ ...editingUser, avatar: emoji });
+    } else if (emojiPickerTarget === 'newUser') {
+      setNewUserEmoji(emoji);
     }
     setEmojiPickerTarget(null);
   };
@@ -648,6 +658,25 @@ export default function SettingsView({
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
               Create a new account for a family member.
             </Typography>
+
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
+               <Box 
+                 sx={{ 
+                   width: 60, height: 60, 
+                   borderRadius: '50%', 
+                   bgcolor: 'background.default', 
+                   display: 'flex', alignItems: 'center', justifyContent: 'center',
+                   border: '1px solid', borderColor: 'divider',
+                   boxShadow: 1,
+                   cursor: 'pointer',
+                   fontSize: '1.8rem'
+                 }}
+                 onClick={() => setEmojiPickerTarget('newUser')}
+               >
+                 {newUserEmoji}
+               </Box>
+               <Button size="small" onClick={() => setEmojiPickerTarget('newUser')}>Set Avatar</Button>
+            </Box>
             
             <TextField margin="dense" name="newUsername" label="Username" fullWidth required />
             <TextField margin="dense" name="newPassword" label="Password" type="password" fullWidth required />
@@ -674,10 +703,33 @@ export default function SettingsView({
         <form onSubmit={handleEditSubmit}>
           <DialogTitle>Edit User: {editingUser?.username}</DialogTitle>
           <DialogContent>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Update role or reset password.
-            </Typography>
-            
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2, mt: 1 }}>
+               <Box 
+                 sx={{ 
+                   width: 60, height: 60, 
+                   borderRadius: '50%', 
+                   bgcolor: 'background.default', 
+                   display: 'flex', alignItems: 'center', justifyContent: 'center',
+                   border: '1px solid', borderColor: 'divider',
+                   boxShadow: 1,
+                   cursor: 'pointer',
+                   fontSize: '1.8rem'
+                 }}
+                 onClick={() => setEmojiPickerTarget('editUser')}
+               >
+                 {editingUser?.avatar || '👤'}
+               </Box>
+               <Button size="small" onClick={() => setEmojiPickerTarget('editUser')}>Change Avatar</Button>
+            </Box>
+
+            <TextField 
+              margin="dense" name="editUsername" label="Username" 
+              fullWidth defaultValue={editingUser?.username} required
+            />
+            <TextField 
+              margin="dense" name="editEmail" label="Email Address" 
+              fullWidth defaultValue={editingUser?.email}
+            />
             <TextField 
               margin="dense" name="editPassword" label="New Password (Optional)" 
               type="password" fullWidth helperText="Leave blank to keep current password"

@@ -1,28 +1,25 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Box, Paper, Typography, IconButton, Grid, Button, 
-  Divider, Tooltip, TextField
+  Divider, Tooltip
 } from '@mui/material';
 import { 
-  Close, DragIndicator, ContentCopy, ContentPaste, Backspace
+  Close, DragIndicator, ContentCopy, Backspace, OpenInNew
 } from '@mui/icons-material';
 
-export default function FloatingCalculator({ onClose }) {
+export default function FloatingCalculator({ onClose, isPopout = false }) {
   const [input, setInput] = useState('');
   const [result, setResult] = useState('');
-  const [pos, setPos] = useState({ x: 100, y: 100 });
+  const [pos, setPos] = useState({ x: 150, y: 100 });
   const [isDragging, setIsDragging] = useState(false);
-  const [rel, setRel] = useState({ x: 0, y: 0 }); // Relative mouse position within the header
+  const [rel, setRel] = useState({ x: 0, y: 0 });
   const [isFocused, setIsFocused] = useState(true);
   
   const calcRef = useRef(null);
 
-  // --- CALC LOGIC ---
   const handleAction = useCallback((val) => {
     if (val === '=') {
       try {
-        // Simple eval-like logic (sanitized or use a parser if complex)
-        // For a basic calculator, we can use Function constructor as a safer eval
         // eslint-disable-next-line no-new-func
         const res = new Function(`return ${input.replace(/[^-+*/.0-9]/g, '')}`)();
         setResult(String(res));
@@ -39,11 +36,9 @@ export default function FloatingCalculator({ onClose }) {
     }
   }, [input]);
 
-  // --- KEYBOARD SUPPORT ---
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!isFocused) return;
-      
       const key = e.key;
       if (/[0-9+\-*/.]/.test(key)) {
         handleAction(key);
@@ -54,40 +49,28 @@ export default function FloatingCalculator({ onClose }) {
         handleAction('DEL');
       } else if (key === 'Escape') {
         onClose();
-      } else if ((e.ctrlKey || e.metaKey) && key === 'c') {
-         // Let default copy work if text is selected, or we can force result copy
-         if (!window.getSelection().toString()) {
-            navigator.clipboard.writeText(result || input);
-         }
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isFocused, input, result, handleAction, onClose]);
+  }, [isFocused, handleAction, onClose]);
 
-  // --- DRAG LOGIC ---
   const onMouseDown = (e) => {
-    if (e.button !== 0) return; // Only left click
+    if (isPopout) return;
+    if (e.button !== 0) return;
     setIsDragging(true);
     const rect = calcRef.current.getBoundingClientRect();
-    setRel({
-      x: e.pageX - rect.left,
-      y: e.pageY - rect.top
-    });
+    setRel({ x: e.pageX - rect.left, y: e.pageY - rect.top });
     e.stopPropagation();
   };
 
   useEffect(() => {
+    if (isPopout) return;
     const onMouseMove = (e) => {
       if (!isDragging) return;
-      setPos({
-        x: e.pageX - rel.x,
-        y: e.pageY - rel.y
-      });
+      setPos({ x: e.pageX - rel.x, y: e.pageY - rel.y });
     };
     const onMouseUp = () => setIsDragging(false);
-
     if (isDragging) {
       window.addEventListener('mousemove', onMouseMove);
       window.addEventListener('mouseup', onMouseUp);
@@ -96,46 +79,49 @@ export default function FloatingCalculator({ onClose }) {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
     };
-  }, [isDragging, rel]);
+  }, [isDragging, rel, isPopout]);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(result || input);
   };
 
+  const handlePopout = () => {
+    window.open('/calculator', 'TotemCalculator', 'width=300,height=450,menubar=no,toolbar=no,location=no,status=no');
+    onClose();
+  };
+
   return (
     <Paper
       ref={calcRef}
-      elevation={12}
+      elevation={isPopout ? 0 : 12}
       onFocus={() => setIsFocused(true)}
       onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget)) {
-          setIsFocused(false);
-        }
+        if (!e.currentTarget.contains(e.relatedTarget)) setIsFocused(false);
       }}
       tabIndex={0}
       sx={{
-        position: 'fixed',
-        left: pos.x,
-        top: pos.y,
-        width: 280,
-        height: 400,
-        minWidth: 200,
-        minHeight: 300,
+        position: isPopout ? 'relative' : 'fixed',
+        left: isPopout ? 0 : pos.x,
+        top: isPopout ? 0 : pos.y,
+        width: isPopout ? '100%' : 300,
+        height: isPopout ? '100%' : 420,
+        minWidth: 240,
+        minHeight: 350,
         zIndex: 9999,
         display: 'flex',
         flexDirection: 'column',
-        borderRadius: 2,
+        borderRadius: isPopout ? 0 : 2,
         overflow: 'hidden',
-        resize: 'both',
+        resize: isPopout ? 'none' : 'both',
         transition: 'opacity 0.2s',
         opacity: isFocused ? 1 : 0.6,
-        border: '1px solid',
+        border: isPopout ? 'none' : '1px solid',
         borderColor: isFocused ? 'primary.main' : 'divider',
         boxShadow: isFocused ? 24 : 4,
         '&:hover': { opacity: 1 }
       }}
     >
-      {/* Header / Drag Handle */}
+      {/* Header */}
       <Box 
         onMouseDown={onMouseDown}
         sx={{ 
@@ -144,19 +130,25 @@ export default function FloatingCalculator({ onClose }) {
           color: isFocused ? 'primary.contrastText' : 'text.primary',
           display: 'flex', 
           alignItems: 'center', 
-          cursor: 'move',
+          cursor: isPopout ? 'default' : 'move',
           userSelect: 'none'
         }}
       >
-        <DragIndicator fontSize="small" sx={{ mr: 1, opacity: 0.7 }} />
+        {!isPopout && <DragIndicator fontSize="small" sx={{ mr: 1, opacity: 0.7 }} />}
         <Typography variant="subtitle2" sx={{ flexGrow: 1, fontWeight: 'bold' }}>Calculator</Typography>
+        
+        {!isPopout && (
+            <Tooltip title="Pop out">
+                <IconButton size="small" color="inherit" onClick={handlePopout}><OpenInNew fontSize="inherit" /></IconButton>
+            </Tooltip>
+        )}
         <IconButton size="small" color="inherit" onClick={onClose} sx={{ ml: 1 }}>
           <Close fontSize="small" />
         </IconButton>
       </Box>
 
       {/* Display */}
-      <Box sx={{ p: 2, bgcolor: 'action.hover', textAlign: 'right' }}>
+      <Box sx={{ p: 2, bgcolor: 'action.hover', textAlign: 'right', minHeight: 80, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', height: 20, overflow: 'hidden' }}>
           {input || ' '}
         </Typography>
@@ -172,51 +164,26 @@ export default function FloatingCalculator({ onClose }) {
 
       <Divider />
 
-      {/* Buttons */}
-      <Box sx={{ p: 1, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-        <Grid container spacing={1} sx={{ flexGrow: 1 }}>
+      {/* Buttons - Using display: grid for better resizing */}
+      <Box sx={{ p: 1, flexGrow: 1, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
           {['C', 'DEL', '/', '*'].map(btn => (
-             <Grid item xs={3} key={btn}>
-                <Button fullWidth variant="outlined" color="secondary" onClick={() => handleAction(btn)} sx={{ height: '100%', minHeight: 40 }}>
-                    {btn === 'DEL' ? <Backspace fontSize="small" /> : btn}
-                </Button>
-             </Grid>
+            <Button key={btn} variant="outlined" color="secondary" onClick={() => handleAction(btn)} sx={{ minHeight: 40, fontWeight: 'bold' }}>
+                {btn === 'DEL' ? <Backspace fontSize="small" /> : btn}
+            </Button>
           ))}
           {['7', '8', '9', '-'].map(btn => (
-             <Grid item xs={3} key={btn}>
-                <Button fullWidth variant="contained" color={isNaN(btn) ? "secondary" : "inherit"} onClick={() => handleAction(btn)} sx={{ height: '100%', minHeight: 40 }}>
-                    {btn}
-                </Button>
-             </Grid>
+            <Button key={btn} variant="contained" color={isNaN(btn) ? "secondary" : "inherit"} onClick={() => handleAction(btn)} sx={{ minHeight: 40, fontWeight: 'bold' }}>{btn}</Button>
           ))}
           {['4', '5', '6', '+'].map(btn => (
-             <Grid item xs={3} key={btn}>
-                <Button fullWidth variant="contained" color={isNaN(btn) ? "secondary" : "inherit"} onClick={() => handleAction(btn)} sx={{ height: '100%', minHeight: 40 }}>
-                    {btn}
-                </Button>
-             </Grid>
+            <Button key={btn} variant="contained" color={isNaN(btn) ? "secondary" : "inherit"} onClick={() => handleAction(btn)} sx={{ minHeight: 40, fontWeight: 'bold' }}>{btn}</Button>
           ))}
-          <Grid item xs={9}>
-            <Grid container spacing={1} sx={{ height: '100%' }}>
-                {['1', '2', '3', '0', '.', '='].map((btn, idx) => (
-                    <Grid item xs={btn === '=' ? 8 : 4} key={btn}>
-                        <Button 
-                            fullWidth 
-                            variant="contained" 
-                            color={btn === '=' ? "primary" : "inherit"} 
-                            onClick={() => handleAction(btn)} 
-                            sx={{ height: '100%', minHeight: 40 }}
-                        >
-                            {btn}
-                        </Button>
-                    </Grid>
-                ))}
-            </Grid>
-          </Grid>
-          <Grid item xs={3}>
-             {/* Large Equals space if needed, but handled above */}
-          </Grid>
-        </Grid>
+          {['1', '2', '3', '='].map(btn => (
+            <Button key={btn} variant="contained" color={btn === '=' ? "primary" : "inherit"} onClick={() => handleAction(btn)} sx={{ minHeight: 40, fontWeight: 'bold', gridRow: btn === '=' ? 'span 2' : 'auto' }}>{btn}</Button>
+          ))}
+          <Box sx={{ gridColumn: 'span 2' }}>
+            <Button fullWidth variant="contained" onClick={() => handleAction('0')} sx={{ height: '100%', minHeight: 40, fontWeight: 'bold' }}>0</Button>
+          </Box>
+          <Button variant="contained" onClick={() => handleAction('.')} sx={{ minHeight: 40, fontWeight: 'bold' }}>.</Button>
       </Box>
     </Paper>
   );

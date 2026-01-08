@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import axios from 'axios';
 import { 
   Box, CssBaseline, ThemeProvider, useMediaQuery, TextField, Button, 
-  Card, Typography, CircularProgress, Alert, Checkbox, FormControlLabel 
+  Card, Typography, CircularProgress, Alert, Checkbox, FormControlLabel,
+  Snackbar, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions
 } from '@mui/material';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 
@@ -62,6 +63,24 @@ function AppContent() {
 
   const [loading, setLoading] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // --- NOTIFICATION STATE ---
+  const [notification, setNotification] = useState({ open: false, message: '', severity: 'info' });
+  const showNotification = useCallback((message, severity = 'info') => {
+    setNotification({ open: true, message, severity });
+  }, []);
+  const hideNotification = () => setNotification(prev => ({ ...prev, open: false }));
+
+  // --- CONFIRMATION STATE ---
+  const [confirmDialog, setConfirmDialog] = useState({ open: false, title: '', message: '', onConfirm: null });
+  const confirmAction = useCallback((title, message, onConfirm) => {
+    setConfirmDialog({ open: true, title, message, onConfirm });
+  }, []);
+  const handleConfirmClose = () => setConfirmDialog(prev => ({ ...prev, open: false }));
+  const handleConfirmProceed = () => {
+    if (confirmDialog.onConfirm) confirmDialog.onConfirm();
+    handleConfirmClose();
+  };
 
   // --- DATA STATE ---
   // households list is only for SysAdmin now
@@ -134,11 +153,11 @@ function AppContent() {
     if (user?.role === 'sysadmin') {
         try {
             await authAxios.put(`/admin/households/${hhId}`, updates);
-            alert("Household updated.");
+            showNotification("Household updated.", "success");
             fetchHouseholds();
-        } catch (err) { alert("Error: " + err.message); }
+        } catch (err) { showNotification("Error: " + err.message, "error"); }
     }
-  }, [authAxios, user, fetchHouseholds]);
+  }, [authAxios, user, fetchHouseholds, showNotification]);
 
   // --- APP INITIALIZATION ---
   useEffect(() => {
@@ -222,6 +241,20 @@ function AppContent() {
     } catch (err) { alert("Error: " + err.message); }
   }, [authAxios, household, fetchHhUsers, fetchSysUsers, user]);
 
+  const handleUpdateProfile = useCallback(async (updates) => {
+    try {
+      await authAxios.put('/auth/profile', updates);
+      const updatedUser = { ...user, ...updates };
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      if (household) fetchHhUsers(household.id);
+      if (user?.role === 'sysadmin') fetchSysUsers();
+    } catch (err) {
+      console.error("Failed to update profile:", err);
+      throw err;
+    }
+  }, [authAxios, user, household, fetchHhUsers, fetchSysUsers]);
+
   const handleUpdateUserWrapper = useCallback((userId, updates) => {
     handleUpdateUser(userId, updates);
   }, [handleUpdateUser]);
@@ -249,6 +282,9 @@ function AppContent() {
             dates={hhDates}
             api={authAxios}
             onDateAdded={() => household && fetchHhDates(household.id)}
+            onUpdateProfile={handleUpdateProfile}
+            showNotification={showNotification}
+            confirmAction={confirmAction}
           /> : <Navigate to="/login" />}>
 
           {/* Root redirects based on role */}
@@ -275,7 +311,7 @@ function AppContent() {
             />}>
                             <Route index element={<Navigate to="dashboard" replace />} />
                             <Route path="dashboard" element={<HomeView household={household} members={hhMembers} currentUser={user} dates={hhDates} />} />
-                            <Route path="dates" element={<CalendarView />} />
+                            <Route path="dates" element={<CalendarView showNotification={showNotification} confirmAction={confirmAction} />} />
 
               <Route path="settings" element={<SettingsView 
                 household={household}
@@ -310,11 +346,35 @@ function AppContent() {
                 }}
                 onRemoveMember={(id) => authAxios.delete(`/households/${household.id}/members/${id}`).then(() => fetchHhMembers(household.id))}
                 onUpdateMember={(mid, data) => authAxios.put(`/households/${household.id}/members/${mid}`, data).then(() => fetchHhMembers(household.id))}
+                showNotification={showNotification}
+                confirmAction={confirmAction}
               />} />
           </Route>
 
         </Route>
       </Routes>
+
+      <Snackbar 
+        open={notification.open} 
+        autoHideDuration={4000} 
+        onClose={hideNotification}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={hideNotification} severity={notification.severity} sx={{ width: '100%' }} variant="filled">
+          {notification.message}
+        </Alert>
+      </Snackbar>
+
+      <Dialog open={confirmDialog.open} onClose={handleConfirmClose}>
+        <DialogTitle>{confirmDialog.title}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{confirmDialog.message}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleConfirmClose}>Cancel</Button>
+          <Button onClick={handleConfirmProceed} color="error" variant="contained">Proceed</Button>
+        </DialogActions>
+      </Dialog>
     </ThemeProvider>
   );
 }

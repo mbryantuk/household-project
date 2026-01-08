@@ -15,7 +15,8 @@ export default function RootLayout({
   onInstall,
   dates,
   api,
-  onDateAdded
+  onDateAdded,
+  onUpdateProfile
 }) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'background.default' }}>
@@ -33,6 +34,7 @@ export default function RootLayout({
         dates={dates}
         api={api}
         onDateAdded={onDateAdded}
+        onUpdateProfile={onUpdateProfile}
       />
       <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
         <Outlet />
