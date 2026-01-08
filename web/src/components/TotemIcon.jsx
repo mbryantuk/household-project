@@ -1,18 +1,9 @@
-import { SvgIcon } from '@mui/material';
+import { SvgIcon, useTheme } from '@mui/material';
 
-const THEMES = {
-  default: { primary: "#00695c", secondary: "#4db6ac" }, // Teal
-  ocean:   { primary: "#1565c0", secondary: "#64b5f6" }, // Blue
-  forest:  { primary: "#2e7d32", secondary: "#a5d6a7" }, // Green
-  volcano: { primary: "#c62828", secondary: "#ef9a9a" }, // Red
-  sun:     { primary: "#f9a825", secondary: "#fff59d" }, // Gold
-  royal:   { primary: "#6a1b9a", secondary: "#ce93d8" }, // Purple
-  dark:    { primary: "#37474f", secondary: "#90a4ae" }, // Grey
-};
-
-export default function TotemIcon({ colorway = 'default', sx, ...props }) {
-  const colors = THEMES[colorway] || THEMES.default;
-  const { primary, secondary } = colors;
+export default function TotemIcon({ sx, ...props }) {
+  const theme = useTheme();
+  const primary = theme.palette.primary.main;
+  const secondary = theme.palette.secondary.main;
 
   return (
     <SvgIcon viewBox="0 0 24 24" sx={sx} {...props}>

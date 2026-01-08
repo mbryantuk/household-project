@@ -26,7 +26,7 @@ router.post('/households', authenticateToken, (req, res) => {
     const { name, adminUsername, adminPassword } = req.body;
     if (!name || !adminUsername || !adminPassword) return res.status(400).json({ error: "Missing fields" });
 
-    // Generate Unique Access Key (e.g., "7A9F2")
+    // Generate Unique Access Key (e.g., "DE2E1D")
     const accessKey = crypto.randomBytes(3).toString('hex').toUpperCase();
 
     // 1. Create in Global DB

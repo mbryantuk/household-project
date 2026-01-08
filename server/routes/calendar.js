@@ -36,18 +36,18 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
 
 // POST /households/:id/dates
 router.post('/households/:id/dates', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-    const { title, date, type, description } = req.body;
+    const { title, date, type, description, emoji } = req.body;
     
     if (!title || !date) {
         req.tenantDb.close();
         return res.status(400).json({ error: "Title and Date are required" });
     }
 
-    const sql = `INSERT INTO dates (title, date, type, description) VALUES (?, ?, ?, ?)`;
-    req.tenantDb.run(sql, [title, date, type, description], function(err) {
+    const sql = `INSERT INTO dates (title, date, type, description, emoji) VALUES (?, ?, ?, ?, ?)`;
+    req.tenantDb.run(sql, [title, date, type, description, emoji], function(err) {
         req.tenantDb.close();
         if (err) return res.status(500).json({ error: err.message });
-        res.json({ id: this.lastID, title, date, type, description });
+        res.json({ id: this.lastID, title, date, type, description, emoji });
     });
 });
 
@@ -57,6 +57,24 @@ router.delete('/households/:id/dates/:dateId', authenticateToken, requireHouseho
         req.tenantDb.close();
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Date removed" });
+    });
+});
+
+// PUT /households/:id/dates/:dateId
+router.put('/households/:id/dates/:dateId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
+    const { title, date, type, description, emoji } = req.body;
+    const { dateId } = req.params;
+
+    if (!title || !date) {
+        req.tenantDb.close();
+        return res.status(400).json({ error: "Title and Date are required" });
+    }
+
+    const sql = `UPDATE dates SET title = ?, date = ?, type = ?, description = ?, emoji = ? WHERE id = ?`;
+    req.tenantDb.run(sql, [title, date, type, description, emoji, dateId], function(err) {
+        req.tenantDb.close();
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Date updated", id: dateId, title, date, type, description, emoji });
     });
 });
 

@@ -12,7 +12,10 @@ export default function RootLayout({
   currentMode, 
   onModeChange, 
   installPrompt, 
-  onInstall 
+  onInstall,
+  dates,
+  api,
+  onDateAdded
 }) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'background.default' }}>
@@ -27,6 +30,9 @@ export default function RootLayout({
         onModeChange={onModeChange}
         canInstall={!!installPrompt} 
         onInstall={onInstall}
+        dates={dates}
+        api={api}
+        onDateAdded={onDateAdded}
       />
       <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
         <Outlet />

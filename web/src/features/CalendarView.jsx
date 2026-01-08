@@ -3,9 +3,9 @@ import { useOutletContext, useParams } from 'react-router-dom';
 import { 
   Box, Typography, Paper, Grid, Card, CardContent, Chip, 
   Button, Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, FormControl, InputLabel, Select, MenuItem, Stack
+  TextField, FormControl, InputLabel, Select, MenuItem, Stack, IconButton, Tooltip
 } from '@mui/material';
-import { Event, Cake, Favorite, Add, Star } from '@mui/icons-material';
+import { Event, Cake, Favorite, Add, Star, AddReaction, Edit, Delete } from '@mui/icons-material';
 
 const EVENT_TYPES = [
   { value: 'birthday', label: 'Birthday', icon: <Cake fontSize="small" /> },
@@ -14,12 +14,22 @@ const EVENT_TYPES = [
   { value: 'other', label: 'Event', icon: <Event fontSize="small" /> },
 ];
 
+const EMOJI_CATEGORIES = [
+  { label: 'Smileys', emojis: ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '🤨', '🧐'] },
+  { label: 'Animals', emojis: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐽', '🐸', '🐵', '🙈', '🙉', '🙊', '🐒', '🐔', '🐧', '🐦', '🐤', '🐣', '🐥', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🦟', '🦗', '🕷️', '🕸️', '🦂', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊', '🐅', '🐆', '🦓', '🦍', '🐘', '🦏', '🦛', '🐪', '🐫', '🦒', '🦘', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑', '🦙', '🐐', '🦌', '🐕', '🐩', '🐈', '🐓', '🦃', '🦚', '🦜', '🦢', '🕊️', '🐇', '🦝', '🦨', '🦡', '🦦', '🦥', '🐁', '🐀', '🐿️', '🦔'] },
+  { label: 'House & Travel', emojis: ['🏠', '🏡', '🏘️', '🏚️', '🏗️', '🏢', '🏣', '🏤', '🏥', '🏦', '🏨', '🏩', '🏪', '🏫', '🏬', '🏭', '🏯', '🏰', '💒', '🗼', '🗼', '🗽', '⛪', '🕌', '🕍', '⛩️', '🕋', '⛲', '⛺', '🌁', '🌃', '🏙️', '🌄', '🌅', '🌆', '🌇', '🌉', '♨️', '🎠', '🎡', '🎢', '🚂', '🚃', '🚄', '🚅', '🚆', '🚇', '🚈', '🚉', '🚊', '🚝', '🚞', '🚋', '🚌', '🚍', '🚎', '🚐', '🚑', '🚒', '🚓', '🚔', '🚕', '🚖', '🚗', '🚘', '🚙', '🚚', '🚛', '🚜', '🏎️', '🏍️', '🛵', '🚲', '🛴', '🛍️', '🎁', '🎂', '🎈', '🎆', '🎇', '🧨', '✨', '🎈', '🎉', '🎊'] },
+  { label: 'Objects & Symbols', emojis: ['⌚', '📱', '📲', '💻', '⌨️', '🖥️', '🖨️', '🖱️', '🖲️', '🕹️', '🗜️', '💽', '💾', '💿', '📀', '📼', '📷', '📸', '📹', '🎥', '📽️', '🎞️', '📞', '☎️', '📟', '📠', '📺', '📻', '🎙️', '🎚️', '🎛️', '🧭', '⏱️', '⏲️', '⏰', '🕰️', '⌛', '⏳', '📡', '🔋', '🔌', '💡', '🔦', '🕯️', '🪔', '🧯', '🛢️', '💸', '💵', '💴', '💶', '💷', '💰', '💳', '💎', '⚖️', '🧰', '🔧', '🔨', '⚒️', '🛠️', '⛏️', '🔩', '⚙️', '🧱', '⛓️', '🧲', '🔫', '💣', '🧨', '🪓', '🔪', '🗡️', '⚔️', '🛡️', '🚬', '⚰️', '⚱️', '🏺', '🔮', '📿', '🧿', '💈', '⚗️', '🔭', '🔬', '🕳️', '🩹', '🩺', '💊', '💉', '🩸', '🧬', '🦠', '🧫', '🧪', '🌡️', '🧹', '🧺', '🧻', '🚽', '🚰', '🚿', '🛁', '🧼', '🪒', '🧴', '🧷', '🧹'] }
+];
+
 export default function CalendarView() {
-  const { api } = useOutletContext(); // Get the authenticated axios instance
+  const { api } = useOutletContext();
   const { id: householdId } = useParams();
   
   const [dates, setDates] = useState([]);
   const [open, setOpen] = useState(false);
+  const [editingDate, setEditingDate] = useState(null);
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState('📅');
   const [loading, setLoading] = useState(true);
 
   const fetchDates = useCallback(() => {
@@ -33,17 +43,39 @@ export default function CalendarView() {
     fetchDates();
   }, [fetchDates]);
 
-  const handleAddSubmit = (e) => {
+  const handleOpenAdd = () => {
+    setEditingDate(null);
+    setSelectedEmoji('📅');
+    setOpen(true);
+  };
+
+  const handleOpenEdit = (date) => {
+    setEditingDate(date);
+    setSelectedEmoji(date.emoji || '📅');
+    setOpen(true);
+  };
+
+  const handleFormSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
+    data.emoji = selectedEmoji;
     
-    api.post(`/households/${householdId}/dates`, data)
-      .then(() => {
-        setOpen(false);
-        fetchDates();
-      })
-      .catch(() => alert("Failed to add date"));
+    if (editingDate) {
+      api.put(`/households/${householdId}/dates/${editingDate.id}`, data)
+        .then(() => {
+          setOpen(false);
+          fetchDates();
+        })
+        .catch(() => alert("Failed to update date"));
+    } else {
+      api.post(`/households/${householdId}/dates`, data)
+        .then(() => {
+          setOpen(false);
+          fetchDates();
+        })
+        .catch(() => alert("Failed to add date"));
+    }
   };
 
   const handleDelete = (dateId) => {
@@ -53,37 +85,33 @@ export default function CalendarView() {
     }
   };
 
-  // Logic to calculate upcoming dates (handling year rollover)
   const upcomingDates = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    return dates.map(d => {
+    return (dates || []).map(d => {
       const originalDate = new Date(d.date);
-      // Construct date for THIS year
       let nextDate = new Date(today.getFullYear(), originalDate.getMonth(), originalDate.getDate());
-      
-      // If it has already passed this year, it's next year
       if (nextDate < today) {
         nextDate.setFullYear(today.getFullYear() + 1);
       }
-      
       const diffTime = nextDate - today;
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
       const yearsRunning = nextDate.getFullYear() - originalDate.getFullYear();
-
       return { ...d, nextDate, diffDays, yearsRunning };
     }).sort((a, b) => a.diffDays - b.diffDays);
   }, [dates]);
 
-  const getIcon = (type) => EVENT_TYPES.find(t => t.value === type)?.icon || <Event />;
+  const getIcon = (d) => {
+    if (d.emoji) return <Typography sx={{ fontSize: '1.2rem' }}>{d.emoji}</Typography>;
+    return EVENT_TYPES.find(t => t.value === d.type)?.icon || <Event />;
+  };
 
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
         <Typography variant="h4" fontWeight="300">Memorable Dates</Typography>
-        <Button variant="contained" startIcon={<Add />} onClick={() => setOpen(true)}>Add Date</Button>
+        <Button variant="contained" startIcon={<Add />} onClick={handleOpenAdd}>Add Date</Button>
       </Box>
 
       <Grid container spacing={3}>
@@ -99,15 +127,20 @@ export default function CalendarView() {
           <Grid item xs={12} sm={6} md={4} key={d.id}>
             <Card variant="outlined" sx={{ borderRadius: 3, height: '100%' }}>
               <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <Chip 
-                    icon={getIcon(d.type)} 
-                    label={d.type.toUpperCase()} 
-                    size="small" 
-                    color="primary" 
-                    variant="outlined" 
-                    sx={{ mb: 1, borderRadius: 1 }}
-                  />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Box sx={{ 
+                        width: 40, height: 40, borderRadius: '50%', 
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        bgcolor: 'action.hover', border: '1px solid', borderColor: 'divider'
+                    }}>
+                        {getIcon(d)}
+                    </Box>
+                    <Box>
+                        <Typography variant="h6" fontWeight="bold" sx={{ lineHeight: 1.2 }}>{d.title}</Typography>
+                        <Chip label={d.type.toUpperCase()} size="small" variant="outlined" sx={{ height: 18, fontSize: '0.6rem', mt: 0.5 }} />
+                    </Box>
+                  </Box>
                   <Chip 
                     label={d.diffDays === 0 ? "Today!" : `${d.diffDays} days`} 
                     color={d.diffDays < 7 ? "error" : "default"} 
@@ -115,9 +148,7 @@ export default function CalendarView() {
                   />
                 </Box>
                 
-                <Typography variant="h6" fontWeight="bold" gutterBottom>{d.title}</Typography>
-                
-                <Stack direction="row" spacing={1} alignItems="center" sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>
+                <Stack direction="row" spacing={1} alignItems="center" sx={{ color: 'text.secondary', fontSize: '0.9rem', mt: 1 }}>
                   <Typography variant="body2">
                     {d.nextDate.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
                   </Typography>
@@ -135,36 +166,83 @@ export default function CalendarView() {
                   </Typography>
                 )}
 
-                <Button size="small" color="error" sx={{ mt: 2 }} onClick={() => handleDelete(d.id)}>
-                  Remove
-                </Button>
+                <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+                    <Button size="small" startIcon={<Edit />} onClick={() => handleOpenEdit(d)}>
+                        Edit
+                    </Button>
+                    <Button size="small" color="error" startIcon={<Delete />} onClick={() => handleDelete(d.id)}>
+                        Remove
+                    </Button>
+                </Stack>
               </CardContent>
             </Card>
           </Grid>
         ))}
       </Grid>
 
+      {/* ADD/EDIT DIALOG */}
       <Dialog open={open} onClose={() => setOpen(false)}>
-        <form onSubmit={handleAddSubmit}>
-          <DialogTitle>Add Memorable Date</DialogTitle>
-          <DialogContent sx={{ minWidth: 300, display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-            <TextField name="title" label="Title (e.g. Matt's Birthday)" fullWidth required />
-            <TextField name="date" label="Date" type="date" InputLabelProps={{ shrink: true }} fullWidth required />
+        <form onSubmit={handleFormSubmit}>
+          <DialogTitle>{editingDate ? 'Edit Memorable Date' : 'Add Memorable Date'}</DialogTitle>
+          <DialogContent sx={{ minWidth: 350, display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                <Tooltip title="Pick an emoji">
+                    <IconButton onClick={() => setEmojiPickerOpen(true)} sx={{ bgcolor: 'action.hover', border: '1px solid', borderColor: 'divider', width: 56, height: 56 }}>
+                        <Typography sx={{ fontSize: '1.5rem' }}>{selectedEmoji}</Typography>
+                    </IconButton>
+                </Tooltip>
+                <TextField name="title" label="Title" defaultValue={editingDate?.title || ''} fullWidth required />
+            </Box>
+            
+            <TextField name="date" label="Date" type="date" defaultValue={editingDate?.date || ''} InputLabelProps={{ shrink: true }} fullWidth required />
             
             <FormControl fullWidth>
               <InputLabel>Type</InputLabel>
-              <Select name="type" defaultValue="other" label="Type">
+              <Select name="type" defaultValue={editingDate?.type || 'other'} label="Type">
                 {EVENT_TYPES.map(t => <MenuItem key={t.value} value={t.value}>{t.label}</MenuItem>)}
               </Select>
             </FormControl>
 
-            <TextField name="description" label="Notes (Optional)" multiline rows={2} fullWidth />
+            <TextField name="description" label="Notes (Optional)" defaultValue={editingDate?.description || ''} multiline rows={2} fullWidth />
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setOpen(false)}>Cancel</Button>
             <Button type="submit" variant="contained">Save</Button>
           </DialogActions>
         </form>
+      </Dialog>
+
+      {/* EMOJI PICKER DIALOG */}
+      <Dialog open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Select Event Emoji</DialogTitle>
+        <DialogContent dividers sx={{ p: 0 }}>
+          <Box sx={{ p: 2 }}>
+            {EMOJI_CATEGORIES.map((cat) => (
+              <Box key={cat.label} sx={{ mb: 3 }}>
+                <Typography variant="subtitle2" color="primary" gutterBottom sx={{ fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 1 }}>
+                  {cat.label}
+                </Typography>
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(40px, 1fr))', gap: 1 }}>
+                  {cat.emojis.map((emoji) => (
+                    <IconButton 
+                      key={emoji} 
+                      onClick={() => {
+                        setSelectedEmoji(emoji);
+                        setEmojiPickerOpen(false);
+                      }}
+                      sx={{ fontSize: '1.5rem', '&:hover': { bgcolor: 'action.selected' } }}
+                    >
+                      {emoji}
+                    </IconButton>
+                  ))}
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEmojiPickerOpen(false)}>Close</Button>
+        </DialogActions>
       </Dialog>
     </Box>
   );

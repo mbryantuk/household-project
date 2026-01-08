@@ -1,50 +1,120 @@
 import { createTheme } from '@mui/material/styles';
 
-export const COLORWAYS = {
-  default: { primary: "#00695c", secondary: "#4db6ac" },
-  ocean:   { primary: "#1565c0", secondary: "#64b5f6" },
-  forest:  { primary: "#2e7d32", secondary: "#a5d6a7" },
-  volcano: { primary: "#c62828", secondary: "#ef9a9a" },
-  sun:     { primary: "#f9a825", secondary: "#fff59d" },
-  royal:   { primary: "#6a1b9a", secondary: "#ce93d8" },
-  dark:    { primary: "#37474f", secondary: "#90a4ae" },
+// Official Dracula Classic (Dark)
+const DRACULA = {
+  background: "#282A36",
+  backgroundDark: "#21222C",
+  backgroundDarker: "#191A21",
+  backgroundLight: "#343746",
+  backgroundLighter: "#424450",
+  selection: "#44475A",
+  foreground: "#F8F8F2",
+  comment: "#6272A4",
+  cyan: "#8BE9FD",
+  green: "#50FA7B",
+  orange: "#FFB86C",
+  pink: "#FF79C6",
+  purple: "#BD93F9",
+  red: "#FF5555",
+  yellow: "#F1FA8C",
 };
 
-export const getTotemTheme = (colorway = 'default', mode = 'light') => {
-  const colors = COLORWAYS[colorway] || COLORWAYS.default;
+// Official Alucard Classic (Light)
+const ALUCARD = {
+  background: "#FFFBEB",
+  backgroundDark: "#CECCC0",
+  backgroundDarker: "#BCBAB3",
+  backgroundLight: "#DEDCCF",
+  backgroundLighter: "#ECE9DF",
+  selection: "#CFCFDE",
+  foreground: "#1F1F1F",
+  comment: "#6C664B",
+  cyan: "#036A96",
+  green: "#14710A",
+  orange: "#A34D14",
+  pink: "#A3144D",
+  purple: "#644AC9",
+  red: "#CB3A2A",
+  yellow: "#846E15",
+};
 
-  return createTheme({
-    palette: {
-      mode,
-      primary: {
-        main: colors.primary,
-        contrastText: '#fff',
+// Standard Themes
+const STANDARD_LIGHT = {
+  background: "#f8f9fa",
+  paper: "#ffffff",
+  primary: "#00695c",
+  secondary: "#4db6ac",
+  foreground: "#212121",
+};
+
+const STANDARD_DARK = {
+  background: "#121212",
+  paper: "#1e1e1e",
+  primary: "#4db6ac",
+  secondary: "#00695c",
+  foreground: "#ffffff",
+};
+
+export const getTotemTheme = (mode = 'light', useDracula = true) => {
+  let effectiveMode = mode;
+  if (mode === 'system') {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    effectiveMode = prefersDark ? 'dark' : 'light';
+  }
+
+  const isDark = effectiveMode === 'dark';
+  
+  if (useDracula) {
+    const spec = isDark ? DRACULA : ALUCARD;
+    return createTheme({
+      palette: {
+        mode: isDark ? 'dark' : 'light',
+        primary: { main: spec.purple, contrastText: isDark ? spec.foreground : '#fff' },
+        secondary: { main: spec.pink },
+        background: { default: spec.background, paper: isDark ? spec.backgroundLight : "#FFFFFF" },
+        text: { primary: spec.foreground, secondary: spec.comment },
+        divider: spec.selection,
       },
-      secondary: {
-        main: colors.secondary,
-      },
-      background: {
-        default: mode === 'dark' ? '#121212' : '#f8f9fa',
-        paper: mode === 'dark' ? '#1e1e1e' : '#ffffff',
-      },
-    },
-    components: {
-      MuiAppBar: {
-        styleOverrides: {
-          root: {
-            backgroundColor: colors.primary,
-            backgroundImage: 'none',
+      components: {
+        MuiAppBar: {
+          styleOverrides: {
+            root: {
+              backgroundColor: isDark ? DRACULA.backgroundDark : ALUCARD.red,
+              backgroundImage: 'none',
+              color: '#fff',
+            },
+          },
+        },
+        MuiDrawer: {
+          styleOverrides: {
+            paper: {
+              backgroundColor: spec.backgroundLighter,
+              borderRight: `1px solid ${spec.selection}`,
+            },
           },
         },
       },
-      MuiDrawer: {
-        styleOverrides: {
-          paper: {
-            backgroundColor: mode === 'dark' ? '#1e1e1e' : '#fff',
-            borderRight: `1px solid ${mode === 'dark' ? '#333' : '#e0e0e0'}`,
+    });
+  } else {
+    const spec = isDark ? STANDARD_DARK : STANDARD_LIGHT;
+    return createTheme({
+      palette: {
+        mode: isDark ? 'dark' : 'light',
+        primary: { main: spec.primary },
+        secondary: { main: spec.secondary },
+        background: { default: spec.background, paper: spec.paper },
+        text: { primary: spec.foreground },
+      },
+      components: {
+        MuiAppBar: {
+          styleOverrides: {
+            root: {
+              backgroundColor: spec.primary,
+              backgroundImage: 'none',
+            },
           },
         },
       },
-    },
-  });
+    });
+  }
 };

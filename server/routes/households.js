@@ -24,10 +24,22 @@ router.put('/households/:id', authenticateToken, (req, res) => {
     // Only Local Admin or SysAdmin
     if (req.user.role !== 'admin' && req.user.system_role !== 'sysadmin') return res.sendStatus(403);
 
-    const { name, theme } = req.body;
+    const { 
+        name, theme, 
+        address_street, address_city, address_zip,
+        date_format, currency, decimals, avatar
+    } = req.body;
     let fields = []; let values = [];
     if (name) { fields.push('name = ?'); values.push(name); }
     if (theme) { fields.push('theme = ?'); values.push(theme); }
+    if (address_street !== undefined) { fields.push('address_street = ?'); values.push(address_street); }
+    if (address_city !== undefined) { fields.push('address_city = ?'); values.push(address_city); }
+    if (address_zip !== undefined) { fields.push('address_zip = ?'); values.push(address_zip); }
+    if (date_format) { fields.push('date_format = ?'); values.push(date_format); }
+    if (currency) { fields.push('currency = ?'); values.push(currency); }
+    if (decimals !== undefined) { fields.push('decimals = ?'); values.push(decimals); }
+    if (avatar !== undefined) { fields.push('avatar = ?'); values.push(avatar); }
+    
     if (fields.length === 0) return res.status(400).json({ error: "No fields to update" });
     
     values.push(req.params.id);

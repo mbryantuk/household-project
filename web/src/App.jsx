@@ -28,8 +28,27 @@ const API_URL = window.location.origin;
 function AppContent() {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [modeOverride, setModeOverride] = useState(localStorage.getItem('themeMode') || 'system');
+  const [useDracula, setUseDracula] = useState(() => localStorage.getItem('useDracula') !== 'false');
   const [installPrompt, setInstallPrompt] = useState(null);
   
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setInstallPrompt(null);
+    }
+  };
+
   // --- AUTH STATE ---
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [user, setUser] = useState(() => {
@@ -50,6 +69,7 @@ function AppContent() {
   const [sysUsers, setSysUsers] = useState([]);
   const [hhUsers, setHhUsers] = useState([]);     
   const [hhMembers, setHhMembers] = useState([]); 
+  const [hhDates, setHhDates] = useState([]);
 
   const navigate = useNavigate();
 
@@ -60,8 +80,8 @@ function AppContent() {
 
   const theme = useMemo(() => {
     const currentMode = modeOverride === 'system' ? (prefersDarkMode ? 'dark' : 'light') : modeOverride;
-    return getTotemTheme(household?.theme || 'default', currentMode);
-  }, [household?.theme, modeOverride, prefersDarkMode]);
+    return getTotemTheme(currentMode, useDracula);
+  }, [modeOverride, prefersDarkMode, useDracula]);
 
   // --- ACTIONS ---
   const logout = useCallback(() => {
@@ -83,6 +103,12 @@ function AppContent() {
     // For local households, this returns local users
     authAxios.get(`/households/${hhId}/users`)
       .then(res => setHhUsers(Array.isArray(res.data) ? res.data : []));
+  }, [authAxios]);
+
+  const fetchHhDates = useCallback((hhId) => {
+    if (!hhId) return;
+    authAxios.get(`/households/${hhId}/dates`)
+      .then(res => setHhDates(Array.isArray(res.data) ? res.data : []));
   }, [authAxios]);
 
   // SysAdmin Fetch
@@ -123,13 +149,26 @@ function AppContent() {
         // We are logged into a house
         fetchHhMembers(household.id);
         fetchHhUsers(household.id);
+        fetchHhDates(household.id);
       } else if (user?.role === 'sysadmin') {
         // We are sysadmin
         fetchHouseholds();
         fetchSysUsers();
       }
     }
-  }, [token, household, user, fetchHhMembers, fetchHhUsers, fetchHouseholds, fetchSysUsers]);
+  }, [token, household, user, fetchHhMembers, fetchHhUsers, fetchHhDates, fetchHouseholds, fetchSysUsers]);
+
+  // --- APP BADGING ---
+  useEffect(() => {
+    if ('setAppBadge' in navigator) {
+      const count = hhDates.length + (hhMembers?.filter(m => m.dob).length || 0);
+      if (count > 0) {
+        navigator.setAppBadge(count).catch(console.error);
+      } else {
+        navigator.clearAppBadge().catch(console.error);
+      }
+    }
+  }, [hhDates, hhMembers]);
 
   const login = useCallback(async (key, u, p) => {
       const res = await axios.post(`${API_URL}/auth/login`, { accessKey: key, username: u, password: p });
@@ -206,7 +245,10 @@ function AppContent() {
             currentMode={modeOverride} 
             onModeChange={(m) => { setModeOverride(m); localStorage.setItem('themeMode', m); }}
             installPrompt={installPrompt} 
-            onInstall={() => installPrompt.prompt()}
+            onInstall={handleInstallClick}
+            dates={hhDates}
+            api={authAxios}
+            onDateAdded={() => household && fetchHhDates(household.id)}
           /> : <Navigate to="/login" />}>
 
           {/* Root redirects based on role */}
@@ -231,10 +273,33 @@ function AppContent() {
               onSelectHousehold={() => {}}
               api={authAxios}
             />}>
-              <Route index element={<Navigate to="dashboard" replace />} />
-              <Route path="dashboard" element={<HomeView household={household} members={hhMembers} currentUser={user} />} />
-              <Route path="members" element={<MembersView 
-                members={hhMembers} 
+                            <Route index element={<Navigate to="dashboard" replace />} />
+                            <Route path="dashboard" element={<HomeView household={household} members={hhMembers} currentUser={user} dates={hhDates} />} />
+                            <Route path="dates" element={<CalendarView />} />
+
+              <Route path="settings" element={<SettingsView 
+                household={household}
+                users={hhUsers}
+                currentUser={user}
+                onUpdateHousehold={(updates) => {
+                  authAxios.put(`/households/${household.id}`, updates).then(() => {
+                      setHousehold(prev => {
+                        const updated = { ...prev, ...updates };
+                        localStorage.setItem('household', JSON.stringify(updated));
+                        return updated;
+                      });
+                  });
+                }}
+                onDeleteHousehold={() => {}}
+                onCreateUser={handleCreateUser}
+                onUpdateUser={handleUpdateUser}
+                onRemoveUser={(userId) => authAxios.delete(`/admin/users/${userId}`).then(() => fetchHhUsers(household.id))}
+                onManageAccess={() => {}}
+                currentMode={modeOverride}
+                onModeChange={(m) => { setModeOverride(m); localStorage.setItem('themeMode', m); }}
+                useDracula={useDracula}
+                onDraculaChange={(v) => { setUseDracula(v); localStorage.setItem('useDracula', v); }}
+                members={hhMembers}
                 onAddMember={(e) => {
                   e.preventDefault(); 
                   const data = Object.fromEntries(new FormData(e.currentTarget));
@@ -245,23 +310,6 @@ function AppContent() {
                 }}
                 onRemoveMember={(id) => authAxios.delete(`/households/${household.id}/members/${id}`).then(() => fetchHhMembers(household.id))}
                 onUpdateMember={(mid, data) => authAxios.put(`/households/${household.id}/members/${mid}`, data).then(() => fetchHhMembers(household.id))}
-              />} />
-              
-              <Route path="dates" element={<CalendarView />} />
-
-              <Route path="settings" element={<SettingsView 
-                household={household}
-                users={hhUsers}
-                currentUser={user}
-                onUpdateHousehold={(updates) => {
-                  authAxios.put(`/households/${household.id}`, updates).then(() => {
-                      setHousehold(prev => ({ ...prev, ...updates }));
-                  });
-                }}
-                onDeleteHousehold={() => {}}
-                onCreateUser={handleCreateUser}
-                onRemoveUser={(userId) => authAxios.delete(`/admin/users/${userId}`).then(() => fetchHhUsers(household.id))}
-                onManageAccess={() => {}}
               />} />
           </Route>
 

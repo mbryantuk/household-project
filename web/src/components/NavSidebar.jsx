@@ -45,7 +45,6 @@ const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'ope
 export default function NavSidebar({ open, toggleDrawer }) {
   const menuItems = [
     { id: 'dashboard', label: 'Home', icon: <HomeIcon /> },
-    { id: 'members', label: 'Residents', icon: <People /> },
     { id: 'dates', label: 'Dates', icon: <Event /> },
     { id: 'settings', label: 'Settings', icon: <Settings /> },
   ];

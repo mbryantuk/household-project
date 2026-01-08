@@ -1,15 +1,40 @@
 {
   "short_name": "Totem",
-  "name": "Totem Household Management",
+  "name": "Totem Household",
   "icons": [
-    { "src": "favicon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" },
-    { "src": "icon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "maskable" },
-    { "src": "icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" }
+    {
+      "src": "favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "favicon.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
   ],
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
-  "theme_color": "#00695c",
-  "background_color": "#f4f6f8",
+  "theme_color": "#282A36",
+  "background_color": "#282A36",
   "orientation": "portrait",
-  "description": "Smart Household Management System"
+  "description": "Dracula & Alucard powered Household Management",
+  "shortcuts": [
+    {
+      "name": "Residents",
+      "short_name": "Residents",
+      "description": "Manage household members",
+      "url": "/household/settings?tab=1",
+      "icons": [{ "src": "favicon.png", "sizes": "512x512" }]
+    },
+    {
+      "name": "Upcoming Dates",
+      "short_name": "Dates",
+      "description": "View calendar and events",
+      "url": "/household/dates",
+      "icons": [{ "src": "favicon.png", "sizes": "512x512" }]
+    }
+  ]
 }

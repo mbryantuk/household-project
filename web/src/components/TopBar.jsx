@@ -1,25 +1,25 @@
-import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Avatar, Box, Tooltip } from '@mui/material';
+import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Avatar, Box, Tooltip, Popover } from '@mui/material';
 import { 
   Logout, SwapHoriz, Menu as MenuIcon, 
-  DarkMode, LightMode, SettingsBrightness, GetApp, AdminPanelSettings 
+  DarkMode, LightMode, SettingsBrightness, GetApp, AdminPanelSettings,
+  CalendarMonth
 } from '@mui/icons-material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TotemIcon from './TotemIcon';
+import FloatingCalendar from './FloatingCalendar';
 
-export default function TopBar({ 
-  user, currentHousehold, households, onSwitchHousehold, 
-  onLogout, toggleSidebar, currentMode, 
-  onModeChange, canInstall, onInstall 
+export default function TopBar({
+  user, currentHousehold, households, onSwitchHousehold,
+  onLogout, toggleSidebar, canInstall, onInstall,
+  dates, api, onDateAdded
 }) {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [modeAnchor, setModeAnchor] = useState(null);
+  const [calAnchor, setCalAnchor] = useState(null);
   const navigate = useNavigate();
-  const activeColorway = currentHousehold?.theme || 'default';
 
   return (
-    <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-      <Toolbar sx={{ justifyContent: 'space-between' }}>
+    <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>      <Toolbar sx={{ justifyContent: 'space-between' }}>
         
         {/* LEFT SECTION: Family Name & Menu */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -39,11 +39,23 @@ export default function TopBar({
               alignItems: 'center', 
               justifyContent: 'center',
               boxShadow: 2,
-              cursor: 'pointer'
+              cursor: 'pointer',
+              width: 36,
+              height: 36,
+              fontSize: '1.4rem',
+              overflow: 'hidden'
             }}
             onClick={() => navigate('/')}
           >
-            <TotemIcon colorway={activeColorway} sx={{ fontSize: 24 }} />
+            {currentHousehold?.avatar ? (
+              currentHousehold.avatar.startsWith('data:image') ? (
+                <Avatar src={currentHousehold.avatar} sx={{ width: '100%', height: '100%' }} />
+              ) : (
+                currentHousehold.avatar
+              )
+            ) : (
+              <TotemIcon sx={{ fontSize: 24 }} />
+            )}
           </Box>
 
           <Typography variant="h6" noWrap sx={{ fontWeight: 'bold', letterSpacing: 1.5, color: 'white' }}>
@@ -55,6 +67,35 @@ export default function TopBar({
         {/* RIGHT SECTION: Actions & Switcher */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           
+          {/* Calendar Toggle */}
+          {currentHousehold && (
+            <>
+              <Tooltip title="Household Calendar">
+                <IconButton color="inherit" onClick={(e) => setCalAnchor(e.currentTarget)}>
+                  <CalendarMonth />
+                </IconButton>
+              </Tooltip>
+              <Popover
+                open={Boolean(calAnchor)}
+                anchorEl={calAnchor}
+                onClose={() => setCalAnchor(null)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                sx={{ mt: 1.5 }}
+              >
+                <FloatingCalendar 
+                  dates={dates} 
+                  api={api} 
+                  householdId={currentHousehold.id} 
+                  onDateAdded={() => {
+                    if (onDateAdded) onDateAdded();
+                    // We don't close the popover so they can see it added or add more
+                  }} 
+                />
+              </Popover>
+            </>
+          )}
+
           {/* Global Admin Access Link - SYSADMIN ONLY */}
           {user?.role === 'sysadmin' && (
             <Tooltip title="Platform Administration">
@@ -70,16 +111,6 @@ export default function TopBar({
               <IconButton color="inherit" onClick={onInstall}><GetApp /></IconButton>
             </Tooltip>
           )}
-
-          {/* Theme Mode Toggle */}
-          <IconButton color="inherit" onClick={(e) => setModeAnchor(e.currentTarget)}>
-            {currentMode === 'dark' ? <DarkMode /> : currentMode === 'light' ? <LightMode /> : <SettingsBrightness />}
-          </IconButton>
-          <Menu anchorEl={modeAnchor} open={Boolean(modeAnchor)} onClose={() => setModeAnchor(null)}>
-            <MenuItem onClick={() => { onModeChange('light'); setModeAnchor(null); }}>Light</MenuItem>
-            <MenuItem onClick={() => { onModeChange('dark'); setModeAnchor(null); }}>Dark</MenuItem>
-            <MenuItem onClick={() => { onModeChange('system'); setModeAnchor(null); }}>System</MenuItem>
-          </Menu>
 
           {/* 🔄 THE NEW SWITCH ICON (Replaces Home Icon) */}
           {households.length > 0 && (

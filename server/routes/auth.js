@@ -62,7 +62,19 @@ router.post('/login', (req, res) => {
                 token, 
                 role: user.role, 
                 context: 'household',
-                household: { id: household.id, name: household.name, theme: household.theme }
+                household: { 
+                    id: household.id, 
+                    name: household.name, 
+                    theme: household.theme,
+                    access_key: household.access_key,
+                    address_street: household.address_street,
+                    address_city: household.address_city,
+                    address_zip: household.address_zip,
+                    date_format: household.date_format,
+                    currency: household.currency,
+                    decimals: household.decimals,
+                    avatar: household.avatar
+                }
             });
         });
     });

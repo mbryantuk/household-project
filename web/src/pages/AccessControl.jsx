@@ -3,9 +3,10 @@ import {
   Box, Typography, Grid, Card, CardContent, Button, 
   IconButton, Chip, Dialog, DialogTitle, DialogContent, 
   DialogActions, TextField, List, ListItem, ListItemText, 
-  ListItemSecondaryAction, Divider, Stack
+  Divider, Stack, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper,
+  FormControl, InputLabel, Select, MenuItem
 } from '@mui/material';
-import { Add, Delete, Edit, Home, Person, VpnKey } from '@mui/icons-material';
+import { Add, Delete, Edit, Home, Person, VpnKey, AddHome, Key, Refresh, PersonAdd } from '@mui/icons-material';
 
 export default function AccessControl({
   users, 
@@ -16,7 +17,8 @@ export default function AccessControl({
   onUpdateHousehold,
   onRemoveUser
 }) {
-  const [openUser, setOpenUser] = useState(false);  const [editingUser, setEditingUser] = useState(null); 
+  const [openAddUser, setOpenAddUser] = useState(false);  
+  const [editingUser, setEditingUser] = useState(null); 
   const [newUser, setNewUser] = useState({ username: '', password: '', role: 'member' });
 
   // Household Creation State
@@ -28,14 +30,7 @@ export default function AccessControl({
   const [openEditHousehold, setOpenEditHousehold] = useState(false);
   const [currentHouseholdData, setCurrentHouseholdData] = useState({ name: '', access_key: '', theme: 'default' });
 
-  // The assignment dialog is now completely removed.
-  // const [openAssignDialog, setOpenAssignDialog] = useState(false);
-  // const [assignment, setAssignment] = useState({ userId: '', householdId: '', role: 'member' });
-
   const isSysAdmin = currentUser?.role === 'sysadmin';
-  // Only allow assigning users to households where the current user is an Admin or SysAdmin
-  // This logic is now obsolete as Household Assignments section is removed.
-  // const assignableHouseholds = households.filter(hh => hh.role === 'admin' || currentUser?.role === 'sysadmin');
 
   const handleAddUserSubmit = () => {
     if (newUser.username && newUser.password) {
@@ -71,52 +66,37 @@ export default function AccessControl({
     }
   };
 
-  // The assignment dialog logic is now completely removed.
-  // const handleAssignSubmit = () => {
-  //   const selectedUser = users.find(u => u.id === assignment.userId);
-  //   if (selectedUser && assignment.householdId) {
-  //     onAssignUser({ 
-  //       householdId: assignment.householdId, 
-  //       username: selectedUser.username, 
-  //       role: assignment.role 
-  //     });
-  //     setOpenAssignDialog(false);
-  //   }
-  // };
-
   return (
-    <Box sx={{ maxWidth: 1000, margin: '0 auto' }}>
+    <Box sx={{ maxWidth: 1000, margin: '0 auto', p: 3 }}>
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>Platform Administration</Typography>
       
       {/* --- TENANTS SECTION (SysAdmin Only) --- */}
       {isSysAdmin && (
-        <Card sx={{ p: 3, borderRadius: 3, mb: 4, border: '1px solid #e0e0e0' }}>
+        <Card variant="outlined" sx={{ p: 3, borderRadius: 3, mb: 4 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Box>
               <Typography variant="h6">Platform Tenants</Typography>
               <Typography variant="body2" color="text.secondary">Active households and their access keys.</Typography>
             </Box>
-            <Button variant="contained" startIcon={<DomainAdd />} onClick={() => setOpenAddHouse(true)}>New Household</Button>
+            <Button variant="contained" startIcon={<AddHome />} onClick={() => setOpenAddHouse(true)}>New Household</Button>
           </Box>
           
           <TableContainer component={Paper} variant="outlined" elevation={0}>
             <Table size="small">
-              <TableHead sx={{ bgcolor: '#f5f5f5' }}>
+              <TableHead sx={{ bgcolor: 'action.hover' }}>
                 <TableRow>
                   <TableCell>Household Name</TableCell>
                   <TableCell>Access Key</TableCell>
-                  <TableCell>Theme</TableCell>
-                  <TableCell align="right">Actions</TableCell> {/* Changed from ID */}
+                  <TableCell align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {households.map((h) => (
+                {households && households.map((h) => (
                   <TableRow key={h.id}>
                     <TableCell><strong>{h.name}</strong></TableCell>
                     <TableCell>
                       <Chip icon={<Key fontSize="small"/>} label={h.access_key} size="small" color="primary" variant="outlined" sx={{ fontWeight: 'bold', letterSpacing: 1 }} />
                     </TableCell>
-                    <TableCell><Chip label={h.theme} size="small" /></TableCell>
                     <TableCell align="right">
                       <IconButton onClick={() => handleEditHouseholdClick(h)} size="small" title="Edit Household">
                         <Edit fontSize="small" />
@@ -124,9 +104,9 @@ export default function AccessControl({
                     </TableCell>
                   </TableRow>
                 ))}
-                {households.length === 0 && (
+                {(!households || households.length === 0) && (
                   <TableRow>
-                    <TableCell colSpan={4} align="center" sx={{ py: 3, color: 'text.secondary' }}>No households created yet.</TableCell>
+                    <TableCell colSpan={3} align="center" sx={{ py: 3, color: 'text.secondary' }}>No households created yet.</TableCell>
                   </TableRow>
                 )}
               </TableBody>
@@ -136,14 +116,14 @@ export default function AccessControl({
       )}
 
       {/* --- SYSTEM USERS SECTION --- */}
-      <Card sx={{ p: 3, borderRadius: 3, mb: 4 }}>
+      <Card variant="outlined" sx={{ p: 3, borderRadius: 3, mb: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6">System-Wide Users</Typography>
           <Button variant="contained" startIcon={<PersonAdd />} onClick={() => setOpenAddUser(true)}>Add User</Button>
         </Box>
         <Divider sx={{ my: 2 }} />
         <List>
-          {users.map((u) => (
+          {users && users.map((u) => (
             <ListItem 
               key={u.id} 
               divider
@@ -202,7 +182,7 @@ export default function AccessControl({
               margin="dense" label="Household Name" fullWidth required 
               value={newHouse.name} onChange={e => setNewHouse({...newHouse, name: e.target.value})} 
             />
-            <Box sx={{ mt: 2, p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
+            <Box sx={{ mt: 2, p: 2, bgcolor: 'action.hover', borderRadius: 1 }}>
               <Typography variant="subtitle2" gutterBottom>Initial Administrator</Typography>
               <TextField 
                 margin="dense" label="Admin Username" fullWidth required size="small"
@@ -238,29 +218,13 @@ export default function AccessControl({
             onChange={e => setCurrentHouseholdData({...currentHouseholdData, access_key: e.target.value})} 
             InputProps={{
               endAdornment: (
-                <IconButton onClick={() => setCurrentHouseholdData(prev => ({...prev, access_key: crypto.randomBytes(3).toString('hex').toUpperCase()}))} size="small">
+                <IconButton onClick={() => setCurrentHouseholdData(prev => ({...prev, access_key: Math.random().toString(16).slice(2, 8).toUpperCase()}))} size="small">
                   <Refresh fontSize="small" />
                 </IconButton>
               ),
             }}
             helperText="Click refresh to generate a new key."
           />
-          <FormControl fullWidth>
-            <InputLabel>Theme</InputLabel>
-            <Select 
-              value={currentHouseholdData.theme} 
-              label="Theme" 
-              onChange={e => setCurrentHouseholdData({...currentHouseholdData, theme: e.target.value})}
-            >
-              <MenuItem value="default">Default</MenuItem>
-              <MenuItem value="ocean">Ocean</MenuItem>
-              <MenuItem value="forest">Forest</MenuItem>
-              <MenuItem value="volcano">Volcano</MenuItem>
-              <MenuItem value="sun">Sun</MenuItem>
-              <MenuItem value="royal">Royal</MenuItem>
-              <MenuItem value="dark">Dark</MenuItem>
-            </Select>
-          </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEditHousehold(false)}>Cancel</Button>

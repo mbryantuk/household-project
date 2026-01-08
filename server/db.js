@@ -45,8 +45,32 @@ function initGlobalDb() {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
             access_key TEXT UNIQUE, -- The "Door Key" for login
-            theme TEXT DEFAULT 'default'
+            theme TEXT DEFAULT 'default',
+            address_street TEXT,
+            address_city TEXT,
+            address_zip TEXT,
+            date_format TEXT DEFAULT 'MM/DD/YYYY',
+            currency TEXT DEFAULT 'USD',
+            decimals INTEGER DEFAULT 2,
+            avatar TEXT
         )`);
+
+        // Migration: Ensure new columns exist for existing installations
+        const newCols = [
+            ['address_street', 'TEXT'],
+            ['address_city', 'TEXT'],
+            ['address_zip', 'TEXT'],
+            ['date_format', "TEXT DEFAULT 'MM/DD/YYYY'"],
+            ['currency', "TEXT DEFAULT 'USD'"],
+            ['decimals', 'INTEGER DEFAULT 2'],
+            ['avatar', 'TEXT']
+        ];
+        
+        newCols.forEach(([col, type]) => {
+            globalDb.run(`ALTER TABLE households ADD COLUMN ${col} ${type}`, (err) => {
+                // Ignore "duplicate column name" errors
+            });
+        });
         
         // user_households is DEPRECATED in this new model 
         // (Users live inside the household DB now)
@@ -80,7 +104,8 @@ const getHouseholdDb = (householdId) => {
             name TEXT NOT NULL, 
             type TEXT DEFAULT 'adult', 
             notes TEXT,
-            alias TEXT, dob TEXT, species TEXT, gender TEXT
+            alias TEXT, dob TEXT, species TEXT, gender TEXT,
+            emoji TEXT
         )`);
 
         db.run(`CREATE TABLE IF NOT EXISTS dates (
@@ -88,8 +113,15 @@ const getHouseholdDb = (householdId) => {
             title TEXT NOT NULL,
             date TEXT NOT NULL,
             type TEXT DEFAULT 'event',
-            description TEXT
+            description TEXT,
+            member_id INTEGER,
+            emoji TEXT
         )`);
+
+        // Migration: Ensure emoji columns exist
+        db.run(`ALTER TABLE members ADD COLUMN emoji TEXT`, (err) => {});
+        db.run(`ALTER TABLE dates ADD COLUMN emoji TEXT`, (err) => {});
+        db.run(`ALTER TABLE dates ADD COLUMN member_id INTEGER`, (err) => {});
     });
 
     return db;
