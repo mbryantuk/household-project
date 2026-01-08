@@ -2,12 +2,13 @@ import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Avatar, Box, T
 import { 
   Logout, SwapHoriz, Menu as MenuIcon, 
   DarkMode, LightMode, SettingsBrightness, GetApp, AdminPanelSettings,
-  CalendarMonth
+  CalendarMonth, Calculate
 } from '@mui/icons-material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TotemIcon from './TotemIcon';
 import FloatingCalendar from './FloatingCalendar';
+import FloatingCalculator from './FloatingCalculator';
 
 export default function TopBar({
   user, currentHousehold, households, onSwitchHousehold,
@@ -16,10 +17,12 @@ export default function TopBar({
 }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [calAnchor, setCalAnchor] = useState(null);
+  const [showCalc, setShowCalc] = useState(false);
   const navigate = useNavigate();
 
   return (
-    <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>      <Toolbar sx={{ justifyContent: 'space-between' }}>
+    <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+      <Toolbar sx={{ justifyContent: 'space-between' }}>
         
         {/* LEFT SECTION: Family Name & Menu */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -67,6 +70,14 @@ export default function TopBar({
         {/* RIGHT SECTION: Actions & Switcher */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           
+          {/* Calculator Toggle */}
+          <Tooltip title="Calculator">
+            <IconButton color="inherit" onClick={() => setShowCalc(!showCalc)}>
+              <Calculate />
+            </IconButton>
+          </Tooltip>
+          {showCalc && <FloatingCalculator onClose={() => setShowCalc(false)} />}
+
           {/* Calendar Toggle */}
           {currentHousehold && (
             <>
