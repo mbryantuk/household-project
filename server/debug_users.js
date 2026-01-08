@@ -1,24 +1,16 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-const dbPath = path.join(__dirname, 'data', 'global_system.db');
-const db = new sqlite3.Database(dbPath);
+const DB_PATH = path.join(__dirname, 'data/totem.db');
+const db = new sqlite3.Database(DB_PATH);
 
-const householdId = 1; // Change this if checking a different household
-
-console.log(`--- Checking Users in Household ${householdId} ---`);
-
-const sql = `
-    SELECT users.username, user_households.role 
-    FROM user_households 
-    JOIN users ON user_households.user_id = users.id 
-    WHERE household_id = ?
-`;
-
-db.all(sql, [householdId], (err, rows) => {
-    if (err) console.error(err);
-    else {
-        if (rows.length === 0) console.log("No users found in this household!");
-        else console.table(rows);
-    }
+db.serialize(() => {
+    db.all("SELECT id, username, system_role FROM users", [], (err, rows) => {
+        if (err) {
+            console.error("Error:", err.message);
+        } else {
+            console.table(rows);
+        }
+        db.close();
+    });
 });

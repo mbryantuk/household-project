@@ -38,6 +38,17 @@ router.get('/households/:id/members', authenticateToken, requireHouseholdRole('v
     });
 });
 
+// GET A SINGLE MEMBER (Full Path: GET /members/households/:id/members/:memberId)
+router.get('/households/:id/members/:memberId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
+    req.tenantDb.get(`SELECT * FROM members WHERE id = ?`, [req.params.memberId], (err, row) => {
+        const dbRef = req.tenantDb;
+        dbRef.close();
+        if (err) return res.status(500).json({ error: err.message });
+        if (!row) return res.status(404).json({ error: "Member not found" });
+        res.json(row);
+    });
+});
+
 // 2. ADD MEMBER (Full Path: POST /members/households/:id/members)
 router.post('/households/:id/members', authenticateToken, requireHouseholdRole('admin'), useTenantDb, (req, res) => {
     // 🟢 Updated to include new fields from the UI

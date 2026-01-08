@@ -8,23 +8,21 @@ import {
 } from '@mui/material';
 import { 
   Info, ManageAccounts, Groups, PersonAdd, Delete, 
-  AddCircle, HomeWork, Warning 
+  AddCircle, HomeWork, Warning, Edit 
 } from '@mui/icons-material';
 import TotemIcon from '../components/TotemIcon';
-import MembersView from './MembersView';
 
 export default function SettingsView({ 
-  household, users, currentUser, members,
-  onAddMember, onRemoveMember, onUpdateMember,
-  onAddUser, onRemoveUser, onUpdateRole, onCreateUser, 
-  adminHouseholds, onManageAccess, onUpdateHousehold,
-  onDeleteHousehold 
-}) {
-  const [tab, setTab] = useState(0);
-  const [createOpen, setCreateOpen] = useState(false);
+  household, users, currentUser,
+    onRemoveUser
+  }) {
+    const [activeTab, setActiveTab] = useState(0);  const [createOpen, setCreateOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
 
   // 🛡️ PERMISSION CHECK: Determine if the user has Admin rights to this house
-  const isHouseholdAdmin = household?.role === 'admin' || currentUser?.role === 'sysadmin';
+  // In Isolated Tenancy, the role is stored on the currentUser object
+  const isHouseholdAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
 
   // 🛡️ LOADING GUARD
   if (!household) {
@@ -47,6 +45,22 @@ export default function SettingsView({
     setCreateOpen(false);
   };
 
+  const handleEditClick = (u) => {
+    setEditingUser(u);
+    setEditOpen(true);
+  };
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    const updates = {};
+    if (e.target.editRole.value) updates.role = e.target.editRole.value;
+    if (e.target.editPassword.value) updates.password = e.target.editPassword.value;
+    
+    onUpdateUser(editingUser.id, updates);
+    setEditOpen(false);
+    setEditingUser(null);
+  };
+
   return (
     <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
       <Tabs 
@@ -55,8 +69,7 @@ export default function SettingsView({
         sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: '#f8f9fa' }}
       >
         <Tab label="General" icon={<Info fontSize="small"/>} iconPosition="start" />
-        <Tab label="Residents" icon={<Groups fontSize="small"/>} iconPosition="start" />
-        <Tab label="App Access" icon={<ManageAccounts fontSize="small"/>} iconPosition="start" />
+        <Tab label="Household Access" icon={<ManageAccounts fontSize="small"/>} iconPosition="start" />
       </Tabs>
 
       {/* --- TAB 0: GENERAL --- */}
@@ -123,31 +136,24 @@ export default function SettingsView({
         </Box>
       )}
 
-      {/* --- TAB 1: RESIDENTS --- */}
+      {/* --- TAB 1: HOUSEHOLD ACCESS (Previously App Access) --- */}
       {tab === 1 && (
         <Box sx={{ p: 3 }}>
-          <MembersView 
-            members={members} 
-            onAddMember={onAddMember} 
-            onRemoveMember={onRemoveMember} 
-            onUpdateMember={onUpdateMember} 
-          />
-        </Box>
-      )}
-
-      {/* --- TAB 2: APP ACCESS --- */}
-      {tab === 2 && (
-        <Box sx={{ p: 3 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-            <Typography variant="h6">Authorized Users</Typography>
+            <Box>
+              <Typography variant="h6">Household Access</Typography>
+              <Typography variant="caption" color="text.secondary">
+                Control who can log in to <strong>{household.name}</strong>.
+              </Typography>
+            </Box>
             <Button 
               variant="contained" 
               size="small" 
-              startIcon={<AddCircle />} 
+              startIcon={<PersonAdd />} 
               onClick={() => setCreateOpen(true)}
               disabled={!isHouseholdAdmin}
             >
-              Create User
+              Grant Access
             </Button>
           </Box>
 
@@ -155,8 +161,8 @@ export default function SettingsView({
             <Table size="small">
               <TableHead sx={{ bgcolor: '#f5f5f5' }}>
                 <TableRow>
-                  <TableCell>User</TableCell>
-                  <TableCell>Role</TableCell>
+                  <TableCell>Account</TableCell>
+                  <TableCell>Access Level</TableCell>
                   <TableCell align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -164,23 +170,33 @@ export default function SettingsView({
                 {users && users.map(u => (
                   <TableRow key={u.id}>
                     <TableCell>
-                      <Typography variant="body2" fontWeight="500">{u.username}</Typography>
-                      <Typography variant="caption">{u.email}</Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography variant="body2" fontWeight="500">{u.username}</Typography>
+                        {u.system_role === 'sysadmin' && (
+                          <Chip label="SysAdmin" size="small" color="warning" variant="outlined" sx={{ height: 20, fontSize: '0.6rem' }} />
+                        )}
+                      </Box>
                     </TableCell>
-                    <TableCell><Chip label={u.role} size="small" /></TableCell>
-                    <TableCell align="right">
-                      <IconButton 
+                    <TableCell>
+                      <Chip 
+                        label={u.role.toUpperCase()} 
                         size="small" 
-                        onClick={() => onManageAccess(u)}
-                        disabled={!isHouseholdAdmin}
-                      >
-                        <HomeWork fontSize="small" />
-                      </IconButton>
+                        color={u.role === 'admin' ? 'primary' : 'default'} 
+                        variant={u.role === 'viewer' ? 'outlined' : 'filled'}
+                      />
+                    </TableCell>
+                    <TableCell align="right">
+                      {isHouseholdAdmin && u.username !== currentUser.username && (
+                        <IconButton size="small" onClick={() => handleEditClick(u)} title="Edit User">
+                          <Edit fontSize="small" />
+                        </IconButton>
+                      )}
                       <IconButton 
                         size="small" 
                         color="error" 
                         onClick={() => onRemoveUser(u.id)}
-                        disabled={!isHouseholdAdmin || u.username === currentUser.username} // Cannot delete self
+                        disabled={!isHouseholdAdmin || u.username === currentUser.username} 
+                        title="Revoke Access"
                       >
                         <Delete fontSize="small" />
                       </IconButton>
@@ -193,26 +209,61 @@ export default function SettingsView({
         </Box>
       )}
 
-      {/* CREATE USER DIALOG */}
-      <Dialog open={createOpen} onClose={() => setCreateOpen(false)}>
+      {/* GRANT ACCESS DIALOG */}
+      <Dialog open={createOpen} onClose={() => setCreateOpen(false)} maxWidth="xs" fullWidth>
         <form onSubmit={handleCreateSubmit}>
-          <DialogTitle>Create Account</DialogTitle>
+          <DialogTitle>Grant Access</DialogTitle>
           <DialogContent>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Create a new account for a family member.
+            </Typography>
+            
             <TextField margin="dense" name="newUsername" label="Username" fullWidth required />
-            <TextField margin="dense" name="newEmail" label="Email" type="email" fullWidth required />
             <TextField margin="dense" name="newPassword" label="Password" type="password" fullWidth required />
+            <TextField margin="dense" name="newEmail" label="Email (Optional)" type="email" fullWidth />
+            
             <FormControl fullWidth margin="dense">
-              <InputLabel>Initial Role</InputLabel>
-              <Select name="newRole" defaultValue="member">
-                <MenuItem value="viewer">Viewer</MenuItem>
-                <MenuItem value="member">Member</MenuItem>
-                <MenuItem value="admin">Admin</MenuItem>
+              <InputLabel>Household Role</InputLabel>
+              <Select name="newRole" defaultValue="member" label="Household Role">
+                <MenuItem value="viewer">Viewer (Read Only)</MenuItem>
+                <MenuItem value="member">Member (Can Edit)</MenuItem>
+                <MenuItem value="admin">Admin (Full Control)</MenuItem>
               </Select>
             </FormControl>
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setCreateOpen(false)}>Cancel</Button>
-            <Button type="submit" variant="contained">Create</Button>
+            <Button type="submit" variant="contained">Create & Assign</Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+
+      {/* EDIT USER DIALOG */}
+      <Dialog open={editOpen} onClose={() => setEditOpen(false)} maxWidth="xs" fullWidth>
+        <form onSubmit={handleEditSubmit}>
+          <DialogTitle>Edit User: {editingUser?.username}</DialogTitle>
+          <DialogContent>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Update role or reset password.
+            </Typography>
+            
+            <TextField 
+              margin="dense" name="editPassword" label="New Password (Optional)" 
+              type="password" fullWidth helperText="Leave blank to keep current password"
+            />
+            
+            <FormControl fullWidth margin="dense">
+              <InputLabel>Household Role</InputLabel>
+              <Select name="editRole" defaultValue={editingUser?.role || 'member'} label="Household Role">
+                <MenuItem value="viewer">Viewer (Read Only)</MenuItem>
+                <MenuItem value="member">Member (Can Edit)</MenuItem>
+                <MenuItem value="admin">Admin (Full Control)</MenuItem>
+              </Select>
+            </FormControl>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setEditOpen(false)}>Cancel</Button>
+            <Button type="submit" variant="contained">Save Changes</Button>
           </DialogActions>
         </form>
       </Dialog>

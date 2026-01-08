@@ -18,22 +18,30 @@ function authenticateToken(req, res, next) {
 
 function requireHouseholdRole(requiredRole) {
     return (req, res, next) => {
-        const householdId = req.params.id || req.body.householdId;
-        
-        // This bypass is correct, but only works if jwt.verify succeeds first
+        // SysAdmins bypass checks
         if (req.user && req.user.system_role === 'sysadmin') return next();
 
-        const sql = `SELECT role FROM user_households WHERE user_id = ? AND household_id = ?`;
-        globalDb.get(sql, [req.user.id, householdId], (err, row) => {
-            if (err || !row) return res.sendStatus(403);
-            
-            const roles = ['viewer', 'member', 'admin'];
-            if (roles.indexOf(row.role) >= roles.indexOf(requiredRole)) {
-                next();
-            } else {
-                res.sendStatus(403);
-            }
-        });
+        // 1. Check if user is logged into the target household
+        const targetIdRaw = req.params.id || req.body.householdId;
+        const targetHouseholdId = targetIdRaw ? parseInt(targetIdRaw) : null;
+        const userHouseholdId = req.user.householdId ? parseInt(req.user.householdId) : null;
+
+        if (targetHouseholdId && userHouseholdId !== targetHouseholdId) {
+            console.log(`🚫 Context Mismatch: User ${req.user.username} belongs to ${userHouseholdId}, requested ${targetHouseholdId}`);
+            return res.status(403).json({ error: "Access denied: Wrong household context" });
+        }
+
+        // 2. Check Role Hierarchy
+        const roles = ['viewer', 'member', 'admin'];
+        const userRoleIndex = roles.indexOf(req.user.role);
+        const requiredRoleIndex = roles.indexOf(requiredRole);
+
+        if (userRoleIndex >= requiredRoleIndex) {
+            next();
+        } else {
+            console.log(`🚫 Insufficient Role: User ${req.user.username} is ${req.user.role}, required ${requiredRole}`);
+            res.status(403).json({ error: "Access denied: Insufficient permissions" });
+        }
     };
 }
 

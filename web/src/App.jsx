@@ -1,222 +1,358 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import axios from 'axios';
-import { Box, CssBaseline, ThemeProvider, useMediaQuery, TextField, Button, Card, Typography } from '@mui/material';
+import { 
+  Box, CssBaseline, ThemeProvider, useMediaQuery, TextField, Button, 
+  Card, Typography, CircularProgress, Alert, Checkbox, FormControlLabel 
+} from '@mui/material';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 
 // Theme and Local Components
 import { getTotemTheme } from './theme';
-import TopBar from './components/TopBar';
-import NavSidebar from './components/NavSidebar';
-import HouseholdView from './pages/HouseholdView';
-import SetupWizard from './pages/SetupWizard';
 import TotemIcon from './components/TotemIcon';
+
+// Layouts & Pages
+import RootLayout from './layouts/RootLayout';
+import HouseholdLayout from './layouts/HouseholdLayout';
+import Dashboard from './pages/Dashboard';
+import AccessControl from './pages/AccessControl';
+import SetupWizard from './pages/SetupWizard';
+
+// Features
+import HomeView from './features/HomeView';
+import MembersView from './features/MembersView';
+import SettingsView from './features/SettingsView';
+import CalendarView from './features/CalendarView';
 
 const API_URL = window.location.origin;
 
-export default function App() {
-  // --- SYSTEM & THEME STATE ---
+function AppContent() {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [modeOverride, setModeOverride] = useState(localStorage.getItem('themeMode') || 'system');
   const [installPrompt, setInstallPrompt] = useState(null);
   
   // --- AUTH STATE ---
   const [token, setToken] = useState(localStorage.getItem('token'));
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) || null);
-  const [needsSetup, setNeedsSetup] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('user')) || null; } catch { return null; }
+  });
+  
+  // New State for Household context (returned on login)
+  const [household, setHousehold] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('household')) || null; } catch { return null; }
+  });
 
-  // --- NAVIGATION STATE ---
-  const [viewMode, setViewMode] = useState('login'); 
-  const [currentFeature, setCurrentFeature] = useState('home'); 
+  const [loading, setLoading] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   // --- DATA STATE ---
+  // households list is only for SysAdmin now
   const [households, setHouseholds] = useState([]);
-  const [currentHousehold, setCurrentHousehold] = useState(null);
+  const [sysUsers, setSysUsers] = useState([]);
   const [hhUsers, setHhUsers] = useState([]);     
   const [hhMembers, setHhMembers] = useState([]); 
 
-  // --- AXIOS CONFIG ---
+  const navigate = useNavigate();
+
   const authAxios = useMemo(() => axios.create({ 
     baseURL: API_URL, 
     headers: { Authorization: `Bearer ${token}` } 
   }), [token]);
 
-  // --- THEME ENGINE ---
   const theme = useMemo(() => {
     const currentMode = modeOverride === 'system' ? (prefersDarkMode ? 'dark' : 'light') : modeOverride;
-    // Theme now pulls from currentHousehold.theme, which is restored by the fixed fetch
-    return getTotemTheme(currentHousehold?.theme || 'default', currentMode);
-  }, [currentHousehold?.theme, modeOverride, prefersDarkMode]);
+    return getTotemTheme(household?.theme || 'default', currentMode);
+  }, [household?.theme, modeOverride, prefersDarkMode]);
+
+  // --- ACTIONS ---
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('household');
+    setToken(null); setUser(null); setHousehold(null);
+    navigate('/login');
+  }, [navigate]);
+
+  const fetchHhMembers = useCallback((hhId) => {
+    if (!hhId) return;
+    authAxios.get(`/households/${hhId}/members`)
+      .then(res => setHhMembers(Array.isArray(res.data) ? res.data : []));
+  }, [authAxios]);
+
+  const fetchHhUsers = useCallback((hhId) => {
+    if (!hhId) return;
+    // For local households, this returns local users
+    authAxios.get(`/households/${hhId}/users`)
+      .then(res => setHhUsers(Array.isArray(res.data) ? res.data : []));
+  }, [authAxios]);
+
+  // SysAdmin Fetch
+  const fetchHouseholds = useCallback(async () => {
+    if (user?.role === 'sysadmin') {
+      try {
+        const res = await authAxios.get('/admin/households');
+        if (Array.isArray(res.data)) setHouseholds(res.data);
+      } catch (err) { console.error(err); }
+    }
+  }, [authAxios, user]);
+
+  const fetchSysUsers = useCallback(async () => {
+    if (user?.role === 'sysadmin') {
+      try {
+        const res = await authAxios.get('/admin/users');
+        if (Array.isArray(res.data)) setSysUsers(res.data);
+      } catch (err) { console.error(err); }
+    }
+  }, [authAxios, user]);
+
+  const handleUpdateHousehold = useCallback(async (hhId, updates) => {
+    if (user?.role === 'sysadmin') {
+        try {
+            await authAxios.put(`/admin/households/${hhId}`, updates);
+            alert("Household updated.");
+            fetchHouseholds();
+        } catch (err) { alert("Error: " + err.message); }
+    }
+  }, [authAxios, user, fetchHouseholds]);
 
   // --- APP INITIALIZATION ---
   useEffect(() => {
     window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); setInstallPrompt(e); });
-
-    axios.get(`${API_URL}/system/status`)
-      .then(res => {
-        if (res.data.needsSetup) { setNeedsSetup(true); } 
-        else if (token) { fetchHouseholds(); }
-      })
-      .catch(err => console.error("API Connectivity Error:", err))
-      .finally(() => setLoading(false));
-  }, [token]);
-
-  // --- DATA FETCHING (Using Flat Routes) ---
-  const fetchHouseholds = async () => {
-    try {
-      const res = await authAxios.get('/my-households');
-      if (Array.isArray(res.data)) {
-        setHouseholds(res.data);
-        if (res.data.length === 1 && viewMode === 'login') selectHousehold(res.data[0]);
-        else if (viewMode === 'login') setViewMode('dashboard');
+    
+    if (token) {
+      if (household) {
+        // We are logged into a house
+        fetchHhMembers(household.id);
+        fetchHhUsers(household.id);
+      } else if (user?.role === 'sysadmin') {
+        // We are sysadmin
+        fetchHouseholds();
+        fetchSysUsers();
       }
-    } catch (err) {
-      if (err.response?.status === 401) logout();
-      setViewMode('login');
     }
-  };
+  }, [token, household, user, fetchHhMembers, fetchHhUsers, fetchHouseholds, fetchSysUsers]);
 
-  const selectHousehold = (hh) => { 
-    setCurrentHousehold(hh); 
-    setViewMode('household'); 
-    fetchHhUsers(hh.id); 
-    fetchHhMembers(hh.id); 
-  };
-
-  const fetchHhMembers = (hhId) => {
-    authAxios.get(`/households/${hhId}/members`)
-      .then(res => setHhMembers(Array.isArray(res.data) ? res.data : []));
-  };
-
-  const fetchHhUsers = (hhId) => {
-    authAxios.get(`/households/${hhId}/users`)
-      .then(res => setHhUsers(Array.isArray(res.data) ? res.data : []));
-  };
-
-  // --- CORE ACTIONS ---
-  const login = async (u, p) => {
-    try {
-      const res = await axios.post(`${API_URL}/auth/login`, { username: u, password: p });
-      const userData = { username: u, role: res.data.system_role };
-      setToken(res.data.token); 
+  const login = useCallback(async (key, u, p) => {
+      const res = await axios.post(`${API_URL}/auth/login`, { accessKey: key, username: u, password: p });
+      const { token, role, context, household: hhData } = res.data;
+      
+      const userData = { username: u, role: role }; // role is now from local DB or sysadmin
+      
+      setToken(token); 
       setUser(userData);
-      localStorage.setItem('token', res.data.token); 
+      
+      localStorage.setItem('token', token); 
       localStorage.setItem('user', JSON.stringify(userData));
-    } catch (err) { alert("Login failed. Check credentials."); }
-  };
-const handleDeleteHousehold = async (hhId) => {
-    if (!window.confirm("Are you sure? This will permanently delete all members and data for this household.")) {
-        return;
-    }
 
-    try {
-        await authAxios.delete(`/households/${hhId}`);
-        setCurrentHousehold(null);
-        setViewMode('dashboard');
-        fetchHouseholds(); // Refresh the list
-    } catch (err) {
-        alert("Failed to delete household: " + (err.response?.data?.error || err.message));
-    }
-};
-  const logout = () => {
-    localStorage.clear(); setToken(null); setUser(null);
-    setViewMode('login'); setCurrentHousehold(null);
-  };
-
-  const handleCreateHousehold = async (name) => {
-    try {
-      await authAxios.post('/households', { name });
-      await fetchHouseholds();
-    } catch (err) { alert("Failed to create household."); }
-  };
-
-  const handleUpdateHousehold = (updates) => {
-    authAxios.put(`/households/${currentHousehold.id}`, updates).then(() => {
-        setHouseholds(prev => prev.map(h => h.id === currentHousehold.id ? { ...h, ...updates } : h));
-        setCurrentHousehold(prev => ({ ...prev, ...updates }));
-    });
-  };
-
-  const handleCreateUser = async (userData) => {
-    try {
-      await authAxios.post('/auth/register', userData);
-      if (currentHousehold) {
-        await authAxios.post(`/households/${currentHousehold.id}/users`, { 
-          username: userData.username, 
-          role: userData.role || 'member' 
-        });
-        fetchHhUsers(currentHousehold.id);
+      if (context === 'household') {
+        setHousehold(hhData);
+        localStorage.setItem('household', JSON.stringify(hhData));
+        navigate(`/household/${hhData.id}/dashboard`);
+      } else {
+        // SysAdmin
+        setHousehold(null);
+        localStorage.removeItem('household');
+        navigate('/access'); // Go to admin dashboard
       }
-      alert("User created.");
-    } catch (err) { alert("Error: " + err.message); }
-  };
+  }, [navigate]);
 
-  if (loading) return null;
-  if (needsSetup) return <SetupWizard onComplete={() => setNeedsSetup(false)} />;
-  if (!token) return <LoginScreen onLogin={login} />;
+  const handleCreateHousehold = useCallback(async (houseData) => {
+    if (user?.role === 'sysadmin') {
+      try {
+        await authAxios.post('/admin/households', houseData);
+        alert("Household created successfully.");
+        fetchHouseholds();
+      } catch (err) { alert("Error: " + err.message); }
+    }
+  }, [authAxios, user, fetchHouseholds]);
+
+  const handleCreateUser = useCallback(async (userData) => {
+    try {
+      // Local User Creation
+      await authAxios.post('/admin/create-user', userData);
+      alert("User created.");
+      if (household) fetchHhUsers(household.id);
+    } catch (err) { alert("Error: " + err.message); }
+  }, [authAxios, household, fetchHhUsers]);
+
+  const handleUpdateUser = useCallback(async (userId, updates) => {
+    try {
+      await authAxios.put(`/admin/users/${userId}`, updates);
+      alert("User updated.");
+      if (household) fetchHhUsers(household.id);
+      if (user?.role === 'sysadmin') fetchSysUsers();
+    } catch (err) { alert("Error: " + err.message); }
+  }, [authAxios, household, fetchHhUsers, fetchSysUsers, user]);
+
+  const handleUpdateUserWrapper = useCallback((userId, updates) => {
+    handleUpdateUser(userId, updates);
+  }, [handleUpdateUser]);
+
+  if (loading) return <Box sx={{display:'flex', justifyContent:'center', mt:10}}><CircularProgress /></Box>;
 
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ display: 'flex', bgcolor: 'background.default', minHeight: '100vh' }}>
-        <CssBaseline />
-        <TopBar 
-          user={user} currentHousehold={currentHousehold} households={households} 
-          onSwitchHousehold={selectHousehold} onLogout={logout} 
-          onGoHome={() => {setCurrentHousehold(null); setViewMode('dashboard');}} 
-          toggleSidebar={() => setDrawerOpen(!drawerOpen)}
-          currentMode={modeOverride} onModeChange={(m) => { setModeOverride(m); localStorage.setItem('themeMode', m); }}
-          canInstall={!!installPrompt} onInstall={() => installPrompt.prompt()}
-        />
+      <CssBaseline />
+      <Routes>
+        <Route path="/login" element={!token ? <LoginScreen onLogin={login} /> : <Navigate to="/" />} />
+        
+        {/* PROTECTED ROUTES */}
+        <Route element={token ? <RootLayout 
+            user={user} 
+            currentHousehold={household} 
+            households={households} // Only for SysAdmin view
+            onSwitchHousehold={() => {}} // Disabled
+            onLogout={logout} 
+            toggleSidebar={() => setDrawerOpen(!drawerOpen)}
+            currentMode={modeOverride} 
+            onModeChange={(m) => { setModeOverride(m); localStorage.setItem('themeMode', m); }}
+            installPrompt={installPrompt} 
+            onInstall={() => installPrompt.prompt()}
+          /> : <Navigate to="/login" />}>
 
-        {viewMode === 'household' && (
-          <NavSidebar open={drawerOpen} toggleDrawer={() => setDrawerOpen(!drawerOpen)} currentView={currentFeature} setView={setCurrentFeature} />
-        )}
+          {/* Root redirects based on role */}
+          <Route index element={household ? <Navigate to={`/household/${household.id}/dashboard`} /> : <Navigate to="/access" />} />
 
-        <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
-          <HouseholdView 
-              view={viewMode === 'dashboard' ? 'dashboard' : currentFeature} 
-              household={currentHousehold} households={households} currentUser={user}
-              users={hhUsers} members={hhMembers} 
-              onSelectHousehold={selectHousehold}
-              onCreateHousehold={handleCreateHousehold}
-              onUpdateHousehold={handleUpdateHousehold}
-              onDeleteHousehold={handleDeleteHousehold}
-              onAddMember={(e) => {
+          {/* SYSADMIN DASHBOARD */}
+          <Route path="access" element={<AccessControl 
+            users={sysUsers}
+            currentUser={user}
+            households={households} // Pass households here for SysAdmin to manage
+            onCreateUser={() => {}} // TODO: Create SysAdmin
+            onCreateHousehold={handleCreateHousehold}
+            onUpdateHousehold={handleUpdateHousehold}
+            onRemoveUser={(userId) => authAxios.delete(`/admin/users/${userId}`).then(() => fetchSysUsers())}
+            onAssignUser={() => {}}
+          />} />
+
+          <Route path="household/:id" element={<HouseholdLayout 
+              drawerOpen={drawerOpen} 
+              toggleDrawer={() => setDrawerOpen(!drawerOpen)} 
+              households={[household]} // Pass single household to Sidebar if needed
+              onSelectHousehold={() => {}}
+              api={authAxios}
+            />}>
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<HomeView household={household} members={hhMembers} currentUser={user} />} />
+              <Route path="members" element={<MembersView 
+                members={hhMembers} 
+                onAddMember={(e) => {
                   e.preventDefault(); 
                   const data = Object.fromEntries(new FormData(e.currentTarget));
-                  authAxios.post(`/households/${currentHousehold.id}/members`, data).then(() => { 
-                    fetchHhMembers(currentHousehold.id); 
+                  authAxios.post(`/households/${household.id}/members`, data).then(() => { 
+                    fetchHhMembers(household.id); 
                     e.target.reset(); 
                   });
-              }}
-              onRemoveMember={(id) => authAxios.delete(`/households/${currentHousehold.id}/members/${id}`).then(() => fetchHhMembers(currentHousehold.id))}
-              onUpdateMember={(mid, data) => 
-  authAxios.put(`/households/${currentHousehold.id}/members/${mid}`, data)
-    .then(() => fetchHhMembers(currentHousehold.id))
-    .catch(err => alert("Failed to update resident"))
-}
-              onCreateUser={handleCreateUser}
-              onRemoveUser={(userId) => authAxios.delete(`/households/${currentHousehold.id}/users/${userId}`).then(() => fetchHhUsers(currentHousehold.id))}
-          />
-        </Box>
-      </Box>
+                }}
+                onRemoveMember={(id) => authAxios.delete(`/households/${household.id}/members/${id}`).then(() => fetchHhMembers(household.id))}
+                onUpdateMember={(mid, data) => authAxios.put(`/households/${household.id}/members/${mid}`, data).then(() => fetchHhMembers(household.id))}
+              />} />
+              
+              <Route path="dates" element={<CalendarView />} />
+
+              <Route path="settings" element={<SettingsView 
+                household={household}
+                users={hhUsers}
+                currentUser={user}
+                onUpdateHousehold={(updates) => {
+                  authAxios.put(`/households/${household.id}`, updates).then(() => {
+                      setHousehold(prev => ({ ...prev, ...updates }));
+                  });
+                }}
+                onDeleteHousehold={() => {}}
+                onCreateUser={handleCreateUser}
+                onRemoveUser={(userId) => authAxios.delete(`/admin/users/${userId}`).then(() => fetchHhUsers(household.id))}
+                onManageAccess={() => {}}
+              />} />
+          </Route>
+
+        </Route>
+      </Routes>
     </ThemeProvider>
   );
 }
 
 function LoginScreen({ onLogin }) {
-  const [u, setU] = useState(''); const [p, setP] = useState('');
+  const [key, setKey] = useState(localStorage.getItem('rememberedKey') || ''); 
+  const [u, setU] = useState(localStorage.getItem('rememberedUser') || ''); 
+  const [p, setP] = useState('');
+  const [rememberMe, setRememberMe] = useState(localStorage.getItem('rememberMe') === 'true');
+  const [error, setError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setIsLoggingIn(true);
+    try {
+      await onLogin(key, u, p);
+      
+      // Save credentials if requested
+      if (rememberMe) {
+        localStorage.setItem('rememberedKey', key);
+        localStorage.setItem('rememberedUser', u);
+        localStorage.setItem('rememberMe', 'true');
+      } else {
+        localStorage.removeItem('rememberedKey');
+        localStorage.removeItem('rememberedUser');
+        localStorage.setItem('rememberMe', 'false');
+      }
+    } catch (err) {
+      if (err.response && err.response.status === 404) {
+        setError("User or Household not found.");
+      } else if (err.response && err.response.status === 401) {
+        setError("Incorrect password.");
+      } else {
+        setError("Login failed. Please try again.");
+      }
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}>
       <Card sx={{ p: 4, width: 350, textAlign: 'center', borderRadius: 4 }}>
         <Box sx={{ mb: 2 }}><TotemIcon colorway="default" sx={{ fontSize: 60 }} /></Box>
         <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>TOTEM</Typography>
-        <form onSubmit={(e) => { e.preventDefault(); onLogin(u, p); }}>
-          <TextField fullWidth label="Username" margin="dense" value={u} onChange={ev=>setU(ev.target.value)} />
-          <TextField fullWidth type="password" label="Password" margin="dense" value={p} onChange={ev=>setP(ev.target.value)} />
-          <Button fullWidth type="submit" variant="contained" size="large" sx={{ mt: 3 }}>Login</Button>
+        
+        {error && <Alert severity="error" sx={{ mb: 2, textAlign: 'left' }}>{error}</Alert>}
+
+        <form onSubmit={handleSubmit}>
+          <TextField 
+            fullWidth label="Household Key" margin="dense" 
+            value={key} onChange={ev=>setKey(ev.target.value)} 
+            placeholder="Leave empty for Admin" disabled={isLoggingIn} 
+          />
+          <TextField 
+            fullWidth label="Username" margin="dense" 
+            value={u} onChange={ev=>setU(ev.target.value)} disabled={isLoggingIn} 
+          />
+          <TextField 
+            fullWidth type="password" label="Password" margin="dense" 
+            value={p} onChange={ev=>setP(ev.target.value)} disabled={isLoggingIn} 
+          />
+          
+          <Box sx={{ textAlign: 'left', mt: 1 }}>
+            <FormControlLabel
+              control={<Checkbox checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} size="small" />}
+              label={<Typography variant="body2">Remember my household</Typography>}
+            />
+          </Box>
+
+          <Button fullWidth type="submit" variant="contained" size="large" sx={{ mt: 2 }} disabled={isLoggingIn}>
+            {isLoggingIn ? <CircularProgress size={24} color="inherit" /> : 'Login'}
+          </Button>
         </form>
       </Card>
     </Box>
   );
 }
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
+  );
+}
+

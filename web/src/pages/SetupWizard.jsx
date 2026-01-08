@@ -14,11 +14,6 @@ import {
 } from '@mui/material';
 import TotemIcon from '../components/TotemIcon';
 
-// 🟢 FIX: Dynamic API detection to avoid ERR_CONNECTION_REFUSED
-const API_URL = window.location.hostname === 'localhost' || window.location.hostname.includes('10.10')
-  ? `http://${window.location.hostname}:4002/api` 
-  : window.location.origin + '/api';
-
 export default function SetupWizard({ onComplete }) {
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -30,6 +25,12 @@ export default function SetupWizard({ onComplete }) {
     confirmPassword: '',
     householdName: ''
   });
+
+  const getApiUrl = () => {
+    return window.location.hostname === 'localhost' || window.location.hostname.includes('10.10')
+      ? `http://${window.location.hostname}:4001` 
+      : window.location.origin;
+  };
 
   const steps = ['Admin Account', 'Household Details', 'Finalize'];
 
@@ -49,8 +50,8 @@ export default function SetupWizard({ onComplete }) {
   const handleSubmit = async () => {
     setLoading(true);
     setError('');
+    const API_URL = getApiUrl();
     try {
-      // 🟢 Uses the dynamic API_URL defined above
       await axios.post(`${API_URL}/setup`, {
         username: formData.username,
         password: formData.password,

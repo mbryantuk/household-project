@@ -5,55 +5,25 @@ const path = require('path');
 const { globalDb, getHouseholdDb } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 
-// ==========================================
-// 🏠 HOUSEHOLD MANAGEMENT
-// ==========================================
-
-// GET /my-households
-router.get('/my-households', authenticateToken, (req, res) => {
-    if (req.user.system_role === 'sysadmin') {
-        globalDb.all(`SELECT id, name, theme, 'sysadmin' as role FROM households`, [], (err, rows) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json(rows);
-        });
-    } else {
-        const sql = `SELECT h.id, h.name, h.theme, uh.role FROM households h JOIN user_households uh ON h.id = uh.household_id WHERE uh.user_id = ?`;
-        globalDb.all(sql, [req.user.id], (err, rows) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json(rows);
-        });
+// GET /households/:id (Get Single Details)
+router.get('/households/:id', authenticateToken, (req, res) => {
+    // Security: Only allow access if user is logged into this household OR is SysAdmin
+    if (req.user.system_role !== 'sysadmin' && parseInt(req.user.householdId) !== parseInt(req.params.id)) {
+        return res.sendStatus(403);
     }
-});
 
-// POST /households (Create)
-router.post('/households', authenticateToken, (req, res) => {
-    const { name, theme } = req.body;
-    const themeToSave = theme || 'default';
-    
-    globalDb.run(`INSERT INTO households (name, theme) VALUES (?, ?)`, [name, themeToSave], function(err) {
+    globalDb.get(`SELECT * FROM households WHERE id = ?`, [req.params.id], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
-        const householdId = this.lastID;
-        
-        globalDb.run(`INSERT INTO user_households (user_id, household_id, role) VALUES (?, ?, ?)`, 
-            [req.user.id, householdId, 'admin']);
-
-        const hhDb = getHouseholdDb(householdId);
-        hhDb.serialize(() => {
-            hhDb.run(`CREATE TABLE IF NOT EXISTS members (
-                id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                name TEXT NOT NULL, 
-                type TEXT DEFAULT 'adult', 
-                notes TEXT,
-                alias TEXT, dob TEXT, species TEXT, gender TEXT
-            )`);
-        });
-        hhDb.close(); 
-        res.json({ message: "Household created", householdId, name });
+        if (!row) return res.status(404).json({ error: "Household not found" });
+        res.json(row);
     });
 });
 
 // PUT /households/:id (Update)
-router.put('/households/:id', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
+router.put('/households/:id', authenticateToken, (req, res) => {
+    // Only Local Admin or SysAdmin
+    if (req.user.role !== 'admin' && req.user.system_role !== 'sysadmin') return res.sendStatus(403);
+
     const { name, theme } = req.body;
     let fields = []; let values = [];
     if (name) { fields.push('name = ?'); values.push(name); }
@@ -69,14 +39,14 @@ router.put('/households/:id', authenticateToken, requireHouseholdRole('admin'), 
     });
 });
 
-// 🔴 DELETE /households/:id (The Tidy Up Button)
-router.delete('/households/:id', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
+// 🔴 DELETE /households/:id
+router.delete('/households/:id', authenticateToken, (req, res) => {
+    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403); // Only SysAdmin can delete houses now
+
     const householdId = req.params.id;
 
     globalDb.run(`DELETE FROM households WHERE id = ?`, [householdId], function(err) {
         if (err) return res.status(500).json({ error: err.message });
-
-        globalDb.run(`DELETE FROM user_households WHERE household_id = ?`, [householdId]);
 
         // Delete the physical SQLite file from the Pi
         const hhDbPath = path.join(__dirname, '../data', `household_${householdId}.db`);
@@ -89,28 +59,16 @@ router.delete('/households/:id', authenticateToken, requireHouseholdRole('admin'
 });
 
 // ==========================================
-// 👥 USER ALLOCATION
+// 👥 USER ALLOCATION (Local)
 // ==========================================
 
-router.post('/households/:id/users', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
-    const householdId = req.params.id;
-    const { username, role } = req.body;
-    globalDb.get("SELECT id FROM users WHERE username = ?", [username], (err, targetUser) => {
-        if (err || !targetUser) return res.status(404).json({ error: "User not found" });
-
-        const sql = `INSERT INTO user_households (user_id, household_id, role) VALUES (?, ?, ?)
-                     ON CONFLICT(user_id, household_id) DO UPDATE SET role = excluded.role`;
-        globalDb.run(sql, [targetUser.id, householdId, role || 'member'], (err) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "Access granted" });
-        });
-    });
-});
-
+// GET /households/:id/users (List Local Users)
 router.get('/households/:id/users', authenticateToken, requireHouseholdRole('member'), (req, res) => {
-    const sql = `SELECT u.id, u.username, u.email, uh.role FROM users u 
-                 JOIN user_households uh ON u.id = uh.user_id WHERE uh.household_id = ?`;
-    globalDb.all(sql, [req.params.id], (err, rows) => {
+    const householdId = req.params.id;
+    const db = getHouseholdDb(householdId);
+    
+    db.all(`SELECT id, username, email, role FROM users`, [], (err, rows) => {
+        db.close();
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });

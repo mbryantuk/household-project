@@ -1,58 +1,239 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
-const { globalDb } = require('../db');
+const crypto = require('crypto');
+const { globalDb, getHouseholdDb } = require('../db');
 const { authenticateToken } = require('../middleware/auth');
 
-router.post('/create-user', authenticateToken, (req, res) => {
-    const { username, password, email, householdId, role } = req.body;
+// ===============================
+// 🌍 SYSADMIN ROUTES (Global)
+// ===============================
+
+// GET /households (List All - SysAdmin)
+router.get('/households', authenticateToken, (req, res) => {
+    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
     
-    // VALIDATION
-    if (!username || !password || !householdId) {
-        return res.status(400).json({ error: "Missing required fields" });
+    globalDb.all("SELECT * FROM households", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+// POST /households (Create New Tenant)
+router.post('/households', authenticateToken, (req, res) => {
+    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
+
+    const { name, adminUsername, adminPassword } = req.body;
+    if (!name || !adminUsername || !adminPassword) return res.status(400).json({ error: "Missing fields" });
+
+    // Generate Unique Access Key (e.g., "7A9F2")
+    const accessKey = crypto.randomBytes(3).toString('hex').toUpperCase();
+
+    // 1. Create in Global DB
+    globalDb.run(`INSERT INTO households (name, access_key) VALUES (?, ?)`, [name, accessKey], function(err) {
+        if (err) {
+            console.error("Create Household DB Error:", err);
+            return res.status(500).json({ error: err.message });
+        }
+        
+        const householdId = this.lastID;
+        const hhDb = getHouseholdDb(householdId); // Creates DB and Tables
+
+        // 2. Create Initial Admin in Local DB
+        const hash = bcrypt.hashSync(adminPassword, 8);
+        hhDb.run(`INSERT INTO users (username, password_hash, role) VALUES (?, ?, 'admin')`, 
+            [adminUsername, hash], (err) => {
+                hhDb.close();
+                if (err) return res.status(500).json({ error: "Created household but failed to create admin." });
+                
+                res.json({ 
+                    message: "Household created successfully", 
+                    householdId, 
+                    accessKey, 
+                    admin: adminUsername 
+                });
+            });
+    });
+});
+
+// PUT /households/:id (Update Tenant - SysAdmin)
+router.put('/households/:id', authenticateToken, (req, res) => {
+    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
+
+    const { name, access_key, theme } = req.body;
+    if (!name && !access_key && !theme) return res.status(400).json({ error: "Nothing to update" });
+
+    let fields = [];
+    let values = [];
+
+    if (name) { fields.push('name = ?'); values.push(name); }
+    if (access_key) { fields.push('access_key = ?'); values.push(access_key); }
+    if (theme) { fields.push('theme = ?'); values.push(theme); }
+    
+    values.push(req.params.id);
+
+    globalDb.run(`UPDATE households SET ${fields.join(', ')} WHERE id = ?`, values, function(err) {
+        if (err) {
+            console.error("Update Household Error:", err);
+            return res.status(500).json({ error: err.message });
+        }
+        res.json({ message: "Household updated successfully" });
+    });
+});
+
+// ===============================
+// 🏠 HOUSEHOLD ADMIN ROUTES (Local)
+// ===============================
+
+// POST /create-user (Create Local User)
+router.post('/create-user', authenticateToken, (req, res) => {
+    const { username, password, role } = req.body;
+    
+    // Check permissions (Must be Local Admin or SysAdmin)
+    const canCreate = req.user.role === 'admin' || req.user.system_role === 'sysadmin';
+    if (!canCreate) {
+        console.log(`🚫 Create User Denied: Actor=${req.user.username}, Role=${req.user.role}, SysAdmin=${req.user.system_role}`);
+        return res.status(403).json({ error: "Access Denied" });
     }
 
-    // SECURITY CHECK
-    const isSysAdmin = req.user.system_role === 'sysadmin';
+    // Determine target database
+    let targetDb;
+    let targetHhId;
 
-    // Helper to perform the creation
-    const performCreate = () => {
-        const hash = bcrypt.hashSync(password, 8);
-        
-        // 1. Create User
-        globalDb.run(`INSERT INTO users (username, password_hash, email, system_role) VALUES (?, ?, ?, 'user')`, 
-            [username, hash, email], function(err) {
-                if (err) {
-                    if (err.message.includes('UNIQUE')) return res.status(409).json({ error: "Username already exists" });
-                    return res.status(500).json({ error: err.message });
-                }
-                
-                const newUserId = this.lastID;
-
-                // 2. Link to Household
-                globalDb.run(`INSERT INTO user_households (user_id, household_id, role) VALUES (?, ?, ?)`, 
-                    [newUserId, householdId, role || 'member'], (err) => {
-                        if (err) return res.status(500).json({ error: "User created, but failed to assign." });
-                        res.json({ message: "User created and assigned", userId: newUserId });
-                    });
-            });
-    };
-
-    // LOGIC: Who is allowed to do this?
-    if (isSysAdmin) {
-        // Sysadmins can do anything
-        performCreate();
+    if (req.user.system_role === 'sysadmin') {
+        // SysAdmin must specify householdId in body
+        if (!req.body.householdId) return res.status(400).json({ error: "SysAdmin must specify householdId" });
+        targetHhId = req.body.householdId;
     } else {
-        // Normal users must be an ADMIN of the target household
-        const sql = `SELECT role FROM user_households WHERE user_id = ? AND household_id = ?`;
-        globalDb.get(sql, [req.user.id, householdId], (err, row) => {
-            if (err || !row || row.role !== 'admin') {
-                return res.status(403).json({ error: "Access denied: You must be an Admin of this household to create users for it." });
+        // Local Admin uses their own household
+        targetHhId = req.user.householdId;
+    }
+
+    targetDb = getHouseholdDb(targetHhId);
+    const hash = bcrypt.hashSync(password, 8);
+    console.log(`📝 Creating user '${username}' in household ${targetHhId}`);
+
+    targetDb.run(`INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)`, 
+        [username, hash, role || 'member'], function(err) {
+            targetDb.close();
+            if (err) {
+                console.error("Create User DB Error:", err);
+                return res.status(500).json({ error: err.message });
             }
-            performCreate();
+            res.json({ message: "User created", id: this.lastID });
+        });
+});
+
+// GET /users (List Local Users)
+router.get('/users', authenticateToken, (req, res) => {
+    // If SysAdmin wants to see users of a specific house
+    const targetHhId = req.query.householdId || req.user.householdId;
+    
+    if (!targetHhId && req.user.system_role !== 'sysadmin') return res.sendStatus(400);
+    
+    // Note: SysAdmins technically don't have a 'local' user list unless query param is used.
+    // Use GET /admin/users for global sysadmins.
+    
+    if (targetHhId) {
+        const db = getHouseholdDb(targetHhId);
+        db.all("SELECT id, username, role, email FROM users", [], (err, rows) => {
+            db.close();
+            if (err) return res.status(500).json({ error: err.message });
+            res.json(rows);
+        });
+    } else {
+        // List Global SysAdmins
+        globalDb.all("SELECT id, username, system_role FROM users WHERE system_role = 'sysadmin'", [], (err, rows) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json(rows);
         });
     }
 });
 
-// Export the router so server.js can use it
+// DELETE /users/:id (Remove Local User)
+
+router.delete('/users/:id', authenticateToken, (req, res) => {
+
+    const targetHhId = req.user.householdId || req.body.householdId; // Sysadmin passes via body
+
+    if (!targetHhId) return res.sendStatus(400);
+
+
+
+    const isAuthorized = req.user.role === 'admin' || req.user.system_role === 'sysadmin';
+
+    if (!isAuthorized) return res.sendStatus(403);
+
+
+
+    const db = getHouseholdDb(targetHhId);
+
+    db.run("DELETE FROM users WHERE id = ?", [req.params.id], function(err) {
+
+        db.close();
+
+        if (err) return res.status(500).json({ error: err.message });
+
+        res.json({ message: "User deleted" });
+
+    });
+
+});
+
+
+
+// PUT /users/:id (Update Local User)
+
+router.put('/users/:id', authenticateToken, (req, res) => {
+
+    const targetHhId = req.user.householdId || req.body.householdId;
+
+    if (!targetHhId) return res.sendStatus(400);
+
+
+
+    const isAuthorized = req.user.role === 'admin' || req.user.system_role === 'sysadmin';
+
+    if (!isAuthorized) return res.sendStatus(403);
+
+
+
+    const { role, password } = req.body;
+
+    if (!role && !password) return res.status(400).json({ error: "Nothing to update" });
+
+
+
+    let fields = [];
+
+    let values = [];
+
+    if (role) { fields.push('role = ?'); values.push(role); }
+
+    if (password) { fields.push('password_hash = ?'); values.push(bcrypt.hashSync(password, 8)); }
+
+    values.push(req.params.id);
+
+
+
+    const db = getHouseholdDb(targetHhId);
+
+    const sql = `UPDATE users SET ${fields.join(', ')} WHERE id = ?`;
+
+
+
+    db.run(sql, values, function(err) {
+
+        db.close();
+
+        if (err) return res.status(500).json({ error: err.message });
+
+        res.json({ message: "User updated" });
+
+    });
+
+});
+
+
+
 module.exports = router;

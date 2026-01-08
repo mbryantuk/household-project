@@ -1,5 +1,5 @@
 // seed_data.js
-const API_URL = 'http://localhost:4002';
+const API_URL = 'http://localhost:4001';
 
 // Helper for making requests
 async function post(endpoint, body, token = null) {

@@ -1,9 +1,10 @@
 import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Avatar, Box, Tooltip } from '@mui/material';
 import { 
   Logout, SwapHoriz, Menu as MenuIcon, 
-  DarkMode, LightMode, SettingsBrightness, GetApp 
+  DarkMode, LightMode, SettingsBrightness, GetApp, AdminPanelSettings 
 } from '@mui/icons-material';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import TotemIcon from './TotemIcon';
 
 export default function TopBar({ 
@@ -13,6 +14,7 @@ export default function TopBar({
 }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [modeAnchor, setModeAnchor] = useState(null);
+  const navigate = useNavigate();
   const activeColorway = currentHousehold?.theme || 'default';
 
   return (
@@ -27,16 +29,20 @@ export default function TopBar({
             </IconButton>
           )}
           
-          <Box sx={{ 
-            bgcolor: 'white', 
-            borderRadius: '50%', 
-            p: 0.5, 
-            mr: 1.5, 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            boxShadow: 2
-          }}>
+          <Box 
+            sx={{ 
+              bgcolor: 'white', 
+              borderRadius: '50%', 
+              p: 0.5, 
+              mr: 1.5, 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              boxShadow: 2,
+              cursor: 'pointer'
+            }}
+            onClick={() => navigate('/')}
+          >
             <TotemIcon colorway={activeColorway} sx={{ fontSize: 24 }} />
           </Box>
 
@@ -49,6 +55,15 @@ export default function TopBar({
         {/* RIGHT SECTION: Actions & Switcher */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           
+          {/* Global Admin Access Link - SYSADMIN ONLY */}
+          {user?.role === 'sysadmin' && (
+            <Tooltip title="Platform Administration">
+               <IconButton color="inherit" onClick={() => navigate('/access')}>
+                 <AdminPanelSettings />
+               </IconButton>
+            </Tooltip>
+          )}
+
           {/* PWA Install */}
           {canInstall && (
             <Tooltip title="Install App">

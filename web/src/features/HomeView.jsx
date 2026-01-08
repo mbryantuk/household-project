@@ -5,35 +5,29 @@ import { Cake } from '@mui/icons-material';
 export default function HomeView({ members, household, currentUser }) {
   
   // Logical calculation for upcoming birthdays
-  const upcomingBirthdays = useMemo(() => {
-    if (!members) return [];
-    const today = new Date();
-    
-    return members
-      .filter(m => m.dob && m.name) // Crash Prevention: Filter out members without name or dob
-      .map(m => {
-        const birthDate = new Date(m.dob);
-        const nextBirthday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
-        
-        if (nextBirthday < today) {
-          nextBirthday.setFullYear(today.getFullYear() + 1);
-        }
-        
-        const daysUntil = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
-        const age = nextBirthday.getFullYear() - birthDate.getFullYear();
+  const today = new Date();
+  const upcomingBirthdays = (members || [])
+    .filter(m => m.dob && m.name) 
+    .map(m => {
+      const birthDate = new Date(m.dob);
+      const nextBirthday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+      
+      if (nextBirthday < today) {
+        nextBirthday.setFullYear(today.getFullYear() + 1);
+      }
+      
+      const daysUntil = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
+      const age = nextBirthday.getFullYear() - birthDate.getFullYear();
 
-        return { ...m, daysUntil, nextAge: age };
-      })
-      .sort((a, b) => a.daysUntil - b.daysUntil)
-      .slice(0, 5); 
-  }, [members]);
+      return { ...m, daysUntil, nextAge: age };
+    })
+    .sort((a, b) => a.daysUntil - b.daysUntil)
+    .slice(0, 5); 
 
-  const greeting = useMemo(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 17) return "Good afternoon";
-    return "Good evening";
-  }, []);
+  const hour = new Date().getHours();
+  let greeting = "Good evening";
+  if (hour < 12) greeting = "Good morning";
+  else if (hour < 17) greeting = "Good afternoon";
 
   return (
     <Box>

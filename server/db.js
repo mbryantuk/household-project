@@ -13,7 +13,7 @@ if (!fs.existsSync(dataDir)) {
 
 /**
  * Global Database Connection
- * This database stores users, households, and their relationships.
+ * Stores SysAdmins and Households (metadata only).
  */
 const globalDb = new sqlite3.Database(dbPath, (err) => {
     if (err) {
@@ -28,46 +28,71 @@ const globalDb = new sqlite3.Database(dbPath, (err) => {
 
 /**
  * Schema Initialization
- * Creates the core tables used by auth.js, admin.js, and households.js
  */
 function initGlobalDb() {
     globalDb.serialize(() => {
-        // Users table: Matches requirements for login and registration
+        // Users table: NOW ONLY FOR SYSTEM ADMINS
         globalDb.run(`CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE,
             password_hash TEXT,
             email TEXT,
-            system_role TEXT DEFAULT 'user'
+            system_role TEXT DEFAULT 'sysadmin' -- Mostly 'sysadmin' now
         )`);
 
-        // Households table: Matches requirements for household management
+        // Households table: Added access_key
         globalDb.run(`CREATE TABLE IF NOT EXISTS households (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
+            access_key TEXT UNIQUE, -- The "Door Key" for login
             theme TEXT DEFAULT 'default'
         )`);
-
-        // Join table: Connects users to households with specific roles
-        globalDb.run(`CREATE TABLE IF NOT EXISTS user_households (
-            user_id INTEGER,
-            household_id INTEGER,
-            role TEXT,
-            FOREIGN KEY(user_id) REFERENCES users(id),
-            FOREIGN KEY(household_id) REFERENCES households(id),
-            PRIMARY KEY (user_id, household_id)
-        )`);
+        
+        // user_households is DEPRECATED in this new model 
+        // (Users live inside the household DB now)
+        globalDb.run(`DROP TABLE IF EXISTS user_households`);
     });
 }
 
 /**
  * Tenant Database Factory
- * Creates or opens a separate database file for a specific household's members.
+ * Creates or opens a separate database file for a specific household.
+ * Now includes the local 'users' table.
  * @param {string|number} householdId 
  */
 const getHouseholdDb = (householdId) => {
     const householdDbPath = path.join(dataDir, `household_${householdId}.db`);
-    return new sqlite3.Database(householdDbPath);
+    const db = new sqlite3.Database(householdDbPath);
+    
+    // Initialize Local Schema
+    db.serialize(() => {
+        // Local Users: Specific to this household
+        db.run(`CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT,
+            password_hash TEXT,
+            email TEXT,
+            role TEXT DEFAULT 'member' -- admin, member, viewer
+        )`);
+
+        db.run(`CREATE TABLE IF NOT EXISTS members (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            name TEXT NOT NULL, 
+            type TEXT DEFAULT 'adult', 
+            notes TEXT,
+            alias TEXT, dob TEXT, species TEXT, gender TEXT
+        )`);
+
+        db.run(`CREATE TABLE IF NOT EXISTS dates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            date TEXT NOT NULL,
+            type TEXT DEFAULT 'event',
+            description TEXT
+        )`);
+    });
+
+    return db;
 };
 
 module.exports = { globalDb, getHouseholdDb };

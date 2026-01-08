@@ -1,5 +1,6 @@
 import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar, Divider, IconButton, styled } from '@mui/material';
-import { Settings, Home as HomeIcon, ChevronLeft, Menu, People, AdminPanelSettings } from '@mui/icons-material';
+import { Settings, Home as HomeIcon, ChevronLeft, Menu, People, Event } from '@mui/icons-material';
+import { NavLink } from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -41,13 +42,12 @@ const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'ope
   }),
 );
 
-export default function NavSidebar({ open, toggleDrawer, currentView, setView }) {
-  // Added Residents and App Access items
+export default function NavSidebar({ open, toggleDrawer }) {
   const menuItems = [
-    { id: 'home', label: 'Home', icon: <HomeIcon /> },
+    { id: 'dashboard', label: 'Home', icon: <HomeIcon /> },
     { id: 'members', label: 'Residents', icon: <People /> },
-    { id: 'settings', label: 'Household Settings', icon: <Settings /> },
-    { id: 'access', label: 'App Access', icon: <AdminPanelSettings /> },
+    { id: 'dates', label: 'Dates', icon: <Event /> },
+    { id: 'settings', label: 'Settings', icon: <Settings /> },
   ];
 
   return (
@@ -62,12 +62,17 @@ export default function NavSidebar({ open, toggleDrawer, currentView, setView })
         {menuItems.map((item) => (
           <ListItem key={item.id} disablePadding sx={{ display: 'block' }}>
             <ListItemButton
-              selected={currentView === item.id}
-              onClick={() => setView(item.id)}
+              component={NavLink}
+              to={item.id}
               sx={{
                 minHeight: 48,
                 justifyContent: open ? 'initial' : 'center',
                 px: 2.5,
+                '&.active': {
+                  bgcolor: 'action.selected',
+                  borderRight: '3px solid',
+                  borderColor: 'primary.main'
+                }
               }}
             >
               <ListItemIcon sx={{ minWidth: 0, mr: open ? 3 : 'auto', justifyContent: 'center' }}>

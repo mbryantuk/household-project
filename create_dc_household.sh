@@ -1,63 +1,78 @@
 #!/bin/bash
 
 # --- CONFIGURATION ---
-API_URL="http://localhost:4002"
-ADMIN_USER="SuperAdmin"       # Use your actual Sysadmin username
-ADMIN_PASS="superpassword123" # Use your actual Sysadmin password
+API_URL="http://localhost:4001"
+SYSADMIN_USER="superuser"
+SYSADMIN_PASS="superpassword"
 
-# 1. LOGIN & GET TOKEN
-echo "🔐 Logging in as $ADMIN_USER..."
-TOKEN=$(curl -s -X POST "$API_URL/login" \
+# 1. LOGIN AS SYSADMIN
+echo "🔐 Logging in as SysAdmin..."
+SYS_TOKEN=$(curl -s -X POST "$API_URL/auth/login" \
   -H "Content-Type: application/json" \
-  -d "{\"username\": \"$ADMIN_USER\", \"password\": \"$ADMIN_PASS\"}" \
-  | grep -o '"token":"[^"]*' | grep -o '[^"]*$')
+  -d "{\"username\": \"$SYSADMIN_USER\", \"password\": \"$SYSADMIN_PASS\"}" \
+  | grep -o '"token":"[^"]*' | grep -o '[^"]*$' | cut -d'"' -f1)
 
-if [ -z "$TOKEN" ]; then
-  echo "❌ Login failed. Check your username/password."
+if [ -z "$SYS_TOKEN" ]; then
+  echo "❌ SysAdmin Login failed."
   exit 1
 fi
-echo "✅ Token acquired!"
+echo "✅ SysAdmin Token acquired!"
 
-# 2. CREATE HOUSEHOLD
-echo "🏰 Creating 'Fortress of Solitude'..."
-HH_RESPONSE=$(curl -s -X POST "$API_URL/households" \
-  -H "Authorization: Bearer $TOKEN" \
+# 2. CREATE HOUSEHOLD (Tenant)
+HH_NAME="Fortress of Solitude"
+HH_ADMIN="ClarkKent"
+HH_PASS="kryptonite"
+
+echo "🏰 Creating Household '$HH_NAME'..."
+HH_RESPONSE=$(curl -s -X POST "$API_URL/admin/households" \
+  -H "Authorization: Bearer $SYS_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"name": "Fortress of Solitude"}')
+  -d "{\"name\": \"$HH_NAME\", \"adminUsername\": \"$HH_ADMIN\", \"adminPassword\": \"$HH_PASS\"}")
 
-# Extract Household ID (Simple hack to avoid needing 'jq' installed)
+# Extract Access Key and ID
+ACCESS_KEY=$(echo $HH_RESPONSE | grep -o '"accessKey":"[^"]*' | cut -d'"' -f4)
 HH_ID=$(echo $HH_RESPONSE | grep -o '"householdId":[0-9]*' | grep -o '[0-9]*')
 
-if [ -z "$HH_ID" ]; then
-  echo "❌ Failed to create household."
+if [ -z "$ACCESS_KEY" ]; then
+  echo "❌ Failed to create household. Response: $HH_RESPONSE"
   exit 1
 fi
-echo "✅ Household Created! (ID: $HH_ID)"
+echo "✅ Household Created! ID: $HH_ID, Key: $ACCESS_KEY"
 
-# 3. CREATE USERS LOOP
-create_user() {
+# 3. LOGIN AS HOUSEHOLD ADMIN (To create members)
+echo "🔑 Logging in as Local Admin ($HH_ADMIN)..."
+LOCAL_TOKEN=$(curl -s -X POST "$API_URL/auth/login" \
+  -H "Content-Type: application/json" \
+  -d "{\"accessKey\": \"$ACCESS_KEY\", \"username\": \"$HH_ADMIN\", \"password\": \"$HH_PASS\"}" \
+  | grep -o '"token":"[^"]*' | grep -o '[^"]*$' | cut -d'"' -f1)
+
+if [ -z "$LOCAL_TOKEN" ]; then
+  echo "❌ Local Login failed."
+  exit 1
+fi
+echo "✅ Local Token acquired!"
+
+# 4. CREATE LOCAL MEMBERS
+create_member() {
   local USERNAME=$1
   local PASSWORD=$2
   local ROLE=$3
   
-  echo "👤 Creating User: $USERNAME ($ROLE)..."
+  echo "👤 Creating Member: $USERNAME ($ROLE)..."
+  # Note: Local admins use /admin/create-user to create local users
   curl -s -X POST "$API_URL/admin/create-user" \
-    -H "Authorization: Bearer $TOKEN" \
+    -H "Authorization: Bearer $LOCAL_TOKEN" \
     -H "Content-Type: application/json" \
     -d "{
       \"username\": \"$USERNAME\", 
       \"password\": \"$PASSWORD\", 
-      \"email\": \"$USERNAME@dailyplanet.com\",
-      \"householdId\": $HH_ID, 
       \"role\": \"$ROLE\"
     }" > /dev/null
 }
 
-# --- ADD THE SQUAD ---
-create_user "ClarkKent"  "kryptonite" "admin"
-create_user "LoisLane"   "pulitzer"   "member"
-create_user "JimmyOlsen" "camera123"  "viewer"
+create_member "LoisLane"   "pulitzer"   "member"
+create_member "JimmyOlsen" "camera123"  "viewer"
 
 echo ""
 echo "🎉 Done! 'Fortress of Solitude' is ready."
-echo "👉 Go to your Dashboard and look for the Switcher arrows in the top bar!"
+echo "👉 Login Key: $ACCESS_KEY"

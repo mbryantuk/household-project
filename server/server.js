@@ -9,7 +9,8 @@ const authRoutes = require('./routes/auth');
 const householdRoutes = require('./routes/households');
 const memberRoutes = require('./routes/members');
 const adminRoutes = require('./routes/admin');
-const userRoutes = require('./routes/users');
+const calendarRoutes = require('./routes/calendar');
+const { bootstrap } = require('./bootstrap');
 
 const app = express();
 const PORT = 4001;
@@ -20,7 +21,10 @@ const DB_PATH = path.join(dataDir, 'totem.db');
 
 const globalDb = new sqlite3.Database(DB_PATH, (err) => {
     if (err) console.error("Database error:", err.message);
-    else console.log("✅ Connected to SQLite");
+    else {
+        console.log("✅ Connected to SQLite");
+        bootstrap(globalDb); // Initialize Superuser
+    }
 });
 
 app.use(cors());
@@ -32,12 +36,12 @@ app.use((req, res, next) => {
     next();
 });
 
-// 4. MOUNT API ROUTES (FLAT)
+// 4. MOUNT API ROUTES
 app.use('/auth', authRoutes);      
+app.use('/admin', adminRoutes);
 app.use('/', householdRoutes); 
 app.use('/', memberRoutes);    
-app.use('/', adminRoutes);
-app.use('/', userRoutes);
+app.use('/', calendarRoutes);
 
 app.get('/system/status', (req, res) => {
     globalDb.get("SELECT COUNT(*) as count FROM users", [], (err, row) => {
@@ -56,7 +60,7 @@ if (fs.existsSync(frontendPath)) {
     // C. 🛡️ API SHIELD (Must be last)
     app.use((req, res, next) => {
         // List of actual top-level API paths
-        const apiPaths = ['/auth', '/households', '/members', '/admin', '/users', '/system', '/my-households'];
+        const apiPaths = ['/auth', '/households', '/members', '/admin', '/system', '/my-households', '/users', '/create-user'];
         const isApi = apiPaths.some(p => req.path.startsWith(p));
 
         if (isApi) {
