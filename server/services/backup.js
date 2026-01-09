@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const archiver = require('archiver');
 const admZip = require('adm-zip');
 
 const DATA_DIR = path.join(__dirname, '../data');
@@ -16,20 +15,27 @@ if (!fs.existsSync(BACKUP_DIR)) {
  */
 const createBackup = () => {
     return new Promise((resolve, reject) => {
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const fileName = `totem-backup-${timestamp}.zip`;
-        const filePath = path.join(BACKUP_DIR, fileName);
-        
-        const output = fs.createWriteStream(filePath);
-        const archive = archiver('zip', { zlib: { level: 9 } });
+        try {
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const fileName = `totem-backup-${timestamp}.zip`;
+            const filePath = path.join(BACKUP_DIR, fileName);
+            
+            const zip = new admZip();
+            
+            // Add all .db files from DATA_DIR
+            const files = fs.readdirSync(DATA_DIR);
+            files.forEach(file => {
+                if (file.endsWith('.db')) {
+                    const fullPath = path.join(DATA_DIR, file);
+                    zip.addLocalFile(fullPath);
+                }
+            });
 
-        output.on('close', () => resolve(fileName));
-        archive.on('error', (err) => reject(err));
-
-        archive.pipe(output);
-        // Glob database files, ignoring temp files or others if necessary
-        archive.glob('*.db', { cwd: DATA_DIR });
-        archive.finalize();
+            zip.writeZip(filePath);
+            resolve(fileName);
+        } catch (err) {
+            reject(err);
+        }
     });
 };
 

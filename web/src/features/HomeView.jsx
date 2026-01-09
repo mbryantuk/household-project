@@ -2,7 +2,6 @@ import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Box, Typography, Avatar, IconButton, Button, Menu, MenuItem, Pagination, Tooltip } from '@mui/material';
 import { Edit, Save, Add, Delete, Close } from '@mui/icons-material';
-import _ from 'lodash';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 

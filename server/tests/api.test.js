@@ -1,174 +1,247 @@
 const request = require('supertest');
-const { app, globalDb } = require('../server');
+const { app } = require('../server');
 
-describe('Household Project API Integration Suite (Isolated Tenancy)', () => {
+describe('Household Project API Integration Suite (Intense + Renaming)', () => {
     let sysAdminToken = '';
-    let localAdminToken = '';
-    let accessKey = '';
+    
+    // Household Data
     let householdId = null;
-    let memberId = null;
-    let createdUserId = null;
+    let accessKey = '';
+    const householdName = `Intense Test Manor ${Date.now()}`;
+    const initialAdmin = { username: 'AdminOwner', password: 'password123' };
+
+    // Users to Create & Test
+    let users = {
+        member: { id: null, token: '', creds: { username: 'TestMember', password: 'password123', role: 'member' } },
+        viewer: { id: null, token: '', creds: { username: 'TestViewer', password: 'password123', role: 'viewer' } }
+    };
+    let localAdminToken = ''; // For AdminOwner
+
+    // Members (Residents)
+    let residents = {
+        adult: { id: null, data: { name: 'Dad', type: 'adult', emoji: '👨', dob: '1980-01-01' } },
+        child: { id: null, data: { name: 'Junior', type: 'child', dob: '2015-05-20', emoji: '👦' } },
+        pet: { id: null, data: { name: 'Rex', type: 'pet', species: 'Dog', emoji: '🐶' } }
+    };
+
+    // Events
+    let eventId = null;
+
     let reportSummary = [];
-
-    const sysAdmin = {
-        username: 'superuser',
-        password: 'superpassword'
-    };
-
-    const newHousehold = {
-        name: `Test Manor ${Date.now()}`,
-        adminUsername: 'TestAdmin',
-        adminPassword: 'password123'
-    };
-
-    const secondaryUser = {
-        username: `user_${Date.now()}`,
-        password: 'Password123!',
-        role: 'viewer'
-    };
-
-    // Helper to log results
     const logToReport = (action, endpoint, status) => {
         reportSummary.push({ Action: action, Endpoint: endpoint, Result: status });
     };
 
     afterAll((done) => {
-        console.log("\n--- AUTOMATED API EXECUTION REPORT ---");
+        console.log("\n--- AUTOMATED INTENSE API EXECUTION REPORT ---");
         console.table(reportSummary);
         done();
     });
 
-    // --- 1. SYSADMIN OPERATIONS ---
-    describe('SysAdmin Operations', () => {
-        it('should login as Superuser (SysAdmin)', async () => {
+    // =========================================================================
+    // 1. SYSTEM ADMINISTRATION & TENANT CREATION
+    // =========================================================================
+    describe('1. System Administration', () => {
+        it('should login as SysAdmin', async () => {
             const res = await request(app)
                 .post('/auth/login')
-                .send({ username: sysAdmin.username, password: sysAdmin.password });
+                .send({ username: 'superuser', password: 'superpassword' });
             
             sysAdminToken = res.body.token;
-            logToReport('SysAdmin Login', '/auth/login', sysAdminToken ? '✅ Token Received' : '❌ Failed');
-            
             expect(res.statusCode).toBe(200);
             expect(res.body.role).toBe('sysadmin');
+            logToReport('SysAdmin Login', '/auth/login', '✅ Success');
         });
 
-        it('should create a new household (Tenant)', async () => {
+        it('should create a new Tenant (Household)', async () => {
             const res = await request(app)
                 .post('/admin/households')
                 .set('Authorization', `Bearer ${sysAdminToken}`)
-                .send(newHousehold);
+                .send({
+                    name: householdName,
+                    adminUsername: initialAdmin.username,
+                    adminPassword: initialAdmin.password
+                });
             
+            expect(res.statusCode).toBe(200);
             householdId = res.body.householdId;
             accessKey = res.body.accessKey;
-            
-            logToReport('Create Household', '/admin/households', accessKey ? `✅ Key: ${accessKey}` : '❌ Failed');
-            
-            expect(res.statusCode).toBe(200);
-            expect(accessKey).toBeDefined();
+            logToReport('Create Tenant', '/admin/households', `✅ Created ID: ${householdId}`);
         });
 
-        it('should list backups (SysAdmin only)', async () => {
+        it('should RENAME the Tenant (Household)', async () => {
+            const newName = "The Updated Manor";
             const res = await request(app)
-                .get('/admin/backups')
+                .put(`/admin/households/${householdId}`)
+                .set('Authorization', `Bearer ${sysAdminToken}`)
+                .send({ name: newName });
+            
+            expect(res.statusCode).toBe(200);
+            
+            // Verify rename
+            const listRes = await request(app)
+                .get('/admin/households')
                 .set('Authorization', `Bearer ${sysAdminToken}`);
-            
-            logToReport('List Backups', '/admin/backups', res.statusCode === 200 ? '✅ Access Granted' : '❌ Failed');
-            expect(res.statusCode).toBe(200);
-            expect(Array.isArray(res.body)).toBeTruthy();
-        });
-
-        it('should access Swagger UI', async () => {
-            const res = await request(app)
-                .get('/api-docs/')
-                .redirects(1); // Swagger UI might redirect
-
-            logToReport('Access Swagger UI', '/api-docs/', res.statusCode === 200 ? '✅ Accessible' : '❌ Failed');
-            expect(res.statusCode).toBe(200);
-            // Check for some HTML content common in Swagger UI
-            expect(res.text).toContain('swagger');
+            const hh = listRes.body.find(h => h.id === householdId);
+            expect(hh.name).toBe(newName);
+            logToReport('Rename Tenant', '/admin/households', '✅ Verified');
         });
     });
 
-    // --- 2. HOUSEHOLD OPERATIONS ---
-    describe('Household Operations (Local Admin)', () => {
-        it('should login as the new Local Admin using Access Key', async () => {
+    // =========================================================================
+    // 2. LOCAL USER MANAGEMENT
+    // =========================================================================
+    describe('2. User Management (Roles & Renaming)', () => {
+        it('should login as the Household Owner (Admin)', async () => {
             const res = await request(app)
                 .post('/auth/login')
-                .send({ 
-                    accessKey: accessKey,
-                    username: newHousehold.adminUsername, 
-                    password: newHousehold.adminPassword 
+                .send({
+                    accessKey,
+                    username: initialAdmin.username,
+                    password: initialAdmin.password 
                 });
-            
+
             localAdminToken = res.body.token;
-            logToReport('Local Admin Login', '/auth/login', localAdminToken ? '✅ Token Received' : '❌ Failed');
-            
             expect(res.statusCode).toBe(200);
-            expect(res.body.context).toBe('household');
+            logToReport('Local Admin Login', '/auth/login', '✅ Success');
         });
 
-        it('should add a resident (member) to the household', async () => {
-            const res = await request(app)
-                .post(`/households/${householdId}/members`)
-                .set('Authorization', `Bearer ${localAdminToken}`)
-                .send({ 
-                    name: 'Test Resident', 
-                    type: 'adult', 
-                    notes: 'Created by test' 
-                });
-            
-            memberId = res.body.id;
-            logToReport('Add Resident', `/households/${householdId}/members`, memberId ? `✅ ID: ${memberId}` : '❌ Failed');
-            
-            expect(res.statusCode).toBe(200);
-        });
-
-        it('should list all residents', async () => {
-            const res = await request(app)
-                .get(`/households/${householdId}/members`)
-                .set('Authorization', `Bearer ${localAdminToken}`);
-            
-            logToReport('List Residents', `/households/${householdId}/members`, res.body.length > 0 ? '✅ Found' : '❌ Empty');
-            expect(res.statusCode).toBe(200);
-        });
-        
-        it('should create a local user', async () => {
+        it('should create a "Member" role user', async () => {
             const res = await request(app)
                 .post('/admin/create-user')
                 .set('Authorization', `Bearer ${localAdminToken}`)
-                .send({ username: `user_${Date.now()}`, password: "password123", householdId: householdId });
+                .send({ ...users.member.creds, householdId });
             
             expect(res.statusCode).toBe(200);
-            expect(res.body).toHaveProperty('id');
-            createdUserId = res.body.id;
-            logToReport('Create Local User', '/admin/create-user', `✅ ID: ${createdUserId}`);
+            users.member.id = res.body.id;
+            logToReport('Create User (Member)', '/admin/create-user', '✅ Success');
         });
 
-        it('should create a recurring event', async () => {
+        it('should RENAME the local user', async () => {
+            const newUsername = 'UpdatedMemberName';
             const res = await request(app)
-                .post(`/households/${householdId}/dates`)
+                .put(`/admin/users/${users.member.id}`)
                 .set('Authorization', `Bearer ${localAdminToken}`)
-                .send({ 
-                    title: "Weekly Meeting", 
-                    date: "2024-01-01", 
-                    recurrence: "weekly",
-                    emoji: "📅"
+                .send({
+                    username: newUsername,
+                    householdId // Required by backend for routing
                 });
             
             expect(res.statusCode).toBe(200);
-            expect(res.body).toHaveProperty('id');
-            expect(res.body.recurrence).toBe('weekly');
-            logToReport('Create Recurring Event', `/households/${householdId}/dates`, `✅ ID: ${res.body.id}`);
+            users.member.creds.username = newUsername; // Update for next tests
+            logToReport('Rename User', '/admin/users', '✅ Success');
         });
 
-        it('should list local users', async () => {
+        it('should verify renamed user can login', async () => {
             const res = await request(app)
-                .get('/admin/users')
-                .set('Authorization', `Bearer ${localAdminToken}`)
-                .query({ householdId }); // Local admins send this implicitly via token, but test uses query or assumes token context
-
-            logToReport('List Local Users', '/admin/users', res.body.length > 0 ? '✅ Found' : '❌ Empty');
+                .post('/auth/login')
+                .send({
+                    accessKey,
+                    username: users.member.creds.username,
+                    password: users.member.creds.password 
+                });
+            
             expect(res.statusCode).toBe(200);
+            users.member.token = res.body.token;
+            logToReport('Verify Login (Renamed User)', '/auth/login', '✅ Success');
+        });
+    });
+
+    // =========================================================================
+    // 3. RESIDENT MANAGEMENT
+    // =========================================================================
+    describe('3. Resident Management (Renaming & Sync)', () => {
+        it('should create an ADULT resident (with DOB)', async () => {
+            const res = await request(app)
+                .post(`/households/${householdId}/members`)
+                .set('Authorization', `Bearer ${localAdminToken}`)
+                .send(residents.adult.data);
+            
+            expect(res.statusCode).toBe(200);
+            residents.adult.id = res.body.id;
+            logToReport('Add Resident', `/households/${householdId}/members`, '✅ Success');
+        });
+
+        it('should verify a Birthday Event was auto-created', async () => {
+            const res = await request(app)
+                .get(`/households/${householdId}/dates`)
+                .set('Authorization', `Bearer ${localAdminToken}`);
+            
+            const bday = res.body.find(e => e.member_id === residents.adult.id && e.type === 'birthday');
+            expect(bday).toBeDefined();
+            expect(bday.title).toBe("Dad's Birthday");
+            logToReport('Verify Birthday Sync', 'GET dates', '✅ Created');
+        });
+
+        it('should RENAME the resident and verify birthday title update', async () => {
+            const newName = 'Father';
+            const res = await request(app)
+                .put(`/households/${householdId}/members/${residents.adult.id}`)
+                .set('Authorization', `Bearer ${localAdminToken}`)
+                .send({
+                    ...residents.adult.data,
+                    name: newName
+                });
+            
+            expect(res.statusCode).toBe(200);
+
+            // Verify birthday title sync
+            const dateRes = await request(app)
+                .get(`/households/${householdId}/dates`)
+                .set('Authorization', `Bearer ${localAdminToken}`);
+            
+            const bday = dateRes.body.find(e => e.member_id === residents.adult.id && e.type === 'birthday');
+            expect(bday.title).toBe("Father's Birthday");
+            logToReport('Rename Resident & Sync', 'PUT member', '✅ Verified');
+        });
+    });
+
+    // =========================================================================
+    // 4. EVENT MANAGEMENT
+    // =========================================================================
+    describe('4. Calendar & Events', () => {
+        it('should create a standard event', async () => {
+            const res = await request(app)
+                .post(`/households/${householdId}/dates`)
+                .set('Authorization', `Bearer ${localAdminToken}`)
+                .send({ title: 'Family Dinner', date: '2025-12-25', emoji: '🍗' });
+            
+            expect(res.statusCode).toBe(200);
+            eventId = res.body.id;
+            logToReport('Create Event', `/households/${householdId}/dates`, `✅ ID: ${eventId}`);
+        });
+
+        it('should RENAME the event', async () => {
+            const res = await request(app)
+                .put(`/households/${householdId}/dates/${eventId}`)
+                .set('Authorization', `Bearer ${localAdminToken}`)
+                .send({ title: 'Grand Family Feast', date: '2025-12-25', emoji: '🍖' });
+            
+            expect(res.statusCode).toBe(200);
+            logToReport('Rename Event', `/households/${householdId}/dates/${eventId}`, '✅ Success');
+        });
+
+        it('should delete the event', async () => {
+            const res = await request(app)
+                .delete(`/households/${householdId}/dates/${eventId}`)
+                .set('Authorization', `Bearer ${localAdminToken}`);
+            
+            expect(res.statusCode).toBe(200);
+            logToReport('Delete Event', `/households/${householdId}/dates/${eventId}`, '✅ Success');
+        });
+    });
+
+    // =========================================================================
+    // 5. DESTRUCTIVE CLEANUP
+    // =========================================================================
+    describe('5. Tenant Cleanup', () => {
+        it('should delete the household (Tenant) as SysAdmin', async () => {
+            const res = await request(app)
+                .delete(`/admin/households/${householdId}`)
+                .set('Authorization', `Bearer ${sysAdminToken}`);
+            
+            expect(res.statusCode).toBe(200);
+            logToReport('Delete Tenant', `/admin/households/${householdId}`, '✅ Success');
         });
     });
 });

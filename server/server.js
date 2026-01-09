@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
 const path = require('path');
@@ -45,7 +44,7 @@ cron.schedule('0 0 * * *', async () => {
 });
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
 // Log every incoming request
 app.use((req, res, next) => {
