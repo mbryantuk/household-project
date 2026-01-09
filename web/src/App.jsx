@@ -23,6 +23,7 @@ import HomeView from './features/HomeView';
 import MembersView from './features/MembersView';
 import SettingsView from './features/SettingsView';
 import CalendarView from './features/CalendarView';
+import FloatingCalculator from './components/FloatingCalculator';
 
 const API_URL = window.location.origin;
 
@@ -266,6 +267,7 @@ function AppContent() {
       <CssBaseline />
       <Routes>
         <Route path="/login" element={!token ? <LoginScreen onLogin={login} /> : <Navigate to="/" />} />
+        <Route path="/calculator" element={<Box sx={{ height: '100vh', bgcolor: 'background.default' }}><FloatingCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
         
         {/* PROTECTED ROUTES */}
         <Route element={token ? <RootLayout 
