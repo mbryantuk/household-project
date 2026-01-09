@@ -45,6 +45,7 @@ const STANDARD_LIGHT = {
   primary: "#00695c",
   secondary: "#4db6ac",
   foreground: "#212121",
+  divider: "rgba(0,0,0,0.12)"
 };
 
 const STANDARD_DARK = {
@@ -53,6 +54,7 @@ const STANDARD_DARK = {
   primary: "#4db6ac",
   secondary: "#00695c",
   foreground: "#ffffff",
+  divider: "rgba(255,255,255,0.12)"
 };
 
 export const getTotemTheme = (mode = 'light', useDracula = true) => {
@@ -63,58 +65,70 @@ export const getTotemTheme = (mode = 'light', useDracula = true) => {
   }
 
   const isDark = effectiveMode === 'dark';
+  const spec = useDracula ? (isDark ? DRACULA : ALUCARD) : (isDark ? STANDARD_DARK : STANDARD_LIGHT);
   
-  if (useDracula) {
-    const spec = isDark ? DRACULA : ALUCARD;
-    return createTheme({
-      palette: {
-        mode: isDark ? 'dark' : 'light',
-        primary: { main: spec.purple, contrastText: isDark ? spec.foreground : '#fff' },
-        secondary: { main: spec.pink },
-        background: { default: spec.background, paper: isDark ? spec.backgroundLight : "#FFFFFF" },
-        text: { primary: spec.foreground, secondary: spec.comment },
-        divider: spec.selection,
+  return createTheme({
+    palette: {
+      mode: isDark ? 'dark' : 'light',
+      primary: { main: spec.primary || spec.purple, contrastText: isDark ? (spec.foreground || '#fff') : '#fff' },
+      secondary: { main: spec.secondary || spec.pink },
+      background: { default: spec.background, paper: isDark ? (spec.backgroundLight || spec.paper) : (spec.paper || "#FFFFFF") },
+      text: { primary: spec.foreground, secondary: spec.comment || (isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)') },
+      divider: spec.selection || spec.divider,
+    },
+    components: {
+      MuiCssBaseline: {
+        styleOverrides: {
+          '.rbc-calendar': {
+            color: `${spec.foreground} !important`,
+          },
+          '.rbc-off-range-bg': {
+            backgroundColor: isDark ? 'rgba(0,0,0,0.2) !important' : 'rgba(0,0,0,0.05) !important',
+          },
+          '.rbc-today': {
+            backgroundColor: isDark ? 'rgba(255,255,255,0.05) !important' : 'rgba(0,0,0,0.03) !important',
+          },
+          '.rbc-header': {
+             borderBottom: `1px solid ${spec.selection || spec.divider} !important`,
+             padding: '8px 0 !important',
+             fontWeight: 'bold',
+          },
+          '.rbc-month-view, .rbc-time-view, .rbc-agenda-view': {
+            border: `1px solid ${spec.selection || spec.divider} !important`,
+            borderRadius: '8px',
+            overflow: 'hidden'
+          },
+          '.rbc-day-bg + .rbc-day-bg, .rbc-month-row + .rbc-month-row, .rbc-time-content > * + *': {
+            borderLeft: `1px solid ${spec.selection || spec.divider} !important`,
+            borderTop: `1px solid ${spec.selection || spec.divider} !important`,
+          },
+          '.rbc-toolbar button': {
+            color: `${spec.foreground} !important`,
+            border: `1px solid ${spec.selection || spec.divider} !important`,
+          },
+          '.rbc-toolbar button:hover, .rbc-toolbar button:active, .rbc-toolbar button.rbc-active': {
+            backgroundColor: `${spec.selection || spec.divider} !important`,
+            color: `${spec.foreground} !important`,
+          }
+        }
       },
-      components: {
-        MuiAppBar: {
-          styleOverrides: {
-            root: {
-              backgroundColor: isDark ? DRACULA.backgroundDark : ALUCARD.red,
-              backgroundImage: 'none',
-              color: '#fff',
-            },
+      MuiAppBar: {
+        styleOverrides: {
+          root: {
+            backgroundColor: useDracula ? (isDark ? DRACULA.backgroundDark : ALUCARD.red) : spec.primary,
+            backgroundImage: 'none',
+            color: '#fff',
           },
         },
-        MuiDrawer: {
-          styleOverrides: {
-            paper: {
-              backgroundColor: spec.backgroundLighter,
-              borderRight: `1px solid ${spec.selection}`,
-            },
+      },
+      MuiDrawer: {
+        styleOverrides: {
+          paper: {
+            backgroundColor: useDracula ? spec.backgroundLighter : (isDark ? spec.paper : "#fff"),
+            borderRight: `1px solid ${spec.selection || spec.divider}`,
           },
         },
       },
-    });
-  } else {
-    const spec = isDark ? STANDARD_DARK : STANDARD_LIGHT;
-    return createTheme({
-      palette: {
-        mode: isDark ? 'dark' : 'light',
-        primary: { main: spec.primary },
-        secondary: { main: spec.secondary },
-        background: { default: spec.background, paper: spec.paper },
-        text: { primary: spec.foreground },
-      },
-      components: {
-        MuiAppBar: {
-          styleOverrides: {
-            root: {
-              backgroundColor: spec.primary,
-              backgroundImage: 'none',
-            },
-          },
-        },
-      },
-    });
-  }
+    },
+  });
 };

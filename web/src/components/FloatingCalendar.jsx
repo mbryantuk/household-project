@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { 
   Box, Paper, Typography, IconButton, Button, 
   Dialog, DialogTitle, DialogContent, DialogActions, TextField,
-  Select, MenuItem, FormControl, InputLabel, Stack, Tooltip, Divider
+  Select, MenuItem, FormControl, InputLabel, Stack, Tooltip, Divider, useTheme
 } from '@mui/material';
 import {
   ChevronLeft, ChevronRight, Add, Event, Cake, Favorite, Star 
@@ -17,6 +17,9 @@ const EVENT_TYPES = [
 ];
 
 export default function FloatingCalendar({ dates = [], api, householdId, onDateAdded, currentUser }) {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+  
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [openAdd, setOpenAdd] = useState(false);
@@ -42,12 +45,32 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
   const firstDaySun = firstDayOfMonth(year, month);
   const firstDay = (firstDaySun + 6) % 7; // Shift so 0=Mon, 6=Sun
 
+  // Previous month days
+  const prevMonthDate = new Date(year, month - 1);
+  const prevMonthDays = daysInMonth(prevMonthDate.getFullYear(), prevMonthDate.getMonth());
+
   const days = [];
-  for (let i = 0; i < firstDay; i++) {
-    days.push(null);
+  // Add padding from previous month
+  for (let i = firstDay - 1; i >= 0; i--) {
+    days.push({
+        date: new Date(year, month - 1, prevMonthDays - i),
+        isCurrentMonth: false
+    });
   }
+  // Add current month days
   for (let i = 1; i <= numDays; i++) {
-    days.push(new Date(year, month, i));
+    days.push({
+        date: new Date(year, month, i),
+        isCurrentMonth: true
+    });
+  }
+  // Add padding from next month to fill 6 weeks (42 days)
+  const remaining = 42 - days.length;
+  for (let i = 1; i <= remaining; i++) {
+    days.push({
+        date: new Date(year, month + 1, i),
+        isCurrentMonth: false
+    });
   }
 
   const eventsOnSelectedDate = useMemo(() => {
@@ -65,6 +88,13 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
       return dDate.getDate() === date.getDate() &&
              dDate.getMonth() === date.getMonth();
     });
+  };
+
+  const isToday = (date) => {
+    const today = new Date();
+    return date.getDate() === today.getDate() &&
+           date.getMonth() === today.getMonth() &&
+           date.getFullYear() === today.getFullYear();
   };
 
   const handleAddSubmit = (e) => {
@@ -111,31 +141,41 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
             {d}
           </Typography>
         ))}
-        {days.map((d, i) => (
-          <Box key={i} sx={{ display: 'flex', justifyContent: 'center' }}>
-            {d ? (
-              <IconButton 
-                size="small" 
-                onClick={() => setSelectedDate(d)}
-                sx={{ 
-                  width: 34, height: 34, fontSize: '0.85rem',
-                  bgcolor: d.toDateString() === selectedDate.toDateString() ? 'primary.main' : 'transparent',
-                  color: d.toDateString() === selectedDate.toDateString() ? 'primary.contrastText' : 'text.primary',
-                  position: 'relative',
-                  '&:hover': { bgcolor: d.toDateString() === selectedDate.toDateString() ? 'primary.dark' : 'action.hover' }
-                }}
-              >
-                {d.getDate()}
-                {hasEvent(d) && (
-                  <Box sx={{ 
-                    position: 'absolute', bottom: 4, width: 4, height: 4, 
-                    borderRadius: '50%', bgcolor: d.toDateString() === selectedDate.toDateString() ? 'white' : 'primary.main' 
-                  }} />
-                )}
-              </IconButton>
-            ) : <Box sx={{ width: 34, height: 34 }} />}
-          </Box>
-        ))}
+        {days.map((dayObj, i) => {
+          const { date, isCurrentMonth } = dayObj;
+          const isSelected = date.toDateString() === selectedDate.toDateString();
+          const today = isToday(date);
+
+          return (
+            <Box key={i} sx={{ display: 'flex', justifyContent: 'center' }}>
+                <IconButton 
+                  size="small" 
+                  onClick={() => {
+                    setSelectedDate(date);
+                    if (!isCurrentMonth) setCurrentDate(new Date(date.getFullYear(), date.getMonth(), 1));
+                  }}
+                  sx={{ 
+                    width: 34, height: 34, fontSize: '0.85rem',
+                    bgcolor: isSelected ? 'primary.main' : (today ? 'action.selected' : 'transparent'),
+                    color: isSelected ? 'primary.contrastText' : (isCurrentMonth ? 'text.primary' : 'text.disabled'),
+                    opacity: isCurrentMonth ? 1 : 0.4,
+                    position: 'relative',
+                    border: today && !isSelected ? '1px solid' : 'none',
+                    borderColor: 'primary.main',
+                    '&:hover': { bgcolor: isSelected ? 'primary.dark' : 'action.hover' }
+                  }}
+                >
+                  {date.getDate()}
+                  {hasEvent(date) && (
+                    <Box sx={{ 
+                      position: 'absolute', bottom: 4, width: 4, height: 4, 
+                      borderRadius: '50%', bgcolor: isSelected ? 'white' : 'primary.main' 
+                    }} />
+                  )}
+                </IconButton>
+            </Box>
+          );
+        })}
       </Box>
 
       <Divider sx={{ mb: 2 }} />
