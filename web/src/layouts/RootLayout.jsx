@@ -36,7 +36,7 @@ export default function RootLayout({
         onDateAdded={onDateAdded}
         onUpdateProfile={onUpdateProfile}
       />
-      <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Outlet context={{ api }} />
       </Box>
     </Box>
