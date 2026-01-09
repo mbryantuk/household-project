@@ -86,7 +86,8 @@ export const getTotemTheme = (mode = 'light', useDracula = true) => {
             backgroundColor: isDark ? 'rgba(0,0,0,0.2) !important' : 'rgba(0,0,0,0.05) !important',
           },
           '.rbc-today': {
-            backgroundColor: isDark ? 'rgba(255,255,255,0.05) !important' : 'rgba(0,0,0,0.03) !important',
+            backgroundColor: isDark ? 'rgba(189, 147, 249, 0.1) !important' : 'rgba(100, 74, 201, 0.08) !important',
+            border: `1px solid ${spec.purple} !important`,
           },
           '.rbc-header': {
              borderBottom: `1px solid ${spec.selection || spec.divider} !important`,

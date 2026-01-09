@@ -32,6 +32,8 @@ function AppContent() {
   const [modeOverride, setModeOverride] = useState(localStorage.getItem('themeMode') || 'system');
   const [useDracula, setUseDracula] = useState(() => localStorage.getItem('useDracula') !== 'false');
   const [installPrompt, setInstallPrompt] = useState(null);
+  const [showUpdate, setShowUpdate] = useState(false);
+  const [swRegistration, setSwRegistration] = useState(null);
   
   useEffect(() => {
     const handler = (e) => {
@@ -39,8 +41,25 @@ function AppContent() {
       setInstallPrompt(e);
     };
     window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
+
+    const swHandler = (e) => {
+      setSwRegistration(e.detail);
+      setShowUpdate(true);
+    };
+    window.addEventListener('swUpdated', swHandler);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+      window.removeEventListener('swUpdated', swHandler);
+    };
   }, []);
+
+  const handleUpdate = () => {
+    if (swRegistration && swRegistration.waiting) {
+      swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
+    }
+    setShowUpdate(false);
+  };
 
   const handleInstallClick = async () => {
     if (!installPrompt) return;
@@ -394,6 +413,17 @@ function AppContent() {
           <Button onClick={handleConfirmProceed} color="error" variant="contained">Proceed</Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={showUpdate}
+        message="A new version of Totem is available!"
+        action={
+          <Button color="secondary" size="small" onClick={handleUpdate}>
+            Refresh
+          </Button>
+        }
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      />
     </ThemeProvider>
   );
 }

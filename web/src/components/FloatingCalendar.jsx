@@ -156,12 +156,13 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
                   }}
                   sx={{ 
                     width: 34, height: 34, fontSize: '0.85rem',
-                    bgcolor: isSelected ? 'primary.main' : (today ? 'action.selected' : 'transparent'),
-                    color: isSelected ? 'primary.contrastText' : (isCurrentMonth ? 'text.primary' : 'text.disabled'),
+                    bgcolor: isSelected ? 'primary.main' : (today ? (isDark ? 'rgba(189, 147, 249, 0.15)' : 'rgba(100, 74, 201, 0.1)') : 'transparent'),
+                    color: isSelected ? 'primary.contrastText' : (today ? 'primary.main' : (isCurrentMonth ? 'text.primary' : 'text.disabled')),
                     opacity: isCurrentMonth ? 1 : 0.4,
                     position: 'relative',
-                    border: today && !isSelected ? '1px solid' : 'none',
+                    border: today ? '1px solid' : 'none',
                     borderColor: 'primary.main',
+                    fontWeight: today ? 'bold' : 'normal',
                     '&:hover': { bgcolor: isSelected ? 'primary.dark' : 'action.hover' }
                   }}
                 >
