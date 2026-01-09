@@ -3,110 +3,114 @@ const router = express.Router();
 const { getHouseholdDb } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 
-// Middleware to standardize DB initialization across all member actions
+/**
+ * Multi-Tenancy Enforcement for Members:
+ * All queries MUST filter by household_id and verify user context via middleware.
+ */
+
 const useTenantDb = (req, res, next) => {
-    const db = getHouseholdDb(req.params.id);
+    const hhId = req.params.id;
+    if (!hhId) return res.status(400).json({ error: "Household ID required" });
+    const db = getHouseholdDb(hhId);
     req.tenantDb = db;
+    req.hhId = hhId;
     next();
 };
 
-// 1. LIST MEMBERS (Full Path: GET /members/households/:id/members)
+const closeDb = (req) => {
+    if (req.tenantDb) req.tenantDb.close();
+};
+
+// 1. LIST MEMBERS
 router.get('/households/:id/members', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
-    req.tenantDb.all(`SELECT * FROM members`, [], (err, rows) => {
-        const dbRef = req.tenantDb;
-        dbRef.close(); 
+    req.tenantDb.all(`SELECT * FROM members WHERE household_id = ?`, [req.hhId], (err, rows) => {
+        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });
 
-// GET A SINGLE MEMBER (Full Path: GET /members/households/:id/members/:memberId)
+// 2. GET SINGLE MEMBER
 router.get('/households/:id/members/:memberId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
-    req.tenantDb.get(`SELECT * FROM members WHERE id = ?`, [req.params.memberId], (err, row) => {
-        const dbRef = req.tenantDb;
-        dbRef.close();
+    req.tenantDb.get(`SELECT * FROM members WHERE id = ? AND household_id = ?`, [req.params.memberId, req.hhId], (err, row) => {
+        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         if (!row) return res.status(404).json({ error: "Member not found" });
         res.json(row);
     });
 });
 
-// 2. ADD MEMBER (Full Path: POST /members/households/:id/members)
+// 3. ADD MEMBER
 router.post('/households/:id/members', authenticateToken, requireHouseholdRole('admin'), useTenantDb, (req, res) => {
-    // 🟢 Updated to include new fields from the UI
-    const { name, type, notes, alias, dob, species, gender, emoji } = req.body;
+    const fields = Object.keys(req.body);
+    req.body.household_id = req.hhId;
     
-    const sql = `INSERT INTO members (name, type, notes, alias, dob, species, gender, emoji) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-    const params = [name, type, notes, alias, dob, species, gender, emoji];
+    const placeholders = Object.keys(req.body).join(', ');
+    const qs = Object.keys(req.body).map(() => '?').join(', ');
+    const values = Object.values(req.body);
 
-    req.tenantDb.run(sql, params, function(err) {
-        if (err) {
-            req.tenantDb.close();
-            return res.status(500).json({ error: err.message });
-        }
+    const sql = `INSERT INTO members (${placeholders}) VALUES (${qs})`;
+
+    req.tenantDb.run(sql, values, function(err) {
+        if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
         
         const memberId = this.lastID;
+        const { name, dob, emoji } = req.body;
 
-        // Automatically add birthday to dates table if DOB is present
         if (dob) {
-            const birthdaySql = `INSERT INTO dates (title, date, type, member_id, emoji) VALUES (?, ?, ?, ?, ?)`;
-            req.tenantDb.run(birthdaySql, [`${name}'s Birthday`, dob, 'birthday', memberId, emoji], (bErr) => {
-                req.tenantDb.close();
-                if (bErr) console.error("Failed to auto-add birthday:", bErr.message);
+            const birthdaySql = `INSERT INTO dates (household_id, title, date, type, member_id, emoji) VALUES (?, ?, ?, 'birthday', ?, ?)`;
+            req.tenantDb.run(birthdaySql, [req.hhId, `${name}'s Birthday`, dob, memberId, emoji || '🎂'], (bErr) => {
+                closeDb(req);
                 res.json({ id: memberId, ...req.body });
             });
         } else {
-            req.tenantDb.close();
+            closeDb(req);
             res.json({ id: memberId, ...req.body });
         }
     });
 });
 
+// 4. UPDATE MEMBER
 router.put('/households/:id/members/:memberId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, (req, res) => {
-    const { name, type, notes, alias, dob, species, gender, emoji } = req.body;
     const memberId = req.params.memberId;
+    const fields = Object.keys(req.body).filter(f => f !== 'id' && f !== 'household_id');
+    const sets = fields.map(f => `${f} = ?`).join(', ');
+    const values = fields.map(f => req.body[f]);
 
-    const sql = `
-        UPDATE members 
-        SET name = ?, type = ?, notes = ?, alias = ?, dob = ?, species = ?, gender = ?, emoji = ?
-        WHERE id = ?
-    `;
-    const params = [name, type, notes, alias, dob, species, gender, emoji, memberId];
+    const sql = `UPDATE members SET ${sets} WHERE id = ? AND household_id = ?`;
 
-    req.tenantDb.run(sql, params, function(err) {
-        if (err) {
-            req.tenantDb.close();
-            return res.status(500).json({ error: err.message });
-        }
-        
-        if (this.changes === 0) {
-            req.tenantDb.close();
-            return res.status(404).json({ error: "Member not found" });
-        }
+    req.tenantDb.run(sql, [...values, memberId, req.hhId], function(err) {
+        if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
+        if (this.changes === 0) { closeDb(req); return res.status(404).json({ error: "Member not found" }); }
 
-        // Sync Birthday in dates table
-        if (dob) {
-            // Check if birthday already exists
-            req.tenantDb.get(`SELECT id FROM dates WHERE member_id = ? AND type = 'birthday'`, [memberId], (sErr, row) => {
+        // Sync Birthday
+        const { name, dob, emoji } = req.body;
+        if (dob && name) {
+            req.tenantDb.get(`SELECT id FROM dates WHERE member_id = ? AND type = 'birthday' AND household_id = ?`, [memberId, req.hhId], (sErr, row) => {
                 if (row) {
-                    req.tenantDb.run(`UPDATE dates SET title = ?, date = ?, emoji = ? WHERE id = ?`, [`${name}'s Birthday`, dob, emoji, row.id], () => {
-                        req.tenantDb.close();
-                        res.json({ message: "Member and Birthday updated", id: memberId, ...req.body });
-                    });
+                    req.tenantDb.run(`UPDATE dates SET title = ?, date = ?, emoji = ? WHERE id = ?`, [`${name}'s Birthday`, dob, emoji || '🎂', row.id], () => closeDb(req));
                 } else {
-                    req.tenantDb.run(`INSERT INTO dates (title, date, type, member_id, emoji) VALUES (?, ?, ?, ?, ?)`, [`${name}'s Birthday`, dob, 'birthday', memberId, emoji], () => {
-                        req.tenantDb.close();
-                        res.json({ message: "Member updated, Birthday created", id: memberId, ...req.body });
-                    });
+                    req.tenantDb.run(`INSERT INTO dates (household_id, title, date, type, member_id, emoji) VALUES (?, ?, ?, 'birthday', ?, ?)`, 
+                        [req.hhId, `${name}'s Birthday`, dob, memberId, emoji || '🎂'], () => closeDb(req));
                 }
             });
         } else {
-            // Remove birthday if DOB was cleared
-            req.tenantDb.run(`DELETE FROM dates WHERE member_id = ? AND type = 'birthday'`, [memberId], () => {
-                req.tenantDb.close();
-                res.json({ message: "Member updated, Birthday removed", id: memberId, ...req.body });
-            });
+            closeDb(req);
         }
+        res.json({ message: "Updated" });
     });
 });
+
+// 5. DELETE MEMBER
+router.delete('/households/:id/members/:memberId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, (req, res) => {
+    req.tenantDb.run(`DELETE FROM members WHERE id = ? AND household_id = ?`, [req.params.memberId, req.hhId], function(err) {
+        if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
+        // Also delete their birthday
+        req.tenantDb.run(`DELETE FROM dates WHERE member_id = ? AND type = 'birthday' AND household_id = ?`, [req.params.memberId, req.hhId], () => {
+            closeDb(req);
+            res.json({ message: "Deleted" });
+        });
+    });
+});
+
 module.exports = router;
