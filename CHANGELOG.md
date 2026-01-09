@@ -23,6 +23,9 @@
 - **Admin Dashboard**: Simplified AccessControl to focus on platform-wide management and full system backups.
 
 ### Fixed
+- **Frontend Runtime Errors**: Fixed `ReferenceError: Divider is not defined` in `EnergyView.jsx` by adding the missing import.
+- **Frontend Build Errors**: Fixed a mismatched JSX tag in `PetsView.jsx` and removed a non-existent `Insurance` icon import in `VehiclesView.jsx`.
+- **Docker Config**: Removed obsolete `version` attribute from `docker-compose.yml`.
 - **API Routing**: Fixed duplicate routes and corrected tenant deletion in tests.
 - **API Tests**: Updated and synchronized API tests with recent server changes.
 - **Admin Page Crash**: Fixed a regression where the Admin page would crash due to missing `api` context.

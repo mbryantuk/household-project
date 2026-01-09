@@ -11,7 +11,8 @@ You are an expert DevOps and Backend Engineer. You are responsible for code, doc
 * **Swagger/OpenAPI:** If backend APIs change, the Swagger spec must be updated.
 * **Changelog:** If a change is significant, suggest an entry for a `CHANGELOG.md`.
 
-## 3. Testing
+## 3. Testing (CRITICAL)
+* **API Tests:** Ensure all API tests (e.g., Supertest, Postman, or integration scripts) are updated to match any backend changes. **Fail the task if API tests are stale.**
 * **Test Plans:** You must update automated testing plans (Playwright/Unit) to cover new features or regressions.
 
 ## 4. Maintenance & Dependency Checks
@@ -25,8 +26,8 @@ At the very end of your response, strictly provide a **Bash Script Block** to fi
 2.  **Rebuild:** `docker compose up -d --build` (or `docker-compose` if older version detected).
 3.  **Verify Tests:** Run tests (e.g., `npm test`) to ensure the build is safe.
 4.  **Git Check-in:** Stage files and commit with a descriptive release note.
----
 
+---
 
 ## 6. Stability Protocols (CRITICAL)
 * **NO REPLACE TOOL:** Do not use "search and replace" or "patch" tools. They are buggy.
@@ -38,6 +39,6 @@ At the very end of your response, strictly provide a **Bash Script Block** to fi
 ### Example Output Structure
 1.  [The Modular Code Changes]
 2.  [The Swagger & README Updates]
-3.  [The Test Plan Update]
+3.  [The API & Playwright Test Update]
 4.  [**Status Report**: Brief summary of what was changed and any library warnings]
 5.  [The "Finalize" Bash Script]

@@ -8,7 +8,11 @@ export default function HouseholdLayout({
   toggleDrawer, 
   households, 
   onSelectHousehold,
-  api 
+  api,
+  members,
+  fetchHhMembers,
+  user,
+  isDark
 }) {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -18,12 +22,8 @@ export default function HouseholdLayout({
     const targetHousehold = households.find(h => h.id === parseInt(id));
     
     if (targetHousehold) {
-      // If found, activate it in the global state
       onSelectHousehold(targetHousehold);
     } else if (households.length > 0) {
-      // If the ID is invalid (e.g., user deleted it or typed wrong ID),
-      // redirect to dashboard or the first available household.
-      // Ideally, check if households are loaded first.
       navigate('/');
     }
   }, [id, households, onSelectHousehold, navigate]);
@@ -33,7 +33,14 @@ export default function HouseholdLayout({
       <NavSidebar open={drawerOpen} toggleDrawer={toggleDrawer} />
       <Box component="main" sx={{ flexGrow: 1, width: '100%', p: 3, pt: 1 }}>
         <Toolbar /> {/* Spacer for Fixed AppBar */}
-        <Outlet context={{ api }} />
+        <Outlet context={{ 
+            api, 
+            id, 
+            members, 
+            fetchHhMembers, 
+            user, 
+            isDark 
+        }} />
       </Box>
     </Box>
   );

@@ -9,6 +9,7 @@ const householdRoutes = require('./routes/households');
 const memberRoutes = require('./routes/members');
 const adminRoutes = require('./routes/admin');
 const calendarRoutes = require('./routes/calendar');
+const detailsRoutes = require('./routes/details');
 const { bootstrap } = require('./bootstrap');
 const cron = require('node-cron');
 const { createBackup, cleanOldBackups } = require('./services/backup');
@@ -79,6 +80,7 @@ app.use('/admin', adminRoutes);
 app.use('/', householdRoutes); 
 app.use('/', memberRoutes);    
 app.use('/', calendarRoutes);
+app.use('/', detailsRoutes);
 
 app.get('/system/status', (req, res) => {
     globalDb.get("SELECT COUNT(*) as count FROM users", [], (err, row) => {

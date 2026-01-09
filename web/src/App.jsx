@@ -23,6 +23,15 @@ import HomeView from './features/HomeView';
 import MembersView from './features/MembersView';
 import SettingsView from './features/SettingsView';
 import CalendarView from './features/CalendarView';
+import PeopleView from './features/PeopleView';
+import HouseView from './features/HouseView';
+import WaterView from './features/WaterView';
+import CouncilView from './features/CouncilView';
+import WasteView from './features/WasteView';
+import PetsView from './features/PetsView';
+import VehiclesView from './features/VehiclesView';
+import AssetsView from './features/AssetsView';
+import EnergyView from './features/EnergyView';
 import FloatingCalculator from './components/FloatingCalculator';
 
 const API_URL = window.location.origin;
@@ -340,6 +349,10 @@ function AppContent() {
               households={[household]} // Pass single household to Sidebar if needed
               onSelectHousehold={() => {}}
               api={authAxios}
+              members={hhMembers}
+              fetchHhMembers={fetchHhMembers}
+              user={user}
+              isDark={theme.palette.mode === 'dark'}
             />}>
                             <Route index element={<Navigate to="dashboard" replace />} />
                             <Route path="dashboard" element={<HomeView 
@@ -350,6 +363,16 @@ function AppContent() {
                                 onUpdateProfile={handleUpdateProfile}
                             />} />
                             <Route path="calendar" element={<CalendarView showNotification={showNotification} confirmAction={confirmAction} />} />
+                            
+                            <Route path="people" element={<PeopleView />} />
+                            <Route path="pets" element={<PetsView />} />
+                            <Route path="house" element={<HouseView />} />
+                            <Route path="vehicles" element={<VehiclesView />} />
+                            <Route path="assets" element={<AssetsView />} />
+                            <Route path="energy" element={<EnergyView />} />
+                            <Route path="water" element={<WaterView />} />
+                            <Route path="council" element={<CouncilView />} />
+                            <Route path="waste" element={<WasteView />} />
 
               <Route path="settings" element={<SettingsView 
                 household={household}
