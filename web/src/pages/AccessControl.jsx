@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Card, CardContent, Button, 
   IconButton, Chip, Dialog, DialogTitle, DialogContent, 
   DialogActions, TextField, List, ListItem, ListItemText, 
   Divider, Stack, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper,
-  FormControl, InputLabel, Select, MenuItem
+  FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert
 } from '@mui/material';
-import { Add, Delete, Edit, Home, Person, VpnKey, AddHome, Key, Refresh, PersonAdd } from '@mui/icons-material';
+import { Add, Delete, Edit, Home, Person, VpnKey, AddHome, Key, Refresh, PersonAdd, CloudDownload, CloudUpload, Restore, History } from '@mui/icons-material';
 
 export default function AccessControl({
   users, 
@@ -17,6 +18,7 @@ export default function AccessControl({
   onUpdateHousehold,
   onRemoveUser
 }) {
+  const { api } = useOutletContext();
   const [openAddUser, setOpenAddUser] = useState(false);  
   const [editingUser, setEditingUser] = useState(null); 
   const [newUser, setNewUser] = useState({ username: '', password: '', role: 'member' });
@@ -30,7 +32,101 @@ export default function AccessControl({
   const [openEditHousehold, setOpenEditHousehold] = useState(false);
   const [currentHouseholdData, setCurrentHouseholdData] = useState({ name: '', access_key: '', theme: 'default' });
 
+  // Backup State
+  const [backups, setBackups] = useState([]);
+  const [backupLoading, setBackupLoading] = useState(false);
+  const fileInputRef = useRef(null);
+
   const isSysAdmin = currentUser?.role === 'sysadmin';
+
+  const fetchBackups = useCallback(async () => {
+    try {
+      const res = await api.get('/admin/backups');
+      setBackups(res.data);
+    } catch (err) {
+      console.error("Failed to fetch backups", err);
+    }
+  }, [api]);
+
+  useEffect(() => {
+    if (isSysAdmin) {
+      fetchBackups();
+    }
+  }, [isSysAdmin, fetchBackups]);
+
+  const handleCreateBackup = async () => {
+    setBackupLoading(true);
+    try {
+      await api.post('/admin/backups/trigger');
+      await fetchBackups();
+      alert("Backup created successfully.");
+    } catch (err) {
+      alert("Failed to create backup: " + err.message);
+    } finally {
+      setBackupLoading(false);
+    }
+  };
+
+  const handleRestoreBackup = async (filename) => {
+    if (!window.confirm(`Are you sure you want to restore ${filename}? This will overwrite current data.`)) return;
+    setBackupLoading(true);
+    try {
+      await api.post(`/admin/backups/restore/${filename}`);
+      alert("System restored. Please refresh the page.");
+      window.location.reload();
+    } catch (err) {
+      alert("Restore failed: " + err.message);
+      setBackupLoading(false);
+    }
+  };
+
+  const handleDownloadBackup = (filename) => {
+    // Direct download link
+    const link = document.createElement('a');
+    link.href = `${api.defaults.baseURL}/admin/backups/download/${filename}?token=${localStorage.getItem('token')}`; // Assuming simple token passing or cookie
+    // Since we use Bearer token header, standard link href might fail if API requires header.
+    // So we use axios to get blob.
+    api.get(`/admin/backups/download/${filename}`, { responseType: 'blob' })
+      .then(response => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      })
+      .catch(err => alert("Download failed: " + err.message));
+  };
+
+  const handleUploadBackup = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    if (!window.confirm("This will upload and restore the backup immediately. Current data will be overwritten. Continue?")) {
+        e.target.value = null;
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('backup', file);
+
+    setBackupLoading(true);
+    api.post('/admin/backups/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    .then(() => {
+        alert("Backup restored successfully.");
+        window.location.reload();
+    })
+    .catch(err => {
+        alert("Upload failed: " + err.message);
+        setBackupLoading(false);
+    })
+    .finally(() => {
+        e.target.value = null;
+    });
+  };
 
   const handleAddUserSubmit = () => {
     if (newUser.username && newUser.password) {
@@ -70,6 +166,68 @@ export default function AccessControl({
     <Box sx={{ maxWidth: 1000, margin: '0 auto', p: 3 }}>
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>Platform Administration</Typography>
       
+      {/* --- BACKUP & RECOVERY SECTION (SysAdmin Only) --- */}
+      {isSysAdmin && (
+        <Card variant="outlined" sx={{ p: 3, borderRadius: 3, mb: 4, bgcolor: 'background.paper' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Box>
+              <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <History /> Backup & Recovery
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Manage system-wide data snapshots.
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+                <input type="file" ref={fileInputRef} hidden accept=".zip" onChange={handleUploadBackup} />
+                <Button variant="outlined" startIcon={<CloudUpload />} onClick={() => fileInputRef.current.click()} disabled={backupLoading}>
+                    Upload
+                </Button>
+                <Button variant="contained" startIcon={<Add />} onClick={handleCreateBackup} disabled={backupLoading}>
+                    Create Backup
+                </Button>
+            </Box>
+          </Box>
+          
+          {backupLoading && <Box sx={{ width: '100%', mb: 2 }}><CircularProgress size={20} /> Processing...</Box>}
+
+          <TableContainer component={Paper} variant="outlined" elevation={0} sx={{ maxHeight: 300 }}>
+            <Table size="small" stickyHeader>
+              <TableHead sx={{ bgcolor: 'action.hover' }}>
+                <TableRow>
+                  <TableCell>Filename</TableCell>
+                  <TableCell>Date Created</TableCell>
+                  <TableCell>Size</TableCell>
+                  <TableCell align="right">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {backups.map((b) => (
+                  <TableRow key={b.filename}>
+                    <TableCell>{b.filename}</TableCell>
+                    <TableCell>{new Date(b.created).toLocaleString()}</TableCell>
+                    <TableCell>{(b.size / 1024 / 1024).toFixed(2)} MB</TableCell>
+                    <TableCell align="right">
+                      <IconButton onClick={() => handleDownloadBackup(b.filename)} title="Download">
+                        <CloudDownload fontSize="small" />
+                      </IconButton>
+                      <IconButton onClick={() => handleRestoreBackup(b.filename)} title="Restore" color="warning">
+                        <Restore fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {backups.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4} align="center" sx={{ py: 3, color: 'text.secondary' }}>No backups found.</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Card>
+      )}
+
       {/* --- TENANTS SECTION (SysAdmin Only) --- */}
       {isSysAdmin && (
         <Card variant="outlined" sx={{ p: 3, borderRadius: 3, mb: 4 }}>

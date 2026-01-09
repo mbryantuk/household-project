@@ -60,6 +60,85 @@
     }
   ],
   "paths": {
+    "/admin/backups": {
+      "get": {
+        "summary": "SYSADMIN ONLY: List all system backups",
+        "tags": ["Admin", "Backup"],
+        "responses": {
+          "200": { "description": "List of backups" },
+          "403": { "description": "Access denied" }
+        }
+      }
+    },
+    "/admin/backups/trigger": {
+      "post": {
+        "summary": "SYSADMIN ONLY: Trigger a manual backup",
+        "tags": ["Admin", "Backup"],
+        "responses": {
+          "200": { "description": "Backup created" },
+          "403": { "description": "Access denied" }
+        }
+      }
+    },
+    "/admin/backups/download/{filename}": {
+      "get": {
+        "summary": "SYSADMIN ONLY: Download a backup file",
+        "tags": ["Admin", "Backup"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "filename",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "File stream" },
+          "403": { "description": "Access denied" },
+          "404": { "description": "File not found" }
+        }
+      }
+    },
+    "/admin/backups/restore/{filename}": {
+      "post": {
+        "summary": "SYSADMIN ONLY: Restore from a local backup",
+        "tags": ["Admin", "Backup"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "filename",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "System restored" },
+          "403": { "description": "Access denied" }
+        }
+      }
+    },
+    "/admin/backups/upload": {
+      "post": {
+        "summary": "SYSADMIN ONLY: Upload and restore a backup",
+        "tags": ["Admin", "Backup"],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "backup": { "type": "string", "format": "binary" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Backup uploaded and restored" },
+          "403": { "description": "Access denied" }
+        }
+      }
+    },
     "/register": {
       "post": {
         "summary": "Register a new user",

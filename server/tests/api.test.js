@@ -66,6 +66,16 @@ describe('Household Project API Integration Suite (Isolated Tenancy)', () => {
             expect(res.statusCode).toBe(200);
             expect(accessKey).toBeDefined();
         });
+
+        it('should list backups (SysAdmin only)', async () => {
+            const res = await request(app)
+                .get('/admin/backups')
+                .set('Authorization', `Bearer ${sysAdminToken}`);
+            
+            logToReport('List Backups', '/admin/backups', res.statusCode === 200 ? '✅ Access Granted' : '❌ Failed');
+            expect(res.statusCode).toBe(200);
+            expect(Array.isArray(res.body)).toBeTruthy();
+        });
     });
 
     // --- 2. HOUSEHOLD OPERATIONS ---

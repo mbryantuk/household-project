@@ -81,7 +81,14 @@ export default function NavSidebar({ open, toggleDrawer }) {
               <ListItemIcon sx={{ minWidth: 0, mr: open || isMobile ? 3 : 'auto', justifyContent: 'center' }}>
                 {item.icon}
               </ListItemIcon>
-              <ListItemText primary={item.label} sx={{ opacity: open || isMobile ? 1 : 0 }} />
+              <ListItemText 
+                primary={item.label} 
+                sx={{ 
+                  opacity: open || isMobile ? 1 : 0, 
+                  transition: theme.transitions.create('opacity', { duration: theme.transitions.duration.shorter }),
+                  whiteSpace: 'nowrap'
+                }} 
+              />
             </ListItemButton>
           </ListItem>
         ))}
@@ -90,7 +97,14 @@ export default function NavSidebar({ open, toggleDrawer }) {
   );
 
   return (
-    <Box component="nav" sx={{ width: { sm: open ? drawerWidth : `calc(${theme.spacing(8)} + 1px)` }, flexShrink: { sm: 0 }, transition: 'width 0.2s' }}>
+    <Box component="nav" sx={{ 
+      width: { sm: open ? drawerWidth : `calc(${theme.spacing(8)} + 1px)` }, 
+      flexShrink: { sm: 0 }, 
+      transition: theme.transitions.create('width', {
+        easing: theme.transitions.easing.sharp,
+        duration: open ? theme.transitions.duration.enteringScreen : theme.transitions.duration.leavingScreen,
+      }),
+    }}>
       {/* Mobile Drawer (Temporary) */}
       <Drawer
         variant="temporary"
