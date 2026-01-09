@@ -27,8 +27,6 @@ import PeopleView from './features/PeopleView';
 import HouseView from './features/HouseView';
 import PetsView from './features/PetsView';
 import VehiclesView from './features/VehiclesView';
-import EnergyView from './features/EnergyView';
-import FloatingCalculator from './components/FloatingCalculator';
 
 const API_URL = window.location.origin;
 
@@ -323,24 +321,17 @@ function AppContent() {
                                 onUpdateProfile={handleUpdateProfile}
                             />} />
                             <Route path="calendar" element={<CalendarView showNotification={showNotification} confirmAction={confirmAction} />} />
-                            <Route path="people" element={<PeopleView />} />
-                            <Route path="pets" element={<PetsView />} />
                             
-                            {/* UNIFIED HOUSE ROUTES */}
+                            <Route path="people/:personId" element={<PeopleView />} />
+                            <Route path="people" element={<Navigate to="new" replace />} />
+                            
+                            <Route path="pets/:petId" element={<PetsView />} />
+                            <Route path="pets" element={<Navigate to="new" replace />} />
+                            
                             <Route path="house" element={<HouseView />} />
-                            <Route path="energy" element={<HouseView />} />
-                            <Route path="water" element={<HouseView />} />
-                            <Route path="waste" element={<HouseView />} />
-                            <Route path="assets" element={<HouseView />} />
-                            <Route path="council" element={<HouseView />} />
 
-                            {/* UNIFIED VEHICLE ROUTES */}
-                            <Route path="vehicles" element={<VehiclesView view="fleet" />} />
-                            <Route path="vehicles/history" element={<VehiclesView view="history" />} />
-                            <Route path="vehicles/finance" element={<VehiclesView view="finance" />} />
-                            <Route path="vehicles/warranty" element={<VehiclesView view="warranty" />} />
-                            <Route path="vehicles/insurance" element={<VehiclesView view="insurance" />} />
-                            <Route path="vehicles/mot" element={<VehiclesView view="mot" />} />
+                            <Route path="vehicles/:vehicleId" element={<VehiclesView />} />
+                            <Route path="vehicles" element={<Navigate to="new" replace />} />
 
               <Route path="settings" element={<SettingsView 
                 household={household}

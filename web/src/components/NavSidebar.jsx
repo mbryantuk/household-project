@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { 
   Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, 
   Toolbar, Divider, IconButton, styled, useTheme, useMediaQuery, Box,
-  Collapse
+  Collapse, Avatar
 } from '@mui/material';
 import { 
   Settings, Home as HomeIcon, ChevronLeft, Menu, Event, 
-  Groups, Pets, HomeWork, DirectionsCar, ExpandLess, ExpandMore
+  Groups, Pets, HomeWork, DirectionsCar, 
+  ExpandLess, ExpandMore, Add
 } from '@mui/icons-material';
 import { NavLink, useLocation } from 'react-router-dom';
+import { getEmojiColor } from '../theme';
 
 const drawerWidth = 240;
 
@@ -50,23 +52,82 @@ const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'ope
   }),
 );
 
-export default function NavSidebar({ open, toggleDrawer }) {
+export default function NavSidebar({ open, toggleDrawer, members = [], vehicles = [], isDark }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const location = useLocation();
 
-  const menuItems = [
-    { id: 'dashboard', label: 'Home', icon: <HomeIcon /> },
-    { id: 'calendar', label: 'Calendar', icon: <Event /> },
-    { type: 'divider' },
-    { id: 'people', label: 'People', icon: <Groups /> },
-    { id: 'pets', label: 'Pets', icon: <Pets /> },
-    { type: 'divider' },
-    { id: 'house', label: 'House Registry', icon: <HomeWork /> },
-    { id: 'vehicles', label: 'Vehicle Fleet', icon: <DirectionsCar /> },
-    { type: 'divider' },
-    { id: 'settings', label: 'Settings', icon: <Settings /> },
-  ];
+  const [openSub, setOpenSub] = useState({
+    people: location.pathname.includes('/people'),
+    pets: location.pathname.includes('/pets'),
+    vehicles: location.pathname.includes('/vehicles')
+  });
+
+  const handleToggle = (key) => {
+    setOpenSub(prev => ({ ...prev, [key]: !prev[key] }));
+    if (!open && !isMobile) toggleDrawer();
+  };
+
+  const people = members.filter(m => m.type !== 'pet');
+  const pets = members.filter(m => m.type === 'pet');
+
+  const renderSubItem = (label, to, icon, emoji = null) => (
+    <ListItem key={to} disablePadding sx={{ display: 'block' }}>
+      <ListItemButton
+        component={NavLink}
+        to={to}
+        onClick={isMobile ? toggleDrawer : undefined}
+        sx={{
+          minHeight: 40,
+          pl: 4,
+          '&.active': {
+            bgcolor: 'action.selected',
+            borderRight: '3px solid',
+            borderColor: 'primary.main'
+          }
+        }}
+      >
+        <ListItemIcon sx={{ minWidth: 0, mr: 2, justifyContent: 'center' }}>
+          {emoji ? (
+            <Avatar sx={{ width: 24, height: 24, fontSize: '0.8rem', bgcolor: getEmojiColor(emoji, isDark) }}>
+              {emoji}
+            </Avatar>
+          ) : icon}
+        </ListItemIcon>
+        <ListItemText primary={label} primaryTypographyProps={{ variant: 'body2' }} />
+      </ListItemButton>
+    </ListItem>
+  );
+
+  const renderParent = (id, label, icon, children, items, pathPrefix) => {
+    const isOpen = openSub[id];
+    return (
+      <Box key={id}>
+        <ListItem disablePadding sx={{ display: 'block' }}>
+          <ListItemButton
+            onClick={() => handleToggle(id)}
+            sx={{
+              minHeight: 48,
+              justifyContent: open || isMobile ? 'initial' : 'center',
+              px: 2.5,
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: 0, mr: open || isMobile ? 3 : 'auto', justifyContent: 'center' }}>
+              {icon}
+            </ListItemIcon>
+            <ListItemText primary={label} sx={{ opacity: open || isMobile ? 1 : 0 }} />
+            {(open || isMobile) && (isOpen ? <ExpandLess /> : <ExpandMore />)}
+          </ListItemButton>
+        </ListItem>
+        <Collapse in={isOpen && (open || isMobile)} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+            {items.map(item => renderSubItem(item.name || `${item.make} ${item.model}`, `${pathPrefix}/${item.id}`, null, item.emoji || (id === 'vehicles' ? '🚗' : null)))}
+            {renderSubItem('Add New', `${pathPrefix}/new`, <Add fontSize="small" />)}
+          </List>
+        </Collapse>
+      </Box>
+    );
+  };
 
   const drawerContent = (
     <>
@@ -77,35 +138,60 @@ export default function NavSidebar({ open, toggleDrawer }) {
       </Toolbar>
       <Divider />
       <List>
-        {menuItems.map((item, index) => (
-          item.type === 'divider' ? <Divider key={`div-${index}`} sx={{ my: 1 }} /> : (
-            <ListItem key={item.id} disablePadding sx={{ display: 'block' }}>
-              <ListItemButton
-                component={NavLink}
-                to={item.id}
-                onClick={isMobile ? toggleDrawer : undefined}
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open || isMobile ? 'initial' : 'center',
-                  px: 2.5,
-                  '&.active': {
-                    bgcolor: 'action.selected',
-                    borderRight: '3px solid',
-                    borderColor: 'primary.main'
-                  }
-                }}
-              >
-                <ListItemIcon sx={{ minWidth: 0, mr: open || isMobile ? 3 : 'auto', justifyContent: 'center' }}>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText 
-                  primary={item.label} 
-                  sx={{ opacity: open || isMobile ? 1 : 0 }} 
-                />
-              </ListItemButton>
-            </ListItem>
-          )
-        ))}
+        <ListItem disablePadding sx={{ display: 'block' }}>
+          <ListItemButton
+            component={NavLink}
+            to="dashboard"
+            sx={{ minHeight: 48, px: 2.5, justifyContent: open || isMobile ? 'initial' : 'center' }}
+          >
+            <ListItemIcon sx={{ minWidth: 0, mr: open || isMobile ? 3 : 'auto', justifyContent: 'center' }}><HomeIcon /></ListItemIcon>
+            <ListItemText primary="Home" sx={{ opacity: open || isMobile ? 1 : 0 }} />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding sx={{ display: 'block' }}>
+          <ListItemButton
+            component={NavLink}
+            to="calendar"
+            sx={{ minHeight: 48, px: 2.5, justifyContent: open || isMobile ? 'initial' : 'center' }}
+          >
+            <ListItemIcon sx={{ minWidth: 0, mr: open || isMobile ? 3 : 'auto', justifyContent: 'center' }}><Event /></ListItemIcon>
+            <ListItemText primary="Calendar" sx={{ opacity: open || isMobile ? 1 : 0 }} />
+          </ListItemButton>
+        </ListItem>
+
+        <Divider sx={{ my: 1 }} />
+
+        {renderParent('people', 'People', <Groups />, null, people, 'people')}
+        {renderParent('pets', 'Pets', <Pets />, null, pets, 'pets')}
+        
+        {/* NO DIVIDER AS REQUESTED */}
+
+        <ListItem disablePadding sx={{ display: 'block' }}>
+          <ListItemButton
+            component={NavLink}
+            to="house"
+            sx={{ minHeight: 48, px: 2.5, justifyContent: open || isMobile ? 'initial' : 'center' }}
+          >
+            <ListItemIcon sx={{ minWidth: 0, mr: open || isMobile ? 3 : 'auto', justifyContent: 'center' }}><HomeWork /></ListItemIcon>
+            <ListItemText primary="House" sx={{ opacity: open || isMobile ? 1 : 0 }} />
+          </ListItemButton>
+        </ListItem>
+
+        {renderParent('vehicles', 'Vehicles', <DirectionsCar />, null, vehicles, 'vehicles')}
+
+        <Divider sx={{ my: 1 }} />
+
+        <ListItem disablePadding sx={{ display: 'block' }}>
+          <ListItemButton
+            component={NavLink}
+            to="settings"
+            sx={{ minHeight: 48, px: 2.5, justifyContent: open || isMobile ? 'initial' : 'center' }}
+          >
+            <ListItemIcon sx={{ minWidth: 0, mr: open || isMobile ? 3 : 'auto', justifyContent: 'center' }}><Settings /></ListItemIcon>
+            <ListItemText primary="Settings" sx={{ opacity: open || isMobile ? 1 : 0 }} />
+          </ListItemButton>
+        </ListItem>
       </List>
     </>
   );
