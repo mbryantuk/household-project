@@ -19,38 +19,9 @@ import GeneralDetailView from './GeneralDetailView';
 
 export default function HouseView() {
   const { api, id: householdId, user: currentUser, showNotification, isDark } = useOutletContext();
-  const location = useLocation();
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
 
-  // Map sub-paths to tab indices
-  const tabMap = useMemo(() => ({
-    '/house': 0,
-    '/energy': 1,
-    '/water': 2,
-    '/waste': 3,
-    '/assets': 4,
-    '/council': 5,
-    '/costs': 6
-  }), []);
-
-  // Determine active tab from URL
-  const [activeTab, setActiveTab] = useState(() => {
-    const path = location.pathname.split('/').pop();
-    return tabMap[`/${path}`] || 0;
-  });
-
-  useEffect(() => {
-    const path = location.pathname.split('/').pop();
-    const tab = tabMap[`/${path}`];
-    if (tab !== undefined) setActiveTab(tab);
-  }, [location.pathname, tabMap]);
-
-  const handleTabChange = (event, newValue) => {
-    setActiveTab(newValue);
-    // Note: We don't necessarily need to navigate here if we want to keep it as a pure state-based view,
-    // but NavSidebar already points to these separate routes. 
-    // To support both, we keep them in sync.
-  };
+  const [activeTab, setActiveTab] = useState(0);
 
   const houseFields = [
     { name: 'property_type', label: 'Property Type (e.g. Detached, Flat)', half: true },
@@ -73,7 +44,7 @@ export default function HouseView() {
         <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'action.hover' }}>
           <Tabs 
             value={activeTab} 
-            onChange={handleTabChange} 
+            onChange={(e, v) => setActiveTab(v)} 
             variant="scrollable" 
             scrollButtons="auto"
             sx={{ px: 2 }}

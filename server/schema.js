@@ -155,7 +155,7 @@ const SCHEMA_DEFINITIONS = [
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         name TEXT NOT NULL,
-        category TEXT,
+        category TEXT, -- Appliance, Electronics, etc.
         location TEXT,
         manufacturer TEXT,
         model_number TEXT,
@@ -206,7 +206,7 @@ const SCHEMA_DEFINITIONS = [
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         waste_type TEXT NOT NULL,
-        frequency TEXT NOT NULL,
+        frequency TEXT NOT NULL, -- Daily, Weekly, Biweekly, Monthly
         collection_day TEXT NOT NULL,
         notes TEXT
     )`
@@ -226,7 +226,15 @@ const MIGRATIONS = [
     ['dates', 'household_id', 'INTEGER'],
     ['house_details', 'household_id', 'INTEGER'],
     ['vehicles', 'household_id', 'INTEGER'],
-    ['assets', 'household_id', 'INTEGER']
+    ['assets', 'household_id', 'INTEGER'],
+    ['energy_accounts', 'household_id', 'INTEGER'],
+    ['water_info', 'household_id', 'INTEGER'],
+    ['council_info', 'household_id', 'INTEGER'],
+    ['waste_collections', 'household_id', 'INTEGER'],
+    ['vehicle_services', 'household_id', 'INTEGER'],
+    ['vehicle_finance', 'household_id', 'INTEGER'],
+    ['vehicle_insurance', 'household_id', 'INTEGER'],
+    ['recurring_costs', 'household_id', 'INTEGER']
 ];
 
 function initializeHouseholdSchema(db) {
@@ -236,7 +244,9 @@ function initializeHouseholdSchema(db) {
         });
 
         MIGRATIONS.forEach(([table, col, definition]) => {
-            db.run(`ALTER TABLE ${table} ADD COLUMN ${col} ${definition}`, (err) => {});
+            db.run(`ALTER TABLE ${table} ADD COLUMN ${col} ${definition}`, (err) => {
+                // Ignore "duplicate column" errors
+            });
         });
     });
 }

@@ -5,7 +5,7 @@ import {
   ListItemIcon, Avatar, Paper, Tabs, Tab, TextField, Button, 
   FormControl, InputLabel, Select, MenuItem, Stack, Chip, Divider,
   Dialog, DialogTitle, DialogContent, DialogActions, Table, TableBody,
-  TableCell, TableContainer, TableHead, TableRow
+  TableCell, TableContainer, TableHead, TableRow, CircularProgress
 } from '@mui/material';
 import { 
   DirectionsCar, History, Receipt, Engineering, Policy, Shield,
@@ -56,7 +56,7 @@ export default function VehiclesView() {
     finally { setSubLoading(false); }
   }, [api, householdId, selectedId, activeTab]);
 
-  useEffect(() => { fetchVehicles(); }, []);
+  useEffect(() => { fetchVehicles(); }, [fetchVehicles]);
   useEffect(() => { fetchSubData(); }, [selectedId, activeTab, fetchSubData]);
 
   const handleVehicleSubmit = async (e) => {
@@ -154,7 +154,7 @@ export default function VehiclesView() {
                       <Grid item xs={12} md={4}><TextField name="tax_due" label="Tax Due Date" type="date" defaultValue={selectedVehicle.tax_due} fullWidth InputLabelProps={{shrink:true}} /></Grid>
                       <Grid item xs={12} md={4}><TextField name="emoji" label="Emoji" defaultValue={selectedVehicle.emoji} fullWidth placeholder="🚗" /></Grid>
                       
-                      <Grid item xs={12}><Button type="submit" variant="contained">Update Vehicle Details</Button></Grid>
+                      <Grid item xs={12}><Button type="submit" variant="contained" size="large">Update Vehicle Details</Button></Grid>
                     </Grid>
                   </form>
                 )}

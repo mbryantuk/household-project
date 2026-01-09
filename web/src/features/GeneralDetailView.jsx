@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { 
   Box, Typography, Paper, Grid, TextField, Button, CircularProgress, 
@@ -20,18 +20,18 @@ export default function GeneralDetailView({ title, icon, endpoint, fields }) {
   const isHouseholdAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
 
   const fetchData = useCallback(async () => {
-    setLoading(true);
     try {
       const res = await api.get(`/households/${householdId}/${endpoint}`);
       setData(res.data || {});
     } catch (err) {
-      console.error(err);
+      console.error(`Error fetching ${endpoint}:`, err);
     } finally {
       setLoading(false);
     }
   }, [api, householdId, endpoint]);
 
   useEffect(() => {
+    setLoading(true);
     fetchData();
   }, [fetchData]);
 
@@ -44,7 +44,9 @@ export default function GeneralDetailView({ title, icon, endpoint, fields }) {
     try {
       await api.put(`/households/${householdId}/${endpoint}`, updates);
       showNotification(`${title} updated successfully.`, "success");
-      fetchData();
+      // Fetch fresh data after save
+      const res = await api.get(`/households/${householdId}/${endpoint}`);
+      setData(res.data || {});
     } catch (err) {
       showNotification(`Failed to save ${title}.`, "error");
     } finally {
@@ -52,7 +54,7 @@ export default function GeneralDetailView({ title, icon, endpoint, fields }) {
     }
   };
 
-  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
+  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}><CircularProgress /></Box>;
 
   return (
     <Box>
