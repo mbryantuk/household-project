@@ -6,19 +6,13 @@ import {
   TextField, FormControl, InputLabel, Select, MenuItem, Stack, IconButton, Tooltip
 } from '@mui/material';
 import { Event, Cake, Favorite, Add, Star, AddReaction, Edit, Delete } from '@mui/icons-material';
+import EmojiPicker from '../components/EmojiPicker';
 
 const EVENT_TYPES = [
   { value: 'birthday', label: 'Birthday', icon: <Cake fontSize="small" /> },
   { value: 'anniversary', label: 'Anniversary', icon: <Favorite fontSize="small" /> },
   { value: 'holiday', label: 'Holiday', icon: <Star fontSize="small" /> },
   { value: 'other', label: 'Event', icon: <Event fontSize="small" /> },
-];
-
-const EMOJI_CATEGORIES = [
-  { label: 'Smileys', emojis: ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '🤨', '🧐'] },
-  { label: 'Animals', emojis: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐽', '🐸', '🐵', '🙈', '🙉', '🙊', '🐒', '🐔', '🐧', '🐦', '🐤', '🐣', '🐥', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🦟', '🦗', '🕷️', '🕸️', '🦂', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊', '🐅', '🐆', '🦓', '🦍', '🐘', '🦏', '🦛', '🐪', '🐫', '🦒', '🦘', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑', '🦙', '🐐', '🦌', '🐕', '🐩', '🐈', '🐓', '🦃', '🦚', '🦜', '🦢', '🕊️', '🐇', '🦝', '🦨', '🦡', '🦦', '🦥', '🐁', '🐀', '🐿️', '🦔'] },
-  { label: 'House & Travel', emojis: ['🏠', '🏡', '🏘️', '🏚️', '🏗️', '🏢', '🏣', '🏤', '🏥', '🏦', '🏨', '🏩', '🏪', '🏫', '🏬', '🏭', '🏯', '🏰', '💒', '🗼', '🗼', '🗽', '⛪', '🕌', '🕍', '⛩️', '🕋', '⛲', '⛺', '🌁', '🌃', '🏙️', '🌄', '🌅', '🌆', '🌇', '🌉', '♨️', '🎠', '🎡', '🎢', '🚂', '🚃', '🚄', '🚅', '🚆', '🚇', '🚈', '🚉', '🚊', '🚝', '🚞', '🚋', '🚌', '🚍', '🚎', '🚐', '🚑', '🚒', '🚓', '🚔', '🚕', '🚖', '🚗', '🚘', '🚙', '🚚', '🚛', '🚜', '🏎️', '🏍️', '🛵', '🚲', '🛴', '🛍️', '🎁', '🎂', '🎈', '🎆', '🎇', '🧨', '✨', '🎈', '🎉', '🎊'] },
-  { label: 'Objects & Symbols', emojis: ['⌚', '📱', '📲', '💻', '⌨️', '🖥️', '🖨️', '🖱️', '🖲️', '🕹️', '🗜️', '💽', '💾', '💿', '📀', '📼', '📷', '📸', '📹', '🎥', '📽️', '🎞️', '📞', '☎️', '📟', '📠', '📺', '📻', '🎙️', '🎚️', '🎛️', '🧭', '⏱️', '⏲️', '⏰', '🕰️', '⌛', '⏳', '📡', '🔋', '🔌', '💡', '🔦', '🕯️', '🪔', '🧯', '🛢️', '💸', '💵', '💴', '💶', '💷', '💰', '💳', '💎', '⚖️', '🧰', '🔧', '🔨', '⚒️', '🛠️', '⛏️', '🔩', '⚙️', '🧱', '⛓️', '🧲', '🔫', '💣', '🧨', '🪓', '🔪', '🗡️', '⚔️', '🛡️', '🚬', '⚰️', '⚱️', '🏺', '🔮', '📿', '🧿', '💈', '⚗️', '🔭', '🔬', '🕳️', '🩹', '🩺', '💊', '💉', '🩸', '🧬', '🦠', '🧫', '🧪', '🌡️', '🧹', '🧺', '🧻', '🚽', '🚰', '🚿', '🛁', '🧼', '🪒', '🧴', '🧷', '🧹'] }
 ];
 
 export default function CalendarView() {
@@ -215,37 +209,15 @@ export default function CalendarView() {
       </Dialog>
 
       {/* EMOJI PICKER DIALOG */}
-      <Dialog open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Select Event Emoji</DialogTitle>
-        <DialogContent dividers sx={{ p: 0 }}>
-          <Box sx={{ p: 2 }}>
-            {EMOJI_CATEGORIES.map((cat) => (
-              <Box key={cat.label} sx={{ mb: 3 }}>
-                <Typography variant="subtitle2" color="primary" gutterBottom sx={{ fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 1 }}>
-                  {cat.label}
-                </Typography>
-                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(40px, 1fr))', gap: 1 }}>
-                  {cat.emojis.map((emoji) => (
-                    <IconButton 
-                      key={emoji} 
-                      onClick={() => {
-                        setSelectedEmoji(emoji);
-                        setEmojiPickerOpen(false);
-                      }}
-                      sx={{ fontSize: '1.5rem', '&:hover': { bgcolor: 'action.selected' } }}
-                    >
-                      {emoji}
-                    </IconButton>
-                  ))}
-                </Box>
-              </Box>
-            ))}
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEmojiPickerOpen(false)}>Close</Button>
-        </DialogActions>
-      </Dialog>
+      <EmojiPicker 
+        open={emojiPickerOpen} 
+        onClose={() => setEmojiPickerOpen(false)} 
+        onEmojiSelect={(emoji) => {
+            setSelectedEmoji(emoji);
+            setEmojiPickerOpen(false);
+        }}
+        title="Select Event Emoji"
+      />
     </Box>
   );
 }

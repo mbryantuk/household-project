@@ -4,21 +4,16 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions, TextField,
   Select, MenuItem, FormControl, InputLabel, Stack, Tooltip, Divider
 } from '@mui/material';
-import { 
+import {
   ChevronLeft, ChevronRight, Add, Event, Cake, Favorite, Star 
 } from '@mui/icons-material';
+import EmojiPicker from './EmojiPicker';
 
 const EVENT_TYPES = [
   { value: 'birthday', label: 'Birthday', icon: <Cake fontSize="small" /> },
   { value: 'anniversary', label: 'Anniversary', icon: <Favorite fontSize="small" /> },
   { value: 'holiday', label: 'Holiday', icon: <Star fontSize="small" /> },
   { value: 'other', label: 'Event', icon: <Event fontSize="small" /> },
-];
-
-const EMOJI_CATEGORIES = [
-  { label: 'Smileys', emojis: ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧'] },
-  { label: 'Animals', emojis: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐽', '🐸', '🐵', '🙈', '🙉', '🙊', '🐒', '🐔', '🐧', '🐦', '🐤', '🐣', '🐥', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🕷️', '🐢', '🐍', '🦎', '🐙', '🦑', '🦐', '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊', '🐅', '🐆', '🦓', '🦍', '🐘', '🦏', '🦛', '🐪', '🐫', '🦒', '🦘', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑', '🦙', '🐐', '🦌', '🐕', '🐩', '🐈', '🐓', '🦃', '🦚', '🦜', '🦢', '🕊️', '🐇', '🦝', '🦨', '🦡', '🦦', '🦥', '🐁', '🐀', '🐿️', '🦔'] },
-  { label: 'House & Travel', emojis: ['🏠', '🏡', '🏘️', '🏚️', '🏗️', '🏢', '🏣', '🏤', '🏥', '🏦', '🏨', '🏩', '🏪', '🏫', '🏬', '🏭', '🏯', '🏰', '💒', '🗼', '🗽', '⛪', '🕌', '🕍', '⛩️', '🕋', '⛲', '⛺', '🌁', '🌃', '🏙️', '🌄', '🌅', '🌆', '🌇', '🌉', '♨️', '🎠', '🎡', '🎢', '🚂', '🚃', '🚄', '🚅', '🚆', '🚇', '🚈', '🚉', '🚊', '🚝', '🚞', '🚋', '🚌', '🚍', '🚎', '🚐', '🚑', '🚒', '🚓', '🚔', '🚕', '🚖', '🚗', '🚘', '🚙', '🚚', '🚛', '🚜', '🏎️', '🏍️', '🛵', '🚲', '🛴', '🛍️', '🎁', '🎂', '🎈', '🎆', '🎇', '✨', '🎉', '🎊'] }
 ];
 
 export default function FloatingCalendar({ dates = [], api, householdId, onDateAdded, currentUser }) {
@@ -200,23 +195,15 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
         </form>
       </Dialog>
 
-      <Dialog open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>Select Emoji</DialogTitle>
-        <DialogContent dividers sx={{ p: 1 }}>
-            {EMOJI_CATEGORIES.map(cat => (
-                <Box key={cat.label} sx={{ mb: 2 }}>
-                    <Typography variant="caption" color="primary" sx={{ fontWeight: 'bold', display: 'block', mb: 1 }}>{cat.label}</Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {cat.emojis.map(emoji => (
-                            <IconButton key={emoji} onClick={() => { setSelectedEmoji(emoji); setEmojiPickerOpen(false); }} size="small" sx={{ fontSize: '1.2rem' }}>
-                                {emoji}
-                            </IconButton>
-                        ))}
-                    </Box>
-                </Box>
-            ))}
-        </DialogContent>
-      </Dialog>
+      <EmojiPicker 
+        open={emojiPickerOpen} 
+        onClose={() => setEmojiPickerOpen(false)} 
+        onEmojiSelect={(emoji) => {
+            setSelectedEmoji(emoji);
+            setEmojiPickerOpen(false);
+        }}
+        title="Select Event Emoji"
+      />
     </Paper>
   );
 }

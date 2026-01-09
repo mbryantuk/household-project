@@ -12,7 +12,8 @@ const useTenantDb = (req, res, next) => {
             title TEXT NOT NULL,
             date TEXT NOT NULL, -- YYYY-MM-DD
             type TEXT DEFAULT 'event', -- birthday, anniversary, holiday, other
-            description TEXT
+            description TEXT,
+            emoji TEXT
         )
     `;
     db.run(createTableSql, (err) => {
@@ -20,8 +21,15 @@ const useTenantDb = (req, res, next) => {
             db.close();
             return res.status(500).json({ error: "DB Init failed for dates" });
         }
-        req.tenantDb = db;
-        next();
+        
+        // Simple migration check: try to add the column if it's missing
+        // This is a "lazy" migration for existing tables
+        db.run(`ALTER TABLE dates ADD COLUMN emoji TEXT`, (err) => {
+            // If error, it likely means column exists, which is fine.
+            // In a production app, we'd check PRAGMA table_info or use a migration tool.
+            req.tenantDb = db;
+            next();
+        });
     });
 };
 
