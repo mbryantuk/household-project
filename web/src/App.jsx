@@ -179,6 +179,22 @@ function AppContent() {
     }
   }, [authAxios, user, fetchHouseholds, showNotification]);
 
+  const handleUpdateHouseholdSettings = useCallback(async (updates) => {
+    if (!household) return;
+    try {
+      await authAxios.put(`/households/${household.id}`, updates);
+      setHousehold(prev => {
+        const updated = { ...prev, ...updates };
+        localStorage.setItem('household', JSON.stringify(updated));
+        return updated;
+      });
+      showNotification("Household updated.", "success");
+      if (user?.role === 'sysadmin') fetchHouseholds();
+    } catch (err) {
+      showNotification("Failed to update household.", "error");
+    }
+  }, [authAxios, household, user, fetchHouseholds, showNotification]);
+
   const handleDeleteHousehold = useCallback(async (hhId) => {
     if (user?.role === 'sysadmin') {
         try {
@@ -306,6 +322,7 @@ function AppContent() {
               households={user?.role === 'sysadmin' ? households : [household]}
               onSelectHousehold={() => {}}
               api={authAxios}
+              onUpdateHousehold={handleUpdateHouseholdSettings}
               members={hhMembers}
               fetchHhMembers={fetchHhMembers}
               user={user}
@@ -341,16 +358,7 @@ function AppContent() {
                 users={hhUsers}
                 currentUser={user}
                 api={authAxios}
-                onUpdateHousehold={(updates) => {
-                  authAxios.put(`/households/${household.id}`, updates).then(() => {
-                      setHousehold(prev => {
-                        const updated = { ...prev, ...updates };
-                        localStorage.setItem('household', JSON.stringify(updated));
-                        return updated;
-                      });
-                      showNotification("Settings saved.", "success");
-                  });
-                }}
+                onUpdateHousehold={handleUpdateHouseholdSettings}
                 onDeleteHousehold={() => {}}
                 onCreateUser={handleCreateUser}
                 onUpdateUser={handleUpdateUser}

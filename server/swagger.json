@@ -28,6 +28,18 @@
           "monthly_maintenance_cost": { "type": "number" },
           "depreciation_rate": { "type": "number" }
         }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "username": { "type": "string" },
+          "first_name": { "type": "string" },
+          "last_name": { "type": "string" },
+          "email": { "type": "string" },
+          "avatar": { "type": "string" },
+          "role": { "type": "string" }
+        }
       }
     }
   },
@@ -53,6 +65,45 @@
           }
         },
         "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "summary": "List all users (SysAdmin only)",
+        "tags": ["Admin"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/User" } } } }
+          }
+        }
+      }
+    },
+    "/admin/create-user": {
+      "post": {
+        "summary": "Create a new user (Admin/SysAdmin only)",
+        "tags": ["Admin"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password"],
+                "properties": {
+                  "username": { "type": "string" },
+                  "password": { "type": "string" },
+                  "first_name": { "type": "string" },
+                  "last_name": { "type": "string" },
+                  "email": { "type": "string" },
+                  "avatar": { "type": "string" },
+                  "role": { "type": "string" },
+                  "householdId": { "type": "integer" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Created" } }
       }
     },
     "/households/{id}": {
@@ -85,49 +136,6 @@
           }
         },
         "responses": { "200": { "description": "Updated" }, "403": { "description": "Forbidden" } }
-      }
-    },
-    "/households/{id}/vehicles": {
-      "get": {
-        "summary": "List household vehicles (Tenant isolated)",
-        "tags": ["Vehicles"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "OK" } }
-      },
-      "post": {
-        "summary": "Create vehicle (Admin only)",
-        "tags": ["Vehicles"],
-        "responses": { "200": { "description": "Created" }, "403": { "description": "Forbidden" } }
-      }
-    },
-    "/households/{id}/vehicles/{vehicleId}/services": {
-      "get": {
-        "summary": "Get service history for a vehicle",
-        "tags": ["Vehicles"],
-        "parameters": [
-          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
-          { "in": "path", "name": "vehicleId", "required": true, "schema": { "type": "integer" } }
-        ],
-        "responses": { "200": { "description": "OK" } }
-      }
-    },
-    "/households/{id}/waste": {
-      "get": {
-        "summary": "List waste collection schedules",
-        "tags": ["Waste"],
-        "responses": { "200": { "description": "OK" } }
-      },
-      "post": {
-        "summary": "Add collection schedule",
-        "tags": ["Waste"],
-        "responses": { "200": { "description": "Created" } }
-      }
-    },
-    "/households/{id}/assets": {
-      "get": {
-        "summary": "List appliances and assets with financial data",
-        "tags": ["Assets"],
-        "responses": { "200": { "description": "OK" } }
       }
     }
   }

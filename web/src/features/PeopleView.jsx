@@ -144,7 +144,6 @@ export default function PeopleView() {
                     <Select name="type" value={formData.type} label="Role / Type" onChange={handleChange}>
                       <MenuItem value="adult">Adult</MenuItem>
                       <MenuItem value="child">Child</MenuItem>
-                      <MenuItem value="viewer">Viewer</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>

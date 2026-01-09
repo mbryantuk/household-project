@@ -107,14 +107,14 @@ router.delete('/households/:id', authenticateToken, (req, res) => {
 
 router.get('/users', authenticateToken, (req, res) => {
     if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
-    globalDb.all("SELECT id, username, email, avatar, system_role FROM users", [], (err, rows) => {
+    globalDb.all("SELECT id, username, email, first_name, last_name, avatar, system_role FROM users", [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });
 
 router.post('/create-user', authenticateToken, (req, res) => {
-    const { username, password, role, email, avatar, householdId } = req.body;
+    const { username, password, role, email, first_name, last_name, avatar, householdId } = req.body;
     const targetHhId = householdId || req.user.householdId;
     if (!targetHhId) return res.status(400).json({ error: "Household ID required" });
     if (req.user.role !== 'admin' && req.user.system_role !== 'sysadmin') return res.sendStatus(403);
@@ -122,8 +122,8 @@ router.post('/create-user', authenticateToken, (req, res) => {
 
     const targetDb = getHouseholdDb(targetHhId);
     const hash = bcrypt.hashSync(password, 8);
-    targetDb.run(`INSERT INTO users (username, password_hash, role, email, avatar, household_id) VALUES (?, ?, ?, ?, ?, ?)`, 
-        [username, hash, role || 'member', email, avatar, targetHhId], function(err) {
+    targetDb.run(`INSERT INTO users (username, password_hash, role, email, first_name, last_name, avatar, household_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, 
+        [username, hash, role || 'member', email, first_name, last_name, avatar, targetHhId], function(err) {
             targetDb.close();
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "User created", id: this.lastID });
@@ -131,7 +131,7 @@ router.post('/create-user', authenticateToken, (req, res) => {
 });
 
 router.put('/users/:userId', authenticateToken, (req, res) => {
-    const { username, role, password, householdId } = req.body;
+    const { username, role, password, email, first_name, last_name, avatar, householdId } = req.body;
     const targetHhId = householdId || req.user.householdId;
     if (!targetHhId) return res.status(400).json({ error: "Household ID required" });
     if (req.user.role !== 'admin' && req.user.system_role !== 'sysadmin') return res.sendStatus(403);
@@ -142,6 +142,10 @@ router.put('/users/:userId', authenticateToken, (req, res) => {
     if (username) { fields.push('username = ?'); values.push(username); }
     if (role) { fields.push('role = ?'); values.push(role); }
     if (password) { fields.push('password_hash = ?'); values.push(bcrypt.hashSync(password, 8)); }
+    if (email !== undefined) { fields.push('email = ?'); values.push(email); }
+    if (first_name !== undefined) { fields.push('first_name = ?'); values.push(first_name); }
+    if (last_name !== undefined) { fields.push('last_name = ?'); values.push(last_name); }
+    if (avatar !== undefined) { fields.push('avatar = ?'); values.push(avatar); }
     
     if (fields.length === 0) { targetDb.close(); return res.status(400).json({ error: "No fields to update" }); }
     values.push(req.params.userId);

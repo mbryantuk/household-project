@@ -7,6 +7,7 @@ Totem is a high-performance, multi-tenant Household Management SaaS designed wit
 *   **Strict Multi-Tenancy:** Secure data isolation using unique Household Keys and tenant-specific database contexts.
 *   **Enhanced Unified Calendar:** Comprehensive view of events, birthdays, and anniversaries with Month, Week, and Agenda views and integrated recurrence logic.
 *   **Household Personalization:** Customizable household identity with Emojis and Avatars for better visual recognition.
+*   **Comprehensive User Management:** Track detailed user profiles (First Name, Last Name, Email) with customizable Emoji avatars and granular RBAC.
 *   **Asset-First Financial Modeling:**
     *   **Appliance Register:** Track purchase value, replacement cost, and depreciation for all household items.
     *   **Vehicle Fleet Management:** Comprehensive tracking of service history, finance agreements, insurance, and MOT/Tax schedules.

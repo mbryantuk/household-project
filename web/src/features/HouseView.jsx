@@ -20,7 +20,7 @@ import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
 import GeneralDetailView from './GeneralDetailView';
 
 export default function HouseView() {
-  const { api, id: householdId, user: currentUser, showNotification, isDark } = useOutletContext();
+  const { api, id: householdId, onUpdateHousehold, user: currentUser, showNotification, isDark } = useOutletContext();
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
 
   const [activeTab, setActiveTab] = useState(0);
@@ -40,19 +40,19 @@ export default function HouseView() {
       .finally(() => setLoadingHh(false));
   }, [api, householdId]);
 
-  const handleUpdateHousehold = async (e) => {
+  const handleUpdateIdentity = async (e) => {
     e.preventDefault();
     setSavingHh(true);
     const data = Object.fromEntries(new FormData(e.currentTarget));
     data.avatar = selectedEmoji;
 
     try {
-      await api.put(`/households/${householdId}`, data);
+      await onUpdateHousehold(data);
       showNotification("Household identity updated.", "success");
-      // Update local state
+      // Update local state to reflect changes in UI immediately
       setHousehold(prev => ({ ...prev, ...data }));
     } catch (err) {
-      showNotification("Failed to update household.", "error");
+      // Notification handled by onUpdateHousehold usually, but we catch for safety
     } finally {
       setSavingHh(false);
     }
@@ -100,7 +100,7 @@ export default function HouseView() {
             loadingHh ? <CircularProgress /> : (
               <Box>
                 <Typography variant="h5" fontWeight="300" gutterBottom sx={{ mb: 4 }}>Household Identity & Location</Typography>
-                <form onSubmit={handleUpdateHousehold}>
+                <form onSubmit={handleUpdateIdentity}>
                   <Grid container spacing={3}>
                     <Grid item xs={12} md={2}>
                         <Tooltip title="Pick an emoji">

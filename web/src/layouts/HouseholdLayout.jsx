@@ -9,6 +9,7 @@ export default function HouseholdLayout({
   households, 
   onSelectHousehold,
   api,
+  onUpdateHousehold,
   members,
   fetchHhMembers,
   user,
@@ -57,6 +58,7 @@ export default function HouseholdLayout({
         <Outlet context={{ 
             api, 
             id, 
+            onUpdateHousehold,
             members, 
             fetchHhMembers, 
             fetchVehicles,

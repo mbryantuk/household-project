@@ -33,6 +33,8 @@ export default function TopBar({
     const formData = new FormData(e.currentTarget);
     const updates = {
       username: formData.get('username'),
+      first_name: formData.get('first_name'),
+      last_name: formData.get('last_name'),
       email: formData.get('email'),
       avatar: user.avatar
     };
@@ -194,6 +196,12 @@ export default function TopBar({
                 </Grid>
                 <Grid item xs={12}>
                   <TextField name="username" label="Username" defaultValue={user?.username} fullWidth required />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField name="first_name" label="First Name" defaultValue={user?.first_name} fullWidth />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField name="last_name" label="Last Name" defaultValue={user?.last_name} fullWidth />
                 </Grid>
                 <Grid item xs={12}>
                   <TextField name="email" label="Email Address" defaultValue={user?.email} fullWidth />

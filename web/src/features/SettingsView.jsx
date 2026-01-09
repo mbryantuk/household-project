@@ -12,6 +12,8 @@ import {
   Edit, Save, Schedule, Download, Restore, CloudDownload,
   DarkMode, LightMode
 } from '@mui/icons-material';
+import EmojiPicker from '../components/EmojiPicker';
+import { getEmojiColor } from '../theme';
 
 export default function SettingsView({ 
   household, users, currentUser, api, onUpdateHousehold, 
@@ -21,10 +23,13 @@ export default function SettingsView({
 }) {
   const [tab, setTab] = useState(0);
   const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
   const [backups, setBackups] = useState([]);
   const [backupLoading, setBackupLoading] = useState(false);
   const [userDialogOpen, setUserDialogOpen] = useState(false);
   const [editUser, setEditUser] = useState(null);
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [selectedUserEmoji, setSelectedUserEmoji] = useState('👤');
 
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
 
@@ -84,6 +89,7 @@ export default function SettingsView({
   const handleUserSubmit = (e) => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(e.currentTarget));
+    data.avatar = selectedUserEmoji;
     if (editUser) {
         onUpdateUser(editUser.id, data);
     } else {
@@ -91,6 +97,18 @@ export default function SettingsView({
     }
     setUserDialogOpen(false);
     setEditUser(null);
+  };
+
+  const openEditUser = (user) => {
+    setEditUser(user);
+    setSelectedUserEmoji(user.avatar || '👤');
+    setUserDialogOpen(true);
+  };
+
+  const openAddUser = () => {
+    setEditUser(null);
+    setSelectedUserEmoji('👤');
+    setUserDialogOpen(true);
   };
 
   return (
@@ -110,20 +128,40 @@ export default function SettingsView({
             <Box>
                 <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between' }}>
                     <Typography variant="h6">Local Users</Typography>
-                    {isAdmin && <Button variant="outlined" startIcon={<PersonAdd />} onClick={() => { setEditUser(null); setUserDialogOpen(true); }}>Add User</Button>}
+                    {isAdmin && <Button variant="outlined" startIcon={<PersonAdd />} onClick={openAddUser}>Add User</Button>}
                 </Box>
                 <TableContainer>
                     <Table>
-                        <TableHead><TableRow><TableCell>User</TableCell><TableCell>Role</TableCell><TableCell align="right">Actions</TableCell></TableRow></TableHead>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell width={60}></TableCell>
+                            <TableCell>Username</TableCell>
+                            <TableCell>Name</TableCell>
+                            <TableCell>Email</TableCell>
+                            <TableCell>Role</TableCell>
+                            <TableCell align="right">Actions</TableCell>
+                          </TableRow>
+                        </TableHead>
                         <TableBody>
                             {users.map(u => (
                                 <TableRow key={u.id}>
+                                    <TableCell>
+                                      <Avatar sx={{ 
+                                        width: 32, height: 32, 
+                                        bgcolor: u.avatar ? getEmojiColor(u.avatar, isDark) : 'secondary.main',
+                                        fontSize: '1rem'
+                                      }}>
+                                        {u.avatar || u.username?.[0]?.toUpperCase()}
+                                      </Avatar>
+                                    </TableCell>
                                     <TableCell>{u.username}</TableCell>
+                                    <TableCell>{u.first_name || u.last_name ? `${u.first_name || ''} ${u.last_name || ''}`.trim() : '-'}</TableCell>
+                                    <TableCell>{u.email || '-'}</TableCell>
                                     <TableCell><Chip label={u.role?.toUpperCase()} size="small" variant="outlined" /></TableCell>
                                     <TableCell align="right">
                                         {isAdmin && (
                                             <>
-                                                <IconButton color="primary" onClick={() => { setEditUser(u); setUserDialogOpen(true); }}><Edit /></IconButton>
+                                                <IconButton color="primary" onClick={() => openEditUser(u)}><Edit /></IconButton>
                                                 {currentUser.username !== u.username && (
                                                     <IconButton color="error" onClick={() => onRemoveUser(u.id)}><Delete /></IconButton>
                                                 )}
@@ -237,22 +275,57 @@ export default function SettingsView({
       </Paper>
 
       {/* USER DIALOG */}
-      <Dialog open={userDialogOpen} onClose={() => { setUserDialogOpen(false); setEditUser(null); }} fullWidth maxWidth="xs">
+      <Dialog open={userDialogOpen} onClose={() => { setUserDialogOpen(false); setEditUser(null); }} fullWidth maxWidth="sm">
         <form onSubmit={handleUserSubmit}>
             <DialogTitle>{editUser ? 'Edit User' : 'Add Local User'}</DialogTitle>
             <DialogContent dividers>
-                <Stack spacing={2} sx={{ mt: 1 }}>
-                    <TextField name="username" label="Username" defaultValue={editUser?.username} fullWidth required />
-                    {!editUser && <TextField name="password" label="Password" type="password" fullWidth required />}
-                    <FormControl fullWidth>
-                        <InputLabel>Role</InputLabel>
-                        <Select name="role" defaultValue={editUser?.role || "member"} label="Role">
-                            <MenuItem value="admin">Admin (Full Access)</MenuItem>
-                            <MenuItem value="member">Member (Read/Write)</MenuItem>
-                            <MenuItem value="viewer">Viewer (Read-Only)</MenuItem>
-                        </Select>
-                    </FormControl>
-                </Stack>
+                <Grid container spacing={2} sx={{ mt: 1 }}>
+                    <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                      <Box 
+                        sx={{ 
+                          width: 64, height: 64, borderRadius: '50%', 
+                          bgcolor: getEmojiColor(selectedUserEmoji, isDark),
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: '2rem', cursor: 'pointer', border: '2px solid', borderColor: 'primary.main'
+                        }}
+                        onClick={() => setEmojiPickerOpen(true)}
+                      >
+                        {selectedUserEmoji}
+                      </Box>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <TextField name="username" label="Username" defaultValue={editUser?.username} fullWidth required />
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <FormControl fullWidth>
+                          <InputLabel>Role</InputLabel>
+                          <Select name="role" defaultValue={editUser?.role || "member"} label="Role">
+                              <MenuItem value="admin">Admin (Full Access)</MenuItem>
+                              <MenuItem value="member">Member (Read/Write)</MenuItem>
+                              <MenuItem value="viewer">Viewer (Read-Only)</MenuItem>
+                          </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <TextField name="first_name" label="First Name" defaultValue={editUser?.first_name} fullWidth />
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <TextField name="last_name" label="Last Name" defaultValue={editUser?.last_name} fullWidth />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField name="email" label="Email Address" defaultValue={editUser?.email} fullWidth />
+                    </Grid>
+                    {!editUser && (
+                      <Grid item xs={12}>
+                        <TextField name="password" label="Password" type="password" fullWidth required />
+                      </Grid>
+                    )}
+                    {editUser && (
+                      <Grid item xs={12}>
+                        <TextField name="password" label="New Password" type="password" fullWidth placeholder="Leave blank to keep current" />
+                      </Grid>
+                    )}
+                </Grid>
             </DialogContent>
             <DialogActions>
                 <Button onClick={() => { setUserDialogOpen(false); setEditUser(null); }}>Cancel</Button>
@@ -260,6 +333,16 @@ export default function SettingsView({
             </DialogActions>
         </form>
       </Dialog>
+
+      <EmojiPicker 
+        open={emojiPickerOpen} 
+        onClose={() => setEmojiPickerOpen(false)} 
+        onEmojiSelect={(emoji) => {
+            setSelectedUserEmoji(emoji);
+            setEmojiPickerOpen(false);
+        }}
+        title="Select User Emoji"
+      />
     </Box>
   );
 }

@@ -14,6 +14,8 @@ const SCHEMA_DEFINITIONS = [
         username TEXT,
         password_hash TEXT,
         email TEXT,
+        first_name TEXT,
+        last_name TEXT,
         avatar TEXT,
         role TEXT DEFAULT 'member',
         dashboard_layout TEXT
@@ -214,6 +216,8 @@ const SCHEMA_DEFINITIONS = [
 
 const MIGRATIONS = [
     ['users', 'household_id', 'INTEGER'],
+    ['users', 'first_name', 'TEXT'],
+    ['users', 'last_name', 'TEXT'],
     ['members', 'household_id', 'INTEGER'],
     ['members', 'will_details', 'TEXT'],
     ['members', 'life_insurance_provider', 'TEXT'],
