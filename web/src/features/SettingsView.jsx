@@ -5,7 +5,7 @@ import {
   TableContainer, Table, TableHead, TableRow, TableCell, TableBody,
   Chip, IconButton, FormControl, InputLabel, Select, MenuItem,
   Dialog, DialogTitle, DialogContent, DialogActions, Avatar, Card, CardHeader,
-  Stack, Tooltip, Switch, FormControlLabel, InputAdornment, LinearProgress, List, ListItem, ListItemText, ListItemSecondaryAction, useTheme
+  Stack, Tooltip, Switch, FormControlLabel, InputAdornment, LinearProgress, List, ListItem, ListItemText, ListItemSecondaryAction, useTheme, Alert
 } from '@mui/material';
 import { 
   Info, ManageAccounts, Groups, PersonAdd, Delete, 
@@ -82,7 +82,7 @@ export default function SettingsView({
   };
 
   const handleDownloadRawDb = () => {
-    const url = `${api.defaults.baseURL}/households/${household.id}/database`;
+    const url = `${api.defaults.baseURL}/households/${household.id}/db/download`;
     window.open(url, '_blank');
   };
 

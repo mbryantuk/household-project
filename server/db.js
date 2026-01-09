@@ -7,15 +7,10 @@ const { initializeHouseholdSchema } = require('./schema');
 const dataDir = path.join(__dirname, 'data');
 const dbPath = path.join(dataDir, 'totem.db');
 
-// Ensure the data directory exists for the global and tenant databases
 if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
 }
 
-/**
- * Global Database Connection
- * Stores SysAdmins and Households (metadata only).
- */
 const globalDb = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error("Error opening Global DB:", err.message);
@@ -27,31 +22,22 @@ const globalDb = new sqlite3.Database(dbPath, (err) => {
     }
 });
 
-/**
- * Schema Initialization
- */
 function initGlobalDb() {
     globalDb.serialize(() => {
-        // Users table: NOW ONLY FOR SYSTEM ADMINS
         globalDb.run(`CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE,
             password_hash TEXT,
             email TEXT,
             avatar TEXT,
-            system_role TEXT DEFAULT 'sysadmin', -- Mostly 'sysadmin' now
+            system_role TEXT DEFAULT 'sysadmin',
             dashboard_layout TEXT
         )`);
 
-        // Migration: Ensure avatar and dashboard_layout exists in global users
-        globalDb.run(`ALTER TABLE users ADD COLUMN avatar TEXT`, (err) => {});
-        globalDb.run(`ALTER TABLE users ADD COLUMN dashboard_layout TEXT`, (err) => {});
-
-        // Households table: Added access_key
         globalDb.run(`CREATE TABLE IF NOT EXISTS households (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
-            access_key TEXT UNIQUE, -- The "Door Key" for login
+            access_key TEXT UNIQUE,
             theme TEXT DEFAULT 'default',
             address_street TEXT,
             address_city TEXT,
@@ -64,43 +50,41 @@ function initGlobalDb() {
             backup_retention INTEGER DEFAULT 7
         )`);
 
-        // Migration: Ensure new columns exist for existing installations
         const newCols = [
-            ['address_street', 'TEXT'],
-            ['address_city', 'TEXT'],
-            ['address_zip', 'TEXT'],
-            ['date_format', "TEXT DEFAULT 'MM/DD/YYYY'"],
-            ['currency', "TEXT DEFAULT 'USD'"],
-            ['decimals', 'INTEGER DEFAULT 2'],
-            ['avatar', 'TEXT'],
-            ['auto_backup', 'BOOLEAN DEFAULT 1'],
-            ['backup_retention', 'INTEGER DEFAULT 7']
+            ['address_street', 'TEXT'], ['address_city', 'TEXT'], ['address_zip', 'TEXT'],
+            ['date_format', "TEXT DEFAULT 'MM/DD/YYYY'"], ['currency', "TEXT DEFAULT 'USD'"],
+            ['decimals', 'INTEGER DEFAULT 2'], ['avatar', 'TEXT'],
+            ['auto_backup', 'BOOLEAN DEFAULT 1'], ['backup_retention', 'INTEGER DEFAULT 7']
         ];
         
         newCols.forEach(([col, type]) => {
-            globalDb.run(`ALTER TABLE households ADD COLUMN ${col} ${type}`, (err) => {
-                // Ignore "duplicate column name" errors
-            });
+            globalDb.run(`ALTER TABLE households ADD COLUMN ${col} ${type}`, (err) => {});
         });
         
-        // user_households is DEPRECATED in this new model 
-        // (Users live inside the household DB now)
         globalDb.run(`DROP TABLE IF EXISTS user_households`);
     });
 }
 
 /**
  * Tenant Database Factory
- * Creates or opens a separate database file for a specific household.
- * Now includes the local 'users' table.
- * @param {string|number} householdId 
+ * Automatically fixes NULL household_ids for legacy data.
  */
 const getHouseholdDb = (householdId) => {
     const householdDbPath = path.join(dataDir, `household_${householdId}.db`);
     const db = new sqlite3.Database(householdDbPath);
     
-    // Initialize Local Schema centralized in schema.js
+    // Initialize Schema & Migrations
     initializeHouseholdSchema(db);
+
+    // CRITICAL: Self-healing for NULL household_ids in tenant databases
+    db.serialize(() => {
+        const tables = ['members', 'users', 'dates', 'house_details', 'vehicles', 'assets', 'energy_accounts', 'recurring_costs', 'waste_collections'];
+        tables.forEach(table => {
+            db.run(`UPDATE ${table} SET household_id = ? WHERE household_id IS NULL`, [householdId], (err) => {
+                // Ignore if table doesn't exist yet
+            });
+        });
+    });
 
     return db;
 };
