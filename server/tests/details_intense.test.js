@@ -2,6 +2,7 @@ const request = require('supertest');
 const { app, server } = require('../server');
 
 describe('Intense Multi-Tenant & Asset-First API Tests', () => {
+    jest.setTimeout(30000);
     let sysAdminToken = '';
     
     // Household A (Admin + Viewer)

@@ -33,34 +33,36 @@ const globalDb = new sqlite3.Database(DB_PATH, (err) => {
 
 // --- SCHEDULED TASKS ---
 // Run nightly at midnight
-cron.schedule('0 0 * * *', async () => {
-    console.log('🕒 Starting scheduled system-wide backup...');
-    try {
-        // 1. Full System Backup
-        const fullFilename = await createBackup();
-        console.log(`✅ Full backup created: ${fullFilename}`);
-        
-        // 2. Individual Household Backups (if enabled)
-        globalDb.all("SELECT id, auto_backup, backup_retention FROM households WHERE auto_backup = 1", [], async (err, rows) => {
-            if (err) return console.error("Cron Error fetching households:", err);
+if (process.env.NODE_ENV !== 'test') {
+    cron.schedule('0 0 * * *', async () => {
+        console.log('🕒 Starting scheduled system-wide backup...');
+        try {
+            // 1. Full System Backup
+            const fullFilename = await createBackup();
+            console.log(`✅ Full backup created: ${fullFilename}`);
             
-            for (const hh of rows) {
-                try {
-                    const hhFile = await createBackup(hh.id);
-                    console.log(`✅ Household ${hh.id} backup created: ${hhFile}`);
-                    // Note: cleanOldBackups currently clears the whole BACKUP_DIR of anything older than N days.
-                    // This is fine as it uses file mtime.
-                } catch (hhErr) {
-                    console.error(`❌ Household ${hh.id} backup failed:`, hhErr);
+            // 2. Individual Household Backups (if enabled)
+            globalDb.all("SELECT id, auto_backup, backup_retention FROM households WHERE auto_backup = 1", [], async (err, rows) => {
+                if (err) return console.error("Cron Error fetching households:", err);
+                
+                for (const hh of rows) {
+                    try {
+                        const hhFile = await createBackup(hh.id);
+                        console.log(`✅ Household ${hh.id} backup created: ${hhFile}`);
+                        // Note: cleanOldBackups currently clears the whole BACKUP_DIR of anything older than N days.
+                        // This is fine as it uses file mtime.
+                    } catch (hhErr) {
+                        console.error(`❌ Household ${hh.id} backup failed:`, hhErr);
+                    }
                 }
-            }
-        });
+            });
 
-        cleanOldBackups(30);
-    } catch (err) {
-        console.error('❌ System backup failed:', err);
-    }
-});
+            cleanOldBackups(30);
+        } catch (err) {
+            console.error('❌ System backup failed:', err);
+        }
+    });
+}
 
 app.use(cors());
 app.use(express.json());
@@ -114,6 +116,6 @@ if (fs.existsSync(frontendPath)) {
     });
 }
 
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Server LIVE on ${PORT}`));
+const server = app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Server LIVE on ${PORT}`));
 
-module.exports = { app, globalDb };
+module.exports = { app, globalDb, server };

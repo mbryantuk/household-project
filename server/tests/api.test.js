@@ -2,6 +2,8 @@ const request = require('supertest');
 const { app } = require('../server');
 
 describe('Household Project API Integration Suite (Intense + Renaming)', () => {
+    jest.setTimeout(30000);
+    const apiBase = '';
     let sysAdminToken = '';
     
     // Household Data

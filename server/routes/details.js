@@ -86,7 +86,10 @@ const handleCreateItem = (table) => (req, res) => {
 
     req.tenantDb.run(`INSERT INTO ${table} (${placeholders}) VALUES (${qs})`, values, function(err) {
         closeDb(req);
-        if (err) return res.status(500).json({ error: err.message });
+        if (err) {
+            const status = err.message.includes('NOT NULL') || err.message.includes('CHECK') ? 400 : 500;
+            return res.status(status).json({ error: err.message });
+        }
         res.json({ id: this.lastID, ...req.body });
     });
 };
@@ -129,6 +132,7 @@ router.put('/households/:id/council', authenticateToken, requireHouseholdRole('a
 
 // Waste Collections
 router.get('/households/:id/waste', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('waste_collections'));
+router.get('/households/:id/waste/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetItem('waste_collections'));
 router.post('/households/:id/waste', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleCreateItem('waste_collections'));
 router.put('/households/:id/waste/:itemId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleUpdateItem('waste_collections'));
 router.delete('/households/:id/waste/:itemId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleDeleteItem('waste_collections'));
@@ -142,6 +146,7 @@ router.delete('/households/:id/vehicles/:itemId', authenticateToken, requireHous
 
 // Recurring Costs (Misc Costs for everything)
 router.get('/households/:id/costs', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('recurring_costs'));
+router.get('/households/:id/costs/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetItem('recurring_costs'));
 router.post('/households/:id/costs', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleCreateItem('recurring_costs'));
 router.put('/households/:id/costs/:itemId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleUpdateItem('recurring_costs'));
 router.delete('/households/:id/costs/:itemId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleDeleteItem('recurring_costs'));

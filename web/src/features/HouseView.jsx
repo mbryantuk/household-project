@@ -67,6 +67,7 @@ export default function HouseView() {
     { name: 'broadband_account', label: 'Broadband Account #', half: true },
     { name: 'wifi_password', label: 'WiFi Password', half: true },
     { name: 'smart_home_hub', label: 'Smart Home Hub Type', half: true },
+    { name: 'color', label: 'Theme Color (Hex)', half: true },
     { name: 'emergency_contacts', label: 'Emergency Contacts (JSON)', multiline: true, rows: 2 },
     { name: 'notes', label: 'General Property Notes', multiline: true, rows: 3 }
   ];

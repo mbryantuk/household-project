@@ -92,7 +92,9 @@ const SCHEMA_DEFINITIONS = [
         wifi_password TEXT,
         emergency_contacts TEXT,
         smart_home_hub TEXT,
-        notes TEXT
+        notes TEXT,
+        icon TEXT,
+        color TEXT
     )`,
 
     // --- VEHICLES ---
@@ -192,7 +194,9 @@ const SCHEMA_DEFINITIONS = [
         household_id INTEGER,
         provider TEXT,
         account_number TEXT,
-        notes TEXT
+        notes TEXT,
+        icon TEXT,
+        color TEXT
     )`,
 
     // --- COUNCIL INFO ---
@@ -201,7 +205,9 @@ const SCHEMA_DEFINITIONS = [
         household_id INTEGER,
         authority_name TEXT,
         monthly_amount REAL,
-        notes TEXT
+        notes TEXT,
+        icon TEXT,
+        color TEXT
     )`,
 
     // --- WASTE COLLECTIONS ---
@@ -230,11 +236,17 @@ const MIGRATIONS = [
     ['members', 'food_monthly_cost', 'REAL DEFAULT 0'],
     ['dates', 'household_id', 'INTEGER'],
     ['house_details', 'household_id', 'INTEGER'],
+    ['house_details', 'icon', 'TEXT'],
+    ['house_details', 'color', 'TEXT'],
     ['vehicles', 'household_id', 'INTEGER'],
     ['assets', 'household_id', 'INTEGER'],
     ['energy_accounts', 'household_id', 'INTEGER'],
     ['water_info', 'household_id', 'INTEGER'],
+    ['water_info', 'icon', 'TEXT'],
+    ['water_info', 'color', 'TEXT'],
     ['council_info', 'household_id', 'INTEGER'],
+    ['council_info', 'icon', 'TEXT'],
+    ['council_info', 'color', 'TEXT'],
     ['waste_collections', 'household_id', 'INTEGER'],
     ['vehicle_services', 'household_id', 'INTEGER'],
     ['vehicle_finance', 'household_id', 'INTEGER'],

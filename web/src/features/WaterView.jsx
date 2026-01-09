@@ -9,6 +9,7 @@ export default function WaterView() {
     { name: 'meter_serial', label: 'Meter Serial Number', half: true },
     { name: 'waste_provider', label: 'Waste Water Provider', half: true },
     { name: 'waste_account_number', label: 'Waste Account Number', half: true },
+    { name: 'color', label: 'Display Color (Hex)', half: true },
     { name: 'notes', label: 'Notes', multiline: true, rows: 3 }
   ];
 
