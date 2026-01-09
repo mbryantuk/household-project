@@ -3,7 +3,7 @@ const { verbose } = require('sqlite3');
 /**
  * Defines the schema for a standard Household Database.
  * Every data model includes household_id for multi-tenancy enforcement.
- * Assets and Vehicles include financial fields for budget integration.
+ * Assets, Vehicles, People, and Pets include financial fields for budget integration.
  */
 
 const SCHEMA_DEFINITIONS = [
@@ -15,11 +15,11 @@ const SCHEMA_DEFINITIONS = [
         password_hash TEXT,
         email TEXT,
         avatar TEXT,
-        role TEXT DEFAULT 'member', -- admin, member, viewer
+        role TEXT DEFAULT 'member',
         dashboard_layout TEXT
     )`,
 
-    // --- MEMBERS TABLE ---
+    // --- MEMBERS TABLE (People & Pets) ---
     `CREATE TABLE IF NOT EXISTS members (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
@@ -30,11 +30,33 @@ const SCHEMA_DEFINITIONS = [
         dob TEXT, 
         species TEXT, 
         breed TEXT,
-        color TEXT,
-        microchip_number TEXT,
         gender TEXT,
         emoji TEXT,
-        avatar TEXT
+        avatar TEXT,
+        -- People Specific (Asset-First)
+        will_details TEXT,
+        life_insurance_provider TEXT,
+        life_insurance_premium REAL DEFAULT 0,
+        life_insurance_expiry TEXT,
+        -- Pet Specific (Asset-First)
+        pet_insurance_provider TEXT,
+        pet_insurance_premium REAL DEFAULT 0,
+        pet_insurance_expiry TEXT,
+        food_monthly_cost REAL DEFAULT 0
+    )`,
+
+    // --- RECURRING / MISC COSTS (Centralized for Budgeting) ---
+    `CREATE TABLE IF NOT EXISTS recurring_costs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        parent_type TEXT NOT NULL, -- person, pet, vehicle, house, general
+        parent_id INTEGER,
+        name TEXT NOT NULL,
+        amount REAL DEFAULT 0,
+        frequency TEXT DEFAULT 'Monthly', -- Daily, Weekly, Biweekly, Monthly, Yearly
+        payment_day INTEGER, -- 1-31 or day of week
+        category TEXT, -- insurance, food, tax, misc
+        notes TEXT
     )`,
 
     // --- DATES TABLE ---
@@ -70,7 +92,7 @@ const SCHEMA_DEFINITIONS = [
         notes TEXT
     )`,
 
-    // --- VEHICLES (Asset-First with Financials) ---
+    // --- VEHICLES ---
     `CREATE TABLE IF NOT EXISTS vehicles (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
@@ -84,7 +106,7 @@ const SCHEMA_DEFINITIONS = [
         tax_due TEXT,
         emoji TEXT,
         notes TEXT,
-        -- Financial Fields
+        -- Financials
         purchase_value REAL DEFAULT 0,
         replacement_cost REAL DEFAULT 0,
         monthly_maintenance_cost REAL DEFAULT 0,
@@ -128,12 +150,12 @@ const SCHEMA_DEFINITIONS = [
         FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
     )`,
 
-    // --- ASSETS (Appliance Register with Financials) ---
+    // --- ASSETS ---
     `CREATE TABLE IF NOT EXISTS assets (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         name TEXT NOT NULL,
-        category TEXT, -- Appliance, Electronics, etc.
+        category TEXT,
         location TEXT,
         manufacturer TEXT,
         model_number TEXT,
@@ -143,7 +165,6 @@ const SCHEMA_DEFINITIONS = [
         warranty_expiry TEXT,
         notes TEXT,
         emoji TEXT,
-        -- Financial Fields
         purchase_value REAL DEFAULT 0,
         replacement_cost REAL DEFAULT 0,
         monthly_maintenance_cost REAL DEFAULT 0,
@@ -185,7 +206,7 @@ const SCHEMA_DEFINITIONS = [
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         waste_type TEXT NOT NULL,
-        frequency TEXT NOT NULL, -- Daily, Weekly, Biweekly, Monthly
+        frequency TEXT NOT NULL,
         collection_day TEXT NOT NULL,
         notes TEXT
     )`
@@ -194,32 +215,28 @@ const SCHEMA_DEFINITIONS = [
 const MIGRATIONS = [
     ['users', 'household_id', 'INTEGER'],
     ['members', 'household_id', 'INTEGER'],
+    ['members', 'will_details', 'TEXT'],
+    ['members', 'life_insurance_provider', 'TEXT'],
+    ['members', 'life_insurance_premium', 'REAL DEFAULT 0'],
+    ['members', 'life_insurance_expiry', 'TEXT'],
+    ['members', 'pet_insurance_provider', 'TEXT'],
+    ['members', 'pet_insurance_premium', 'REAL DEFAULT 0'],
+    ['members', 'pet_insurance_expiry', 'TEXT'],
+    ['members', 'food_monthly_cost', 'REAL DEFAULT 0'],
     ['dates', 'household_id', 'INTEGER'],
     ['house_details', 'household_id', 'INTEGER'],
     ['vehicles', 'household_id', 'INTEGER'],
-    ['vehicles', 'purchase_value', 'REAL DEFAULT 0'],
-    ['vehicles', 'replacement_cost', 'REAL DEFAULT 0'],
-    ['vehicles', 'monthly_maintenance_cost', 'REAL DEFAULT 0'],
-    ['vehicles', 'depreciation_rate', 'REAL DEFAULT 0'],
-    ['assets', 'household_id', 'INTEGER'],
-    ['assets', 'purchase_value', 'REAL DEFAULT 0'],
-    ['assets', 'replacement_cost', 'REAL DEFAULT 0'],
-    ['assets', 'monthly_maintenance_cost', 'REAL DEFAULT 0'],
-    ['assets', 'depreciation_rate', 'REAL DEFAULT 0']
+    ['assets', 'household_id', 'INTEGER']
 ];
 
 function initializeHouseholdSchema(db) {
     db.serialize(() => {
         SCHEMA_DEFINITIONS.forEach(sql => {
-            db.run(sql, (err) => {
-                // Ignore "already exists"
-            });
+            db.run(sql, (err) => {});
         });
 
         MIGRATIONS.forEach(([table, col, definition]) => {
-            db.run(`ALTER TABLE ${table} ADD COLUMN ${col} ${definition}`, (err) => {
-                // Ignore "duplicate column"
-            });
+            db.run(`ALTER TABLE ${table} ADD COLUMN ${col} ${definition}`, (err) => {});
         });
     });
 }

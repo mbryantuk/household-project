@@ -112,7 +112,7 @@ const handleDeleteItem = (table) => (req, res) => {
 };
 
 // ==========================================
-// 🚀 ROUTES (All verified for context)
+// 🚀 ROUTES
 // ==========================================
 
 // House Details
@@ -139,6 +139,12 @@ router.get('/households/:id/vehicles/:itemId', authenticateToken, requireHouseho
 router.post('/households/:id/vehicles', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleCreateItem('vehicles'));
 router.put('/households/:id/vehicles/:itemId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleUpdateItem('vehicles'));
 router.delete('/households/:id/vehicles/:itemId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleDeleteItem('vehicles'));
+
+// Recurring Costs (Misc Costs for everything)
+router.get('/households/:id/costs', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('recurring_costs'));
+router.post('/households/:id/costs', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleCreateItem('recurring_costs'));
+router.put('/households/:id/costs/:itemId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleUpdateItem('recurring_costs'));
+router.delete('/households/:id/costs/:itemId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleDeleteItem('recurring_costs'));
 
 // Vehicle Sub-modules
 const VEHICLE_SUBS = ['services', 'finance', 'insurance'];

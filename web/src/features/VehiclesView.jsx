@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import { Edit, Delete, DirectionsCar, Add, AccountBalanceWallet } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
+import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
 
 export default function VehiclesView({ view = 'fleet' }) {
   const { api, id: householdId, user: currentUser, isDark, showNotification } = useOutletContext();
@@ -83,28 +84,53 @@ export default function VehiclesView({ view = 'fleet' }) {
   const renderFleet = () => (
     <Grid container spacing={3}>
         {vehicles.map(v => (
-          <Grid item xs={12} sm={6} md={4} key={v.id}>
-            <Card variant="outlined" sx={{ borderRadius: 3 }}>
-              <CardHeader
-                avatar={<Avatar sx={{ bgcolor: getEmojiColor(v.emoji || '🚗', isDark) }}>{v.emoji || '🚗'}</Avatar>}
-                title={<Typography variant="h6">{v.make} {v.model}</Typography>}
-                subheader={v.registration}
-                action={isHouseholdAdmin && (
-                  <Box>
-                    <IconButton size="small" onClick={() => { setEditVehicle(v); setIsNew(false); }}><Edit fontSize="small" /></IconButton>
-                    <IconButton size="small" color="error" onClick={() => { if(window.confirm("Delete vehicle?")) api.delete(`/households/${householdId}/vehicles/${v.id}`).then(() => { showNotification("Vehicle removed.", "info"); fetchVehicles(); }); }}><Delete fontSize="small" /></IconButton>
-                  </Box>
-                )}
-              />
-              <CardContent sx={{ pt: 0 }}>
-                <Stack spacing={1}>
-                    <Typography variant="body2" color="text.secondary">⛽ {v.fuel_type || 'Unknown'}</Typography>
-                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                        {v.purchase_value > 0 && <Chip size="small" label={`£${v.purchase_value}`} icon={<AccountBalanceWallet sx={{fontSize: '1rem !important'}}/>} variant="outlined" />}
-                        {v.mot_due && <Chip size="small" label={`MOT: ${v.mot_due}`} color={new Date(v.mot_due) < new Date() ? "error" : "primary"} variant="outlined" />}
+          <Grid item xs={12} key={v.id}>
+            <Card variant="outlined" sx={{ borderRadius: 3, p: 2 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={4}>
+                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                        <Avatar sx={{ bgcolor: getEmojiColor(v.emoji || '🚗', isDark), width: 56, height: 56 }}>{v.emoji || '🚗'}</Avatar>
+                        <Box>
+                            <Typography variant="h6">{v.make} {v.model}</Typography>
+                            <Typography variant="body2" color="text.secondary">{v.registration}</Typography>
+                        </Box>
                     </Box>
-                </Stack>
-              </CardContent>
+                    <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                        {isHouseholdAdmin && (
+                            <>
+                                <IconButton size="small" onClick={() => { setEditVehicle(v); setIsNew(false); }}><Edit fontSize="small" /></IconButton>
+                                <IconButton size="small" color="error" onClick={() => { if(window.confirm("Delete vehicle?")) api.delete(`/households/${householdId}/vehicles/${v.id}`).then(() => { showNotification("Vehicle removed.", "info"); fetchVehicles(); }); }}><Delete fontSize="small" /></IconButton>
+                            </>
+                        )}
+                    </Box>
+                </Grid>
+
+                <Grid item xs={12} md={4}>
+                    <Typography variant="subtitle2" color="text.secondary">Asset Financials</Typography>
+                    <Stack spacing={1} sx={{ mt: 1 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Typography variant="body2">Value:</Typography>
+                            <Typography variant="body2" fontWeight="bold">£{v.purchase_value || 0}</Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Typography variant="body2">Maint Cost:</Typography>
+                            <Typography variant="body2">£{v.monthly_maintenance_cost || 0}/mo</Typography>
+                        </Box>
+                        {v.mot_due && <Chip size="small" label={`MOT Due: ${v.mot_due}`} color={new Date(v.mot_due) < new Date() ? "error" : "primary"} variant="outlined" />}
+                    </Stack>
+                </Grid>
+
+                <Grid item xs={12} md={4}>
+                    <RecurringCostsWidget 
+                        api={api} 
+                        householdId={householdId} 
+                        parentType="vehicle" 
+                        parentId={v.id} 
+                        isAdmin={isHouseholdAdmin}
+                        showNotification={showNotification}
+                    />
+                </Grid>
+              </Grid>
             </Card>
           </Grid>
         ))}
