@@ -85,7 +85,7 @@ export default function TopBar({
             )}
           </Box>
 
-          <Typography variant="h6" noWrap sx={{ fontWeight: 'bold', letterSpacing: 1.5, color: 'white' }}>
+          <Typography variant="h6" noWrap sx={{ fontWeight: 'bold', letterSpacing: 1.5, color: 'white', display: { xs: 'none', sm: 'block' } }}>
             {currentHousehold ? currentHousehold.name.toUpperCase() : 'TOTEM'}
           </Typography>
         </Box>
@@ -94,13 +94,13 @@ export default function TopBar({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           
           <Tooltip title="Calculator">
-            <IconButton color="inherit" onClick={() => setShowCalc(!showCalc)}>
+            <IconButton color="inherit" onClick={() => setShowCalc(!showCalc)} sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>
               <Calculate />
             </IconButton>
           </Tooltip>
 
           <Tooltip title="Calendar">
-            <IconButton color="inherit" onClick={(e) => setCalAnchor(e.currentTarget)}>
+            <IconButton color="inherit" onClick={(e) => setCalAnchor(e.currentTarget)} sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>
               <CalendarMonth />
             </IconButton>
           </Tooltip>
@@ -113,7 +113,7 @@ export default function TopBar({
             </Tooltip>
           )}
 
-          <Divider orientation="vertical" flexItem sx={{ mx: 1, bgcolor: 'rgba(255,255,255,0.2)' }} />
+          <Divider orientation="vertical" flexItem sx={{ mx: 1, bgcolor: 'rgba(255,255,255,0.2)', display: { xs: 'none', sm: 'block' } }} />
 
           {/* User Account */}
           <Tooltip title="Account Settings">
