@@ -1,5 +1,5 @@
-import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar, Divider, IconButton, styled } from '@mui/material';
-import { Settings, Home as HomeIcon, ChevronLeft, Menu, People, Event } from '@mui/icons-material';
+import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar, Divider, IconButton, styled, useTheme, useMediaQuery, Box } from '@mui/material';
+import { Settings, Home as HomeIcon, ChevronLeft, Menu, Event } from '@mui/icons-material';
 import { NavLink } from 'react-router-dom';
 
 const drawerWidth = 240;
@@ -43,17 +43,20 @@ const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'ope
 );
 
 export default function NavSidebar({ open, toggleDrawer }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const menuItems = [
     { id: 'dashboard', label: 'Home', icon: <HomeIcon /> },
     { id: 'dates', label: 'Dates', icon: <Event /> },
     { id: 'settings', label: 'Settings', icon: <Settings /> },
   ];
 
-  return (
-    <StyledDrawer variant="permanent" open={open}>
+  const drawerContent = (
+    <>
       <Toolbar sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', px: [1] }}>
         <IconButton onClick={toggleDrawer}>
-          {open ? <ChevronLeft /> : <Menu />}
+          {!isMobile && !open ? <Menu /> : <ChevronLeft />}
         </IconButton>
       </Toolbar>
       <Divider />
@@ -63,9 +66,10 @@ export default function NavSidebar({ open, toggleDrawer }) {
             <ListItemButton
               component={NavLink}
               to={item.id}
+              onClick={isMobile ? toggleDrawer : undefined}
               sx={{
                 minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
+                justifyContent: open || isMobile ? 'initial' : 'center',
                 px: 2.5,
                 '&.active': {
                   bgcolor: 'action.selected',
@@ -74,14 +78,43 @@ export default function NavSidebar({ open, toggleDrawer }) {
                 }
               }}
             >
-              <ListItemIcon sx={{ minWidth: 0, mr: open ? 3 : 'auto', justifyContent: 'center' }}>
+              <ListItemIcon sx={{ minWidth: 0, mr: open || isMobile ? 3 : 'auto', justifyContent: 'center' }}>
                 {item.icon}
               </ListItemIcon>
-              <ListItemText primary={item.label} sx={{ opacity: open ? 1 : 0 }} />
+              <ListItemText primary={item.label} sx={{ opacity: open || isMobile ? 1 : 0 }} />
             </ListItemButton>
           </ListItem>
         ))}
       </List>
-    </StyledDrawer>
+    </>
+  );
+
+  return (
+    <Box component="nav" sx={{ width: { sm: open ? drawerWidth : `calc(${theme.spacing(8)} + 1px)` }, flexShrink: { sm: 0 }, transition: 'width 0.2s' }}>
+      {/* Mobile Drawer (Temporary) */}
+      <Drawer
+        variant="temporary"
+        open={open && isMobile}
+        onClose={toggleDrawer}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          display: { xs: 'block', sm: 'none' },
+          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+
+      {/* Desktop Drawer (Permanent) */}
+      <StyledDrawer
+        variant="permanent"
+        open={open}
+        sx={{
+          display: { xs: 'none', sm: 'block' },
+        }}
+      >
+        {drawerContent}
+      </StyledDrawer>
+    </Box>
   );
 }

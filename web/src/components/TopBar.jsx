@@ -50,7 +50,12 @@ export default function TopBar({
         {/* LEFT SECTION: Family Name & Menu */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {currentHousehold && (
-            <IconButton color="inherit" onClick={toggleSidebar} edge="start" sx={{ mr: 2 }}>
+            <IconButton 
+              color="inherit" 
+              onClick={toggleSidebar} 
+              edge="start" 
+              sx={{ mr: 2, display: { sm: 'none' } }}
+            >
               <MenuIcon />
             </IconButton>
           )}

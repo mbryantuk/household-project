@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Outlet, useParams, useNavigate } from 'react-router-dom';
-import { Box } from '@mui/material';
+import { Box, Toolbar } from '@mui/material';
 import NavSidebar from '../components/NavSidebar';
 
 export default function HouseholdLayout({ 
@@ -31,7 +31,8 @@ export default function HouseholdLayout({
   return (
     <Box sx={{ display: 'flex' }}>
       <NavSidebar open={drawerOpen} toggleDrawer={toggleDrawer} />
-      <Box component="main" sx={{ flexGrow: 1, width: { sm: `calc(100% - 240px)` } }}>
+      <Box component="main" sx={{ flexGrow: 1, width: '100%', p: 3 }}>
+        <Toolbar /> {/* Spacer for Fixed AppBar */}
         <Outlet context={{ api }} />
       </Box>
     </Box>
