@@ -9,7 +9,7 @@ import { Edit, Delete, Pets, Cake } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
 
 export default function PetsView() {
-  const { api, id: householdId, members, fetchHhMembers, user: currentUser, isDark } = useOutletContext();
+  const { api, id: householdId, members, fetchHhMembers, user: currentUser, isDark, showNotification } = useOutletContext();
   const [editMember, setEditMember] = useState(null);
   
   const isHouseholdAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
@@ -22,14 +22,14 @@ export default function PetsView() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
-    data.emoji = editMember.emoji;
 
     try {
       await api.put(`/households/${householdId}/members/${editMember.id}`, data);
+      showNotification("Pet updated.", "success");
       fetchHhMembers(householdId);
       setEditMember(null);
     } catch (err) {
-      alert("Failed to update");
+      showNotification("Failed to update.", "error");
     }
   };
 
@@ -37,9 +37,10 @@ export default function PetsView() {
     if (!window.confirm("Remove this pet?")) return;
     try {
       await api.delete(`/households/${householdId}/members/${id}`);
+      showNotification("Pet removed.", "info");
       fetchHhMembers(householdId);
     } catch (err) {
-      alert("Failed to delete");
+      showNotification("Failed to delete.", "error");
     }
   };
 
@@ -100,7 +101,6 @@ export default function PetsView() {
         ))}
       </Grid>
 
-      {/* EDIT DIALOG */}
       <Dialog open={Boolean(editMember)} onClose={() => setEditMember(null)} fullWidth maxWidth="sm">
         <form onSubmit={handleEditSubmit}>
           <DialogTitle>Edit {editMember?.name}</DialogTitle>

@@ -10,11 +10,8 @@ import EmojiPicker from '../components/EmojiPicker';
 import { getEmojiColor } from '../theme';
 
 export default function PeopleView() {
-  const { api, id: householdId, members, fetchHhMembers, user: currentUser } = useOutletContext();
+  const { api, id: householdId, members, fetchHhMembers, user: currentUser, isDark, showNotification } = useOutletContext();
   const [editMember, setEditMember] = useState(null);
-  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
-  
-  const isDark = useOutletContext().isDark; // Assuming we pass this or get from theme
   
   const isHouseholdAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
 
@@ -26,14 +23,14 @@ export default function PeopleView() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
-    data.emoji = editMember.emoji;
 
     try {
       await api.put(`/households/${householdId}/members/${editMember.id}`, data);
+      showNotification("Person updated.", "success");
       fetchHhMembers(householdId);
       setEditMember(null);
     } catch (err) {
-      alert("Failed to update");
+      showNotification("Failed to update.", "error");
     }
   };
 
@@ -41,9 +38,10 @@ export default function PeopleView() {
     if (!window.confirm("Remove this person from the household?")) return;
     try {
       await api.delete(`/households/${householdId}/members/${id}`);
+      showNotification("Person removed.", "info");
       fetchHhMembers(householdId);
     } catch (err) {
-      alert("Failed to delete");
+      showNotification("Failed to delete.", "error");
     }
   };
 
@@ -91,7 +89,6 @@ export default function PeopleView() {
         ))}
       </Grid>
 
-      {/* EDIT DIALOG (Basic Version) */}
       <Dialog open={Boolean(editMember)} onClose={() => setEditMember(null)} fullWidth maxWidth="sm">
         <form onSubmit={handleEditSubmit}>
           <DialogTitle>Edit {editMember?.name}</DialogTitle>

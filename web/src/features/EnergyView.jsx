@@ -10,7 +10,7 @@ import { Edit, Delete, ElectricBolt, Add, ReceiptLong } from '@mui/icons-materia
 import { getEmojiColor } from '../theme';
 
 export default function EnergyView() {
-  const { api, id: householdId, user: currentUser, isDark } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, showNotification } = useOutletContext();
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editAccount, setEditAccount] = useState(null);
@@ -42,14 +42,16 @@ export default function EnergyView() {
     try {
       if (isNew) {
         await api.post(`/households/${householdId}/energy`, data);
+        showNotification("Energy account added.", "success");
       } else {
         await api.put(`/households/${householdId}/energy/${editAccount.id}`, data);
+        showNotification("Energy account updated.", "success");
       }
       fetchAccounts();
       setEditAccount(null);
       setIsNew(false);
     } catch (err) {
-      alert("Failed to save");
+      showNotification("Failed to save account.", "error");
     }
   };
 
@@ -57,9 +59,10 @@ export default function EnergyView() {
     if (!window.confirm("Delete this energy account?")) return;
     try {
       await api.delete(`/households/${householdId}/energy/${id}`);
+      showNotification("Energy account deleted.", "info");
       fetchAccounts();
     } catch (err) {
-      alert("Failed to delete");
+      showNotification("Failed to delete account.", "error");
     }
   };
 

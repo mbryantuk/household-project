@@ -12,18 +12,20 @@ export default function HouseholdLayout({
   members,
   fetchHhMembers,
   user,
-  isDark
+  isDark,
+  showNotification,
+  confirmAction
 }) {
   const { id } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
     // Find the household matching the ID in the URL
-    const targetHousehold = households.find(h => h.id === parseInt(id));
+    const targetHousehold = (households || []).find(h => h && h.id === parseInt(id));
     
     if (targetHousehold) {
       onSelectHousehold(targetHousehold);
-    } else if (households.length > 0) {
+    } else if (households && households.length > 0) {
       navigate('/');
     }
   }, [id, households, onSelectHousehold, navigate]);
@@ -39,7 +41,9 @@ export default function HouseholdLayout({
             members, 
             fetchHhMembers, 
             user, 
-            isDark 
+            isDark,
+            showNotification,
+            confirmAction
         }} />
       </Box>
     </Box>

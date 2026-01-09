@@ -11,7 +11,7 @@ import { Save } from '@mui/icons-material';
  * e.g., House Details, Water Info, Council, Waste
  */
 export default function GeneralDetailView({ title, icon, endpoint, fields }) {
-  const { api, id: householdId, user: currentUser } = useOutletContext();
+  const { api, id: householdId, user: currentUser, showNotification } = useOutletContext();
   const theme = useTheme();
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
@@ -25,7 +25,7 @@ export default function GeneralDetailView({ title, icon, endpoint, fields }) {
       const res = await api.get(`/households/${householdId}/${endpoint}`);
       setData(res.data || {});
     } catch (err) {
-      console.error(`Failed to fetch ${endpoint}`, err);
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -35,7 +35,7 @@ export default function GeneralDetailView({ title, icon, endpoint, fields }) {
     fetchData();
   }, [fetchData]);
 
-  const handleSave = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     const formData = new FormData(e.currentTarget);
@@ -43,9 +43,10 @@ export default function GeneralDetailView({ title, icon, endpoint, fields }) {
 
     try {
       await api.put(`/households/${householdId}/${endpoint}`, updates);
-      // Optional: show notification via context if available
+      showNotification(`${title} updated successfully.`, "success");
+      fetchData();
     } catch (err) {
-      alert("Failed to save changes");
+      showNotification(`Failed to save ${title}.`, "error");
     } finally {
       setSaving(false);
     }
@@ -57,48 +58,52 @@ export default function GeneralDetailView({ title, icon, endpoint, fields }) {
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
         <Box sx={{ 
-            width: 48, height: 48, borderRadius: 2, 
-            bgcolor: 'primary.main', color: 'primary.contrastText',
-            display: 'flex', alignItems: 'center', justifyContent: 'center' 
+          bgcolor: theme.palette.primary.main, 
+          color: 'white', 
+          p: 1, 
+          borderRadius: 2, 
+          display: 'flex',
+          boxShadow: theme.shadows[2]
         }}>
-            {icon}
+          {icon}
         </Box>
         <Typography variant="h4" fontWeight="300">{title}</Typography>
       </Box>
 
       <Paper variant="outlined" sx={{ p: 4, borderRadius: 3 }}>
-        <form onSubmit={handleSave}>
+        <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
-            {fields.map(f => (
-              <Grid item xs={12} md={f.half ? 6 : 12} key={f.name}>
+            {fields.map(field => (
+              <Grid item xs={12} md={field.half ? 6 : 12} key={field.name}>
                 <TextField
-                  name={f.name}
-                  label={f.label}
-                  type={f.type || 'text'}
-                  defaultValue={data[f.name] || ''}
+                  name={field.name}
+                  label={field.label}
+                  type={field.type || 'text'}
+                  defaultValue={data[field.name] || ''}
                   fullWidth
-                  multiline={f.multiline}
-                  rows={f.rows}
-                  disabled={!isHouseholdAdmin}
-                  InputLabelProps={f.type === 'date' ? { shrink: true } : undefined}
+                  multiline={field.multiline}
+                  rows={field.rows}
+                  disabled={!isHouseholdAdmin || saving}
+                  InputLabelProps={field.type === 'date' ? { shrink: true } : undefined}
                 />
               </Grid>
             ))}
+            
+            {isHouseholdAdmin && (
+              <Grid item xs={12}>
+                <Divider sx={{ my: 2 }} />
+                <Button 
+                  type="submit" 
+                  variant="contained" 
+                  size="large" 
+                  startIcon={saving ? <CircularProgress size={20} color="inherit" /> : <Save />}
+                  disabled={saving}
+                >
+                  {saving ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </Grid>
+            )}
           </Grid>
-
-          {isHouseholdAdmin && (
-            <Box sx={{ mt: 4, display: 'flex', justifyContent: 'flex-end' }}>
-              <Button 
-                type="submit" 
-                variant="contained" 
-                size="large" 
-                startIcon={saving ? <CircularProgress size={20} color="inherit" /> : <Save />}
-                disabled={saving}
-              >
-                Save Changes
-              </Button>
-            </Box>
-          )}
         </form>
       </Paper>
     </Box>

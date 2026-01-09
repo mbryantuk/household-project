@@ -153,7 +153,7 @@ function AppContent() {
   const fetchHhDates = useCallback((hhId) => {
     if (!hhId) return;
     authAxios.get(`/households/${hhId}/dates`)
-      .then(res => setHhMembers(Array.isArray(res.data) ? res.data : []));
+      .then(res => setHhDates(Array.isArray(res.data) ? res.data : []));
   }, [authAxios]);
 
   const fetchHouseholds = useCallback(async () => {
@@ -228,28 +228,28 @@ function AppContent() {
     if (user?.role === 'sysadmin') {
       try {
         await authAxios.post('/admin/households', houseData);
-        alert("Household created successfully.");
+        showNotification("Household created successfully.", "success");
         fetchHouseholds();
-      } catch (err) { alert("Error: " + err.message); }
+      } catch (err) { showNotification("Error: " + err.message, "error"); }
     }
-  }, [authAxios, user, fetchHouseholds]);
+  }, [authAxios, user, fetchHouseholds, showNotification]);
 
   const handleCreateUser = useCallback(async (userData) => {
     try {
       await authAxios.post('/admin/create-user', userData);
-      alert("User created.");
+      showNotification("User created.", "success");
       if (household) fetchHhUsers(household.id);
-    } catch (err) { alert("Error: " + err.message); }
-  }, [authAxios, household, fetchHhUsers]);
+    } catch (err) { showNotification("Error: " + err.message, "error"); }
+  }, [authAxios, household, fetchHhUsers, showNotification]);
 
   const handleUpdateUser = useCallback(async (userId, updates) => {
     try {
       await authAxios.put(`/admin/users/${userId}`, updates);
-      alert("User updated.");
+      showNotification("User updated.", "success");
       if (household) fetchHhUsers(household.id);
       if (user?.role === 'sysadmin') fetchSysUsers();
-    } catch (err) { alert("Error: " + err.message); }
-  }, [authAxios, household, fetchHhUsers, fetchSysUsers, user]);
+    } catch (err) { showNotification("Error: " + err.message, "error"); }
+  }, [authAxios, household, fetchHhUsers, fetchSysUsers, user, showNotification]);
 
   const handleUpdateProfile = useCallback(async (updates) => {
     try {
@@ -257,10 +257,11 @@ function AppContent() {
       const updatedUser = { ...user, ...updates };
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
+      showNotification("Profile updated.", "success");
       if (household) fetchHhUsers(household.id);
       if (user?.role === 'sysadmin') fetchSysUsers();
-    } catch (err) { console.error("Failed to update profile:", err); throw err; }
-  }, [authAxios, user, household, fetchHhUsers, fetchSysUsers]);
+    } catch (err) { showNotification("Failed to update profile.", "error"); throw err; }
+  }, [authAxios, user, household, fetchHhUsers, fetchSysUsers, showNotification]);
 
   if (loading) return <Box sx={{display:'flex', justifyContent:'center', mt:10}}><CircularProgress /></Box>;
 
@@ -314,6 +315,8 @@ function AppContent() {
               fetchHhMembers={fetchHhMembers}
               user={user}
               isDark={theme.palette.mode === 'dark'}
+              showNotification={showNotification}
+              confirmAction={confirmAction}
             />}>
                             <Route index element={<Navigate to="dashboard" replace />} />
                             <Route path="dashboard" element={<HomeView 
@@ -356,6 +359,7 @@ function AppContent() {
                         localStorage.setItem('household', JSON.stringify(updated));
                         return updated;
                       });
+                      showNotification("Settings saved.", "success");
                   });
                 }}
                 onDeleteHousehold={() => {}}
@@ -374,10 +378,17 @@ function AppContent() {
                   authAxios.post(`/households/${household.id}/members`, data).then(() => { 
                     fetchHhMembers(household.id); 
                     e.target.reset(); 
+                    showNotification("Member added.", "success");
                   });
                 }}
-                onRemoveMember={(id) => authAxios.delete(`/households/${household.id}/members/${id}`).then(() => fetchHhMembers(household.id))}
-                onUpdateMember={(mid, data) => authAxios.put(`/households/${household.id}/members/${mid}`, data).then(() => fetchHhMembers(household.id))}
+                onRemoveMember={(id) => authAxios.delete(`/households/${household.id}/members/${id}`).then(() => {
+                    fetchHhMembers(household.id);
+                    showNotification("Member removed.", "info");
+                })}
+                onUpdateMember={(mid, data) => authAxios.put(`/households/${household.id}/members/${mid}`, data).then(() => {
+                    fetchHhMembers(household.id);
+                    showNotification("Member updated.", "success");
+                })}
                 showNotification={showNotification}
                 confirmAction={confirmAction}
               />} />

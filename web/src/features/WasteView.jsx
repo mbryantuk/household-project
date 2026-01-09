@@ -9,7 +9,7 @@ import { Edit, Delete, DeleteSweep, Add } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
 
 export default function WasteView() {
-  const { api, id: householdId, user: currentUser, isDark } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, showNotification } = useOutletContext();
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editItem, setEditItem] = useState(null);
@@ -41,14 +41,16 @@ export default function WasteView() {
     try {
       if (isNew) {
         await api.post(`/households/${householdId}/waste`, data);
+        showNotification("Waste collection added.", "success");
       } else {
         await api.put(`/households/${householdId}/waste/${editItem.id}`, data);
+        showNotification("Waste collection updated.", "success");
       }
       fetchCollections();
       setEditItem(null);
       setIsNew(false);
     } catch (err) {
-      alert("Failed to save");
+      showNotification("Failed to save collection.", "error");
     }
   };
 
@@ -56,9 +58,10 @@ export default function WasteView() {
     if (!window.confirm("Delete this collection?")) return;
     try {
       await api.delete(`/households/${householdId}/waste/${id}`);
+      showNotification("Collection deleted.", "info");
       fetchCollections();
     } catch (err) {
-      alert("Failed to delete");
+      showNotification("Failed to delete collection.", "error");
     }
   };
 
