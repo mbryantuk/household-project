@@ -29,7 +29,13 @@ router.post('/login', (req, res) => {
                 token, 
                 role: 'sysadmin', 
                 context: 'global',
-                user: { id: user.id, username: user.username, email: user.email, avatar: user.avatar }
+                user: { 
+                    id: user.id, 
+                    username: user.username, 
+                    email: user.email, 
+                    avatar: user.avatar,
+                    dashboard_layout: user.dashboard_layout 
+                }
             });
         });
         return;
@@ -67,7 +73,13 @@ router.post('/login', (req, res) => {
                 token, 
                 role: user.role, 
                 context: 'household',
-                user: { id: user.id, username: user.username, email: user.email, avatar: user.avatar },
+                user: { 
+                    id: user.id, 
+                    username: user.username, 
+                    email: user.email, 
+                    avatar: user.avatar,
+                    dashboard_layout: user.dashboard_layout
+                },
                 household: { 
                     id: household.id, 
                     name: household.name, 
@@ -88,8 +100,8 @@ router.post('/login', (req, res) => {
 
 // PROFILE: Update own details (Works for both contexts)
 router.put('/profile', authenticateToken, (req, res) => {
-    const { username, password, email, avatar } = req.body;
-    if (!username && !password && !email && !avatar) return res.status(400).json({ error: "Nothing to update" });
+    const { username, password, email, avatar, dashboard_layout } = req.body;
+    if (!username && !password && !email && !avatar && !dashboard_layout) return res.status(400).json({ error: "Nothing to update" });
 
     const isSysAdmin = req.user.system_role === 'sysadmin';
     const targetDb = isSysAdmin ? globalDb : getHouseholdDb(req.user.householdId);
@@ -100,6 +112,10 @@ router.put('/profile', authenticateToken, (req, res) => {
     if (password) { fields.push('password_hash = ?'); values.push(bcrypt.hashSync(password, 8)); }
     if (email !== undefined) { fields.push('email = ?'); values.push(email); }
     if (avatar !== undefined) { fields.push('avatar = ?'); values.push(avatar); }
+    if (dashboard_layout !== undefined) { 
+        fields.push('dashboard_layout = ?'); 
+        values.push(typeof dashboard_layout === 'string' ? dashboard_layout : JSON.stringify(dashboard_layout)); 
+    }
     
     values.push(req.user.id);
 

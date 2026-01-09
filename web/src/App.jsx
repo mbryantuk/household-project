@@ -323,7 +323,13 @@ function AppContent() {
               api={authAxios}
             />}>
                             <Route index element={<Navigate to="dashboard" replace />} />
-                            <Route path="dashboard" element={<HomeView household={household} members={hhMembers} currentUser={user} dates={hhDates} />} />
+                            <Route path="dashboard" element={<HomeView 
+                                household={household} 
+                                members={hhMembers} 
+                                currentUser={user} 
+                                dates={hhDates} 
+                                onUpdateProfile={handleUpdateProfile}
+                            />} />
                             <Route path="calendar" element={<CalendarView showNotification={showNotification} confirmAction={confirmAction} />} />
 
               <Route path="settings" element={<SettingsView 

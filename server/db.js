@@ -39,11 +39,13 @@ function initGlobalDb() {
             password_hash TEXT,
             email TEXT,
             avatar TEXT,
-            system_role TEXT DEFAULT 'sysadmin' -- Mostly 'sysadmin' now
+            system_role TEXT DEFAULT 'sysadmin', -- Mostly 'sysadmin' now
+            dashboard_layout TEXT
         )`);
 
-        // Migration: Ensure avatar exists in global users
+        // Migration: Ensure avatar and dashboard_layout exists in global users
         globalDb.run(`ALTER TABLE users ADD COLUMN avatar TEXT`, (err) => {});
+        globalDb.run(`ALTER TABLE users ADD COLUMN dashboard_layout TEXT`, (err) => {});
 
         // Households table: Added access_key
         globalDb.run(`CREATE TABLE IF NOT EXISTS households (

@@ -13,7 +13,8 @@ const SCHEMA_DEFINITIONS = [
         password_hash TEXT,
         email TEXT,
         avatar TEXT,
-        role TEXT DEFAULT 'member' -- admin, member, viewer
+        role TEXT DEFAULT 'member', -- admin, member, viewer
+        dashboard_layout TEXT
     )`,
 
     // --- MEMBERS TABLE (Residents) ---
@@ -49,6 +50,7 @@ const SCHEMA_DEFINITIONS = [
 // Format: [Table, Column, Type/Definition]
 const MIGRATIONS = [
     ['users', 'avatar', 'TEXT'],
+    ['users', 'dashboard_layout', 'TEXT'],
     ['members', 'emoji', 'TEXT'],
     ['dates', 'emoji', 'TEXT'],
     ['dates', 'member_id', 'INTEGER'],

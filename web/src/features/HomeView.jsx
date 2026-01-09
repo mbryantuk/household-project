@@ -1,7 +1,13 @@
 import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Box, Typography, Avatar, IconButton, Button, Menu, MenuItem, Pagination, Tooltip } from '@mui/material';
-import { Edit, Save, Add, Delete, Close } from '@mui/icons-material';
+import { 
+  Box, Typography, IconButton, Button, Menu, MenuItem, 
+  Pagination, Tooltip, Chip, Stack 
+} from '@mui/material';
+import { 
+  Edit, Save, Add, Delete, Close, 
+  AddCircleOutline, RemoveCircleOutline 
+} from '@mui/icons-material';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
@@ -19,14 +25,26 @@ const DEFAULT_LAYOUT = [
   { i: 'events-1', x: 6, y: 0, w: 6, h: 4, type: 'events' },
 ];
 
-export default function HomeView({ members, household, currentUser, dates }) {
+export default function HomeView({ members, household, currentUser, dates, onUpdateProfile }) {
   // State
   const [isEditing, setIsEditing] = useState(false);
   const [page, setPage] = useState(1);
   const [layouts, setLayouts] = useState(() => {
+    // 1. Try Cloud (Backend)
+    if (currentUser?.dashboard_layout) {
+      try {
+        const cloud = typeof currentUser.dashboard_layout === 'string' 
+          ? JSON.parse(currentUser.dashboard_layout) 
+          : currentUser.dashboard_layout;
+        if (cloud && Object.keys(cloud).length > 0) return cloud;
+      } catch (e) { console.error("Cloud Layout Parse Error", e); }
+    }
+    
+    // 2. Try Local Legacy
     const saved = localStorage.getItem(`dashboard_${household?.id}_${currentUser?.username}`);
     return saved ? JSON.parse(saved) : { 1: DEFAULT_LAYOUT };
   });
+
   const [addWidgetAnchor, setAddWidgetAnchor] = useState(null);
   const [width, setWidth] = useState(1200);
   const containerRef = useRef(null);
@@ -54,17 +72,10 @@ export default function HomeView({ members, household, currentUser, dates }) {
     }));
   }, [currentItems, isEditing]);
 
-  // Save on change
-  useEffect(() => {
-    localStorage.setItem(`dashboard_${household?.id}_${currentUser?.username}`, JSON.stringify(layouts));
-  }, [layouts, household?.id, currentUser?.username]);
-
   // Handlers
   const handleLayoutChange = (layout) => {
     const newItems = layout.map(l => {
         const existing = currentItems.find(i => i.i === l.i);
-        // We do NOT want to save the 'static' property to state/localstorage, 
-        // as it is derived from isEditing.
         const { static: _static, ...cleanLayout } = l;
         return { ...existing, ...cleanLayout };
     });
@@ -101,25 +112,88 @@ export default function HomeView({ members, household, currentUser, dates }) {
       }));
   };
 
+  const handleSave = async () => {
+    setIsEditing(false);
+    if (onUpdateProfile) {
+        try {
+            await onUpdateProfile({ dashboard_layout: JSON.stringify(layouts) });
+        } catch (err) {
+            console.error("Failed to save layout to cloud:", err);
+        }
+    }
+    // Also save locally as fallback
+    localStorage.setItem(`dashboard_${household?.id}_${currentUser?.username}`, JSON.stringify(layouts));
+  };
+
+  const handleAddPage = () => {
+    const nextPageIndex = Object.keys(layouts).length + 1;
+    setLayouts(prev => ({
+        ...prev,
+        [nextPageIndex]: []
+    }));
+    setPage(nextPageIndex);
+  };
+
+  const handleRemovePage = () => {
+    const pageKeys = Object.keys(layouts).sort((a,b) => a-b);
+    if (pageKeys.length <= 1) return;
+    
+    const newLayouts = { ...layouts };
+    delete newLayouts[page];
+
+    // Re-index remaining pages
+    const remainingValues = Object.values(newLayouts);
+    const reindexed = {};
+    remainingValues.forEach((val, idx) => {
+        reindexed[idx + 1] = val;
+    });
+
+    setLayouts(reindexed);
+    setPage(Math.max(1, page - 1));
+  };
+
   const hour = new Date().getHours();
   let greeting = "Good evening";
   if (hour < 12) greeting = "Good morning";
   else if (hour < 17) greeting = "Good afternoon";
 
+  const totalPages = Object.keys(layouts).length;
+
   return (
     <Box sx={{ pb: 10 }}>
       
       {/* HEADER */}
-      <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
         <Box>
           <Typography variant="h4" sx={{ fontWeight: '300', mb: 0.5 }}>
             {greeting}, <Box component="span" sx={{ fontWeight: '700', color: 'primary.main' }}>{currentUser?.username || 'User'}</Box>
           </Typography>
         </Box>
         
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
             {isEditing ? (
                 <>
+                    <Stack direction="row" spacing={1} sx={{ mr: 2 }}>
+                        <Button 
+                            variant="outlined" 
+                            size="small"
+                            startIcon={<AddCircleOutline />} 
+                            onClick={handleAddPage}
+                        >
+                            Add Page
+                        </Button>
+                        {totalPages > 1 && (
+                            <Button 
+                                variant="outlined" 
+                                size="small"
+                                color="error"
+                                startIcon={<RemoveCircleOutline />} 
+                                onClick={handleRemovePage}
+                            >
+                                Remove Page
+                            </Button>
+                        )}
+                    </Stack>
                     <Button 
                         variant="outlined" 
                         startIcon={<Add />} 
@@ -131,7 +205,7 @@ export default function HomeView({ members, household, currentUser, dates }) {
                         variant="contained" 
                         color="primary" 
                         startIcon={<Save />} 
-                        onClick={() => setIsEditing(false)}
+                        onClick={handleSave}
                     >
                         Done
                     </Button>
@@ -147,6 +221,21 @@ export default function HomeView({ members, household, currentUser, dates }) {
             )}
         </Box>
       </Box>
+
+      {/* PAGE SWITCHER (Top of Widgets) */}
+      {totalPages > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+            <Pagination 
+                count={totalPages} 
+                page={page} 
+                onChange={(e, v) => setPage(v)} 
+                color="primary" 
+                size="large"
+                variant="outlined"
+                shape="rounded"
+            />
+        </Box>
+      )}
 
       {/* GRID */}
       <div ref={containerRef}>
@@ -193,17 +282,17 @@ export default function HomeView({ members, household, currentUser, dates }) {
         </ResponsiveGridLayout>
       </div>
 
-      {/* PAGINATION / EMPTY STATE */}
+      {/* EMPTY STATE */}
       {currentItems.length === 0 && (
           <Box sx={{ textAlign: 'center', py: 8, color: 'text.secondary', border: '2px dashed', borderColor: 'divider', borderRadius: 4, mt: 2 }}>
-              <Typography>This page is empty.</Typography>
-              {isEditing && <Button startIcon={<Add />} onClick={(e) => setAddWidgetAnchor(e.currentTarget)}>Add a widget</Button>}
+              <Typography variant="h6">This page is empty.</Typography>
+              {isEditing ? (
+                  <Button sx={{ mt: 2 }} variant="contained" startIcon={<Add />} onClick={(e) => setAddWidgetAnchor(e.currentTarget)}>Add a widget</Button>
+              ) : (
+                  <Typography variant="body2">Click "Edit Dashboard" to add widgets here.</Typography>
+              )}
           </Box>
       )}
-
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-          <Pagination count={3} page={page} onChange={(e, v) => setPage(v)} color="primary" />
-      </Box>
 
       {/* ADD MENU */}
       <Menu
