@@ -2,8 +2,74 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const multer = require('multer');
+const path = require('path');
 const { globalDb, getHouseholdDb } = require('../db');
 const { authenticateToken } = require('../middleware/auth');
+const { listBackups, createBackup, restoreBackup, BACKUP_DIR } = require('../services/backup');
+
+// Upload middleware
+const upload = multer({ dest: path.join(__dirname, '../data/temp_uploads/') });
+
+// ===============================
+// 🛡️ BACKUP ROUTES (SysAdmin Only)
+// ===============================
+
+// GET /backups - List all backups
+router.get('/backups', authenticateToken, async (req, res) => {
+    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
+    try {
+        const backups = await listBackups();
+        res.json(backups);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /backups/trigger - Manually create backup
+router.post('/backups/trigger', authenticateToken, async (req, res) => {
+    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
+    try {
+        const filename = await createBackup();
+        res.json({ message: "Backup created", filename });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// GET /backups/download/:filename
+router.get('/backups/download/:filename', authenticateToken, (req, res) => {
+    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
+    const filePath = path.join(BACKUP_DIR, req.params.filename);
+    res.download(filePath, (err) => {
+        if (err) res.status(404).json({ error: "File not found" });
+    });
+});
+
+// POST /backups/restore/:filename - Restore from local backup
+router.post('/backups/restore/:filename', authenticateToken, async (req, res) => {
+    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
+    const filePath = path.join(BACKUP_DIR, req.params.filename);
+    try {
+        await restoreBackup(filePath);
+        res.json({ message: "System restored successfully. Please restart if necessary." });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /backups/upload - Upload and restore
+router.post('/backups/upload', authenticateToken, upload.single('backup'), async (req, res) => {
+    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
+    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+
+    try {
+        await restoreBackup(req.file.path);
+        res.json({ message: "Backup uploaded and restored successfully." });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 // ===============================
 // 🌍 SYSADMIN ROUTES (Global)

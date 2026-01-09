@@ -11,6 +11,8 @@ const memberRoutes = require('./routes/members');
 const adminRoutes = require('./routes/admin');
 const calendarRoutes = require('./routes/calendar');
 const { bootstrap } = require('./bootstrap');
+const cron = require('node-cron');
+const { createBackup, cleanOldBackups } = require('./services/backup');
 
 const app = express();
 const PORT = 4001;
@@ -24,6 +26,19 @@ const globalDb = new sqlite3.Database(DB_PATH, (err) => {
     else {
         console.log("✅ Connected to SQLite");
         bootstrap(globalDb); // Initialize Superuser
+    }
+});
+
+// --- SCHEDULED TASKS ---
+// Run nightly at midnight
+cron.schedule('0 0 * * *', async () => {
+    console.log('🕒 Starting scheduled backup...');
+    try {
+        const filename = await createBackup();
+        console.log(`✅ Backup created: ${filename}`);
+        cleanOldBackups(30);
+    } catch (err) {
+        console.error('❌ Backup failed:', err);
     }
 });
 
