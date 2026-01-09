@@ -61,6 +61,15 @@ const handleGetList = (table) => (req, res) => {
     });
 };
 
+const handleGetItem = (table) => (req, res) => {
+    req.tenantDb.get(`SELECT * FROM ${table} WHERE id = ?`, [req.params.itemId], (err, row) => {
+        closeDb(req);
+        if (err) return res.status(500).json({ error: err.message });
+        if (!row) return res.status(404).json({ error: "Item not found" });
+        res.json(row);
+    });
+};
+
 const handleCreateItem = (table) => (req, res) => {
     const fields = Object.keys(req.body);
     const placeholders = fields.join(', ');
@@ -116,18 +125,21 @@ router.put('/households/:id/waste', authenticateToken, requireHouseholdRole('adm
 
 // Vehicles (List)
 router.get('/households/:id/vehicles', authenticateToken, useTenantDb, handleGetList('vehicles'));
+router.get('/households/:id/vehicles/:itemId', authenticateToken, useTenantDb, handleGetItem('vehicles'));
 router.post('/households/:id/vehicles', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleCreateItem('vehicles'));
 router.put('/households/:id/vehicles/:itemId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleUpdateItem('vehicles'));
 router.delete('/households/:id/vehicles/:itemId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleDeleteItem('vehicles'));
 
 // Assets (List)
 router.get('/households/:id/assets', authenticateToken, useTenantDb, handleGetList('assets'));
+router.get('/households/:id/assets/:itemId', authenticateToken, useTenantDb, handleGetItem('assets'));
 router.post('/households/:id/assets', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleCreateItem('assets'));
 router.put('/households/:id/assets/:itemId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleUpdateItem('assets'));
 router.delete('/households/:id/assets/:itemId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleDeleteItem('assets'));
 
 // Energy Accounts (List)
 router.get('/households/:id/energy', authenticateToken, useTenantDb, handleGetList('energy_accounts'));
+router.get('/households/:id/energy/:itemId', authenticateToken, useTenantDb, handleGetItem('energy_accounts'));
 router.post('/households/:id/energy', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleCreateItem('energy_accounts'));
 router.put('/households/:id/energy/:itemId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleUpdateItem('energy_accounts'));
 router.delete('/households/:id/energy/:itemId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, handleDeleteItem('energy_accounts'));
