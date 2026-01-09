@@ -76,6 +76,17 @@ describe('Household Project API Integration Suite (Isolated Tenancy)', () => {
             expect(res.statusCode).toBe(200);
             expect(Array.isArray(res.body)).toBeTruthy();
         });
+
+        it('should access Swagger UI', async () => {
+            const res = await request(app)
+                .get('/api-docs/')
+                .redirects(1); // Swagger UI might redirect
+
+            logToReport('Access Swagger UI', '/api-docs/', res.statusCode === 200 ? '✅ Accessible' : '❌ Failed');
+            expect(res.statusCode).toBe(200);
+            // Check for some HTML content common in Swagger UI
+            expect(res.text).toContain('swagger');
+        });
     });
 
     // --- 2. HOUSEHOLD OPERATIONS ---
