@@ -13,6 +13,8 @@ const calendarRoutes = require('./routes/calendar');
 const { bootstrap } = require('./bootstrap');
 const cron = require('node-cron');
 const { createBackup, cleanOldBackups } = require('./services/backup');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
 
 const app = express();
 const PORT = 4001;
@@ -50,6 +52,9 @@ app.use((req, res, next) => {
     console.log(`📡 [${req.method}] ${req.path}`);
     next();
 });
+
+// Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // 4. MOUNT API ROUTES
 app.use('/auth', authRoutes);      
