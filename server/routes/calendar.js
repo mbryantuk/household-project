@@ -10,10 +10,14 @@ const useTenantDb = (req, res, next) => {
         CREATE TABLE IF NOT EXISTS dates (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
-            date TEXT NOT NULL, -- YYYY-MM-DD
+            date TEXT NOT NULL, -- YYYY-MM-DD or ISO8601
+            end_date TEXT,      -- YYYY-MM-DD or ISO8601
+            is_all_day BOOLEAN DEFAULT 1,
             type TEXT DEFAULT 'event', -- birthday, anniversary, holiday, other
             description TEXT,
-            emoji TEXT
+            emoji TEXT,
+            recurrence TEXT DEFAULT 'none', -- none, daily, weekly, monthly, yearly
+            recurrence_end_date TEXT
         )
     `;
     db.run(createTableSql, (err) => {
@@ -22,14 +26,22 @@ const useTenantDb = (req, res, next) => {
             return res.status(500).json({ error: "DB Init failed for dates" });
         }
         
-        // Simple migration check: try to add the column if it's missing
-        // This is a "lazy" migration for existing tables
-        db.run(`ALTER TABLE dates ADD COLUMN emoji TEXT`, (err) => {
-            // If error, it likely means column exists, which is fine.
-            // In a production app, we'd check PRAGMA table_info or use a migration tool.
-            req.tenantDb = db;
-            next();
-        });
+        // Lazy Migration: Add columns if they don't exist
+        const columns = ['emoji', 'end_date', 'is_all_day', 'recurrence', 'recurrence_end_date'];
+        
+        const runMigration = (cols) => {
+            if (cols.length === 0) {
+                req.tenantDb = db;
+                return next();
+            }
+            const col = cols.shift();
+            // Try to add column. If it fails, it likely exists.
+            db.run(`ALTER TABLE dates ADD COLUMN ${col} TEXT`, (err) => {
+                runMigration(cols);
+            });
+        };
+
+        runMigration([...columns]);
     });
 };
 
@@ -44,18 +56,33 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
 
 // POST /households/:id/dates
 router.post('/households/:id/dates', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-    const { title, date, type, description, emoji } = req.body;
+    const { 
+        title, date, end_date, is_all_day, type, description, emoji, 
+        recurrence, recurrence_end_date 
+    } = req.body;
     
     if (!title || !date) {
         req.tenantDb.close();
-        return res.status(400).json({ error: "Title and Date are required" });
+        return res.status(400).json({ error: "Title and Start Date are required" });
     }
 
-    const sql = `INSERT INTO dates (title, date, type, description, emoji) VALUES (?, ?, ?, ?, ?)`;
-    req.tenantDb.run(sql, [title, date, type, description, emoji], function(err) {
+    const sql = `
+        INSERT INTO dates (
+            title, date, end_date, is_all_day, type, description, emoji, 
+            recurrence, recurrence_end_date
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    
+    req.tenantDb.run(sql, [
+        title, date, end_date, is_all_day, type, description, emoji, 
+        recurrence || 'none', recurrence_end_date
+    ], function(err) {
         req.tenantDb.close();
         if (err) return res.status(500).json({ error: err.message });
-        res.json({ id: this.lastID, title, date, type, description, emoji });
+        res.json({ 
+            id: this.lastID, title, date, end_date, is_all_day, type, description, emoji, 
+            recurrence, recurrence_end_date 
+        });
     });
 });
 
@@ -70,7 +97,10 @@ router.delete('/households/:id/dates/:dateId', authenticateToken, requireHouseho
 
 // PUT /households/:id/dates/:dateId
 router.put('/households/:id/dates/:dateId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-    const { title, date, type, description, emoji } = req.body;
+    const { 
+        title, date, end_date, is_all_day, type, description, emoji, 
+        recurrence, recurrence_end_date 
+    } = req.body;
     const { dateId } = req.params;
 
     if (!title || !date) {
@@ -78,11 +108,24 @@ router.put('/households/:id/dates/:dateId', authenticateToken, requireHouseholdR
         return res.status(400).json({ error: "Title and Date are required" });
     }
 
-    const sql = `UPDATE dates SET title = ?, date = ?, type = ?, description = ?, emoji = ? WHERE id = ?`;
-    req.tenantDb.run(sql, [title, date, type, description, emoji, dateId], function(err) {
+    const sql = `
+        UPDATE dates SET 
+            title = ?, date = ?, end_date = ?, is_all_day = ?, type = ?, 
+            description = ?, emoji = ?, recurrence = ?, recurrence_end_date = ?
+        WHERE id = ?
+    `;
+    
+    req.tenantDb.run(sql, [
+        title, date, end_date, is_all_day, type, description, emoji, 
+        recurrence || 'none', recurrence_end_date, dateId
+    ], function(err) {
         req.tenantDb.close();
         if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Date updated", id: dateId, title, date, type, description, emoji });
+        res.json({ 
+            message: "Date updated", id: dateId, 
+            title, date, end_date, is_all_day, type, description, emoji, 
+            recurrence, recurrence_end_date 
+        });
     });
 });
 

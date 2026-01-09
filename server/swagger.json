@@ -21,9 +21,13 @@
           "id": { "type": "integer" },
           "title": { "type": "string" },
           "date": { "type": "string", "format": "date" },
+          "end_date": { "type": "string", "format": "date-time" },
+          "is_all_day": { "type": "boolean" },
           "type": { "type": "string" },
           "description": { "type": "string" },
-          "emoji": { "type": "string" }
+          "emoji": { "type": "string" },
+          "recurrence": { "type": "string", "enum": ["none", "daily", "weekly", "monthly", "yearly"] },
+          "recurrence_end_date": { "type": "string", "format": "date-time" }
         }
       },
       "DateInput": {
@@ -32,9 +36,13 @@
         "properties": {
           "title": { "type": "string" },
           "date": { "type": "string", "format": "date" },
+          "end_date": { "type": "string", "format": "date-time" },
+          "is_all_day": { "type": "boolean" },
           "type": { "type": "string" },
           "description": { "type": "string" },
-          "emoji": { "type": "string" }
+          "emoji": { "type": "string" },
+          "recurrence": { "type": "string", "enum": ["none", "daily", "weekly", "monthly", "yearly"] },
+          "recurrence_end_date": { "type": "string", "format": "date-time" }
         }
       }
     },

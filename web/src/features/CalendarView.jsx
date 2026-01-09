@@ -1,53 +1,162 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { 
-  Box, Typography, Paper, Grid, Card, CardContent, Chip, 
-  Button, Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, FormControl, InputLabel, Select, MenuItem, Stack, IconButton, Tooltip
+  Box, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions,
+  TextField, FormControl, InputLabel, Select, MenuItem, Stack, IconButton, Tooltip,
+  Switch, FormControlLabel, Grid, Paper
 } from '@mui/material';
-import { Event, Cake, Favorite, Add, Star, AddReaction, Edit, Delete } from '@mui/icons-material';
+import { Add, Delete, Edit, Event as EventIcon, Cake, Favorite, Star } from '@mui/icons-material';
+import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar';
+import format from 'date-fns/format';
+import parse from 'date-fns/parse';
+import startOfWeek from 'date-fns/startOfWeek';
+import getDay from 'date-fns/getDay';
+import enUS from 'date-fns/locale/en-US';
+import { addDays, addWeeks, addMonths, addYears, parseISO, isBefore, isAfter, startOfDay, endOfDay } from 'date-fns';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+
 import EmojiPicker from '../components/EmojiPicker';
 
+const locales = { 'en-US': enUS };
+
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+});
+
 const EVENT_TYPES = [
-  { value: 'birthday', label: 'Birthday', icon: <Cake fontSize="small" /> },
-  { value: 'anniversary', label: 'Anniversary', icon: <Favorite fontSize="small" /> },
-  { value: 'holiday', label: 'Holiday', icon: <Star fontSize="small" /> },
-  { value: 'other', label: 'Event', icon: <Event fontSize="small" /> },
+  { value: 'event', label: 'Event', icon: <EventIcon /> },
+  { value: 'birthday', label: 'Birthday', icon: <Cake /> },
+  { value: 'anniversary', label: 'Anniversary', icon: <Favorite /> },
+  { value: 'holiday', label: 'Holiday', icon: <Star /> },
 ];
 
-export default function CalendarView() {
+const RECURRENCE_OPTIONS = [
+  { value: 'none', label: 'Does not repeat' },
+  { value: 'daily', label: 'Daily' },
+  { value: 'weekly', label: 'Weekly' },
+  { value: 'monthly', label: 'Monthly' },
+  { value: 'yearly', label: 'Yearly' },
+];
+
+export default function CalendarView({ showNotification }) {
   const { api, user: currentUser } = useOutletContext();
   const { id: householdId } = useParams();
   
-  const canEdit = currentUser?.role !== 'viewer';
-  
-  const [dates, setDates] = useState([]);
+  const [rawDates, setRawDates] = useState([]);
+  const [events, setEvents] = useState([]);
   const [open, setOpen] = useState(false);
-  const [editingDate, setEditingDate] = useState(null);
+  const [editingEvent, setEditingEvent] = useState(null);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('📅');
   const [loading, setLoading] = useState(true);
 
+  // Form State
+  const [isAllDay, setIsAllDay] = useState(true);
+  const [recurrence, setRecurrence] = useState('none');
+
   const fetchDates = useCallback(() => {
+    setLoading(true);
     api.get(`/households/${householdId}/dates`)
-      .then(res => setDates(res.data))
-      .catch(() => console.error("Failed to fetch dates"))
+      .then(res => {
+        setRawDates(res.data);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch dates", err);
+        if (showNotification) showNotification("Failed to load calendar", "error");
+      })
       .finally(() => setLoading(false));
-  }, [api, householdId]);
+  }, [api, householdId, showNotification]);
 
   useEffect(() => {
     fetchDates();
   }, [fetchDates]);
 
-  const handleOpenAdd = () => {
-    setEditingDate(null);
+  // --- RECURRENCE EXPANSION ---
+  useEffect(() => {
+    if (!rawDates) return;
+
+    const expandedEvents = [];
+    const limitDate = addYears(new Date(), 2); // Expand up to 2 years ahead
+
+    rawDates.forEach(d => {
+      const startDate = parseISO(d.date);
+      const endDate = d.end_date ? parseISO(d.end_date) : (d.is_all_day ? startDate : addDays(startDate, 0));
+      const recurEnd = d.recurrence_end_date ? parseISO(d.recurrence_end_date) : limitDate;
+
+      const baseEvent = {
+        id: d.id,
+        title: d.emoji ? `${d.emoji} ${d.title}` : d.title,
+        allDay: Boolean(d.is_all_day),
+        resource: d, // Keep full original data
+      };
+
+      if (!d.recurrence || d.recurrence === 'none') {
+        expandedEvents.push({
+          ...baseEvent,
+          start: startDate,
+          end: endDate,
+        });
+      } else {
+        let currentStart = startDate;
+        let currentEnd = endDate;
+        const duration = currentEnd.getTime() - currentStart.getTime();
+
+        while (isBefore(currentStart, recurEnd) && isBefore(currentStart, limitDate)) {
+           // Create instance
+           expandedEvents.push({
+             ...baseEvent,
+             id: `${d.id}_${currentStart.toISOString()}`, // Unique ID for instance
+             start: new Date(currentStart),
+             end: new Date(currentStart.getTime() + duration),
+             originalId: d.id // Link back to parent
+           });
+
+           // Advance
+           switch (d.recurrence) {
+             case 'daily': currentStart = addDays(currentStart, 1); break;
+             case 'weekly': currentStart = addWeeks(currentStart, 1); break;
+             case 'monthly': currentStart = addMonths(currentStart, 1); break;
+             case 'yearly': currentStart = addYears(currentStart, 1); break;
+             default: currentStart = addYears(currentStart, 100); // Break loop
+           }
+        }
+      }
+    });
+
+    setEvents(expandedEvents);
+  }, [rawDates]);
+
+
+  // --- HANDLERS ---
+
+  const handleSelectSlot = ({ start, end }) => {
+    setEditingEvent(null);
     setSelectedEmoji('📅');
+    setIsAllDay(true);
+    setRecurrence('none');
+    // Pre-fill dates
+    setEditingEvent({ 
+        start: format(start, 'yyyy-MM-dd'),
+        end: format(start, 'yyyy-MM-dd') 
+    });
     setOpen(true);
   };
 
-  const handleOpenEdit = (date) => {
-    setEditingDate(date);
-    setSelectedEmoji(date.emoji || '📅');
+  const handleSelectEvent = (event) => {
+    const original = event.resource;
+    setEditingEvent({
+        ...original,
+        // Ensure dates are strings for inputs
+        date: original.date.split('T')[0], // strip time if ISO
+        end_date: original.end_date ? original.end_date.split('T')[0] : original.date.split('T')[0]
+    });
+    setSelectedEmoji(original.emoji || '📅');
+    setIsAllDay(Boolean(original.is_all_day));
+    setRecurrence(original.recurrence || 'none');
     setOpen(true);
   };
 
@@ -55,151 +164,170 @@ export default function CalendarView() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
-    data.emoji = selectedEmoji;
     
-    if (editingDate) {
-      api.put(`/households/${householdId}/dates/${editingDate.id}`, data)
+    // Formatting
+    data.emoji = selectedEmoji;
+    data.is_all_day = isAllDay;
+    data.recurrence = recurrence;
+    
+    // If all day, append 00:00 to ensure ISO parsing works consistently backend if needed, 
+    // or just send YYYY-MM-DD. Backend stores TEXT, so YYYY-MM-DD is fine.
+    // If NOT all day, we need time. (TODO: Add time inputs if !isAllDay)
+    
+    if (editingEvent?.id) {
+      api.put(`/households/${householdId}/dates/${editingEvent.id}`, data)
         .then(() => {
           setOpen(false);
           fetchDates();
+          if (showNotification) showNotification("Event updated", "success");
         })
-        .catch(() => alert("Failed to update date"));
+        .catch((err) => {
+            console.error(err);
+            if (showNotification) showNotification("Failed to update event", "error");
+        });
     } else {
       api.post(`/households/${householdId}/dates`, data)
         .then(() => {
           setOpen(false);
           fetchDates();
+          if (showNotification) showNotification("Event created", "success");
         })
-        .catch(() => alert("Failed to add date"));
+        .catch((err) => {
+            console.error(err);
+            if (showNotification) showNotification("Failed to create event", "error");
+        });
     }
   };
 
-  const handleDelete = (dateId) => {
-    if (window.confirm("Remove this date?")) {
-      api.delete(`/households/${householdId}/dates/${dateId}`)
-        .then(fetchDates);
+  const handleDelete = () => {
+    if (!editingEvent?.id) return;
+    if (window.confirm("Delete this event? If it's recurring, all future events will be removed.")) {
+      api.delete(`/households/${householdId}/dates/${editingEvent.id}`)
+        .then(() => {
+          setOpen(false);
+          fetchDates();
+          if (showNotification) showNotification("Event deleted", "info");
+        });
     }
-  };
-
-  const upcomingDates = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    return (dates || []).map(d => {
-      const originalDate = new Date(d.date);
-      let nextDate = new Date(today.getFullYear(), originalDate.getMonth(), originalDate.getDate());
-      if (nextDate < today) {
-        nextDate.setFullYear(today.getFullYear() + 1);
-      }
-      const diffTime = nextDate - today;
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      const yearsRunning = nextDate.getFullYear() - originalDate.getFullYear();
-      return { ...d, nextDate, diffDays, yearsRunning };
-    }).sort((a, b) => a.diffDays - b.diffDays);
-  }, [dates]);
-
-  const getIcon = (d) => {
-    if (d.emoji) return <Typography sx={{ fontSize: '1.2rem' }}>{d.emoji}</Typography>;
-    return EVENT_TYPES.find(t => t.value === d.type)?.icon || <Event />;
   };
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h4" fontWeight="300">Memorable Dates</Typography>
-        <Button variant="contained" startIcon={<Add />} onClick={handleOpenAdd}>Add Date</Button>
+    <Box sx={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h4" fontWeight="300">Calendar</Typography>
+        <Button variant="contained" startIcon={<Add />} onClick={() => handleSelectSlot({ start: new Date() })}>
+            New Event
+        </Button>
       </Box>
 
-      <Grid container spacing={3}>
-        {upcomingDates.length === 0 && !loading && (
-          <Grid item xs={12}>
-            <Paper sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
-              No dates added yet. Add birthdays or anniversaries to track them!
-            </Paper>
-          </Grid>
-        )}
-
-        {upcomingDates.map((d) => (
-          <Grid item xs={12} sm={6} md={4} key={d.id}>
-            <Card variant="outlined" sx={{ borderRadius: 3, height: '100%' }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <Box sx={{ 
-                        width: 40, height: 40, borderRadius: '50%', 
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        bgcolor: 'action.hover', border: '1px solid', borderColor: 'divider'
-                    }}>
-                        {getIcon(d)}
-                    </Box>
-                    <Box>
-                        <Typography variant="h6" fontWeight="bold" sx={{ lineHeight: 1.2 }}>{d.title}</Typography>
-                        <Chip label={d.type.toUpperCase()} size="small" variant="outlined" sx={{ height: 18, fontSize: '0.6rem', mt: 0.5 }} />
-                    </Box>
-                  </Box>
-                  <Chip 
-                    label={d.diffDays === 0 ? "Today!" : `${d.diffDays} days`} 
-                    color={d.diffDays < 7 ? "error" : "default"} 
-                    size="small" 
-                  />
-                </Box>
-                
-                <Stack direction="row" spacing={1} alignItems="center" sx={{ color: 'text.secondary', fontSize: '0.9rem', mt: 1 }}>
-                  <Typography variant="body2">
-                    {d.nextDate.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
-                  </Typography>
-                </Stack>
-
-                {d.yearsRunning > 0 && (d.type === 'birthday' || d.type === 'anniversary') && (
-                  <Typography variant="caption" sx={{ display: 'block', mt: 1, fontStyle: 'italic', color: 'primary.main' }}>
-                    Turning {d.yearsRunning}
-                  </Typography>
-                )}
-                
-                {d.description && (
-                  <Typography variant="body2" sx={{ mt: 2, color: 'text.secondary' }}>
-                    {d.description}
-                  </Typography>
-                )}
-
-                <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
-                    <Button size="small" startIcon={<Edit />} onClick={() => handleOpenEdit(d)}>
-                        Edit
-                    </Button>
-                    <Button size="small" color="error" startIcon={<Delete />} onClick={() => handleDelete(d.id)}>
-                        Remove
-                    </Button>
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+      <Paper sx={{ flexGrow: 1, p: 2 }}>
+        <Calendar
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: '100%' }}
+            views={[Views.MONTH, Views.WEEK, Views.AGENDA]}
+            defaultView={Views.MONTH}
+            selectable
+            onSelectSlot={handleSelectSlot}
+            onSelectEvent={handleSelectEvent}
+            popup
+        />
+      </Paper>
 
       {/* ADD/EDIT DIALOG */}
-      <Dialog open={open} onClose={() => setOpen(false)}>
+      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
         <form onSubmit={handleFormSubmit}>
-          <DialogTitle>{editingDate ? 'Edit Memorable Date' : 'Add Memorable Date'}</DialogTitle>
-          <DialogContent sx={{ minWidth: 350, display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                <Tooltip title="Pick an emoji">
-                    <IconButton onClick={() => setEmojiPickerOpen(true)} sx={{ bgcolor: 'action.hover', border: '1px solid', borderColor: 'divider', width: 56, height: 56 }}>
-                        <Typography sx={{ fontSize: '1.5rem' }}>{selectedEmoji}</Typography>
-                    </IconButton>
-                </Tooltip>
-                <TextField name="title" label="Title" defaultValue={editingDate?.title || ''} fullWidth required />
-            </Box>
-            
-            <TextField name="date" label="Date" type="date" defaultValue={editingDate?.date || ''} InputLabelProps={{ shrink: true }} fullWidth required />
-            
-            <FormControl fullWidth>
-              <InputLabel>Type</InputLabel>
-              <Select name="type" defaultValue={editingDate?.type || 'other'} label="Type">
-                {EVENT_TYPES.map(t => <MenuItem key={t.value} value={t.value}>{t.label}</MenuItem>)}
-              </Select>
-            </FormControl>
+          <DialogTitle>
+              {editingEvent?.id ? 'Edit Event' : 'New Event'}
+              {editingEvent?.id && <IconButton size="small" onClick={handleDelete} sx={{ float: 'right', color: 'error.main' }}><Delete /></IconButton>}
+          </DialogTitle>
+          <DialogContent dividers>
+            <Stack spacing={3} sx={{ pt: 1 }}>
+                
+                {/* Header: Emoji & Title */}
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Tooltip title="Pick an emoji">
+                        <IconButton onClick={() => setEmojiPickerOpen(true)} sx={{ bgcolor: 'action.hover', border: '1px solid', borderColor: 'divider', width: 56, height: 56 }}>
+                            <Typography sx={{ fontSize: '1.5rem' }}>{selectedEmoji}</Typography>
+                        </IconButton>
+                    </Tooltip>
+                    <TextField name="title" label="Event Title" defaultValue={editingEvent?.title || ''} fullWidth required autoFocus />
+                </Box>
 
-            <TextField name="description" label="Notes (Optional)" defaultValue={editingDate?.description || ''} multiline rows={2} fullWidth />
+                {/* Date & Time */}
+                <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                        <FormControlLabel 
+                            control={<Switch checked={isAllDay} onChange={e => setIsAllDay(e.target.checked)} />} 
+                            label="All-day" 
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField 
+                            name="date" 
+                            label="Start Date" 
+                            type="date" 
+                            defaultValue={editingEvent?.date || ''} 
+                            InputLabelProps={{ shrink: true }} 
+                            fullWidth required 
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField 
+                            name="end_date" 
+                            label="End Date" 
+                            type="date" 
+                            defaultValue={editingEvent?.end_date || ''} 
+                            InputLabelProps={{ shrink: true }} 
+                            fullWidth 
+                        />
+                    </Grid>
+                </Grid>
+
+                {/* Type & Recurrence */}
+                <Grid container spacing={2}>
+                    <Grid item xs={6}>
+                        <FormControl fullWidth>
+                            <InputLabel>Type</InputLabel>
+                            <Select name="type" defaultValue={editingEvent?.type || 'event'} label="Type">
+                                {EVENT_TYPES.map(t => <MenuItem key={t.value} value={t.value}>{t.label}</MenuItem>)}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <FormControl fullWidth>
+                            <InputLabel>Recurrence</InputLabel>
+                            <Select 
+                                name="recurrence" 
+                                value={recurrence} 
+                                onChange={(e) => setRecurrence(e.target.value)} 
+                                label="Recurrence"
+                            >
+                                {RECURRENCE_OPTIONS.map(o => <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>)}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    
+                    {recurrence !== 'none' && (
+                        <Grid item xs={12}>
+                             <TextField 
+                                name="recurrence_end_date" 
+                                label="Repeat Until (Optional)" 
+                                type="date" 
+                                defaultValue={editingEvent?.recurrence_end_date || ''} 
+                                InputLabelProps={{ shrink: true }} 
+                                fullWidth 
+                                helperText="Leave blank to repeat forever"
+                            />
+                        </Grid>
+                    )}
+                </Grid>
+
+                <TextField name="description" label="Notes / Description" defaultValue={editingEvent?.description || ''} multiline rows={3} fullWidth />
+
+            </Stack>
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setOpen(false)}>Cancel</Button>
@@ -208,7 +336,6 @@ export default function CalendarView() {
         </form>
       </Dialog>
 
-      {/* EMOJI PICKER DIALOG */}
       <EmojiPicker 
         open={emojiPickerOpen} 
         onClose={() => setEmojiPickerOpen(false)} 

@@ -115,11 +115,29 @@ describe('Household Project API Integration Suite (Isolated Tenancy)', () => {
             const res = await request(app)
                 .post('/admin/create-user')
                 .set('Authorization', `Bearer ${localAdminToken}`)
-                .send(secondaryUser);
+                .send({ username: `user_${Date.now()}`, password: "password123", householdId: householdId });
             
-            createdUserId = res.body.id; // Corrected from .userId to .id based on admin.js
-            logToReport('Create Local User', '/admin/create-user', createdUserId ? `✅ ID: ${createdUserId}` : '❌ Failed');
             expect(res.statusCode).toBe(200);
+            expect(res.body).toHaveProperty('id');
+            createdUserId = res.body.id;
+            logToReport('Create Local User', '/admin/create-user', `✅ ID: ${createdUserId}`);
+        });
+
+        it('should create a recurring event', async () => {
+            const res = await request(app)
+                .post(`/households/${householdId}/dates`)
+                .set('Authorization', `Bearer ${localAdminToken}`)
+                .send({ 
+                    title: "Weekly Meeting", 
+                    date: "2024-01-01", 
+                    recurrence: "weekly",
+                    emoji: "📅"
+                });
+            
+            expect(res.statusCode).toBe(200);
+            expect(res.body).toHaveProperty('id');
+            expect(res.body.recurrence).toBe('weekly');
+            logToReport('Create Recurring Event', `/households/${householdId}/dates`, `✅ ID: ${res.body.id}`);
         });
 
         it('should list local users', async () => {

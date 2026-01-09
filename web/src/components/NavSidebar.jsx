@@ -48,7 +48,7 @@ export default function NavSidebar({ open, toggleDrawer }) {
 
   const menuItems = [
     { id: 'dashboard', label: 'Home', icon: <HomeIcon /> },
-    { id: 'dates', label: 'Dates', icon: <Event /> },
+    { id: 'calendar', label: 'Calendar', icon: <Event /> },
     { id: 'settings', label: 'Settings', icon: <Settings /> },
   ];
 

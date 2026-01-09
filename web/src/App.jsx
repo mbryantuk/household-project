@@ -311,7 +311,7 @@ function AppContent() {
             />}>
                             <Route index element={<Navigate to="dashboard" replace />} />
                             <Route path="dashboard" element={<HomeView household={household} members={hhMembers} currentUser={user} dates={hhDates} />} />
-                            <Route path="dates" element={<CalendarView showNotification={showNotification} confirmAction={confirmAction} />} />
+                            <Route path="calendar" element={<CalendarView showNotification={showNotification} confirmAction={confirmAction} />} />
 
               <Route path="settings" element={<SettingsView 
                 household={household}
