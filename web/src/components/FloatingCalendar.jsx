@@ -8,6 +8,7 @@ import {
   ChevronLeft, ChevronRight, Add, Event, Cake, Favorite, Star 
 } from '@mui/icons-material';
 import EmojiPicker from './EmojiPicker';
+import { getEmojiColor } from '../theme';
 
 const EVENT_TYPES = [
   { value: 'birthday', label: 'Birthday', icon: <Cake fontSize="small" /> },
@@ -197,7 +198,16 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
           <Stack spacing={1}>
             {eventsOnSelectedDate.map(e => (
               <Box key={e.id} sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 0.5, bgcolor: 'action.hover', borderRadius: 1 }}>
-                <Typography sx={{ fontSize: '1rem' }}>{e.emoji || '📅'}</Typography>
+                <Box sx={{ 
+                    width: 24, height: 24, 
+                    borderRadius: '50%', 
+                    bgcolor: getEmojiColor(e.emoji || '📅', isDark), 
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '0.9rem',
+                    flexShrink: 0
+                }}>
+                    {e.emoji || '📅'}
+                </Box>
                 <Typography variant="body2" noWrap>{e.title}</Typography>
               </Box>
             ))}

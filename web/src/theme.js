@@ -57,6 +57,28 @@ const STANDARD_DARK = {
   divider: "rgba(255,255,255,0.12)"
 };
 
+/**
+ * Generates a consistent background color for a given emoji/string.
+ * Uses a simple hash to pick a hue and returns an HSL color.
+ */
+export const getEmojiColor = (emoji, isDark = true) => {
+  if (!emoji) return isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+  
+  let hash = 0;
+  const str = String(emoji);
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  const hue = Math.abs(hash % 360);
+  // For dark mode, use lower lightness; for light mode, use higher.
+  // Increase saturation for more vibrant backgrounds.
+  const saturation = isDark ? 50 : 70;
+  const lightness = isDark ? 25 : 90;
+  
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+};
+
 export const getTotemTheme = (mode = 'light', useDracula = true) => {
   let effectiveMode = mode;
   if (mode === 'system') {

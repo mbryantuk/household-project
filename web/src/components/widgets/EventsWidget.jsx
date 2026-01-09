@@ -1,9 +1,12 @@
 import { useMemo } from 'react';
-import { Box, Typography, Stack, Chip } from '@mui/material';
+import { Box, Typography, Stack, Chip, useTheme } from '@mui/material';
 import { Event as EventIcon } from '@mui/icons-material';
 import WidgetWrapper from './WidgetWrapper';
+import { getEmojiColor } from '../../theme';
 
 export default function EventsWidget({ dates }) {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
   const today = useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
@@ -56,7 +59,8 @@ export default function EventsWidget({ dates }) {
                 <Box sx={{ 
                     width: 32, height: 32, borderRadius: '50%', 
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    bgcolor: 'secondary.main', color: 'secondary.contrastText'
+                    bgcolor: getEmojiColor(e.emoji || '📅', isDark), 
+                    color: isDark ? 'white' : 'rgba(0,0,0,0.8)'
                 }}>
                     {e.emoji ? <Typography sx={{ fontSize: '1rem' }}>{e.emoji}</Typography> : <EventIcon sx={{ fontSize: '1.1rem' }} />}
                 </Box>

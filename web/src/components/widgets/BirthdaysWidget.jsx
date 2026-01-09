@@ -1,9 +1,12 @@
 import { useMemo } from 'react';
-import { Box, Typography, Stack, Avatar, Chip } from '@mui/material';
+import { Box, Typography, Stack, Avatar, Chip, useTheme } from '@mui/material';
 import { Cake } from '@mui/icons-material';
 import WidgetWrapper from './WidgetWrapper';
+import { getEmojiColor } from '../../theme';
 
 export default function BirthdaysWidget({ dates, members }) {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
   const today = useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
@@ -78,7 +81,11 @@ export default function BirthdaysWidget({ dates, members }) {
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Avatar sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', width: 32, height: 32, fontSize: '1rem', fontWeight: 'bold' }}>
+                <Avatar sx={{ 
+                    bgcolor: getEmojiColor(m.emoji || (m.name ? m.name[0].toUpperCase() : '?'), isDark), 
+                    color: isDark ? 'white' : 'rgba(0,0,0,0.8)', 
+                    width: 32, height: 32, fontSize: '1rem', fontWeight: 'bold' 
+                }}>
                   {m.emoji || (m.name ? m.name[0].toUpperCase() : '?')}
                 </Avatar>
                 <Box>

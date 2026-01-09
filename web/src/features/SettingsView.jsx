@@ -5,7 +5,7 @@ import {
   TableContainer, Table, TableHead, TableRow, TableCell, TableBody,
   Chip, IconButton, FormControl, InputLabel, Select, MenuItem,
   Dialog, DialogTitle, DialogContent, DialogActions, Avatar, Card, CardHeader,
-  Stack, Tooltip, Switch, FormControlLabel, InputAdornment, LinearProgress, List, ListItem, ListItemText, ListItemSecondaryAction
+  Stack, Tooltip, Switch, FormControlLabel, InputAdornment, LinearProgress, List, ListItem, ListItemText, ListItemSecondaryAction, useTheme
 } from '@mui/material';
 import { 
   Info, ManageAccounts, Groups, PersonAdd, Delete, 
@@ -16,6 +16,7 @@ import {
 } from '@mui/icons-material';
 import TotemIcon from '../components/TotemIcon';
 import EmojiPicker from '../components/EmojiPicker';
+import { getEmojiColor } from '../theme';
 
 const PET_SPECIES = ['Dog', 'Cat', 'Hamster', 'Rabbit', 'Bird', 'Fish', 'Reptile', 'Other'];
 const QUICK_EMOJIS = ['🏠', '🏡', '🏢', '🏰', '🐾', '🛡️', '🧪'];
@@ -40,6 +41,9 @@ export default function SettingsView({
   api,
   showNotification
 }) {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+
   const [tab, setTab] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     const t = params.get('tab');
@@ -243,7 +247,7 @@ export default function SettingsView({
     if (household.avatar.startsWith('data:image')) {
       return <Avatar src={household.avatar} sx={{ width: 60, height: 60, border: '2px solid', borderColor: 'primary.main' }} />;
     }
-    return <Box sx={{ fontSize: '2.5rem' }}>{household.avatar}</Box>;
+    return <Box sx={{ fontSize: '2.5rem', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{household.avatar}</Box>;
   };
 
   const handleEmojiSelect = (emoji) => {
@@ -330,10 +334,11 @@ export default function SettingsView({
              <Box sx={{ 
                 width: 80, height: 80, 
                 borderRadius: '50%', 
-                bgcolor: 'background.default', 
+                bgcolor: household.avatar && !household.avatar.startsWith('data:image') ? getEmojiColor(household.avatar, isDark) : 'background.default', 
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 border: '1px solid', borderColor: 'divider',
-                boxShadow: 1
+                boxShadow: 1,
+                flexShrink: 0
              }}>
                 {renderCurrentAvatar()}
              </Box>
@@ -589,7 +594,7 @@ export default function SettingsView({
               <Grid item xs={12} sm={6} md={4} key={m.id}>
                 <Card variant="outlined" sx={{ borderRadius: 2 }}>
                   <CardHeader
-                    avatar={<Avatar sx={{ bgcolor: m.type === 'pet' ? 'warning.light' : 'primary.light', color: 'primary.contrastText', fontSize: '1.2rem' }}>
+                    avatar={<Avatar sx={{ bgcolor: getEmojiColor(m.emoji || getResidentAvatar(m), isDark), color: 'primary.contrastText', fontSize: '1.2rem' }}>
                         {m.emoji || getResidentAvatar(m)}
                     </Avatar>}
                     action={
@@ -843,7 +848,7 @@ export default function SettingsView({
                  sx={{ 
                    width: 60, height: 60, 
                    borderRadius: '50%', 
-                   bgcolor: 'background.default', 
+                   bgcolor: getEmojiColor(newUserEmoji, isDark), 
                    display: 'flex', alignItems: 'center', justifyContent: 'center',
                    border: '1px solid', borderColor: 'divider',
                    boxShadow: 1,
@@ -887,7 +892,7 @@ export default function SettingsView({
                  sx={{ 
                    width: 60, height: 60, 
                    borderRadius: '50%', 
-                   bgcolor: 'background.default', 
+                   bgcolor: getEmojiColor(editingUser?.avatar || '👤', isDark), 
                    display: 'flex', alignItems: 'center', justifyContent: 'center',
                    border: '1px solid', borderColor: 'divider',
                    boxShadow: 1,

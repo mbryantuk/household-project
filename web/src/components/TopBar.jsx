@@ -6,16 +6,20 @@ import {
 } from '@mui/icons-material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '@mui/material/styles';
 import TotemIcon from './TotemIcon';
 import FloatingCalendar from './FloatingCalendar';
 import FloatingCalculator from './FloatingCalculator';
 import EmojiPicker from './EmojiPicker';
+import { getEmojiColor } from '../theme';
 
 export default function TopBar({
   user, currentHousehold, households, onSwitchHousehold,
   onLogout, toggleSidebar, canInstall, onInstall,
   dates, api, onDateAdded, onUpdateProfile
 }) {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
   const [anchorEl, setAnchorEl] = useState(null);
   const [userAnchorEl, setUserAnchorEl] = useState(null);
   const [calAnchor, setCalAnchor] = useState(null);
@@ -62,7 +66,9 @@ export default function TopBar({
           
           <Box 
             sx={{ 
-              bgcolor: 'white', 
+              bgcolor: currentHousehold?.avatar && !currentHousehold.avatar.startsWith('data:image') 
+                ? getEmojiColor(currentHousehold.avatar, isDark) 
+                : 'white', 
               borderRadius: '50%', 
               p: 0.5, 
               mr: 1.5, 
@@ -74,7 +80,8 @@ export default function TopBar({
               width: 36,
               height: 36,
               fontSize: '1.4rem',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              flexShrink: 0
             }}
             onClick={() => navigate('/')}
           >
@@ -194,7 +201,7 @@ export default function TopBar({
                   <Avatar sx={{ 
                     width: 36, 
                     height: 36, 
-                    bgcolor: 'white', 
+                    bgcolor: user?.avatar ? getEmojiColor(user.avatar, isDark) : 'white', 
                     color: 'primary.main', 
                     fontWeight: 'bold',
                     fontSize: user?.avatar ? '1.4rem' : '1rem'
