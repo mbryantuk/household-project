@@ -53,7 +53,7 @@ export default function HouseholdLayout({
         isDark={isDark}
         household={activeHousehold}
       />
-      <Box component="main" sx={{ flexGrow: 1, width: '100%', p: 3, pt: 1 }}>
+      <Box component="main" sx={{ flexGrow: 1, width: '100%', p: { xs: 1, sm: 2, md: 3 }, pt: 1 }}>
         <Toolbar /> {/* Spacer for Fixed AppBar */}
         <Outlet context={{ 
             api, 

@@ -5,7 +5,7 @@ import {
   FormControl, InputLabel, Select, MenuItem, Stack, Divider,
   Dialog, DialogTitle, DialogContent, DialogActions, Table, TableBody,
   TableCell, TableContainer, TableHead, TableRow, CircularProgress,
-  Tooltip, IconButton
+  Tooltip, IconButton, Chip
 } from '@mui/material';
 import { 
   DirectionsCar, History, Receipt, Policy, 
@@ -148,7 +148,7 @@ export default function VehiclesView() {
             </Box>
         )}
 
-        <Box sx={{ p: 4 }}>
+        <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
           {(activeTab === 0 || vehicleId === 'new') && (
             <form onSubmit={handleVehicleSubmit}>
               <Grid container spacing={3}>

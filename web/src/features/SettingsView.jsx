@@ -122,7 +122,7 @@ export default function SettingsView({
           <Tab icon={<SettingsBrightness />} iconPosition="start" label="Appearance" />
         </Tabs>
 
-        <Box sx={{ p: 4 }}>
+        <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
           {/* TAB 0: USERS */}
           {tab === 0 && (
             <Box>

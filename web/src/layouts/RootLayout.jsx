@@ -28,7 +28,7 @@ export default function RootLayout({
         onLogout={onLogout} 
         toggleSidebar={toggleSidebar}
         currentMode={currentMode} 
-        onModeChange={onModeChange}
+        onModeChange={(m) => { onModeChange(m); localStorage.setItem('themeMode', m); }}
         canInstall={!!installPrompt} 
         onInstall={onInstall}
         dates={dates}
@@ -36,7 +36,7 @@ export default function RootLayout({
         onDateAdded={onDateAdded}
         onUpdateProfile={onUpdateProfile}
       />
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box component="main" sx={{ flexGrow: 1, p: { xs: 1, sm: 2, md: 3 } }}>
         <Outlet context={{ api }} />
       </Box>
     </Box>

@@ -72,7 +72,7 @@ export default function GeneralDetailView({ title, icon, endpoint, fields }) {
         <Typography variant="h4" fontWeight="300">{title}</Typography>
       </Box>
 
-      <Paper variant="outlined" sx={{ p: 4, borderRadius: 3 }}>
+      <Paper variant="outlined" sx={{ p: { xs: 2, sm: 3, md: 4 }, borderRadius: 3 }}>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
             {fields.map(field => (

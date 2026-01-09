@@ -121,7 +121,7 @@ export default function PeopleView() {
             </Box>
         )}
 
-        <Box sx={{ p: 4 }}>
+        <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
           {(activeTab === 0 || personId === 'new') && (
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>

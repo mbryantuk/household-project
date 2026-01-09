@@ -95,7 +95,7 @@ export default function HouseView() {
           </Tabs>
         </Box>
 
-        <Box sx={{ p: 4 }}>
+        <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
           {activeTab === 0 && (
             loadingHh ? <CircularProgress /> : (
               <Box>
