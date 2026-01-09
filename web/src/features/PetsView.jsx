@@ -2,18 +2,22 @@ import { useState, useMemo } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Paper, Tabs, Tab, TextField, Button, 
-  FormControl, InputLabel, Select, MenuItem, Stack, Divider, CircularProgress
+  FormControl, InputLabel, Select, MenuItem, Stack, Divider, CircularProgress,
+  Tooltip, IconButton
 } from '@mui/material';
 import { 
   Shield, Delete, Restaurant, MedicalServices, Payments, Info
 } from '@mui/icons-material';
 import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
+import EmojiPicker from '../components/EmojiPicker';
 
 export default function PetsView() {
   const { api, id: householdId, members, fetchHhMembers, user: currentUser, isDark, showNotification, confirmAction } = useOutletContext();
   const { petId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState(null);
   
   const isHouseholdAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
 
@@ -21,10 +25,18 @@ export default function PetsView() {
     (members || []).find(m => m.id === parseInt(petId) && m.type === 'pet'), 
   [members, petId]);
 
+  useMemo(() => {
+    if (selectedPet) setSelectedEmoji(selectedPet.emoji);
+    else if (petId === 'new') setSelectedEmoji('🐾');
+  }, [selectedPet, petId]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.currentTarget));
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
     data.type = 'pet';
+    data.emoji = selectedEmoji;
+
     try {
       if (petId === 'new') {
         const res = await api.post(`/households/${householdId}/members`, data);
@@ -58,6 +70,15 @@ export default function PetsView() {
     );
   };
 
+  const getAutoPetEmoji = (species) => {
+    const s = species?.toLowerCase();
+    if (s === 'dog') return '🐶';
+    if (s === 'cat') return '🐱';
+    if (s === 'bird') return '🐦';
+    if (s === 'fish') return '🐟';
+    return '🐾';
+  };
+
   if (petId !== 'new' && !selectedPet) {
     return <Box sx={{ p: 4, textAlign: 'center' }}><Typography color="text.secondary">Select a pet from the menu.</Typography></Box>;
   }
@@ -88,12 +109,21 @@ export default function PetsView() {
           {(activeTab === 0 || petId === 'new') && (
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>
-                <Grid item xs={12} md={6}><TextField name="name" label="Pet Name" defaultValue={selectedPet?.name} fullWidth required /></Grid>
-                <Grid item xs={12} md={6}><TextField name="species" label="Species (e.g. Dog, Cat)" defaultValue={selectedPet?.species} fullWidth required /></Grid>
+                <Grid item xs={12} md={2}>
+                    <Tooltip title="Pick an emoji">
+                        <IconButton 
+                            onClick={() => setEmojiPickerOpen(true)} 
+                            sx={{ bgcolor: 'action.hover', border: '1px solid', borderColor: 'divider', width: 80, height: 80 }}
+                        >
+                            <Typography sx={{ fontSize: '2.5rem' }}>{selectedEmoji || getAutoPetEmoji(selectedPet?.species)}</Typography>
+                        </IconButton>
+                    </Tooltip>
+                </Grid>
+                <Grid item xs={12} md={5}><TextField name="name" label="Pet Name" defaultValue={selectedPet?.name} fullWidth required /></Grid>
+                <Grid item xs={12} md={5}><TextField name="species" label="Species (e.g. Dog, Cat)" defaultValue={selectedPet?.species} fullWidth required /></Grid>
                 <Grid item xs={12} md={4}><TextField name="breed" label="Breed" defaultValue={selectedPet?.breed} fullWidth /></Grid>
                 <Grid item xs={12} md={4}><TextField name="dob" label="Date of Birth" type="date" defaultValue={selectedPet?.dob} fullWidth InputLabelProps={{shrink:true}} /></Grid>
-                <Grid item xs={12} md={4}><TextField name="emoji" label="Emoji" defaultValue={selectedPet?.emoji} fullWidth placeholder="🐶" /></Grid>
-                <Grid item xs={12} md={6}><TextField name="microchip_number" label="Microchip #" defaultValue={selectedPet?.microchip_number} fullWidth /></Grid>
+                <Grid item xs={12} md={4}><TextField name="microchip_number" label="Microchip #" defaultValue={selectedPet?.microchip_number} fullWidth /></Grid>
                 <Grid item xs={12} md={6}><TextField name="gender" label="Gender" defaultValue={selectedPet?.gender} fullWidth /></Grid>
                 <Grid item xs={12}><TextField name="notes" label="Notes" defaultValue={selectedPet?.notes} multiline rows={3} fullWidth /></Grid>
                 <Grid item xs={12}>
@@ -141,6 +171,16 @@ export default function PetsView() {
           )}
         </Box>
       </Paper>
+
+      <EmojiPicker 
+        open={emojiPickerOpen} 
+        onClose={() => setEmojiPickerOpen(false)} 
+        onEmojiSelect={(emoji) => {
+            setSelectedEmoji(emoji);
+            setEmojiPickerOpen(false);
+        }}
+        title="Select Pet Emoji"
+      />
     </Box>
   );
 }

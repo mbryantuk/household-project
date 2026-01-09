@@ -3,19 +3,22 @@ import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Paper, Tabs, Tab, TextField, Button, 
   FormControl, InputLabel, Select, MenuItem, Stack, Divider,
-  Dialog, DialogTitle, DialogContent, DialogActions
+  Dialog, DialogTitle, DialogContent, DialogActions, Tooltip, IconButton
 } from '@mui/material';
 import { 
   Person, Shield, Gavel, Delete, Face, ChildCare, 
   Visibility, ContactPage, Payments
 } from '@mui/icons-material';
 import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
+import EmojiPicker from '../components/EmojiPicker';
 
 export default function PeopleView() {
   const { api, id: householdId, members, fetchHhMembers, user: currentUser, isDark, showNotification, confirmAction } = useOutletContext();
   const { personId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState(null);
   
   const isHouseholdAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
 
@@ -23,9 +26,17 @@ export default function PeopleView() {
     (members || []).find(m => m.id === parseInt(personId)), 
   [members, personId]);
 
+  useMemo(() => {
+    if (selectedPerson) setSelectedEmoji(selectedPerson.emoji);
+    else if (personId === 'new') setSelectedEmoji('👨');
+  }, [selectedPerson, personId]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.currentTarget));
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+    data.emoji = selectedEmoji;
+
     try {
       if (personId === 'new') {
         const res = await api.post(`/households/${householdId}/members`, data);
@@ -89,8 +100,18 @@ export default function PeopleView() {
           {(activeTab === 0 || personId === 'new') && (
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>
-                <Grid item xs={12} md={6}><TextField name="name" label="Full Name" defaultValue={selectedPerson?.name} fullWidth required /></Grid>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={2}>
+                    <Tooltip title="Pick an emoji">
+                        <IconButton 
+                            onClick={() => setEmojiPickerOpen(true)} 
+                            sx={{ bgcolor: 'action.hover', border: '1px solid', borderColor: 'divider', width: 80, height: 80 }}
+                        >
+                            <Typography sx={{ fontSize: '2.5rem' }}>{selectedEmoji}</Typography>
+                        </IconButton>
+                    </Tooltip>
+                </Grid>
+                <Grid item xs={12} md={5}><TextField name="name" label="Full Name" defaultValue={selectedPerson?.name} fullWidth required /></Grid>
+                <Grid item xs={12} md={5}>
                   <FormControl fullWidth>
                     <InputLabel>Role / Type</InputLabel>
                     <Select name="type" defaultValue={selectedPerson?.type || 'adult'} label="Role / Type">
@@ -102,7 +123,6 @@ export default function PeopleView() {
                 </Grid>
                 <Grid item xs={12} md={4}><TextField name="alias" label="Alias" defaultValue={selectedPerson?.alias} fullWidth /></Grid>
                 <Grid item xs={12} md={4}><TextField name="dob" label="Date of Birth" type="date" defaultValue={selectedPerson?.dob} fullWidth InputLabelProps={{shrink:true}} /></Grid>
-                <Grid item xs={12} md={4}><TextField name="emoji" label="Emoji Icon" defaultValue={selectedPerson?.emoji} fullWidth placeholder="👨" /></Grid>
                 <Grid item xs={12}><TextField name="notes" label="Personal Notes" defaultValue={selectedPerson?.notes} multiline rows={3} fullWidth /></Grid>
                 <Grid item xs={12}>
                   <Button type="submit" variant="contained" size="large">
@@ -151,6 +171,16 @@ export default function PeopleView() {
           )}
         </Box>
       </Paper>
+
+      <EmojiPicker 
+        open={emojiPickerOpen} 
+        onClose={() => setEmojiPickerOpen(false)} 
+        onEmojiSelect={(emoji) => {
+            setSelectedEmoji(emoji);
+            setEmojiPickerOpen(false);
+        }}
+        title="Select Person Emoji"
+      />
     </Box>
   );
 }

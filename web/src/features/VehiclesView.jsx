@@ -4,19 +4,23 @@ import {
   Box, Typography, Grid, Paper, Tabs, Tab, TextField, Button, 
   FormControl, InputLabel, Select, MenuItem, Stack, Divider,
   Dialog, DialogTitle, DialogContent, DialogActions, Table, TableBody,
-  TableCell, TableContainer, TableHead, TableRow, CircularProgress
+  TableCell, TableContainer, TableHead, TableRow, CircularProgress,
+  Tooltip, IconButton
 } from '@mui/material';
 import { 
   DirectionsCar, History, Receipt, Policy, 
   Add, Edit, Delete, Tune
 } from '@mui/icons-material';
 import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
+import EmojiPicker from '../components/EmojiPicker';
 
 export default function VehiclesView() {
   const { api, id: householdId, user: currentUser, isDark, showNotification, confirmAction, fetchVehicles: refreshVehicles } = useOutletContext();
   const { vehicleId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState(null);
   
   // Local list for identification
   const [vehicles, setVehicles] = useState([]);
@@ -40,6 +44,11 @@ export default function VehiclesView() {
 
   const selectedVehicle = useMemo(() => vehicles.find(v => v.id === parseInt(vehicleId)), [vehicles, vehicleId]);
 
+  useMemo(() => {
+    if (selectedVehicle) setSelectedEmoji(selectedVehicle.emoji || '🚗');
+    else if (vehicleId === 'new') setSelectedEmoji('🚗');
+  }, [selectedVehicle, vehicleId]);
+
   const fetchSubData = useCallback(async () => {
     if (vehicleId === 'new' || !selectedVehicle) return;
     const views = ['fleet', 'services', 'finance', 'insurance'];
@@ -59,7 +68,10 @@ export default function VehiclesView() {
 
   const handleVehicleSubmit = async (e) => {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.currentTarget));
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+    data.emoji = selectedEmoji;
+
     try {
       if (vehicleId === 'new') {
         const res = await api.post(`/households/${householdId}/vehicles`, data);
@@ -139,8 +151,18 @@ export default function VehiclesView() {
           {(activeTab === 0 || vehicleId === 'new') && (
             <form onSubmit={handleVehicleSubmit}>
               <Grid container spacing={3}>
-                <Grid item xs={12} md={4}><TextField name="make" label="Make" defaultValue={selectedVehicle?.make} fullWidth required /></Grid>
-                <Grid item xs={12} md={4}><TextField name="model" label="Model" defaultValue={selectedVehicle?.model} fullWidth required /></Grid>
+                <Grid item xs={12} md={2}>
+                    <Tooltip title="Pick an emoji">
+                        <IconButton 
+                            onClick={() => setEmojiPickerOpen(true)} 
+                            sx={{ bgcolor: 'action.hover', border: '1px solid', borderColor: 'divider', width: 80, height: 80 }}
+                        >
+                            <Typography sx={{ fontSize: '2.5rem' }}>{selectedEmoji}</Typography>
+                        </IconButton>
+                    </Tooltip>
+                </Grid>
+                <Grid item xs={12} md={5}><TextField name="make" label="Make" defaultValue={selectedVehicle?.make} fullWidth required /></Grid>
+                <Grid item xs={12} md={5}><TextField name="model" label="Model" defaultValue={selectedVehicle?.model} fullWidth required /></Grid>
                 <Grid item xs={12} md={4}><TextField name="registration" label="Registration" defaultValue={selectedVehicle?.registration} fullWidth /></Grid>
                 
                 {vehicleId !== 'new' && (
@@ -154,7 +176,6 @@ export default function VehiclesView() {
                         <Grid item xs={12}><Divider><Typography variant="caption" color="text.secondary">Maintenance Schedule</Typography></Divider></Grid>
                         <Grid item xs={12} md={4}><TextField name="mot_due" label="MOT Due Date" type="date" defaultValue={selectedVehicle?.mot_due} fullWidth InputLabelProps={{shrink:true}} /></Grid>
                         <Grid item xs={12} md={4}><TextField name="tax_due" label="Tax Due Date" type="date" defaultValue={selectedVehicle?.tax_due} fullWidth InputLabelProps={{shrink:true}} /></Grid>
-                        <Grid item xs={12} md={4}><TextField name="emoji" label="Emoji" defaultValue={selectedVehicle?.emoji} fullWidth placeholder="🚗" /></Grid>
                     </>
                 )}
                 
@@ -235,6 +256,16 @@ export default function VehiclesView() {
             </DialogActions>
         </form>
       </Dialog>
+
+      <EmojiPicker 
+        open={emojiPickerOpen} 
+        onClose={() => setEmojiPickerOpen(false)} 
+        onEmojiSelect={(emoji) => {
+            setSelectedEmoji(emoji);
+            setEmojiPickerOpen(false);
+        }}
+        title="Select Vehicle Emoji"
+      />
     </Box>
   );
 }
