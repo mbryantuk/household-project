@@ -6,26 +6,8 @@ const { authenticateToken, requireHouseholdRole } = require('../middleware/auth'
 // Middleware to standardize DB initialization across all member actions
 const useTenantDb = (req, res, next) => {
     const db = getHouseholdDb(req.params.id);
-    const createTableSql = `
-        CREATE TABLE IF NOT EXISTS members (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            type TEXT DEFAULT 'adult',
-            notes TEXT,
-            alias TEXT, 
-            dob TEXT, 
-            species TEXT, 
-            gender TEXT
-        )
-    `;
-    db.run(createTableSql, (err) => {
-        if (err) {
-            db.close();
-            return res.status(500).json({ error: "DB Init failed" });
-        }
-        req.tenantDb = db;
-        next();
-    });
+    req.tenantDb = db;
+    next();
 };
 
 // 1. LIST MEMBERS (Full Path: GET /members/households/:id/members)

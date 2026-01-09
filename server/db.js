@@ -1,6 +1,7 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
+const { initializeHouseholdSchema } = require('./schema');
 
 // Ensure paths are consistent with server.js configuration
 const dataDir = path.join(__dirname, 'data');
@@ -92,45 +93,8 @@ const getHouseholdDb = (householdId) => {
     const householdDbPath = path.join(dataDir, `household_${householdId}.db`);
     const db = new sqlite3.Database(householdDbPath);
     
-    // Initialize Local Schema
-    db.serialize(() => {
-        // Local Users: Specific to this household
-        db.run(`CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT,
-            password_hash TEXT,
-            email TEXT,
-            avatar TEXT,
-            role TEXT DEFAULT 'member' -- admin, member, viewer
-        )`);
-
-        // Migration: Ensure avatar exists in local users
-        db.run(`ALTER TABLE users ADD COLUMN avatar TEXT`, (err) => {});
-
-        db.run(`CREATE TABLE IF NOT EXISTS members (
-            id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            name TEXT NOT NULL, 
-            type TEXT DEFAULT 'adult', 
-            notes TEXT,
-            alias TEXT, dob TEXT, species TEXT, gender TEXT,
-            emoji TEXT
-        )`);
-
-        db.run(`CREATE TABLE IF NOT EXISTS dates (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            date TEXT NOT NULL,
-            type TEXT DEFAULT 'event',
-            description TEXT,
-            member_id INTEGER,
-            emoji TEXT
-        )`);
-
-        // Migration: Ensure emoji columns exist
-        db.run(`ALTER TABLE members ADD COLUMN emoji TEXT`, (err) => {});
-        db.run(`ALTER TABLE dates ADD COLUMN emoji TEXT`, (err) => {});
-        db.run(`ALTER TABLE dates ADD COLUMN member_id INTEGER`, (err) => {});
-    });
+    // Initialize Local Schema centralized in schema.js
+    initializeHouseholdSchema(db);
 
     return db;
 };
