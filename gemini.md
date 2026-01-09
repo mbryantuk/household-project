@@ -19,6 +19,9 @@
 * **Centralized Components:** Never duplicate UI logic. Extract shared elements (e.g., `EmojiTracker`, `CurrencyInput`) to `components/ui/`.
 * **Design System:** Material Design (MUI/Paper).
 * **Interaction:** No `window.alert/prompt`. Use Modals and Snackbars.
+* **Calendar Fundamentals (CRITICAL):**
+    * ANY item added with a date or "day of the month" MUST be visible in the Calendar view.
+    * Recurring items with a "day of the month" MUST support "Nearest Working Day" logic (adjusting to the prior working day if falling on a weekend/bank holiday).
 
 ## 3. Documentation (GitHub Ready)
 * **README.md Maintenance (CRITICAL):**

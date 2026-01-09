@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Household Manager API",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "description": "Multi-tenant household management API with Asset-First approach and Financial Integration.",
     "contact": {
       "name": "DevOps Engineer"
@@ -20,13 +20,16 @@
       }
     },
     "schemas": {
-      "FinancialAsset": {
+      "RecurringCost": {
         "type": "object",
         "properties": {
-          "purchase_value": { "type": "number" },
-          "replacement_cost": { "type": "number" },
-          "monthly_maintenance_cost": { "type": "number" },
-          "depreciation_rate": { "type": "number" }
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "amount": { "type": "number" },
+          "frequency": { "type": "string" },
+          "payment_day": { "type": "integer" },
+          "nearest_working_day": { "type": "boolean" },
+          "category": { "type": "string" }
         }
       },
       "User": {
@@ -67,75 +70,26 @@
         "responses": { "200": { "description": "OK" } }
       }
     },
-    "/admin/users": {
+    "/households/{id}/dates": {
       "get": {
-        "summary": "List all users (SysAdmin only)",
-        "tags": ["Admin"],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/User" } } } }
-          }
-        }
+        "summary": "Get expanded calendar dates (including recurring costs and holidays)",
+        "tags": ["Calendar"],
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
       }
     },
-    "/admin/create-user": {
+    "/households/{id}/costs": {
       "post": {
-        "summary": "Create a new user (Admin/SysAdmin only)",
-        "tags": ["Admin"],
+        "summary": "Create recurring cost",
+        "tags": ["Finance"],
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "type": "object",
-                "required": ["username", "password"],
-                "properties": {
-                  "username": { "type": "string" },
-                  "password": { "type": "string" },
-                  "first_name": { "type": "string" },
-                  "last_name": { "type": "string" },
-                  "email": { "type": "string" },
-                  "avatar": { "type": "string" },
-                  "role": { "type": "string" },
-                  "householdId": { "type": "integer" }
-                }
-              }
+              "schema": { "$ref": "#/components/schemas/RecurringCost" }
             }
           }
         },
         "responses": { "200": { "description": "Created" } }
-      }
-    },
-    "/households/{id}": {
-      "get": {
-        "summary": "Get household details",
-        "tags": ["Households"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "OK" } }
-      },
-      "put": {
-        "summary": "Update household details (Admin only)",
-        "tags": ["Households"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "name": { "type": "string" },
-                  "avatar": { "type": "string" },
-                  "address_street": { "type": "string" },
-                  "address_city": { "type": "string" },
-                  "address_zip": { "type": "string" },
-                  "auto_backup": { "type": "boolean" },
-                  "backup_retention": { "type": "integer" }
-                }
-              }
-            }
-          }
-        },
-        "responses": { "200": { "description": "Updated" }, "403": { "description": "Forbidden" } }
       }
     }
   }

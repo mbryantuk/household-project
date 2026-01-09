@@ -57,6 +57,7 @@ const SCHEMA_DEFINITIONS = [
         amount REAL DEFAULT 0,
         frequency TEXT DEFAULT 'Monthly', -- Daily, Weekly, Biweekly, Monthly, Yearly
         payment_day INTEGER, -- 1-31 or day of week
+        nearest_working_day BOOLEAN DEFAULT 0,
         category TEXT, -- insurance, food, tax, misc
         notes TEXT
     )`,
@@ -238,7 +239,8 @@ const MIGRATIONS = [
     ['vehicle_services', 'household_id', 'INTEGER'],
     ['vehicle_finance', 'household_id', 'INTEGER'],
     ['vehicle_insurance', 'household_id', 'INTEGER'],
-    ['recurring_costs', 'household_id', 'INTEGER']
+    ['recurring_costs', 'household_id', 'INTEGER'],
+    ['recurring_costs', 'nearest_working_day', 'BOOLEAN DEFAULT 0']
 ];
 
 function initializeHouseholdSchema(db) {

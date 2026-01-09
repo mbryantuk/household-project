@@ -69,7 +69,7 @@ export default function CalendarView({ showNotification }) {
     setLoading(true);
     api.get(`/households/${householdId}/dates`)
       .then(res => {
-        setRawDates(res.data);
+        setRawDates(res.data || []);
       })
       .catch((err) => {
         console.error("Failed to fetch dates", err);
@@ -82,7 +82,7 @@ export default function CalendarView({ showNotification }) {
     fetchDates();
   }, [fetchDates]);
 
-  // --- RECURRENCE EXPANSION ---
+  // --- EVENT EXPANSION & RECURRING COSTS ---
   useEffect(() => {
     if (!rawDates) return;
 
@@ -90,6 +90,20 @@ export default function CalendarView({ showNotification }) {
     const limitDate = addYears(new Date(), 2); // Expand up to 2 years ahead
 
     rawDates.forEach(d => {
+      // Logic for cost items vs regular date items
+      if (d.type === 'cost' || d.type === 'holiday') {
+        expandedEvents.push({
+          id: d.id,
+          title: d.title,
+          start: parseISO(d.date),
+          end: parseISO(d.date),
+          allDay: true,
+          resource: d,
+          color: d.type === 'holiday' ? '#ff9800' : '#4caf50'
+        });
+        return;
+      }
+
       const startDate = parseISO(d.date);
       const endDate = d.end_date ? parseISO(d.end_date) : (d.is_all_day ? startDate : addDays(startDate, 0));
       const recurEnd = d.recurrence_end_date ? parseISO(d.recurrence_end_date) : limitDate;
@@ -155,6 +169,12 @@ export default function CalendarView({ showNotification }) {
 
   const handleSelectEvent = (event) => {
     const original = event.resource;
+    if (original.type === 'holiday' || original.type === 'cost') {
+        // Read-only or handled elsewhere
+        if (showNotification) showNotification(`${original.title}: ${original.description || ''}`, "info");
+        return;
+    }
+
     setEditingEvent({
         ...original,
         // Ensure dates are strings for inputs
@@ -174,7 +194,7 @@ export default function CalendarView({ showNotification }) {
     
     // Formatting
     data.emoji = selectedEmoji;
-    data.is_all_day = isAllDay;
+    data.is_all_day = isAllDay ? 1 : 0;
     data.recurrence = recurrence;
     
     if (editingEvent?.id) {
@@ -282,7 +302,11 @@ export default function CalendarView({ showNotification }) {
             onSelectSlot={handleSelectSlot}
             onSelectEvent={handleSelectEvent}
             popup
-            toolbar={false} // Using custom toolbar above
+            toolbar={false}
+            eventPropGetter={(event) => {
+                if (event.color) return { style: { backgroundColor: event.color } };
+                return {};
+            }}
         />
       </Paper>
 

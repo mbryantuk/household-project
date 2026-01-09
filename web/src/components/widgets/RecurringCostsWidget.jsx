@@ -3,7 +3,7 @@ import {
   Box, Typography, IconButton, Button, Dialog, DialogTitle, 
   DialogContent, DialogActions, TextField, FormControl, InputLabel, 
   Select, MenuItem, Stack, Table, TableBody, TableCell, TableContainer, 
-  TableHead, TableRow, Paper, Chip, CircularProgress
+  TableHead, TableRow, Paper, Chip, CircularProgress, FormControlLabel, Switch
 } from '@mui/material';
 import { Add, Edit, Delete, ReceiptLong } from '@mui/icons-material';
 
@@ -11,6 +11,7 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
   const [costs, setCosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editItem, setEditItem] = useState(null);
+  const [isNearestWorkingDay, setIsNearestWorkingDay] = useState(false);
 
   const fetchCosts = useCallback(async () => {
     setLoading(true);
@@ -30,11 +31,19 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
     fetchCosts();
   }, [fetchCosts]);
 
+  useEffect(() => {
+    if (editItem) {
+      setIsNearestWorkingDay(Boolean(editItem.nearest_working_day));
+    }
+  }, [editItem]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.currentTarget));
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
     data.parent_type = parentType;
     data.parent_id = parentId;
+    data.nearest_working_day = isNearestWorkingDay ? 1 : 0;
 
     try {
       if (editItem.id) {
@@ -95,7 +104,7 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
                             <TableCell>£{row.amount}</TableCell>
                             <TableCell>
                                 <Chip label={row.frequency} size="small" variant="outlined" />
-                                {row.payment_day && <Typography variant="caption" display="block">Day: {row.payment_day}</Typography>}
+                                {row.payment_day && <Typography variant="caption" display="block">Day: {row.payment_day} {row.nearest_working_day ? '(NWD)' : ''}</Typography>}
                             </TableCell>
                             {isAdmin && (
                                 <TableCell align="right">
@@ -127,7 +136,13 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
                             <MenuItem value="Yearly">Yearly</MenuItem>
                         </Select>
                     </FormControl>
-                    <TextField name="payment_day" label="Payment Day (1-31 or Name)" defaultValue={editItem?.payment_day} fullWidth />
+                    <TextField name="payment_day" label="Payment Day (1-31)" type="number" defaultValue={editItem?.payment_day} fullWidth />
+                    
+                    <FormControlLabel 
+                        control={<Switch checked={isNearestWorkingDay} onChange={e => setIsNearestWorkingDay(e.target.checked)} />} 
+                        label="Nearest Working Day (Prior)" 
+                    />
+
                     <TextField name="notes" label="Notes" defaultValue={editItem?.notes} multiline rows={2} fullWidth />
                 </Stack>
             </DialogContent>
