@@ -232,9 +232,120 @@ describe('Household Project API Integration Suite (Intense + Renaming)', () => {
     });
 
     // =========================================================================
-    // 5. DESTRUCTIVE CLEANUP
+    // 5. PHYSICAL ASSETS & DATES (Vehicles, Assets, Energy)
     // =========================================================================
-    describe('5. Tenant Cleanup', () => {
+    describe('5. Physical Assets & Dates Management', () => {
+        let vehicleId = null;
+        let assetId = null;
+        let energyId = null;
+
+        it('should CRUD a Vehicle with MOT and Tax dates', async () => {
+            // Create
+            const createRes = await request(app)
+                .post(`/households/${householdId}/vehicles`)
+                .set('Authorization', `Bearer ${localAdminToken}`)
+                .send({
+                    make: 'Tesla',
+                    model: 'Model 3',
+                    mot_due: '2026-06-01',
+                    tax_due: '2026-01-01' 
+                });
+            expect(createRes.statusCode).toBe(200);
+            vehicleId = createRes.body.id;
+
+            // Read
+            const getRes = await request(app)
+                .get(`/households/${householdId}/vehicles/${vehicleId}`)
+                .set('Authorization', `Bearer ${localAdminToken}`);
+            expect(getRes.body.make).toBe('Tesla');
+            expect(getRes.body.mot_due).toBe('2026-06-01');
+
+            // Update
+            const updateRes = await request(app)
+                .put(`/households/${householdId}/vehicles/${vehicleId}`)
+                .set('Authorization', `Bearer ${localAdminToken}`)
+                .send({ mot_due: '2027-06-01' });
+            expect(updateRes.statusCode).toBe(200);
+
+            logToReport('CRUD Vehicle', `/households/${householdId}/vehicles`, '✅ Success');
+        });
+
+        it('should CRUD a Vehicle Service entry', async () => {
+            let serviceId = null;
+            // Create
+            const res = await request(app)
+                .post(`/households/${householdId}/vehicles/${vehicleId}/services`)
+                .set('Authorization', `Bearer ${localAdminToken}`)
+                .send({ date: '2025-05-01', description: 'Full Service', cost: 250 });
+            expect(res.statusCode).toBe(200);
+            serviceId = res.body.id;
+
+            // Update
+            const upRes = await request(app)
+                .put(`/households/${householdId}/vehicles/${vehicleId}/services/${serviceId}`)
+                .set('Authorization', `Bearer ${localAdminToken}`)
+                .send({ cost: 300 });
+            expect(upRes.statusCode).toBe(200);
+
+            // Delete
+            const delRes = await request(app)
+                .delete(`/households/${householdId}/vehicles/${vehicleId}/services/${serviceId}`)
+                .set('Authorization', `Bearer ${localAdminToken}`);
+            expect(delRes.statusCode).toBe(200);
+
+            logToReport('CRUD Vehicle Service', '.../services', '✅ Success');
+        });
+
+        it('should CRUD an Asset with warranty dates', async () => {
+            // Create
+            const res = await request(app)
+                .post(`/households/${householdId}/assets`)
+                .set('Authorization', `Bearer ${localAdminToken}`)
+                .send({
+                    name: 'Washing Machine',
+                    purchase_date: '2024-01-01',
+                    warranty_expiry: '2026-01-01' 
+                });
+            expect(res.statusCode).toBe(200);
+            assetId = res.body.id;
+
+            // Update
+            const upRes = await request(app)
+                .put(`/households/${householdId}/assets/${assetId}`)
+                .set('Authorization', `Bearer ${localAdminToken}`)
+                .send({ notes: 'Extended warranty purchased' });
+            expect(upRes.statusCode).toBe(200);
+
+            logToReport('CRUD Asset', `/households/${householdId}/assets`, '✅ Success');
+        });
+
+        it('should CRUD an Energy Account', async () => {
+            // Create
+            const res = await request(app)
+                .post(`/households/${householdId}/energy`)
+                .set('Authorization', `Bearer ${localAdminToken}`)
+                .send({
+                    provider: 'Octopus Energy',
+                    type: 'Electricity',
+                    contract_end: '2026-12-31' 
+                });
+            expect(res.statusCode).toBe(200);
+            energyId = res.body.id;
+
+            // Delete
+            const delRes = await request(app)
+                .delete(`/households/${householdId}/energy/${energyId}`)
+                .set('Authorization', `Bearer ${localAdminToken}`);
+            expect(delRes.statusCode).toBe(200);
+
+            logToReport('CRUD Energy Account', `/households/${householdId}/energy`, '✅ Success');
+        });
+    });
+
+    // =========================================================================
+    // 6. DESTRUCTIVE CLEANUP
+    // =========================================================================
+    describe('6. Tenant Cleanup', () => {
         it('should delete the household (Tenant) as SysAdmin', async () => {
             const res = await request(app)
                 .delete(`/admin/households/${householdId}`)

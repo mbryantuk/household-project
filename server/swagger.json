@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Household Manager API",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "description": "Multi-tenant household management API with Asset-First approach and Financial Integration.",
     "contact": {
       "name": "DevOps Engineer"
@@ -32,16 +32,26 @@
           "category": { "type": "string" }
         }
       },
-      "User": {
+      "Vehicle": {
         "type": "object",
         "properties": {
           "id": { "type": "integer" },
-          "username": { "type": "string" },
-          "first_name": { "type": "string" },
-          "last_name": { "type": "string" },
-          "email": { "type": "string" },
-          "avatar": { "type": "string" },
-          "role": { "type": "string" }
+          "make": { "type": "string" },
+          "model": { "type": "string" },
+          "registration": { "type": "string" },
+          "year": { "type": "integer" },
+          "mot_due": { "type": "string" },
+          "tax_due": { "type": "string" }
+        }
+      },
+      "Asset": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "category": { "type": "string" },
+          "purchase_date": { "type": "string" },
+          "warranty_expiry": { "type": "string" }
         }
       }
     }
@@ -70,26 +80,46 @@
         "responses": { "200": { "description": "OK" } }
       }
     },
-    "/households/{id}/dates": {
+    "/households/{id}/vehicles": {
       "get": {
-        "summary": "Get expanded calendar dates (including recurring costs and holidays)",
-        "tags": ["Calendar"],
+        "summary": "List all vehicles",
+        "tags": ["Assets"],
         "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
         "responses": { "200": { "description": "OK" } }
-      }
-    },
-    "/households/{id}/costs": {
+      },
       "post": {
-        "summary": "Create recurring cost",
-        "tags": ["Finance"],
+        "summary": "Create a vehicle",
+        "tags": ["Assets"],
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
         "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/RecurringCost" }
-            }
-          }
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Vehicle" } } }
         },
         "responses": { "200": { "description": "Created" } }
+      }
+    },
+    "/households/{id}/assets": {
+      "get": {
+        "summary": "List all assets",
+        "tags": ["Assets"],
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "summary": "Create an asset",
+        "tags": ["Assets"],
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Asset" } } }
+        },
+        "responses": { "200": { "description": "Created" } }
+      }
+    },
+    "/households/{id}/energy": {
+      "get": {
+        "summary": "List energy accounts",
+        "tags": ["Assets"],
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
       }
     }
   }

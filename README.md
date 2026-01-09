@@ -15,6 +15,7 @@ Totem is a high-performance, multi-tenant Household Management SaaS designed wit
 *   **Asset-First Financial Modeling:**
     *   **Appliance Register:** Track purchase value, replacement cost, and depreciation for all household items.
     *   **Vehicle Fleet Management:** Comprehensive tracking of service history, finance agreements, insurance, and MOT/Tax schedules.
+*   **Physical Asset CRUD with Date Tracking:** Full lifecycle management for Vehicles, Assets, and Energy accounts with automated date-based tracking (MOT, Warranty, Contract Ends).
 *   **Advanced Waste Management:** Multi-type collection scheduling with customizable frequencies (Daily, Weekly, Biweekly, Monthly).
 *   **Role-Based Access Control (RBAC):** Granular permissions supporting Admin (Full Access), Member (Standard), and Viewer (Read-only) roles.
 *   **Modern UI/UX:** Built with Material Design principles, featuring a responsive Sidebar with nested submenus and Dracula/Dark mode support.
@@ -63,7 +64,7 @@ Totem maintains high stability through rigorous integration and smoke testing.
 cd server && npm test
 
 # Run specific integration suite
-npx jest tests/details_intense.test.js
+npx jest tests/api.test.js
 ```
 
 ## 🛡️ Security & Privacy
