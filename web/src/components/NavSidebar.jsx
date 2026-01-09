@@ -54,7 +54,7 @@ export default function NavSidebar({ open, toggleDrawer }) {
 
   const drawerContent = (
     <>
-      <Toolbar sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', px: [1] }}>
+      <Toolbar sx={{ display: 'flex', alignItems: 'center', justifyContent: open ? 'flex-end' : 'center', px: [1] }}>
         <IconButton onClick={toggleDrawer}>
           {!isMobile && !open ? <Menu /> : <ChevronLeft />}
         </IconButton>

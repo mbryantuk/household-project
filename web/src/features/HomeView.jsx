@@ -150,7 +150,6 @@ export default function HomeView({ members, household, currentUser, dates }) {
             isDraggable={isEditing}
             isResizable={isEditing}
             onLayoutChange={(layout) => handleLayoutChange(layout)}
-            draggableHandle=".widget-drag-handle"
             margin={[16, 16]}
         >
             {currentItems.map(item => {
@@ -170,20 +169,6 @@ export default function HomeView({ members, household, currentUser, dates }) {
                         )}
                         
                         <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                            {isEditing && (
-                                <Box 
-                                    className="widget-drag-handle" 
-                                    sx={{ 
-                                        height: 20, 
-                                        bgcolor: 'action.active', 
-                                        opacity: 0.5, 
-                                        cursor: 'move', 
-                                        borderTopLeftRadius: 8, 
-                                        borderTopRightRadius: 8,
-                                        mb: -1
-                                    }} 
-                                />
-                            )}
                             <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
                                 {WidgetComponent ? (
                                     <WidgetComponent dates={dates} members={members} />
