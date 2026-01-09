@@ -1,76 +1,218 @@
-import { Box, Typography, Grid, Avatar } from '@mui/material';
+import { Responsive, WidthProvider } from 'react-grid-layout';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { Box, Typography, Avatar, IconButton, Button, Menu, MenuItem, Pagination, Tooltip } from '@mui/material';
+import { Edit, Save, Add, Delete, MoreVert, Close } from '@mui/icons-material';
+import _ from 'lodash';
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
+
 import BirthdaysWidget from '../components/widgets/BirthdaysWidget';
 import EventsWidget from '../components/widgets/EventsWidget';
 
+const ResponsiveGridLayout = WidthProvider(Responsive);
+
+const WIDGET_TYPES = {
+  birthdays: { component: BirthdaysWidget, label: 'Upcoming Birthdays', defaultH: 4, defaultW: 6 },
+  events: { component: EventsWidget, label: 'Upcoming Events', defaultH: 4, defaultW: 6 },
+};
+
+// Default layout for new users
+const DEFAULT_LAYOUT = [
+  { i: 'birthdays-1', x: 0, y: 0, w: 6, h: 4, type: 'birthdays' },
+  { i: 'events-1', x: 6, y: 0, w: 6, h: 4, type: 'events' },
+];
+
 export default function HomeView({ members, household, currentUser, dates }) {
-  
+  // State
+  const [isEditing, setIsEditing] = useState(false);
+  const [page, setPage] = useState(1);
+  const [layouts, setLayouts] = useState(() => {
+    const saved = localStorage.getItem(`dashboard_${household?.id}_${currentUser?.username}`);
+    return saved ? JSON.parse(saved) : { 1: DEFAULT_LAYOUT };
+  });
+  const [addWidgetAnchor, setAddWidgetAnchor] = useState(null);
+
+  // Current Page Items
+  const currentItems = useMemo(() => layouts[page] || [], [layouts, page]);
+
+  // Save on change
+  useEffect(() => {
+    localStorage.setItem(`dashboard_${household?.id}_${currentUser?.username}`, JSON.stringify(layouts));
+  }, [layouts, household?.id, currentUser?.username]);
+
+  // Handlers
+  const handleLayoutChange = (layout) => {
+    // We need to merge the new layout (x,y,w,h) with our extra data (type)
+    const newItems = layout.map(l => {
+        const existing = currentItems.find(i => i.i === l.i);
+        return { ...existing, ...l }; // Update position/size, keep type
+    });
+    
+    setLayouts(prev => ({
+        ...prev,
+        [page]: newItems
+    }));
+  };
+
+  const handleAddWidget = (type) => {
+    const config = WIDGET_TYPES[type];
+    const newId = `${type}-${Date.now()}`;
+    const newItem = {
+        i: newId,
+        x: (currentItems.length * 6) % 12,
+        y: Infinity, // Puts it at the bottom
+        w: config.defaultW,
+        h: config.defaultH,
+        type: type
+    };
+    
+    setLayouts(prev => ({
+        ...prev,
+        [page]: [...(prev[page] || []), newItem]
+    }));
+    setAddWidgetAnchor(null);
+  };
+
+  const handleRemoveWidget = (id) => {
+      setLayouts(prev => ({
+          ...prev,
+          [page]: prev[page].filter(i => i.i !== id)
+      }));
+  };
+
+  // Greeting
   const hour = new Date().getHours();
   let greeting = "Good evening";
   if (hour < 12) greeting = "Good morning";
   else if (hour < 17) greeting = "Good afternoon";
 
   return (
-    <Box>
-      <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <Box sx={{ pb: 10 }}> {/* Padding for pagination at bottom */}
+      
+      {/* HEADER */}
+      <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Box>
           <Typography variant="h4" sx={{ fontWeight: '300', mb: 0.5 }}>
             {greeting}, <Box component="span" sx={{ fontWeight: '700', color: 'primary.main' }}>{currentUser?.username || 'User'}</Box>
           </Typography>
-          <Typography variant="subtitle1" color="text.secondary">
-            Currently managing the <Box component="span" sx={{ fontWeight: '600', color: 'text.primary' }}>{household?.name || 'Unknown'}</Box> household.
-          </Typography>
         </Box>
-        {household?.avatar && (
-            <Box sx={{ 
-                fontSize: '3rem', 
-                p: 1, 
-                bgcolor: 'background.paper', 
-                borderRadius: '50%', 
-                boxShadow: 1, 
-                width: 80, 
-                height: 80, 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                border: '1px solid',
-                borderColor: 'divider'
-            }}>
-                {household.avatar.startsWith('data:image') ? (
-                    <Avatar src={household.avatar} sx={{ width: '100%', height: '100%' }} />
-                ) : household.avatar}
-            </Box>
-        )}
+        
+        <Box sx={{ display: 'flex', gap: 1 }}>
+            {isEditing ? (
+                <>
+                    <Button 
+                        variant="outlined" 
+                        startIcon={<Add />} 
+                        onClick={(e) => setAddWidgetAnchor(e.currentTarget)}
+                    >
+                        Add Widget
+                    </Button>
+                    <Button 
+                        variant="contained" 
+                        color="primary" 
+                        startIcon={<Save />} 
+                        onClick={() => setIsEditing(false)}
+                    >
+                        Done
+                    </Button>
+                </>
+            ) : (
+                <Button 
+                    variant="text" 
+                    startIcon={<Edit />} 
+                    onClick={() => setIsEditing(true)}
+                >
+                    Edit Dashboard
+                </Button>
+            )}
+        </Box>
       </Box>
-      
-      <Grid container spacing={3}>
-        {/* WIDGETS */}
-        <Grid item xs={12} md={6}>
-          <BirthdaysWidget dates={dates} members={members} />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <EventsWidget dates={dates} />
-        </Grid>
 
-        {/* Placeholder for future widgets */}
-        <Grid item xs={12}>
-           <Box sx={{ 
-             borderRadius: 3, 
-             p: 4,
-             display: 'flex', 
-             flexDirection: 'column',
-             alignItems: 'center', 
-             justifyContent: 'center', 
-             opacity: 0.7, 
-             border: '2px dashed',
-             borderColor: 'divider',
-             minHeight: 150,
-             bgcolor: 'action.hover'
-           }}>
-             <Typography variant="h6" color="text.secondary" gutterBottom>Add more widgets</Typography>
-             <Typography variant="body2" color="text.secondary">Customize your dashboard with more tools in a future update.</Typography>
-           </Box>
-        </Grid>
-      </Grid>
+      {/* GRID */}
+      <ResponsiveGridLayout
+        className="layout"
+        layouts={{ lg: currentItems, md: currentItems, sm: currentItems }}
+        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+        cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
+        rowHeight={60}
+        isDraggable={isEditing}
+        isResizable={isEditing}
+        onLayoutChange={(layout) => handleLayoutChange(layout)}
+        draggableHandle=".widget-drag-handle"
+        margin={[16, 16]}
+      >
+        {currentItems.map(item => {
+            const WidgetComponent = WIDGET_TYPES[item.type]?.component;
+            return (
+                <Box key={item.i} sx={{ position: 'relative' }}>
+                    {/* EDIT MODE OVERLAYS */}
+                    {isEditing && (
+                        <Box sx={{ position: 'absolute', top: -10, right: -10, zIndex: 10 }}>
+                             <IconButton 
+                                size="small" 
+                                sx={{ bgcolor: 'error.main', color: 'white', '&:hover': { bgcolor: 'error.dark' } }}
+                                onClick={() => handleRemoveWidget(item.i)}
+                             >
+                                <Close fontSize="small" />
+                             </IconButton>
+                        </Box>
+                    )}
+                    
+                    {/* WIDGET CONTENT */}
+                    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                         {/* DRAG HANDLE (Only in edit mode, usually part of header but we wrap it) */}
+                         {isEditing && (
+                             <Box 
+                                className="widget-drag-handle" 
+                                sx={{ 
+                                    height: 20, 
+                                    bgcolor: 'action.active', 
+                                    opacity: 0.5, 
+                                    cursor: 'move', 
+                                    borderTopLeftRadius: 8, 
+                                    borderTopRightRadius: 8,
+                                    mb: -1 // Overlap slightly or sit on top
+                                }} 
+                             />
+                         )}
+                         <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
+                            {WidgetComponent ? (
+                                <WidgetComponent dates={dates} members={members} />
+                            ) : (
+                                <Typography color="error">Unknown Widget</Typography>
+                            )}
+                         </Box>
+                    </Box>
+                </Box>
+            );
+        })}
+      </ResponsiveGridLayout>
+
+      {/* PAGINATION / EMPTY STATE */}
+      {currentItems.length === 0 && (
+          <Box sx={{ textAlign: 'center', py: 8, color: 'text.secondary', border: '2px dashed', borderColor: 'divider', borderRadius: 4, mt: 2 }}>
+              <Typography>This page is empty.</Typography>
+              {isEditing && <Button startIcon={<Add />} onClick={(e) => setAddWidgetAnchor(e.currentTarget)}>Add a widget</Button>}
+          </Box>
+      )}
+
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <Pagination count={3} page={page} onChange={(e, v) => setPage(v)} color="primary" />
+      </Box>
+
+      {/* ADD MENU */}
+      <Menu
+        anchorEl={addWidgetAnchor}
+        open={Boolean(addWidgetAnchor)}
+        onClose={() => setAddWidgetAnchor(null)}
+      >
+        {Object.entries(WIDGET_TYPES).map(([key, config]) => (
+            <MenuItem key={key} onClick={() => handleAddWidget(key)}>
+                {config.label}
+            </MenuItem>
+        ))}
+      </Menu>
+
     </Box>
   );
 }
