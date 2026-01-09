@@ -1,37 +1,30 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { 
-  Box, Typography, Grid, Card, CardContent, Button, 
+  Box, Typography, Grid, Card, Button, 
   IconButton, Chip, Dialog, DialogTitle, DialogContent, 
   DialogActions, TextField, List, ListItem, ListItemText, 
-  Divider, Stack, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper,
-  FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert
+  Divider, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper,
+  CircularProgress, Tooltip
 } from '@mui/material';
-import { Add, Delete, Edit, Home, Person, VpnKey, AddHome, Key, Refresh, PersonAdd, CloudDownload, CloudUpload, Restore, History } from '@mui/icons-material';
+import { 
+  Add, Delete, Key, AddHome, 
+  CloudDownload, CloudUpload, Restore, History 
+} from '@mui/icons-material';
 
 export default function AccessControl({
   users, 
   currentUser,
   households, 
-  onCreateUser, 
   onCreateHousehold,
-  onUpdateHousehold,
   onDeleteHousehold,
   onRemoveUser
 }) {
   const { api } = useOutletContext();
-  const [openAddUser, setOpenAddUser] = useState(false);  
-  const [editingUser, setEditingUser] = useState(null); 
-  const [newUser, setNewUser] = useState({ username: '', password: '', role: 'member' });
-
+  
   // Household Creation State
   const [openAddHouse, setOpenAddHouse] = useState(false);
   const [newHouse, setNewHouse] = useState({ name: '', adminUsername: 'Admin', adminPassword: '' });
-
-  // Household Editing State
-  const [editingHousehold, setEditingHousehold] = useState(null);
-  const [openEditHousehold, setOpenEditHousehold] = useState(false);
-  const [currentHouseholdData, setCurrentHouseholdData] = useState({ name: '', access_key: '', theme: 'default' });
 
   // Backup State
   const [backups, setBackups] = useState([]);
@@ -60,7 +53,6 @@ export default function AccessControl({
     try {
       await api.post('/admin/backups/trigger');
       await fetchBackups();
-      alert("Backup created successfully.");
     } catch (err) {
       alert("Failed to create backup: " + err.message);
     } finally {
@@ -82,11 +74,6 @@ export default function AccessControl({
   };
 
   const handleDownloadBackup = (filename) => {
-    // Direct download link
-    const link = document.createElement('a');
-    link.href = `${api.defaults.baseURL}/admin/backups/download/${filename}?token=${localStorage.getItem('token')}`; // Assuming simple token passing or cookie
-    // Since we use Bearer token header, standard link href might fail if API requires header.
-    // So we use axios to get blob.
     api.get(`/admin/backups/download/${filename}`, { responseType: 'blob' })
       .then(response => {
         const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -104,7 +91,7 @@ export default function AccessControl({
     const file = e.target.files[0];
     if (!file) return;
     
-    if (!window.confirm("This will upload and restore the backup immediately. Current data will be overwritten. Continue?")) {
+    if (!window.confirm("This will upload and restore the backup immediately. Current system data will be overwritten. Continue?")) {
         e.target.value = null;
         return;
     }
@@ -129,14 +116,6 @@ export default function AccessControl({
     });
   };
 
-  const handleAddUserSubmit = () => {
-    if (newUser.username && newUser.password) {
-      onCreateUser(newUser);
-      setOpenAddUser(false);
-      setNewUser({ username: '', password: '', role: 'member' });
-    }
-  };
-
   const handleCreateHouseSubmit = (e) => {
     e.preventDefault();
     onCreateHousehold(newHouse);
@@ -144,39 +123,20 @@ export default function AccessControl({
     setNewHouse({ name: '', adminUsername: 'Admin', adminPassword: '' });
   };
 
-  const handleEditHouseholdClick = (household) => {
-    setEditingHousehold(household);
-    setCurrentHouseholdData({
-      name: household.name,
-      access_key: household.access_key,
-      theme: household.theme
-    });
-    setOpenEditHousehold(true);
-  };
-
-  const handleUpdateHouseholdSubmit = () => {
-    if (editingHousehold) {
-      onUpdateHousehold(editingHousehold.id, currentHouseholdData);
-      setOpenEditHousehold(false);
-      setEditingHousehold(null);
-      setCurrentHouseholdData({ name: '', access_key: '', theme: 'default' });
-    }
-  };
-
   return (
     <Box sx={{ maxWidth: 1000, margin: '0 auto', p: 3 }}>
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>Platform Administration</Typography>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: '300' }}>Platform Administration</Typography>
       
-      {/* --- BACKUP & RECOVERY SECTION (SysAdmin Only) --- */}
+      {/* --- FULL SYSTEM BACKUP (SysAdmin Only) --- */}
       {isSysAdmin && (
         <Card variant="outlined" sx={{ p: 3, borderRadius: 3, mb: 4, bgcolor: 'background.paper' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Box>
               <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <History /> Backup & Recovery
+                <History /> System Backup & Recovery
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Manage system-wide data snapshots.
+                Manage system-wide data snapshots including all households.
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', gap: 1 }}>
@@ -185,13 +145,11 @@ export default function AccessControl({
                     Upload
                 </Button>
                 <Button variant="contained" startIcon={<Add />} onClick={handleCreateBackup} disabled={backupLoading}>
-                    Create Backup
+                    {backupLoading ? <CircularProgress size={20} /> : "Create Full Backup"}
                 </Button>
             </Box>
           </Box>
           
-          {backupLoading && <Box sx={{ width: '100%', mb: 2 }}><CircularProgress size={20} /> Processing...</Box>}
-
           <TableContainer component={Paper} variant="outlined" elevation={0} sx={{ maxHeight: 300 }}>
             <Table size="small" stickyHeader>
               <TableHead sx={{ bgcolor: 'action.hover' }}>
@@ -209,18 +167,22 @@ export default function AccessControl({
                     <TableCell>{new Date(b.created).toLocaleString()}</TableCell>
                     <TableCell>{(b.size / 1024 / 1024).toFixed(2)} MB</TableCell>
                     <TableCell align="right">
-                      <IconButton onClick={() => handleDownloadBackup(b.filename)} title="Download">
-                        <CloudDownload fontSize="small" />
-                      </IconButton>
-                      <IconButton onClick={() => handleRestoreBackup(b.filename)} title="Restore" color="warning">
-                        <Restore fontSize="small" />
-                      </IconButton>
+                      <Tooltip title="Download">
+                        <IconButton onClick={() => handleDownloadBackup(b.filename)} size="small">
+                          <CloudDownload fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Restore System">
+                        <IconButton onClick={() => handleRestoreBackup(b.filename)} size="small" color="warning">
+                          <Restore fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
                     </TableCell>
                   </TableRow>
                 ))}
                 {backups.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={4} align="center" sx={{ py: 3, color: 'text.secondary' }}>No backups found.</TableCell>
+                    <TableCell colSpan={4} align="center" sx={{ py: 3, color: 'text.secondary' }}>No system backups found.</TableCell>
                   </TableRow>
                 )}
               </TableBody>
@@ -229,120 +191,81 @@ export default function AccessControl({
         </Card>
       )}
 
-      {/* --- TENANTS SECTION (SysAdmin Only) --- */}
-      {isSysAdmin && (
-        <Card variant="outlined" sx={{ p: 3, borderRadius: 3, mb: 4 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Box>
-              <Typography variant="h6">Platform Tenants</Typography>
-              <Typography variant="body2" color="text.secondary">Active households and their access keys.</Typography>
-            </Box>
-            <Button variant="contained" startIcon={<AddHome />} onClick={() => setOpenAddHouse(true)}>New Household</Button>
-          </Box>
-          
-          <TableContainer component={Paper} variant="outlined" elevation={0}>
-            <Table size="small">
-              <TableHead sx={{ bgcolor: 'action.hover' }}>
-                <TableRow>
-                  <TableCell>Household Name</TableCell>
-                  <TableCell>Access Key</TableCell>
-                  <TableCell align="right">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {households && households.map((h) => (
-                  <TableRow key={h.id}>
-                    <TableCell><strong>{h.name}</strong></TableCell>
-                    <TableCell>
-                      <Chip icon={<Key fontSize="small"/>} label={h.access_key} size="small" color="primary" variant="outlined" sx={{ fontWeight: 'bold', letterSpacing: 1 }} />
-                    </TableCell>
-                    <TableCell align="right">
-                      <IconButton onClick={() => handleEditHouseholdClick(h)} size="small" title="Edit Household">
-                        <Edit fontSize="small" />
-                      </IconButton>
-                      <IconButton 
-                        onClick={() => {
-                            if (window.confirm(`Are you sure you want to PERMANENTLY delete "${h.name}"? This cannot be undone.`)) {
-                                onDeleteHousehold(h.id);
-                            }
-                        }} 
-                        size="small" 
-                        title="Delete Household"
-                        color="error"
-                      >
-                        <Delete fontSize="small" />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {(!households || households.length === 0) && (
-                  <TableRow>
-                    <TableCell colSpan={3} align="center" sx={{ py: 3, color: 'text.secondary' }}>No households created yet.</TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Card>
-      )}
-
-      {/* --- SYSTEM USERS SECTION --- */}
+      {/* --- TENANTS OVERVIEW --- */}
       <Card variant="outlined" sx={{ p: 3, borderRadius: 3, mb: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6">System-Wide Users</Typography>
-          <Button variant="contained" startIcon={<PersonAdd />} onClick={() => setOpenAddUser(true)}>Add User</Button>
+          <Box>
+            <Typography variant="h6">Platform Households</Typography>
+            <Typography variant="body2" color="text.secondary">Global overview of all registered households.</Typography>
+          </Box>
+          <Button variant="contained" startIcon={<AddHome />} onClick={() => setOpenAddHouse(true)}>Add Household</Button>
         </Box>
-        <Divider sx={{ my: 2 }} />
-        <List>
-          {users && users.map((u) => (
+        
+        <TableContainer component={Paper} variant="outlined" elevation={0}>
+          <Table size="small">
+            <TableHead sx={{ bgcolor: 'action.hover' }}>
+              <TableRow>
+                <TableCell>Household Name</TableCell>
+                <TableCell>Access Key</TableCell>
+                <TableCell align="right">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {households && households.map((h) => (
+                <TableRow key={h.id}>
+                  <TableCell><strong>{h.name}</strong></TableCell>
+                  <TableCell>
+                    <Chip icon={<Key fontSize="small"/>} label={h.access_key} size="small" color="primary" variant="outlined" sx={{ fontWeight: 'bold', letterSpacing: 1 }} />
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton 
+                      onClick={() => {
+                          if (window.confirm(`Are you sure you want to PERMANENTLY delete "${h.name}"? This cannot be undone.`)) {
+                              onDeleteHousehold(h.id);
+                          }
+                      }} 
+                      size="small" 
+                      color="error"
+                      title="Delete Household"
+                    >
+                      <Delete fontSize="small" />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {(!households || households.length === 0) && (
+                <TableRow>
+                  <TableCell colSpan={3} align="center" sx={{ py: 3, color: 'text.secondary' }}>No households created yet.</TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Card>
+
+      {/* --- GLOBAL SYSADMINS --- */}
+      <Card variant="outlined" sx={{ p: 3, borderRadius: 3 }}>
+        <Typography variant="h6" gutterBottom>System Administrators</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          Users with global access to the entire platform.
+        </Typography>
+        <Divider sx={{ mb: 2 }} />
+        <List dense>
+          {users && users.filter(u => u.system_role === 'sysadmin').map((u) => (
             <ListItem 
               key={u.id} 
               divider
               secondaryAction={
-                <Box>
-                  <IconButton onClick={() => setEditingUser(u)} sx={{ mr: 1 }}><Edit /></IconButton>
-                  {u.username !== currentUser?.username && (
-                    <IconButton color="error" onClick={() => onRemoveUser(u.id)}><Delete /></IconButton>
-                  )}
-                </Box>
+                u.username !== currentUser?.username && (
+                  <IconButton color="error" size="small" onClick={() => onRemoveUser(u.id)}><Delete fontSize="small" /></IconButton>
+                )
               }
             >
-              <ListItemText primary={u.username} secondary={`System Role: ${u.system_role || 'Member'}`} />
+              <ListItemText primary={u.username} secondary={u.email || 'No email set'} />
             </ListItem>
           ))}
         </List>
       </Card>
-
-      {/* --- DIALOG: ADD/EDIT SYSTEM USER --- */}
-      <Dialog open={openAddUser || !!editingUser} onClose={() => {setOpenAddUser(false); setEditingUser(null);}} fullWidth maxWidth="xs">
-        <DialogTitle>{editingUser ? `Edit ${editingUser.username}` : 'Add New System User'}</DialogTitle>
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-          {!editingUser && (
-            <>
-              <TextField label="Username" fullWidth value={newUser.username} onChange={e=>setNewUser({...newUser, username: e.target.value})} />
-              <TextField label="Password" type="password" fullWidth value={newUser.password} onChange={e=>setNewUser({...newUser, password: e.target.value})} />
-            </>
-          )}
-          <FormControl fullWidth>
-            <InputLabel>System Role</InputLabel>
-            <Select 
-              value={editingUser ? editingUser.system_role : newUser.role} 
-              label="System Role" 
-              onChange={e => editingUser ? setEditingUser({...editingUser, system_role: e.target.value}) : setNewUser({...newUser, role: e.target.value})}
-            >
-              <MenuItem value="sysadmin">Admin (God Mode)</MenuItem>
-              <MenuItem value="member">Member</MenuItem>
-              <MenuItem value="viewer">Viewer</MenuItem>
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => {setOpenAddUser(false); setEditingUser(null);}}>Cancel</Button>
-          <Button variant="contained" onClick={editingUser ? () => setEditingUser(null) : handleAddUserSubmit}>
-            {editingUser ? 'Save Changes' : 'Create User'}
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       {/* --- DIALOG: CREATE HOUSEHOLD --- */}
       <Dialog open={openAddHouse} onClose={() => setOpenAddHouse(false)}>
@@ -367,40 +290,9 @@ export default function AccessControl({
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setOpenAddHouse(false)}>Cancel</Button>
-            <Button type="submit" variant="contained">Create Tenant</Button>
+            <Button type="submit" variant="contained">Create Household</Button>
           </DialogActions>
         </form>
-      </Dialog>
-
-      {/* --- DIALOG: EDIT HOUSEHOLD --- */}
-      <Dialog open={openEditHousehold} onClose={() => setOpenEditHousehold(false)} fullWidth maxWidth="xs">
-        <DialogTitle>Edit Household: {editingHousehold?.name}</DialogTitle>
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-          <TextField 
-            label="Household Name" 
-            fullWidth 
-            value={currentHouseholdData.name} 
-            onChange={e => setCurrentHouseholdData({...currentHouseholdData, name: e.target.value})} 
-          />
-          <TextField 
-            label="Access Key" 
-            fullWidth 
-            value={currentHouseholdData.access_key} 
-            onChange={e => setCurrentHouseholdData({...currentHouseholdData, access_key: e.target.value})} 
-            InputProps={{
-              endAdornment: (
-                <IconButton onClick={() => setCurrentHouseholdData(prev => ({...prev, access_key: Math.random().toString(16).slice(2, 8).toUpperCase()}))} size="small">
-                  <Refresh fontSize="small" />
-                </IconButton>
-              ),
-            }}
-            helperText="Click refresh to generate a new key."
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenEditHousehold(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleUpdateHouseholdSubmit}>Save Changes</Button>
-        </DialogActions>
       </Dialog>
     </Box>
   );

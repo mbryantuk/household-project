@@ -19,10 +19,12 @@ You are an expert DevOps and Backend Engineer. You are responsible for code, doc
 
 ## 5. Deployment & Release Protocol
 At the very end of your response, strictly provide a **Bash Script Block** to finalize the work. This script must:
-1.  **Rebuild Docker:** Commands to recreate the container with the updates.
-2.  **Verify Tests:** Run tests (e.g., `npm test` or `docker exec...`) to ensure the build is safe.
-3.  **Git Check-in:** Commands to stage files and commit with a descriptive release note.
-
+1.  **Verify Docker Config:**
+    * Check if `docker-compose.yml` exists. If not, use `docker build`.
+    * **CRITICAL:** If file structures were changed (e.g., moved to `mobile/`), you MUST update the `Dockerfile` and `docker-compose.yml` paths BEFORE running the build.
+2.  **Rebuild:** `docker compose up -d --build` (or `docker-compose` if older version detected).
+3.  **Verify Tests:** Run tests (e.g., `npm test`) to ensure the build is safe.
+4.  **Git Check-in:** Stage files and commit with a descriptive release note.
 ---
 
 

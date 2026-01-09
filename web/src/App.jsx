@@ -355,6 +355,7 @@ function AppContent() {
                 household={household}
                 users={hhUsers}
                 currentUser={user}
+                api={authAxios}
                 onUpdateHousehold={(updates) => {
                   authAxios.put(`/households/${household.id}`, updates).then(() => {
                       setHousehold(prev => {

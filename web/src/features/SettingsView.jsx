@@ -1,17 +1,18 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { 
   Box, Typography, Paper, Tabs, Tab, TextField, Grid, 
   ToggleButtonGroup, ToggleButton, Divider, Button,
   TableContainer, Table, TableHead, TableRow, TableCell, TableBody,
   Chip, IconButton, FormControl, InputLabel, Select, MenuItem,
   Dialog, DialogTitle, DialogContent, DialogActions, Avatar, Card, CardHeader,
-  Stack, Tooltip, Switch, FormControlLabel, InputAdornment
+  Stack, Tooltip, Switch, FormControlLabel, InputAdornment, LinearProgress, List, ListItem, ListItemText, ListItemSecondaryAction
 } from '@mui/material';
 import { 
   Info, ManageAccounts, Groups, PersonAdd, Delete, 
   AddCircle, HomeWork, Warning, Edit,
   DarkMode, LightMode, SettingsBrightness, ChildCare, Face, Visibility,
-  Language, Public, AccountBalance, Upload, AddReaction, ContentCopy, Key
+  Language, Public, AccountBalance, Upload, AddReaction, ContentCopy, Key,
+  Storage, Backup, Restore, Download, CloudDownload, DeleteSweep, Save
 } from '@mui/icons-material';
 import TotemIcon from '../components/TotemIcon';
 import EmojiPicker from '../components/EmojiPicker';
@@ -20,7 +21,6 @@ const PET_SPECIES = ['Dog', 'Cat', 'Hamster', 'Rabbit', 'Bird', 'Fish', 'Reptile
 const QUICK_EMOJIS = ['🏠', '🏡', '🏢', '🏰', '🐾', '🛡️', '🧪'];
 
 export default function SettingsView({
- 
   household, 
   users, 
   currentUser,
@@ -36,7 +36,9 @@ export default function SettingsView({
   members,
   onAddMember,
   onRemoveMember,
-  onUpdateMember
+  onUpdateMember,
+  api,
+  showNotification
 }) {
   const [tab, setTab] = useState(() => {
     const params = new URLSearchParams(window.location.search);
@@ -48,6 +50,7 @@ export default function SettingsView({
   const [editingUser, setEditingUser] = useState(null);
   const [emojiPickerTarget, setEmojiPickerTarget] = useState(null); // 'household', 'newMember', 'editMember'
   const fileInputRef = useRef(null);
+  const restoreInputRef = useRef(null);
 
   // Residents State
   const [memberType, setMemberType] = useState('adult');
@@ -55,8 +58,27 @@ export default function SettingsView({
   const [newUserEmoji, setNewUserEmoji] = useState('👤');
   const [editMember, setEditMember] = useState(null);
 
+  // Backup State
+  const [backups, setBackups] = useState([]);
+  const [isBackingUp, setIsBackingUp] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
+
   // 🛡️ PERMISSION CHECK
   const isHouseholdAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
+
+  const fetchBackups = useCallback(async () => {
+    if (!isHouseholdAdmin || !api || !household) return;
+    try {
+      const res = await api.get(`/households/${household.id}/backups`);
+      setBackups(res.data);
+    } catch (err) {
+      console.error("Failed to fetch backups", err);
+    }
+  }, [api, household, isHouseholdAdmin]);
+
+  useEffect(() => {
+    if (tab === 3) fetchBackups();
+  }, [tab, fetchBackups]);
 
   if (!household) {
     return (
@@ -65,6 +87,80 @@ export default function SettingsView({
       </Box>
     );
   }
+
+  const handleCreateBackup = async () => {
+    setIsBackingUp(true);
+    try {
+      await api.post(`/households/${household.id}/backups/trigger`);
+      showNotification("Backup created successfully", "success");
+      fetchBackups();
+    } catch (err) {
+      showNotification("Backup failed: " + err.message, "error");
+    } finally {
+      setIsBackingUp(false);
+    }
+  };
+
+  const handleDownloadDb = () => {
+    const url = `${window.location.origin}/households/${household.id}/db/download`;
+    // We use a hidden anchor for download to ensure auth token is handled if needed
+    // But since download routes are GET, we might need a different approach if they require auth
+    // Our backend route uses authenticateToken. Standard window.open won't send headers.
+    
+    // Better way: use axios to get blob then download
+    api.get(`/households/${household.id}/db/download`, { responseType: 'blob' })
+      .then(response => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `${household.name}_data.db`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      })
+      .catch(err => showNotification("Download failed", "error"));
+  };
+
+  const handleDownloadBackup = (filename) => {
+    api.get(`/households/${household.id}/backups/download/${filename}`, { responseType: 'blob' })
+      .then(response => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      })
+      .catch(err => showNotification("Download failed", "error"));
+  };
+
+  const handleRestore = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!window.confirm("WARNING: Restoring will overwrite ALL current household data (members, events, etc.). This cannot be undone. Proceed?")) {
+        e.target.value = '';
+        return;
+    }
+
+    setIsRestoring(true);
+    const formData = new FormData();
+    formData.append('backup', file);
+
+    try {
+      await api.post(`/households/${household.id}/backups/restore`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      showNotification("Restore successful! Reloading...", "success");
+      setTimeout(() => window.location.reload(), 2000);
+    } catch (err) {
+      showNotification("Restore failed: " + err.message, "error");
+    } finally {
+      setIsRestoring(false);
+      e.target.value = '';
+    }
+  };
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
@@ -175,6 +271,7 @@ export default function SettingsView({
         <Tab label="General" icon={<Info fontSize="small"/>} iconPosition="start" />
         <Tab label="Residents" icon={<Groups fontSize="small"/>} iconPosition="start" />
         <Tab label="App Access" icon={<ManageAccounts fontSize="small"/>} iconPosition="start" />
+        <Tab label="Maintenance" icon={<Storage fontSize="small"/>} iconPosition="start" />
       </Tabs>
 
       {/* --- TAB 0: GENERAL --- */}
@@ -581,6 +678,116 @@ export default function SettingsView({
               </TableBody>
             </Table>
           </TableContainer>
+        </Box>
+      )}
+
+      {/* --- TAB 3: MAINTENANCE (BACKUPS) --- */}
+      {tab === 3 && (
+        <Box sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Storage fontSize="small" /> Backup & Restore
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            Manage the safety of your household data. You can create local backups on the server or download your data as a portable SQLite database.
+          </Typography>
+
+          <Grid container spacing={3}>
+            {/* Quick Actions */}
+            <Grid item xs={12} md={4}>
+               <Stack spacing={2}>
+                  <Button 
+                    variant="contained" 
+                    startIcon={<Backup />} 
+                    fullWidth 
+                    onClick={handleCreateBackup}
+                    disabled={isBackingUp || !isHouseholdAdmin}
+                  >
+                    {isBackingUp ? "Backing Up..." : "Create Local Backup"}
+                  </Button>
+                  
+                  <Button 
+                    variant="outlined" 
+                    startIcon={<CloudDownload />} 
+                    fullWidth 
+                    onClick={handleDownloadDb}
+                    disabled={!isHouseholdAdmin}
+                  >
+                    Download Database (.db)
+                  </Button>
+
+                  <Button 
+                    variant="outlined" 
+                    color="warning"
+                    startIcon={<Restore />} 
+                    fullWidth 
+                    onClick={() => restoreInputRef.current.click()}
+                    disabled={isRestoring || !isHouseholdAdmin}
+                  >
+                    {isRestoring ? "Restoring..." : "Upload & Restore"}
+                  </Button>
+                  <input 
+                    type="file" 
+                    ref={restoreInputRef} 
+                    hidden 
+                    accept=".zip,.db" 
+                    onChange={handleRestore} 
+                  />
+                  
+                  {isRestoring && <LinearProgress sx={{ mt: 1 }} />}
+               </Stack>
+            </Grid>
+
+            {/* Backup List */}
+            <Grid item xs={12} md={8}>
+                <Paper variant="outlined" sx={{ borderRadius: 2 }}>
+                    <Box sx={{ p: 2, bgcolor: 'action.hover', borderBottom: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="subtitle2" fontWeight="bold">Recent Backups</Typography>
+                        <IconButton size="small" onClick={fetchBackups}><Restore fontSize="small" /></IconButton>
+                    </Box>
+                    <List dense>
+                        {backups.length > 0 ? backups.map(b => (
+                            <ListItem key={b.filename} divider>
+                                <ListItemText 
+                                    primary={b.filename} 
+                                    secondary={`${(b.size / 1024).toFixed(1)} KB — ${new Date(b.created).toLocaleString()}`} 
+                                />
+                                <ListItemSecondaryAction>
+                                    <Tooltip title="Download">
+                                        <IconButton size="small" onClick={() => handleDownloadBackup(b.filename)}><Download fontSize="small" /></IconButton>
+                                    </Tooltip>
+                                </ListItemSecondaryAction>
+                            </ListItem>
+                        )) : (
+                            <Box sx={{ p: 4, textAlign: 'center' }}>
+                                <Typography variant="caption" color="text.secondary">No backups found.</Typography>
+                            </Box>
+                        )}
+                    </List>
+                </Paper>
+            </Grid>
+          </Grid>
+
+          {isHouseholdAdmin && (
+             <Box sx={{ mt: 6, p: 3, border: '1px solid', borderColor: 'error.main', borderRadius: 2, bgcolor: 'rgba(211, 47, 47, 0.05)' }}>
+                <Typography variant="h6" color="error.main" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <Warning fontSize="small" /> Danger Zone
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 2 }}>
+                    Deleting this household will permanently remove all members, events, and user access. This action cannot be undone.
+                </Typography>
+                <Button 
+                    variant="outlined" 
+                    color="error" 
+                    onClick={() => {
+                        if (window.confirm("ARE YOU ABSOLUTELY SURE? This deletes the entire household database permanently.")) {
+                            onDeleteHousehold(household.id);
+                        }
+                    }}
+                >
+                    Delete Entire Household
+                </Button>
+             </Box>
+          )}
         </Box>
       )}
 

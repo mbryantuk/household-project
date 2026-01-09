@@ -10,26 +10,39 @@ if (!fs.existsSync(BACKUP_DIR)) {
 }
 
 /**
- * Creates a zip backup of the data directory.
+ * Creates a zip backup of the data directory or a specific household.
+ * @param {string|number} householdId - Optional. If provided, only back up that household's DB.
  * @returns {Promise<string>} Path to the created backup file.
  */
-const createBackup = () => {
+const createBackup = (householdId = null) => {
     return new Promise((resolve, reject) => {
         try {
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-            const fileName = `totem-backup-${timestamp}.zip`;
+            const prefix = householdId ? `household-${householdId}` : 'totem-full';
+            const fileName = `${prefix}-backup-${timestamp}.zip`;
             const filePath = path.join(BACKUP_DIR, fileName);
             
             const zip = new admZip();
             
-            // Add all .db files from DATA_DIR
-            const files = fs.readdirSync(DATA_DIR);
-            files.forEach(file => {
-                if (file.endsWith('.db')) {
-                    const fullPath = path.join(DATA_DIR, file);
+            if (householdId) {
+                // Individual Household Backup
+                const dbFile = `household_${householdId}.db`;
+                const fullPath = path.join(DATA_DIR, dbFile);
+                if (fs.existsSync(fullPath)) {
                     zip.addLocalFile(fullPath);
+                } else {
+                    return reject(new Error(`Database for household ${householdId} not found.`));
                 }
-            });
+            } else {
+                // Full System Backup
+                const files = fs.readdirSync(DATA_DIR);
+                files.forEach(file => {
+                    if (file.endsWith('.db')) {
+                        const fullPath = path.join(DATA_DIR, file);
+                        zip.addLocalFile(fullPath);
+                    }
+                });
+            }
 
             zip.writeZip(filePath);
             resolve(fileName);
@@ -71,13 +84,29 @@ const cleanOldBackups = (retentionDays = 30) => {
  * Restores a backup from a zip file path.
  * WARNING: Overwrites existing data.
  * @param {string} zipFilePath 
+ * @param {string|number} householdId - Optional. If provided, only allow restoring that specific household's DB.
  */
-const restoreBackup = (zipFilePath) => {
+const restoreBackup = (zipFilePath, householdId = null) => {
     return new Promise((resolve, reject) => {
         try {
             const zip = new admZip(zipFilePath);
-            // Overwrite existing files in DATA_DIR
-            zip.extractAllTo(DATA_DIR, true);
+            
+            if (householdId) {
+                // Safety check: Ensure the zip contains the correct file and nothing else malicious
+                const entries = zip.getEntries();
+                const expectedFile = `household_${householdId}.db`;
+                const hasValidEntry = entries.some(e => e.entryName === expectedFile);
+                
+                if (!hasValidEntry) {
+                    return reject(new Error(`Backup does not contain data for household ${householdId}`));
+                }
+
+                // Extract only the specific household DB
+                zip.extractEntryTo(expectedFile, DATA_DIR, false, true);
+            } else {
+                // Full Restore
+                zip.extractAllTo(DATA_DIR, true);
+            }
             resolve();
         } catch (err) {
             reject(err);
@@ -86,15 +115,16 @@ const restoreBackup = (zipFilePath) => {
 };
 
 /**
- * Lists available backups.
+ * Lists available backups, optionally filtered by household.
  */
-const listBackups = () => {
+const listBackups = (householdId = null) => {
     return new Promise((resolve, reject) => {
         fs.readdir(BACKUP_DIR, (err, files) => {
             if (err) return reject(err);
             
             const backups = files
                 .filter(f => f.endsWith('.zip'))
+                .filter(f => !householdId || f.startsWith(`household-${householdId}`))
                 .map(f => {
                     const stats = fs.statSync(path.join(BACKUP_DIR, f));
                     return {
@@ -103,11 +133,11 @@ const listBackups = () => {
                         created: stats.mtime
                     };
                 })
-                .sort((a, b) => b.created - a.created); // Newest first
+                .sort((a, b) => b.created - a.created);
             
             resolve(backups);
         });
     });
 };
 
-module.exports = { createBackup, cleanOldBackups, restoreBackup, listBackups, BACKUP_DIR };
+module.exports = { createBackup, cleanOldBackups, restoreBackup, listBackups, BACKUP_DIR, DATA_DIR };
