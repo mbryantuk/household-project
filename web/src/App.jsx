@@ -10,6 +10,7 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from
 // Theme and Local Components
 import { getTotemTheme } from './theme';
 import TotemIcon from './components/TotemIcon';
+import FloatingCalculator from './components/FloatingCalculator';
 
 // Layouts & Pages
 import RootLayout from './layouts/RootLayout';
