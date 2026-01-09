@@ -3,15 +3,13 @@
   "info": {
     "title": "Household Manager API",
     "version": "1.0.0",
-    "description": "Multi-tenant household management API",
+    "description": "Multi-tenant household management API with full module support for Vehicles, Assets, Energy, and more.",
     "contact": {
       "name": "Product Manager"
     }
   },
   "servers": [
-    {
-      "url": "http://localhost:4002"
-    }
+    { "url": "http://localhost:4001" }
   ],
   "components": {
     "schemas": {
@@ -19,21 +17,6 @@
         "type": "object",
         "properties": {
           "id": { "type": "integer" },
-          "title": { "type": "string" },
-          "date": { "type": "string", "format": "date" },
-          "end_date": { "type": "string", "format": "date-time" },
-          "is_all_day": { "type": "boolean" },
-          "type": { "type": "string" },
-          "description": { "type": "string" },
-          "emoji": { "type": "string" },
-          "recurrence": { "type": "string", "enum": ["none", "daily", "weekly", "monthly", "yearly"] },
-          "recurrence_end_date": { "type": "string", "format": "date-time" }
-        }
-      },
-      "DateInput": {
-        "type": "object",
-        "required": ["title", "date"],
-        "properties": {
           "title": { "type": "string" },
           "date": { "type": "string", "format": "date" },
           "end_date": { "type": "string", "format": "date-time" },
@@ -54,119 +37,9 @@
       }
     }
   },
-  "security": [
-    {
-      "bearerAuth": []
-    }
-  ],
+  "security": [{ "bearerAuth": [] }],
   "paths": {
-    "/admin/backups": {
-      "get": {
-        "summary": "SYSADMIN ONLY: List all system backups",
-        "tags": ["Admin", "Backup"],
-        "responses": {
-          "200": { "description": "List of backups" },
-          "403": { "description": "Access denied" }
-        }
-      }
-    },
-    "/admin/backups/trigger": {
-      "post": {
-        "summary": "SYSADMIN ONLY: Trigger a manual backup",
-        "tags": ["Admin", "Backup"],
-        "responses": {
-          "200": { "description": "Backup created" },
-          "403": { "description": "Access denied" }
-        }
-      }
-    },
-    "/admin/backups/download/{filename}": {
-      "get": {
-        "summary": "SYSADMIN ONLY: Download a backup file",
-        "tags": ["Admin", "Backup"],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "filename",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": { "description": "File stream" },
-          "403": { "description": "Access denied" },
-          "404": { "description": "File not found" }
-        }
-      }
-    },
-    "/admin/backups/restore/{filename}": {
-      "post": {
-        "summary": "SYSADMIN ONLY: Restore from a local backup",
-        "tags": ["Admin", "Backup"],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "filename",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": { "description": "System restored" },
-          "403": { "description": "Access denied" }
-        }
-      }
-    },
-    "/admin/backups/upload": {
-      "post": {
-        "summary": "SYSADMIN ONLY: Upload and restore a backup",
-        "tags": ["Admin", "Backup"],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "backup": { "type": "string", "format": "binary" }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": { "description": "Backup uploaded and restored" },
-          "403": { "description": "Access denied" }
-        }
-      }
-    },
-    "/register": {
-      "post": {
-        "summary": "Register a new user",
-        "tags": ["Auth"],
-        "security": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": ["username", "password", "email"],
-                "properties": {
-                  "username": { "type": "string" },
-                  "password": { "type": "string" },
-                  "email": { "type": "string" },
-                  "secretCode": { "type": "string", "description": "Optional backdoor code for Sysadmin" }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": { "description": "User created successfully" }
-        }
-      }
-    },
-    "/login": {
+    "/auth/login": {
       "post": {
         "summary": "Login to get a JWT token",
         "tags": ["Auth"],
@@ -180,240 +53,101 @@
                 "required": ["username", "password"],
                 "properties": {
                   "username": { "type": "string" },
-                  "password": { "type": "string" }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Login successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "token": { "type": "string" },
-                    "system_role": { "type": "string" }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/admin/create-user": {
-      "post": {
-        "summary": "SYSADMIN ONLY: Create user and assign to household",
-        "tags": ["Admin"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": ["username", "password", "email", "householdId"],
-                "properties": {
-                  "username": { "type": "string" },
                   "password": { "type": "string" },
-                  "email": { "type": "string" },
-                  "householdId": { "type": "integer" },
-                  "role": { "type": "string", "enum": ["admin", "member", "viewer"], "default": "member" }
+                  "accessKey": { "type": "string", "description": "Required for household-level login" }
                 }
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "User created and assigned" },
-          "403": { "description": "Access denied: Sysadmin only" }
+          "200": { "description": "Login successful" }
         }
       }
     },
-    "/households": {
-      "post": {
-        "summary": "Create a new Household (Tenant)",
-        "description": "Creates a record in the global DB and generates a new SQLite file for the tenant.",
-        "tags": ["Households"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": ["name"],
-                "properties": {
-                  "name": { "type": "string" }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": { "description": "Household created" }
-        }
-      }
-    },
-    "/households/{id}/users": {
-      "post": {
-        "summary": "Add an existing user to a household (Admin only)",
-        "tags": ["Households"],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": { "type": "integer" }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "usernameToAdd": { "type": "string" },
-                  "role": { "type": "string", "enum": ["admin", "member", "viewer"] }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": { "description": "User added to household" }
-        }
-      }
-    },
-    "/my-households": {
+    "/households/{id}/vehicles": {
       "get": {
-        "summary": "List all households the current user belongs to",
-        "tags": ["Households"],
-        "responses": {
-          "200": { "description": "List of households" }
-        }
-      }
-    },
-    "/households/{id}/data": {
-      "get": {
-        "summary": "Test endpoint for household data access (Viewer+)",
-        "tags": ["Households"],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": { "type": "integer" }
-          }
-        ],
-        "responses": {
-          "200": { "description": "Access granted" },
-          "403": { "description": "Access denied" }
-        }
-      }
-    },
-    "/households/{id}/dates": {
-      "get": {
-        "summary": "List all memorable dates for a household",
-        "tags": ["Calendar"],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": { "type": "integer" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of dates",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": { "$ref": "#/components/schemas/Date" }
-                }
-              }
-            }
-          }
-        }
+        "summary": "List all vehicles",
+        "tags": ["Vehicles"],
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "List of vehicles" } }
       },
       "post": {
-        "summary": "Add a new memorable date",
-        "tags": ["Calendar"],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": { "type": "integer" }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/DateInput" }
-            }
-          }
-        },
-        "responses": {
-          "200": { "description": "Date created" }
-        }
+        "summary": "Create a vehicle (Admin Only)",
+        "tags": ["Vehicles"],
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Vehicle created" }, "403": { "description": "Forbidden" } }
       }
     },
-    "/households/{id}/dates/{dateId}": {
-      "put": {
-        "summary": "Update a memorable date",
-        "tags": ["Calendar"],
+    "/households/{id}/vehicles/{itemId}": {
+      "get": {
+        "summary": "Get vehicle details",
+        "tags": ["Vehicles"],
         "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": { "type": "integer" }
-          },
-          {
-            "in": "path",
-            "name": "dateId",
-            "required": true,
-            "schema": { "type": "integer" }
-          }
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/DateInput" }
-            }
-          }
-        },
-        "responses": {
-          "200": { "description": "Date updated" }
-        }
+        "responses": { "200": { "description": "Vehicle details" }, "404": { "description": "Not found" } }
+      },
+      "put": {
+        "summary": "Update a vehicle (Admin Only)",
+        "tags": ["Vehicles"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "Updated" }, "403": { "description": "Forbidden" } }
       },
       "delete": {
-        "summary": "Delete a memorable date",
-        "tags": ["Calendar"],
+        "summary": "Delete a vehicle (Admin Only)",
+        "tags": ["Vehicles"],
         "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": { "type": "integer" }
-          },
-          {
-            "in": "path",
-            "name": "dateId",
-            "required": true,
-            "schema": { "type": "integer" }
-          }
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
         ],
-        "responses": {
-          "200": { "description": "Date deleted" }
-        }
+        "responses": { "200": { "description": "Deleted" }, "403": { "description": "Forbidden" } }
+      }
+    },
+    "/households/{id}/assets": {
+      "get": {
+        "summary": "List all assets",
+        "tags": ["Assets"],
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "List of assets" } }
+      },
+      "post": {
+        "summary": "Create an asset (Admin Only)",
+        "tags": ["Assets"],
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Asset created" }, "403": { "description": "Forbidden" } }
+      }
+    },
+    "/households/{id}/energy": {
+      "get": {
+        "summary": "List energy accounts",
+        "tags": ["Energy"],
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "List of accounts" } }
+      },
+      "post": {
+        "summary": "Create energy account (Admin Only)",
+        "tags": ["Energy"],
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Created" }, "403": { "description": "Forbidden" } }
+      }
+    },
+    "/households/{id}/details": {
+      "get": {
+        "summary": "Get house details (Singleton)",
+        "tags": ["Details"],
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Details" } }
+      },
+      "put": {
+        "summary": "Update house details (Admin Only)",
+        "tags": ["Details"],
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Updated" }, "403": { "description": "Forbidden" } }
       }
     }
   }
