@@ -49,8 +49,8 @@ router.post('/households/:id/members', authenticateToken, requireHouseholdRole('
 
         // Automatically add birthday to dates table if DOB is present
         if (dob) {
-            const birthdaySql = `INSERT INTO dates (title, date, type, member_id) VALUES (?, ?, ?, ?)`;
-            req.tenantDb.run(birthdaySql, [`${name}'s Birthday`, dob, 'birthday', memberId], (bErr) => {
+            const birthdaySql = `INSERT INTO dates (title, date, type, member_id, emoji) VALUES (?, ?, ?, ?, ?)`;
+            req.tenantDb.run(birthdaySql, [`${name}'s Birthday`, dob, 'birthday', memberId, emoji], (bErr) => {
                 req.tenantDb.close();
                 if (bErr) console.error("Failed to auto-add birthday:", bErr.message);
                 res.json({ id: memberId, ...req.body });
@@ -89,12 +89,12 @@ router.put('/households/:id/members/:memberId', authenticateToken, requireHouseh
             // Check if birthday already exists
             req.tenantDb.get(`SELECT id FROM dates WHERE member_id = ? AND type = 'birthday'`, [memberId], (sErr, row) => {
                 if (row) {
-                    req.tenantDb.run(`UPDATE dates SET title = ?, date = ? WHERE id = ?`, [`${name}'s Birthday`, dob, row.id], () => {
+                    req.tenantDb.run(`UPDATE dates SET title = ?, date = ?, emoji = ? WHERE id = ?`, [`${name}'s Birthday`, dob, emoji, row.id], () => {
                         req.tenantDb.close();
                         res.json({ message: "Member and Birthday updated", id: memberId, ...req.body });
                     });
                 } else {
-                    req.tenantDb.run(`INSERT INTO dates (title, date, type, member_id) VALUES (?, ?, ?, ?)`, [`${name}'s Birthday`, dob, 'birthday', memberId], () => {
+                    req.tenantDb.run(`INSERT INTO dates (title, date, type, member_id, emoji) VALUES (?, ?, ?, ?, ?)`, [`${name}'s Birthday`, dob, 'birthday', memberId, emoji], () => {
                         req.tenantDb.close();
                         res.json({ message: "Member updated, Birthday created", id: memberId, ...req.body });
                     });

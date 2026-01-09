@@ -41,10 +41,16 @@ export default function BirthdaysWidget({ dates, members }) {
     (dates || []).filter(d => d.type === 'birthday').forEach(d => {
       const stats = getDaysUntilAndAge(d.date);
       if (stats) {
+        let emoji = d.emoji;
+        if (!emoji && d.member_id) {
+          const member = members.find(m => m.id === d.member_id);
+          if (member) emoji = member.emoji;
+        }
+
         birthdayItems.push({
           id: `date-${d.id}`,
           name: d.title.replace("'s Birthday", ""),
-          emoji: d.emoji,
+          emoji: emoji,
           ...stats
         });
         if (d.member_id) seenMemberIds.add(d.member_id);
