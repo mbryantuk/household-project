@@ -47,6 +47,14 @@ export default function HomeView({ members, household, currentUser, dates }) {
   // Current Page Items
   const currentItems = useMemo(() => layouts[page] || [], [layouts, page]);
 
+  // Derived Grid Items with explicit static property
+  const gridItems = useMemo(() => {
+    return currentItems.map(item => ({
+      ...item,
+      static: !isEditing
+    }));
+  }, [currentItems, isEditing]);
+
   // Save on change
   useEffect(() => {
     localStorage.setItem(`dashboard_${household?.id}_${currentUser?.username}`, JSON.stringify(layouts));
@@ -56,7 +64,10 @@ export default function HomeView({ members, household, currentUser, dates }) {
   const handleLayoutChange = (layout) => {
     const newItems = layout.map(l => {
         const existing = currentItems.find(i => i.i === l.i);
-        return { ...existing, ...l };
+        // We do NOT want to save the 'static' property to state/localstorage, 
+        // as it is derived from isEditing.
+        const { static: _static, ...cleanLayout } = l;
+        return { ...existing, ...cleanLayout };
     });
     
     setLayouts(prev => ({
@@ -142,7 +153,7 @@ export default function HomeView({ members, household, currentUser, dates }) {
       <div ref={containerRef}>
         <ResponsiveGridLayout
             className="layout"
-            layouts={{ lg: currentItems, md: currentItems, sm: currentItems }}
+            layouts={{ lg: gridItems, md: gridItems, sm: gridItems }}
             breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
             cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
             rowHeight={60}
@@ -152,10 +163,10 @@ export default function HomeView({ members, household, currentUser, dates }) {
             onLayoutChange={(layout) => handleLayoutChange(layout)}
             margin={[16, 16]}
         >
-            {currentItems.map(item => {
+            {gridItems.map(item => {
                 const WidgetComponent = WIDGET_TYPES[item.type]?.component;
                 return (
-                    <Box key={item.i} sx={{ position: 'relative' }}>
+                    <Box key={item.i} data-grid={{ ...item, static: !isEditing }} sx={{ position: 'relative' }}>
                         {isEditing && (
                             <Box sx={{ position: 'absolute', top: -10, right: -10, zIndex: 10 }}>
                                 <IconButton 

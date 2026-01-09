@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const { globalDb, getHouseholdDb } = require('../db');
 const { authenticateToken } = require('../middleware/auth');
 const { listBackups, createBackup, restoreBackup, BACKUP_DIR } = require('../services/backup');
@@ -144,6 +145,43 @@ router.put('/households/:id', authenticateToken, (req, res) => {
             return res.status(500).json({ error: err.message });
         }
         res.json({ message: "Household updated successfully" });
+    });
+});
+
+// DELETE /households/:id (Delete Tenant - SysAdmin)
+router.delete('/households/:id', authenticateToken, (req, res) => {
+    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
+
+    const hhId = req.params.id;
+    
+    // 1. Remove from Global DB
+    globalDb.run("DELETE FROM households WHERE id = ?", [hhId], function(err) {
+        if (err) {
+            console.error("Delete Household DB Error:", err);
+            return res.status(500).json({ error: err.message });
+        }
+        
+        if (this.changes === 0) return res.status(404).json({ error: "Household not found" });
+
+        // 2. Delete the actual DB file
+        const dbPath = path.join(__dirname, `../data/household_${hhId}.db`);
+        if (fs.existsSync(dbPath)) {
+            try {
+                fs.unlinkSync(dbPath);
+                console.log(`🗑️ Deleted database file: ${dbPath}`);
+            } catch (fsErr) {
+                console.error("Failed to delete DB file:", fsErr);
+                // We don't fail the request if file delete fails, but we log it
+            }
+        }
+
+        // Also delete journal file if exists
+        const journalPath = dbPath + '-journal';
+        if (fs.existsSync(journalPath)) {
+            try { fs.unlinkSync(journalPath); } catch (e) {}
+        }
+
+        res.json({ message: "Household deleted permanently." });
     });
 });
 

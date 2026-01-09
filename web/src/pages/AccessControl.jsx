@@ -16,6 +16,7 @@ export default function AccessControl({
   onCreateUser, 
   onCreateHousehold,
   onUpdateHousehold,
+  onDeleteHousehold,
   onRemoveUser
 }) {
   const { api } = useOutletContext();
@@ -258,6 +259,18 @@ export default function AccessControl({
                     <TableCell align="right">
                       <IconButton onClick={() => handleEditHouseholdClick(h)} size="small" title="Edit Household">
                         <Edit fontSize="small" />
+                      </IconButton>
+                      <IconButton 
+                        onClick={() => {
+                            if (window.confirm(`Are you sure you want to PERMANENTLY delete "${h.name}"? This cannot be undone.`)) {
+                                onDeleteHousehold(h.id);
+                            }
+                        }} 
+                        size="small" 
+                        title="Delete Household"
+                        color="error"
+                      >
+                        <Delete fontSize="small" />
                       </IconButton>
                     </TableCell>
                   </TableRow>

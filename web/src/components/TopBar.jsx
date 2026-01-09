@@ -54,7 +54,7 @@ export default function TopBar({
               color="inherit" 
               onClick={toggleSidebar} 
               edge="start" 
-              sx={{ mr: 2, display: { sm: 'none' } }}
+              sx={{ mr: 2 }}
             >
               <MenuIcon />
             </IconButton>

@@ -421,36 +421,6 @@ export default function SettingsView({
               <SettingsBrightness sx={{ mr: 1 }} fontSize="small" /> System
             </ToggleButton>
           </ToggleButtonGroup>
-
-          {/* 🔴 DANGER ZONE */}
-          {isHouseholdAdmin && (
-            <>
-              <Divider sx={{ my: 4 }} />
-              <Box sx={{ 
-                p: 3, 
-                borderRadius: 2, 
-                border: '1px solid', 
-                borderColor: 'error.light', 
-                bgcolor: 'rgba(211, 47, 47, 0.04)' 
-              }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, color: 'error.main' }}>
-                  <Warning sx={{ mr: 1 }} fontSize="small" />
-                  <Typography variant="h6">Danger Zone</Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                  Deleting this household will permanently remove all resident data, logs, and authorized user connections.
-                </Typography>
-                <Button 
-                  variant="contained" 
-                  color="error" 
-                  startIcon={<Delete />}
-                  onClick={() => onDeleteHousehold(household.id)}
-                >
-                  Delete {household.name}
-                </Button>
-              </Box>
-            </>
-          )}
         </Box>
       )}
 

@@ -160,6 +160,16 @@ function AppContent() {
     }
   }, [authAxios, user, fetchHouseholds, showNotification]);
 
+  const handleDeleteHousehold = useCallback(async (hhId) => {
+    if (user?.role === 'sysadmin') {
+        try {
+            await authAxios.delete(`/admin/households/${hhId}`);
+            showNotification("Household deleted.", "success");
+            fetchHouseholds();
+        } catch (err) { showNotification("Error: " + err.message, "error"); }
+    }
+  }, [authAxios, user, fetchHouseholds, showNotification]);
+
   // --- APP INITIALIZATION ---
   useEffect(() => {
     window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); setInstallPrompt(e); });
@@ -300,6 +310,7 @@ function AppContent() {
             onCreateUser={() => {}} // TODO: Create SysAdmin
             onCreateHousehold={handleCreateHousehold}
             onUpdateHousehold={handleUpdateHousehold}
+            onDeleteHousehold={handleDeleteHousehold}
             onRemoveUser={(userId) => authAxios.delete(`/admin/users/${userId}`).then(() => fetchSysUsers())}
             onAssignUser={() => {}}
           />} />
