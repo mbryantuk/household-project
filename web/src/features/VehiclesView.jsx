@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, List, ListItem, ListItemButton, ListItemText, 
   ListItemIcon, Avatar, Paper, Tabs, Tab, TextField, Button, 
@@ -14,14 +14,29 @@ import {
 import { getEmojiColor } from '../theme';
 import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
 
-export default function VehiclesView() {
+export default function VehiclesView({ view = 'fleet' }) {
   const { api, id: householdId, user: currentUser, isDark, showNotification } = useOutletContext();
+  const location = useLocation();
+  const navigate = useNavigate();
+  
   const [vehicles, setVehicles] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
-  const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   
+  // Mapping paths to tabs
+  const tabMap = useMemo(() => ({
+    'fleet': 0,
+    'history': 1,
+    'finance': 2,
+    'insurance': 3,
+    'mot': 0, // MOT is now inside Identity
+    'warranty': 1, // Warranty often part of history or separate? We'll put in Misc for now or keep separate
+    'costs': 4
+  }), []);
+
+  const [activeTab, setActiveTab] = useState(() => tabMap[view] || 0);
+
   // Sub-data state
   const [subData, setSubData] = useState([]);
   const [subLoading, setSubLoading] = useState(false);
@@ -44,20 +59,25 @@ export default function VehiclesView() {
 
   const fetchSubData = useCallback(async () => {
     if (!selectedId) return;
-    const views = ['fleet', 'services', 'finance', 'insurance']; // indices match tabs
-    const view = views[activeTab];
-    if (!view || view === 'fleet') return;
+    const views = ['fleet', 'services', 'finance', 'insurance', 'costs'];
+    const subView = views[activeTab];
+    if (!subView || subView === 'fleet' || subView === 'costs') return;
 
     setSubLoading(true);
     try {
-      const res = await api.get(`/households/${householdId}/vehicles/${selectedId}/${view}`);
+      const res = await api.get(`/households/${householdId}/vehicles/${selectedId}/${subView}`);
       setSubData(res.data || []);
     } catch (err) { console.error(err); }
     finally { setSubLoading(false); }
   }, [api, householdId, selectedId, activeTab]);
 
-  useEffect(() => { fetchVehicles(); }, [fetchVehicles]);
+  useEffect(() => { fetchVehicles(); }, []);
   useEffect(() => { fetchSubData(); }, [selectedId, activeTab, fetchSubData]);
+
+  // Sync tab with route view prop
+  useEffect(() => {
+    setActiveTab(tabMap[view] || 0);
+  }, [view, tabMap]);
 
   const handleVehicleSubmit = async (e) => {
     e.preventDefault();
@@ -79,10 +99,10 @@ export default function VehiclesView() {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(e.currentTarget));
     const views = ['fleet', 'services', 'finance', 'insurance'];
-    const view = views[activeTab];
+    const subView = views[activeTab];
     try {
-        if (editSub.id) await api.put(`/households/${householdId}/vehicles/${selectedId}/${view}/${editSub.id}`, data);
-        else await api.post(`/households/${householdId}/vehicles/${selectedId}/${view}`, data);
+        if (editSub.id) await api.put(`/households/${householdId}/vehicles/${selectedId}/${subView}/${editSub.id}`, data);
+        else await api.post(`/households/${householdId}/vehicles/${selectedId}/${subView}`, data);
         showNotification("Entry saved.", "success");
         fetchSubData();
         setEditSub(null);
@@ -94,19 +114,19 @@ export default function VehiclesView() {
   return (
     <Box sx={{ height: '100%' }}>
       <Grid container spacing={3}>
-        {/* LEFT: VEHICLE SELECTION */}
+        {/* LEFT: VEHICLE SELECTION (PINNED) */}
         <Grid item xs={12} md={3}>
-          <Paper variant="outlined" sx={{ borderRadius: 3, overflow: 'hidden' }}>
+          <Paper variant="outlined" sx={{ borderRadius: 3, position: 'sticky', top: 24, overflow: 'hidden' }}>
             <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: 'action.hover' }}>
               <Typography variant="h6" fontWeight="bold">Fleet</Typography>
               {isHouseholdAdmin && (
                 <Button size="small" variant="contained" startIcon={<Add />} onClick={() => setIsAdding(true)}>Add</Button>
               )}
             </Box>
-            <List sx={{ pt: 0 }}>
+            <List sx={{ pt: 0, maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
               {vehicles.map(v => (
                 <ListItem key={v.id} disablePadding divider>
-                  <ListItemButton selected={selectedId === v.id} onClick={() => { setSelectedId(v.id); setActiveTab(0); }}>
+                  <ListItemButton selected={selectedId === v.id} onClick={() => { setSelectedId(v.id); }}>
                     <ListItemIcon>
                       <Avatar sx={{ bgcolor: getEmojiColor(v.emoji || '🚗', isDark), width: 32, height: 32 }}>{v.emoji || '🚗'}</Avatar>
                     </ListItemIcon>
