@@ -8,21 +8,15 @@ import {
   Stack, Tooltip, Switch, FormControlLabel, InputAdornment, LinearProgress, List, ListItem, ListItemText, ListItemSecondaryAction, useTheme, Alert
 } from '@mui/material';
 import { 
-  Info, ManageAccounts, Groups, PersonAdd, Delete, 
-  AddCircle, HomeWork, Warning, Edit,
-  DarkMode, LightMode, SettingsBrightness, ChildCare, Face, Visibility,
-  Language, Public, AccountBalance, Upload, AddReaction, ContentCopy, Key,
-  Storage, Backup, Restore, Download, CloudDownload, DeleteSweep, Save, Schedule
+  ManageAccounts, Backup, SettingsBrightness, PersonAdd, Delete, 
+  Edit, Save, Schedule, Download, Restore, CloudDownload,
+  DarkMode, LightMode
 } from '@mui/icons-material';
-import TotemIcon from '../components/TotemIcon';
-import EmojiPicker from '../components/EmojiPicker';
-import { getEmojiColor } from '../theme';
 
 export default function SettingsView({ 
   household, users, currentUser, api, onUpdateHousehold, 
   onCreateUser, onUpdateUser, onRemoveUser,
   currentMode, onModeChange, useDracula, onDraculaChange,
-  members, onAddMember, onRemoveMember, onUpdateMember,
   showNotification, confirmAction
 }) {
   const [tab, setTab] = useState(0);
@@ -48,7 +42,7 @@ export default function SettingsView({
   }, [api, household?.id, isAdmin]);
 
   useEffect(() => {
-    if (tab === 2) fetchBackups(); // Tab 2 is now Maintenance
+    if (tab === 1) fetchBackups(); // Tab 1 is now Maintenance
   }, [tab, fetchBackups]);
 
   const handleCreateBackup = async () => {
@@ -105,50 +99,14 @@ export default function SettingsView({
       
       <Paper sx={{ borderRadius: 3, overflow: 'hidden' }} variant="outlined">
         <Tabs value={tab} onChange={(e, v) => setTab(v)} sx={{ borderBottom: 1, borderColor: 'divider', px: 2, bgcolor: 'action.hover' }}>
-          <Tab icon={<HomeWork />} iconPosition="start" label="Household" />
           <Tab icon={<ManageAccounts />} iconPosition="start" label="Users" />
           <Tab icon={<Backup />} iconPosition="start" label="Maintenance" />
           <Tab icon={<SettingsBrightness />} iconPosition="start" label="Appearance" />
         </Tabs>
 
         <Box sx={{ p: 4 }}>
-          {/* TAB 0: HOUSEHOLD */}
+          {/* TAB 0: USERS */}
           {tab === 0 && (
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              onUpdateHousehold(Object.fromEntries(new FormData(e.currentTarget)));
-            }}>
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
-                  <TextField name="name" label="Household Name" defaultValue={household?.name} fullWidth required disabled={!isAdmin} />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <TextField label="Access Key" value={household?.access_key || ''} fullWidth disabled
-                    InputProps={{ 
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <IconButton onClick={() => { navigator.clipboard.writeText(household.access_key); showNotification("Key copied!", "info"); }}><ContentCopy fontSize="small"/></IconButton>
-                            </InputAdornment>
-                        ) 
-                    }} 
-                  />
-                </Grid>
-                <Grid item xs={12}><Divider sx={{ my: 1 }} /></Grid>
-                <Grid item xs={12} md={4}><TextField name="address_street" label="Street" defaultValue={household?.address_street} fullWidth disabled={!isAdmin} /></Grid>
-                <Grid item xs={12} md={4}><TextField name="address_city" label="City" defaultValue={household?.address_city} fullWidth disabled={!isAdmin} /></Grid>
-                <Grid item xs={12} md={4}><TextField name="address_zip" label="Zip / Postcode" defaultValue={household?.address_zip} fullWidth disabled={!isAdmin} /></Grid>
-                
-                {isAdmin && (
-                  <Grid item xs={12}>
-                    <Button type="submit" variant="contained" startIcon={<Save />}>Save Household Details</Button>
-                  </Grid>
-                )}
-              </Grid>
-            </form>
-          )}
-
-          {/* TAB 1: USERS */}
-          {tab === 1 && (
             <Box>
                 <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between' }}>
                     <Typography variant="h6">Local Users</Typography>
@@ -180,8 +138,8 @@ export default function SettingsView({
             </Box>
           )}
 
-          {/* TAB 2: MAINTENANCE */}
-          {tab === 2 && (
+          {/* TAB 1: MAINTENANCE */}
+          {tab === 1 && (
             <Box>
                 <Typography variant="h6" gutterBottom>Automated Backup Scheduler</Typography>
                 <Paper variant="outlined" sx={{ p: 3, mb: 4, borderRadius: 2 }}>
@@ -247,8 +205,8 @@ export default function SettingsView({
             </Box>
           )}
 
-          {/* TAB 3: APPEARANCE */}
-          {tab === 3 && (
+          {/* TAB 2: APPEARANCE */}
+          {tab === 2 && (
             <Box>
                 <Typography variant="h6" gutterBottom>System Theme</Typography>
                 <Stack spacing={4}>

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Paper, Tabs, Tab, TextField, Button, 
@@ -17,7 +17,6 @@ export default function PetsView() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
-  const [selectedEmoji, setSelectedEmoji] = useState(null);
   
   const isHouseholdAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
 
@@ -25,17 +24,46 @@ export default function PetsView() {
     (members || []).find(m => m.id === parseInt(petId) && m.type === 'pet'), 
   [members, petId]);
 
-  useMemo(() => {
-    if (selectedPet) setSelectedEmoji(selectedPet.emoji);
-    else if (petId === 'new') setSelectedEmoji('🐾');
+  // Use controlled state for form fields to ensure they update correctly when selection changes
+  const [formData, setFormData] = useState({
+    name: '', species: '', breed: '', dob: '', emoji: '🐾', notes: '',
+    microchip_number: '', gender: '', pet_insurance_provider: '',
+    pet_insurance_premium: 0, pet_insurance_expiry: '', food_monthly_cost: 0
+  });
+
+  useEffect(() => {
+    if (selectedPet) {
+      setFormData({
+        name: selectedPet.name || '',
+        species: selectedPet.species || '',
+        breed: selectedPet.breed || '',
+        dob: selectedPet.dob || '',
+        emoji: selectedPet.emoji || '🐾',
+        notes: selectedPet.notes || '',
+        microchip_number: selectedPet.microchip_number || '',
+        gender: selectedPet.gender || '',
+        pet_insurance_provider: selectedPet.pet_insurance_provider || '',
+        pet_insurance_premium: selectedPet.pet_insurance_premium || 0,
+        pet_insurance_expiry: selectedPet.pet_insurance_expiry || '',
+        food_monthly_cost: selectedPet.food_monthly_cost || 0
+      });
+    } else if (petId === 'new') {
+      setFormData({
+        name: '', species: '', breed: '', dob: '', emoji: '🐾', notes: '',
+        microchip_number: '', gender: '', pet_insurance_provider: '',
+        pet_insurance_premium: 0, pet_insurance_expiry: '', food_monthly_cost: 0
+      });
+    }
   }, [selectedPet, petId]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
-    data.type = 'pet';
-    data.emoji = selectedEmoji;
+    const data = { ...formData, type: 'pet' };
 
     try {
       if (petId === 'new') {
@@ -84,7 +112,7 @@ export default function PetsView() {
   }
 
   return (
-    <Box>
+    <Box key={petId}> {/* Force re-render on ID change */}
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h4" fontWeight="300">
             {petId === 'new' ? 'Add New Pet' : selectedPet.name}
@@ -115,17 +143,17 @@ export default function PetsView() {
                             onClick={() => setEmojiPickerOpen(true)} 
                             sx={{ bgcolor: 'action.hover', border: '1px solid', borderColor: 'divider', width: 80, height: 80 }}
                         >
-                            <Typography sx={{ fontSize: '2.5rem' }}>{selectedEmoji || getAutoPetEmoji(selectedPet?.species)}</Typography>
+                            <Typography sx={{ fontSize: '2.5rem' }}>{formData.emoji}</Typography>
                         </IconButton>
                     </Tooltip>
                 </Grid>
-                <Grid item xs={12} md={5}><TextField name="name" label="Pet Name" defaultValue={selectedPet?.name} fullWidth required /></Grid>
-                <Grid item xs={12} md={5}><TextField name="species" label="Species (e.g. Dog, Cat)" defaultValue={selectedPet?.species} fullWidth required /></Grid>
-                <Grid item xs={12} md={4}><TextField name="breed" label="Breed" defaultValue={selectedPet?.breed} fullWidth /></Grid>
-                <Grid item xs={12} md={4}><TextField name="dob" label="Date of Birth" type="date" defaultValue={selectedPet?.dob} fullWidth InputLabelProps={{shrink:true}} /></Grid>
-                <Grid item xs={12} md={4}><TextField name="microchip_number" label="Microchip #" defaultValue={selectedPet?.microchip_number} fullWidth /></Grid>
-                <Grid item xs={12} md={6}><TextField name="gender" label="Gender" defaultValue={selectedPet?.gender} fullWidth /></Grid>
-                <Grid item xs={12}><TextField name="notes" label="Notes" defaultValue={selectedPet?.notes} multiline rows={3} fullWidth /></Grid>
+                <Grid item xs={12} md={5}><TextField name="name" label="Pet Name" value={formData.name} onChange={handleChange} fullWidth required /></Grid>
+                <Grid item xs={12} md={5}><TextField name="species" label="Species (e.g. Dog, Cat)" value={formData.species} onChange={handleChange} fullWidth required /></Grid>
+                <Grid item xs={12} md={4}><TextField name="breed" label="Breed" value={formData.breed} onChange={handleChange} fullWidth /></Grid>
+                <Grid item xs={12} md={4}><TextField name="dob" label="Date of Birth" type="date" value={formData.dob} onChange={handleChange} fullWidth InputLabelProps={{shrink:true}} /></Grid>
+                <Grid item xs={12} md={4}><TextField name="microchip_number" label="Microchip #" value={formData.microchip_number} onChange={handleChange} fullWidth /></Grid>
+                <Grid item xs={12} md={6}><TextField name="gender" label="Gender" value={formData.gender} onChange={handleChange} fullWidth /></Grid>
+                <Grid item xs={12}><TextField name="notes" label="Notes" value={formData.notes} onChange={handleChange} multiline rows={3} fullWidth /></Grid>
                 <Grid item xs={12}>
                     <Button type="submit" variant="contained" size="large">
                         {petId === 'new' ? 'Create Pet' : 'Update General Info'}
@@ -141,15 +169,15 @@ export default function PetsView() {
                 <Grid item xs={12}>
                   <Typography variant="h6" gutterBottom>Insurance Details</Typography>
                 </Grid>
-                <Grid item xs={12} md={6}><TextField name="pet_insurance_provider" label="Insurance Provider" defaultValue={selectedPet.pet_insurance_provider} fullWidth /></Grid>
-                <Grid item xs={12} md={3}><TextField name="pet_insurance_premium" label="Monthly Premium (£)" type="number" defaultValue={selectedPet.pet_insurance_premium} fullWidth /></Grid>
-                <Grid item xs={12} md={3}><TextField name="pet_insurance_expiry" label="Policy Expiry" type="date" defaultValue={selectedPet.pet_insurance_expiry} fullWidth InputLabelProps={{shrink:true}} /></Grid>
+                <Grid item xs={12} md={6}><TextField name="pet_insurance_provider" label="Insurance Provider" value={formData.pet_insurance_provider} onChange={handleChange} fullWidth /></Grid>
+                <Grid item xs={12} md={3}><TextField name="pet_insurance_premium" label="Monthly Premium (£)" type="number" value={formData.pet_insurance_premium} onChange={handleChange} fullWidth /></Grid>
+                <Grid item xs={12} md={3}><TextField name="pet_insurance_expiry" label="Policy Expiry" type="date" value={formData.pet_insurance_expiry} onChange={handleChange} fullWidth InputLabelProps={{shrink:true}} /></Grid>
                 
                 <Grid item xs={12} sx={{ mt: 2 }}>
                   <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Restaurant fontSize="small" /> Nutrition (Monthly Forecast)
                   </Typography>
-                  <TextField name="food_monthly_cost" label="Estimated Monthly Food Cost (£)" type="number" defaultValue={selectedPet.food_monthly_cost} fullWidth />
+                  <TextField name="food_monthly_cost" label="Estimated Monthly Food Cost (£)" type="number" value={formData.food_monthly_cost} onChange={handleChange} fullWidth />
                 </Grid>
                 <Grid item xs={12}><Button type="submit" variant="contained" size="large">Save Health & Nutrition</Button></Grid>
               </Grid>
@@ -176,7 +204,7 @@ export default function PetsView() {
         open={emojiPickerOpen} 
         onClose={() => setEmojiPickerOpen(false)} 
         onEmojiSelect={(emoji) => {
-            setSelectedEmoji(emoji);
+            setFormData(prev => ({ ...prev, emoji }));
             setEmojiPickerOpen(false);
         }}
         title="Select Pet Emoji"

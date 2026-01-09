@@ -55,6 +55,38 @@
         "responses": { "200": { "description": "OK" } }
       }
     },
+    "/households/{id}": {
+      "get": {
+        "summary": "Get household details",
+        "tags": ["Households"],
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "put": {
+        "summary": "Update household details (Admin only)",
+        "tags": ["Households"],
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "avatar": { "type": "string" },
+                  "address_street": { "type": "string" },
+                  "address_city": { "type": "string" },
+                  "address_zip": { "type": "string" },
+                  "auto_backup": { "type": "boolean" },
+                  "backup_retention": { "type": "integer" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Updated" }, "403": { "description": "Forbidden" } }
+      }
+    },
     "/households/{id}/vehicles": {
       "get": {
         "summary": "List household vehicles (Tenant isolated)",

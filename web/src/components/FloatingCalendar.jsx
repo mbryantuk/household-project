@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { 
-  Box, Paper, Typography, IconButton, Button, 
+  Box, Typography, IconButton, Button, 
   Dialog, DialogTitle, DialogContent, DialogActions, TextField,
   Select, MenuItem, FormControl, InputLabel, Stack, Tooltip, Divider, useTheme
 } from '@mui/material';
@@ -119,7 +119,7 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
   };
 
   return (
-    <Paper elevation={8} sx={{ width: 320, p: 2, borderRadius: 3, bgcolor: 'background.paper' }}>
+    <Box sx={{ width: '100%', height: '100%', p: 2, bgcolor: 'background.paper' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h6" fontWeight="bold">
           {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
@@ -255,6 +255,6 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
         }}
         title="Select Event Emoji"
       />
-    </Paper>
+    </Box>
   );
 }

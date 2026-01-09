@@ -19,6 +19,7 @@ export default function HouseholdLayout({
   const { id } = useParams();
   const navigate = useNavigate();
   const [vehicles, setVehicles] = useState([]);
+  const [activeHousehold, setActiveHousehold] = useState(null);
 
   const fetchVehicles = useCallback(async () => {
     try {
@@ -30,11 +31,11 @@ export default function HouseholdLayout({
   }, [api, id]);
 
   useEffect(() => {
-    // Find the household matching the ID in the URL
     const targetHousehold = (households || []).find(h => h && h.id === parseInt(id));
     
     if (targetHousehold) {
       onSelectHousehold(targetHousehold);
+      setActiveHousehold(targetHousehold);
       fetchVehicles();
     } else if (households && households.length > 0) {
       navigate('/');
@@ -49,6 +50,7 @@ export default function HouseholdLayout({
         members={members} 
         vehicles={vehicles}
         isDark={isDark}
+        household={activeHousehold}
       />
       <Box component="main" sx={{ flexGrow: 1, width: '100%', p: 3, pt: 1 }}>
         <Toolbar /> {/* Spacer for Fixed AppBar */}

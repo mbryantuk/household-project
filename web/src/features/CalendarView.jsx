@@ -3,9 +3,12 @@ import { useOutletContext, useParams } from 'react-router-dom';
 import { 
   Box, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, FormControl, InputLabel, Select, MenuItem, Stack, IconButton, Tooltip,
-  Switch, FormControlLabel, Grid, Paper
+  Switch, FormControlLabel, Grid, Paper, Divider, ToggleButton, ToggleButtonGroup
 } from '@mui/material';
-import { Add, Delete, Edit, Event as EventIcon, Cake, Favorite, Star } from '@mui/icons-material';
+import { 
+  Add, Delete, Edit, Event as EventIcon, Cake, Favorite, Star,
+  ChevronLeft, ChevronRight
+} from '@mui/icons-material';
 import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar';
 import format from 'date-fns/format';
 import parse from 'date-fns/parse';
@@ -53,6 +56,10 @@ export default function CalendarView({ showNotification }) {
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('📅');
   const [loading, setLoading] = useState(true);
+
+  // Calendar Control State
+  const [date, setDate] = useState(new Date());
+  const [view, setView] = useState(Views.MONTH);
 
   // Form State
   const [isAllDay, setIsAllDay] = useState(true);
@@ -170,10 +177,6 @@ export default function CalendarView({ showNotification }) {
     data.is_all_day = isAllDay;
     data.recurrence = recurrence;
     
-    // If all day, append 00:00 to ensure ISO parsing works consistently backend if needed, 
-    // or just send YYYY-MM-DD. Backend stores TEXT, so YYYY-MM-DD is fine.
-    // If NOT all day, we need time. (TODO: Add time inputs if !isAllDay)
-    
     if (editingEvent?.id) {
       api.put(`/households/${householdId}/dates/${editingEvent.id}`, data)
         .then(() => {
@@ -213,11 +216,54 @@ export default function CalendarView({ showNotification }) {
 
   return (
     <Box sx={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+      
+      {/* CUSTOM TOOLBAR */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 2 }}>
         <Typography variant="h4" fontWeight="300">Calendar</Typography>
-        <Button variant="contained" startIcon={<Add />} onClick={() => handleSelectSlot({ start: new Date() })}>
-            New Event
-        </Button>
+        
+        <Stack direction="row" spacing={1} alignItems="center">
+            <ToggleButtonGroup 
+                value={view} 
+                exclusive 
+                onChange={(e, v) => v && setView(v)} 
+                size="small"
+                sx={{ mr: 2 }}
+            >
+                <ToggleButton value={Views.MONTH}>Month</ToggleButton>
+                <ToggleButton value={Views.WEEK}>Week</ToggleButton>
+                <ToggleButton value={Views.AGENDA}>Agenda</ToggleButton>
+            </ToggleButtonGroup>
+
+            <Button variant="outlined" size="small" onClick={() => setDate(new Date())}>Today</Button>
+            
+            <IconButton size="small" onClick={() => {
+                if (view === Views.MONTH) setDate(addMonths(date, -1));
+                else if (view === Views.WEEK) setDate(addWeeks(date, -1));
+                else setDate(addDays(date, -1));
+            }}>
+                <ChevronLeft />
+            </IconButton>
+            
+            <Typography variant="h6" sx={{ minWidth: 180, textAlign: 'center' }}>
+                {view === Views.MONTH ? format(date, 'MMMM yyyy') : (
+                    view === Views.WEEK ? `Week of ${format(startOfWeek(date, { weekStartsOn: 1 }), 'MMM d')}` : format(date, 'MMM d, yyyy')
+                )}
+            </Typography>
+            
+            <IconButton size="small" onClick={() => {
+                if (view === Views.MONTH) setDate(addMonths(date, 1));
+                else if (view === Views.WEEK) setDate(addWeeks(date, 1));
+                else setDate(addDays(date, 1));
+            }}>
+                <ChevronRight />
+            </IconButton>
+
+            <Divider orientation="vertical" flexItem sx={{ mx: 2 }} />
+            
+            <Button variant="contained" startIcon={<Add />} onClick={() => handleSelectSlot({ start: new Date() })}>
+                New Event
+            </Button>
+        </Stack>
       </Box>
 
       <Paper sx={{ flexGrow: 1, p: 2 }}>
@@ -228,11 +274,15 @@ export default function CalendarView({ showNotification }) {
             endAccessor="end"
             style={{ height: '100%' }}
             views={[Views.MONTH, Views.WEEK, Views.AGENDA]}
-            defaultView={Views.MONTH}
+            view={view}
+            onView={v => setView(v)}
+            date={date}
+            onNavigate={d => setDate(d)}
             selectable
             onSelectSlot={handleSelectSlot}
             onSelectEvent={handleSelectEvent}
             popup
+            toolbar={false} // Using custom toolbar above
         />
       </Paper>
 

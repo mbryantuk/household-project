@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Avatar, Box, Tooltip, Popover, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Grid, Divider } from '@mui/material';
+import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Avatar, Box, Tooltip, Popover, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Grid, Divider, ListItemIcon } from '@mui/material';
 import { 
   Logout, SwapHoriz, Menu as MenuIcon, 
   DarkMode, LightMode, SettingsBrightness, GetApp, AdminPanelSettings,
@@ -193,13 +193,13 @@ export default function TopBar({
                    </Box>
                 </Grid>
                 <Grid item xs={12}>
-                  <TextField name="username" label="Username" defaultValue={user?.username} fullWidth required icon={<Person/>}/>
+                  <TextField name="username" label="Username" defaultValue={user?.username} fullWidth required />
                 </Grid>
                 <Grid item xs={12}>
-                  <TextField name="email" label="Email Address" defaultValue={user?.email} fullWidth icon={<Email/>}/>
+                  <TextField name="email" label="Email Address" defaultValue={user?.email} fullWidth />
                 </Grid>
                 <Grid item xs={12}>
-                  <TextField name="password" label="New Password" type="password" fullWidth placeholder="Leave blank to keep current" icon={<Password/>}/>
+                  <TextField name="password" label="New Password" type="password" fullWidth placeholder="Leave blank to keep current" />
                 </Grid>
               </Grid>
             </DialogContent>
@@ -214,10 +214,11 @@ export default function TopBar({
         <EmojiPicker 
           open={emojiPickerOpen} 
           onClose={() => setEmojiPickerOpen(false)} 
-          onSelect={(emoji) => {
+          onEmojiSelect={(emoji) => {
             onUpdateProfile({ avatar: emoji });
             setEmojiPickerOpen(false);
           }} 
+          title="Select Avatar Emoji"
         />
 
       </Toolbar>

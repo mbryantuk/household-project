@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { 
   DirectionsCar, History, Receipt, Policy, 
-  Add, Edit, Delete, Tune
+  Add, Edit, Delete, Tune, Handyman
 } from '@mui/icons-material';
 import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
 import EmojiPicker from '../components/EmojiPicker';
@@ -51,8 +51,8 @@ export default function VehiclesView() {
 
   const fetchSubData = useCallback(async () => {
     if (vehicleId === 'new' || !selectedVehicle) return;
-    const views = ['fleet', 'services', 'finance', 'insurance'];
-    const subView = views[activeTab];
+    const subViews = ['fleet', 'services', 'finance', 'insurance', 'service_plans'];
+    const subView = subViews[activeTab];
     if (!subView || subView === 'fleet') return;
 
     setSubLoading(true);
@@ -90,8 +90,8 @@ export default function VehiclesView() {
   const handleSubSubmit = async (e) => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(e.currentTarget));
-    const views = ['fleet', 'services', 'finance', 'insurance'];
-    const subView = views[activeTab];
+    const subViews = ['fleet', 'services', 'finance', 'insurance', 'service_plans'];
+    const subView = subViews[activeTab];
     try {
         if (editSub.id) await api.put(`/households/${householdId}/vehicles/${vehicleId}/${subView}/${editSub.id}`, data);
         else await api.post(`/households/${householdId}/vehicles/${vehicleId}/${subView}`, data);
@@ -118,7 +118,7 @@ export default function VehiclesView() {
     );
   };
 
-  if (loading && vehicles.length === 0) return <CircularProgress />;
+  if (loading && vehicles.length === 0) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
   if (vehicleId !== 'new' && !selectedVehicle) {
     return <Box sx={{ p: 4, textAlign: 'center' }}><Typography color="text.secondary">Select a vehicle from the menu.</Typography></Box>;
   }
@@ -142,6 +142,7 @@ export default function VehiclesView() {
                   <Tab icon={<History />} iconPosition="start" label="Service History" />
                   <Tab icon={<Receipt />} iconPosition="start" label="Finance" />
                   <Tab icon={<Policy />} iconPosition="start" label="Insurance" />
+                  <Tab icon={<Handyman />} iconPosition="start" label="Service Plans" />
                   <Tab icon={<Tune />} iconPosition="start" label="Misc Costs" />
                 </Tabs>
             </Box>
@@ -188,11 +189,11 @@ export default function VehiclesView() {
             </form>
           )}
 
-          {activeTab > 0 && activeTab < 4 && vehicleId !== 'new' && (
+          {activeTab > 0 && activeTab < 5 && vehicleId !== 'new' && (
             <Box>
                 <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between' }}>
                     <Typography variant="h6">
-                        {activeTab === 1 ? 'Service History' : activeTab === 2 ? 'Finance Agreements' : 'Insurance Policies'}
+                        {activeTab === 1 ? 'Service History' : activeTab === 2 ? 'Finance Agreements' : activeTab === 3 ? 'Insurance Policies' : 'Service Plans'}
                     </Typography>
                     {isHouseholdAdmin && <Button size="small" variant="outlined" startIcon={<Add />} onClick={() => setEditSub({})}>Add Entry</Button>}
                 </Box>
@@ -208,13 +209,14 @@ export default function VehiclesView() {
                                             <Typography variant="caption" color="text.secondary">{row.provider}</Typography>
                                         </TableCell>
                                         <TableCell>
-                                            <Typography variant="body2">{row.description || row.policy_number}</Typography>
+                                            <Typography variant="body2">{row.description || row.policy_number || row.details}</Typography>
                                             {row.cost && <Typography variant="caption">Cost: £{row.cost}</Typography>}
                                             {row.monthly_payment && <Typography variant="caption">Monthly: £{row.monthly_payment}</Typography>}
+                                            {row.expiry_date && <Chip size="small" label={`Expires: ${row.expiry_date}`} sx={{ ml: 1 }} />}
                                         </TableCell>
                                         <TableCell align="right">
                                             <IconButton size="small" onClick={() => setEditSub(row)}><Edit fontSize="inherit"/></IconButton>
-                                            <IconButton size="small" color="error" onClick={() => api.delete(`/households/${householdId}/vehicles/${vehicleId}/${['fleet','services','finance','insurance'][activeTab]}/${row.id}`).then(fetchSubData)}><Delete fontSize="inherit"/></IconButton>
+                                            <IconButton size="small" color="error" onClick={() => api.delete(`/households/${householdId}/vehicles/${vehicleId}/${['fleet','services','finance','insurance','service_plans'][activeTab]}/${row.id}`).then(fetchSubData)}><Delete fontSize="inherit"/></IconButton>
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -225,7 +227,7 @@ export default function VehiclesView() {
             </Box>
           )}
 
-          {activeTab === 4 && vehicleId !== 'new' && (
+          {activeTab === 5 && vehicleId !== 'new' && (
             <RecurringCostsWidget 
                 api={api} 
                 householdId={householdId} 
@@ -240,14 +242,19 @@ export default function VehiclesView() {
 
       <Dialog open={Boolean(editSub)} onClose={() => setEditSub(null)} fullWidth maxWidth="xs">
         <form onSubmit={handleSubSubmit}>
-            <DialogTitle>Add {['','Service','Finance','Insurance'][activeTab]} Entry</DialogTitle>
+            <DialogTitle>Add {['','Service','Finance','Insurance','Service Plan'][activeTab]} Entry</DialogTitle>
             <DialogContent dividers>
                 <Stack spacing={2} sx={{ mt: 1 }}>
                     <TextField name="provider" label="Provider / Garage" defaultValue={editSub?.provider} fullWidth required />
-                    <TextField name="date" label="Date" type="date" defaultValue={editSub?.date || editSub?.start_date} fullWidth InputLabelProps={{shrink:true}} />
+                    {(activeTab === 1 || activeTab === 2 || activeTab === 3) && (
+                        <TextField name="date" label="Date" type="date" defaultValue={editSub?.date || editSub?.start_date} fullWidth InputLabelProps={{shrink:true}} />
+                    )}
+                    {(activeTab === 3 || activeTab === 4) && (
+                        <TextField name="expiry_date" label="Expiry Date" type="date" defaultValue={editSub?.expiry_date} fullWidth InputLabelProps={{shrink:true}} />
+                    )}
                     {activeTab === 1 && <TextField name="cost" label="Cost (£)" type="number" defaultValue={editSub?.cost} fullWidth />}
                     {activeTab === 2 && <TextField name="monthly_payment" label="Monthly Payment (£)" type="number" defaultValue={editSub?.monthly_payment} fullWidth />}
-                    <TextField name="description" label="Details / Policy #" defaultValue={editSub?.description || editSub?.policy_number} multiline rows={2} fullWidth />
+                    <TextField name="description" label="Details / Policy #" defaultValue={editSub?.description || editSub?.policy_number || editSub?.details} multiline rows={2} fullWidth />
                 </Stack>
             </DialogContent>
             <DialogActions>

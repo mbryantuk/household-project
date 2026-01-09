@@ -52,7 +52,7 @@ const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'ope
   }),
 );
 
-export default function NavSidebar({ open, toggleDrawer, members = [], vehicles = [], isDark }) {
+export default function NavSidebar({ open, toggleDrawer, members = [], vehicles = [], isDark, household }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const location = useLocation();
@@ -60,7 +60,8 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
   const [openSub, setOpenSub] = useState({
     people: location.pathname.includes('/people'),
     pets: location.pathname.includes('/pets'),
-    vehicles: location.pathname.includes('/vehicles')
+    vehicles: location.pathname.includes('/vehicles'),
+    house: location.pathname.includes('/house')
   });
 
   const handleToggle = (key) => {
@@ -99,7 +100,7 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
     </ListItem>
   );
 
-  const renderParent = (id, label, icon, children, items, pathPrefix) => {
+  const renderParent = (id, label, icon, items, pathPrefix, defaultEmoji = null) => {
     const isOpen = openSub[id];
     return (
       <Box key={id}>
@@ -121,8 +122,8 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
         </ListItem>
         <Collapse in={isOpen && (open || isMobile)} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
-            {items.map(item => renderSubItem(item.name || `${item.make} ${item.model}`, `${pathPrefix}/${item.id}`, null, item.emoji || (id === 'vehicles' ? '🚗' : null)))}
-            {renderSubItem('Add New', `${pathPrefix}/new`, <Add fontSize="small" />)}
+            {items.map(item => renderSubItem(item.name || `${item.make} ${item.model}`, `${pathPrefix}/${item.id}`, null, item.emoji || defaultEmoji))}
+            {id !== 'house' && renderSubItem('Add New', `${pathPrefix}/new`, <Add fontSize="small" />)}
           </List>
         </Collapse>
       </Box>
@@ -162,23 +163,12 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
 
         <Divider sx={{ my: 1 }} />
 
-        {renderParent('people', 'People', <Groups />, null, people, 'people')}
-        {renderParent('pets', 'Pets', <Pets />, null, pets, 'pets')}
+        {renderParent('people', 'People', <Groups />, people, 'people')}
+        {renderParent('pets', 'Pets', <Pets />, pets, 'pets')}
         
-        {/* NO DIVIDER AS REQUESTED */}
+        {renderParent('house', 'House', <HomeWork />, household ? [household] : [], 'house', household?.avatar || '🏠')}
 
-        <ListItem disablePadding sx={{ display: 'block' }}>
-          <ListItemButton
-            component={NavLink}
-            to="house"
-            sx={{ minHeight: 48, px: 2.5, justifyContent: open || isMobile ? 'initial' : 'center' }}
-          >
-            <ListItemIcon sx={{ minWidth: 0, mr: open || isMobile ? 3 : 'auto', justifyContent: 'center' }}><HomeWork /></ListItemIcon>
-            <ListItemText primary="House" sx={{ opacity: open || isMobile ? 1 : 0 }} />
-          </ListItemButton>
-        </ListItem>
-
-        {renderParent('vehicles', 'Vehicles', <DirectionsCar />, null, vehicles, 'vehicles')}
+        {renderParent('vehicles', 'Vehicles', <DirectionsCar />, vehicles, 'vehicles', '🚗')}
 
         <Divider sx={{ my: 1 }} />
 
