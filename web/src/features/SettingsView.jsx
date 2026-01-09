@@ -12,7 +12,7 @@ import {
   AddCircle, HomeWork, Warning, Edit,
   DarkMode, LightMode, SettingsBrightness, ChildCare, Face, Visibility,
   Language, Public, AccountBalance, Upload, AddReaction, ContentCopy, Key,
-  Storage, Backup, Restore, Download, CloudDownload, DeleteSweep, Save
+  Storage, Backup, Restore, Download, CloudDownload, DeleteSweep, Save, Schedule
 } from '@mui/icons-material';
 import TotemIcon from '../components/TotemIcon';
 import EmojiPicker from '../components/EmojiPicker';
@@ -30,6 +30,7 @@ export default function SettingsView({
   const [backups, setBackups] = useState([]);
   const [backupLoading, setBackupLoading] = useState(false);
   const [userDialogOpen, setUserDialogOpen] = useState(false);
+  const [editUser, setEditUser] = useState(null);
 
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
 
@@ -47,7 +48,7 @@ export default function SettingsView({
   }, [api, household?.id, isAdmin]);
 
   useEffect(() => {
-    if (tab === 3) fetchBackups();
+    if (tab === 2) fetchBackups(); // Tab 2 is now Maintenance
   }, [tab, fetchBackups]);
 
   const handleCreateBackup = async () => {
@@ -86,11 +87,16 @@ export default function SettingsView({
     window.open(url, '_blank');
   };
 
-  const handleCreateUserSubmit = (e) => {
+  const handleUserSubmit = (e) => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(e.currentTarget));
-    onCreateUser({ ...data, householdId: household.id });
+    if (editUser) {
+        onUpdateUser(editUser.id, data);
+    } else {
+        onCreateUser({ ...data, householdId: household.id });
+    }
     setUserDialogOpen(false);
+    setEditUser(null);
   };
 
   return (
@@ -101,7 +107,6 @@ export default function SettingsView({
         <Tabs value={tab} onChange={(e, v) => setTab(v)} sx={{ borderBottom: 1, borderColor: 'divider', px: 2, bgcolor: 'action.hover' }}>
           <Tab icon={<HomeWork />} iconPosition="start" label="Household" />
           <Tab icon={<ManageAccounts />} iconPosition="start" label="Users" />
-          <Tab icon={<Groups />} iconPosition="start" label="Residents" />
           <Tab icon={<Backup />} iconPosition="start" label="Maintenance" />
           <Tab icon={<SettingsBrightness />} iconPosition="start" label="Appearance" />
         </Tabs>
@@ -147,7 +152,7 @@ export default function SettingsView({
             <Box>
                 <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between' }}>
                     <Typography variant="h6">Local Users</Typography>
-                    {isAdmin && <Button variant="outlined" startIcon={<PersonAdd />} onClick={() => setUserDialogOpen(true)}>Add User</Button>}
+                    {isAdmin && <Button variant="outlined" startIcon={<PersonAdd />} onClick={() => { setEditUser(null); setUserDialogOpen(true); }}>Add User</Button>}
                 </Box>
                 <TableContainer>
                     <Table>
@@ -158,8 +163,13 @@ export default function SettingsView({
                                     <TableCell>{u.username}</TableCell>
                                     <TableCell><Chip label={u.role?.toUpperCase()} size="small" variant="outlined" /></TableCell>
                                     <TableCell align="right">
-                                        {isAdmin && currentUser.username !== u.username && (
-                                            <IconButton color="error" onClick={() => onRemoveUser(u.id)}><Delete /></IconButton>
+                                        {isAdmin && (
+                                            <>
+                                                <IconButton color="primary" onClick={() => { setEditUser(u); setUserDialogOpen(true); }}><Edit /></IconButton>
+                                                {currentUser.username !== u.username && (
+                                                    <IconButton color="error" onClick={() => onRemoveUser(u.id)}><Delete /></IconButton>
+                                                )}
+                                            </>
                                         )}
                                     </TableCell>
                                 </TableRow>
@@ -170,44 +180,44 @@ export default function SettingsView({
             </Box>
           )}
 
-          {/* TAB 2: RESIDENTS */}
+          {/* TAB 2: MAINTENANCE */}
           {tab === 2 && (
             <Box>
-                <Typography variant="h6" gutterBottom>Manage Residents & Pets</Typography>
-                <Box component="form" onSubmit={onAddMember} sx={{ mb: 4, p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} sm={3}>
-                            <FormControl fullWidth size="small">
-                                <InputLabel>Type</InputLabel>
-                                <Select name="type" defaultValue="adult" label="Type">
-                                    <MenuItem value="adult">Adult</MenuItem>
-                                    <MenuItem value="child">Child</MenuItem>
-                                    <MenuItem value="pet">Pet</MenuItem>
-                                    <MenuItem value="viewer">Viewer</MenuItem>
-                                </Select>
-                            </FormControl>
+                <Typography variant="h6" gutterBottom>Automated Backup Scheduler</Typography>
+                <Paper variant="outlined" sx={{ p: 3, mb: 4, borderRadius: 2 }}>
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        const data = Object.fromEntries(new FormData(e.currentTarget));
+                        onUpdateHousehold({
+                            auto_backup: data.auto_backup === 'on' ? 1 : 0,
+                            backup_retention: parseInt(data.backup_retention)
+                        });
+                    }}>
+                        <Grid container spacing={3} alignItems="center">
+                            <Grid item xs={12} md={4}>
+                                <FormControlLabel
+                                    control={<Switch name="auto_backup" defaultChecked={Boolean(household?.auto_backup)} />}
+                                    label="Enable Nightly Backups"
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={4}>
+                                <TextField 
+                                    name="backup_retention" 
+                                    label="Retention (Days)" 
+                                    type="number" 
+                                    size="small"
+                                    defaultValue={household?.backup_retention || 7} 
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={4}>
+                                <Button type="submit" variant="outlined" fullWidth startIcon={<Schedule />}>Update Schedule</Button>
+                            </Grid>
                         </Grid>
-                        <Grid item xs={12} sm={6}><TextField name="name" label="Name" fullWidth size="small" required /></Grid>
-                        <Grid item xs={12} sm={3}><Button type="submit" variant="contained" fullWidth startIcon={<AddCircle />}>Add</Button></Grid>
-                    </Grid>
-                </Box>
-                <List>
-                    {members.map(m => (
-                        <ListItem key={m.id} divider>
-                            <ListItemText primary={m.name} secondary={m.type.toUpperCase()} />
-                            <ListItemSecondaryAction>
-                                <IconButton edge="end" color="error" onClick={() => onRemoveMember(m.id)}><Delete /></IconButton>
-                            </ListItemSecondaryAction>
-                        </ListItem>
-                    ))}
-                </List>
-            </Box>
-          )}
+                    </form>
+                </Paper>
 
-          {/* TAB 3: MAINTENANCE */}
-          {tab === 3 && (
-            <Box>
-                <Typography variant="h6" gutterBottom>Backups & Portability</Typography>
+                <Typography variant="h6" gutterBottom>Manual Backup & Export</Typography>
                 <Alert severity="info" sx={{ mb: 3 }}>Backups are stored securely on the server. You can download your entire database at any time.</Alert>
                 
                 <Stack spacing={3}>
@@ -237,8 +247,8 @@ export default function SettingsView({
             </Box>
           )}
 
-          {/* TAB 4: APPEARANCE */}
-          {tab === 4 && (
+          {/* TAB 3: APPEARANCE */}
+          {tab === 3 && (
             <Box>
                 <Typography variant="h6" gutterBottom>System Theme</Typography>
                 <Stack spacing={4}>
@@ -268,17 +278,17 @@ export default function SettingsView({
         </Box>
       </Paper>
 
-      {/* CREATE USER DIALOG */}
-      <Dialog open={userDialogOpen} onClose={() => setUserDialogOpen(false)} fullWidth maxWidth="xs">
-        <form onSubmit={handleCreateUserSubmit}>
-            <DialogTitle>Add Local User</DialogTitle>
+      {/* USER DIALOG */}
+      <Dialog open={userDialogOpen} onClose={() => { setUserDialogOpen(false); setEditUser(null); }} fullWidth maxWidth="xs">
+        <form onSubmit={handleUserSubmit}>
+            <DialogTitle>{editUser ? 'Edit User' : 'Add Local User'}</DialogTitle>
             <DialogContent dividers>
                 <Stack spacing={2} sx={{ mt: 1 }}>
-                    <TextField name="username" label="Username" fullWidth required />
-                    <TextField name="password" label="Password" type="password" fullWidth required />
+                    <TextField name="username" label="Username" defaultValue={editUser?.username} fullWidth required />
+                    {!editUser && <TextField name="password" label="Password" type="password" fullWidth required />}
                     <FormControl fullWidth>
                         <InputLabel>Role</InputLabel>
-                        <Select name="role" defaultValue="member" label="Role">
+                        <Select name="role" defaultValue={editUser?.role || "member"} label="Role">
                             <MenuItem value="admin">Admin (Full Access)</MenuItem>
                             <MenuItem value="member">Member (Read/Write)</MenuItem>
                             <MenuItem value="viewer">Viewer (Read-Only)</MenuItem>
@@ -287,8 +297,8 @@ export default function SettingsView({
                 </Stack>
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => setUserDialogOpen(false)}>Cancel</Button>
-                <Button type="submit" variant="contained">Create User</Button>
+                <Button onClick={() => { setUserDialogOpen(false); setEditUser(null); }}>Cancel</Button>
+                <Button type="submit" variant="contained">{editUser ? 'Save Changes' : 'Create User'}</Button>
             </DialogActions>
         </form>
       </Dialog>
