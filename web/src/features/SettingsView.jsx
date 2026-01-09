@@ -695,6 +695,32 @@ export default function SettingsView({
             {/* Quick Actions */}
             <Grid item xs={12} md={4}>
                <Stack spacing={2}>
+                  <Card variant="outlined" sx={{ p: 2, bgcolor: 'action.hover' }}>
+                    <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold' }}>Automation</Typography>
+                    <FormControlLabel
+                        control={
+                            <Switch 
+                                checked={!!household.auto_backup} 
+                                onChange={(e) => onUpdateHousehold({ auto_backup: e.target.checked })}
+                                disabled={!isHouseholdAdmin}
+                            />
+                        }
+                        label="Nightly Backups"
+                    />
+                    <Box sx={{ mt: 1 }}>
+                        <TextField
+                            label="Retention (Days)"
+                            type="number"
+                            size="small"
+                            fullWidth
+                            value={household.backup_retention || 7}
+                            onChange={(e) => onUpdateHousehold({ backup_retention: e.target.value })}
+                            disabled={!isHouseholdAdmin || !household.auto_backup}
+                            helperText="Backups older than this will be deleted."
+                        />
+                    </Box>
+                  </Card>
+
                   <Button 
                     variant="contained" 
                     startIcon={<Backup />} 

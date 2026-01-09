@@ -33,13 +33,31 @@ const globalDb = new sqlite3.Database(DB_PATH, (err) => {
 // --- SCHEDULED TASKS ---
 // Run nightly at midnight
 cron.schedule('0 0 * * *', async () => {
-    console.log('🕒 Starting scheduled backup...');
+    console.log('🕒 Starting scheduled system-wide backup...');
     try {
-        const filename = await createBackup();
-        console.log(`✅ Backup created: ${filename}`);
+        // 1. Full System Backup
+        const fullFilename = await createBackup();
+        console.log(`✅ Full backup created: ${fullFilename}`);
+        
+        // 2. Individual Household Backups (if enabled)
+        globalDb.all("SELECT id, auto_backup, backup_retention FROM households WHERE auto_backup = 1", [], async (err, rows) => {
+            if (err) return console.error("Cron Error fetching households:", err);
+            
+            for (const hh of rows) {
+                try {
+                    const hhFile = await createBackup(hh.id);
+                    console.log(`✅ Household ${hh.id} backup created: ${hhFile}`);
+                    // Note: cleanOldBackups currently clears the whole BACKUP_DIR of anything older than N days.
+                    // This is fine as it uses file mtime.
+                } catch (hhErr) {
+                    console.error(`❌ Household ${hh.id} backup failed:`, hhErr);
+                }
+            }
+        });
+
         cleanOldBackups(30);
     } catch (err) {
-        console.error('❌ Backup failed:', err);
+        console.error('❌ System backup failed:', err);
     }
 });
 

@@ -3,6 +3,8 @@
 ## [Unreleased] - 2026-01-09
 
 ### Added
+- **Nightly Backup Toggle**: Added an automation toggle in Household Maintenance to enable/disable nightly backups.
+- **Custom Retention**: Households can now specify how many days of backups to retain.
 - **Persistent Dashboard**: Layouts are now stored on the backend per user/household, enabling multi-device synchronization.
 - **Multi-Page Dashboard**: Added support for multiple dashboard pages with a dedicated page switcher.
 - **Household-Level Backups**: Household admins can now create, download, and restore their own database backups directly from Settings.
@@ -11,6 +13,7 @@
 - **Project Guidelines**: Introduced `gemini.md` for project-specific workflow and architecture standards.
 
 ### Changed
+- **Backup Logic**: The nightly cron now performs a full system backup AND individual household backups for those with the feature enabled.
 - **Folder Structure**: Cleaned up nested `web/household-manager` project.
 - **Server Services**: Refactored backup logic to support scoped (household) and full (system) backups.
 - **UI Refinements**: 

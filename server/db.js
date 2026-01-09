@@ -59,7 +59,9 @@ function initGlobalDb() {
             date_format TEXT DEFAULT 'MM/DD/YYYY',
             currency TEXT DEFAULT 'USD',
             decimals INTEGER DEFAULT 2,
-            avatar TEXT
+            avatar TEXT,
+            auto_backup BOOLEAN DEFAULT 1,
+            backup_retention INTEGER DEFAULT 7
         )`);
 
         // Migration: Ensure new columns exist for existing installations
@@ -70,7 +72,9 @@ function initGlobalDb() {
             ['date_format', "TEXT DEFAULT 'MM/DD/YYYY'"],
             ['currency', "TEXT DEFAULT 'USD'"],
             ['decimals', 'INTEGER DEFAULT 2'],
-            ['avatar', 'TEXT']
+            ['avatar', 'TEXT'],
+            ['auto_backup', 'BOOLEAN DEFAULT 1'],
+            ['backup_retention', 'INTEGER DEFAULT 7']
         ];
         
         newCols.forEach(([col, type]) => {

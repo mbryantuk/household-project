@@ -34,7 +34,8 @@ router.put('/households/:id', authenticateToken, (req, res) => {
     const { 
         name, theme, 
         address_street, address_city, address_zip,
-        date_format, currency, decimals, avatar
+        date_format, currency, decimals, avatar,
+        auto_backup, backup_retention
     } = req.body;
     let fields = []; let values = [];
     if (name) { fields.push('name = ?'); values.push(name); }
@@ -46,6 +47,8 @@ router.put('/households/:id', authenticateToken, (req, res) => {
     if (currency) { fields.push('currency = ?'); values.push(currency); }
     if (decimals !== undefined) { fields.push('decimals = ?'); values.push(decimals); }
     if (avatar !== undefined) { fields.push('avatar = ?'); values.push(avatar); }
+    if (auto_backup !== undefined) { fields.push('auto_backup = ?'); values.push(auto_backup ? 1 : 0); }
+    if (backup_retention !== undefined) { fields.push('backup_retention = ?'); values.push(parseInt(backup_retention)); }
     
     if (fields.length === 0) return res.status(400).json({ error: "No fields to update" });
     
