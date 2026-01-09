@@ -85,7 +85,6 @@ function AppContent() {
     try { return JSON.parse(localStorage.getItem('user')) || null; } catch { return null; }
   });
   
-  // New State for Household context (returned on login)
   const [household, setHousehold] = useState(() => {
     try { return JSON.parse(localStorage.getItem('household')) || null; } catch { return null; }
   });
@@ -112,7 +111,6 @@ function AppContent() {
   };
 
   // --- DATA STATE ---
-  // households list is only for SysAdmin now
   const [households, setHouseholds] = useState([]);
   const [sysUsers, setSysUsers] = useState([]);
   const [hhUsers, setHhUsers] = useState([]);     
@@ -148,7 +146,6 @@ function AppContent() {
 
   const fetchHhUsers = useCallback((hhId) => {
     if (!hhId) return;
-    // For local households, this returns local users
     authAxios.get(`/households/${hhId}/users`)
       .then(res => setHhUsers(Array.isArray(res.data) ? res.data : []));
   }, [authAxios]);
@@ -156,10 +153,9 @@ function AppContent() {
   const fetchHhDates = useCallback((hhId) => {
     if (!hhId) return;
     authAxios.get(`/households/${hhId}/dates`)
-      .then(res => setHhDates(Array.isArray(res.data) ? res.data : []));
+      .then(res => setHhMembers(Array.isArray(res.data) ? res.data : []));
   }, [authAxios]);
 
-  // SysAdmin Fetch
   const fetchHouseholds = useCallback(async () => {
     if (user?.role === 'sysadmin') {
       try {
@@ -198,57 +194,33 @@ function AppContent() {
     }
   }, [authAxios, user, fetchHouseholds, showNotification]);
 
-  // --- APP INITIALIZATION ---
   useEffect(() => {
-    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); setInstallPrompt(e); });
-    
     if (token) {
       if (household) {
-        // We are logged into a house
         fetchHhMembers(household.id);
         fetchHhUsers(household.id);
         fetchHhDates(household.id);
       } else if (user?.role === 'sysadmin') {
-        // We are sysadmin
         fetchHouseholds();
         fetchSysUsers();
       }
     }
   }, [token, household, user, fetchHhMembers, fetchHhUsers, fetchHhDates, fetchHouseholds, fetchSysUsers]);
 
-  // --- APP BADGING ---
-  useEffect(() => {
-    if ('setAppBadge' in navigator) {
-      const count = hhDates.length + (hhMembers?.filter(m => m.dob).length || 0);
-      if (count > 0) {
-        navigator.setAppBadge(count).catch(console.error);
-      } else {
-        navigator.clearAppBadge().catch(console.error);
-      }
-    }
-  }, [hhDates, hhMembers]);
-
   const login = useCallback(async (key, u, p) => {
       const res = await axios.post(`${API_URL}/auth/login`, { accessKey: key, username: u, password: p });
       const { token, role, context, household: hhData } = res.data;
-      
-      const userData = { username: u, role: role }; // role is now from local DB or sysadmin
-      
-      setToken(token); 
-      setUser(userData);
-      
+      const userData = { username: u, role: role };
+      setToken(token); setUser(userData);
       localStorage.setItem('token', token); 
       localStorage.setItem('user', JSON.stringify(userData));
-
       if (context === 'household') {
         setHousehold(hhData);
         localStorage.setItem('household', JSON.stringify(hhData));
         navigate(`/household/${hhData.id}/dashboard`);
       } else {
-        // SysAdmin
-        setHousehold(null);
-        localStorage.removeItem('household');
-        navigate('/access'); // Go to admin dashboard
+        setHousehold(null); localStorage.removeItem('household');
+        navigate('/access');
       }
   }, [navigate]);
 
@@ -264,7 +236,6 @@ function AppContent() {
 
   const handleCreateUser = useCallback(async (userData) => {
     try {
-      // Local User Creation
       await authAxios.post('/admin/create-user', userData);
       alert("User created.");
       if (household) fetchHhUsers(household.id);
@@ -288,15 +259,8 @@ function AppContent() {
       localStorage.setItem('user', JSON.stringify(updatedUser));
       if (household) fetchHhUsers(household.id);
       if (user?.role === 'sysadmin') fetchSysUsers();
-    } catch (err) {
-      console.error("Failed to update profile:", err);
-      throw err;
-    }
+    } catch (err) { console.error("Failed to update profile:", err); throw err; }
   }, [authAxios, user, household, fetchHhUsers, fetchSysUsers]);
-
-  const handleUpdateUserWrapper = useCallback((userId, updates) => {
-    handleUpdateUser(userId, updates);
-  }, [handleUpdateUser]);
 
   if (loading) return <Box sx={{display:'flex', justifyContent:'center', mt:10}}><CircularProgress /></Box>;
 
@@ -307,12 +271,11 @@ function AppContent() {
         <Route path="/login" element={!token ? <LoginScreen onLogin={login} /> : <Navigate to="/" />} />
         <Route path="/calculator" element={<Box sx={{ height: '100vh', bgcolor: 'background.default' }}><FloatingCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
         
-        {/* PROTECTED ROUTES */}
         <Route element={token ? <RootLayout 
             user={user} 
             currentHousehold={household} 
-            households={households} // Only for SysAdmin view
-            onSwitchHousehold={() => {}} // Disabled
+            households={households} 
+            onSwitchHousehold={() => {}} 
             onLogout={logout} 
             toggleSidebar={() => setDrawerOpen(!drawerOpen)}
             currentMode={modeOverride} 
@@ -327,15 +290,13 @@ function AppContent() {
             confirmAction={confirmAction}
           /> : <Navigate to="/login" />}>
 
-          {/* Root redirects based on role */}
           <Route index element={household ? <Navigate to={`/household/${household.id}/dashboard`} /> : <Navigate to="/access" />} />
 
-          {/* SYSADMIN DASHBOARD */}
           <Route path="access" element={<AccessControl 
             users={sysUsers}
             currentUser={user}
-            households={households} // Pass households here for SysAdmin to manage
-            onCreateUser={() => {}} // TODO: Create SysAdmin
+            households={households}
+            onCreateUser={() => {}}
             onCreateHousehold={handleCreateHousehold}
             onUpdateHousehold={handleUpdateHousehold}
             onDeleteHousehold={handleDeleteHousehold}
@@ -346,7 +307,7 @@ function AppContent() {
           <Route path="household/:id" element={<HouseholdLayout 
               drawerOpen={drawerOpen} 
               toggleDrawer={() => setDrawerOpen(!drawerOpen)} 
-              households={[household]} // Pass single household to Sidebar if needed
+              households={[household]}
               onSelectHousehold={() => {}}
               api={authAxios}
               members={hhMembers}
@@ -366,13 +327,22 @@ function AppContent() {
                             
                             <Route path="people" element={<PeopleView />} />
                             <Route path="pets" element={<PetsView />} />
+                            
+                            {/* HOUSE ROUTES */}
                             <Route path="house" element={<HouseView />} />
-                            <Route path="vehicles" element={<VehiclesView />} />
-                            <Route path="assets" element={<AssetsView />} />
                             <Route path="energy" element={<EnergyView />} />
                             <Route path="water" element={<WaterView />} />
-                            <Route path="council" element={<CouncilView />} />
                             <Route path="waste" element={<WasteView />} />
+                            <Route path="assets" element={<AssetsView />} />
+                            <Route path="council" element={<CouncilView />} />
+
+                            {/* VEHICLE ROUTES */}
+                            <Route path="vehicles" element={<VehiclesView view="fleet" />} />
+                            <Route path="vehicles/history" element={<VehiclesView view="history" />} />
+                            <Route path="vehicles/finance" element={<VehiclesView view="finance" />} />
+                            <Route path="vehicles/warranty" element={<VehiclesView view="warranty" />} />
+                            <Route path="vehicles/insurance" element={<VehiclesView view="insurance" />} />
+                            <Route path="vehicles/mot" element={<VehiclesView view="mot" />} />
 
               <Route path="settings" element={<SettingsView 
                 household={household}
@@ -417,9 +387,7 @@ function AppContent() {
       </Routes>
 
       <Snackbar 
-        open={notification.open} 
-        autoHideDuration={4000} 
-        onClose={hideNotification}
+        open={notification.open} autoHideDuration={4000} onClose={hideNotification}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert onClose={hideNotification} severity={notification.severity} sx={{ width: '100%' }} variant="filled">
@@ -429,25 +397,14 @@ function AppContent() {
 
       <Dialog open={confirmDialog.open} onClose={handleConfirmClose}>
         <DialogTitle>{confirmDialog.title}</DialogTitle>
-        <DialogContent>
-          <DialogContentText>{confirmDialog.message}</DialogContentText>
-        </DialogContent>
+        <DialogContent><DialogContentText>{confirmDialog.message}</DialogContentText></DialogContent>
         <DialogActions>
           <Button onClick={handleConfirmClose}>Cancel</Button>
           <Button onClick={handleConfirmProceed} color="error" variant="contained">Proceed</Button>
         </DialogActions>
       </Dialog>
 
-      <Snackbar
-        open={showUpdate}
-        message="A new version of Totem is available!"
-        action={
-          <Button color="secondary" size="small" onClick={handleUpdate}>
-            Refresh
-          </Button>
-        }
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      />
+      <Snackbar open={showUpdate} message="A new version of Totem is available!" action={<Button color="secondary" size="small" onClick={handleUpdate}>Refresh</Button>} anchorOrigin={{ vertical: 'top', horizontal: 'center' }} />
     </ThemeProvider>
   );
 }
@@ -461,13 +418,9 @@ function LoginScreen({ onLogin }) {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setIsLoggingIn(true);
+    e.preventDefault(); setError(''); setIsLoggingIn(true);
     try {
       await onLogin(key, u, p);
-      
-      // Save credentials if requested
       if (rememberMe) {
         localStorage.setItem('rememberedKey', key);
         localStorage.setItem('rememberedUser', u);
@@ -478,16 +431,10 @@ function LoginScreen({ onLogin }) {
         localStorage.setItem('rememberMe', 'false');
       }
     } catch (err) {
-      if (err.response && err.response.status === 404) {
-        setError("User or Household not found.");
-      } else if (err.response && err.response.status === 401) {
-        setError("Incorrect password.");
-      } else {
-        setError("Login failed. Please try again.");
-      }
-    } finally {
-      setIsLoggingIn(false);
-    }
+      if (err.response && err.response.status === 404) setError("User or Household not found.");
+      else if (err.response && err.response.status === 401) setError("Incorrect password.");
+      else setError("Login failed. Please try again.");
+    } finally { setIsLoggingIn(false); }
   };
 
   return (
@@ -495,31 +442,14 @@ function LoginScreen({ onLogin }) {
       <Card sx={{ p: 4, width: 350, textAlign: 'center', borderRadius: 4 }}>
         <Box sx={{ mb: 2 }}><TotemIcon colorway="default" sx={{ fontSize: 60 }} /></Box>
         <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>TOTEM</Typography>
-        
         {error && <Alert severity="error" sx={{ mb: 2, textAlign: 'left' }}>{error}</Alert>}
-
         <form onSubmit={handleSubmit}>
-          <TextField 
-            fullWidth label="Household Key" margin="dense" 
-            value={key} onChange={ev=>setKey(ev.target.value)} 
-            placeholder="Leave empty for Admin" disabled={isLoggingIn} 
-          />
-          <TextField 
-            fullWidth label="Username" margin="dense" 
-            value={u} onChange={ev=>setU(ev.target.value)} disabled={isLoggingIn} 
-          />
-          <TextField 
-            fullWidth type="password" label="Password" margin="dense" 
-            value={p} onChange={ev=>setP(ev.target.value)} disabled={isLoggingIn} 
-          />
-          
+          <TextField fullWidth label="Household Key" margin="dense" value={key} onChange={ev=>setKey(ev.target.value)} placeholder="Leave empty for Admin" disabled={isLoggingIn} />
+          <TextField fullWidth label="Username" margin="dense" value={u} onChange={ev=>setU(ev.target.value)} disabled={isLoggingIn} />
+          <TextField fullWidth type="password" label="Password" margin="dense" value={p} onChange={ev=>setP(ev.target.value)} disabled={isLoggingIn} />
           <Box sx={{ textAlign: 'left', mt: 1 }}>
-            <FormControlLabel
-              control={<Checkbox checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} size="small" />}
-              label={<Typography variant="body2">Remember my household</Typography>}
-            />
+            <FormControlLabel control={<Checkbox checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} size="small" />} label={<Typography variant="body2">Remember my household</Typography>} />
           </Box>
-
           <Button fullWidth type="submit" variant="contained" size="large" sx={{ mt: 2 }} disabled={isLoggingIn}>
             {isLoggingIn ? <CircularProgress size={24} color="inherit" /> : 'Login'}
           </Button>
@@ -536,4 +466,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-

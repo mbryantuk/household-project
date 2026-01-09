@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { globalDb } = require('../db');
-const { SECRET_KEY } = require('../config'); // 💡 FIX: Import the shared key
+const { SECRET_KEY } = require('../config');
 
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
@@ -9,7 +9,6 @@ function authenticateToken(req, res, next) {
     if (!token) return res.sendStatus(401);
 
     jwt.verify(token, SECRET_KEY, (err, user) => {
-        // If keys don't match here, it returns 403 immediately
         if (err) return res.sendStatus(403); 
         req.user = user;
         next();
@@ -22,12 +21,14 @@ function requireHouseholdRole(requiredRole) {
         if (req.user && req.user.system_role === 'sysadmin') return next();
 
         // 1. Check if user is logged into the target household
-        const targetIdRaw = req.params.id || req.body.householdId;
+        // Support both :id and :hhId parameter names
+        const targetIdRaw = req.params.id || req.params.hhId || req.body.householdId;
         const targetHouseholdId = targetIdRaw ? parseInt(targetIdRaw) : null;
         const userHouseholdId = req.user.householdId ? parseInt(req.user.householdId) : null;
 
         if (targetHouseholdId && userHouseholdId !== targetHouseholdId) {
-            console.log(`🚫 Context Mismatch: User ${req.user.username} belongs to ${userHouseholdId}, requested ${targetHouseholdId}`);
+            console.log(`🚫 Context Mismatch: User ${req.user.username} (HH:${userHouseholdId}) tried to access HH:${targetHouseholdId}`);
+            console.log(`   Params: ${JSON.stringify(req.params)}`);
             return res.status(403).json({ error: "Access denied: Wrong household context" });
         }
 

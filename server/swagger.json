@@ -2,38 +2,32 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Household Manager API",
-    "version": "1.0.0",
-    "description": "Multi-tenant household management API with full module support for Vehicles, Assets, Energy, and more.",
+    "version": "1.1.0",
+    "description": "Multi-tenant household management API with Asset-First approach and Financial Integration.",
     "contact": {
-      "name": "Product Manager"
+      "name": "DevOps Engineer"
     }
   },
   "servers": [
     { "url": "http://localhost:4001" }
   ],
   "components": {
-    "schemas": {
-      "Date": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "integer" },
-          "title": { "type": "string" },
-          "date": { "type": "string", "format": "date" },
-          "end_date": { "type": "string", "format": "date-time" },
-          "is_all_day": { "type": "boolean" },
-          "type": { "type": "string" },
-          "description": { "type": "string" },
-          "emoji": { "type": "string" },
-          "recurrence": { "type": "string", "enum": ["none", "daily", "weekly", "monthly", "yearly"] },
-          "recurrence_end_date": { "type": "string", "format": "date-time" }
-        }
-      }
-    },
     "securitySchemes": {
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
         "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "FinancialAsset": {
+        "type": "object",
+        "properties": {
+          "purchase_value": { "type": "number" },
+          "replacement_cost": { "type": "number" },
+          "monthly_maintenance_cost": { "type": "number" },
+          "depreciation_rate": { "type": "number" }
+        }
       }
     }
   },
@@ -41,113 +35,67 @@
   "paths": {
     "/auth/login": {
       "post": {
-        "summary": "Login to get a JWT token",
+        "summary": "Login to a household",
         "tags": ["Auth"],
-        "security": [],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["username", "password"],
+                "required": ["username", "password", "accessKey"],
                 "properties": {
                   "username": { "type": "string" },
                   "password": { "type": "string" },
-                  "accessKey": { "type": "string", "description": "Required for household-level login" }
+                  "accessKey": { "type": "string" }
                 }
               }
             }
           }
         },
-        "responses": {
-          "200": { "description": "Login successful" }
-        }
+        "responses": { "200": { "description": "OK" } }
       }
     },
     "/households/{id}/vehicles": {
       "get": {
-        "summary": "List all vehicles",
+        "summary": "List household vehicles (Tenant isolated)",
         "tags": ["Vehicles"],
         "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "List of vehicles" } }
+        "responses": { "200": { "description": "OK" } }
       },
       "post": {
-        "summary": "Create a vehicle (Admin Only)",
+        "summary": "Create vehicle (Admin only)",
         "tags": ["Vehicles"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "Vehicle created" }, "403": { "description": "Forbidden" } }
+        "responses": { "200": { "description": "Created" }, "403": { "description": "Forbidden" } }
       }
     },
-    "/households/{id}/vehicles/{itemId}": {
+    "/households/{id}/vehicles/{vehicleId}/services": {
       "get": {
-        "summary": "Get vehicle details",
+        "summary": "Get service history for a vehicle",
         "tags": ["Vehicles"],
         "parameters": [
           { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
-          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+          { "in": "path", "name": "vehicleId", "required": true, "schema": { "type": "integer" } }
         ],
-        "responses": { "200": { "description": "Vehicle details" }, "404": { "description": "Not found" } }
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/households/{id}/waste": {
+      "get": {
+        "summary": "List waste collection schedules",
+        "tags": ["Waste"],
+        "responses": { "200": { "description": "OK" } }
       },
-      "put": {
-        "summary": "Update a vehicle (Admin Only)",
-        "tags": ["Vehicles"],
-        "parameters": [
-          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
-          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
-        ],
-        "responses": { "200": { "description": "Updated" }, "403": { "description": "Forbidden" } }
-      },
-      "delete": {
-        "summary": "Delete a vehicle (Admin Only)",
-        "tags": ["Vehicles"],
-        "parameters": [
-          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
-          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
-        ],
-        "responses": { "200": { "description": "Deleted" }, "403": { "description": "Forbidden" } }
+      "post": {
+        "summary": "Add collection schedule",
+        "tags": ["Waste"],
+        "responses": { "200": { "description": "Created" } }
       }
     },
     "/households/{id}/assets": {
       "get": {
-        "summary": "List all assets",
+        "summary": "List appliances and assets with financial data",
         "tags": ["Assets"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "List of assets" } }
-      },
-      "post": {
-        "summary": "Create an asset (Admin Only)",
-        "tags": ["Assets"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "Asset created" }, "403": { "description": "Forbidden" } }
-      }
-    },
-    "/households/{id}/energy": {
-      "get": {
-        "summary": "List energy accounts",
-        "tags": ["Energy"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "List of accounts" } }
-      },
-      "post": {
-        "summary": "Create energy account (Admin Only)",
-        "tags": ["Energy"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "Created" }, "403": { "description": "Forbidden" } }
-      }
-    },
-    "/households/{id}/details": {
-      "get": {
-        "summary": "Get house details (Singleton)",
-        "tags": ["Details"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "Details" } }
-      },
-      "put": {
-        "summary": "Update house details (Admin Only)",
-        "tags": ["Details"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "Updated" }, "403": { "description": "Forbidden" } }
+        "responses": { "200": { "description": "OK" } }
       }
     }
   }

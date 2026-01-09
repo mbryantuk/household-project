@@ -1,47 +1,58 @@
 # Project Guidelines & Workflow Protocols
 
-You are an expert DevOps and Backend Engineer. You are responsible for code, documentation, and quality assurance.
+## 0. Project Mission
+**Goal:** Build a **Multi-Tenant** "Household Management System" (SaaS) where:
+1.  **Tenancy:** Users join a specific "Household" using a unique Key. Data is strictly isolated.
+2.  **Asset-First Approach:** "Household Items" are treated as **Financial Assets** (value, insurance, maintenance) that feed into the Budget.
+3.  **Integration:** Assets, Meal Plans, and Expenses all feed into a central **Monthly Budget**.
+
+---
 
 ## 1. Architecture & Scalability
-* **Modular Design:** Avoid monolithic files. Split code into logical components (controllers, services, utils) to make future expansion easy.
-* **Zero-Side Effects:** Before suggesting a change, analyze if it impacts existing functionality. Warn me of any risks immediately.
+* **Multi-Tenancy Enforcement (CRITICAL):**
+    * Every data model MUST have a `household_id`.
+    * **Every** query MUST filter by `household_id`.
+* **Financial Data Modeling:** Include financial fields (`purchase_value`, `monthly_maintenance_cost`) for all physical assets.
+* **Modular Design:** Organize code by feature (e.g., `modules/assets`).
 
-## 2. Documentation (Keep Me Up To Date)
-* **GitHub README:** You must update `README.md` if any new "Key Features" or configuration steps are added.
-* **Swagger/OpenAPI:** If backend APIs change, the Swagger spec must be updated.
-* **Changelog:** If a change is significant, suggest an entry for a `CHANGELOG.md`.
+## 2. Frontend & UX Standards
+* **Centralized Components:** Never duplicate UI logic. Extract shared elements (e.g., `EmojiTracker`, `CurrencyInput`) to `components/ui/`.
+* **Design System:** Material Design (MUI/Paper).
+* **Interaction:** No `window.alert/prompt`. Use Modals and Snackbars.
 
-## 3. Testing Standards (CRITICAL)
-* **CRUD Coverage:** All data objects must have comprehensive tests covering Create, Read, Update, and Delete operations.
-* **RBAC Enforcement (Viewer Accounts):**
-    * You MUST verify that "Viewer" accounts can **only** perform GET (Read) requests.
-    * You MUST write negative tests that assert a 403 Forbidden status if a Viewer attempts POST, PUT, PATCH, or DELETE.
-* **Stale Tests:** Fail the task if API tests are not updated to match backend changes.
+## 3. Documentation (GitHub Ready)
+* **README.md Maintenance (CRITICAL):**
+    * You MUST update the `README.md` whenever a new feature is added.
+    * **Structure:** Ensure the README includes:
+        * **Key Features:** A bulleted list of what the app does.
+        * **Tech Stack:** Updated list of libraries used.
+        * **Setup:** Current commands to run Docker and tests.
+* **Swagger/OpenAPI:** Update specs if APIs change.
 
-## 4. Maintenance & Dependency Checks
-* **Library Health:** If you notice I am using an outdated or insecure version of a library in `package.json` (or equivalent), explicitly flag it and suggest an upgrade.
+## 4. Testing Standards
+* **Tenant Isolation:** Verify Household A cannot access Household B's data.
+* **CRUD Coverage:** Create, Read, Update, Delete tests for all objects.
+* **RBAC:** "Viewer" accounts can only Read (GET).
 
 ## 5. Deployment & Release Protocol
-At the very end of your response, strictly provide a **Bash Script Block** to finalize the work. This script must:
-1.  **Verify Docker Config:**
-    * Check if `docker-compose.yml` exists. If not, use `docker build`.
-    * **CRITICAL:** If file structures were changed (e.g., moved to `mobile/`), you MUST update the `Dockerfile` and `docker-compose.yml` paths BEFORE running the build.
-2.  **Rebuild:** `docker compose up -d --build` (or `docker-compose` if older version detected).
+At the very end of your response, strictly provide a **Bash Script Block**:
+1.  **Verify Docker Config:** Check `docker-compose.yml` paths. Update if files moved.
+2.  **Rebuild:** `docker compose up -d --build`.
 3.  **Verify Tests:** Run tests (e.g., `npm test`) to ensure the build is safe.
 4.  **Git Check-in:** Stage files and commit with a descriptive release note.
 
 ---
 
 ## 6. Stability Protocols (CRITICAL)
-* **NO REPLACE TOOL:** Do not use "search and replace" or "patch" tools. They are buggy.
-* **Full Rewrites:** If you need to edit a file, read the file first, modify the content in your memory, and then **Overwrite the entire file** with the new content.
-* **Verification:** After writing a file, run `cat filename` to verify the content matches your expectation.
+* **NO REPLACE TOOL:** Do not use "search and replace".
+* **Full Rewrites:** Read the file, modify in memory, then **Overwrite the entire file**.
+* **Verification:** Run `cat filename` after writing to verify.
 
 ---
 
 ### Example Output Structure
 1.  [The Modular Code Changes]
-2.  [The Swagger & README Updates]
-3.  [The API Test Update (CRUD & RBAC Checks)]
-4.  [**Status Report**: Brief summary of what was changed and any library warnings]
+2.  [The Swagger & **README.md** Updates]
+3.  [The API Test Update]
+4.  [**Status Report**: Summary of changes and library warnings]
 5.  [The "Finalize" Bash Script]
