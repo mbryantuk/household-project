@@ -100,7 +100,11 @@ export default function TopBar({
           
           {/* Calculator Toggle */}
           <Tooltip title="Calculator">
-            <IconButton color="inherit" onClick={() => setShowCalc(!showCalc)}>
+            <IconButton 
+              color="inherit" 
+              onClick={() => setShowCalc(!showCalc)}
+              sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
+            >
               <Calculate />
             </IconButton>
           </Tooltip>
@@ -108,7 +112,7 @@ export default function TopBar({
 
           {/* Calendar Toggle */}
           {currentHousehold && (
-            <>
+            <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
               <Tooltip title="Household Calendar">
                 <IconButton color="inherit" onClick={(e) => setCalAnchor(e.currentTarget)}>
                   <CalendarMonth />
@@ -133,7 +137,7 @@ export default function TopBar({
                   }} 
                 />
               </Popover>
-            </>
+            </Box>
           )}
 
           {/* Global Admin Access Link - SYSADMIN ONLY */}
