@@ -25,12 +25,8 @@ import SettingsView from './features/SettingsView';
 import CalendarView from './features/CalendarView';
 import PeopleView from './features/PeopleView';
 import HouseView from './features/HouseView';
-import WaterView from './features/WaterView';
-import CouncilView from './features/CouncilView';
-import WasteView from './features/WasteView';
 import PetsView from './features/PetsView';
 import VehiclesView from './features/VehiclesView';
-import AssetsView from './features/AssetsView';
 import EnergyView from './features/EnergyView';
 import FloatingCalculator from './components/FloatingCalculator';
 
@@ -327,19 +323,18 @@ function AppContent() {
                                 onUpdateProfile={handleUpdateProfile}
                             />} />
                             <Route path="calendar" element={<CalendarView showNotification={showNotification} confirmAction={confirmAction} />} />
-                            
                             <Route path="people" element={<PeopleView />} />
                             <Route path="pets" element={<PetsView />} />
                             
-                            {/* HOUSE ROUTES */}
+                            {/* UNIFIED HOUSE ROUTES */}
                             <Route path="house" element={<HouseView />} />
-                            <Route path="energy" element={<EnergyView />} />
-                            <Route path="water" element={<WaterView />} />
-                            <Route path="waste" element={<WasteView />} />
-                            <Route path="assets" element={<AssetsView />} />
-                            <Route path="council" element={<CouncilView />} />
+                            <Route path="energy" element={<HouseView />} />
+                            <Route path="water" element={<HouseView />} />
+                            <Route path="waste" element={<HouseView />} />
+                            <Route path="assets" element={<HouseView />} />
+                            <Route path="council" element={<HouseView />} />
 
-                            {/* VEHICLE ROUTES */}
+                            {/* UNIFIED VEHICLE ROUTES */}
                             <Route path="vehicles" element={<VehiclesView view="fleet" />} />
                             <Route path="vehicles/history" element={<VehiclesView view="history" />} />
                             <Route path="vehicles/finance" element={<VehiclesView view="finance" />} />
