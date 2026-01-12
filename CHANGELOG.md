@@ -1,5 +1,20 @@
 # Changelog
 
+## [Unreleased] - 2026-01-12
+
+### Added
+- New UI components for household management (FloatingCalculator, FloatingCalendar, Widget system).
+- Calendar view for tracking household events and budgets.
+- Detailed views for various household aspects (Energy, Waste, Water, etc.).
+
+### Fixed
+- Improved layout and responsiveness of the main dashboard.
+- Enhanced authentication and member management.
+- Fixed User profile menu click-away behavior and z-index.
+
+### To Do
+- Seed realistic budget data for calendar testing.
+
 ## [1.1.0] - 2026-01-09
 
 ### Added

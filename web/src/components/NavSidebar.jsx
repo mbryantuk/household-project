@@ -125,7 +125,7 @@ export default function NavSidebar({
                 alignItems: 'center',
                 py: 2,
                 bgcolor: 'background.surface',
-                zIndex: 1002,
+                zIndex: 2500, // Increased to be above UtilityBar (2000)
                 height: '100%' 
             }}
         >
@@ -187,7 +187,8 @@ export default function NavSidebar({
                     <Menu 
                         placement="right-end" 
                         size="sm" 
-                        sx={{ minWidth: 180, zIndex: 3000 }}
+                        sx={{ minWidth: 180, zIndex: 4000 }}
+                        disablePortal={false}
                     >
                         <MenuItem onClick={openProfile}><Edit /> Edit Profile</MenuItem>
                         <Divider />
@@ -207,7 +208,7 @@ export default function NavSidebar({
                 display: 'flex',
                 flexDirection: 'column',
                 bgcolor: 'background.level1',
-                zIndex: 1001,
+                zIndex: 2100, // Increased to be above UtilityBar (2000)
                 whiteSpace: 'nowrap',
                 height: '100%' 
             }}
