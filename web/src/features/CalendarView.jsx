@@ -314,21 +314,36 @@ export default function CalendarView({ showNotification }) {
   return (
     <Box sx={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column' }}>
       
+      {/* CUSTOM TOOLBAR */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 2 }}>
-        <Typography level="h2" fontWeight="300">Calendar</Typography>
+        <Typography level="h2" sx={{ fontWeight: '300', fontSize: { xs: '1.5rem', md: '2.5rem' } }}>Calendar</Typography>
         
-        <Stack direction="row" spacing={1} alignItems="center">
+        <Stack direction="row" spacing={1} alignItems="center" sx={{ flexWrap: 'wrap', justifyContent: 'flex-end', width: { xs: '100%', md: 'auto' } }}>
             <ToggleButtonGroup 
                 value={view} 
                 onChange={(e, v) => v && setView(v)} 
                 size="sm"
                 variant="outlined"
+                sx={{ display: { xs: 'none', sm: 'flex' } }}
             >
                 <Button value={Views.MONTH} startDecorator={<CalendarMonth />}>Month</Button>
                 <Button value={Views.WEEK}>Week</Button>
                 <Button value={Views.AGENDA}>Agenda</Button>
                 <Button value={CUSTOM_VIEWS.TIMELINE} startDecorator={<ListIcon />}>Timeline</Button>
             </ToggleButtonGroup>
+
+            {/* Mobile View Switcher */}
+            <Select 
+                size="sm" 
+                value={view} 
+                onChange={(e, v) => setView(v)}
+                sx={{ display: { xs: 'flex', sm: 'none' }, minWidth: 120 }}
+            >
+                <Option value={Views.MONTH}>Month</Option>
+                <Option value={Views.WEEK}>Week</Option>
+                <Option value={Views.AGENDA}>Agenda</Option>
+                <Option value={CUSTOM_VIEWS.TIMELINE}>Timeline</Option>
+            </Select>
 
             {view !== CUSTOM_VIEWS.TIMELINE && (
                 <>
@@ -342,7 +357,7 @@ export default function CalendarView({ showNotification }) {
                         <ChevronLeft />
                     </IconButton>
                     
-                    <Typography level="title-lg" sx={{ minWidth: 180, textAlign: 'center' }}>
+                    <Typography level="title-lg" sx={{ minWidth: { xs: 120, md: 180 }, textAlign: 'center', fontSize: { xs: '0.9rem', md: '1.1rem' } }}>
                         {view === Views.MONTH ? format(date, 'MMMM yyyy') : (
                             view === Views.WEEK ? `Week of ${format(startOfWeek(date, { weekStartsOn: 1 }), 'MMM d')}` : format(date, 'MMM d, yyyy')
                         )}
@@ -358,10 +373,10 @@ export default function CalendarView({ showNotification }) {
                 </>
             )}
 
-            <Divider orientation="vertical" sx={{ mx: 2, height: 24 }} />
+            <Divider orientation="vertical" sx={{ mx: 1, height: 24, display: { xs: 'none', md: 'block' } }} />
             
             <Button variant="solid" startDecorator={<Add />} onClick={() => handleSelectSlot({ start: new Date() })}>
-                New Event
+                <Box component="span" sx={{ display: { xs: 'none', md: 'inline' } }}>New Event</Box>
             </Button>
         </Stack>
       </Box>

@@ -123,8 +123,8 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
           flexWrap: 'wrap', gap: 2 
       }}>
         <Box>
-          <Typography level="h2" fontWeight="lg" mb={0.5}>
-            {greeting}, <Typography color="primary" variant="plain">{currentUser?.username || 'User'}</Typography>
+          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+            {greeting}, <Typography color="primary" variant="plain">{currentUser?.first_name || currentUser?.username || 'User'}</Typography>
           </Typography>
           <Typography level="body-md" color="neutral">
             Here's what's happening in <b>{household?.name}</b> today.
