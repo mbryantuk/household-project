@@ -43,9 +43,7 @@ export default function ProfileView() {
           });
         }
         
-        let endpoint = isMe ? '/auth/profile' : `/households/${householdId}/users/${targetId}`;
-        // Fallback for SysAdmin if they are viewing a user not in their current house context
-        }
+        const endpoint = isMe ? '/auth/profile' : `/households/${householdId}/users/${targetId}`;
 
         const res = await api.get(endpoint);
         const u = res.data;
@@ -63,7 +61,7 @@ export default function ProfileView() {
       }
     };
     fetchUser();
-  }, [api, targetId, isMe, currentUser, showNotification]);
+  }, [api, targetId, isMe, currentUser, householdId, showNotification]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -76,8 +74,7 @@ export default function ProfileView() {
         await onUpdateProfile(updates);
         showNotification("Your profile has been updated.", "success");
       } else {
-        let endpoint = `/households/${householdId}/users/${targetId}`;
-        }
+        const endpoint = `/households/${householdId}/users/${targetId}`;
         await api.put(endpoint, updates);
         showNotification("User updated successfully.", "success");
       }
