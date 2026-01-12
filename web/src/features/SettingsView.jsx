@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, TabPanel, Input, Grid, 
   ButtonGroup, Button, Table, Chip, IconButton, FormControl, FormLabel, Select, Option,
@@ -6,22 +6,15 @@ import {
   Stack, Tooltip, Switch, LinearProgress, List, ListItem, ListItemContent, ListItemDecorator, 
   Alert, Divider
 } from '@mui/joy';
-import { 
-  ManageAccounts, Backup, SettingsBrightness, PersonAdd, Delete, 
-  Edit, Schedule, Download, Restore, CloudDownload,
-  DarkMode, LightMode
-} from '@mui/icons-material';
-import EmojiPicker from '../components/EmojiPicker';
-import { getEmojiColor } from '../theme';
 
-export default function SettingsView({ 
+export default function SettingsView({
   household, users, currentUser, api, onUpdateHousehold, 
   onCreateUser, onUpdateUser, onRemoveUser,
   currentMode, onModeChange, useDracula, onDraculaChange,
   showNotification, confirmAction
 }) {
-  const [tab, setTab] = useState(0);
-  // Theme context is now handled via Joy's CssVarsProvider in App.jsx, but we might need explicit checks if logic depends on it
+  const navigate = useNavigate();
+  const [tab, setTab] = useState(0);  // Theme context is now handled via Joy's CssVarsProvider in App.jsx, but we might need explicit checks if logic depends on it
   const isDark = currentMode === 'dark' || (currentMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   
   const [backups, setBackups] = useState([]);
@@ -162,7 +155,7 @@ export default function SettingsView({
                                     <td style={{ textAlign: 'right' }}>
                                         {isAdmin && (
                                             <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-                                                <IconButton size="sm" color="primary" onClick={() => openEditUser(u)}><Edit /></IconButton>
+                                                <IconButton size="sm" color="primary" onClick={() => navigate(`users/${u.id}`)}><Edit /></IconButton>
                                                 {currentUser.id !== u.id && (
                                                     <IconButton size="sm" color="danger" onClick={() => onRemoveUser(u.id)}><Delete /></IconButton>
                                                 )}

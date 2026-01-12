@@ -39,9 +39,7 @@ export default function NavSidebar({
       else setActiveCategory(null); 
   }, [location.pathname]);
 
-  const [profileOpen, setProfileOpen] = useState(false);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
-  const [formData, setFormData] = useState({ avatar: '' });
 
   const handleCategoryClick = (category, hasSubItems) => {
       if (activeCategory === category) {
@@ -50,31 +48,6 @@ export default function NavSidebar({
           setActiveCategory(category);
           if (!hasSubItems) setActiveCategory(null); 
       }
-  };
-
-  const openProfile = () => {
-    setFormData({ avatar: user?.avatar || '' });
-    setProfileOpen(true);
-  };
-
-  const handleProfileSubmit = async (e) => {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const updates = {
-      first_name: form.get('first_name'),
-      last_name: form.get('last_name'),
-      email: form.get('email'),
-      avatar: formData.avatar 
-    };
-    const password = form.get('password');
-    if (password) updates.password = password;
-
-    try {
-      if (onUpdateProfile) await onUpdateProfile(updates);
-      setProfileOpen(false);
-    } catch (err) {
-      console.error("Failed to update profile");
-    }
   };
 
   const RailIcon = ({ icon, label, category, to, hasSubItems }) => {
@@ -218,7 +191,7 @@ export default function NavSidebar({
                 {activeCategory === 'account' && (
                     <>
                         <ListItem>
-                            <ListItemButton onClick={openProfile}>
+                            <ListItemButton onClick={() => { navigate('profile'); setActiveCategory(null); }}>
                                 <ListItemDecorator><Edit /></ListItemDecorator>
                                 <ListItemContent>Edit Profile</ListItemContent>
                             </ListItemButton>
@@ -287,29 +260,6 @@ export default function NavSidebar({
                 )}
             </List>
         </Sheet>
-
-        <Modal open={profileOpen} onClose={() => setProfileOpen(false)}>
-          <ModalDialog sx={{ maxWidth: 500, width: '100%', zIndex: 3100 }}>
-            <DialogTitle>Edit Profile</DialogTitle>
-            <DialogContent>
-              <form onSubmit={handleProfileSubmit}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                       <Box sx={{ width: 80, height: 80, borderRadius: '50%', bgcolor: getEmojiColor(formData.avatar || '👤', isDark), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', cursor: 'pointer', border: '3px solid', borderColor: 'primary.solidBg' }} onClick={() => setEmojiPickerOpen(true)}>{formData.avatar || '👤'}</Box>
-                    </Box>
-                    <FormControl required><FormLabel>First Name</FormLabel><Input name="first_name" defaultValue={user?.first_name} /></FormControl>
-                    <FormControl required><FormLabel>Last Name</FormLabel><Input name="last_name" defaultValue={user?.last_name} /></FormControl>
-                    <FormControl><FormLabel>Email</FormLabel><Input name="email" defaultValue={user?.email} /></FormControl>
-                    <FormControl><FormLabel>New Password</FormLabel><Input name="password" type="password" placeholder="Leave blank to keep current" /></FormControl>
-                    <DialogActions>
-                        <Button variant="plain" color="neutral" onClick={() => setProfileOpen(false)}>Cancel</Button>
-                        <Button type="submit">Save Changes</Button>
-                    </DialogActions>
-                  </Box>
-              </form>
-            </DialogContent>
-          </ModalDialog>
-        </Modal>
 
         <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(emoji) => { setFormData(prev => ({ ...prev, avatar: emoji })); setEmojiPickerOpen(false); }} title="Select Avatar Emoji" isDark={isDark} />
     </Box>
