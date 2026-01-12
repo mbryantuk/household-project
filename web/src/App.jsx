@@ -33,13 +33,12 @@ import VehiclesView from './features/VehiclesView';
 
 const API_URL = window.location.origin;
 
-function AppInner() {
+// Inner App handles logic that requires useColorScheme context
+function AppInner({ useDracula, setUseDracula }) {
   const { mode, setMode, systemMode } = useColorScheme();
-  const [useDracula, setUseDracula] = useState(() => localStorage.getItem('useDracula') !== 'false');
   
-  // Resolve effective mode for JS-side calculations (Dracula/Alucard specs)
+  // Resolve effective mode for JS-side calculations
   const effectiveMode = mode === 'system' ? systemMode : mode;
-  // Ensure we have a valid mode before rendering to avoid hydration mismatch or flash
   const isDark = (effectiveMode || 'light') === 'dark';
 
   const { spec } = useMemo(() => getThemeSpec(effectiveMode || 'light', useDracula), [effectiveMode, useDracula]);
@@ -63,7 +62,6 @@ function AppInner() {
   const [installPrompt, setInstallPrompt] = useState(null);
   const [showUpdate, setShowUpdate] = useState(false);
   
-  // Notifications & Dialogs
   const [notification, setNotification] = useState({ open: false, message: '', severity: 'neutral' });
   const [confirmDialog, setConfirmDialog] = useState({ open: false, title: '', message: '', onConfirm: null });
 
@@ -73,7 +71,6 @@ function AppInner() {
     headers: { Authorization: `Bearer ${token}` } 
   }), [token]);
 
-  // PWA & Updates
   useEffect(() => {
     const handler = (e) => { e.preventDefault(); setInstallPrompt(e); };
     window.addEventListener('beforeinstallprompt', handler);
@@ -334,9 +331,13 @@ function AppInner() {
               onLogout={logout}
               onSwitchHousehold={() => {}} 
               currentMode={mode}
-              onModeChange={setMode} // Pass setMode directly from useColorScheme
+              onModeChange={setMode} 
               installPrompt={installPrompt}
               onInstall={handleInstallClick}
+              
+              // Pass down theme controls
+              useDracula={useDracula}
+              onDraculaChange={(v) => { setUseDracula(v); localStorage.setItem('useDracula', v); }}
             />}>
                             <Route index element={<Navigate to="dashboard" replace />} />
                             <Route path="dashboard" element={<HomeView household={household} members={hhMembers} currentUser={user} dates={hhDates} onUpdateProfile={handleUpdateProfile} />} />
@@ -402,8 +403,11 @@ function AppInner() {
 }
 
 export default function App() {
-  // Use Dracula by default for theme constuction
-  const theme = useMemo(() => getTotemTheme(true), []);
+  // Lift useDracula state to App level so we can pass dynamic theme to Provider
+  // Default to false (Standard Theme) as per user request ("can we have Dark and Light with the option...")
+  const [useDracula, setUseDracula] = useState(() => localStorage.getItem('useDracula') === 'true');
+  
+  const theme = useMemo(() => getTotemTheme(useDracula), [useDracula]);
 
   return (
     <BrowserRouter>
@@ -413,7 +417,7 @@ export default function App() {
         disableNestedContext
       >
         <CssBaseline />
-        <AppInner />
+        <AppInner useDracula={useDracula} setUseDracula={setUseDracula} />
       </CssVarsProvider>
     </BrowserRouter>
   );

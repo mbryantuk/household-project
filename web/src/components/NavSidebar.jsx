@@ -27,18 +27,18 @@ export default function NavSidebar({
   const navigate = useNavigate();
   
   // Active Category State (Controls Panel)
-  // Default to Dashboard or infer from path
   const [activeCategory, setActiveCategory] = useState(null);
   
   // Infer active category on mount/path change
   useEffect(() => {
       const path = location.pathname;
+      // Fix: Use stricter checks to avoid matching '/household' as '/house'
       if (path.includes('/people')) setActiveCategory('people');
       else if (path.includes('/pets')) setActiveCategory('pets');
-      else if (path.includes('/house')) setActiveCategory('house');
       else if (path.includes('/vehicles')) setActiveCategory('vehicles');
+      else if (path.includes('/house/') || path.endsWith('/house')) setActiveCategory('house'); 
       else if (path.includes('/settings')) setActiveCategory('settings');
-      else setActiveCategory(null); // Dashboard/Calendar don't keep panel open
+      else setActiveCategory(null); 
   }, [location.pathname]);
 
   // Profile Dialog State
@@ -50,14 +50,11 @@ export default function NavSidebar({
   // --- Handlers ---
   const handleCategoryClick = (category, hasSubItems) => {
       if (activeCategory === category) {
-          // If clicking active, toggle off? Or keep open?
-          // Standard rail behavior: keep open or toggle. Let's toggle if re-clicked.
           setActiveCategory(null);
       } else {
           setActiveCategory(category);
           if (!hasSubItems) {
-              // Direct navigation (Dashboard, Calendar)
-              setActiveCategory(null); // Close panel
+              setActiveCategory(null); 
           }
       }
   };
