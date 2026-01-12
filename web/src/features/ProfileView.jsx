@@ -45,8 +45,6 @@ export default function ProfileView() {
         
         let endpoint = isMe ? '/auth/profile' : `/households/${householdId}/users/${targetId}`;
         // Fallback for SysAdmin if they are viewing a user not in their current house context
-        if (!isMe && currentUser.system_role === 'sysadmin') {
-            endpoint = `/admin/users/${targetId}`;
         }
 
         const res = await api.get(endpoint);
@@ -79,8 +77,6 @@ export default function ProfileView() {
         showNotification("Your profile has been updated.", "success");
       } else {
         let endpoint = `/households/${householdId}/users/${targetId}`;
-        if (currentUser.system_role === 'sysadmin') {
-            endpoint = `/admin/users/${targetId}`;
         }
         await api.put(endpoint, updates);
         showNotification("User updated successfully.", "success");

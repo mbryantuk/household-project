@@ -25,32 +25,32 @@ const dbRun = (db, sql, params) => new Promise((resolve, reject) => {
 });
 
 // ==========================================
-// 🛡️ FULL SYSTEM BACKUP (SysAdmin Only)
+// 🛡️ HOUSEHOLD BACKUP (Admin Only)
 // ==========================================
 
 router.get('/backups', authenticateToken, (req, res) => {
-    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
+    if (req.user.role !== 'admin') return res.sendStatus(403);
     listBackups().then(backups => res.json(backups)).catch(err => res.status(500).json({ error: err.message }));
 });
 
 router.post('/backups/trigger', authenticateToken, (req, res) => {
-    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
-    createBackup().then(filename => res.json({ message: "Full system backup created", filename })).catch(err => res.status(500).json({ error: err.message }));
+    if (req.user.role !== 'admin') return res.sendStatus(403);
+    createBackup().then(filename => res.json({ message: "Backup created", filename })).catch(err => res.status(500).json({ error: err.message }));
 });
 
 router.get('/backups/download/:filename', authenticateToken, (req, res) => {
-    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
+    if (req.user.role !== 'admin') return res.sendStatus(403);
     const filePath = path.join(BACKUP_DIR, req.params.filename);
     res.download(filePath);
 });
 
 router.post('/backups/upload', authenticateToken, upload.single('backup'), async (req, res) => {
-    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
+    if (req.user.role !== 'admin') return res.sendStatus(403);
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
     try {
         await restoreBackup(req.file.path);
         fs.unlinkSync(req.file.path);
-        res.json({ message: "Full system restore complete." });
+        res.json({ message: "Restore complete." });
     } catch (err) {
         if (req.file) fs.unlinkSync(req.file.path);
         res.status(500).json({ error: err.message });
@@ -58,61 +58,27 @@ router.post('/backups/upload', authenticateToken, upload.single('backup'), async
 });
 
 // ==========================================
-// 🌍 GLOBAL MANAGEMENT (SysAdmin Only)
+// 🌍 HOUSEHOLD MANAGEMENT (Admin Only)
 // ==========================================
 
 router.get('/households', authenticateToken, (req, res) => {
-    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
-    globalDb.all("SELECT * FROM households", [], (err, rows) => {
+    if (req.user.role !== 'admin') return res.sendStatus(403);
+    globalDb.all("SELECT * FROM households WHERE id = ?", [req.user.householdId], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });
 
+// Create household is restricted to the /auth/register route in this model
+// but we keep the logic here if needed for existing flows, restricting to admin
 router.post('/households', authenticateToken, async (req, res) => {
-    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
-    const { name, adminUsername, adminPassword, adminEmail } = req.body;
-    
-    if (!name || !adminPassword) return res.status(400).json({ error: "Missing fields" });
-    
-    const email = adminEmail || `${adminUsername || 'admin'}@example.com`;
-    const accessKey = crypto.randomBytes(3).toString('hex').toUpperCase();
-
-    try {
-        const hhResult = await dbRun(globalDb, `INSERT INTO households (name, access_key) VALUES (?, ?)`, [name, accessKey]);
-        const householdId = hhResult.id;
-
-        const hhDb = getHouseholdDb(householdId);
-        hhDb.close();
-
-        let userId;
-        const existingUser = await dbGet(globalDb, `SELECT id FROM users WHERE email = ?`, [email]);
-        
-        if (existingUser) {
-            userId = existingUser.id;
-        } else {
-            const hash = bcrypt.hashSync(adminPassword, 8);
-            const userResult = await dbRun(globalDb, 
-                `INSERT INTO users (email, password_hash, first_name, system_role) VALUES (?, ?, ?, 'user')`,
-                [email, hash, adminUsername || 'Admin']
-            );
-            userId = userResult.id;
-        }
-
-        await dbRun(globalDb, 
-            `INSERT INTO user_households (user_id, household_id, role) VALUES (?, ?, 'admin')`,
-            [userId, householdId]
-        );
-
-        res.json({ message: "Household created", householdId, accessKey });
-
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+    return res.status(403).json({ error: "Direct household creation via admin route disabled. Use registration." });
 });
 
 router.put('/households/:id', authenticateToken, (req, res) => {
-    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
+    if (req.user.role !== 'admin') return res.sendStatus(403);
+    if (parseInt(req.params.id) !== parseInt(req.user.householdId)) return res.sendStatus(403);
+
     const { name, access_key, theme } = req.body;
     let fields = []; let values = [];
     if (name) { fields.push('name = ?'); values.push(name); }
@@ -126,7 +92,9 @@ router.put('/households/:id', authenticateToken, (req, res) => {
 });
 
 router.delete('/households/:id', authenticateToken, (req, res) => {
-    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
+    if (req.user.role !== 'admin') return res.sendStatus(403);
+    if (parseInt(req.params.id) !== parseInt(req.user.householdId)) return res.sendStatus(403);
+
     const hhId = req.params.id;
     globalDb.run("DELETE FROM households WHERE id = ?", [hhId], function(err) {
         if (err) return res.status(500).json({ error: err.message });
@@ -137,12 +105,18 @@ router.delete('/households/:id', authenticateToken, (req, res) => {
 });
 
 // ==========================================
-// 👥 GLOBAL USER MANAGEMENT (SysAdmin)
+// 👥 USER MANAGEMENT (Admin)
 // ==========================================
 
 router.get('/users', authenticateToken, (req, res) => {
-    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
-    globalDb.all("SELECT id, email, first_name, last_name, avatar, system_role FROM users", [], (err, rows) => {
+    if (req.user.role !== 'admin') return res.sendStatus(403);
+    const sql = `
+        SELECT u.id, u.email, u.first_name, u.last_name, u.avatar, uh.role 
+        FROM users u
+        JOIN user_households uh ON u.id = uh.user_id
+        WHERE uh.household_id = ?
+    `;
+    globalDb.all(sql, [req.user.householdId], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
@@ -150,13 +124,19 @@ router.get('/users', authenticateToken, (req, res) => {
 
 /**
  * GET /admin/users/:userId
- * Retrieve specific user details
  */
 router.get('/users/:userId', authenticateToken, async (req, res) => {
-    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
+    if (req.user.role !== 'admin') return res.sendStatus(403);
+    
     try {
-        const user = await dbGet(globalDb, "SELECT id, email, first_name, last_name, avatar, system_role FROM users WHERE id = ?", [req.params.userId]);
-        if (!user) return res.status(404).json({ error: "User not found" });
+        const user = await dbGet(globalDb, `
+            SELECT u.id, u.email, u.first_name, u.last_name, u.avatar, uh.role 
+            FROM users u
+            JOIN user_households uh ON u.id = uh.user_id
+            WHERE u.id = ? AND uh.household_id = ?
+        `, [req.params.userId, req.user.householdId]);
+        
+        if (!user) return res.status(404).json({ error: "User not found in this household" });
         res.json(user);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -164,14 +144,14 @@ router.get('/users/:userId', authenticateToken, async (req, res) => {
 });
 
 router.post('/create-user', authenticateToken, async (req, res) => {
+    if (req.user.role !== 'admin') return res.sendStatus(403);
+
     const { username, password, role, email, first_name, last_name, avatar, householdId } = req.body;
     const targetHhId = householdId || req.user.householdId;
-    const finalEmail = email || `${username}@example.com`;
 
-    if (req.user.system_role !== 'sysadmin') {
-        if (req.user.role !== 'admin') return res.sendStatus(403);
-        if (parseInt(req.user.householdId) !== parseInt(targetHhId)) return res.sendStatus(403);
-    }
+    if (parseInt(req.user.householdId) !== parseInt(targetHhId)) return res.sendStatus(403);
+
+    const finalEmail = email || `${username}@example.com`;
 
     try {
         const hash = bcrypt.hashSync(password, 8);
@@ -187,12 +167,10 @@ router.post('/create-user', authenticateToken, async (req, res) => {
             userId = res.id;
         }
 
-        if (targetHhId) {
-            await dbRun(globalDb, 
-                `INSERT INTO user_households (user_id, household_id, role) VALUES (?, ?, ?)`,
-                [userId, targetHhId, role || 'member']
-            );
-        }
+        await dbRun(globalDb, 
+            `INSERT INTO user_households (user_id, household_id, role) VALUES (?, ?, ?)`,
+            [userId, targetHhId, role || 'member']
+        );
 
         res.json({ message: "User created", id: userId });
 
@@ -202,9 +180,13 @@ router.post('/create-user', authenticateToken, async (req, res) => {
 });
 
 router.put('/users/:userId', authenticateToken, async (req, res) => {
-    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
+    if (req.user.role !== 'admin') return res.sendStatus(403);
 
-    const { username, role, password, email, first_name, last_name, avatar } = req.body;
+    // Verify user is in same household
+    const link = await dbGet(globalDb, "SELECT * FROM user_households WHERE user_id = ? AND household_id = ?", [req.params.userId, req.user.householdId]);
+    if (!link) return res.sendStatus(403);
+
+    const { username, password, email, first_name, last_name, avatar } = req.body;
     
     let fields = []; let values = [];
     if (username) { fields.push('first_name = ?'); values.push(username); }
@@ -225,12 +207,13 @@ router.put('/users/:userId', authenticateToken, async (req, res) => {
     }
 });
 
-router.delete('/users/:id', authenticateToken, (req, res) => {
-    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
+router.delete('/users/:id', authenticateToken, async (req, res) => {
+    if (req.user.role !== 'admin') return res.sendStatus(403);
     
-    globalDb.run("DELETE FROM users WHERE id = ?", [req.params.id], (err) => {
+    // Just remove from this household
+    globalDb.run("DELETE FROM user_households WHERE user_id = ? AND household_id = ?", [req.params.id, req.user.householdId], (err) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Global user removed" });
+        res.json({ message: "User removed from household" });
     });
 });
 

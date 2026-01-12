@@ -17,9 +17,6 @@ function authenticateToken(req, res, next) {
 
 function requireHouseholdRole(requiredRole) {
     return (req, res, next) => {
-        // SysAdmins bypass checks
-        if (req.user && req.user.system_role === 'sysadmin') return next();
-
         // 1. Check if user is logged into the target household
         // Support both :id and :hhId parameter names
         const targetIdRaw = req.params.id || req.params.hhId || req.body.householdId;

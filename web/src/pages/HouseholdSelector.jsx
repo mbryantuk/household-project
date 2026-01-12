@@ -82,11 +82,6 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
 
       <Box sx={{ mt: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
         <Button variant="plain" color="neutral" startDecorator={<Logout />} onClick={onLogout}>Logout</Button>
-        {currentUser?.system_role === 'sysadmin' && (
-            <Alert variant="soft" color="warning" size="sm" sx={{ py: 0.5 }}>
-                System Admin Access Enabled
-            </Alert>
-        )}
       </Box>
     </Container>
   );

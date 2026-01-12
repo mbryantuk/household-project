@@ -1,85 +1,73 @@
 const request = require('supertest');
-const { app, server } = require('../server');
+const { app } = require('../server');
 
 describe('Intense Multi-Tenant & Asset-First API Tests', () => {
     jest.setTimeout(30000);
-    const uniqueId = Date.now();
-    let sysAdminToken = '';
     
-    // Household A (Admin + Viewer)
-    let hhA = { id: null, key: '', adminToken: '', viewerToken: '' };
-    // Household B (Admin) - To verify isolation
-    let hhB = { id: null, key: '', adminToken: '' };
+    const uniqueId = Date.now();
+    const hhA = { id: null, adminToken: '', viewerToken: '', email: `hhA_${uniqueId}@test.com` };
+    const hhB = { id: null, adminToken: '', email: `hhB_${uniqueId}@test.com` };
 
     beforeAll(async () => {
-        // 1. SysAdmin Login
-        const loginRes = await request(app)
-            .post('/auth/login')
-            .send({ email: 'super@totem.local', password: 'superpassword' });
-        sysAdminToken = loginRes.body.token;
-
-        // 2. Setup Household A
-        const resA = await request(app).post('/admin/households').set('Authorization', `Bearer ${sysAdminToken}`).send({
-            name: 'Household Alpha', adminUsername: 'AdminA', adminEmail: `AdminA_${uniqueId}@test.com`, adminPassword: 'password123'
-        });
-        hhA.id = resA.body.householdId;
-        hhA.key = resA.body.accessKey;
-        
-        const loginA = await request(app).post('/auth/login').send({ email: `AdminA_${uniqueId}@test.com`, password: 'password123' });
+        // 1. Setup Household A
+        await request(app).post('/auth/register').send({ householdName: 'House A', email: hhA.email, password: 'password', firstName: 'AdminA' });
+        const loginA = await request(app).post('/auth/login').send({ email: hhA.email, password: 'password' });
         hhA.adminToken = loginA.body.token;
+        hhA.id = loginA.body.household?.id || loginA.body.tokenPayload?.householdId;
+        
+        if (!hhA.id) {
+            const profile = await request(app).get('/auth/profile').set('Authorization', `Bearer ${hhA.adminToken}`);
+            hhA.id = profile.body.default_household_id;
+        }
 
-        await request(app).post('/admin/create-user').set('Authorization', `Bearer ${hhA.adminToken}`).send({
-            username: 'ViewerA', email: `ViewerA_${uniqueId}@test.com`, role: 'viewer', password: 'password123', householdId: hhA.id
-        });
-        const loginViewerA = await request(app).post('/auth/login').send({ email: `ViewerA_${uniqueId}@test.com`, password: 'password123' });
-        hhA.viewerToken = loginViewerA.body.token;
+        // Create Viewer in A
+        await request(app).post(`/households/${hhA.id}/users`).set('Authorization', `Bearer ${hhA.adminToken}`).send({ email: `viewerA_${uniqueId}@test.com`, role: 'viewer', password: 'password' });
+        const loginV = await request(app).post('/auth/login').send({ email: `viewerA_${uniqueId}@test.com`, password: 'password' });
+        hhA.viewerToken = loginV.body.token;
 
-        // 3. Setup Household B
-        const resB = await request(app).post('/admin/households').set('Authorization', `Bearer ${sysAdminToken}`).send({
-            name: 'Household Beta', adminUsername: 'AdminB', adminEmail: `AdminB_${uniqueId}@test.com`, adminPassword: 'password123'
-        });
-        hhB.id = resB.body.householdId;
-        hhB.key = resB.body.accessKey;
-        const loginB = await request(app).post('/auth/login').send({ email: `AdminB_${uniqueId}@test.com`, password: 'password123' });
+        // 2. Setup Household B
+        await request(app).post('/auth/register').send({ householdName: 'House B', email: hhB.email, password: 'password', firstName: 'AdminB' });
+        const loginB = await request(app).post('/auth/login').send({ email: hhB.email, password: 'password' });
         hhB.adminToken = loginB.body.token;
+        hhB.id = loginB.body.household?.id || loginB.body.tokenPayload?.householdId;
+
+        if (!hhB.id) {
+            const profile = await request(app).get('/auth/profile').set('Authorization', `Bearer ${hhB.adminToken}`);
+            hhB.id = profile.body.default_household_id;
+        }
     });
 
     afterAll(async () => {
-        if (hhA.id) await request(app).delete(`/admin/households/${hhA.id}`).set('Authorization', `Bearer ${sysAdminToken}`);
-        if (hhB.id) await request(app).delete(`/admin/households/${hhB.id}`).set('Authorization', `Bearer ${sysAdminToken}`);
-        if (server && server.close) server.close();
+        if (hhA.id) await request(app).delete(`/households/${hhA.id}`).set('Authorization', `Bearer ${hhA.adminToken}`);
+        if (hhB.id) await request(app).delete(`/households/${hhB.id}`).set('Authorization', `Bearer ${hhB.adminToken}`);
     });
 
     describe('🔐 Multi-Tenant Isolation', () => {
+        let vehicleAId;
+
+        beforeAll(async () => {
+            const res = await request(app).post(`/households/${hhA.id}/vehicles`).set('Authorization', `Bearer ${hhA.adminToken}`).send({ make: 'Tesla', model: 'A' });
+            vehicleAId = res.body.id;
+        });
+
         test('Household B should NOT be able to see Household A vehicles', async () => {
-            // Create vehicle in A
-            await request(app).post(`/households/${hhA.id}/vehicles`).set('Authorization', `Bearer ${hhA.adminToken}`).send({ make: 'Tesla', model: 'A' });
-            
-            // Try to list from B
             const res = await request(app).get(`/households/${hhB.id}/vehicles`).set('Authorization', `Bearer ${hhB.adminToken}`);
-            // If B list is empty, it means isolation works (B sees 0 of A's items)
-            expect(res.body.length).toBe(0);
+            expect(res.body.some(v => v.id === vehicleAId)).toBe(false);
         });
 
         test('Household B should NOT be able to access Household A vehicle directly', async () => {
-            const createA = await request(app).post(`/households/${hhA.id}/vehicles`).set('Authorization', `Bearer ${hhA.adminToken}`).send({ make: 'Tesla', model: 'A' });
-            const vehicleId = createA.body.id;
-
-            // Try to GET A's vehicle using B's token
-            const res = await request(app).get(`/households/${hhA.id}/vehicles/${vehicleId}`).set('Authorization', `Bearer ${hhB.adminToken}`);
-            expect(res.status).toBe(403); // Middleware should block cross-tenant ID access
+            const res = await request(app).get(`/households/${hhA.id}/vehicles/${vehicleAId}`).set('Authorization', `Bearer ${hhB.adminToken}`);
+            expect(res.status).toBe(403);
         });
     });
 
     describe('💰 Asset-First Financial Modeling', () => {
         test('should create vehicle with financial fields', async () => {
-            const res = await request(app)
-                .post(`/households/${hhA.id}/vehicles`)
+            const res = await request(app).post(`/households/${hhA.id}/vehicles`)
                 .set('Authorization', `Bearer ${hhA.adminToken}`)
                 .send({
-                    make: 'BMW', model: 'i4', 
-                    purchase_value: 50000, 
-                    replacement_cost: 55000,
+                    make: 'BMW', model: 'M3',
+                    purchase_value: 50000,
                     monthly_maintenance_cost: 150
                 });
             expect(res.status).toBe(200);
@@ -87,12 +75,11 @@ describe('Intense Multi-Tenant & Asset-First API Tests', () => {
         });
 
         test('should create asset with financial fields', async () => {
-            const res = await request(app)
-                .post(`/households/${hhA.id}/assets`)
+            const res = await request(app).post(`/households/${hhA.id}/assets`)
                 .set('Authorization', `Bearer ${hhA.adminToken}`)
                 .send({
-                    name: 'Fridge Freezer', 
-                    purchase_value: 1200, 
+                    name: 'Fridge',
+                    purchase_value: 1200,
                     replacement_cost: 1400,
                     depreciation_rate: 0.1
                 });
@@ -108,7 +95,9 @@ describe('Intense Multi-Tenant & Asset-First API Tests', () => {
         });
 
         test('Viewer should NOT be able to CREATE assets', async () => {
-            const res = await request(app).post(`/households/${hhA.id}/assets`).set('Authorization', `Bearer ${hhA.viewerToken}`).send({ name: 'Illegal' });
+            const res = await request(app).post(`/households/${hhA.id}/assets`)
+                .set('Authorization', `Bearer ${hhA.viewerToken}`)
+                .send({ name: 'Hack' });
             expect(res.status).toBe(403);
         });
     });

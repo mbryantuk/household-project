@@ -30,7 +30,7 @@ export default function VehiclesView() {
   const [subLoading, setSubLoading] = useState(false);
   const [editSub, setEditSub] = useState(null);
 
-  const isHouseholdAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
+  const isHouseholdAdmin = currentUser?.role === 'admin';
 
   const fetchVehicles = useCallback(async () => {
     setLoading(true);

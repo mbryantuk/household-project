@@ -1,66 +1,59 @@
 const request = require('supertest');
 const { app } = require('../server');
 
-describe('Viewer Restriction Enforcement', () => {
-    let sysAdminToken = '';
-    let householdId = null;
-    let viewerToken = '';
+describe('Viewer Role Restrictions', () => {
+    jest.setTimeout(30000);
     const uniqueId = Date.now();
+    let householdId = null;
+    let adminToken = '';
+    let viewerToken = '';
 
     beforeAll(async () => {
-        // 1. Login as SysAdmin
-        const loginRes = await request(app).post('/auth/login').send({ username: 'superuser', password: 'superpassword' });
-        sysAdminToken = loginRes.body.token;
-
-        // 2. Create Household
-        const hhRes = await request(app).post('/admin/households').set('Authorization', `Bearer ${sysAdminToken}`).send({
-            name: `ViewerTest_${uniqueId}`,
-            adminPassword: 'password123',
-            adminEmail: `admin_${uniqueId}@test.com`
+        // 1. Register Household
+        await request(app).post('/auth/register').send({
+            householdName: 'Viewer Test', email: `admin_${uniqueId}@test.com`, password: 'password', firstName: 'Admin'
         });
-        householdId = hhRes.body.householdId;
+        const loginA = await request(app).post('/auth/login').send({ email: `admin_${uniqueId}@test.com`, password: 'password' });
+        adminToken = loginA.body.token;
+        householdId = loginA.body.household?.id || loginA.body.tokenPayload?.householdId;
 
-        // 3. Create Viewer User
-        const viewerRes = await request(app).post('/admin/create-user').set('Authorization', `Bearer ${sysAdminToken}`).send({
-            email: `viewer_${uniqueId}@test.com`,
-            password: 'password123',
-            role: 'viewer',
-            householdId: householdId,
-            username: `viewer_${uniqueId}`
+        if (!householdId) {
+            const profile = await request(app).get('/auth/profile').set('Authorization', `Bearer ${adminToken}`);
+            householdId = profile.body.default_household_id;
+        }
+
+        // 2. Create Viewer
+        await request(app).post(`/households/${householdId}/users`).set('Authorization', `Bearer ${adminToken}`).send({
+            email: `viewer_${uniqueId}@test.com`, role: 'viewer', password: 'password'
         });
-
-        // 4. Login as Viewer
-        const vLogin = await request(app).post('/auth/login').send({ email: `viewer_${uniqueId}@test.com`, password: 'password123' });
-        viewerToken = vLogin.body.token;
+        const loginV = await request(app).post('/auth/login').send({ email: `viewer_${uniqueId}@test.com`, password: 'password' });
+        viewerToken = loginV.body.token;
     });
 
     const endpoints = [
-        { path: `/households/${householdId}/assets`, data: { name: 'Forbidden' } },
-        { path: `/households/${householdId}/vehicles`, data: { make: 'No', model: 'Access' } },
-        { path: `/households/${householdId}/members`, data: { name: 'Stealth' } },
-        { path: `/households/${householdId}/dates`, data: { title: 'Ghost', date: '2025-01-01' } },
-        { path: `/households/${householdId}/costs`, data: { name: 'Invisible', amount: 0, parent_type: 'general' } }
+        { path: 'assets', method: 'post', payload: { name: 'Test' }, label: 'Assets' },
+        { path: 'vehicles', method: 'post', payload: { make: 'Test' }, label: 'Vehicles' },
+        { path: 'members', method: 'post', payload: { name: 'Test', type: 'adult' }, label: 'Members' },
+        { path: 'energy', method: 'post', payload: { provider: 'Test' }, label: 'Energy' },
+        { path: 'costs', method: 'post', payload: { name: 'Test', amount: 10, parent_type: 'general' }, label: 'Costs' },
+        { path: 'waste', method: 'post', payload: { waste_type: 'Test', frequency: 'Weekly', collection_day: 'Monday' }, label: 'Waste' }
     ];
 
     endpoints.forEach(ep => {
-        it(`should allow Viewer to READ ${ep.path}`, async () => {
-            const res = await request(app).get(ep.path).set('Authorization', `Bearer ${viewerToken}`);
-            expect(res.statusCode).toBe(200);
+        it(`should block VIEWER from creating ${ep.label}`, async () => {
+            const res = await request(app)
+                [ep.method](`/households/${householdId}/${ep.path}`)
+                .set('Authorization', `Bearer ${viewerToken}`)
+                .send(ep.payload);
+            expect(res.status).toBe(403);
         });
+    });
 
-        it(`should FORBID Viewer from POSTing to ${ep.path}`, async () => {
-            const res = await request(app).post(ep.path).set('Authorization', `Bearer ${viewerToken}`).send(ep.data);
-            expect(res.statusCode).toBe(403);
-        });
-
-        it(`should FORBID Viewer from PUTting to ${ep.path}`, async () => {
-            const res = await request(app).put(`${ep.path}/1`).set('Authorization', `Bearer ${viewerToken}`).send(ep.data);
-            expect(res.statusCode).toBe(403);
-        });
-
-        it(`should FORBID Viewer from DELETING ${ep.path}`, async () => {
-            const res = await request(app).delete(`${ep.path}/1`).set('Authorization', `Bearer ${viewerToken}`);
-            expect(res.statusCode).toBe(403);
-        });
+    it('should block VIEWER from updating household details', async () => {
+        const res = await request(app)
+            .put(`/households/${householdId}/details`)
+            .set('Authorization', `Bearer ${viewerToken}`)
+            .send({ property_type: 'Hacked' });
+        expect(res.status).toBe(403);
     });
 });

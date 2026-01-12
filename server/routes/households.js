@@ -27,8 +27,8 @@ const dbRun = (db, sql, params) => new Promise((resolve, reject) => {
 
 // GET /households/:id (Get Single Details)
 router.get('/households/:id', authenticateToken, (req, res) => {
-    // Security: Only allow access if user is logged into this household OR is SysAdmin
-    if (req.user.system_role !== 'sysadmin' && parseInt(req.user.householdId) !== parseInt(req.params.id)) {
+    // Security: Only allow access if user is logged into this household
+    if (parseInt(req.user.householdId) !== parseInt(req.params.id)) {
         return res.sendStatus(403);
     }
 
@@ -41,10 +41,10 @@ router.get('/households/:id', authenticateToken, (req, res) => {
 
 // PUT /households/:id (Update)
 router.put('/households/:id', authenticateToken, (req, res) => {
-    // Only Local Admin or SysAdmin
-    if (req.user.role !== 'admin' && req.user.system_role !== 'sysadmin') return res.sendStatus(403);
+    // Only Local Admin
+    if (req.user.role !== 'admin') return res.sendStatus(403);
     // Ensure admin is in the right house
-    if (req.user.system_role !== 'sysadmin' && parseInt(req.user.householdId) !== parseInt(req.params.id)) return res.sendStatus(403);
+    if (parseInt(req.user.householdId) !== parseInt(req.params.id)) return res.sendStatus(403);
 
     const { 
         name, theme, 
@@ -78,14 +78,16 @@ router.put('/households/:id', authenticateToken, (req, res) => {
 
 // 🔴 DELETE /households/:id
 router.delete('/households/:id', authenticateToken, (req, res) => {
-    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403); // Only SysAdmin can delete houses now
+    // Only Local Admin can delete their own household
+    if (req.user.role !== 'admin') return res.sendStatus(403);
+    if (parseInt(req.user.householdId) !== parseInt(req.params.id)) return res.sendStatus(403);
 
     const householdId = req.params.id;
 
     globalDb.run(`DELETE FROM households WHERE id = ?`, [householdId], function(err) {
         if (err) return res.status(500).json({ error: err.message });
 
-        // Delete the physical SQLite file from the Pi
+        // Delete the physical SQLite file
         const hhDbPath = path.join(DATA_DIR, `household_${householdId}.db`);
         if (fs.existsSync(hhDbPath)) {
             try { fs.unlinkSync(hhDbPath); } catch (e) { console.error("File delete failed", e); }
@@ -102,7 +104,7 @@ router.delete('/households/:id', authenticateToken, (req, res) => {
 // GET /households/:id/users (List Users linked to Household)
 router.get('/households/:id/users', authenticateToken, requireHouseholdRole('member'), (req, res) => {
     const householdId = req.params.id;
-    if (req.user.system_role !== 'sysadmin' && parseInt(req.user.householdId) !== parseInt(householdId)) return res.sendStatus(403);
+    if (parseInt(req.user.householdId) !== parseInt(householdId)) return res.sendStatus(403);
 
     const sql = `
         SELECT u.id, u.email, u.first_name, u.last_name, u.avatar, uh.role 
@@ -120,7 +122,7 @@ router.get('/households/:id/users', authenticateToken, requireHouseholdRole('mem
 // GET /households/:id/users/:userId (Get single user in household)
 router.get('/households/:id/users/:userId', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
     const { id: householdId, userId } = req.params;
-    if (req.user.system_role !== 'sysadmin' && parseInt(req.user.householdId) !== parseInt(householdId)) return res.sendStatus(403);
+    if (parseInt(req.user.householdId) !== parseInt(householdId)) return res.sendStatus(403);
 
     const sql = `
         SELECT u.id, u.email, u.first_name, u.last_name, u.avatar, uh.role 
@@ -163,11 +165,6 @@ router.post('/households/:id/users', authenticateToken, requireHouseholdRole('ad
                 [email, hash, firstName || '', lastName || '']
             );
             userId = result.id;
-            
-            if (!password) {
-                // TODO: In a real app, send email with initialPassword
-                console.log(`[Invited User] ${email} created with auto-password: ${initialPassword}`);
-            }
         }
 
         // 3. Link to Household
@@ -189,7 +186,7 @@ router.put('/households/:id/users/:userId', authenticateToken, requireHouseholdR
     const { id: householdId, userId } = req.params;
     const { email, role, first_name, last_name, firstName, lastName, password, avatar } = req.body;
 
-    if (req.user.system_role !== 'sysadmin' && parseInt(req.user.householdId) !== parseInt(householdId)) return res.sendStatus(403);
+    if (parseInt(req.user.householdId) !== parseInt(householdId)) return res.sendStatus(403);
 
     try {
         // 1. Update Global User Info
@@ -226,7 +223,7 @@ router.delete('/households/:id/users/:userId', authenticateToken, requireHouseho
     const householdId = req.params.id;
     const userId = req.params.userId;
 
-    // Prevent removing yourself (optional, but good practice)
+    // Prevent removing yourself
     if (parseInt(userId) === req.user.id) {
         return res.status(400).json({ error: "Cannot remove yourself. Leave household instead." });
     }
@@ -290,19 +287,16 @@ router.post('/households/:id/backups/restore', authenticateToken, requireHouseho
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
 
     try {
-        // If it's a ZIP, use restoreBackup logic
         if (req.file.originalname.endsWith('.zip')) {
             await restoreBackup(req.file.path, req.params.id);
-        } 
-        // If it's a raw .db file, just move it
-        else if (req.file.originalname.endsWith('.db')) {
+        } else if (req.file.originalname.endsWith('.db')) {
             const targetPath = path.join(DATA_DIR, `household_${req.params.id}.db`);
             fs.copyFileSync(req.file.path, targetPath);
         } else {
             return res.status(400).json({ error: "Invalid file type. Upload .zip or .db" });
         }
         
-        fs.unlinkSync(req.file.path); // Clean up temp
+        fs.unlinkSync(req.file.path);
         res.json({ message: "Household data restored successfully." });
     } catch (err) {
         if (req.file) fs.unlinkSync(req.file.path);

@@ -16,7 +16,7 @@ export default function AssetsView() {
   const [editAsset, setEditAsset] = useState(null);
   const [isNew, setIsNew] = useState(false);
   
-  const isHouseholdAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
+  const isHouseholdAdmin = currentUser?.role === 'admin';
 
   const fetchAssets = useCallback(async () => {
     setLoading(true);

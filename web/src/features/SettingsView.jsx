@@ -31,7 +31,7 @@ export default function SettingsView({
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [selectedUserEmoji, setSelectedUserEmoji] = useState('👤');
 
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.system_role === 'sysadmin';
+  const isAdmin = currentUser?.role === 'admin';
 
   const fetchUsers = useCallback(async () => {
     try {

@@ -15,7 +15,7 @@ export default function WasteView() {
   const [editItem, setEditItem] = useState(null);
   const [isNew, setIsNew] = useState(false);
   
-  const isHouseholdAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
+  const isHouseholdAdmin = currentUser?.role === 'admin';
 
   const fetchCollections = useCallback(async () => {
     setLoading(true);

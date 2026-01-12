@@ -18,7 +18,7 @@ export default function PetsView() {
   const [activeTab, setActiveTab] = useState(0);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   
-  const isHouseholdAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
+  const isHouseholdAdmin = currentUser?.role === 'admin';
 
   const selectedPet = useMemo(() => 
     (members || []).find(m => m.id === parseInt(petId) && m.type === 'pet'), 

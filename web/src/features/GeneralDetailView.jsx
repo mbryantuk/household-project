@@ -20,7 +20,7 @@ export default function GeneralDetailView({ title, icon: defaultIcon, endpoint, 
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState(null);
 
-  const isHouseholdAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
+  const isHouseholdAdmin = currentUser?.role === 'admin';
 
   const fetchData = useCallback(async () => {
     try {

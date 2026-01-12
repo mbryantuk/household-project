@@ -5,57 +5,59 @@ describe('Comprehensive CRUD & Multi-Tenancy Suite', () => {
     jest.setTimeout(30000);
 
     const uniqueId = Date.now();
-    let sysAdminToken = '';
     let hh1 = { id: null, token: '', adminEmail: `hh1_${uniqueId}@example.com`, password: 'password123' };
     let hh2 = { id: null, token: '', adminEmail: `hh2_${uniqueId}@example.com`, password: 'password123' };
 
     beforeAll(async () => {
-        // 1. Login as SysAdmin
-        const loginRes = await request(app)
-            .post('/auth/login')
-            .send({ username: 'superuser', password: 'superpassword' });
-        sysAdminToken = loginRes.body.token;
-
-        // 2. Create Household 1
-        const hh1Res = await request(app)
-            .post('/admin/households')
-            .set('Authorization', `Bearer ${sysAdminToken}`)
+        // 1. Register Household 1
+        await request(app)
+            .post('/auth/register')
             .send({
-                name: `HH1_${uniqueId}`,
-                adminEmail: hh1.adminEmail,
-                adminPassword: hh1.password,
-                adminUsername: 'HH1Admin'
+                householdName: `HH1_${uniqueId}`,
+                email: hh1.adminEmail,
+                password: hh1.password,
+                firstName: 'HH1Admin'
             });
-        hh1.id = hh1Res.body.householdId;
 
-        // 3. Create Household 2
-        const hh2Res = await request(app)
-            .post('/admin/households')
-            .set('Authorization', `Bearer ${sysAdminToken}`)
+        // 2. Register Household 2
+        await request(app)
+            .post('/auth/register')
             .send({
-                name: `HH2_${uniqueId}`,
-                adminEmail: hh2.adminEmail,
-                adminPassword: hh2.password,
-                adminUsername: 'HH2Admin'
+                householdName: `HH2_${uniqueId}`,
+                email: hh2.adminEmail,
+                password: hh2.password,
+                firstName: 'HH2Admin'
             });
-        hh2.id = hh2Res.body.householdId;
 
-        // 4. Login as HH1 Admin
+        // 3. Login as HH1 Admin
         const hh1Login = await request(app)
             .post('/auth/login')
             .send({ email: hh1.adminEmail, password: hh1.password });
         hh1.token = hh1Login.body.token;
+        hh1.id = hh1Login.body.household?.id || hh1Login.body.tokenPayload?.householdId;
+        
+        if (!hh1.id) {
+            const profile = await request(app).get('/auth/profile').set('Authorization', `Bearer ${hh1.token}`);
+            hh1.id = profile.body.default_household_id;
+        }
 
-        // 5. Login as HH2 Admin
+        // 4. Login as HH2 Admin
         const hh2Login = await request(app)
             .post('/auth/login')
             .send({ email: hh2.adminEmail, password: hh2.password });
         hh2.token = hh2Login.body.token;
+        hh2.id = hh2Login.body.household?.id || hh2Login.body.tokenPayload?.householdId;
+
+        if (!hh2.id) {
+            const profile = await request(app).get('/auth/profile').set('Authorization', `Bearer ${hh2.token}`);
+            hh2.id = profile.body.default_household_id;
+        }
     });
 
     afterAll(async () => {
-        if (hh1.id) await request(app).delete(`/admin/households/${hh1.id}`).set('Authorization', `Bearer ${sysAdminToken}`);
-        if (hh2.id) await request(app).delete(`/admin/households/${hh2.id}`).set('Authorization', `Bearer ${sysAdminToken}`);
+        // Clean up: delete households as their own admins
+        if (hh1.id) await request(app).delete(`/households/${hh1.id}`).set('Authorization', `Bearer ${hh1.token}`);
+        if (hh2.id) await request(app).delete(`/households/${hh2.id}`).set('Authorization', `Bearer ${hh2.token}`);
     });
 
     const testCrud = (name, endpoint, createData, updateData) => {

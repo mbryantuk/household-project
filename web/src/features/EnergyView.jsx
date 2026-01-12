@@ -16,7 +16,7 @@ export default function EnergyView() {
   const [editAccount, setEditAccount] = useState(null);
   const [isNew, setIsNew] = useState(false);
   
-  const isHouseholdAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
+  const isHouseholdAdmin = currentUser?.role === 'admin';
 
   const fetchAccounts = useCallback(async () => {
     setLoading(true);

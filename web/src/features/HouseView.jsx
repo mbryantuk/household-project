@@ -21,7 +21,7 @@ import GeneralDetailView from './GeneralDetailView';
 
 export default function HouseView() {
   const { api, id: householdId, onUpdateHousehold, user: currentUser, showNotification } = useOutletContext();
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
+  const isAdmin = currentUser?.role === 'admin';
 
   const [activeTab, setActiveTab] = useState(0);
   const [household, setHousehold] = useState(null);
