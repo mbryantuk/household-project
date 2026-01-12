@@ -17,7 +17,9 @@ export default function AccessControl({
   households, 
   onCreateHousehold,
   onDeleteHousehold,
-  onRemoveUser
+  onRemoveUser,
+  showNotification,
+  confirmAction
 }) {
   const { api } = useOutletContext();
   
@@ -52,24 +54,30 @@ export default function AccessControl({
     try {
       await api.post('/admin/backups/trigger');
       await fetchBackups();
+      showNotification("System backup created successfully.", "success");
     } catch (err) {
-      alert("Failed to create backup: " + err.message);
+      showNotification("Failed to create backup: " + err.message, "error");
     } finally {
       setBackupLoading(false);
     }
   };
 
-  const handleRestoreBackup = async (filename) => {
-    if (!window.confirm(`Are you sure you want to restore ${filename}? This will overwrite current data.`, 'warning')) return;
-    setBackupLoading(true);
-    try {
-      await api.post(`/admin/backups/restore/${filename}`);
-      alert("System restored. Please refresh the page.");
-      window.location.reload();
-    } catch (err) {
-      alert("Restore failed: " + err.message);
-      setBackupLoading(false);
-    }
+  const handleRestoreBackup = (filename) => {
+    confirmAction(
+      "Restore System",
+      `Are you sure you want to restore ${filename}? This will overwrite ALL system data.`,
+      async () => {
+        setBackupLoading(true);
+        try {
+          await api.post(`/admin/backups/restore/${filename}`);
+          showNotification("System restored. Refreshing...", "success");
+          window.location.reload();
+        } catch (err) {
+          showNotification("Restore failed: " + err.message, "error");
+          setBackupLoading(false);
+        }
+      }
+    );
   };
 
   const handleDownloadBackup = (filename) => {
@@ -83,36 +91,37 @@ export default function AccessControl({
         link.click();
         link.remove();
       })
-      .catch(err => alert("Download failed: " + err.message));
+      .catch(err => showNotification("Download failed: " + err.message, "error"));
   };
 
   const handleUploadBackup = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     
-    if (!window.confirm("This will upload and restore the backup immediately. Current system data will be overwritten. Continue?")) {
-        e.target.value = null;
-        return;
-    }
+    confirmAction(
+      "Upload & Restore Backup",
+      "This will upload and restore the backup immediately. Current system data will be overwritten. Continue?",
+      () => {
+        const formData = new FormData();
+        formData.append('backup', file);
 
-    const formData = new FormData();
-    formData.append('backup', file);
-
-    setBackupLoading(true);
-    api.post('/admin/backups/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    })
-    .then(() => {
-        alert("Backup restored successfully.");
-        window.location.reload();
-    })
-    .catch(err => {
-        alert("Upload failed: " + err.message);
-        setBackupLoading(false);
-    })
-    .finally(() => {
-        e.target.value = null;
-    });
+        setBackupLoading(true);
+        api.post('/admin/backups/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        .then(() => {
+            showNotification("Backup restored successfully.", "success");
+            window.location.reload();
+        })
+        .catch(err => {
+            showNotification("Upload failed: " + err.message, "error");
+            setBackupLoading(false);
+        })
+        .finally(() => {
+            e.target.value = null;
+        });
+      }
+    );
   };
 
   const handleCreateHouseSubmit = (e) => {
@@ -221,9 +230,11 @@ export default function AccessControl({
                   <td style={{ textAlign: 'right' }}>
                     <IconButton 
                       onClick={() => {
-                          if (window.confirm(`Are you sure you want to PERMANENTLY delete "${h.name}"? This cannot be undone.`)) {
-                              onDeleteHousehold(h.id);
-                          }
+                          confirmAction(
+                            "Delete Household",
+                            `Are you sure you want to PERMANENTLY delete "${h.name}"? This cannot be undone.`,
+                            () => onDeleteHousehold(h.id)
+                          );
                       }} 
                       size="sm" 
                       color="danger"

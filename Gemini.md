@@ -33,7 +33,7 @@
 * **Architecture:** Modular design (`modules/assets`, `modules/budget`).
 
 ### B. Frontend (MUI)
-* **UI Standards:** Material UI only.
+* **UI Standards:** MUI Joy UI.
 * **UX Constraints:** `window.alert` and `window.prompt` are **FORBIDDEN**. Use Modals or Snackbars.
 * **Reusability:** Extract logic to `components/ui/` (e.g., `<CurrencyInput />`) before building pages.
 

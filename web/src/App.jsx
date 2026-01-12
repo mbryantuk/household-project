@@ -216,6 +216,40 @@ function AppContent() {
     } catch (err) { showNotification("Failed to update profile.", "danger"); throw err; }
   }, [authAxios, user, showNotification]);
 
+  // Admin Actions for AccessControl
+  const handleCreateHousehold = useCallback(async (houseData) => {
+    try {
+        await authAxios.post('/admin/households', houseData);
+        showNotification("Household created successfully.", "success");
+        fetchHouseholds();
+    } catch (err) { showNotification("Error: " + err.message, "danger"); }
+  }, [authAxios, fetchHouseholds, showNotification]);
+
+  const handleUpdateHousehold = useCallback(async (hhId, updates) => {
+    try {
+        await authAxios.put(`/admin/households/${hhId}`, updates);
+        showNotification("Household updated.", "success");
+        fetchHouseholds();
+    } catch (err) { showNotification("Error: " + err.message, "danger"); }
+  }, [authAxios, fetchHouseholds, showNotification]);
+
+  const handleDeleteHousehold = useCallback(async (hhId) => {
+    try {
+        await authAxios.delete(`/admin/households/${hhId}`);
+        showNotification("Household deleted.", "success");
+        fetchHouseholds();
+    } catch (err) { showNotification("Error: " + err.message, "danger"); }
+  }, [authAxios, fetchHouseholds, showNotification]);
+
+  const handleRemoveSysUser = useCallback(async (userId) => {
+    try {
+        await authAxios.delete(`/admin/users/${userId}`);
+        showNotification("User deleted.", "success");
+        fetchSysUsers();
+    } catch (err) { showNotification("Error: " + err.message, "danger"); }
+  }, [authAxios, fetchSysUsers, showNotification]);
+
+
   if (loading) return <Box sx={{display:'flex', justifyContent:'center', mt:10}}><CircularProgress /></Box>;
 
   return (
@@ -264,11 +298,17 @@ function AppContent() {
           <Route index element={household ? <Navigate to={`/household/${household.id}/dashboard`} /> : <Navigate to="/access" />} />
 
           <Route path="access" element={<AccessControl 
-             // ... kept same logic for AccessControl page
-            users={sysUsers} currentUser={user} households={households}
-            onCreateUser={() => {}} onCreateHousehold={handleCreateHousehold} onUpdateHousehold={handleUpdateHousehold}
-            onDeleteHousehold={handleDeleteHousehold} onRemoveUser={(userId) => authAxios.delete(`/admin/users/${userId}`).then(() => fetchSysUsers())}
+            users={sysUsers}
+            currentUser={user}
+            households={households}
+            onCreateUser={() => {}}
+            onCreateHousehold={handleCreateHousehold}
+            onUpdateHousehold={handleUpdateHousehold}
+            onDeleteHousehold={handleDeleteHousehold}
+            onRemoveUser={handleRemoveSysUser}
             onAssignUser={() => {}}
+            showNotification={showNotification}
+            confirmAction={confirmAction}
           />} />
 
           <Route path="household/:id" element={<HouseholdLayout 
