@@ -6,7 +6,7 @@ import {
   Close, DragIndicator, ContentCopy, Backspace, OpenInNew
 } from '@mui/icons-material';
 
-export default function FloatingCalculator({ onClose, isPopout = false }) {
+export default function FloatingCalculator({ onClose, isPopout = false, isDark = false }) {
   const [input, setInput] = useState('');
   const [result, setResult] = useState('');
   const [pos, setPos] = useState({ x: 150, y: 100 });
@@ -124,8 +124,9 @@ export default function FloatingCalculator({ onClose, isPopout = false }) {
         onMouseDown={onMouseDown}
         sx={{ 
           p: 1, 
-          bgcolor: isFocused ? 'primary.solidBg' : 'background.surface', 
-          color: isFocused ? 'primary.solidColor' : 'text.primary',
+          // Softer header:
+          bgcolor: 'background.level2',
+          color: 'text.primary',
           display: 'flex', 
           alignItems: 'center', 
           cursor: isPopout ? 'default' : 'move',

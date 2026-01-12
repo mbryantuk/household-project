@@ -19,7 +19,7 @@ const EVENT_TYPES = [
 ];
 
 export default function FloatingCalendar({ 
-  dates = [], api, householdId, onDateAdded, currentUser, onClose, isPopout = false 
+  dates = [], api, householdId, onDateAdded, currentUser, onClose, isPopout = false, isDark = false
 }) {
   // --- Dragging State & Logic ---
   const [pos, setPos] = useState({ x: 100, y: 100 });
@@ -145,8 +145,6 @@ export default function FloatingCalendar({
   };
 
   const handlePopout = () => {
-    // Open a new window that points to /calendar-window
-    // Pass current date? No, popout will load defaults or we could pass via query params but keeping it simple.
     window.open('/calendar-window', 'TotemCalendar', 'width=420,height=600,menubar=no,toolbar=no,location=no,status=no');
     onClose();
   };
@@ -157,10 +155,9 @@ export default function FloatingCalendar({
       variant="outlined"
       onFocus={() => setIsFocused(true)}
       onBlur={(e) => {
-        // Only lose focus if moving outside the container (and not into a portal like the modal)
         if (!e.currentTarget.contains(e.relatedTarget)) setIsFocused(false);
       }}
-      tabIndex={0} // Make focusable
+      tabIndex={0} 
       sx={{
         position: isPopout ? 'relative' : 'fixed',
         left: isPopout ? 0 : pos.x,
@@ -175,7 +172,7 @@ export default function FloatingCalendar({
         boxShadow: isFocused ? 'lg' : 'sm',
         borderColor: isFocused ? 'primary.500' : 'divider',
         transition: 'opacity 0.2s',
-        opacity: isPopout ? 1 : (isFocused ? 1 : 0.6), // Always 1 if popout
+        opacity: isPopout ? 1 : (isFocused ? 1 : 0.6), 
         bgcolor: 'background.surface',
         '&:hover': { opacity: 1 }
       }}
@@ -185,8 +182,9 @@ export default function FloatingCalendar({
         onMouseDown={onMouseDown}
         sx={{ 
           p: 1, 
-          bgcolor: isFocused ? 'primary.solidBg' : 'background.surface', 
-          color: isFocused ? 'primary.solidColor' : 'text.primary',
+          // Softer header color: use 'background.level2' or 'neutral.softBg' instead of solid primary
+          bgcolor: 'background.level2',
+          color: 'text.primary',
           borderBottom: '1px solid',
           borderColor: 'divider',
           display: 'flex', 
@@ -362,6 +360,7 @@ export default function FloatingCalendar({
             setEmojiPickerOpen(false);
         }}
         title="Select Event Emoji"
+        isDark={isDark}
       />
     </Sheet>
   );

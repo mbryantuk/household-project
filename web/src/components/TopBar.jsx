@@ -3,12 +3,13 @@ import {
   Sheet, IconButton, Typography, Avatar, Tooltip, Box
 } from '@mui/joy';
 import { 
-  Menu as MenuIcon, Calculate, CalendarMonth, GetApp 
+  Menu as MenuIcon, Calculate, CalendarMonth, GetApp, NoteAlt
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import TotemIcon from './TotemIcon';
 import FloatingCalendar from './FloatingCalendar';
 import FloatingCalculator from './FloatingCalculator';
+import PostItNote from './PostItNote';
 import { getEmojiColor } from '../theme';
 
 export default function TopBar({
@@ -18,6 +19,7 @@ export default function TopBar({
   const isDark = currentMode === 'dark';
   const [showCalendar, setShowCalendar] = useState(false);
   const [showCalc, setShowCalc] = useState(false);
+  const [showNote, setShowNote] = useState(false);
   const navigate = useNavigate();
 
   return (
@@ -87,6 +89,12 @@ export default function TopBar({
 
         {/* RIGHT SECTION */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Tooltip title="Sticky Note" variant="soft">
+            <IconButton variant="plain" onClick={() => setShowNote(!showNote)} size="sm">
+              <NoteAlt />
+            </IconButton>
+          </Tooltip>
+
           <Tooltip title="Calculator" variant="soft">
             <IconButton variant="plain" onClick={() => setShowCalc(!showCalc)} size="sm">
               <Calculate />
@@ -116,11 +124,14 @@ export default function TopBar({
             householdId={currentHousehold?.id}
             currentUser={user}
             onDateAdded={onDateAdded} 
-            onClose={() => setShowCalendar(false)} 
+            onClose={() => setShowCalendar(false)}
+            isDark={isDark}
           />
         )}
 
-        {showCalc && <FloatingCalculator onClose={() => setShowCalc(false)} />}
+        {showCalc && <FloatingCalculator onClose={() => setShowCalc(false)} isDark={isDark} />}
+
+        {showNote && <PostItNote onClose={() => setShowNote(false)} />}
     </Sheet>
   );
 }

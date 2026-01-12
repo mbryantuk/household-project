@@ -58,11 +58,12 @@ export default function HouseholdLayout({
         onLogout={onLogout}
         onUpdateProfile={onUpdateProfile}
       />
-      {/* Added margin-left if Sidebar is fixed? No, Sidebar is sticky/flex. 
-          The Sidebar is part of the flex container.
-          Content padding is here.
+      {/* 
+          FlexGrow 1 allows this box to take remaining space. 
+          When NavSidebar width changes, this automatically resizes.
+          Removed 'width: 100%' to prevent overflow in some flex contexts.
       */}
-      <Box component="main" sx={{ flexGrow: 1, width: '100%', p: { xs: 1, sm: 2, md: 3 }, pt: 1 }}>
+      <Box component="main" sx={{ flexGrow: 1, p: { xs: 1, sm: 2, md: 3 }, pt: 1, minWidth: 0 }}>
         <Outlet context={{ 
             api, 
             id, 

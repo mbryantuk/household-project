@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { 
   Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, 
-  IconButton, Divider, Box, Avatar, Typography, Menu, MenuItem, Modal, ModalDialog, DialogTitle, DialogContent, FormControl, FormLabel, Input, Button, DialogActions, Stack
+  IconButton, Divider, Box, Avatar, Typography, Menu, MenuItem, Modal, ModalDialog, DialogTitle, DialogContent, FormControl, FormLabel, Input, Button, DialogActions
 } from '@mui/joy';
 import { 
   Settings, Home as HomeIcon, ChevronLeft, Menu as MenuIcon, Event, 
@@ -14,6 +14,7 @@ import Drawer from '@mui/joy/Drawer';
 import EmojiPicker from './EmojiPicker';
 
 const drawerWidth = 260;
+const collapsedWidth = 72;
 
 export default function NavSidebar({ open, toggleDrawer, members = [], vehicles = [], isDark, household, user, onLogout, onUpdateProfile }) {
   const location = useLocation();
@@ -29,8 +30,12 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
   });
 
   const handleToggle = (key) => {
-    setOpenSub(prev => ({ ...prev, [key]: !prev[key] }));
-    if (!open) toggleDrawer();
+    if (!open) {
+        toggleDrawer();
+        setOpenSub(prev => ({ ...prev, [key]: true })); // Auto-expand specific group when opening drawer
+    } else {
+        setOpenSub(prev => ({ ...prev, [key]: !prev[key] }));
+    }
   };
 
   const handleProfileSubmit = async (e) => {
@@ -54,6 +59,9 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
     }
   };
 
+  // Center alignment styles for collapsed state
+  const centerStyle = !open ? { justifyContent: 'center', px: 0 } : {};
+
   const renderSubItem = (label, to, icon, emoji = null) => (
     <ListItem key={to}>
       <ListItemButton
@@ -61,11 +69,12 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
         to={to}
         selected={location.pathname === to}
         sx={{
-            pl: 5,
+            pl: open ? 5 : 1, // Reduced padding when collapsed (though this func only called when open mostly)
             minHeight: 36,
             borderRadius: 'md',
             fontSize: 'sm',
             color: 'neutral.500',
+            justifyContent: open ? 'flex-start' : 'center',
             '&.active': {
                 variant: 'soft',
                 color: 'primary.plainColor',
@@ -77,25 +86,28 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
             }
         }}
       >
-        <ListItemDecorator sx={{ minWidth: 32 }}>
+        <ListItemDecorator sx={{ minWidth: open ? 32 : 'auto', mr: open ? 0 : 0 }}>
           {emoji ? (
             <Avatar size="sm" sx={{ '--Avatar-size': '20px', fontSize: '0.9rem', bgcolor: getEmojiColor(emoji, isDark) }}>
               {emoji}
             </Avatar>
           ) : icon}
         </ListItemDecorator>
-        <ListItemContent>{label}</ListItemContent>
+        {open && <ListItemContent>{label}</ListItemContent>}
       </ListItemButton>
     </ListItem>
   );
 
   const renderParent = (id, label, icon, items, pathPrefix, defaultEmoji = null) => {
     const isOpen = openSub[id];
+    
+    // If collapsed, just show the parent icon which toggles drawer
     if (!open) {
         return (
             <ListItem>
-                <ListItemButton onClick={() => toggleDrawer()} sx={{ borderRadius: 'md', mb: 0.5 }}>
-                    <ListItemDecorator>{icon}</ListItemDecorator>
+                {/* Added px: 0 to ensure centering of the icon/avatar in the collapsed button */}
+                <ListItemButton onClick={() => handleToggle(id)} sx={{ borderRadius: 'md', mb: 0.5, justifyContent: 'center', px: 0 }}>
+                    <ListItemDecorator sx={{ display: 'flex', justifyContent: 'center', m: 0 }}>{icon}</ListItemDecorator>
                 </ListItemButton>
             </ListItem>
         );
@@ -126,7 +138,7 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
   };
 
   const drawerContent = (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', p: 2 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', p: 2, overflow: 'hidden' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: open ? 'space-between' : 'center', mb: 2, minHeight: 40 }}>
         {open && <Typography level="title-lg" textColor="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 'sm', fontSize: 'xs' }}>Menu</Typography>}
         <IconButton onClick={toggleDrawer} variant="plain" color="neutral" size="sm">
@@ -134,18 +146,18 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
         </IconButton>
       </Box>
       
-      <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', flexGrow: 1, overflow: 'auto' }}>
+      <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', flexGrow: 1, overflowY: 'auto', overflowX: 'hidden' }}>
         <ListItem>
-          <ListItemButton component={NavLink} to="dashboard" selected={location.pathname.includes('dashboard')}>
-            <ListItemDecorator><HomeIcon /></ListItemDecorator>
-            {open && <ListItemContent>Home</ListItemContent>}
+          <ListItemButton component={NavLink} to="dashboard" selected={location.pathname.includes('dashboard')} sx={centerStyle}>
+            <ListItemDecorator sx={{ m: 0 }}><HomeIcon /></ListItemDecorator>
+            {open && <ListItemContent sx={{ ml: 1.5 }}>Home</ListItemContent>}
           </ListItemButton>
         </ListItem>
 
         <ListItem>
-          <ListItemButton component={NavLink} to="calendar" selected={location.pathname.includes('calendar')}>
-            <ListItemDecorator><Event /></ListItemDecorator>
-            {open && <ListItemContent>Calendar</ListItemContent>}
+          <ListItemButton component={NavLink} to="calendar" selected={location.pathname.includes('calendar')} sx={centerStyle}>
+            <ListItemDecorator sx={{ m: 0 }}><Event /></ListItemDecorator>
+            {open && <ListItemContent sx={{ ml: 1.5 }}>Calendar</ListItemContent>}
           </ListItemButton>
         </ListItem>
 
@@ -161,9 +173,9 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
         <Divider sx={{ my: 2 }} />
 
         <ListItem>
-            <ListItemButton component={NavLink} to="settings" selected={location.pathname.includes('settings')}>
-                <ListItemDecorator><Settings /></ListItemDecorator>
-                {open && <ListItemContent>Settings</ListItemContent>}
+            <ListItemButton component={NavLink} to="settings" selected={location.pathname.includes('settings')} sx={centerStyle}>
+                <ListItemDecorator sx={{ m: 0 }}><Settings /></ListItemDecorator>
+                {open && <ListItemContent sx={{ ml: 1.5 }}>Settings</ListItemContent>}
             </ListItemButton>
         </ListItem>
       </List>
@@ -274,6 +286,7 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
             setEmojiPickerOpen(false);
           }} 
           title="Select Avatar Emoji"
+          isDark={isDark}
         />
     </Box>
   );
@@ -285,14 +298,15 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
           display: { xs: 'none', md: 'flex' },
           borderRight: '1px solid',
           borderColor: 'divider',
-          width: open ? drawerWidth : 72,
+          width: open ? drawerWidth : collapsedWidth,
           transition: 'width 0.2s',
           flexShrink: 0,
           height: 'calc(100vh - var(--Header-height, 60px))',
           position: 'sticky',
           top: 'var(--Header-height, 60px)',
           zIndex: 100,
-          bgcolor: 'background.body'
+          bgcolor: 'background.body',
+          overflow: 'hidden'
         }}
       >
         {drawerContent}
