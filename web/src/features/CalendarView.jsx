@@ -1,13 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { 
   Box, Typography, Button, Sheet, DialogTitle, DialogContent, DialogActions,
   FormControl, FormLabel, Input, Select, Option, Stack, IconButton, Tooltip,
-  Switch, Grid, Divider, ToggleButtonGroup, Modal, ModalDialog, Textarea
+  Switch, Grid, Divider, ToggleButtonGroup, Modal, ModalDialog, Textarea, Chip
 } from '@mui/joy';
 import { 
   Add, Delete, Event as EventIcon, Cake, Favorite, Star,
-  ChevronLeft, ChevronRight
+  ChevronLeft, ChevronRight, List as ListIcon, CalendarMonth
 } from '@mui/icons-material';
 import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar';
 import format from 'date-fns/format';
@@ -15,7 +15,10 @@ import parse from 'date-fns/parse';
 import startOfWeek from 'date-fns/startOfWeek';
 import getDay from 'date-fns/getDay';
 import enUS from 'date-fns/locale/en-US';
-import { addDays, addWeeks, addMonths, addYears, parseISO, isBefore, isAfter, startOfDay, endOfDay } from 'date-fns';
+import { 
+  addDays, addWeeks, addMonths, addYears, parseISO, isBefore, isAfter, 
+  startOfDay, endOfDay, differenceInCalendarDays 
+} from 'date-fns';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 import EmojiPicker from '../components/EmojiPicker';
@@ -44,6 +47,70 @@ const RECURRENCE_OPTIONS = [
   { value: 'monthly', label: 'Monthly' },
   { value: 'yearly', label: 'Yearly' },
 ];
+
+const CUSTOM_VIEWS = {
+    TIMELINE: 'timeline'
+};
+
+function TimelineView({ events, onSelectEvent }) {
+    const now = startOfDay(new Date());
+    const upcomingEvents = useMemo(() => events
+      .filter(e => !isBefore(endOfDay(e.start), now))
+      .sort((a, b) => a.start.getTime() - b.start.getTime()), [events, now]);
+  
+    return (
+      <Box sx={{ overflowY: 'auto', height: '100%', p: 1 }}>
+        <Stack spacing={1.5}>
+          {upcomingEvents.length === 0 ? (
+            <Box sx={{ textAlign: 'center', py: 8 }}>
+              <Typography level="body-lg" textColor="neutral.500">No upcoming events</Typography>
+            </Box>
+          ) : (
+            upcomingEvents.map((event) => {
+              const daysAway = differenceInCalendarDays(startOfDay(event.start), now);
+              const label = daysAway === 0 ? "Today" : (daysAway === 1 ? "Tomorrow" : `${daysAway} days away`);
+              const color = daysAway === 0 ? "primary" : (daysAway <= 7 ? "warning" : "neutral");
+  
+              return (
+                <Sheet 
+                  key={event.id}
+                  variant="outlined" 
+                  onClick={() => onSelectEvent(event)}
+                  sx={{ 
+                    p: 2, 
+                    borderRadius: 'md', 
+                    cursor: 'pointer',
+                    '&:hover': { bgcolor: 'background.level1' },
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2
+                  }}
+                >
+                  <Box sx={{ textAlign: 'center', minWidth: 60 }}>
+                    <Typography level="title-lg" sx={{ lineHeight: 1 }}>{format(event.start, 'd')}</Typography>
+                    <Typography level="body-xs" textTransform="uppercase" fontWeight="bold">{format(event.start, 'MMM')}</Typography>
+                  </Box>
+                  
+                  <Divider orientation="vertical" />
+                  
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Typography level="title-md">{event.title}</Typography>
+                    <Typography level="body-xs" textColor="neutral.500">
+                        {event.allDay ? 'All Day' : format(event.start, 'h:mm a')} • {format(event.start, 'EEEE, d MMMM yyyy')}
+                    </Typography>
+                  </Box>
+  
+                  <Chip variant="soft" color={color} size="sm" sx={{ fontWeight: 'bold' }}>
+                    {label}
+                  </Chip>
+                </Sheet>
+              );
+            })
+          )}
+        </Stack>
+      </Box>
+    );
+}
 
 export default function CalendarView({ showNotification }) {
   const { api } = useOutletContext();
@@ -161,8 +228,8 @@ export default function CalendarView({ showNotification }) {
     setRecurrence('none');
     // Pre-fill dates
     setEditingEvent({ 
-        start: format(start, 'yyyy-MM-dd'),
-        end: format(start, 'yyyy-MM-dd') 
+        date: format(start, 'yyyy-MM-dd'),
+        end_date: format(start, 'yyyy-MM-dd') 
     });
     setOpen(true);
   };
@@ -248,34 +315,39 @@ export default function CalendarView({ showNotification }) {
                 size="sm"
                 variant="outlined"
             >
-                <Button value={Views.MONTH}>Month</Button>
+                <Button value={Views.MONTH} startDecorator={<CalendarMonth />}>Month</Button>
                 <Button value={Views.WEEK}>Week</Button>
                 <Button value={Views.AGENDA}>Agenda</Button>
+                <Button value={CUSTOM_VIEWS.TIMELINE} startDecorator={<ListIcon />}>Timeline</Button>
             </ToggleButtonGroup>
 
-            <Button variant="outlined" size="sm" onClick={() => setDate(new Date())}>Today</Button>
-            
-            <IconButton size="sm" variant="outlined" onClick={() => {
-                if (view === Views.MONTH) setDate(addMonths(date, -1));
-                else if (view === Views.WEEK) setDate(addWeeks(date, -1));
-                else setDate(addDays(date, -1));
-            }}>
-                <ChevronLeft />
-            </IconButton>
-            
-            <Typography level="title-lg" sx={{ minWidth: 180, textAlign: 'center' }}>
-                {view === Views.MONTH ? format(date, 'MMMM yyyy') : (
-                    view === Views.WEEK ? `Week of ${format(startOfWeek(date, { weekStartsOn: 1 }), 'MMM d')}` : format(date, 'MMM d, yyyy')
-                )}
-            </Typography>
-            
-            <IconButton size="sm" variant="outlined" onClick={() => {
-                if (view === Views.MONTH) setDate(addMonths(date, 1));
-                else if (view === Views.WEEK) setDate(addWeeks(date, 1));
-                else setDate(addDays(date, 1));
-            }}>
-                <ChevronRight />
-            </IconButton>
+            {view !== CUSTOM_VIEWS.TIMELINE && (
+                <>
+                    <Button variant="outlined" size="sm" onClick={() => setDate(new Date())}>Today</Button>
+                    
+                    <IconButton size="sm" variant="outlined" onClick={() => {
+                        if (view === Views.MONTH) setDate(addMonths(date, -1));
+                        else if (view === Views.WEEK) setDate(addWeeks(date, -1));
+                        else setDate(addDays(date, -1));
+                    }}>
+                        <ChevronLeft />
+                    </IconButton>
+                    
+                    <Typography level="title-lg" sx={{ minWidth: 180, textAlign: 'center' }}>
+                        {view === Views.MONTH ? format(date, 'MMMM yyyy') : (
+                            view === Views.WEEK ? `Week of ${format(startOfWeek(date, { weekStartsOn: 1 }), 'MMM d')}` : format(date, 'MMM d, yyyy')
+                        )}
+                    </Typography>
+                    
+                    <IconButton size="sm" variant="outlined" onClick={() => {
+                        if (view === Views.MONTH) setDate(addMonths(date, 1));
+                        else if (view === Views.WEEK) setDate(addWeeks(date, 1));
+                        else setDate(addDays(date, 1));
+                    }}>
+                        <ChevronRight />
+                    </IconButton>
+                </>
+            )}
 
             <Divider orientation="vertical" sx={{ mx: 2, height: 24 }} />
             
@@ -286,27 +358,31 @@ export default function CalendarView({ showNotification }) {
       </Box>
 
       <Sheet variant="outlined" sx={{ flexGrow: 1, p: 2, borderRadius: 'md', overflow: 'hidden' }}>
-        <Calendar
-            localizer={localizer}
-            events={events}
-            startAccessor="start"
-            endAccessor="end"
-            style={{ height: '100%' }}
-            views={[Views.MONTH, Views.WEEK, Views.AGENDA]}
-            view={view}
-            onView={v => setView(v)}
-            date={date}
-            onNavigate={d => setDate(d)}
-            selectable
-            onSelectSlot={handleSelectSlot}
-            onSelectEvent={handleSelectEvent}
-            popup
-            toolbar={false}
-            eventPropGetter={(event) => {
-                if (event.color) return { style: { backgroundColor: event.color } };
-                return {};
-            }}
-        />
+        {view === CUSTOM_VIEWS.TIMELINE ? (
+            <TimelineView events={events} onSelectEvent={handleSelectEvent} />
+        ) : (
+            <Calendar
+                localizer={localizer}
+                events={events}
+                startAccessor="start"
+                endAccessor="end"
+                style={{ height: '100%' }}
+                views={[Views.MONTH, Views.WEEK, Views.AGENDA]}
+                view={view}
+                onView={v => setView(v)}
+                date={date}
+                onNavigate={d => setDate(d)}
+                selectable
+                onSelectSlot={handleSelectSlot}
+                onSelectEvent={handleSelectEvent}
+                popup
+                toolbar={false}
+                eventPropGetter={(event) => {
+                    if (event.color) return { style: { backgroundColor: event.color } };
+                    return {};
+                }}
+            />
+        )}
       </Sheet>
 
       {/* ADD/EDIT DIALOG */}

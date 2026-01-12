@@ -158,25 +158,26 @@ export default function NavSidebar({
 
             <Box sx={{ flexGrow: 1 }} />
 
-            <Box sx={{ mt: 'auto', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', pb: 2 }}>
+            <Box sx={{ mt: 'auto', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', px: 2, pb: 2 }}>
                 {canInstall && (
                     <Tooltip title="Install App" placement="right" arrow>
                         <IconButton 
                             onClick={onInstall} 
                             variant="soft" 
                             color="primary" 
-                            sx={{ mb: 2, borderRadius: '50%', width: 40, height: 40 }}
+                            sx={{ mb: 2, borderRadius: 'sm', width: 40, height: 40 }}
                         >
                             <Download />
                         </IconButton>
                     </Tooltip>
                 )}
-                <Divider sx={{ mb: 2, width: 48, mx: 'auto' }} />
+                <Divider sx={{ mb: 2, width: 40 }} />
                 <Avatar 
                     onClick={(e) => {
+                        e.stopPropagation();
                         setUserMenuAnchor(e.currentTarget);
                     }}
-                    sx={{ cursor: 'pointer', bgcolor: getEmojiColor(user?.avatar || '?', isDark) }}
+                    sx={{ cursor: 'pointer', bgcolor: getEmojiColor(user?.avatar || '?', isDark), width: 40, height: 40 }}
                 >
                     {user?.avatar || user?.username?.[0]}
                 </Avatar>
@@ -264,7 +265,7 @@ export default function NavSidebar({
             onClose={() => setUserMenuAnchor(null)} 
             placement="right-end" 
             size="sm" 
-            sx={{ minWidth: 180, zIndex: 1500 }}
+            sx={{ minWidth: 180, zIndex: 2100 }}
         >
             <MenuItem onClick={openProfile}><Edit /> Edit Profile</MenuItem>
             <Divider />
@@ -272,7 +273,7 @@ export default function NavSidebar({
         </Menu>
 
         <Modal open={profileOpen} onClose={() => setProfileOpen(false)}>
-          <ModalDialog sx={{ maxWidth: 500, width: '100%', zIndex: 1301 }}>
+          <ModalDialog sx={{ maxWidth: 500, width: '100%', zIndex: 2200 }}>
             <DialogTitle>Edit Profile</DialogTitle>
             <DialogContent>
               <form onSubmit={handleProfileSubmit}>
