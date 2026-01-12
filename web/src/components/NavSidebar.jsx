@@ -6,7 +6,7 @@ import {
 import { 
   Settings, Home as HomeIcon, Event, 
   Groups, Pets, HomeWork, DirectionsCar, 
-  Logout, Edit, KeyboardArrowRight, ChevronLeft
+  Logout, Edit, KeyboardArrowRight, ChevronLeft, Download
 } from '@mui/icons-material';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
@@ -158,8 +158,20 @@ export default function NavSidebar({
 
             <Box sx={{ flexGrow: 1 }} />
 
-            <Box sx={{ mt: 'auto', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 8 }}>
-                <Divider sx={{ my: 1, width: 48, mx: 'auto' }} />
+            <Box sx={{ mt: 'auto', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', pb: 2 }}>
+                {canInstall && (
+                    <Tooltip title="Install App" placement="right" arrow>
+                        <IconButton 
+                            onClick={onInstall} 
+                            variant="soft" 
+                            color="primary" 
+                            sx={{ mb: 2, borderRadius: '50%', width: 40, height: 40 }}
+                        >
+                            <Download />
+                        </IconButton>
+                    </Tooltip>
+                )}
+                <Divider sx={{ mb: 2, width: 48, mx: 'auto' }} />
                 <Avatar 
                     onClick={(e) => {
                         setUserMenuAnchor(e.currentTarget);
