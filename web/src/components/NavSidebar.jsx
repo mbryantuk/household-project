@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, 
   IconButton, Divider, Box, Avatar, Typography, Stack, Tooltip, Button
@@ -14,7 +14,7 @@ import EmojiPicker from './EmojiPicker';
 import TotemIcon from './TotemIcon';
 
 // Layout Constants
-const RAIL_WIDTH = 72;
+const RAIL_WIDTH = 64; // Reduced from 72
 const PANEL_WIDTH = 240;
 
 export default function NavSidebar({ 
@@ -45,9 +45,6 @@ export default function NavSidebar({
           setActiveCategory(null);
       } else {
           setActiveCategory(category);
-          if (!hasSubItems && isMobile) {
-              // On mobile, if no subitems, just close after nav if to is provided
-          }
       }
   };
 
@@ -79,17 +76,25 @@ export default function NavSidebar({
       }
 
       return (
-        <Tooltip title={label} placement="right" arrow>
+        <Tooltip title={label} placement="right" arrow size="sm">
             <ListItem>
                 <ListItemButton 
                     selected={isActive}
                     onClick={() => handleNav(to, category, hasSubItems)}
                     sx={{ 
-                        borderRadius: 'md', justifyContent: 'center', px: 0, flexDirection: 'column', gap: 0.5, py: 1, width: 56, mx: 'auto'
+                        borderRadius: 'md', 
+                        justifyContent: 'center', 
+                        px: 0, 
+                        flexDirection: 'column', 
+                        gap: 0.2, 
+                        py: 0.8, 
+                        width: 52, // Slightly narrower
+                        mx: 'auto',
+                        minHeight: 52
                     }}
                 >
-                    <ListItemDecorator sx={{ display: 'flex', justifyContent: 'center', m: 0 }}>{icon}</ListItemDecorator>
-                    <Typography level="body-xs" sx={{ fontSize: '10px' }}>{label}</Typography>
+                    <ListItemDecorator sx={{ display: 'flex', justifyContent: 'center', m: 0, '& svg': { fontSize: '1.25rem' } }}>{icon}</ListItemDecorator>
+                    <Typography level="body-xs" sx={{ fontSize: '9px', fontWeight: '500' }}>{label}</Typography>
                 </ListItemButton>
             </ListItem>
         </Tooltip>
@@ -124,7 +129,7 @@ export default function NavSidebar({
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: isMobile ? 'stretch' : 'center',
-                py: 2,
+                py: 1.5,
                 bgcolor: 'background.surface',
                 zIndex: 2500,
                 height: '100%' 
@@ -137,13 +142,13 @@ export default function NavSidebar({
                 </Box>
             )}
 
-            <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
+            <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'center' }}>
                 <Box 
                     sx={{ 
-                        width: 48, height: 48, borderRadius: '50%', 
+                        width: 42, height: 42, borderRadius: '50%', 
                         bgcolor: getEmojiColor(household?.avatar || '?', isDark),
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '1.5rem', cursor: 'pointer',
+                        fontSize: '1.2rem', cursor: 'pointer',
                         border: '2px solid', borderColor: 'divider',
                         overflow: 'hidden'
                     }}
@@ -152,30 +157,30 @@ export default function NavSidebar({
                 </Box>
             </Box>
 
-            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
+            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '2px', width: '100%', px: isMobile ? 1 : 0 }}>
                 <RailIcon icon={<HomeIcon />} label="Home" category="dashboard" to="dashboard" />
                 <RailIcon icon={<Event />} label="Events" category="calendar" to="calendar" />
-                <Divider sx={{ my: 1, width: isMobile ? '100%' : 48, mx: 'auto' }} />
+                <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
                 <RailIcon icon={<Groups />} label="People" category="people" hasSubItems />
                 <RailIcon icon={<Pets />} label="Pets" category="pets" hasSubItems />
                 <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems />
                 <RailIcon icon={<DirectionsCar />} label="Vehicles" category="vehicles" hasSubItems />
-                <Divider sx={{ my: 1, width: isMobile ? '100%' : 48, mx: 'auto' }} />
+                <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
                 <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems />
-                <Divider sx={{ my: 1, width: isMobile ? '100%' : 48, mx: 'auto' }} />
+                <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
                 <RailIcon 
                     icon={
                         <Avatar 
                             size="sm"
                             sx={{ 
                                 bgcolor: getEmojiColor(user?.avatar || '👤', isDark), 
-                                width: 24, height: 24, fontSize: '0.8rem' 
+                                width: 22, height: 22, fontSize: '0.75rem' 
                             }}
                         >
                             {user?.avatar || user?.first_name?.[0] || user?.email?.[0]}
                         </Avatar>
                     } 
-                    label={user?.first_name || 'Account'} 
+                    label="Account" 
                     category="account" 
                     hasSubItems 
                 />
@@ -183,16 +188,16 @@ export default function NavSidebar({
 
             <Box sx={{ flexGrow: 1 }} />
 
-            <Box sx={{ mt: 'auto', width: '100%', display: 'flex', flexDirection: 'column', alignItems: isMobile ? 'center' : 'flex-start', px: 2, pb: 2 }}>
+            <Box sx={{ mt: 'auto', width: '100%', display: 'flex', flexDirection: 'column', alignItems: isMobile ? 'center' : 'center', px: isMobile ? 2 : 0, pb: 1 }}>
                 {canInstall && (
-                    <Tooltip title="Install App" placement="right" arrow>
+                    <Tooltip title="Install App" placement="right" arrow size="sm">
                         <IconButton 
                             onClick={onInstall} 
                             variant="soft" 
                             color="primary" 
-                            sx={{ mb: 1, borderRadius: 'sm', width: 40, height: 40 }}
+                            sx={{ borderRadius: 'sm', width: 36, height: 36 }}
                         >
-                            <Download />
+                            <Download sx={{ fontSize: '1.2rem' }} />
                         </IconButton>
                     </Tooltip>
                 )}
