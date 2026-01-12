@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Box, Typography, Card, CardContent, CardActions, Button, 
-  AspectRatio, Grid, Container, IconButton, Stack, Divider, Sheet
+  AspectRatio, Grid, Container, IconButton, Stack, Divider, Sheet, Alert
 } from '@mui/joy';
 import { Add, Home, ArrowForward, Logout, Settings } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -29,14 +29,13 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
 
   const handleSelect = (hh) => {
     localStorage.setItem('household', JSON.stringify(hh));
-    // We navigate to dashboard, App.jsx will sync state on next render or via callback
     window.location.href = `/household/${hh.id}/dashboard`;
   };
 
   return (
     <Container maxWidth="md" sx={{ py: 8 }}>
       <Box sx={{ mb: 6, textAlign: 'center' }}>
-        <Typography level="h1" fontWeight="xl" mb={1}>Welcome back, {currentUser?.first_name}</Typography>
+        <Typography level="h1" fontWeight="xl" mb={1}>Welcome back, {currentUser?.first_name || currentUser?.username}</Typography>
         <Typography level="title-lg" textColor="text.secondary">Select a household to continue</Typography>
       </Box>
 
@@ -81,7 +80,7 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
         </Grid>
       </Grid>
 
-      <Box sx={{ mt: 10, display: 'flex', justifyContent: 'center', gap: 2 }}>
+      <Box sx={{ mt: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
         <Button variant="plain" color="neutral" startDecorator={<Logout />} onClick={onLogout}>Logout</Button>
         {currentUser?.system_role === 'sysadmin' && (
             <Alert variant="soft" color="warning" size="sm" sx={{ py: 0.5 }}>
