@@ -82,6 +82,16 @@ function AppInner({ useDracula, setUseDracula }) {
   };
 
   // Data Fetching
+  const fetchHouseholds = useCallback(async () => {
+    if (!token) return;
+    try {
+      const res = await authAxios.get('/auth/my-households');
+      setHouseholds(res.data || []);
+    } catch (err) {
+      console.error("Failed to fetch households", err);
+    }
+  }, [authAxios, token]);
+
   const fetchHhMembers = useCallback((hhId) => {
     if (!hhId) return;
     authAxios.get(`/households/${hhId}/members`).then(res => setHhMembers(Array.isArray(res.data) ? res.data : []));
@@ -96,6 +106,12 @@ function AppInner({ useDracula, setUseDracula }) {
     if (!hhId) return;
     authAxios.get(`/households/${hhId}/dates`).then(res => setHhDates(Array.isArray(res.data) ? res.data : []));
   }, [authAxios]);
+
+  useEffect(() => {
+    if (token) {
+        fetchHouseholds();
+    }
+  }, [token, fetchHouseholds]);
 
   useEffect(() => {
     if (token && household) {
@@ -180,7 +196,8 @@ function AppInner({ useDracula, setUseDracula }) {
           <Route path="select-household" element={<HouseholdSelector api={authAxios} currentUser={user} onLogout={logout} showNotification={showNotification} />} />
 
           <Route path="household/:id" element={<HouseholdLayout 
-              households={[]}
+              households={households}
+              onSelectHousehold={setHousehold}
               api={authAxios} onUpdateHousehold={handleUpdateHouseholdSettings}
               members={hhMembers} fetchHhMembers={fetchHhMembers} user={user} isDark={isDark}
               showNotification={showNotification} confirmAction={confirmAction}
