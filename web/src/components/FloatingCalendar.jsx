@@ -75,12 +75,11 @@ export default function FloatingCalendar({
       onFocus={() => setIsFocused(true)}
       onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setIsFocused(false); }}
       sx={{
-        position: isPopout ? 'relative' : 'fixed',
-        left: isPopout ? 0 : (isDocked ? 'inherit' : pos.x),
-        bottom: isDocked ? 0 : 'inherit',
-        top: !isDocked && !isPopout ? pos.y : 'inherit',
-        width: isPopout ? '100%' : 350,
-        height: isPopout ? '100%' : 500,
+        position: (isPopout || isDocked) ? 'relative' : 'fixed',
+        left: (isPopout || isDocked) ? 0 : pos.x,
+        top: (isPopout || isDocked) ? 0 : pos.y,
+        width: (isPopout || isDocked) ? '100%' : 350,
+        height: (isPopout || isDocked) ? '100%' : 500,
         zIndex: 1300,
         display: 'flex',
         flexDirection: 'column',

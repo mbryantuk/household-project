@@ -76,12 +76,11 @@ export default function PostItNote({ onClose, user, onUpdateProfile, onPopout, i
       onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setIsFocused(false); }}
       tabIndex={0}
       sx={{
-        position: isPopout ? 'relative' : 'fixed',
-        left: isPopout ? 0 : (isDocked ? 'inherit' : pos.x),
-        bottom: isDocked ? 0 : 'inherit',
-        top: !isDocked && !isPopout ? pos.y : 'inherit',
-        width: isPopout ? '100%' : 320,
-        height: isPopout ? '100%' : 450,
+        position: (isPopout || isDocked) ? 'relative' : 'fixed',
+        left: (isPopout || isDocked) ? 0 : pos.x,
+        top: (isPopout || isDocked) ? 0 : pos.y,
+        width: (isPopout || isDocked) ? '100%' : 320,
+        height: (isPopout || isDocked) ? '100%' : 450,
         bgcolor: YELLOW,
         color: '#000',
         zIndex: 1300,
