@@ -12,6 +12,7 @@ import CssBaseline from '@mui/joy/CssBaseline';
 import { getTotemTheme, getThemeSpec } from './theme';
 import FloatingCalculator from './components/FloatingCalculator';
 import FloatingCalendar from './components/FloatingCalendar';
+import FinancialCalculator from './components/FinancialCalculator';
 import PostItNote from './components/PostItNote';
 
 // Layouts & Pages
@@ -271,6 +272,7 @@ function AppInner({ useDracula, setUseDracula }) {
         <Route path="/login" element={!token ? <Login onLogin={login} /> : <Navigate to="/" />} />
         <Route path="/register" element={!token ? <Register /> : <Navigate to="/" />} />
         <Route path="/calculator" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
+        <Route path="/fin-calculator-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FinancialCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
         <Route path="/calendar-window" element={
           <Box sx={{ height: '100vh', bgcolor: 'background.body' }}>
             <FloatingCalendar 

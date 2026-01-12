@@ -1,27 +1,49 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Box, IconButton, Tooltip, Sheet, Typography, Button
 } from '@mui/joy';
 import { 
-  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown
+  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Savings
 } from '@mui/icons-material';
 import FloatingCalculator from './FloatingCalculator';
 import FloatingCalendar from './FloatingCalendar';
+import FinancialCalculator from './FinancialCalculator';
 import PostItNote from './PostItNote';
 
 // Utility Bar like Salesforce: persistent bar at bottom, items open upwards
 export default function UtilityBar({ 
     user, api, dates, onDateAdded, onUpdateProfile, isDark
 }) {
-  const [activeWidget, setActiveWidget] = useState(null); // 'notes', 'calc', 'calendar'
+  const [activeWidget, setActiveWidget] = useState(null); // 'notes', 'calc', 'fincalc', 'calendar'
   const [poppedOut, setPoppedOut] = useState({});
+  const popoutRefs = useRef({});
+
+  // Poll for closed windows to reset state
+  useEffect(() => {
+    const timer = setInterval(() => {
+        const nextPoppedOut = { ...poppedOut };
+        let changed = false;
+        Object.keys(popoutRefs.current).forEach(key => {
+            if (popoutRefs.current[key] && popoutRefs.current[key].closed) {
+                if (nextPoppedOut[key]) {
+                    nextPoppedOut[key] = false;
+                    changed = true;
+                }
+                popoutRefs.current[key] = null;
+            }
+        });
+        if (changed) setPoppedOut(nextPoppedOut);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [poppedOut]);
 
   const toggleWidget = (widget) => {
       setActiveWidget(activeWidget === widget ? null : widget);
   };
 
   const handlePopout = (widget, url) => {
-      window.open(url, `Totem${widget}`, 'width=400,height=500,menubar=no,toolbar=no,location=no,status=no');
+      const win = window.open(url, `Totem${widget}`, 'width=400,height=500,menubar=no,toolbar=no,location=no,status=no');
+      popoutRefs.current[widget] = win;
       setPoppedOut(prev => ({ ...prev, [widget]: true }));
       setActiveWidget(null);
   };
@@ -61,8 +83,16 @@ export default function UtilityBar({
                   />
               </Box>
           )}
-          {activeWidget === 'calendar' && !poppedOut.calendar && (
+          {activeWidget === 'fincalc' && !poppedOut.fincalc && (
               <Box sx={{ position: 'absolute', bottom: 0, left: 280 }}>
+                  <FinancialCalculator 
+                    isDocked onClose={() => setActiveWidget(null)} isDark={isDark}
+                    onPopout={() => handlePopout('fincalc', '/fin-calculator-window')}
+                  />
+              </Box>
+          )}
+          {activeWidget === 'calendar' && !poppedOut.calendar && (
+              <Box sx={{ position: 'absolute', bottom: 0, left: 410 }}>
                   <FloatingCalendar 
                     isDocked onClose={() => setActiveWidget(null)} dates={dates} api={api} 
                     householdId={user?.default_household_id} currentUser={user} onDateAdded={onDateAdded} isDark={isDark}
@@ -99,7 +129,13 @@ export default function UtilityBar({
             {activeWidget === 'calc' && <KeyboardArrowDown fontSize="small" />}
         </Button>
 
-        <Button variant="plain" color="neutral" sx={tabSx('calendar', 'success')} onClick={() => toggleWidget('calendar')}>
+        <Button variant="plain" color="neutral" sx={tabSx('fincalc', 'success')} onClick={() => toggleWidget('fincalc')}>
+            <Savings fontSize="small" />
+            <Typography level="body-xs" fontWeight="bold">Finance</Typography>
+            {activeWidget === 'fincalc' && <KeyboardArrowDown fontSize="small" />}
+        </Button>
+
+        <Button variant="plain" color="neutral" sx={tabSx('calendar', 'danger')} onClick={() => toggleWidget('calendar')}>
             <CalendarMonth fontSize="small" />
             <Typography level="body-xs" fontWeight="bold">Calendar</Typography>
             {activeWidget === 'calendar' && <KeyboardArrowDown fontSize="small" />}
