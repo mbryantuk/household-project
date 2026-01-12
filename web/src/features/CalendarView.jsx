@@ -17,7 +17,7 @@ import getDay from 'date-fns/getDay';
 import enUS from 'date-fns/locale/en-US';
 import { 
   addDays, addWeeks, addMonths, addYears, parseISO, isBefore, isAfter, 
-  startOfDay, endOfDay, differenceInCalendarDays 
+  startOfDay, endOfDay, differenceInCalendarDays, isValid
 } from 'date-fns';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
@@ -55,7 +55,7 @@ const CUSTOM_VIEWS = {
 function TimelineView({ events, onSelectEvent }) {
     const now = startOfDay(new Date());
     const upcomingEvents = useMemo(() => events
-      .filter(e => !isBefore(endOfDay(e.start), now))
+      .filter(e => e.start && isValid(e.start) && !isBefore(endOfDay(e.start), now))
       .sort((a, b) => a.start.getTime() - b.start.getTime()), [events, now]);
   
     return (
@@ -157,13 +157,17 @@ export default function CalendarView({ showNotification }) {
     const limitDate = addYears(new Date(), 2); // Expand up to 2 years ahead
 
     rawDates.forEach(d => {
+      if (!d.date) return;
+      const startDate = parseISO(d.date);
+      if (!isValid(startDate)) return;
+
       // Logic for cost items vs regular date items
       if (d.type === 'cost' || d.type === 'holiday') {
         expandedEvents.push({
           id: d.id,
           title: d.title,
-          start: parseISO(d.date),
-          end: parseISO(d.date),
+          start: startDate,
+          end: startDate,
           allDay: true,
           resource: d,
           color: d.type === 'holiday' ? '#ff9800' : '#4caf50'
@@ -171,8 +175,9 @@ export default function CalendarView({ showNotification }) {
         return;
       }
 
-      const startDate = parseISO(d.date);
       const endDate = d.end_date ? parseISO(d.end_date) : (d.is_all_day ? startDate : addDays(startDate, 0));
+      if (!isValid(endDate)) return;
+
       const recurEnd = d.recurrence_end_date ? parseISO(d.recurrence_end_date) : limitDate;
 
       const baseEvent = {
@@ -193,7 +198,7 @@ export default function CalendarView({ showNotification }) {
         let currentEnd = endDate;
         const duration = currentEnd.getTime() - currentStart.getTime();
 
-        while (isBefore(currentStart, recurEnd) && isBefore(currentStart, limitDate)) {
+        while (isValid(currentStart) && isBefore(currentStart, recurEnd) && isBefore(currentStart, limitDate)) {
            // Create instance
            expandedEvents.push({
              ...baseEvent,
@@ -245,8 +250,8 @@ export default function CalendarView({ showNotification }) {
     setEditingEvent({
         ...original,
         // Ensure dates are strings for inputs
-        date: original.date.split('T')[0], // strip time if ISO
-        end_date: original.end_date ? original.end_date.split('T')[0] : original.date.split('T')[0]
+        date: original.date ? original.date.split('T')[0] : '', 
+        end_date: original.end_date ? original.end_date.split('T')[0] : (original.date ? original.date.split('T')[0] : '')
     });
     setSelectedEmoji(original.emoji || '📅');
     setIsAllDay(Boolean(original.is_all_day));

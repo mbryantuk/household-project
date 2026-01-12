@@ -13,7 +13,7 @@ import { getEmojiColor } from '../theme';
 export default function ProfileView() {
   const { userId } = useParams();
   const navigate = useNavigate();
-  const { api, user: currentUser, showNotification, onUpdateProfile } = useOutletContext();
+  const { api, id: householdId, user: currentUser, showNotification, onUpdateProfile } = useOutletContext();
   
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -33,8 +33,6 @@ export default function ProfileView() {
     const fetchUser = async () => {
       try {
         setLoading(true);
-        // If it's me, we can initialize from context for speed, 
-        // but we'll still fetch fresh data to be sure.
         if (isMe) {
           setFormData({
             first_name: currentUser.first_name || '',
@@ -45,7 +43,13 @@ export default function ProfileView() {
           });
         }
         
-        const res = await api.get(isMe ? '/auth/profile' : `/admin/users/${targetId}`);
+        let endpoint = isMe ? '/auth/profile' : `/households/${householdId}/users/${targetId}`;
+        // Fallback for SysAdmin if they are viewing a user not in their current house context
+        if (!isMe && currentUser.system_role === 'sysadmin') {
+            endpoint = `/admin/users/${targetId}`;
+        }
+
+        const res = await api.get(endpoint);
         const u = res.data;
         setFormData({
           first_name: u.first_name || '',

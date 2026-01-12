@@ -117,6 +117,25 @@ router.get('/households/:id/users', authenticateToken, requireHouseholdRole('mem
     });
 });
 
+// GET /households/:id/users/:userId (Get single user in household)
+router.get('/households/:id/users/:userId', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
+    const { id: householdId, userId } = req.params;
+    if (req.user.system_role !== 'sysadmin' && parseInt(req.user.householdId) !== parseInt(householdId)) return res.sendStatus(403);
+
+    const sql = `
+        SELECT u.id, u.email, u.first_name, u.last_name, u.avatar, uh.role 
+        FROM users u
+        JOIN user_households uh ON u.id = uh.user_id
+        WHERE uh.household_id = ? AND u.id = ?
+    `;
+
+    globalDb.get(sql, [householdId, userId], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!row) return res.status(404).json({ error: "User not found in this household" });
+        res.json(row);
+    });
+});
+
 // POST /households/:id/users (Invite/Add User)
 router.post('/households/:id/users', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
     const householdId = req.params.id;

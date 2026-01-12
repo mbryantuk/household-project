@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { 
   Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, 
-  IconButton, Divider, Box, Avatar, Typography, Menu, MenuItem, Modal, ModalDialog, 
-  DialogTitle, DialogContent, FormControl, FormLabel, Input, Button, DialogActions, Tooltip,
-  Dropdown, MenuButton
+  IconButton, Divider, Box, Avatar, Typography, Stack, Tooltip, Button
 } from '@mui/joy';
 import { 
   Settings, Home as HomeIcon, Event, 
@@ -36,6 +34,7 @@ export default function NavSidebar({
       else if (path.includes('/vehicles')) setActiveCategory('vehicles');
       else if (path.includes('/house/') || path.endsWith('/house')) setActiveCategory('house'); 
       else if (path.includes('/settings')) setActiveCategory('settings');
+      else if (path.includes('/profile')) setActiveCategory('account');
       else setActiveCategory(null); 
   }, [location.pathname]);
 
@@ -98,7 +97,7 @@ export default function NavSidebar({
                 alignItems: 'center',
                 py: 2,
                 bgcolor: 'background.surface',
-                zIndex: 2500, // Increased to be above UtilityBar (2000)
+                zIndex: 2500,
                 height: '100%' 
             }}
         >
@@ -174,7 +173,7 @@ export default function NavSidebar({
                 display: 'flex',
                 flexDirection: 'column',
                 bgcolor: 'background.level1',
-                zIndex: 2100, // Increased to be above UtilityBar (2000)
+                zIndex: 2100,
                 whiteSpace: 'nowrap',
                 height: '100%' 
             }}
@@ -190,6 +189,22 @@ export default function NavSidebar({
             <List sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>
                 {activeCategory === 'account' && (
                     <>
+                        <ListItem sx={{ px: 2, py: 1.5 }}>
+                            <Stack direction="row" spacing={2} alignItems="center">
+                                <Avatar 
+                                    size="lg" 
+                                    sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark) }}
+                                    onClick={() => setEmojiPickerOpen(true)}
+                                >
+                                    {user?.avatar || user?.first_name?.[0]}
+                                </Avatar>
+                                <Box sx={{ minWidth: 0 }}>
+                                    <Typography level="title-sm" noWrap>{user?.first_name} {user?.last_name}</Typography>
+                                    <Typography level="body-xs" noWrap>{user?.email}</Typography>
+                                </Box>
+                            </Stack>
+                        </ListItem>
+                        <Divider sx={{ my: 1 }} />
                         <ListItem>
                             <ListItemButton onClick={() => { navigate('profile'); setActiveCategory(null); }}>
                                 <ListItemDecorator><Edit /></ListItemDecorator>
@@ -261,7 +276,16 @@ export default function NavSidebar({
             </List>
         </Sheet>
 
-        <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(emoji) => { setFormData(prev => ({ ...prev, avatar: emoji })); setEmojiPickerOpen(false); }} title="Select Avatar Emoji" isDark={isDark} />
+        <EmojiPicker 
+            open={emojiPickerOpen} 
+            onClose={() => setEmojiPickerOpen(false)} 
+            onEmojiSelect={(emoji) => { 
+                onUpdateProfile({ avatar: emoji }); 
+                setEmojiPickerOpen(false); 
+            }} 
+            title="Select Avatar Emoji" 
+            isDark={isDark} 
+        />
     </Box>
   );
 }
