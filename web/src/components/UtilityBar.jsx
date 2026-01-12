@@ -3,7 +3,7 @@ import {
   Box, IconButton, Tooltip, Sheet, Typography, Button
 } from '@mui/joy';
 import { 
-  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Savings, Close
+  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Savings, Close, Wifi, AccessTime
 } from '@mui/icons-material';
 import FloatingCalculator from './FloatingCalculator';
 import FloatingCalendar from './FloatingCalendar';
@@ -13,9 +13,15 @@ import PostItNote from './PostItNote';
 export default function UtilityBar({ 
     user, api, dates, onDateAdded, onUpdateProfile, isDark
 }) {
-  const [activeWidgets, setActiveWidgets] = useState({}); // { notes: true, calc: false }
+  const [activeWidgets, setActiveWidgets] = useState({}); 
   const [poppedOut, setPoppedOut] = useState({});
   const popoutRefs = useRef({});
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Poll for closed windows
   useEffect(() => {
@@ -38,11 +44,9 @@ export default function UtilityBar({
 
   const toggleWidget = (widget) => {
       if (poppedOut[widget]) {
-          // If popped out, focus the window or re-open it if blocked
           if (popoutRefs.current[widget] && !popoutRefs.current[widget].closed) {
               popoutRefs.current[widget].focus();
           } else {
-              // State desync? Reset
               setPoppedOut(prev => ({ ...prev, [widget]: false }));
               setActiveWidgets(prev => ({ ...prev, [widget]: true }));
           }
@@ -67,22 +71,25 @@ export default function UtilityBar({
       const isPopped = poppedOut[id];
 
       return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', height: '100%' }}>
-            {/* The Panel (if open) */}
+        <Box sx={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center' }}>
+            {/* The Panel (Absolute Positioned) */}
             {isOpen && (
                 <Box sx={{ 
+                    position: 'absolute',
+                    bottom: '100%',
+                    left: 0,
                     width: width, 
                     height: 450, 
-                    mb: 0, 
+                    mb: '1px', // Gap for border
                     bgcolor: 'background.surface', 
                     borderTopLeftRadius: 'md', 
                     borderTopRightRadius: 'md', 
                     border: '1px solid', 
                     borderColor: 'divider',
                     borderBottom: 'none',
-                    position: 'relative',
                     boxShadow: '0 -4px 12px rgba(0,0,0,0.1)',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    zIndex: 2005
                 }}>
                     {children}
                 </Box>
@@ -94,7 +101,7 @@ export default function UtilityBar({
                 color={isOpen ? color : "neutral"} 
                 onClick={() => toggleWidget(id)}
                 sx={{
-                    height: 40,
+                    height: '100%',
                     borderRadius: 0,
                     px: 2,
                     minWidth: 120,
@@ -114,19 +121,23 @@ export default function UtilityBar({
   };
 
   return (
-    <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 2000, pointerEvents: 'none' }}>
-      <Box sx={{ display: 'flex', alignItems: 'flex-end', pointerEvents: 'auto', width: 'fit-content' }}>
-        <Sheet
-            variant="soft"
-            sx={{
-                height: 40,
-                display: 'flex',
-                alignItems: 'flex-end', // Align items to bottom
-                bgcolor: 'background.surface',
-                boxShadow: '0 -2px 10px rgba(0,0,0,0.1)',
-                borderTopRightRadius: 'md'
-            }}
-        >
+    <Sheet
+        variant="soft"
+        sx={{
+            position: 'relative', // Changed from fixed to flow nicely in flex column
+            width: '100%',
+            height: 40,
+            display: 'flex',
+            alignItems: 'center',
+            bgcolor: 'background.surface',
+            borderTop: '1px solid',
+            borderColor: 'divider',
+            zIndex: 2000,
+            flexShrink: 0
+        }}
+    >
+        {/* Left Section: Taskbar (75%) */}
+        <Box sx={{ flex: '1 1 75%', display: 'flex', height: '100%', overflowX: 'auto', '::-webkit-scrollbar': { display: 'none' } }}>
             <WidgetWrapper id="notes" label="Notes" icon={NoteAlt} color="warning" width={320}>
                 <PostItNote 
                     isDocked onClose={() => closeWidget('notes')} user={user} onUpdateProfile={onUpdateProfile}
@@ -155,8 +166,24 @@ export default function UtilityBar({
                     onPopout={() => handlePopout('calendar', '/calendar-window')}
                   />
             </WidgetWrapper>
-        </Sheet>
-      </Box>
-    </Box>
+        </Box>
+
+        {/* Right Section: Status Bar (25%) */}
+        <Box sx={{ 
+            flex: '0 0 25%', height: '100%', 
+            borderLeft: '1px solid', borderColor: 'divider', 
+            bgcolor: 'background.level1',
+            display: 'flex', alignItems: 'center', justifyContent: 'flex-end', px: 2, gap: 2 
+        }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, opacity: 0.7 }}>
+                <Wifi fontSize="small" color="success" />
+                <Typography level="body-xs">Online</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, opacity: 0.7 }}>
+                <AccessTime fontSize="small" />
+                <Typography level="body-xs">{time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Typography>
+            </Box>
+        </Box>
+    </Sheet>
   );
 }
