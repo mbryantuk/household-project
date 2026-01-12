@@ -78,7 +78,11 @@ export default function ProfileView() {
         await onUpdateProfile(updates);
         showNotification("Your profile has been updated.", "success");
       } else {
-        await api.put(`/admin/users/${targetId}`, updates);
+        let endpoint = `/households/${householdId}/users/${targetId}`;
+        if (currentUser.system_role === 'sysadmin') {
+            endpoint = `/admin/users/${targetId}`;
+        }
+        await api.put(endpoint, updates);
         showNotification("User updated successfully.", "success");
       }
       navigate(-1);

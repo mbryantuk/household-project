@@ -136,6 +136,43 @@ router.get('/households/:id/users/:userId', authenticateToken, requireHouseholdR
     });
 });
 
+// PUT /households/:id/users/:userId (Update user in household)
+router.put('/households/:id/users/:userId', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
+    const { id: householdId, userId } = req.params;
+    const { email, role, first_name, last_name, firstName, lastName, password, avatar } = req.body;
+
+    if (req.user.system_role !== 'sysadmin' && parseInt(req.user.householdId) !== parseInt(householdId)) return res.sendStatus(403);
+
+    try {
+        // 1. Update Global User Info
+        let fields = []; let values = [];
+        if (email) { fields.push('email = ?'); values.push(email); }
+        if (password) { fields.push('password_hash = ?'); values.push(bcrypt.hashSync(password, 8)); }
+        
+        const fName = first_name || firstName;
+        const lName = last_name || lastName;
+        if (fName) { fields.push('first_name = ?'); values.push(fName); }
+        if (lName) { fields.push('last_name = ?'); values.push(lName); }
+        if (avatar !== undefined) { fields.push('avatar = ?'); values.push(avatar); }
+
+        if (fields.length > 0) {
+            values.push(userId);
+            await dbRun(globalDb, `UPDATE users SET ${fields.join(', ')} WHERE id = ?`, values);
+        }
+
+        // 2. Update Household Role (if provided)
+        if (role) {
+            await dbRun(globalDb, `UPDATE user_households SET role = ? WHERE user_id = ? AND household_id = ?`, [role, userId, householdId]);
+        }
+
+        res.json({ message: "User updated successfully" });
+
+    } catch (err) {
+        console.error("Update User Error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // POST /households/:id/users (Invite/Add User)
 router.post('/households/:id/users', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
     const householdId = req.params.id;
