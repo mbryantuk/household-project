@@ -7,7 +7,7 @@ import {
   Settings, Home as HomeIcon, Event, 
   Groups, Pets, HomeWork, DirectionsCar, 
   Calculate, NoteAlt, CalendarMonth, GetApp,
-  Logout, Edit, KeyboardArrowRight, ChevronLeft, Close
+  Logout, Edit, KeyboardArrowRight, ChevronLeft
 } from '@mui/icons-material';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
@@ -32,7 +32,6 @@ export default function NavSidebar({
   // Infer active category on mount/path change
   useEffect(() => {
       const path = location.pathname;
-      // Fix: Use stricter checks to avoid matching '/household' as '/house'
       if (path.includes('/people')) setActiveCategory('people');
       else if (path.includes('/pets')) setActiveCategory('pets');
       else if (path.includes('/vehicles')) setActiveCategory('vehicles');
@@ -88,7 +87,7 @@ export default function NavSidebar({
 
   // --- Renders ---
 
-  const RailIcon = ({ icon, label, category, to, hasSubItems }) => {
+  const RailIcon = ({ icon, label, category, to, hasSubItems, onClick }) => {
       const isActive = activeCategory === category || (to && location.pathname.includes(to));
       
       return (
@@ -97,8 +96,12 @@ export default function NavSidebar({
                 <ListItemButton 
                     selected={isActive}
                     onClick={() => {
-                        if (to) navigate(to);
-                        handleCategoryClick(category, hasSubItems);
+                        if (onClick) {
+                            onClick();
+                        } else {
+                            if (to) navigate(to);
+                            handleCategoryClick(category, hasSubItems);
+                        }
                     }}
                     sx={{ 
                         borderRadius: 'md', 
@@ -106,7 +109,9 @@ export default function NavSidebar({
                         px: 0,
                         flexDirection: 'column',
                         gap: 0.5,
-                        py: 1
+                        py: 1,
+                        width: 56, // Fixed width for better alignment
+                        mx: 'auto'
                     }}
                 >
                     <ListItemDecorator sx={{ display: 'flex', justifyContent: 'center', m: 0 }}>
@@ -145,7 +150,6 @@ export default function NavSidebar({
                 flexDirection: 'column',
                 alignItems: 'center',
                 py: 2,
-                gap: 1,
                 bgcolor: 'background.surface',
                 zIndex: 1002
             }}
@@ -166,33 +170,37 @@ export default function NavSidebar({
                 </Box>
             </Box>
 
-            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '8px', width: '100%', px: 1 }}>
+            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%' }}>
                 <RailIcon icon={<HomeIcon />} label="Home" category="dashboard" to="dashboard" />
-                <RailIcon icon={<Event />} label="Calendar" category="calendar" to="calendar" />
-                <Divider />
+                <RailIcon icon={<Event />} label="Events" category="calendar" to="calendar" />
+                <Divider sx={{ my: 1, mx: 1.5 }} />
                 <RailIcon icon={<Groups />} label="People" category="people" hasSubItems />
                 <RailIcon icon={<Pets />} label="Pets" category="pets" hasSubItems />
                 <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems />
                 <RailIcon icon={<DirectionsCar />} label="Vehicles" category="vehicles" hasSubItems />
-                <Divider />
+                <Divider sx={{ my: 1, mx: 1.5 }} />
                 <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems />
             </List>
 
             <Box sx={{ flexGrow: 1 }} />
 
-            {/* Bottom Widgets */}
-            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: 1 }}>
-                <ListItem><ListItemButton onClick={toggleNote} sx={{ justifyContent: 'center' }}><NoteAlt /></ListItemButton></ListItem>
-                <ListItem><ListItemButton onClick={toggleCalc} sx={{ justifyContent: 'center' }}><Calculate /></ListItemButton></ListItem>
-                <ListItem><ListItemButton onClick={toggleCalendar} sx={{ justifyContent: 'center' }}><CalendarMonth /></ListItemButton></ListItem>
+            <Divider sx={{ my: 1, width: '60%' }} />
+
+            {/* Bottom Tools Tray */}
+            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%' }}>
+                <RailIcon icon={<NoteAlt />} label="Notes" onClick={toggleNote} />
+                <RailIcon icon={<Calculate />} label="Calc" onClick={toggleCalc} />
+                <RailIcon icon={<CalendarMonth />} label="Agenda" onClick={toggleCalendar} />
                 
                 {canInstall && (
-                    <ListItem><ListItemButton onClick={onInstall} sx={{ justifyContent: 'center' }}><GetApp /></ListItemButton></ListItem>
+                    <RailIcon icon={<GetApp />} label="Install" onClick={onInstall} />
                 )}
             </List>
 
+            <Divider sx={{ my: 1, width: '60%' }} />
+
             {/* User Profile */}
-            <Box sx={{ mt: 2 }}>
+            <Box sx={{ mt: 1, mb: 1 }}>
                 <Avatar 
                     onClick={(e) => setUserMenuAnchor(e.currentTarget)}
                     sx={{ cursor: 'pointer', bgcolor: getEmojiColor(user?.avatar || '?', isDark) }}
@@ -260,7 +268,6 @@ export default function NavSidebar({
                     <>
                         <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>PROPERTIES</Typography></ListItem>
                         <SubItem label={household?.name || 'Main House'} to={`house/${household?.id || 1}`} emoji={household?.avatar || '🏠'} />
-                        {/* Assuming future multi-house support or assets list here */}
                     </>
                 )}
 
