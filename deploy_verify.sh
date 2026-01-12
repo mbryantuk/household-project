@@ -11,6 +11,14 @@ echo "🧪 Running Comprehensive CRUD & Isolation Tests..."
 cd server && npm test tests/comprehensive_crud.test.js
 cd ..
 
+echo "🛡️ Running Viewer Restriction Tests..."
+cd server && npm test tests/viewer_restrictions.test.js
+cd ..
+
+echo "🌍 Running Selector API Tests..."
+cd server && npm test tests/selector.test.js
+cd ..
+
 echo "⚡ Running Performance & Load Tests..."
 cd server && npm run test:perf
 cd ..
