@@ -225,7 +225,12 @@ export default function NavSidebar({
                         </ListItem>
                         <Divider sx={{ my: 1 }} />
                         <ListItem>
-                            <ListItemButton onClick={onLogout} sx={{ color: 'danger.main' }}>
+                            <ListItemButton 
+                                onClick={onLogout} 
+                                variant="solid"
+                                color="danger"
+                                sx={{ borderRadius: 'sm', mx: 0.5 }}
+                            >
                                 <ListItemDecorator><Logout sx={{ color: 'inherit' }} /></ListItemDecorator>
                                 <ListItemContent>Logout</ListItemContent>
                             </ListItemButton>
