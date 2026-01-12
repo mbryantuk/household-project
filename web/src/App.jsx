@@ -210,13 +210,11 @@ function AppContent() {
 
   const handleUpdateProfile = useCallback(async (updates) => {
     try {
-      // Optimistic update
       const updatedUser = { ...user, ...updates };
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
 
       await authAxios.put('/auth/profile', updates);
-      // No notification for silent updates (like note)
       if (!updates.sticky_note) showNotification("Profile updated.", "success");
     } catch (err) { showNotification("Failed to update profile.", "danger"); throw err; }
   }, [authAxios, user, showNotification]);
@@ -280,7 +278,6 @@ function AppContent() {
         <Route path="/login" element={!token ? <Login onLogin={login} /> : <Navigate to="/" />} />
         <Route path="/register" element={!token ? <Register /> : <Navigate to="/" />} />
         <Route path="/calculator" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
-        {/* Added calendar-window route */}
         <Route path="/calendar-window" element={
           <Box sx={{ height: '100vh', bgcolor: 'background.body' }}>
             <FloatingCalendar 
@@ -294,7 +291,6 @@ function AppContent() {
             />
           </Box>
         } />
-        {/* Added note-window route */}
         <Route path="/note-window" element={
           <Box sx={{ height: '100vh', bgcolor: 'background.body' }}>
              <PostItNote 
@@ -306,24 +302,7 @@ function AppContent() {
           </Box>
         } />
         
-        <Route element={token ? <RootLayout 
-            user={user} 
-            currentHousehold={household} 
-            households={households} 
-            onSwitchHousehold={() => {}} 
-            onLogout={logout} 
-            toggleSidebar={() => setDrawerOpen(!drawerOpen)}
-            currentMode={modeOverride} 
-            onModeChange={(m) => { setModeOverride(m); localStorage.setItem('themeMode', m); }}
-            installPrompt={installPrompt} 
-            onInstall={handleInstallClick}
-            dates={hhDates}
-            api={authAxios}
-            onDateAdded={() => household && fetchHhDates(household.id)}
-            onUpdateProfile={handleUpdateProfile}
-            showNotification={showNotification}
-            confirmAction={confirmAction}
-          /> : <Navigate to="/login" />}>
+        <Route element={token ? <RootLayout /> : <Navigate to="/login" />}>
 
           <Route index element={household ? <Navigate to={`/household/${household.id}/dashboard`} /> : <Navigate to="/access" />} />
 
@@ -342,8 +321,6 @@ function AppContent() {
           />} />
 
           <Route path="household/:id" element={<HouseholdLayout 
-              drawerOpen={drawerOpen} 
-              toggleDrawer={() => setDrawerOpen(!drawerOpen)} 
               households={user?.role === 'sysadmin' ? households : [household]}
               onSelectHousehold={() => {}}
               api={authAxios}
@@ -354,6 +331,17 @@ function AppContent() {
               isDark={isDark}
               showNotification={showNotification}
               confirmAction={confirmAction}
+              
+              // New Props from TopBar Migration
+              dates={hhDates}
+              onDateAdded={() => household && fetchHhDates(household.id)}
+              onUpdateProfile={handleUpdateProfile}
+              onLogout={logout}
+              onSwitchHousehold={() => {}} 
+              currentMode={modeOverride}
+              onModeChange={(m) => { setModeOverride(m); localStorage.setItem('themeMode', m); }}
+              installPrompt={installPrompt}
+              onInstall={handleInstallClick}
             />}>
                             <Route index element={<Navigate to="dashboard" replace />} />
                             <Route path="dashboard" element={<HomeView household={household} members={hhMembers} currentUser={user} dates={hhDates} onUpdateProfile={handleUpdateProfile} />} />

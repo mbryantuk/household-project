@@ -1,44 +1,65 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, 
-  IconButton, Divider, Box, Avatar, Typography, Menu, MenuItem, Modal, ModalDialog, DialogTitle, DialogContent, FormControl, FormLabel, Input, Button, DialogActions
+  IconButton, Divider, Box, Avatar, Typography, Menu, MenuItem, Modal, ModalDialog, DialogTitle, DialogContent, FormControl, FormLabel, Input, Button, DialogActions, Tooltip
 } from '@mui/joy';
 import { 
-  Settings, Home as HomeIcon, ChevronLeft, Menu as MenuIcon, Event, 
+  Settings, Home as HomeIcon, Event, 
   Groups, Pets, HomeWork, DirectionsCar, 
-  KeyboardArrowUp, KeyboardArrowDown, Add, Logout, Edit
+  Calculate, NoteAlt, CalendarMonth, GetApp,
+  Logout, Edit, KeyboardArrowRight
 } from '@mui/icons-material';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
-import Drawer from '@mui/joy/Drawer';
 import EmojiPicker from './EmojiPicker';
+import TotemIcon from './TotemIcon';
 
-const drawerWidth = 260;
-const collapsedWidth = 72;
+// Layout Constants
+const RAIL_WIDTH = 72;
+const PANEL_WIDTH = 240;
 
-export default function NavSidebar({ open, toggleDrawer, members = [], vehicles = [], isDark, household, user, onLogout, onUpdateProfile }) {
+export default function NavSidebar({ 
+    members = [], vehicles = [], isDark, household, user, 
+    onLogout, onUpdateProfile, onModeChange, onInstall, canInstall,
+    toggleCalendar, toggleCalc, toggleNote 
+}) {
   const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Active Category State (Controls Panel)
+  // Default to Dashboard or infer from path
+  const [activeCategory, setActiveCategory] = useState(null);
+  
+  // Infer active category on mount/path change
+  useEffect(() => {
+      const path = location.pathname;
+      if (path.includes('/people')) setActiveCategory('people');
+      else if (path.includes('/pets')) setActiveCategory('pets');
+      else if (path.includes('/house')) setActiveCategory('house');
+      else if (path.includes('/vehicles')) setActiveCategory('vehicles');
+      else if (path.includes('/settings')) setActiveCategory('settings');
+      else setActiveCategory(null); // Dashboard/Calendar don't keep panel open
+  }, [location.pathname]);
+
+  // Profile Dialog State
   const [userMenuAnchor, setUserMenuAnchor] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
-  
-  // Local state for profile form to prevent premature updates
   const [formData, setFormData] = useState({ avatar: '' });
 
-  const [openSub, setOpenSub] = useState({
-    people: location.pathname.includes('/people'),
-    pets: location.pathname.includes('/pets'),
-    vehicles: location.pathname.includes('/vehicles'),
-    house: location.pathname.includes('/house')
-  });
-
-  const handleToggle = (key) => {
-    if (!open) {
-        toggleDrawer();
-        setOpenSub(prev => ({ ...prev, [key]: true })); // Auto-expand specific group when opening drawer
-    } else {
-        setOpenSub(prev => ({ ...prev, [key]: !prev[key] }));
-    }
+  // --- Handlers ---
+  const handleCategoryClick = (category, hasSubItems) => {
+      if (activeCategory === category) {
+          // If clicking active, toggle off? Or keep open?
+          // Standard rail behavior: keep open or toggle. Let's toggle if re-clicked.
+          setActiveCategory(null);
+      } else {
+          setActiveCategory(category);
+          if (!hasSubItems) {
+              // Direct navigation (Dashboard, Calendar)
+              setActiveCategory(null); // Close panel
+          }
+      }
   };
 
   const openProfile = () => {
@@ -55,7 +76,7 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
       first_name: form.get('first_name'),
       last_name: form.get('last_name'),
       email: form.get('email'),
-      avatar: formData.avatar // Use local state which might have been updated by EmojiPicker
+      avatar: formData.avatar 
     };
     const password = form.get('password');
     if (password) updates.password = password;
@@ -68,167 +89,218 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
     }
   };
 
-  // Center alignment styles for collapsed state
-  const centerStyle = !open ? { justifyContent: 'center', px: 0 } : {};
+  // --- Renders ---
 
-  const renderSubItem = (label, to, icon, emoji = null) => (
-    <ListItem key={to}>
-      <ListItemButton
-        component={NavLink}
-        to={to}
-        selected={location.pathname === to}
-        sx={{
-            pl: open ? 5 : 1, 
-            minHeight: 36,
-            borderRadius: 'md',
-            fontSize: 'sm',
-            color: 'neutral.500',
-            justifyContent: open ? 'flex-start' : 'center',
-            '&.active': {
-                variant: 'soft',
-                color: 'primary.plainColor',
-                bgcolor: 'background.level1',
-                fontWeight: 'lg'
-            },
-            '&:hover': {
-                bgcolor: 'background.level1'
-            }
-        }}
-      >
-        <ListItemDecorator sx={{ minWidth: open ? 32 : 'auto', mr: open ? 0 : 0 }}>
-          {emoji ? (
-            <Avatar size="sm" sx={{ '--Avatar-size': '20px', fontSize: '0.9rem', bgcolor: getEmojiColor(emoji, isDark) }}>
-              {emoji}
-            </Avatar>
-          ) : icon}
-        </ListItemDecorator>
-        {open && <ListItemContent>{label}</ListItemContent>}
-      </ListItemButton>
-    </ListItem>
-  );
-
-  const renderParent = (id, label, icon, items, pathPrefix, defaultEmoji = null) => {
-    const isOpen = openSub[id];
-    
-    if (!open) {
-        return (
+  const RailIcon = ({ icon, label, category, to, hasSubItems }) => {
+      const isActive = activeCategory === category || (to && location.pathname.includes(to));
+      
+      return (
+        <Tooltip title={label} placement="right" arrow>
             <ListItem>
-                <ListItemButton onClick={() => handleToggle(id)} sx={{ borderRadius: 'md', mb: 0.5, justifyContent: 'center', px: 0 }}>
-                    <ListItemDecorator sx={{ display: 'flex', justifyContent: 'center', m: 0 }}>{icon}</ListItemDecorator>
+                <ListItemButton 
+                    selected={isActive}
+                    onClick={() => {
+                        if (to) navigate(to);
+                        handleCategoryClick(category, hasSubItems);
+                    }}
+                    sx={{ 
+                        borderRadius: 'md', 
+                        justifyContent: 'center', 
+                        px: 0,
+                        flexDirection: 'column',
+                        gap: 0.5,
+                        py: 1
+                    }}
+                >
+                    <ListItemDecorator sx={{ display: 'flex', justifyContent: 'center', m: 0 }}>
+                        {icon}
+                    </ListItemDecorator>
+                    <Typography level="body-xs" sx={{ fontSize: '10px' }}>{label}</Typography>
                 </ListItemButton>
             </ListItem>
-        );
-    }
-
-    return (
-      <ListItem nested sx={{ my: 0.5 }}>
-        <ListItemButton 
-            onClick={() => handleToggle(id)}
-            sx={{ 
-                borderRadius: 'md',
-                fontWeight: isOpen ? 'lg' : 'md',
-                color: isOpen ? 'text.primary' : 'neutral.600'
-            }}
-        >
-            <ListItemDecorator>{icon}</ListItemDecorator>
-            <ListItemContent><Typography level="title-sm">{label}</Typography></ListItemContent>
-            {isOpen ? <KeyboardArrowUp sx={{ fontSize: 'md' }} /> : <KeyboardArrowDown sx={{ fontSize: 'md' }} />}
-        </ListItemButton>
-        {isOpen && (
-            <List marker="none">
-                {items.map(item => renderSubItem(item.name || `${item.make} ${item.model}`, `${pathPrefix}/${item.id}`, null, item.emoji || defaultEmoji))}
-                {id !== 'house' && renderSubItem('Add New', `${pathPrefix}/new`, <Add fontSize="small" />)}
-            </List>
-        )}
-      </ListItem>
-    );
+        </Tooltip>
+      );
   };
 
-  const drawerContent = (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', p: 2, overflow: 'hidden' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: open ? 'space-between' : 'center', mb: 2, minHeight: 40 }}>
-        {open && <Typography level="title-lg" textColor="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 'sm', fontSize: 'xs' }}>Menu</Typography>}
-        <IconButton onClick={toggleDrawer} variant="plain" color="neutral" size="sm">
-          {!open ? <MenuIcon /> : <ChevronLeft />}
-        </IconButton>
-      </Box>
-      
-      <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', flexGrow: 1, overflowY: 'auto', overflowX: 'hidden' }}>
-        <ListItem>
-          <ListItemButton component={NavLink} to="dashboard" selected={location.pathname.includes('dashboard')} sx={centerStyle}>
-            <ListItemDecorator sx={{ m: 0 }}><HomeIcon /></ListItemDecorator>
-            {open && <ListItemContent sx={{ ml: 1.5 }}>Home</ListItemContent>}
+  const SubItem = ({ label, to, emoji }) => (
+      <ListItem>
+          <ListItemButton component={NavLink} to={to} sx={{ borderRadius: 'sm' }}>
+              <ListItemDecorator>
+                {emoji ? (
+                    <Avatar size="sm" sx={{ '--Avatar-size': '20px', fontSize: '0.9rem', bgcolor: getEmojiColor(emoji, isDark) }}>{emoji}</Avatar>
+                ) : <KeyboardArrowRight />}
+              </ListItemDecorator>
+              <ListItemContent>{label}</ListItemContent>
           </ListItemButton>
-        </ListItem>
+      </ListItem>
+  );
 
-        <ListItem>
-          <ListItemButton component={NavLink} to="calendar" selected={location.pathname.includes('calendar')} sx={centerStyle}>
-            <ListItemDecorator sx={{ m: 0 }}><Event /></ListItemDecorator>
-            {open && <ListItemContent sx={{ ml: 1.5 }}>Calendar</ListItemContent>}
-          </ListItemButton>
-        </ListItem>
-
-        <Divider sx={{ my: 2 }} />
-
-        {renderParent('people', 'People', <Groups />, members.filter(m => m.type !== 'pet'), 'people')}
-        {renderParent('pets', 'Pets', <Pets />, members.filter(m => m.type === 'pet'), 'pets')}
+  return (
+    <Box sx={{ display: 'flex', height: '100%', zIndex: 1000, position: 'relative' }}>
         
-        {renderParent('house', 'House', <HomeWork />, household ? [household] : [], 'house', household?.avatar || '🏠')}
-
-        {renderParent('vehicles', 'Vehicles', <DirectionsCar />, vehicles, 'vehicles', '🚗')}
-
-        <Divider sx={{ my: 2 }} />
-
-        <ListItem>
-            <ListItemButton component={NavLink} to="settings" selected={location.pathname.includes('settings')} sx={centerStyle}>
-                <ListItemDecorator sx={{ m: 0 }}><Settings /></ListItemDecorator>
-                {open && <ListItemContent sx={{ ml: 1.5 }}>Settings</ListItemContent>}
-            </ListItemButton>
-        </ListItem>
-      </List>
-
-      <Divider sx={{ my: 2 }} />
-
-      {/* USER PROFILE SECTION */}
-      <Box 
-        sx={{ 
-            display: 'flex', alignItems: 'center', gap: 1.5, minHeight: 48, cursor: 'pointer',
-            borderRadius: 'sm',
-            p: 1,
-            justifyContent: open ? 'flex-start' : 'center',
-            '&:hover': { bgcolor: 'background.level1' }
-        }} 
-        onClick={(e) => setUserMenuAnchor(e.currentTarget)}
-      >
-        <Avatar size="sm" sx={{ bgcolor: getEmojiColor(user?.avatar || '?', isDark) }}>
-            {user?.avatar || user?.username?.[0]?.toUpperCase()}
-        </Avatar>
-        {open && (
-            <Box sx={{ minWidth: 0, flex: 1 }}>
-                <Typography level="title-sm" noWrap>{user?.username}</Typography>
-                <Typography level="body-xs" color="neutral" noWrap sx={{ maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.email}</Typography>
+        {/* === RAIL (Primary Navigation) === */}
+        <Sheet
+            sx={{
+                width: RAIL_WIDTH,
+                borderRight: '1px solid',
+                borderColor: 'divider',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                py: 2,
+                gap: 1,
+                bgcolor: 'background.surface',
+                zIndex: 1002
+            }}
+        >
+            {/* Household Icon (Top) */}
+            <Box sx={{ mb: 2 }}>
+                <Box 
+                    sx={{ 
+                        width: 48, height: 48, borderRadius: '50%', 
+                        bgcolor: getEmojiColor(household?.avatar || '?', isDark),
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: '1.5rem', cursor: 'pointer',
+                        border: '2px solid', borderColor: 'divider',
+                        overflow: 'hidden'
+                    }}
+                >
+                    {household?.avatar ? (household.avatar.startsWith('data:image') ? <img src={household.avatar} alt="HH" style={{width:'100%'}}/> : household.avatar) : <TotemIcon />}
+                </Box>
             </Box>
-        )}
-      </Box>
 
-      <Menu
-        anchorEl={userMenuAnchor}
-        open={Boolean(userMenuAnchor)}
-        onClose={() => setUserMenuAnchor(null)}
-        placement="right-end"
-        size="sm"
-        sx={{ minWidth: 180, zIndex: 1300 }}
-      >
-        <MenuItem onClick={openProfile}>
-            <Edit /> Edit Profile
-        </MenuItem>
-        <Divider />
-        <MenuItem onClick={onLogout} color="danger">
-            <Logout /> Logout
-        </MenuItem>
-      </Menu>
+            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '8px', width: '100%', px: 1 }}>
+                <RailIcon icon={<HomeIcon />} label="Home" category="dashboard" to="dashboard" />
+                <RailIcon icon={<Event />} label="Calendar" category="calendar" to="calendar" />
+                <Divider />
+                <RailIcon icon={<Groups />} label="People" category="people" hasSubItems />
+                <RailIcon icon={<Pets />} label="Pets" category="pets" hasSubItems />
+                <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems />
+                <RailIcon icon={<DirectionsCar />} label="Vehicles" category="vehicles" hasSubItems />
+                <Divider />
+                <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems />
+            </List>
 
-      {/* Profile Dialog */}
+            <Box sx={{ flexGrow: 1 }} />
+
+            {/* Bottom Widgets */}
+            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: 1 }}>
+                <ListItem><ListItemButton onClick={toggleNote} sx={{ justifyContent: 'center' }}><NoteAlt /></ListItemButton></ListItem>
+                <ListItem><ListItemButton onClick={toggleCalc} sx={{ justifyContent: 'center' }}><Calculate /></ListItemButton></ListItem>
+                <ListItem><ListItemButton onClick={toggleCalendar} sx={{ justifyContent: 'center' }}><CalendarMonth /></ListItemButton></ListItem>
+                
+                {canInstall && (
+                    <ListItem><ListItemButton onClick={onInstall} sx={{ justifyContent: 'center' }}><GetApp /></ListItemButton></ListItem>
+                )}
+            </List>
+
+            {/* User Profile */}
+            <Box sx={{ mt: 2 }}>
+                <Avatar 
+                    onClick={(e) => setUserMenuAnchor(e.currentTarget)}
+                    sx={{ cursor: 'pointer', bgcolor: getEmojiColor(user?.avatar || '?', isDark) }}
+                >
+                    {user?.avatar || user?.username?.[0]}
+                </Avatar>
+            </Box>
+        </Sheet>
+
+        {/* === PANEL (Secondary Navigation) === */}
+        <Sheet
+            sx={{
+                width: activeCategory ? PANEL_WIDTH : 0,
+                borderRight: activeCategory ? '1px solid' : 'none',
+                borderColor: 'divider',
+                overflow: 'hidden',
+                transition: 'width 0.2s',
+                display: 'flex',
+                flexDirection: 'column',
+                bgcolor: 'background.level1',
+                zIndex: 1001,
+                whiteSpace: 'nowrap'
+            }}
+        >
+            <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+                <Typography level="title-md" textTransform="uppercase" letterSpacing="1px">
+                    {activeCategory}
+                </Typography>
+            </Box>
+            
+            <List sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>
+                {activeCategory === 'people' && (
+                    <>
+                        <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>MEMBERS</Typography></ListItem>
+                        {members.filter(m => m.type !== 'pet').map(m => (
+                            <SubItem key={m.id} label={m.name} to={`people/${m.id}`} emoji={m.emoji} />
+                        ))}
+                        <Divider sx={{ my: 1 }} />
+                        <SubItem label="Add New Person" to="people/new" />
+                    </>
+                )}
+
+                {activeCategory === 'pets' && (
+                    <>
+                        <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>PETS</Typography></ListItem>
+                        {members.filter(m => m.type === 'pet').map(m => (
+                            <SubItem key={m.id} label={m.name} to={`pets/${m.id}`} emoji={m.emoji} />
+                        ))}
+                        <Divider sx={{ my: 1 }} />
+                        <SubItem label="Add New Pet" to="pets/new" />
+                    </>
+                )}
+
+                {activeCategory === 'house' && (
+                    <>
+                        <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>PROPERTIES</Typography></ListItem>
+                        <SubItem label={household?.name || 'Main House'} to={`house/${household?.id || 1}`} emoji={household?.avatar || '🏠'} />
+                        {/* Assuming future multi-house support or assets list here */}
+                    </>
+                )}
+
+                {activeCategory === 'vehicles' && (
+                    <>
+                        <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>FLEET</Typography></ListItem>
+                        {vehicles.map(v => (
+                            <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`vehicles/${v.id}`} emoji={v.emoji} />
+                        ))}
+                        <Divider sx={{ my: 1 }} />
+                        <SubItem label="Add New Vehicle" to="vehicles/new" />
+                    </>
+                )}
+
+                {activeCategory === 'settings' && (
+                    <>
+                       <SubItem label="General" to="settings" />
+                       <ListItem><Typography level="body-xs" sx={{ p: 1 }}>Theme</Typography></ListItem>
+                       <ListItem>
+                           <Button 
+                                variant="soft" 
+                                color="neutral" 
+                                fullWidth 
+                                onClick={() => onModeChange(isDark ? 'light' : 'dark')}
+                            >
+                                {isDark ? 'Switch to Light' : 'Switch to Dark'}
+                            </Button>
+                       </ListItem>
+                    </>
+                )}
+            </List>
+        </Sheet>
+
+        {/* === MENUS & DIALOGS === */}
+        <Menu
+            anchorEl={userMenuAnchor}
+            open={Boolean(userMenuAnchor)}
+            onClose={() => setUserMenuAnchor(null)}
+            placement="right-end"
+            size="sm"
+            sx={{ minWidth: 180, zIndex: 1300 }}
+        >
+            <MenuItem onClick={openProfile}><Edit /> Edit Profile</MenuItem>
+            <Divider />
+            <MenuItem onClick={onLogout} color="danger"><Logout /> Logout</MenuItem>
+        </Menu>
+
         <Modal open={profileOpen} onClose={() => setProfileOpen(false)}>
           <ModalDialog sx={{ maxWidth: 500, width: '100%', zIndex: 1301 }}>
             <DialogTitle>Edit Profile</DialogTitle>
@@ -289,7 +361,6 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
           open={emojiPickerOpen} 
           onClose={() => setEmojiPickerOpen(false)} 
           onEmojiSelect={(emoji) => {
-            // Only update local form data, do NOT call API immediately
             setFormData(prev => ({ ...prev, avatar: emoji }));
             setEmojiPickerOpen(false);
           }} 
@@ -297,34 +368,5 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
           isDark={isDark}
         />
     </Box>
-  );
-
-  return (
-    <>
-      <Sheet
-        sx={{
-          display: { xs: 'none', md: 'flex' },
-          borderRight: '1px solid',
-          borderColor: 'divider',
-          width: open ? drawerWidth : collapsedWidth,
-          transition: 'width 0.2s',
-          flexShrink: 0,
-          height: 'calc(100vh - var(--Header-height, 60px))',
-          position: 'sticky',
-          top: 'var(--Header-height, 60px)',
-          zIndex: 100,
-          bgcolor: 'background.body',
-          overflow: 'hidden'
-        }}
-      >
-        {drawerContent}
-      </Sheet>
-
-      <Box sx={{ display: { xs: 'block', md: 'none' } }}>
-         <Drawer open={open} onClose={toggleDrawer} size="sm" sx={{ zIndex: 1300 }}>
-            {drawerContent}
-         </Drawer>
-      </Box>
-    </>
   );
 }

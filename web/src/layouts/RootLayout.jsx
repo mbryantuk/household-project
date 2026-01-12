@@ -1,44 +1,12 @@
 import { Outlet } from 'react-router-dom';
 import { Box } from '@mui/joy';
-import TopBar from '../components/TopBar';
 
-export default function RootLayout({ 
-  user, 
-  currentHousehold, 
-  households, 
-  onSwitchHousehold, 
-  onLogout, 
-  toggleSidebar, 
-  currentMode, 
-  onModeChange, 
-  installPrompt, 
-  onInstall,
-  dates,
-  api,
-  onDateAdded,
-  onUpdateProfile
-}) {
+export default function RootLayout() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'background.body' }}>
-      <TopBar 
-        user={user} 
-        currentHousehold={currentHousehold} 
-        households={households} 
-        onSwitchHousehold={onSwitchHousehold} 
-        onLogout={onLogout} 
-        toggleSidebar={toggleSidebar}
-        currentMode={currentMode} 
-        onModeChange={(m) => { onModeChange(m); localStorage.setItem('themeMode', m); }}
-        canInstall={!!installPrompt} 
-        onInstall={onInstall}
-        dates={dates}
-        api={api}
-        onDateAdded={onDateAdded}
-        onUpdateProfile={onUpdateProfile}
-      />
-      {/* Removed global padding p: { xs: 1, sm: 2, md: 3 } to allow Sidebar to be flush */}
+      {/* TopBar removed. NavSidebar in HouseholdLayout handles navigation. */}
       <Box component="main" sx={{ flexGrow: 1 }}>
-        <Outlet context={{ api }} />
+        <Outlet />
       </Box>
     </Box>
   );
