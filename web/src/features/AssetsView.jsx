@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { 
-  Box, Typography, Grid, Card, CardHeader, Avatar, IconButton, 
-  Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
-  FormControl, InputLabel, Select, MenuItem, Stack, Chip, CardContent, CircularProgress,
-  Divider
-} from '@mui/material';
-import { Edit, Delete, Inventory, Add, EventBusy, AccountBalanceWallet } from '@mui/icons-material';
+  Box, Typography, Grid, Card, CardContent, Avatar, IconButton, 
+  Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
+  FormControl, FormLabel, Select, Option, Stack, Chip, CircularProgress, Divider,
+  Tooltip
+} from '@mui/joy';
+import { Edit, Delete, Add, EventBusy, AccountBalanceWallet } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
 
 export default function AssetsView() {
@@ -68,9 +68,9 @@ export default function AssetsView() {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" fontWeight="300">Appliance & Asset Register</Typography>
+        <Typography level="h2" fontWeight="300">Appliance & Asset Register</Typography>
         {isHouseholdAdmin && (
-            <Button variant="contained" startIcon={<Add />} onClick={() => { setEditAsset({}); setIsNew(true); }}>
+            <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditAsset({}); setIsNew(true); }}>
                 Add Asset
             </Button>
         )}
@@ -78,91 +78,157 @@ export default function AssetsView() {
 
       <Grid container spacing={3}>
         {assets.map(a => (
-          <Grid item xs={12} sm={6} md={4} key={a.id}>
-            <Card variant="outlined" sx={{ borderRadius: 3, height: '100%' }}>
-              <CardHeader
-                avatar={
-                  <Avatar sx={{ 
+          <Grid xs={12} sm={6} md={4} key={a.id}>
+            <Card variant="outlined" sx={{ borderRadius: 'md', height: '100%', flexDirection: 'row', p: 2 }}>
+              <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
+                  <Avatar size="lg" sx={{ 
                     bgcolor: getEmojiColor(a.emoji || a.name[0], isDark),
-                    color: isDark ? 'white' : 'rgba(0,0,0,0.8)'
                   }}>
                     {a.emoji || a.name[0]}
                   </Avatar>
-                }
-                title={<Typography variant="h6">{a.name}</Typography>}
-                subheader={a.category}
-                action={isHouseholdAdmin && (
-                  <Box>
-                    <IconButton size="small" onClick={() => { setEditAsset(a); setIsNew(false); }}><Edit fontSize="small" /></IconButton>
-                    <IconButton size="small" color="error" onClick={() => handleDelete(a.id)}><Delete fontSize="small" /></IconButton>
+                  <Box sx={{ flexGrow: 1 }}>
+                      <Typography level="title-md">{a.name}</Typography>
+                      <Typography level="body-sm" color="neutral">{a.category}</Typography>
+                      
+                      <Stack spacing={1} mt={1}>
+                        {a.location && <Typography level="body-xs">📍 {a.location}</Typography>}
+                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                            {a.purchase_value > 0 && <Chip size="sm" variant="outlined" startDecorator={<AccountBalanceWallet />}>£{a.purchase_value}</Chip>}
+                            {a.warranty_expiry && (
+                                <Chip 
+                                    size="sm" 
+                                    startDecorator={<EventBusy />} 
+                                    color={new Date(a.warranty_expiry) < new Date() ? "danger" : "success"}
+                                    variant="outlined"
+                                >
+                                    {a.warranty_expiry}
+                                </Chip>
+                            )}
+                        </Box>
+                      </Stack>
                   </Box>
-                )}
-              />
-              <CardContent sx={{ pt: 0 }}>
-                <Stack spacing={1}>
-                    {a.location && <Typography variant="body2" color="text.secondary">📍 {a.location}</Typography>}
-                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                        {a.purchase_value > 0 && <Chip size="small" label={`£${a.purchase_value}`} icon={<AccountBalanceWallet sx={{fontSize: '1rem !important'}}/>} variant="outlined" />}
-                        {a.warranty_expiry && (
-                            <Chip 
-                                size="small" 
-                                icon={<EventBusy sx={{fontSize: '1rem !important'}} />} 
-                                label={`Warranty: ${a.warranty_expiry}`}
-                                color={new Date(a.warranty_expiry) < new Date() ? "error" : "success"}
-                                variant="outlined"
-                            />
-                        )}
+                  {isHouseholdAdmin && (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                        <IconButton size="sm" variant="plain" onClick={() => { setEditAsset(a); setIsNew(false); }}><Edit /></IconButton>
+                        <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(a.id)}><Delete /></IconButton>
                     </Box>
-                </Stack>
-              </CardContent>
+                  )}
+              </Box>
             </Card>
           </Grid>
         ))}
       </Grid>
 
-      <Dialog open={Boolean(editAsset)} onClose={() => setEditAsset(null)} fullWidth maxWidth="md">
-        <form onSubmit={handleSubmit}>
-          <DialogTitle>{isNew ? 'Add New Asset' : `Edit ${editAsset?.name}`}</DialogTitle>
-          <DialogContent dividers>
-             <Grid container spacing={2} sx={{ mt: 1 }}>
-                <Grid item xs={12} md={6}><TextField name="name" label="Asset Name" defaultValue={editAsset?.name} fullWidth required /></Grid>
-                <Grid item xs={12} md={6}>
-                    <FormControl fullWidth>
-                        <InputLabel>Category</InputLabel>
-                        <Select name="category" defaultValue={editAsset?.category || 'Appliance'} label="Category">
-                            <MenuItem value="Appliance">Appliance</MenuItem>
-                            <MenuItem value="Electronics">Electronics</MenuItem>
-                            <MenuItem value="Furniture">Furniture</MenuItem>
-                            <MenuItem value="Tool">Tool</MenuItem>
-                            <MenuItem value="Other">Other</MenuItem>
-                        </Select>
-                    </FormControl>
-                </Grid>
-                <Grid item xs={12} md={4}><TextField name="location" label="Location (Room)" defaultValue={editAsset?.location} fullWidth /></Grid>
-                <Grid item xs={12} md={4}><TextField name="manufacturer" label="Manufacturer" defaultValue={editAsset?.manufacturer} fullWidth /></Grid>
-                <Grid item xs={12} md={4}><TextField name="model_number" label="Model Number" defaultValue={editAsset?.model_number} fullWidth /></Grid>
-                
-                <Grid item xs={12}><Divider><Typography variant="caption" color="text.secondary">Financial & Warranty</Typography></Divider></Grid>
-                
-                <Grid item xs={6} md={3}><TextField name="purchase_date" label="Purchase Date" type="date" defaultValue={editAsset?.purchase_date} fullWidth InputLabelProps={{shrink:true}} /></Grid>
-                <Grid item xs={6} md={3}><TextField name="warranty_expiry" label="Warranty Expiry" type="date" defaultValue={editAsset?.warranty_expiry} fullWidth InputLabelProps={{shrink:true}} /></Grid>
-                <Grid item xs={6} md={3}><TextField name="purchase_value" label="Purchase Value" type="number" defaultValue={editAsset?.purchase_value} fullWidth /></Grid>
-                <Grid item xs={6} md={3}><TextField name="replacement_cost" label="Replacement Cost" type="number" defaultValue={editAsset?.replacement_cost} fullWidth /></Grid>
-                
-                <Grid item xs={6} md={3}><TextField name="monthly_maintenance_cost" label="Monthly Maint. Cost" type="number" defaultValue={editAsset?.monthly_maintenance_cost} fullWidth /></Grid>
-                <Grid item xs={6} md={3}><TextField name="depreciation_rate" label="Annual Depreciation %" type="number" defaultValue={editAsset?.depreciation_rate} fullWidth placeholder="0.10" /></Grid>
-                <Grid item xs={6} md={3}><TextField name="emoji" label="Emoji" defaultValue={editAsset?.emoji} fullWidth placeholder="📦" /></Grid>
-                <Grid item xs={6} md={3}><TextField name="status" label="Status" defaultValue={editAsset?.status || 'active'} fullWidth /></Grid>
+      <Modal open={Boolean(editAsset)} onClose={() => setEditAsset(null)}>
+        <ModalDialog sx={{ maxWidth: 800, width: '100%' }}>
+            <DialogTitle>{isNew ? 'Add New Asset' : `Edit ${editAsset?.name}`}</DialogTitle>
+            <DialogContent>
+                <form onSubmit={handleSubmit}>
+                    <Grid container spacing={2} sx={{ mt: 1 }}>
+                        <Grid xs={12} md={6}>
+                            <FormControl required>
+                                <FormLabel>Asset Name</FormLabel>
+                                <Input name="name" defaultValue={editAsset?.name} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} md={6}>
+                            <FormControl>
+                                <FormLabel>Category</FormLabel>
+                                <Select name="category" defaultValue={editAsset?.category || 'Appliance'}>
+                                    <Option value="Appliance">Appliance</Option>
+                                    <Option value="Electronics">Electronics</Option>
+                                    <Option value="Furniture">Furniture</Option>
+                                    <Option value="Tool">Tool</Option>
+                                    <Option value="Other">Other</Option>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} md={4}>
+                            <FormControl>
+                                <FormLabel>Location (Room)</FormLabel>
+                                <Input name="location" defaultValue={editAsset?.location} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} md={4}>
+                            <FormControl>
+                                <FormLabel>Manufacturer</FormLabel>
+                                <Input name="manufacturer" defaultValue={editAsset?.manufacturer} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} md={4}>
+                            <FormControl>
+                                <FormLabel>Model Number</FormLabel>
+                                <Input name="model_number" defaultValue={editAsset?.model_number} />
+                            </FormControl>
+                        </Grid>
+                        
+                        <Grid xs={12}><Divider>Financial & Warranty</Divider></Grid>
+                        
+                        <Grid xs={6} md={3}>
+                            <FormControl>
+                                <FormLabel>Purchase Date</FormLabel>
+                                <Input name="purchase_date" type="date" defaultValue={editAsset?.purchase_date} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={6} md={3}>
+                            <FormControl>
+                                <FormLabel>Warranty Expiry</FormLabel>
+                                <Input name="warranty_expiry" type="date" defaultValue={editAsset?.warranty_expiry} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={6} md={3}>
+                            <FormControl>
+                                <FormLabel>Purchase Value</FormLabel>
+                                <Input name="purchase_value" type="number" defaultValue={editAsset?.purchase_value} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={6} md={3}>
+                            <FormControl>
+                                <FormLabel>Replacement Cost</FormLabel>
+                                <Input name="replacement_cost" type="number" defaultValue={editAsset?.replacement_cost} />
+                            </FormControl>
+                        </Grid>
+                        
+                        <Grid xs={6} md={3}>
+                            <FormControl>
+                                <FormLabel>Monthly Maint. Cost</FormLabel>
+                                <Input name="monthly_maintenance_cost" type="number" defaultValue={editAsset?.monthly_maintenance_cost} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={6} md={3}>
+                            <FormControl>
+                                <FormLabel>Annual Depreciation %</FormLabel>
+                                <Input name="depreciation_rate" type="number" defaultValue={editAsset?.depreciation_rate} placeholder="0.10" />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={6} md={3}>
+                            <FormControl>
+                                <FormLabel>Emoji</FormLabel>
+                                <Input name="emoji" defaultValue={editAsset?.emoji} placeholder="📦" />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={6} md={3}>
+                            <FormControl>
+                                <FormLabel>Status</FormLabel>
+                                <Input name="status" defaultValue={editAsset?.status || 'active'} />
+                            </FormControl>
+                        </Grid>
 
-                <Grid item xs={12}><TextField name="notes" label="Notes" defaultValue={editAsset?.notes} multiline rows={2} fullWidth /></Grid>
-             </Grid>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setEditAsset(null)}>Cancel</Button>
-            <Button type="submit" variant="contained">Save Asset</Button>
-          </DialogActions>
-        </form>
-      </Dialog>
+                        <Grid xs={12}>
+                            <FormControl>
+                                <FormLabel>Notes</FormLabel>
+                                <Input name="notes" defaultValue={editAsset?.notes} />
+                            </FormControl>
+                        </Grid>
+                    </Grid>
+                    <DialogActions>
+                        <Button variant="plain" color="neutral" onClick={() => setEditAsset(null)}>Cancel</Button>
+                        <Button type="submit" variant="solid">Save Asset</Button>
+                    </DialogActions>
+                </form>
+            </DialogContent>
+        </ModalDialog>
+      </Modal>
     </Box>
   );
 }

@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { 
   Box, Typography, IconButton, Button, 
-  Dialog, DialogTitle, DialogContent, DialogActions, TextField,
-  Select, MenuItem, FormControl, InputLabel, Stack, Tooltip, Divider, useTheme
-} from '@mui/material';
+  Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
+  Select, Option, FormControl, FormLabel, Stack, Tooltip, Divider, Sheet
+} from '@mui/joy';
 import {
   ChevronLeft, ChevronRight, Add, Event, Cake, Favorite, Star 
 } from '@mui/icons-material';
@@ -17,10 +17,8 @@ const EVENT_TYPES = [
   { value: 'other', label: 'Event', icon: <Event fontSize="small" /> },
 ];
 
-export default function FloatingCalendar({ dates = [], api, householdId, onDateAdded, currentUser }) {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
-  
+export default function FloatingCalendar({ dates = [], api, householdId, onDateAdded, currentUser, onClose }) {
+  // Joy handles theme internally
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [openAdd, setOpenAdd] = useState(false);
@@ -44,34 +42,21 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
   const month = currentDate.getMonth();
   const numDays = daysInMonth(year, month);
   const firstDaySun = firstDayOfMonth(year, month);
-  const firstDay = (firstDaySun + 6) % 7; // Shift so 0=Mon, 6=Sun
+  const firstDay = (firstDaySun + 6) % 7; 
 
-  // Previous month days
   const prevMonthDate = new Date(year, month - 1);
   const prevMonthDays = daysInMonth(prevMonthDate.getFullYear(), prevMonthDate.getMonth());
 
   const days = [];
-  // Add padding from previous month
   for (let i = firstDay - 1; i >= 0; i--) {
-    days.push({
-        date: new Date(year, month - 1, prevMonthDays - i),
-        isCurrentMonth: false
-    });
+    days.push({ date: new Date(year, month - 1, prevMonthDays - i), isCurrentMonth: false });
   }
-  // Add current month days
   for (let i = 1; i <= numDays; i++) {
-    days.push({
-        date: new Date(year, month, i),
-        isCurrentMonth: true
-    });
+    days.push({ date: new Date(year, month, i), isCurrentMonth: true });
   }
-  // Add padding from next month to fill 6 weeks (42 days)
   const remaining = 42 - days.length;
   for (let i = 1; i <= remaining; i++) {
-    days.push({
-        date: new Date(year, month + 1, i),
-        isCurrentMonth: false
-    });
+    days.push({ date: new Date(year, month + 1, i), isCurrentMonth: false });
   }
 
   const eventsOnSelectedDate = useMemo(() => {
@@ -115,30 +100,29 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
         setOpenAdd(false);
         if (onDateAdded) onDateAdded();
       })
-      .catch(() => alert("Failed to add date"));
+      .catch(() => {});
   };
 
   return (
-    <Box sx={{ width: '100%', height: '100%', p: 2, bgcolor: 'background.paper' }}>
+    <Sheet sx={{ width: '100%', height: '100%', p: 2, display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-        <Typography variant="h6" fontWeight="bold">
+        <Typography level="h4" fontWeight="bold">
           {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
         </Typography>
         <Box>
-          <IconButton size="small" onClick={handlePrevMonth}><ChevronLeft /></IconButton>
-          <IconButton size="small" onClick={handleNextMonth}><ChevronRight /></IconButton>
+          <IconButton size="sm" onClick={handlePrevMonth}><ChevronLeft /></IconButton>
+          <IconButton size="sm" onClick={handleNextMonth}><ChevronRight /></IconButton>
         </Box>
       </Box>
 
-      {/* Calendar Grid using CSS Grid for perfect alignment */}
       <Box sx={{ 
         display: 'grid', 
         gridTemplateColumns: 'repeat(7, 1fr)', 
-        gap: '2px',
+        gap: '4px',
         mb: 2 
       }}>
         {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, idx) => (
-          <Typography key={idx} variant="caption" fontWeight="bold" color="text.secondary" sx={{ textAlign: 'center', py: 0.5 }}>
+          <Typography key={idx} level="body-xs" fontWeight="bold" textColor="neutral.500" textAlign="center">
             {d}
           </Typography>
         ))}
@@ -150,28 +134,25 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
           return (
             <Box key={i} sx={{ display: 'flex', justifyContent: 'center' }}>
                 <IconButton 
-                  size="small" 
+                  size="sm" 
                   onClick={() => {
                     setSelectedDate(date);
                     if (!isCurrentMonth) setCurrentDate(new Date(date.getFullYear(), date.getMonth(), 1));
                   }}
+                  variant={isSelected ? 'solid' : (today ? 'outlined' : 'plain')}
+                  color={isSelected ? 'primary' : (today ? 'primary' : 'neutral')}
                   sx={{ 
-                    width: 34, height: 34, fontSize: '0.85rem',
-                    bgcolor: isSelected ? 'primary.main' : (today ? (isDark ? 'rgba(189, 147, 249, 0.15)' : 'rgba(100, 74, 201, 0.1)') : 'transparent'),
-                    color: isSelected ? 'primary.contrastText' : (today ? 'primary.main' : (isCurrentMonth ? 'text.primary' : 'text.disabled')),
+                    width: 32, height: 32, fontSize: '0.85rem',
                     opacity: isCurrentMonth ? 1 : 0.4,
                     position: 'relative',
-                    border: today ? '1px solid' : 'none',
-                    borderColor: 'primary.main',
-                    fontWeight: today ? 'bold' : 'normal',
-                    '&:hover': { bgcolor: isSelected ? 'primary.dark' : 'action.hover' }
+                    borderRadius: '50%'
                   }}
                 >
                   {date.getDate()}
                   {hasEvent(date) && (
                     <Box sx={{ 
                       position: 'absolute', bottom: 4, width: 4, height: 4, 
-                      borderRadius: '50%', bgcolor: isSelected ? 'white' : 'primary.main' 
+                      borderRadius: '50%', bgcolor: isSelected ? 'common.white' : 'primary.500' 
                     }} />
                   )}
                 </IconButton>
@@ -182,14 +163,14 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
 
       <Divider sx={{ mb: 2 }} />
 
-      <Box sx={{ minHeight: 100 }}>
+      <Box sx={{ flexGrow: 1, minHeight: 100 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-          <Typography variant="subtitle2" fontWeight="bold">
+          <Typography level="title-sm">
             {selectedDate.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}
           </Typography>
           {canEdit && (
-            <Tooltip title="Add Event">
-              <IconButton size="small" color="primary" onClick={() => setOpenAdd(true)}><Add fontSize="small" /></IconButton>
+            <Tooltip title="Add Event" variant="soft">
+              <IconButton size="sm" color="primary" onClick={() => setOpenAdd(true)}><Add /></IconButton>
             </Tooltip>
           )}
         </Box>
@@ -197,54 +178,72 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
         {eventsOnSelectedDate.length > 0 ? (
           <Stack spacing={1}>
             {eventsOnSelectedDate.map(e => (
-              <Box key={e.id} sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 0.5, bgcolor: 'action.hover', borderRadius: 1 }}>
+              <Sheet key={e.id} variant="soft" sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, borderRadius: 'sm' }}>
                 <Box sx={{ 
                     width: 24, height: 24, 
                     borderRadius: '50%', 
-                    bgcolor: getEmojiColor(e.emoji || '📅', isDark), 
+                    bgcolor: getEmojiColor(e.emoji || '📅'), 
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: '0.9rem',
                     flexShrink: 0
                 }}>
                     {e.emoji || '📅'}
                 </Box>
-                <Typography variant="body2" noWrap>{e.title}</Typography>
-              </Box>
+                <Typography level="body-sm" noWrap>{e.title}</Typography>
+              </Sheet>
             ))}
           </Stack>
         ) : (
-          <Typography variant="caption" color="text.secondary" sx={{ fontStyle: 'italic', textAlign: 'center', display: 'block', mt: 2 }}>
+          <Typography level="body-xs" color="neutral" sx={{ fontStyle: 'italic', textAlign: 'center', display: 'block', mt: 2 }}>
             No events today
           </Typography>
         )}
       </Box>
 
-      <Dialog open={openAdd} onClose={() => setOpenAdd(false)} fullWidth maxWidth="xs">
-        <form onSubmit={handleAddSubmit}>
-          <DialogTitle>Add Event on {selectedDate.toLocaleDateString()}</DialogTitle>
-          <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                <IconButton onClick={() => setEmojiPickerOpen(true)} sx={{ bgcolor: 'action.hover', border: '1px solid', borderColor: 'divider', width: 48, height: 48 }}>
-                    <Typography sx={{ fontSize: '1.2rem' }}>{selectedEmoji}</Typography>
-                </IconButton>
-                <TextField name="title" label="Title" fullWidth required size="small" />
-            </Box>
-            
-            <FormControl fullWidth size="small">
-              <InputLabel>Type</InputLabel>
-              <Select name="type" defaultValue="other" label="Type">
-                {EVENT_TYPES.map(t => <MenuItem key={t.value} value={t.value}>{t.label}</MenuItem>)}
-              </Select>
-            </FormControl>
+      {/* Button to close calendar when used as a popup/modal content */}
+      {onClose && (
+          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
+              <Button variant="soft" color="neutral" onClick={onClose} size="sm">Close Calendar</Button>
+          </Box>
+      )}
 
-            <TextField name="description" label="Notes (Optional)" multiline rows={2} fullWidth size="small" />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenAdd(false)}>Cancel</Button>
-            <Button type="submit" variant="contained">Add</Button>
-          </DialogActions>
-        </form>
-      </Dialog>
+      <Modal open={openAdd} onClose={() => setOpenAdd(false)}>
+        <ModalDialog maxWidth="sm">
+            <DialogTitle>Add Event</DialogTitle>
+            <DialogContent>
+                <form onSubmit={handleAddSubmit}>
+                    <Stack spacing={2} mt={1}>
+                        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                            <IconButton onClick={() => setEmojiPickerOpen(true)} variant="outlined" sx={{ width: 48, height: 48 }}>
+                                <Typography level="h3">{selectedEmoji}</Typography>
+                            </IconButton>
+                            <FormControl required sx={{ flexGrow: 1 }}>
+                                <FormLabel>Title</FormLabel>
+                                <Input name="title" />
+                            </FormControl>
+                        </Box>
+                        
+                        <FormControl>
+                            <FormLabel>Type</FormLabel>
+                            <Select name="type" defaultValue="other">
+                                {EVENT_TYPES.map(t => <Option key={t.value} value={t.value}>{t.label}</Option>)}
+                            </Select>
+                        </FormControl>
+
+                        <FormControl>
+                            <FormLabel>Notes</FormLabel>
+                            <Input name="description" />
+                        </FormControl>
+
+                        <DialogActions>
+                            <Button variant="plain" color="neutral" onClick={() => setOpenAdd(false)}>Cancel</Button>
+                            <Button type="submit" variant="solid">Add</Button>
+                        </DialogActions>
+                    </Stack>
+                </form>
+            </DialogContent>
+        </ModalDialog>
+      </Modal>
 
       <EmojiPicker 
         open={emojiPickerOpen} 
@@ -255,6 +254,6 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
         }}
         title="Select Event Emoji"
       />
-    </Box>
+    </Sheet>
   );
 }

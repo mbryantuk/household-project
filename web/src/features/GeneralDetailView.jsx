@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { 
-  Box, Typography, Paper, Grid, TextField, Button, CircularProgress, 
-  Divider, Stack, useTheme, Tooltip, IconButton
-} from '@mui/material';
+  Box, Typography, Sheet, Grid, Input, Button, CircularProgress, 
+  Divider, Tooltip, IconButton, FormControl, FormLabel, Textarea
+} from '@mui/joy';
 import { Save } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
 import { getEmojiColor } from '../theme';
@@ -14,7 +14,6 @@ import { getEmojiColor } from '../theme';
  */
 export default function GeneralDetailView({ title, icon: defaultIcon, endpoint, fields }) {
   const { api, id: householdId, user: currentUser, showNotification, isDark } = useOutletContext();
-  const theme = useTheme();
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -55,7 +54,7 @@ export default function GeneralDetailView({ title, icon: defaultIcon, endpoint, 
       setData(res.data || {});
       setSelectedEmoji(res.data?.icon || null);
     } catch (err) {
-      showNotification(`Failed to save ${title}.`, "error");
+      showNotification(`Failed to save ${title}.`, "danger");
     } finally {
       setSaving(false);
     }
@@ -70,64 +69,69 @@ export default function GeneralDetailView({ title, icon: defaultIcon, endpoint, 
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
-        <Tooltip title={isHouseholdAdmin ? "Change Icon" : ""}>
+        <Tooltip title={isHouseholdAdmin ? "Change Icon" : ""} variant="soft">
           <IconButton 
             onClick={() => isHouseholdAdmin && setEmojiPickerOpen(true)}
+            variant="outlined"
             sx={{ 
-              bgcolor: selectedEmoji ? getEmojiColor(selectedEmoji, isDark) : theme.palette.primary.main, 
+              bgcolor: selectedEmoji ? getEmojiColor(selectedEmoji, isDark) : 'primary.solidBg', 
               color: 'white', 
               p: 1, 
-              borderRadius: 2, 
-              display: 'flex',
-              boxShadow: theme.shadows[2],
-              '&:hover': {
-                bgcolor: selectedEmoji ? getEmojiColor(selectedEmoji, isDark) : theme.palette.primary.dark,
-                opacity: 0.9
-              }
+              width: 56, height: 56,
+              borderRadius: 'md', 
+              boxShadow: 'sm',
+              '&:hover': { opacity: 0.9 }
             }}
           >
             {displayIcon}
           </IconButton>
         </Tooltip>
-        <Typography variant="h4" fontWeight="300">{title}</Typography>
+        <Typography level="h2" fontWeight="300">{title}</Typography>
       </Box>
 
-      <Paper variant="outlined" sx={{ p: { xs: 2, sm: 3, md: 4 }, borderRadius: 3 }}>
+      <Sheet variant="outlined" sx={{ p: { xs: 2, sm: 3, md: 4 }, borderRadius: 'md' }}>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
             {fields.map(field => (
-              <Grid item xs={12} md={field.half ? 6 : 12} key={field.name}>
-                <TextField
-                  name={field.name}
-                  label={field.label}
-                  type={field.type || 'text'}
-                  defaultValue={data[field.name] || ''}
-                  fullWidth
-                  multiline={field.multiline}
-                  rows={field.rows}
-                  disabled={!isHouseholdAdmin || saving}
-                  InputLabelProps={field.type === 'date' ? { shrink: true } : undefined}
-                />
+              <Grid xs={12} md={field.half ? 6 : 12} key={field.name}>
+                <FormControl>
+                    <FormLabel>{field.label}</FormLabel>
+                    {field.multiline ? (
+                        <Textarea 
+                            name={field.name} 
+                            defaultValue={data[field.name] || ''} 
+                            minRows={field.rows} 
+                            disabled={!isHouseholdAdmin || saving}
+                        />
+                    ) : (
+                        <Input
+                            name={field.name}
+                            type={field.type || 'text'}
+                            defaultValue={data[field.name] || ''}
+                            disabled={!isHouseholdAdmin || saving}
+                        />
+                    )}
+                </FormControl>
               </Grid>
             ))}
             
             {isHouseholdAdmin && (
-              <Grid item xs={12}>
+              <Grid xs={12}>
                 <Divider sx={{ my: 2 }} />
                 <Button 
                   type="submit" 
-                  variant="contained" 
-                  size="large" 
-                  startIcon={saving ? <CircularProgress size={20} color="inherit" /> : <Save />}
-                  disabled={saving}
+                  variant="solid" 
+                  size="lg" 
+                  startDecorator={saving ? <CircularProgress size="sm" color="neutral" /> : <Save />}
+                  loading={saving}
                 >
-                  {saving ? 'Saving...' : 'Save Changes'}
+                  Save Changes
                 </Button>
               </Grid>
             )}
           </Grid>
         </form>
-      </Paper>
+      </Sheet>
 
       <EmojiPicker 
         open={emojiPickerOpen} 

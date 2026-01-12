@@ -1,9 +1,14 @@
-import { SvgIcon, useTheme } from '@mui/material';
+import { SvgIcon, useTheme } from '@mui/joy';
 
 export default function TotemIcon({ sx, ...props }) {
   const theme = useTheme();
-  const primary = theme.palette.primary.main;
-  const secondary = theme.palette.secondary.main;
+  // Joy palette structure: theme.vars.palette.primary.solidBg etc. 
+  // or theme.palette.primary.solidBg
+  // Use plain strings for simplicity if theme access is complex or rely on CSS vars
+  
+  // Actually, Joy provides CSS variables for these:
+  const primary = `var(--joy-palette-primary-solidBg)`;
+  const secondary = `var(--joy-palette-secondary-solidBg)`;
 
   return (
     <SvgIcon viewBox="0 0 24 24" sx={sx} {...props}>

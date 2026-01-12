@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { 
-  Box, Typography, Grid, Card, CardHeader, Avatar, IconButton, 
-  Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
-  FormControl, InputLabel, Select, MenuItem, Stack, Chip, CardContent, CircularProgress,
-  Divider
-} from '@mui/material';
+  Box, Typography, Grid, Card, Avatar, IconButton, 
+  Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
+  FormControl, FormLabel, Select, Option, Stack, Chip, CardContent, CircularProgress,
+  Divider, Textarea
+} from '@mui/joy';
 import { Edit, Delete, ElectricBolt, Add, ReceiptLong } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
 
@@ -51,7 +51,7 @@ export default function EnergyView() {
       setEditAccount(null);
       setIsNew(false);
     } catch (err) {
-      showNotification("Failed to save account.", "error");
+      showNotification("Failed to save account.", "danger");
     }
   };
 
@@ -59,10 +59,10 @@ export default function EnergyView() {
     if (!window.confirm("Delete this energy account?")) return;
     try {
       await api.delete(`/households/${householdId}/energy/${id}`);
-      showNotification("Energy account deleted.", "info");
+      showNotification("Energy account deleted.", "neutral");
       fetchAccounts();
     } catch (err) {
-      showNotification("Failed to delete account.", "error");
+      showNotification("Failed to delete account.", "danger");
     }
   };
 
@@ -71,9 +71,9 @@ export default function EnergyView() {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" fontWeight="300">Energy Accounts</Typography>
+        <Typography level="h2" fontWeight="300">Energy Accounts</Typography>
         {isHouseholdAdmin && (
-            <Button variant="contained" startIcon={<Add />} onClick={() => { setEditAccount({}); setIsNew(true); }}>
+            <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditAccount({}); setIsNew(true); }}>
                 Add Account
             </Button>
         )}
@@ -81,89 +81,134 @@ export default function EnergyView() {
 
       <Grid container spacing={3}>
         {accounts.map(a => (
-          <Grid item xs={12} sm={6} md={4} key={a.id}>
-            <Card variant="outlined" sx={{ borderRadius: 3, height: '100%' }}>
-              <CardHeader
-                avatar={
-                  <Avatar sx={{ 
+          <Grid xs={12} sm={6} md={4} key={a.id}>
+            <Card variant="outlined" sx={{ borderRadius: 'md', height: '100%', flexDirection: 'row', p: 2 }}>
+              <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
+                  <Avatar size="lg" sx={{ 
                     bgcolor: getEmojiColor(a.provider, isDark),
-                    color: isDark ? 'white' : 'rgba(0,0,0,0.8)'
                   }}>
                     <ElectricBolt />
                   </Avatar>
-                }
-                title={<Typography variant="h6">{a.provider}</Typography>}
-                subheader={a.type}
-                action={isHouseholdAdmin && (
-                  <Box>
-                    <IconButton size="small" onClick={() => { setEditAccount(a); setIsNew(false); }}><Edit fontSize="small" /></IconButton>
-                    <IconButton size="small" color="error" onClick={() => handleDelete(a.id)}><Delete fontSize="small" /></IconButton>
+                  <Box sx={{ flexGrow: 1 }}>
+                      <Typography level="title-md">{a.provider}</Typography>
+                      <Typography level="body-sm" color="neutral">{a.type}</Typography>
+                      
+                      <Stack spacing={1} mt={1}>
+                        {a.account_number && <Typography level="body-xs">Acc: {a.account_number}</Typography>}
+                        {a.tariff_name && <Typography level="body-xs" startDecorator={<ReceiptLong sx={{ fontSize: '1rem' }}/>}>{a.tariff_name}</Typography>}
+                        {a.contract_end && (
+                            <Chip 
+                                size="sm" 
+                                color={new Date(a.contract_end) < new Date() ? "warning" : "neutral"}
+                                variant="outlined"
+                            >
+                                Ends: {a.contract_end}
+                            </Chip>
+                        )}
+                      </Stack>
                   </Box>
-                )}
-              />
-              <CardContent sx={{ pt: 0 }}>
-                <Stack spacing={1}>
-                    {a.account_number && <Typography variant="body2" color="text.secondary">Acc: {a.account_number}</Typography>}
-                    {a.tariff_name && <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}><ReceiptLong fontSize="inherit"/> {a.tariff_name}</Typography>}
-                    {a.contract_end && (
-                        <Chip 
-                            size="small" 
-                            label={`Ends: ${a.contract_end}`}
-                            color={new Date(a.contract_end) < new Date() ? "warning" : "default"}
-                            variant="outlined"
-                        />
-                    )}
-                </Stack>
-              </CardContent>
+                  {isHouseholdAdmin && (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                        <IconButton size="sm" variant="plain" onClick={() => { setEditAccount(a); setIsNew(false); }}><Edit /></IconButton>
+                        <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(a.id)}><Delete /></IconButton>
+                    </Box>
+                  )}
+              </Box>
             </Card>
           </Grid>
         ))}
       </Grid>
 
-      <Dialog open={Boolean(editAccount)} onClose={() => setEditAccount(null)} fullWidth maxWidth="md">
-        <form onSubmit={handleSubmit}>
-          <DialogTitle>{isNew ? 'Add Energy Account' : `Edit ${editAccount?.provider}`}</DialogTitle>
-          <DialogContent dividers>
-             <Grid container spacing={2} sx={{ mt: 1 }}>
-                <Grid item xs={12} md={6}>
-                    <TextField name="provider" label="Energy Provider" defaultValue={editAccount?.provider} fullWidth required />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                    <FormControl fullWidth>
-                        <InputLabel>Account Type</InputLabel>
-                        <Select name="type" defaultValue={editAccount?.type || 'Dual Fuel'} label="Account Type">
-                            <MenuItem value="Dual Fuel">Dual Fuel</MenuItem>
-                            <MenuItem value="Electric Only">Electric Only</MenuItem>
-                            <MenuItem value="Gas Only">Gas Only</MenuItem>
-                        </Select>
-                    </FormControl>
-                </Grid>
-                <Grid item xs={12} md={6}><TextField name="account_number" label="Account Number" defaultValue={editAccount?.account_number} fullWidth /></Grid>
-                <Grid item xs={12} md={6}><TextField name="tariff_name" label="Tariff Name" defaultValue={editAccount?.tariff_name} fullWidth /></Grid>
-                <Grid item xs={12} md={6}><TextField name="contract_end" label="Contract End Date" type="date" defaultValue={editAccount?.contract_end} fullWidth InputLabelProps={{ shrink: true }} /></Grid>
-                <Grid item xs={12} md={6}><TextField name="payment_method" label="Payment Method" defaultValue={editAccount?.payment_method} fullWidth /></Grid>
-                
-                <Divider sx={{ width: '100%', my: 1 }} />
-                <Typography variant="overline" sx={{ px: 2, color: 'text.secondary' }}>Electric Meter Info</Typography>
-                <Grid item xs={12} md={6}><TextField name="electric_meter_serial" label="Meter Serial" defaultValue={editAccount?.electric_meter_serial} fullWidth /></Grid>
-                <Grid item xs={12} md={6}><TextField name="electric_mpan" label="MPAN" defaultValue={editAccount?.electric_mpan} fullWidth /></Grid>
-                
-                <Divider sx={{ width: '100%', my: 1 }} />
-                <Typography variant="overline" sx={{ px: 2, color: 'text.secondary' }}>Gas Meter Info</Typography>
-                <Grid item xs={12} md={6}><TextField name="gas_meter_serial" label="Meter Serial" defaultValue={editAccount?.gas_meter_serial} fullWidth /></Grid>
-                <Grid item xs={12} md={6}><TextField name="gas_mprn" label="MPRN" defaultValue={editAccount?.gas_mprn} fullWidth /></Grid>
-                
-                <Grid item xs={12}>
-                    <TextField name="notes" label="Notes" defaultValue={editAccount?.notes} multiline rows={2} fullWidth />
-                </Grid>
-             </Grid>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setEditAccount(null)}>Cancel</Button>
-            <Button type="submit" variant="contained">Save Account</Button>
-          </DialogActions>
-        </form>
-      </Dialog>
+      <Modal open={Boolean(editAccount)} onClose={() => setEditAccount(null)}>
+        <ModalDialog sx={{ maxWidth: 800, width: '100%' }}>
+            <DialogTitle>{isNew ? 'Add Energy Account' : `Edit ${editAccount?.provider}`}</DialogTitle>
+            <DialogContent>
+                <form onSubmit={handleSubmit}>
+                    <Grid container spacing={2} sx={{ mt: 1 }}>
+                        <Grid xs={12} md={6}>
+                            <FormControl required>
+                                <FormLabel>Energy Provider</FormLabel>
+                                <Input name="provider" defaultValue={editAccount?.provider} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} md={6}>
+                            <FormControl>
+                                <FormLabel>Account Type</FormLabel>
+                                <Select name="type" defaultValue={editAccount?.type || 'Dual Fuel'}>
+                                    <Option value="Dual Fuel">Dual Fuel</Option>
+                                    <Option value="Electric Only">Electric Only</Option>
+                                    <Option value="Gas Only">Gas Only</Option>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} md={6}>
+                            <FormControl>
+                                <FormLabel>Account Number</FormLabel>
+                                <Input name="account_number" defaultValue={editAccount?.account_number} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} md={6}>
+                            <FormControl>
+                                <FormLabel>Tariff Name</FormLabel>
+                                <Input name="tariff_name" defaultValue={editAccount?.tariff_name} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} md={6}>
+                            <FormControl>
+                                <FormLabel>Contract End Date</FormLabel>
+                                <Input name="contract_end" type="date" defaultValue={editAccount?.contract_end} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} md={6}>
+                            <FormControl>
+                                <FormLabel>Payment Method</FormLabel>
+                                <Input name="payment_method" defaultValue={editAccount?.payment_method} />
+                            </FormControl>
+                        </Grid>
+                        
+                        <Grid xs={12}><Divider>Electric Meter Info</Divider></Grid>
+                        <Grid xs={12} md={6}>
+                            <FormControl>
+                                <FormLabel>Meter Serial</FormLabel>
+                                <Input name="electric_meter_serial" defaultValue={editAccount?.electric_meter_serial} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} md={6}>
+                            <FormControl>
+                                <FormLabel>MPAN</FormLabel>
+                                <Input name="electric_mpan" defaultValue={editAccount?.electric_mpan} />
+                            </FormControl>
+                        </Grid>
+                        
+                        <Grid xs={12}><Divider>Gas Meter Info</Divider></Grid>
+                        <Grid xs={12} md={6}>
+                            <FormControl>
+                                <FormLabel>Meter Serial</FormLabel>
+                                <Input name="gas_meter_serial" defaultValue={editAccount?.gas_meter_serial} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} md={6}>
+                            <FormControl>
+                                <FormLabel>MPRN</FormLabel>
+                                <Input name="gas_mprn" defaultValue={editAccount?.gas_mprn} />
+                            </FormControl>
+                        </Grid>
+                        
+                        <Grid xs={12}>
+                            <FormControl>
+                                <FormLabel>Notes</FormLabel>
+                                <Textarea name="notes" defaultValue={editAccount?.notes} minRows={2} />
+                            </FormControl>
+                        </Grid>
+                    </Grid>
+                    <DialogActions>
+                        <Button variant="plain" color="neutral" onClick={() => setEditAccount(null)}>Cancel</Button>
+                        <Button type="submit" variant="solid">Save Account</Button>
+                    </DialogActions>
+                </form>
+            </DialogContent>
+        </ModalDialog>
+      </Modal>
     </Box>
   );
 }

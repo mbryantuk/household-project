@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { 
-  Box, Typography, Grid, Card, CardHeader, Avatar, IconButton, 
-  Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
-  FormControl, InputLabel, Select, MenuItem, Stack, Chip, CardContent, CircularProgress
-} from '@mui/material';
+  Box, Typography, Grid, Card, CardContent, Avatar, IconButton, 
+  Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
+  FormControl, FormLabel, Select, Option, Stack, Chip, CircularProgress
+} from '@mui/joy';
 import { Edit, Delete, DeleteSweep, Add } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
 
@@ -50,7 +50,7 @@ export default function WasteView() {
       setEditItem(null);
       setIsNew(false);
     } catch (err) {
-      showNotification("Failed to save collection.", "error");
+      showNotification("Failed to save collection.", "danger");
     }
   };
 
@@ -58,10 +58,10 @@ export default function WasteView() {
     if (!window.confirm("Delete this collection?")) return;
     try {
       await api.delete(`/households/${householdId}/waste/${id}`);
-      showNotification("Collection deleted.", "info");
+      showNotification("Collection deleted.", "neutral");
       fetchCollections();
     } catch (err) {
-      showNotification("Failed to delete collection.", "error");
+      showNotification("Failed to delete collection.", "danger");
     }
   };
 
@@ -70,9 +70,9 @@ export default function WasteView() {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" fontWeight="300">Waste Collections</Typography>
+        <Typography level="h2" fontWeight="300">Waste Collections</Typography>
         {isHouseholdAdmin && (
-            <Button variant="contained" startIcon={<Add />} onClick={() => { setEditItem({}); setIsNew(true); }}>
+            <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditItem({}); setIsNew(true); }}>
                 Add Collection
             </Button>
         )}
@@ -80,71 +80,77 @@ export default function WasteView() {
 
       <Grid container spacing={3}>
         {collections.map(c => (
-          <Grid item xs={12} sm={6} md={4} key={c.id}>
-            <Card variant="outlined" sx={{ borderRadius: 3, height: '100%' }}>
-              <CardHeader
-                avatar={
-                  <Avatar sx={{ 
+          <Grid xs={12} sm={6} md={4} key={c.id}>
+            <Card variant="outlined" sx={{ borderRadius: 'md', height: '100%', flexDirection: 'row', p: 2 }}>
+              <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
+                  <Avatar size="lg" sx={{ 
                     bgcolor: getEmojiColor(c.waste_type, isDark),
-                    color: isDark ? 'white' : 'rgba(0,0,0,0.8)'
                   }}>
                     <DeleteSweep />
                   </Avatar>
-                }
-                title={<Typography variant="h6">{c.waste_type}</Typography>}
-                subheader={`${c.frequency} on ${c.collection_day}s`}
-                action={isHouseholdAdmin && (
-                  <Box>
-                    <IconButton size="small" onClick={() => { setEditItem(c); setIsNew(false); }}><Edit fontSize="small" /></IconButton>
-                    <IconButton size="small" color="error" onClick={() => handleDelete(c.id)}><Delete fontSize="small" /></IconButton>
+                  <Box sx={{ flexGrow: 1 }}>
+                      <Typography level="title-md">{c.waste_type}</Typography>
+                      <Typography level="body-sm" color="neutral">{c.frequency} on {c.collection_day}s</Typography>
+                      {c.notes && (
+                        <Typography level="body-xs" mt={1}>{c.notes}</Typography>
+                      )}
                   </Box>
-                )}
-              />
-              {c.notes && (
-                <CardContent sx={{ pt: 0 }}>
-                    <Typography variant="body2" color="text.secondary">{c.notes}</Typography>
-                </CardContent>
-              )}
+                  {isHouseholdAdmin && (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                        <IconButton size="sm" variant="plain" onClick={() => { setEditItem(c); setIsNew(false); }}><Edit /></IconButton>
+                        <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(c.id)}><Delete /></IconButton>
+                    </Box>
+                  )}
+              </Box>
             </Card>
           </Grid>
         ))}
       </Grid>
 
-      <Dialog open={Boolean(editItem)} onClose={() => setEditItem(null)} fullWidth maxWidth="sm">
-        <form onSubmit={handleSubmit}>
-          <DialogTitle>{isNew ? 'Add Waste Collection' : `Edit ${editItem?.waste_type}`}</DialogTitle>
-          <DialogContent dividers>
-             <Stack spacing={2} sx={{ mt: 1 }}>
-                <TextField name="waste_type" label="Waste Type (e.g. Recycling, General)" defaultValue={editItem?.waste_type} fullWidth required />
-                
-                <FormControl fullWidth>
-                    <InputLabel>Frequency</InputLabel>
-                    <Select name="frequency" defaultValue={editItem?.frequency || 'Weekly'} label="Frequency">
-                        <MenuItem value="Daily">Daily</MenuItem>
-                        <MenuItem value="Weekly">Weekly</MenuItem>
-                        <MenuItem value="Biweekly">Biweekly</MenuItem>
-                        <MenuItem value="Monthly">Monthly</MenuItem>
-                    </Select>
-                </FormControl>
+      <Modal open={Boolean(editItem)} onClose={() => setEditItem(null)}>
+        <ModalDialog sx={{ maxWidth: 500, width: '100%' }}>
+            <DialogTitle>{isNew ? 'Add Waste Collection' : `Edit ${editItem?.waste_type}`}</DialogTitle>
+            <DialogContent>
+                <form onSubmit={handleSubmit}>
+                    <Stack spacing={2} mt={1}>
+                        <FormControl required>
+                            <FormLabel>Waste Type (e.g. Recycling, General)</FormLabel>
+                            <Input name="waste_type" defaultValue={editItem?.waste_type} />
+                        </FormControl>
+                        
+                        <FormControl>
+                            <FormLabel>Frequency</FormLabel>
+                            <Select name="frequency" defaultValue={editItem?.frequency || 'Weekly'}>
+                                <Option value="Daily">Daily</Option>
+                                <Option value="Weekly">Weekly</Option>
+                                <Option value="Biweekly">Biweekly</Option>
+                                <Option value="Monthly">Monthly</Option>
+                            </Select>
+                        </FormControl>
 
-                <FormControl fullWidth>
-                    <InputLabel>Collection Day</InputLabel>
-                    <Select name="collection_day" defaultValue={editItem?.collection_day || 'Monday'} label="Collection Day">
-                        {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
-                            <MenuItem key={day} value={day}>{day}</MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+                        <FormControl>
+                            <FormLabel>Collection Day</FormLabel>
+                            <Select name="collection_day" defaultValue={editItem?.collection_day || 'Monday'}>
+                                {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+                                    <Option key={day} value={day}>{day}</Option>
+                                ))}
+                            </Select>
+                        </FormControl>
 
-                <TextField name="notes" label="Notes" defaultValue={editItem?.notes} multiline rows={2} fullWidth />
-             </Stack>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setEditItem(null)}>Cancel</Button>
-            <Button type="submit" variant="contained">Save Collection</Button>
-          </DialogActions>
-        </form>
-      </Dialog>
+                        <FormControl>
+                            <FormLabel>Notes</FormLabel>
+                            <Input name="notes" defaultValue={editItem?.notes} />
+                        </FormControl>
+
+                        <DialogActions>
+                            <Button variant="plain" color="neutral" onClick={() => setEditItem(null)}>Cancel</Button>
+                            <Button type="submit" variant="solid">Save Collection</Button>
+                        </DialogActions>
+                    </Stack>
+                </form>
+            </DialogContent>
+        </ModalDialog>
+      </Modal>
     </Box>
   );
 }

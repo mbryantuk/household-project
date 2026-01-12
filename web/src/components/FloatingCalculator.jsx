@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
-  Box, Paper, Typography, IconButton, Grid, Button, 
-  Divider, Tooltip
-} from '@mui/material';
+  Box, Sheet, Typography, IconButton, Button, Tooltip, Divider
+} from '@mui/joy';
 import { 
   Close, DragIndicator, ContentCopy, Backspace, OpenInNew
 } from '@mui/icons-material';
@@ -91,9 +90,9 @@ export default function FloatingCalculator({ onClose, isPopout = false }) {
   };
 
   return (
-    <Paper
+    <Sheet
       ref={calcRef}
-      elevation={isPopout ? 0 : 12}
+      variant="outlined"
       onFocus={() => setIsFocused(true)}
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget)) setIsFocused(false);
@@ -110,14 +109,13 @@ export default function FloatingCalculator({ onClose, isPopout = false }) {
         zIndex: 9999,
         display: 'flex',
         flexDirection: 'column',
-        borderRadius: isPopout ? 0 : 2,
+        borderRadius: isPopout ? 0 : 'md',
         overflow: 'hidden',
         resize: isPopout ? 'none' : 'both',
         transition: 'opacity 0.2s',
         opacity: isFocused ? 1 : 0.6,
-        border: isPopout ? 'none' : '1px solid',
-        borderColor: isFocused ? 'primary.main' : 'divider',
-        boxShadow: isFocused ? 24 : 4,
+        boxShadow: isFocused ? 'lg' : 'sm',
+        borderColor: isFocused ? 'primary.500' : 'divider',
         '&:hover': { opacity: 1 }
       }}
     >
@@ -126,8 +124,8 @@ export default function FloatingCalculator({ onClose, isPopout = false }) {
         onMouseDown={onMouseDown}
         sx={{ 
           p: 1, 
-          bgcolor: isFocused ? 'primary.main' : 'background.paper', 
-          color: isFocused ? 'primary.contrastText' : 'text.primary',
+          bgcolor: isFocused ? 'primary.solidBg' : 'background.surface', 
+          color: isFocused ? 'primary.solidColor' : 'text.primary',
           display: 'flex', 
           alignItems: 'center', 
           cursor: isPopout ? 'default' : 'move',
@@ -135,56 +133,56 @@ export default function FloatingCalculator({ onClose, isPopout = false }) {
         }}
       >
         {!isPopout && <DragIndicator fontSize="small" sx={{ mr: 1, opacity: 0.7 }} />}
-        <Typography variant="subtitle2" sx={{ flexGrow: 1, fontWeight: 'bold' }}>Calculator</Typography>
+        <Typography level="title-sm" sx={{ flexGrow: 1, color: 'inherit' }}>Calculator</Typography>
         
         {!isPopout && (
-            <Tooltip title="Pop out">
-                <IconButton size="small" color="inherit" onClick={handlePopout}><OpenInNew fontSize="inherit" /></IconButton>
+            <Tooltip title="Pop out" variant="soft">
+                <IconButton size="sm" variant="plain" color="inherit" onClick={handlePopout}><OpenInNew fontSize="inherit" /></IconButton>
             </Tooltip>
         )}
-        <IconButton size="small" color="inherit" onClick={onClose} sx={{ ml: 1 }}>
+        <IconButton size="sm" variant="plain" color="inherit" onClick={onClose} sx={{ ml: 1 }}>
           <Close fontSize="small" />
         </IconButton>
       </Box>
 
       {/* Display */}
-      <Box sx={{ p: 2, bgcolor: 'action.hover', textAlign: 'right', minHeight: 80, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', height: 20, overflow: 'hidden' }}>
+      <Box sx={{ p: 2, bgcolor: 'background.level1', textAlign: 'right', minHeight: 80, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <Typography level="body-xs" color="neutral" sx={{ display: 'block', height: 20, overflow: 'hidden' }}>
           {input || ' '}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1 }}>
-            <Typography variant="h5" sx={{ fontWeight: 'bold', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <Typography level="h3" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {result || '0'}
             </Typography>
-            <Tooltip title="Copy Result">
-                <IconButton size="small" onClick={copyToClipboard}><ContentCopy fontSize="inherit" /></IconButton>
+            <Tooltip title="Copy Result" variant="soft">
+                <IconButton size="sm" onClick={copyToClipboard}><ContentCopy fontSize="inherit" /></IconButton>
             </Tooltip>
         </Box>
       </Box>
 
       <Divider />
 
-      {/* Buttons - Using display: grid for better resizing */}
+      {/* Buttons */}
       <Box sx={{ p: 1, flexGrow: 1, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
           {['C', 'DEL', '/', '*'].map(btn => (
-            <Button key={btn} variant="outlined" color="secondary" onClick={() => handleAction(btn)} sx={{ minHeight: 40, fontWeight: 'bold' }}>
+            <Button key={btn} variant="outlined" color="neutral" onClick={() => handleAction(btn)} sx={{ minHeight: 40 }}>
                 {btn === 'DEL' ? <Backspace fontSize="small" /> : btn}
             </Button>
           ))}
           {['7', '8', '9', '-'].map(btn => (
-            <Button key={btn} variant="contained" color={isNaN(btn) ? "secondary" : "inherit"} onClick={() => handleAction(btn)} sx={{ minHeight: 40, fontWeight: 'bold' }}>{btn}</Button>
+            <Button key={btn} variant="solid" color={isNaN(btn) ? "neutral" : "primary"} onClick={() => handleAction(btn)} sx={{ minHeight: 40 }}>{btn}</Button>
           ))}
           {['4', '5', '6', '+'].map(btn => (
-            <Button key={btn} variant="contained" color={isNaN(btn) ? "secondary" : "inherit"} onClick={() => handleAction(btn)} sx={{ minHeight: 40, fontWeight: 'bold' }}>{btn}</Button>
+            <Button key={btn} variant="solid" color={isNaN(btn) ? "neutral" : "primary"} onClick={() => handleAction(btn)} sx={{ minHeight: 40 }}>{btn}</Button>
           ))}
           {['1', '2', '3', '='].map(btn => (
-            <Button key={btn} variant="contained" color={btn === '=' ? "primary" : "inherit"} onClick={() => handleAction(btn)} sx={{ minHeight: 40, fontWeight: 'bold', gridRow: btn === '=' ? 'span 2' : 'auto' }}>{btn}</Button>
+            <Button key={btn} variant="solid" color={btn === '=' ? "primary" : "primary"} onClick={() => handleAction(btn)} sx={{ minHeight: 40, gridRow: btn === '=' ? 'span 2' : 'auto' }}>{btn}</Button>
           ))}
           <Box sx={{ gridColumn: 'span 2' }}>
-            <Button fullWidth variant="contained" onClick={() => handleAction('0')} sx={{ height: '100%', minHeight: 40, fontWeight: 'bold' }}>0</Button>
+            <Button fullWidth variant="solid" onClick={() => handleAction('0')} sx={{ height: '100%', minHeight: 40 }}>0</Button>
           </Box>
-          <Button variant="contained" onClick={() => handleAction('.')} sx={{ minHeight: 40, fontWeight: 'bold' }}>.</Button>
+          <Button variant="solid" onClick={() => handleAction('.')} sx={{ minHeight: 40 }}>.</Button>
       </Box>
-    </Paper>
+    </Sheet>
   );
 }

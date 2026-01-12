@@ -1,41 +1,34 @@
 import React from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, useTheme } from '@mui/material';
+import { Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Button, Box } from '@mui/joy';
 import EmojiPickerReact, { Theme } from 'emoji-picker-react';
 
 export default function EmojiPicker({ open, onClose, onEmojiSelect, title = "Select Emoji" }) {
-  const muiTheme = useTheme();
+  // We can infer theme or just use auto/dark
+  // Joy doesn't expose easy "mode" without hook, but we can assume auto
   
   const handleEmojiClick = (emojiData) => {
     onEmojiSelect(emojiData.emoji);
   };
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      maxWidth="sm" 
-      fullWidth
-      PaperProps={{
-        sx: { borderRadius: 3 }
-      }}
-    >
-      <DialogTitle>{title}</DialogTitle>
-      <DialogContent sx={{ p: 0, display: 'flex', justifyContent: 'center', minHeight: 450 }}>
-        <Box sx={{ width: '100%', height: '100%' }}>
-          <EmojiPickerReact
-            onEmojiClick={handleEmojiClick}
-            autoFocusSearch={false}
-            theme={muiTheme.palette.mode === 'dark' ? Theme.DARK : Theme.LIGHT}
-            width="100%"
-            height={450}
-            lazyLoadEmojis={true}
-            searchPlaceHolder="Search emojis..."
-          />
-        </Box>
-      </DialogContent>
-      <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button onClick={onClose} variant="outlined" color="inherit">Close</Button>
-      </DialogActions>
-    </Dialog>
+    <Modal open={open} onClose={onClose}>
+      <ModalDialog layout="center" sx={{ p: 0, minWidth: 350 }}>
+        <DialogTitle sx={{ p: 2 }}>{title}</DialogTitle>
+        <DialogContent sx={{ p: 0, display: 'flex', justifyContent: 'center' }}>
+            <EmojiPickerReact
+                onEmojiClick={handleEmojiClick}
+                autoFocusSearch={false}
+                theme={Theme.AUTO}
+                width="100%"
+                height={450}
+                lazyLoadEmojis={true}
+                searchPlaceHolder="Search emojis..."
+            />
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+            <Button variant="plain" color="neutral" onClick={onClose}>Close</Button>
+        </DialogActions>
+      </ModalDialog>
+    </Modal>
   );
 }

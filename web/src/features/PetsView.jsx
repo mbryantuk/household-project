@@ -1,10 +1,10 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { 
-  Box, Typography, Grid, Paper, Tabs, Tab, TextField, Button, 
-  FormControl, InputLabel, Select, MenuItem, Stack, Divider, CircularProgress,
-  Tooltip, IconButton
-} from '@mui/material';
+  Box, Typography, Sheet, Tabs, TabList, Tab, Input, Button, 
+  FormControl, FormLabel, Select, Option, Stack, Divider,
+  Tooltip, IconButton, Grid
+} from '@mui/joy';
 import { 
   Shield, Delete, Restaurant, MedicalServices, Payments, Info
 } from '@mui/icons-material';
@@ -12,7 +12,7 @@ import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
 import EmojiPicker from '../components/EmojiPicker';
 
 export default function PetsView() {
-  const { api, id: householdId, members, fetchHhMembers, user: currentUser, isDark, showNotification, confirmAction } = useOutletContext();
+  const { api, id: householdId, members, fetchHhMembers, user: currentUser, showNotification, confirmAction } = useOutletContext();
   const { petId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
@@ -24,7 +24,6 @@ export default function PetsView() {
     (members || []).find(m => m.id === parseInt(petId) && m.type === 'pet'), 
   [members, petId]);
 
-  // Use controlled state for form fields to ensure they update correctly when selection changes
   const [formData, setFormData] = useState({
     name: '', species: '', breed: '', dob: '', emoji: '🐾', notes: '',
     microchip_number: '', gender: '', pet_insurance_provider: '',
@@ -77,7 +76,7 @@ export default function PetsView() {
         fetchHhMembers(householdId);
       }
     } catch (err) {
-      showNotification("Failed to save.", "error");
+      showNotification("Failed to save.", "danger");
     }
   };
 
@@ -88,74 +87,101 @@ export default function PetsView() {
         async () => {
             try {
                 await api.delete(`/households/${householdId}/members/${petId}`);
-                showNotification("Pet removed.", "info");
+                showNotification("Pet removed.", "neutral");
                 fetchHhMembers(householdId);
                 navigate('..');
             } catch (err) {
-                showNotification("Failed to delete.", "error");
+                showNotification("Failed to delete.", "danger");
             }
         }
     );
   };
 
-  const getAutoPetEmoji = (species) => {
-    const s = species?.toLowerCase();
-    if (s === 'dog') return '🐶';
-    if (s === 'cat') return '🐱';
-    if (s === 'bird') return '🐦';
-    if (s === 'fish') return '🐟';
-    return '🐾';
-  };
-
   if (petId !== 'new' && !selectedPet) {
-    return <Box sx={{ p: 4, textAlign: 'center' }}><Typography color="text.secondary">Select a pet from the menu.</Typography></Box>;
+    return <Box sx={{ p: 4, textAlign: 'center' }}><Typography color="neutral">Select a pet from the menu.</Typography></Box>;
   }
 
   return (
-    <Box key={petId}> {/* Force re-render on ID change */}
+    <Box key={petId}>
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h4" fontWeight="300">
+        <Typography level="h2" fontWeight="300">
             {petId === 'new' ? 'Add New Pet' : selectedPet.name}
         </Typography>
         {petId !== 'new' && isHouseholdAdmin && (
-            <Button color="error" startIcon={<Delete />} onClick={handleDelete}>Remove Pet</Button>
+            <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={handleDelete}>Remove Pet</Button>
         )}
       </Box>
 
-      <Paper variant="outlined" sx={{ borderRadius: 3, minHeight: '600px', overflow: 'hidden' }}>
+      <Sheet variant="outlined" sx={{ borderRadius: 'md', minHeight: '600px', overflow: 'hidden' }}>
         {petId !== 'new' && (
-            <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'action.hover' }}>
-                <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} sx={{ px: 2 }}>
-                    <Tab icon={<Info />} iconPosition="start" label="General" />
-                    <Tab icon={<Shield />} iconPosition="start" label="Insurance & Health" />
-                    <Tab icon={<Payments />} iconPosition="start" label="Misc Costs" />
-                </Tabs>
-            </Box>
+            <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} sx={{ bgcolor: 'transparent' }}>
+                <TabList tabFlex="auto" variant="plain" sx={{ p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: 2, mt: 2, overflow: 'auto' }}>
+                    <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'}><Info sx={{ mr: 1 }}/> General</Tab>
+                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}><Shield sx={{ mr: 1 }}/> Insurance & Health</Tab>
+                    <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'}><Payments sx={{ mr: 1 }}/> Misc Costs</Tab>
+                </TabList>
+            </Tabs>
         )}
 
         <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
           {(activeTab === 0 || petId === 'new') && (
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>
-                <Grid item xs={12} md={2}>
-                    <Tooltip title="Pick an emoji">
+                <Grid xs={12} md={2}>
+                    <Tooltip title="Pick an emoji" variant="soft">
                         <IconButton 
                             onClick={() => setEmojiPickerOpen(true)} 
-                            sx={{ bgcolor: 'action.hover', border: '1px solid', borderColor: 'divider', width: 80, height: 80 }}
+                            variant="outlined"
+                            sx={{ width: 80, height: 80 }}
                         >
-                            <Typography sx={{ fontSize: '2.5rem' }}>{formData.emoji}</Typography>
+                            <Typography level="h1">{formData.emoji}</Typography>
                         </IconButton>
                     </Tooltip>
                 </Grid>
-                <Grid item xs={12} md={5}><TextField name="name" label="Pet Name" value={formData.name} onChange={handleChange} fullWidth required /></Grid>
-                <Grid item xs={12} md={5}><TextField name="species" label="Species (e.g. Dog, Cat)" value={formData.species} onChange={handleChange} fullWidth required /></Grid>
-                <Grid item xs={12} md={4}><TextField name="breed" label="Breed" value={formData.breed} onChange={handleChange} fullWidth /></Grid>
-                <Grid item xs={12} md={4}><TextField name="dob" label="Date of Birth" type="date" value={formData.dob} onChange={handleChange} fullWidth InputLabelProps={{shrink:true}} /></Grid>
-                <Grid item xs={12} md={4}><TextField name="microchip_number" label="Microchip #" value={formData.microchip_number} onChange={handleChange} fullWidth /></Grid>
-                <Grid item xs={12} md={6}><TextField name="gender" label="Gender" value={formData.gender} onChange={handleChange} fullWidth /></Grid>
-                <Grid item xs={12}><TextField name="notes" label="Notes" value={formData.notes} onChange={handleChange} multiline rows={3} fullWidth /></Grid>
-                <Grid item xs={12}>
-                    <Button type="submit" variant="contained" size="large">
+                <Grid xs={12} md={5}>
+                    <FormControl required>
+                        <FormLabel>Pet Name</FormLabel>
+                        <Input name="name" value={formData.name} onChange={handleChange} />
+                    </FormControl>
+                </Grid>
+                <Grid xs={12} md={5}>
+                    <FormControl required>
+                        <FormLabel>Species (e.g. Dog, Cat)</FormLabel>
+                        <Input name="species" value={formData.species} onChange={handleChange} />
+                    </FormControl>
+                </Grid>
+                <Grid xs={12} md={4}>
+                    <FormControl>
+                        <FormLabel>Breed</FormLabel>
+                        <Input name="breed" value={formData.breed} onChange={handleChange} />
+                    </FormControl>
+                </Grid>
+                <Grid xs={12} md={4}>
+                    <FormControl>
+                        <FormLabel>Date of Birth</FormLabel>
+                        <Input name="dob" type="date" value={formData.dob} onChange={handleChange} />
+                    </FormControl>
+                </Grid>
+                <Grid xs={12} md={4}>
+                    <FormControl>
+                        <FormLabel>Microchip #</FormLabel>
+                        <Input name="microchip_number" value={formData.microchip_number} onChange={handleChange} />
+                    </FormControl>
+                </Grid>
+                <Grid xs={12} md={6}>
+                    <FormControl>
+                        <FormLabel>Gender</FormLabel>
+                        <Input name="gender" value={formData.gender} onChange={handleChange} />
+                    </FormControl>
+                </Grid>
+                <Grid xs={12}>
+                    <FormControl>
+                        <FormLabel>Notes</FormLabel>
+                        <Input name="notes" value={formData.notes} onChange={handleChange} />
+                    </FormControl>
+                </Grid>
+                <Grid xs={12}>
+                    <Button type="submit" variant="solid" size="lg">
                         {petId === 'new' ? 'Create Pet' : 'Update General Info'}
                     </Button>
                 </Grid>
@@ -166,27 +192,48 @@ export default function PetsView() {
           {activeTab === 1 && petId !== 'new' && (
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>
-                <Grid item xs={12}>
-                  <Typography variant="h6" gutterBottom>Insurance Details</Typography>
+                <Grid xs={12}>
+                  <Typography level="title-lg">Insurance Details</Typography>
                 </Grid>
-                <Grid item xs={12} md={6}><TextField name="pet_insurance_provider" label="Insurance Provider" value={formData.pet_insurance_provider} onChange={handleChange} fullWidth /></Grid>
-                <Grid item xs={12} md={3}><TextField name="pet_insurance_premium" label="Monthly Premium (£)" type="number" value={formData.pet_insurance_premium} onChange={handleChange} fullWidth /></Grid>
-                <Grid item xs={12} md={3}><TextField name="pet_insurance_expiry" label="Policy Expiry" type="date" value={formData.pet_insurance_expiry} onChange={handleChange} fullWidth InputLabelProps={{shrink:true}} /></Grid>
+                <Grid xs={12} md={6}>
+                    <FormControl>
+                        <FormLabel>Insurance Provider</FormLabel>
+                        <Input name="pet_insurance_provider" value={formData.pet_insurance_provider} onChange={handleChange} />
+                    </FormControl>
+                </Grid>
+                <Grid xs={12} md={3}>
+                    <FormControl>
+                        <FormLabel>Monthly Premium (£)</FormLabel>
+                        <Input name="pet_insurance_premium" type="number" value={formData.pet_insurance_premium} onChange={handleChange} />
+                    </FormControl>
+                </Grid>
+                <Grid xs={12} md={3}>
+                    <FormControl>
+                        <FormLabel>Policy Expiry</FormLabel>
+                        <Input name="pet_insurance_expiry" type="date" value={formData.pet_insurance_expiry} onChange={handleChange} />
+                    </FormControl>
+                </Grid>
                 
-                <Grid item xs={12} sx={{ mt: 2 }}>
-                  <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Restaurant fontSize="small" /> Nutrition (Monthly Forecast)
+                <Grid xs={12}>
+                  <Divider sx={{ my: 2 }} />
+                  <Typography level="title-lg" startDecorator={<Restaurant />}>
+                      Nutrition (Monthly Forecast)
                   </Typography>
-                  <TextField name="food_monthly_cost" label="Estimated Monthly Food Cost (£)" type="number" value={formData.food_monthly_cost} onChange={handleChange} fullWidth />
+                  <FormControl sx={{ mt: 2 }}>
+                      <FormLabel>Estimated Monthly Food Cost (£)</FormLabel>
+                      <Input name="food_monthly_cost" type="number" value={formData.food_monthly_cost} onChange={handleChange} />
+                  </FormControl>
                 </Grid>
-                <Grid item xs={12}><Button type="submit" variant="contained" size="large">Save Health & Nutrition</Button></Grid>
+                <Grid xs={12}>
+                    <Button type="submit" variant="solid" size="lg">Save Health & Nutrition</Button>
+                </Grid>
               </Grid>
             </form>
           )}
 
           {activeTab === 2 && petId !== 'new' && (
             <Box>
-              <Typography variant="h6" gutterBottom>Pet-Specific Recurring Costs</Typography>
+              <Typography level="title-lg" mb={2}>Pet-Specific Recurring Costs</Typography>
               <RecurringCostsWidget 
                 api={api} 
                 householdId={householdId} 
@@ -198,7 +245,7 @@ export default function PetsView() {
             </Box>
           )}
         </Box>
-      </Paper>
+      </Sheet>
 
       <EmojiPicker 
         open={emojiPickerOpen} 
