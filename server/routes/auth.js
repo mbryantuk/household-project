@@ -74,10 +74,12 @@ router.post('/register', async (req, res) => {
  * POST /login
  */
 router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, username } = req.body;
+    const identifier = email || username;
 
     try {
-        const user = await dbGet(globalDb, `SELECT * FROM users WHERE email = ? COLLATE NOCASE`, [email]);
+        // Support both email and username for login (SysAdmin uses username usually)
+        const user = await dbGet(globalDb, `SELECT * FROM users WHERE email = ? OR username = ? COLLATE NOCASE`, [identifier, identifier]);
         if (!user) return res.status(404).json({ error: "Invalid credentials" });
 
         const isValid = bcrypt.compareSync(password, user.password_hash);
@@ -121,6 +123,7 @@ router.post('/login', async (req, res) => {
             user: {
                 id: user.id,
                 email: user.email,
+                username: user.username,
                 first_name: user.first_name,
                 last_name: user.last_name,
                 avatar: user.avatar,
@@ -142,7 +145,7 @@ router.post('/login', async (req, res) => {
  */
 router.get('/profile', authenticateToken, async (req, res) => {
     try {
-        const user = await dbGet(globalDb, `SELECT id, email, first_name, last_name, avatar, system_role, dashboard_layout, sticky_note FROM users WHERE id = ?`, [req.user.id]);
+        const user = await dbGet(globalDb, `SELECT id, email, username, first_name, last_name, avatar, system_role, dashboard_layout, sticky_note FROM users WHERE id = ?`, [req.user.id]);
         if (!user) return res.status(404).json({ error: "User not found" });
         res.json(user);
     } catch (err) {
@@ -167,7 +170,6 @@ router.put('/profile', authenticateToken, async (req, res) => {
     if (email) { fields.push('email = ?'); values.push(email); }
     if (password) { fields.push('password_hash = ?'); values.push(bcrypt.hashSync(password, 8)); }
     
-    // Support both camelCase and snake_case for flexibility
     const fName = first_name || firstName;
     const lName = last_name || lastName;
     if (fName) { fields.push('first_name = ?'); values.push(fName); }

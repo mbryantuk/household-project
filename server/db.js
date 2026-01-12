@@ -27,7 +27,8 @@ function initGlobalDb() {
         // --- GLOBAL USERS TABLE (SaaS Architecture) ---
         globalDb.run(`CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE NOT NULL,
+            email TEXT UNIQUE,
+            username TEXT UNIQUE,
             password_hash TEXT NOT NULL,
             first_name TEXT,
             last_name TEXT,
@@ -80,8 +81,8 @@ function initGlobalDb() {
             globalDb.run(`ALTER TABLE households ADD COLUMN ${col} ${type}`, (err) => {});
         });
 
-        // Ensure email column exists in users (if migrating from old schema)
         globalDb.run(`ALTER TABLE users ADD COLUMN email TEXT UNIQUE`, (err) => {});
+        globalDb.run(`ALTER TABLE users ADD COLUMN username TEXT UNIQUE`, (err) => {});
         globalDb.run(`ALTER TABLE users ADD COLUMN first_name TEXT`, (err) => {});
         globalDb.run(`ALTER TABLE users ADD COLUMN last_name TEXT`, (err) => {});
         globalDb.run(`ALTER TABLE users ADD COLUMN default_household_id INTEGER`, (err) => {});

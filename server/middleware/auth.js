@@ -22,13 +22,13 @@ function requireHouseholdRole(requiredRole) {
 
         // 1. Check if user is logged into the target household
         // Support both :id and :hhId parameter names
+        // NOTE: For /households/:id/users/:userId, :id is the householdId
         const targetIdRaw = req.params.id || req.params.hhId || req.body.householdId;
         const targetHouseholdId = targetIdRaw ? parseInt(targetIdRaw) : null;
         const userHouseholdId = req.user.householdId ? parseInt(req.user.householdId) : null;
 
         if (targetHouseholdId && userHouseholdId !== targetHouseholdId) {
-            console.log(`🚫 Context Mismatch: User ${req.user.username} (HH:${userHouseholdId}) tried to access HH:${targetHouseholdId}`);
-            console.log(`   Params: ${JSON.stringify(req.params)}`);
+            console.log(`🚫 Context Mismatch: User ${req.user.email} (HH:${userHouseholdId}) tried to access HH:${targetHouseholdId}`);
             return res.status(403).json({ error: "Access denied: Wrong household context" });
         }
 
@@ -40,7 +40,7 @@ function requireHouseholdRole(requiredRole) {
         if (userRoleIndex >= requiredRoleIndex) {
             next();
         } else {
-            console.log(`🚫 Insufficient Role: User ${req.user.username} is ${req.user.role}, required ${requiredRole}`);
+            console.log(`🚫 Insufficient Role: User ${req.user.email} is ${req.user.role}, required ${requiredRole}`);
             res.status(403).json({ error: "Access denied: Insufficient permissions" });
         }
     };
