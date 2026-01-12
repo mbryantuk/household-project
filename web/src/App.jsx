@@ -13,6 +13,7 @@ import { getTotemTheme, getThemeSpec } from './theme';
 import FloatingCalculator from './components/FloatingCalculator';
 import FloatingCalendar from './components/FloatingCalendar';
 import FinancialCalculator from './components/FinancialCalculator';
+import TaxCalculator from './components/TaxCalculator';
 import PostItNote from './components/PostItNote';
 
 // Layouts & Pages
@@ -272,11 +273,6 @@ function AppInner({ useDracula, setUseDracula }) {
       <Routes>
         <Route path="/login" element={!token ? <Login onLogin={login} /> : <Navigate to="/" />} />
         <Route path="/register" element={!token ? <Register /> : <Navigate to="/" />} />
-import TaxCalculator from './components/TaxCalculator';
-
-// ... (existing imports)
-
-// Inside AppInner Routes:
         <Route path="/calculator" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
         <Route path="/fin-calculator-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FinancialCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
         <Route path="/tax-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><TaxCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
@@ -390,7 +386,7 @@ import TaxCalculator from './components/TaxCalculator';
         variant="soft" color={notification.severity}
         sx={{ 
           zIndex: 3000, 
-          bottom: '50px !important' // Above the 40px utility bar
+          bottom: '50px !important' 
         }}
       >
         {notification.message}
@@ -419,8 +415,6 @@ import TaxCalculator from './components/TaxCalculator';
 }
 
 export default function App() {
-  // Lift useDracula state to App level so we can pass dynamic theme to Provider
-  // Default to false (Standard Theme) as per user request ("can we have Dark and Light with the option...")
   const [useDracula, setUseDracula] = useState(() => localStorage.getItem('useDracula') === 'true');
   
   const theme = useMemo(() => getTotemTheme(useDracula), [useDracula]);
