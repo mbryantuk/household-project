@@ -1,8 +1,8 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { 
-  Box, Typography, Paper, Tabs, Tab, CircularProgress, Divider, Grid, TextField, Button, Tooltip, IconButton, InputAdornment, Stack
-} from '@mui/material';
+  Box, Typography, Sheet, Tabs, TabList, Tab, CircularProgress, Divider, Grid, Input, Button, Tooltip, IconButton, FormControl, FormLabel, Stack
+} from '@mui/joy';
 import { 
   HomeWork, ElectricBolt, WaterDrop, DeleteSweep, 
   Inventory, AccountBalance, Payments, Info, Badge,
@@ -20,7 +20,7 @@ import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
 import GeneralDetailView from './GeneralDetailView';
 
 export default function HouseView() {
-  const { api, id: householdId, onUpdateHousehold, user: currentUser, showNotification, isDark } = useOutletContext();
+  const { api, id: householdId, onUpdateHousehold, user: currentUser, showNotification } = useOutletContext();
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
 
   const [activeTab, setActiveTab] = useState(0);
@@ -49,10 +49,9 @@ export default function HouseView() {
     try {
       await onUpdateHousehold(data);
       showNotification("Household identity updated.", "success");
-      // Update local state to reflect changes in UI immediately
       setHousehold(prev => ({ ...prev, ...data }));
     } catch (err) {
-      // Notification handled by onUpdateHousehold usually, but we catch for safety
+      // Notification handled by onUpdateHousehold
     } finally {
       setSavingHh(false);
     }
@@ -74,120 +73,140 @@ export default function HouseView() {
 
   return (
     <Box sx={{ height: '100%' }}>
-      <Typography variant="h4" fontWeight="300" gutterBottom>House Registry</Typography>
+      <Typography level="h2" mb={2} fontWeight="300">House Registry</Typography>
       
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: 'hidden' }}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'action.hover' }}>
-          <Tabs 
+      <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'hidden' }}>
+        <Tabs 
             value={activeTab} 
             onChange={(e, v) => setActiveTab(v)} 
-            variant="scrollable" 
-            scrollButtons="auto"
-            sx={{ px: 2 }}
-          >
-            <Tab icon={<Badge />} iconPosition="start" label="Identity" />
-            <Tab icon={<HomeWork />} iconPosition="start" label="General" />
-            <Tab icon={<ElectricBolt />} iconPosition="start" label="Energy" />
-            <Tab icon={<WaterDrop />} iconPosition="start" label="Water" />
-            <Tab icon={<DeleteSweep />} iconPosition="start" label="Waste" />
-            <Tab icon={<Inventory />} iconPosition="start" label="Assets" />
-            <Tab icon={<AccountBalance />} iconPosition="start" label="Council" />
-            <Tab icon={<Payments />} iconPosition="start" label="Misc Costs" />
-          </Tabs>
-        </Box>
+            sx={{ bgcolor: 'transparent' }}
+        >
+          <TabList tabFlex="auto" variant="plain" sx={{ p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: 2, mt: 2, overflow: 'auto' }}>
+            <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'}><Badge sx={{ mr: 1 }}/> Identity</Tab>
+            <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}><HomeWork sx={{ mr: 1 }}/> General</Tab>
+            <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'}><ElectricBolt sx={{ mr: 1 }}/> Energy</Tab>
+            <Tab variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'}><WaterDrop sx={{ mr: 1 }}/> Water</Tab>
+            <Tab variant={activeTab === 4 ? 'solid' : 'plain'} color={activeTab === 4 ? 'primary' : 'neutral'}><DeleteSweep sx={{ mr: 1 }}/> Waste</Tab>
+            <Tab variant={activeTab === 5 ? 'solid' : 'plain'} color={activeTab === 5 ? 'primary' : 'neutral'}><Inventory sx={{ mr: 1 }}/> Assets</Tab>
+            <Tab variant={activeTab === 6 ? 'solid' : 'plain'} color={activeTab === 6 ? 'primary' : 'neutral'}><AccountBalance sx={{ mr: 1 }}/> Council</Tab>
+            <Tab variant={activeTab === 7 ? 'solid' : 'plain'} color={activeTab === 7 ? 'primary' : 'neutral'}><Payments sx={{ mr: 1 }}/> Misc Costs</Tab>
+          </TabList>
 
-        <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
-          {activeTab === 0 && (
-            loadingHh ? <CircularProgress /> : (
-              <Box>
-                <Typography variant="h5" fontWeight="300" gutterBottom sx={{ mb: 4 }}>Household Identity & Location</Typography>
-                <form onSubmit={handleUpdateIdentity}>
-                  <Grid container spacing={3}>
-                    <Grid item xs={12} md={2}>
-                        <Tooltip title="Pick an emoji">
-                            <IconButton 
-                                onClick={() => setEmojiPickerOpen(true)} 
-                                disabled={!isAdmin || savingHh}
-                                sx={{ bgcolor: 'action.hover', border: '1px solid', borderColor: 'divider', width: 80, height: 80 }}
+          <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
+            {activeTab === 0 && (
+                loadingHh ? <CircularProgress /> : (
+                <Box>
+                    <Typography level="h4" mb={4} fontWeight="300">Household Identity & Location</Typography>
+                    <form onSubmit={handleUpdateIdentity}>
+                    <Grid container spacing={3}>
+                        <Grid xs={12} md={2}>
+                            <Tooltip title="Pick an emoji" variant="soft">
+                                <IconButton 
+                                    onClick={() => setEmojiPickerOpen(true)} 
+                                    disabled={!isAdmin || savingHh}
+                                    variant="outlined"
+                                    sx={{ width: 80, height: 80 }}
+                                >
+                                    <Typography level="h1">{selectedEmoji}</Typography>
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                        <Grid xs={12} md={5}>
+                            <FormControl required>
+                                <FormLabel>Household Name</FormLabel>
+                                <Input name="name" defaultValue={household?.name} disabled={!isAdmin || savingHh} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} md={5}>
+                            <FormControl>
+                                <FormLabel>Access Key</FormLabel>
+                                <Input 
+                                    value={household?.access_key || ''} 
+                                    disabled 
+                                    endDecorator={
+                                        <IconButton onClick={() => { navigator.clipboard.writeText(household.access_key); showNotification("Key copied!", "info"); }}>
+                                            <ContentCopy />
+                                        </IconButton>
+                                    }
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12}><Divider /></Grid>
+                        <Grid xs={12} md={4}>
+                            <FormControl>
+                                <FormLabel>Street</FormLabel>
+                                <Input name="address_street" defaultValue={household?.address_street} disabled={!isAdmin || savingHh} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} md={4}>
+                            <FormControl>
+                                <FormLabel>City</FormLabel>
+                                <Input name="address_city" defaultValue={household?.address_city} disabled={!isAdmin || savingHh} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} md={4}>
+                            <FormControl>
+                                <FormLabel>Zip / Postcode</FormLabel>
+                                <Input name="address_zip" defaultValue={household?.address_zip} disabled={!isAdmin || savingHh} />
+                            </FormControl>
+                        </Grid>
+                        
+                        {isAdmin && (
+                        <Grid xs={12}>
+                            <Button 
+                                type="submit" 
+                                variant="solid" 
+                                startDecorator={savingHh ? <CircularProgress size="sm" /> : <Save />}
+                                loading={savingHh}
                             >
-                                <Typography sx={{ fontSize: '2.5rem' }}>{selectedEmoji}</Typography>
-                            </IconButton>
-                        </Tooltip>
+                            Save Identity Details
+                            </Button>
+                        </Grid>
+                        )}
                     </Grid>
-                    <Grid item xs={12} md={5}>
-                      <TextField name="name" label="Household Name" defaultValue={household?.name} fullWidth required disabled={!isAdmin || savingHh} />
-                    </Grid>
-                    <Grid item xs={12} md={5}>
-                      <TextField label="Access Key" value={household?.access_key || ''} fullWidth disabled
-                        InputProps={{ 
-                            endAdornment: (
-                                <InputAdornment position="end">
-                                    <IconButton onClick={() => { navigator.clipboard.writeText(household.access_key); showNotification("Key copied!", "info"); }}><ContentCopy fontSize="small"/></IconButton>
-                                </InputAdornment>
-                            ) 
-                        }} 
-                      />
-                    </Grid>
-                    <Grid item xs={12}><Divider sx={{ my: 1 }} /></Grid>
-                    <Grid item xs={12} md={4}><TextField name="address_street" label="Street" defaultValue={household?.address_street} fullWidth disabled={!isAdmin || savingHh} /></Grid>
-                    <Grid item xs={12} md={4}><TextField name="address_city" label="City" defaultValue={household?.address_city} fullWidth disabled={!isAdmin || savingHh} /></Grid>
-                    <Grid item xs={12} md={4}><TextField name="address_zip" label="Zip / Postcode" defaultValue={household?.address_zip} fullWidth disabled={!isAdmin || savingHh} /></Grid>
-                    
-                    {isAdmin && (
-                      <Grid item xs={12}>
-                        <Button 
-                            type="submit" 
-                            variant="contained" 
-                            startIcon={savingHh ? <CircularProgress size={20} color="inherit" /> : <Save />}
-                            disabled={savingHh}
-                        >
-                          {savingHh ? 'Saving...' : 'Save Identity Details'}
-                        </Button>
-                      </Grid>
-                    )}
-                  </Grid>
-                </form>
+                    </form>
 
-                <EmojiPicker 
-                    open={emojiPickerOpen} 
-                    onClose={() => setEmojiPickerOpen(false)} 
-                    onEmojiSelect={(emoji) => {
-                        setSelectedEmoji(emoji);
-                        setEmojiPickerOpen(false);
-                    }}
-                    title="Select Household Emoji"
+                    <EmojiPicker 
+                        open={emojiPickerOpen} 
+                        onClose={() => setEmojiPickerOpen(false)} 
+                        onEmojiSelect={(emoji) => {
+                            setSelectedEmoji(emoji);
+                            setEmojiPickerOpen(false);
+                        }}
+                        title="Select Household Emoji"
+                    />
+                </Box>
+                )
+            )}
+
+            {activeTab === 1 && (
+                <GeneralDetailView 
+                    title="Structural & General Info" 
+                    icon={<Info />} 
+                    endpoint="details" 
+                    fields={houseFields} 
                 />
-              </Box>
-            )
-          )}
-
-          {activeTab === 1 && (
-            <GeneralDetailView 
-                title="Structural & General Info" 
-                icon={<Info />} 
-                endpoint="details" 
-                fields={houseFields} 
-            />
-          )}
-          
-          {activeTab === 2 && <EnergyView />}
-          {activeTab === 3 && <WaterView />}
-          {activeTab === 4 && <WasteView />}
-          {activeTab === 5 && <AssetsView />}
-          {activeTab === 6 && <CouncilView />}
-          
-          {activeTab === 7 && (
-            <RecurringCostsWidget 
-                api={api} 
-                householdId={householdId} 
-                parentType="house" 
-                parentId={1} 
-                isAdmin={isAdmin}
-                showNotification={showNotification}
-            />
-          )}
-        </Box>
-      </Paper>
+            )}
+            
+            {activeTab === 2 && <EnergyView />}
+            {activeTab === 3 && <WaterView />}
+            {activeTab === 4 && <WasteView />}
+            {activeTab === 5 && <AssetsView />}
+            {activeTab === 6 && <CouncilView />}
+            
+            {activeTab === 7 && (
+                <RecurringCostsWidget 
+                    api={api} 
+                    householdId={householdId} 
+                    parentType="house" 
+                    parentId={1} 
+                    isAdmin={isAdmin}
+                    showNotification={showNotification}
+                />
+            )}
+          </Box>
+        </Tabs>
+      </Sheet>
     </Box>
   );
 }

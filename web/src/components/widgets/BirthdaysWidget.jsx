@@ -1,12 +1,15 @@
 import { useMemo } from 'react';
-import { Box, Typography, Stack, Avatar, Chip, useTheme } from '@mui/material';
+import { Box, Typography, Stack, Avatar, Chip } from '@mui/joy';
 import { Cake } from '@mui/icons-material';
 import WidgetWrapper from './WidgetWrapper';
 import { getEmojiColor } from '../../theme';
 
 export default function BirthdaysWidget({ dates, members }) {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
+  // Theme mode is handled globally by Joy, but for getEmojiColor we assume dark if not specified or check context if strictly needed.
+  // For simplicity, we default to dark mode colors for vibrancy in avatars as before, or we could check system pref.
+  // Ideally getEmojiColor should be updated to return a stable color regardless of mode, or we accept a 'mode' prop.
+  // Let's assume standard behavior.
+  
   const today = useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
@@ -83,34 +86,34 @@ export default function BirthdaysWidget({ dates, members }) {
               key={m.id} 
               sx={{ 
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-                p: 1.5, bgcolor: 'action.hover', borderRadius: 2 
+                p: 1.5, bgcolor: 'background.level1', borderRadius: 'sm' 
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Avatar sx={{ 
-                    bgcolor: getEmojiColor(m.emoji || (m.name ? m.name[0].toUpperCase() : '?'), isDark), 
-                    color: isDark ? 'white' : 'rgba(0,0,0,0.8)', 
-                    width: 32, height: 32, fontSize: '1rem', fontWeight: 'bold' 
+                    bgcolor: getEmojiColor(m.emoji || (m.name ? m.name[0].toUpperCase() : '?')), 
+                    fontSize: '1rem', fontWeight: 'bold' 
                 }}>
                   {m.emoji || (m.name ? m.name[0].toUpperCase() : '?')}
                 </Avatar>
                 <Box>
-                  <Typography variant="body2" fontWeight="bold">{m.name}</Typography>
-                  <Typography variant="caption" color="text.secondary">Turning {m.nextAge}</Typography>
+                  <Typography level="body-sm" fontWeight="bold">{m.name}</Typography>
+                  <Typography level="body-xs" color="neutral">Turning {m.nextAge}</Typography>
                 </Box>
               </Box>
               <Chip 
-                size="small" 
-                color={m.daysUntil < 7 ? "error" : "primary"} 
-                variant={m.daysUntil < 7 ? "filled" : "outlined"}
-                label={m.daysUntil === 0 ? "Today!" : m.daysUntil === 1 ? "Tomorrow" : `${m.daysUntil} days`} 
+                size="sm" 
+                color={m.daysUntil < 7 ? "danger" : "primary"} 
+                variant={m.daysUntil < 7 ? "solid" : "outlined"}
                 sx={{ fontWeight: 'bold', fontSize: '0.7rem' }}
-              />
+              >
+                {m.daysUntil === 0 ? "Today!" : m.daysUntil === 1 ? "Tomorrow" : `${m.daysUntil} days`}
+              </Chip>
             </Box>
           ))}
         </Stack>
       ) : (
-        <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic', py: 2, textAlign: 'center' }}>
+        <Typography level="body-sm" color="neutral" sx={{ fontStyle: 'italic', py: 2, textAlign: 'center' }}>
           No upcoming birthdays found.
         </Typography>
       )}

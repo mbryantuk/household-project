@@ -4,25 +4,23 @@ Totem is a high-performance, multi-tenant Household Management SaaS designed wit
 
 ## 🚀 Key Features
 
-*   **Strict Multi-Tenancy:** Secure data isolation using unique Household Keys and tenant-specific database contexts.
+*   **SaaS Architecture:** Global User System allowing single sign-on across multiple households.
+*   **Strict Multi-Tenancy:** Secure data isolation using tenant-specific database contexts.
+*   **Modern UI/UX:** Built with **MUI Joy UI** for a sleek, modern aesthetic with robust Dark Mode (Dracula & Alucard themes).
 *   **Enhanced Unified Calendar:** 
     *   Comprehensive view of events, birthdays, and anniversaries.
     *   **Financial Integration:** Automated expansion of recurring costs onto the calendar.
     *   **Bank Holiday Support:** Automated import of UK Bank Holidays (gov.uk API).
     *   **Smart Scheduling:** Support for "Nearest Working Day" logic (prior working day) for recurring items.
-*   **Household Personalization:** Customizable household identity with Emojis and Avatars for better visual recognition.
-*   **Comprehensive User Management:** Track detailed user profiles (First Name, Last Name, Email) with customizable Emoji avatars and granular RBAC.
 *   **Asset-First Financial Modeling:**
     *   **Appliance Register:** Track purchase value, replacement cost, and depreciation for all household items.
     *   **Vehicle Fleet Management:** Comprehensive tracking of service history, finance agreements, insurance, and MOT/Tax schedules.
 *   **Physical Asset CRUD with Date Tracking:** Full lifecycle management for Vehicles, Assets, and Energy accounts with automated date-based tracking (MOT, Warranty, Contract Ends).
-*   **Advanced Waste Management:** Multi-type collection scheduling with customizable frequencies (Daily, Weekly, Biweekly, Monthly).
 *   **Role-Based Access Control (RBAC):** Granular permissions supporting Admin (Full Access), Member (Standard), and Viewer (Read-only) roles.
-*   **Modern UI/UX:** Built with Material Design principles, featuring a responsive Sidebar with nested submenus and Dracula/Dark mode support.
 
 ## 🛠️ Tech Stack
 
-*   **Frontend:** React 19, Vite, Material UI (MUI), React Router 6.
+*   **Frontend:** React 19, Vite, **MUI Joy UI**, React Router 6.
 *   **Backend:** Node.js, Express 5, JWT Authentication.
 *   **Database:** SQLite (Global Registry + Individual Tenant Databases).
 *   **DevOps:** Docker, Docker Compose, GitHub Actions Ready.
@@ -68,6 +66,7 @@ npx jest tests/api.test.js
 ```
 
 ## 🛡️ Security & Privacy
-*   Data isolation at the database file level.
-*   Middleware enforcement of household context for every API request.
-*   No cross-tenant data leakages (Verified via Automated Isolation Tests).
+*   **Global User Store:** Centralized user management with secure password hashing.
+*   **Tenant Isolation:** Data isolation at the database file level.
+*   **Context Enforcement:** Middleware enforcement of household context for every API request.
+*   **Zero Leakage:** No cross-tenant data leakages (Verified via Automated Isolation Tests).

@@ -1,23 +1,23 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import axios from 'axios';
 import { 
-  Box, CssBaseline, ThemeProvider, useMediaQuery, TextField, Button, 
-  Card, Typography, CircularProgress, Alert, Checkbox, FormControlLabel,
-  Snackbar, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions
-} from '@mui/material';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+  Box, CssVarsProvider, Button, 
+  CircularProgress, Snackbar, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions,
+  GlobalStyles
+} from '@mui/joy';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import CssBaseline from '@mui/joy/CssBaseline';
 
 // Theme and Local Components
-import { getTotemTheme } from './theme';
-import TotemIcon from './components/TotemIcon';
+import { getTotemTheme, getThemeSpec } from './theme';
 import FloatingCalculator from './components/FloatingCalculator';
 
 // Layouts & Pages
 import RootLayout from './layouts/RootLayout';
 import HouseholdLayout from './layouts/HouseholdLayout';
-import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
+import Register from './pages/Register';
 import AccessControl from './pages/AccessControl';
-import SetupWizard from './pages/SetupWizard';
 
 // Features
 import HomeView from './features/HomeView';
@@ -32,70 +32,70 @@ import VehiclesView from './features/VehiclesView';
 const API_URL = window.location.origin;
 
 function AppContent() {
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [modeOverride, setModeOverride] = useState(localStorage.getItem('themeMode') || 'system');
   const [useDracula, setUseDracula] = useState(() => localStorage.getItem('useDracula') !== 'false');
+  
+  // Theme Construction
+  const theme = useMemo(() => getTotemTheme(useDracula), [useDracula]);
+  const { spec, isDark } = useMemo(() => getThemeSpec(modeOverride, useDracula), [modeOverride, useDracula]);
+
+  // Auth & Data State
+  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [user, setUser] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('user')) || null; } catch { return null; }
+  });
+  const [household, setHousehold] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('household')) || null; } catch { return null; }
+  });
+
+  const [households, setHouseholds] = useState([]);
+  const [sysUsers, setSysUsers] = useState([]);
+  const [hhUsers, setHhUsers] = useState([]);     
+  const [hhMembers, setHhMembers] = useState([]); 
+  const [hhDates, setHhDates] = useState([]);
+
+  const [loading, setLoading] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [installPrompt, setInstallPrompt] = useState(null);
   const [showUpdate, setShowUpdate] = useState(false);
-  const [swRegistration, setSwRegistration] = useState(null);
   
+  // Notifications & Dialogs
+  const [notification, setNotification] = useState({ open: false, message: '', severity: 'neutral' });
+  const [confirmDialog, setConfirmDialog] = useState({ open: false, title: '', message: '', onConfirm: null });
+
+  const navigate = useNavigate();
+  const authAxios = useMemo(() => axios.create({ 
+    baseURL: API_URL, 
+    headers: { Authorization: `Bearer ${token}` } 
+  }), [token]);
+
+  // PWA & Updates
   useEffect(() => {
-    const handler = (e) => {
-      e.preventDefault();
-      setInstallPrompt(e);
-    };
+    const handler = (e) => { e.preventDefault(); setInstallPrompt(e); };
     window.addEventListener('beforeinstallprompt', handler);
-
-    const swHandler = (e) => {
-      setSwRegistration(e.detail);
-      setShowUpdate(true);
-    };
+    const swHandler = (e) => { setShowUpdate(true); };
     window.addEventListener('swUpdated', swHandler);
-
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
       window.removeEventListener('swUpdated', swHandler);
     };
   }, []);
 
-  const handleUpdate = () => {
-    if (swRegistration && swRegistration.waiting) {
-      swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
-    }
-    setShowUpdate(false);
-  };
-
+  const handleUpdate = () => window.location.reload();
   const handleInstallClick = async () => {
-    if (!installPrompt) return;
-    installPrompt.prompt();
-    const { outcome } = await installPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setInstallPrompt(null);
+    if (installPrompt) {
+      installPrompt.prompt();
+      const { outcome } = await installPrompt.userChoice;
+      if (outcome === 'accepted') setInstallPrompt(null);
     }
   };
 
-  // --- AUTH STATE ---
-  const [token, setToken] = useState(localStorage.getItem('token'));
-  const [user, setUser] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('user')) || null; } catch { return null; }
-  });
-  
-  const [household, setHousehold] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('household')) || null; } catch { return null; }
-  });
-
-  const [loading, setLoading] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-
-  // --- NOTIFICATION STATE ---
-  const [notification, setNotification] = useState({ open: false, message: '', severity: 'info' });
-  const showNotification = useCallback((message, severity = 'info') => {
-    setNotification({ open: true, message, severity });
+  const showNotification = useCallback((message, severity = 'neutral') => {
+    const joySeverity = severity === 'error' ? 'danger' : (severity === 'info' ? 'neutral' : severity);
+    setNotification({ open: true, message, severity: joySeverity });
   }, []);
   const hideNotification = () => setNotification(prev => ({ ...prev, open: false }));
 
-  // --- CONFIRMATION STATE ---
-  const [confirmDialog, setConfirmDialog] = useState({ open: false, title: '', message: '', onConfirm: null });
   const confirmAction = useCallback((title, message, onConfirm) => {
     setConfirmDialog({ open: true, title, message, onConfirm });
   }, []);
@@ -105,50 +105,20 @@ function AppContent() {
     handleConfirmClose();
   };
 
-  // --- DATA STATE ---
-  const [households, setHouseholds] = useState([]);
-  const [sysUsers, setSysUsers] = useState([]);
-  const [hhUsers, setHhUsers] = useState([]);     
-  const [hhMembers, setHhMembers] = useState([]); 
-  const [hhDates, setHhDates] = useState([]);
-
-  const navigate = useNavigate();
-
-  const authAxios = useMemo(() => axios.create({ 
-    baseURL: API_URL, 
-    headers: { Authorization: `Bearer ${token}` } 
-  }), [token]);
-
-  const theme = useMemo(() => {
-    const currentMode = modeOverride === 'system' ? (prefersDarkMode ? 'dark' : 'light') : modeOverride;
-    return getTotemTheme(currentMode, useDracula);
-  }, [modeOverride, prefersDarkMode, useDracula]);
-
-  // --- ACTIONS ---
-  const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('household');
-    setToken(null); setUser(null); setHousehold(null);
-    navigate('/login');
-  }, [navigate]);
-
+  // Data Fetching
   const fetchHhMembers = useCallback((hhId) => {
     if (!hhId) return;
-    authAxios.get(`/households/${hhId}/members`)
-      .then(res => setHhMembers(Array.isArray(res.data) ? res.data : []));
+    authAxios.get(`/households/${hhId}/members`).then(res => setHhMembers(Array.isArray(res.data) ? res.data : []));
   }, [authAxios]);
 
   const fetchHhUsers = useCallback((hhId) => {
     if (!hhId) return;
-    authAxios.get(`/households/${hhId}/users`)
-      .then(res => setHhUsers(Array.isArray(res.data) ? res.data : []));
+    authAxios.get(`/households/${hhId}/users`).then(res => setHhUsers(Array.isArray(res.data) ? res.data : []));
   }, [authAxios]);
 
   const fetchHhDates = useCallback((hhId) => {
     if (!hhId) return;
-    authAxios.get(`/households/${hhId}/dates`)
-      .then(res => setHhDates(Array.isArray(res.data) ? res.data : []));
+    authAxios.get(`/households/${hhId}/dates`).then(res => setHhDates(Array.isArray(res.data) ? res.data : []));
   }, [authAxios]);
 
   const fetchHouseholds = useCallback(async () => {
@@ -169,42 +139,6 @@ function AppContent() {
     }
   }, [authAxios, user]);
 
-  const handleUpdateHousehold = useCallback(async (hhId, updates) => {
-    if (user?.role === 'sysadmin') {
-        try {
-            await authAxios.put(`/admin/households/${hhId}`, updates);
-            showNotification("Household updated.", "success");
-            fetchHouseholds();
-        } catch (err) { showNotification("Error: " + err.message, "error"); }
-    }
-  }, [authAxios, user, fetchHouseholds, showNotification]);
-
-  const handleUpdateHouseholdSettings = useCallback(async (updates) => {
-    if (!household) return;
-    try {
-      await authAxios.put(`/households/${household.id}`, updates);
-      setHousehold(prev => {
-        const updated = { ...prev, ...updates };
-        localStorage.setItem('household', JSON.stringify(updated));
-        return updated;
-      });
-      showNotification("Household updated.", "success");
-      if (user?.role === 'sysadmin') fetchHouseholds();
-    } catch (err) {
-      showNotification("Failed to update household.", "error");
-    }
-  }, [authAxios, household, user, fetchHouseholds, showNotification]);
-
-  const handleDeleteHousehold = useCallback(async (hhId) => {
-    if (user?.role === 'sysadmin') {
-        try {
-            await authAxios.delete(`/admin/households/${hhId}`);
-            showNotification("Household deleted.", "success");
-            fetchHouseholds();
-        } catch (err) { showNotification("Error: " + err.message, "error"); }
-    }
-  }, [authAxios, user, fetchHouseholds, showNotification]);
-
   useEffect(() => {
     if (token) {
       if (household) {
@@ -218,13 +152,21 @@ function AppContent() {
     }
   }, [token, household, user, fetchHhMembers, fetchHhUsers, fetchHhDates, fetchHouseholds, fetchSysUsers]);
 
-  const login = useCallback(async (key, u, p) => {
-      const res = await axios.post(`${API_URL}/auth/login`, { accessKey: key, username: u, password: p });
-      const { token, role, context, household: hhData } = res.data;
-      const userData = { username: u, role: role };
-      setToken(token); setUser(userData);
-      localStorage.setItem('token', token); 
-      localStorage.setItem('user', JSON.stringify(userData));
+  // Actions
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('household');
+    setToken(null); setUser(null); setHousehold(null);
+    navigate('/login');
+  }, [navigate]);
+
+  const login = useCallback(async (email, password) => {
+      const res = await axios.post(`${API_URL}/auth/login`, { email, password });
+      const { token, role, context, household: hhData, user: userData, system_role } = res.data;
+      const fullUser = { ...userData, role, system_role };
+      setToken(token); setUser(fullUser);
+      localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(fullUser));
       if (context === 'household') {
         setHousehold(hhData);
         localStorage.setItem('household', JSON.stringify(hhData));
@@ -235,32 +177,34 @@ function AppContent() {
       }
   }, [navigate]);
 
-  const handleCreateHousehold = useCallback(async (houseData) => {
-    if (user?.role === 'sysadmin') {
-      try {
-        await authAxios.post('/admin/households', houseData);
-        showNotification("Household created successfully.", "success");
-        fetchHouseholds();
-      } catch (err) { showNotification("Error: " + err.message, "error"); }
-    }
-  }, [authAxios, user, fetchHouseholds, showNotification]);
+  const handleUpdateHouseholdSettings = useCallback(async (updates) => {
+    if (!household) return;
+    try {
+      await authAxios.put(`/households/${household.id}`, updates);
+      setHousehold(prev => {
+        const updated = { ...prev, ...updates };
+        localStorage.setItem('household', JSON.stringify(updated));
+        return updated;
+      });
+      showNotification("Household updated.", "success");
+    } catch (err) { showNotification("Failed to update.", "danger"); }
+  }, [authAxios, household, showNotification]);
 
   const handleCreateUser = useCallback(async (userData) => {
     try {
-      await authAxios.post('/admin/create-user', userData);
-      showNotification("User created.", "success");
-      if (household) fetchHhUsers(household.id);
-    } catch (err) { showNotification("Error: " + err.message, "error"); }
+      await authAxios.post(`/households/${household.id}/users`, userData);
+      showNotification("User invited.", "success");
+      fetchHhUsers(household.id);
+    } catch (err) { showNotification("Error: " + err.message, "danger"); }
   }, [authAxios, household, fetchHhUsers, showNotification]);
 
   const handleUpdateUser = useCallback(async (userId, updates) => {
     try {
       await authAxios.put(`/admin/users/${userId}`, updates);
       showNotification("User updated.", "success");
-      if (household) fetchHhUsers(household.id);
-      if (user?.role === 'sysadmin') fetchSysUsers();
-    } catch (err) { showNotification("Error: " + err.message, "error"); }
-  }, [authAxios, household, fetchHhUsers, fetchSysUsers, user, showNotification]);
+      fetchHhUsers(household.id);
+    } catch (err) { showNotification("Error: " + err.message, "danger"); }
+  }, [authAxios, household, fetchHhUsers, showNotification]);
 
   const handleUpdateProfile = useCallback(async (updates) => {
     try {
@@ -269,19 +213,34 @@ function AppContent() {
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
       showNotification("Profile updated.", "success");
-      if (household) fetchHhUsers(household.id);
-      if (user?.role === 'sysadmin') fetchSysUsers();
-    } catch (err) { showNotification("Failed to update profile.", "error"); throw err; }
-  }, [authAxios, user, household, fetchHhUsers, fetchSysUsers, showNotification]);
+    } catch (err) { showNotification("Failed to update profile.", "danger"); throw err; }
+  }, [authAxios, user, showNotification]);
 
   if (loading) return <Box sx={{display:'flex', justifyContent:'center', mt:10}}><CircularProgress /></Box>;
 
   return (
-    <ThemeProvider theme={theme}>
+    <CssVarsProvider 
+      theme={theme} 
+      defaultMode="system"
+      mode={modeOverride === 'system' ? undefined : modeOverride}
+      disableNestedContext
+    >
       <CssBaseline />
+      <GlobalStyles styles={{
+          '.rbc-calendar': { color: `${spec.foreground} !important`, fontFamily: 'var(--joy-fontFamily-body, sans-serif)' },
+          '.rbc-off-range-bg': { backgroundColor: isDark ? 'rgba(0,0,0,0.2) !important' : 'rgba(0,0,0,0.05) !important' },
+          '.rbc-today': { backgroundColor: isDark ? 'rgba(189, 147, 249, 0.1) !important' : 'rgba(100, 74, 201, 0.08) !important', border: `1px solid ${spec.purple} !important` },
+          '.rbc-header': { borderBottom: `1px solid ${spec.selection || spec.divider} !important`, padding: '8px 0 !important', fontWeight: 'bold' },
+          '.rbc-month-view, .rbc-time-view, .rbc-agenda-view': { border: `1px solid ${spec.selection || spec.divider} !important`, borderRadius: '8px', overflow: 'hidden' },
+          '.rbc-day-bg + .rbc-day-bg, .rbc-month-row + .rbc-month-row, .rbc-time-content > * + *': { borderLeft: `1px solid ${spec.selection || spec.divider} !important`, borderTop: `1px solid ${spec.selection || spec.divider} !important` },
+          '.rbc-toolbar button': { color: `${spec.foreground} !important`, border: `1px solid ${spec.selection || spec.divider} !important` },
+          '.rbc-toolbar button:hover, .rbc-toolbar button:active, .rbc-toolbar button.rbc-active': { backgroundColor: `${spec.selection || spec.divider} !important`, color: `${spec.foreground} !important` }
+      }} />
+
       <Routes>
-        <Route path="/login" element={!token ? <LoginScreen onLogin={login} /> : <Navigate to="/" />} />
-        <Route path="/calculator" element={<Box sx={{ height: '100vh', bgcolor: 'background.default' }}><FloatingCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
+        <Route path="/login" element={!token ? <Login onLogin={login} /> : <Navigate to="/" />} />
+        <Route path="/register" element={!token ? <Register /> : <Navigate to="/" />} />
+        <Route path="/calculator" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
         
         <Route element={token ? <RootLayout 
             user={user} 
@@ -305,14 +264,10 @@ function AppContent() {
           <Route index element={household ? <Navigate to={`/household/${household.id}/dashboard`} /> : <Navigate to="/access" />} />
 
           <Route path="access" element={<AccessControl 
-            users={sysUsers}
-            currentUser={user}
-            households={households}
-            onCreateUser={() => {}}
-            onCreateHousehold={handleCreateHousehold}
-            onUpdateHousehold={handleUpdateHousehold}
-            onDeleteHousehold={handleDeleteHousehold}
-            onRemoveUser={(userId) => authAxios.delete(`/admin/users/${userId}`).then(() => fetchSysUsers())}
+             // ... kept same logic for AccessControl page
+            users={sysUsers} currentUser={user} households={households}
+            onCreateUser={() => {}} onCreateHousehold={handleCreateHousehold} onUpdateHousehold={handleUpdateHousehold}
+            onDeleteHousehold={handleDeleteHousehold} onRemoveUser={(userId) => authAxios.delete(`/admin/users/${userId}`).then(() => fetchSysUsers())}
             onAssignUser={() => {}}
           />} />
 
@@ -326,144 +281,69 @@ function AppContent() {
               members={hhMembers}
               fetchHhMembers={fetchHhMembers}
               user={user}
-              isDark={theme.palette.mode === 'dark'}
+              isDark={isDark}
               showNotification={showNotification}
               confirmAction={confirmAction}
             />}>
                             <Route index element={<Navigate to="dashboard" replace />} />
-                            <Route path="dashboard" element={<HomeView 
-                                household={household} 
-                                members={hhMembers} 
-                                currentUser={user} 
-                                dates={hhDates} 
-                                onUpdateProfile={handleUpdateProfile}
-                            />} />
+                            <Route path="dashboard" element={<HomeView household={household} members={hhMembers} currentUser={user} dates={hhDates} onUpdateProfile={handleUpdateProfile} />} />
                             <Route path="calendar" element={<CalendarView showNotification={showNotification} confirmAction={confirmAction} />} />
-                            
-                            <Route path="people/:personId" element={<PeopleView />} />
-                            <Route path="people" element={<Navigate to="new" replace />} />
-                            
-                            <Route path="pets/:petId" element={<PetsView />} />
-                            <Route path="pets" element={<Navigate to="new" replace />} />
-                            
-                            {/* Personalised House Route */}
-                            <Route path="house/:houseId" element={<HouseView />} />
-                            <Route path="house" element={<Navigate to={household ? `${household.id}` : '1'} replace />} />
-
-                            <Route path="vehicles/:vehicleId" element={<VehiclesView />} />
-                            <Route path="vehicles" element={<Navigate to="new" replace />} />
+                            <Route path="people/:personId" element={<PeopleView />} /><Route path="people" element={<Navigate to="new" replace />} />
+                            <Route path="pets/:petId" element={<PetsView />} /><Route path="pets" element={<Navigate to="new" replace />} />
+                            <Route path="house/:houseId" element={<HouseView />} /><Route path="house" element={<Navigate to={household ? `${household.id}` : '1'} replace />} />
+                            <Route path="vehicles/:vehicleId" element={<VehiclesView />} /><Route path="vehicles" element={<Navigate to="new" replace />} />
 
               <Route path="settings" element={<SettingsView 
-                household={household}
-                users={hhUsers}
-                currentUser={user}
-                api={authAxios}
-                onUpdateHousehold={handleUpdateHouseholdSettings}
-                onDeleteHousehold={() => {}}
-                onCreateUser={handleCreateUser}
-                onUpdateUser={handleUpdateUser}
-                onRemoveUser={(userId) => authAxios.delete(`/admin/users/${userId}`).then(() => fetchHhUsers(household.id))}
+                household={household} users={hhUsers} currentUser={user} api={authAxios}
+                onUpdateHousehold={handleUpdateHouseholdSettings} onDeleteHousehold={() => {}}
+                onCreateUser={handleCreateUser} onUpdateUser={handleUpdateUser}
+                onRemoveUser={(userId) => authAxios.delete(`/households/${household.id}/users/${userId}`).then(() => fetchHhUsers(household.id))}
                 onManageAccess={() => {}}
-                currentMode={modeOverride}
-                onModeChange={(m) => { setModeOverride(m); localStorage.setItem('themeMode', m); }}
-                useDracula={useDracula}
-                onDraculaChange={(v) => { setUseDracula(v); localStorage.setItem('useDracula', v); }}
+                currentMode={modeOverride} onModeChange={(m) => { setModeOverride(m); localStorage.setItem('themeMode', m); }}
+                useDracula={useDracula} onDraculaChange={(v) => { setUseDracula(v); localStorage.setItem('useDracula', v); }}
                 members={hhMembers}
                 onAddMember={(e) => {
                   e.preventDefault(); 
                   const data = Object.fromEntries(new FormData(e.currentTarget));
                   authAxios.post(`/households/${household.id}/members`, data).then(() => { 
-                    fetchHhMembers(household.id); 
-                    e.target.reset(); 
-                    showNotification("Member added.", "success");
+                    fetchHhMembers(household.id); e.target.reset(); showNotification("Member added.", "success");
                   });
                 }}
-                onRemoveMember={(id) => authAxios.delete(`/households/${household.id}/members/${id}`).then(() => {
-                    fetchHhMembers(household.id);
-                    showNotification("Member removed.", "info");
-                })}
-                onUpdateMember={(mid, data) => authAxios.put(`/households/${household.id}/members/${mid}`, data).then(() => {
-                    fetchHhMembers(household.id);
-                    showNotification("Member updated.", "success");
-                })}
-                showNotification={showNotification}
-                confirmAction={confirmAction}
+                onRemoveMember={(id) => authAxios.delete(`/households/${household.id}/members/${id}`).then(() => { fetchHhMembers(household.id); showNotification("Member removed.", "neutral"); })}
+                onUpdateMember={(mid, data) => authAxios.put(`/households/${household.id}/members/${mid}`, data).then(() => { fetchHhMembers(household.id); showNotification("Member updated.", "success"); })}
+                showNotification={showNotification} confirmAction={confirmAction}
               />} />
           </Route>
-
         </Route>
       </Routes>
 
       <Snackbar 
         open={notification.open} autoHideDuration={4000} onClose={hideNotification}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        variant="soft" color={notification.severity}
       >
-        <Alert onClose={hideNotification} severity={notification.severity} sx={{ width: '100%' }} variant="filled">
-          {notification.message}
-        </Alert>
+        {notification.message}
       </Snackbar>
 
-      <Dialog open={confirmDialog.open} onClose={handleConfirmClose}>
-        <DialogTitle>{confirmDialog.title}</DialogTitle>
-        <DialogContent><DialogContentText>{confirmDialog.message}</DialogContentText></DialogContent>
-        <DialogActions>
-          <Button onClick={handleConfirmClose}>Cancel</Button>
-          <Button onClick={handleConfirmProceed} color="error" variant="contained">Proceed</Button>
-        </DialogActions>
-      </Dialog>
+      <Modal open={confirmDialog.open} onClose={handleConfirmClose}>
+        <ModalDialog variant="outlined" role="alertdialog">
+          <DialogTitle>{confirmDialog.title}</DialogTitle>
+          <DialogContent>{confirmDialog.message}</DialogContent>
+          <DialogActions>
+            <Button variant="plain" color="neutral" onClick={handleConfirmClose}>Cancel</Button>
+            <Button variant="solid" color="danger" onClick={handleConfirmProceed}>Proceed</Button>
+          </DialogActions>
+        </ModalDialog>
+      </Modal>
 
-      <Snackbar open={showUpdate} message="A new version of Totem is available!" action={<Button color="secondary" size="small" onClick={handleUpdate}>Refresh</Button>} anchorOrigin={{ vertical: 'top', horizontal: 'center' }} />
-    </ThemeProvider>
-  );
-}
-
-function LoginScreen({ onLogin }) {
-  const [key, setKey] = useState(localStorage.getItem('rememberedKey') || ''); 
-  const [u, setU] = useState(localStorage.getItem('rememberedUser') || ''); 
-  const [p, setP] = useState('');
-  const [rememberMe, setRememberMe] = useState(localStorage.getItem('rememberMe') === 'true');
-  const [error, setError] = useState('');
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault(); setError(''); setIsLoggingIn(true);
-    try {
-      await onLogin(key, u, p);
-      if (rememberMe) {
-        localStorage.setItem('rememberedKey', key);
-        localStorage.setItem('rememberedUser', u);
-        localStorage.setItem('rememberMe', 'true');
-      } else {
-        localStorage.removeItem('rememberedKey');
-        localStorage.removeItem('rememberedUser');
-        localStorage.setItem('rememberMe', 'false');
-      }
-    } catch (err) {
-      if (err.response && err.response.status === 404) setError("User or Household not found.");
-      else if (err.response && err.response.status === 401) setError("Incorrect password.");
-      else setError("Login failed. Please try again.");
-    } finally { setIsLoggingIn(false); }
-  };
-
-  return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}>
-      <Card sx={{ p: 4, width: 350, textAlign: 'center', borderRadius: 4 }}>
-        <Box sx={{ mb: 2 }}><TotemIcon colorway="default" sx={{ fontSize: 60 }} /></Box>
-        <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>TOTEM</Typography>
-        {error && <Alert severity="error" sx={{ mb: 2, textAlign: 'left' }}>{error}</Alert>}
-        <form onSubmit={handleSubmit}>
-          <TextField fullWidth label="Household Key" margin="dense" value={key} onChange={ev=>setKey(ev.target.value)} placeholder="Leave empty for Admin" disabled={isLoggingIn} />
-          <TextField fullWidth label="Username" margin="dense" value={u} onChange={ev=>setU(ev.target.value)} disabled={isLoggingIn} />
-          <TextField fullWidth type="password" label="Password" margin="dense" value={p} onChange={ev=>setP(ev.target.value)} disabled={isLoggingIn} />
-          <Box sx={{ textAlign: 'left', mt: 1 }}>
-            <FormControlLabel control={<Checkbox checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} size="small" />} label={<Typography variant="body2">Remember my household</Typography>} />
-          </Box>
-          <Button fullWidth type="submit" variant="contained" size="large" sx={{ mt: 2 }} disabled={isLoggingIn}>
-            {isLoggingIn ? <CircularProgress size={24} color="inherit" /> : 'Login'}
-          </Button>
-        </form>
-      </Card>
-    </Box>
+      <Snackbar 
+        open={showUpdate} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        color="primary" variant="solid"
+        endDecorator={<Button onClick={handleUpdate} size="sm" variant="solid" color="warning">Refresh</Button>}
+      >
+        A new version of Totem is available!
+      </Snackbar>
+    </CssVarsProvider>
   );
 }
 

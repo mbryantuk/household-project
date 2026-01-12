@@ -15,40 +15,42 @@ describe('🚀 Exhaustive Stress & Isolation Matrix', () => {
     jest.setTimeout(30000); // 30 seconds
     
     // Test Environment Setup
+    const uniqueId = Date.now();
     const hhA = { id: null, key: '', admin: '', member: '', viewer: '' };
     const hhB = { id: null, key: '', admin: '' };
 
     beforeAll(async () => {
         // 1. SysAdmin Login
-        const loginRes = await request(app).post('/auth/login').send({ username: 'superuser', password: 'superpassword' });
+        const loginRes = await request(app).post('/auth/login').send({ email: 'super@totem.local', password: 'superpassword' });
         sysAdminToken = loginRes.body.token;
 
         // 2. Setup Household A
         const resA = await request(app).post('/admin/households').set('Authorization', `Bearer ${sysAdminToken}`).send({
-            name: 'Matrix Alpha', adminUsername: 'MA_Admin', adminPassword: 'password'
+            name: 'Matrix Alpha', adminUsername: 'MA_Admin', adminEmail: `MA_Admin_${uniqueId}@test.com`, adminPassword: 'password'
         });
         hhA.id = resA.body.householdId;
         hhA.key = resA.body.accessKey;
         
-        const lAA = await request(app).post('/auth/login').send({ username: 'MA_Admin', accessKey: hhA.key, password: 'password' });
+        const lAA = await request(app).post('/auth/login').send({ email: `MA_Admin_${uniqueId}@test.com`, password: 'password' });
         hhA.admin = lAA.body.token;
 
         // Create Member and Viewer in A
-        await request(app).post('/admin/create-user').set('Authorization', `Bearer ${hhA.admin}`).send({ username: 'MA_Member', role: 'member', password: 'password' });
-        await request(app).post('/admin/create-user').set('Authorization', `Bearer ${hhA.admin}`).send({ username: 'MA_Viewer', role: 'viewer', password: 'password' });
+        // Using SysAdmin endpoint for convenience, but using email now
+        await request(app).post('/admin/create-user').set('Authorization', `Bearer ${sysAdminToken}`).send({ username: 'MA_Member', email: `MA_Member_${uniqueId}@test.com`, role: 'member', password: 'password', householdId: hhA.id });
+        await request(app).post('/admin/create-user').set('Authorization', `Bearer ${sysAdminToken}`).send({ username: 'MA_Viewer', email: `MA_Viewer_${uniqueId}@test.com`, role: 'viewer', password: 'password', householdId: hhA.id });
         
-        const lAM = await request(app).post('/auth/login').send({ username: 'MA_Member', accessKey: hhA.key, password: 'password' });
+        const lAM = await request(app).post('/auth/login').send({ email: `MA_Member_${uniqueId}@test.com`, password: 'password' });
         hhA.member = lAM.body.token;
-        const lAV = await request(app).post('/auth/login').send({ username: 'MA_Viewer', accessKey: hhA.key, password: 'password' });
+        const lAV = await request(app).post('/auth/login').send({ email: `MA_Viewer_${uniqueId}@test.com`, password: 'password' });
         hhA.viewer = lAV.body.token;
 
         // 3. Setup Household B
         const resB = await request(app).post('/admin/households').set('Authorization', `Bearer ${sysAdminToken}`).send({
-            name: 'Matrix Beta', adminUsername: 'MB_Admin', adminPassword: 'password'
+            name: 'Matrix Beta', adminUsername: 'MB_Admin', adminEmail: `MB_Admin_${uniqueId}@test.com`, adminPassword: 'password'
         });
         hhB.id = resB.body.householdId;
         hhB.key = resB.body.accessKey;
-        const lBA = await request(app).post('/auth/login').send({ username: 'MB_Admin', accessKey: hhB.key, password: 'password' });
+        const lBA = await request(app).post('/auth/login').send({ email: `MB_Admin_${uniqueId}@test.com`, password: 'password' });
         hhB.admin = lBA.body.token;
     });
 

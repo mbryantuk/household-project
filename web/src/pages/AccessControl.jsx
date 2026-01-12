@@ -1,15 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { 
-  Box, Typography, Grid, Card, Button, 
-  IconButton, Chip, Dialog, DialogTitle, DialogContent, 
-  DialogActions, TextField, List, ListItem, ListItemText, 
-  Divider, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper,
-  CircularProgress, Tooltip
-} from '@mui/material';
+  Box, Typography, Grid, Sheet, Button, 
+  IconButton, Chip, Modal, ModalDialog, DialogTitle, DialogContent, 
+  DialogActions, Input, List, ListItem, ListItemContent, 
+  Divider, Table, CircularProgress, Tooltip, Stack, FormControl, FormLabel
+} from '@mui/joy';
 import { 
   Add, Delete, Key, AddHome, 
-  CloudDownload, CloudUpload, Restore, History 
+  CloudDownload, CloudUpload, Restore, History, Person
 } from '@mui/icons-material';
 
 export default function AccessControl({
@@ -61,7 +60,7 @@ export default function AccessControl({
   };
 
   const handleRestoreBackup = async (filename) => {
-    if (!window.confirm(`Are you sure you want to restore ${filename}? This will overwrite current data.`)) return;
+    if (!window.confirm(`Are you sure you want to restore ${filename}? This will overwrite current data.`, 'warning')) return;
     setBackupLoading(true);
     try {
       await api.post(`/admin/backups/restore/${filename}`);
@@ -125,175 +124,198 @@ export default function AccessControl({
 
   return (
     <Box sx={{ maxWidth: 1000, margin: '0 auto', p: 3 }}>
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: '300' }}>Platform Administration</Typography>
+      <Typography level="h2" mb={4} fontWeight="300">Platform Administration</Typography>
       
       {/* --- FULL SYSTEM BACKUP (SysAdmin Only) --- */}
       {isSysAdmin && (
-        <Card variant="outlined" sx={{ p: 3, borderRadius: 3, mb: 4, bgcolor: 'background.paper' }}>
+        <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', mb: 4, bgcolor: 'background.surface' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Box>
-              <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <History /> System Backup & Recovery
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography level="h4" startDecorator={<History />}>System Backup & Recovery</Typography>
+              <Typography level="body-sm" color="neutral">
                 Manage system-wide data snapshots including all households.
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', gap: 1 }}>
                 <input type="file" ref={fileInputRef} hidden accept=".zip" onChange={handleUploadBackup} />
-                <Button variant="outlined" startIcon={<CloudUpload />} onClick={() => fileInputRef.current.click()} disabled={backupLoading}>
+                <Button variant="outlined" startDecorator={<CloudUpload />} onClick={() => fileInputRef.current.click()} disabled={backupLoading}>
                     Upload
                 </Button>
-                <Button variant="contained" startIcon={<Add />} onClick={handleCreateBackup} disabled={backupLoading}>
-                    {backupLoading ? <CircularProgress size={20} /> : "Create Full Backup"}
+                <Button variant="solid" startDecorator={<Add />} onClick={handleCreateBackup} loading={backupLoading}>
+                    Create Full Backup
                 </Button>
             </Box>
           </Box>
           
-          <TableContainer component={Paper} variant="outlined" elevation={0} sx={{ maxHeight: 300 }}>
-            <Table size="small" stickyHeader>
-              <TableHead sx={{ bgcolor: 'action.hover' }}>
-                <TableRow>
-                  <TableCell>Filename</TableCell>
-                  <TableCell>Date Created</TableCell>
-                  <TableCell>Size</TableCell>
-                  <TableCell align="right">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
+          <Sheet variant="outlined" sx={{ maxHeight: 300, overflow: 'auto', borderRadius: 'sm' }}>
+            <Table stickyHeader hoverRow>
+              <thead>
+                <tr>
+                  <th>Filename</th>
+                  <th>Date Created</th>
+                  <th>Size</th>
+                  <th style={{ textAlign: 'right' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
                 {backups.map((b) => (
-                  <TableRow key={b.filename}>
-                    <TableCell>{b.filename}</TableCell>
-                    <TableCell>{new Date(b.created).toLocaleString()}</TableCell>
-                    <TableCell>{(b.size / 1024 / 1024).toFixed(2)} MB</TableCell>
-                    <TableCell align="right">
-                      <Tooltip title="Download">
-                        <IconButton onClick={() => handleDownloadBackup(b.filename)} size="small">
-                          <CloudDownload fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Restore System">
-                        <IconButton onClick={() => handleRestoreBackup(b.filename)} size="small" color="warning">
-                          <Restore fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
+                  <tr key={b.filename}>
+                    <td>{b.filename}</td>
+                    <td>{new Date(b.created).toLocaleString()}</td>
+                    <td>{(b.size / 1024 / 1024).toFixed(2)} MB</td>
+                    <td style={{ textAlign: 'right' }}>
+                      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                          <Tooltip title="Download" variant="soft">
+                            <IconButton onClick={() => handleDownloadBackup(b.filename)} size="sm">
+                              <CloudDownload />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Restore System" variant="soft">
+                            <IconButton onClick={() => handleRestoreBackup(b.filename)} size="sm" color="warning">
+                              <Restore />
+                            </IconButton>
+                          </Tooltip>
+                      </Box>
+                    </td>
+                  </tr>
                 ))}
                 {backups.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={4} align="center" sx={{ py: 3, color: 'text.secondary' }}>No system backups found.</TableCell>
-                  </TableRow>
+                  <tr>
+                    <td colSpan={4} style={{ textAlign: 'center', padding: '2rem', color: 'gray' }}>No system backups found.</td>
+                  </tr>
                 )}
-              </TableBody>
+              </tbody>
             </Table>
-          </TableContainer>
-        </Card>
+          </Sheet>
+        </Sheet>
       )}
 
       {/* --- TENANTS OVERVIEW --- */}
-      <Card variant="outlined" sx={{ p: 3, borderRadius: 3, mb: 4 }}>
+      <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', mb: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Box>
-            <Typography variant="h6">Platform Households</Typography>
-            <Typography variant="body2" color="text.secondary">Global overview of all registered households.</Typography>
+            <Typography level="h4">Platform Households</Typography>
+            <Typography level="body-sm" color="neutral">Global overview of all registered households.</Typography>
           </Box>
-          <Button variant="contained" startIcon={<AddHome />} onClick={() => setOpenAddHouse(true)}>Add Household</Button>
+          <Button variant="solid" startDecorator={<AddHome />} onClick={() => setOpenAddHouse(true)}>Add Household</Button>
         </Box>
         
-        <TableContainer component={Paper} variant="outlined" elevation={0}>
-          <Table size="small">
-            <TableHead sx={{ bgcolor: 'action.hover' }}>
-              <TableRow>
-                <TableCell>Household Name</TableCell>
-                <TableCell>Access Key</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
+        <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto' }}>
+          <Table hoverRow>
+            <thead>
+              <tr>
+                <th>Household Name</th>
+                <th>Access Key</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
               {households && households.map((h) => (
-                <TableRow key={h.id}>
-                  <TableCell><strong>{h.name}</strong></TableCell>
-                  <TableCell>
-                    <Chip icon={<Key fontSize="small"/>} label={h.access_key} size="small" color="primary" variant="outlined" sx={{ fontWeight: 'bold', letterSpacing: 1 }} />
-                  </TableCell>
-                  <TableCell align="right">
+                <tr key={h.id}>
+                  <td><strong>{h.name}</strong></td>
+                  <td>
+                    <Chip startDecorator={<Key />} size="sm" color="primary" variant="outlined" sx={{ fontWeight: 'bold', letterSpacing: 1 }}>
+                        {h.access_key}
+                    </Chip>
+                  </td>
+                  <td style={{ textAlign: 'right' }}>
                     <IconButton 
                       onClick={() => {
                           if (window.confirm(`Are you sure you want to PERMANENTLY delete "${h.name}"? This cannot be undone.`)) {
                               onDeleteHousehold(h.id);
                           }
                       }} 
-                      size="small" 
-                      color="error"
-                      title="Delete Household"
+                      size="sm" 
+                      color="danger"
+                      variant="plain"
                     >
-                      <Delete fontSize="small" />
+                      <Delete />
                     </IconButton>
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               ))}
               {(!households || households.length === 0) && (
-                <TableRow>
-                  <TableCell colSpan={3} align="center" sx={{ py: 3, color: 'text.secondary' }}>No households created yet.</TableCell>
-                </TableRow>
+                <tr>
+                  <td colSpan={3} style={{ textAlign: 'center', padding: '2rem', color: 'gray' }}>No households created yet.</td>
+                </tr>
               )}
-            </TableBody>
+            </tbody>
           </Table>
-        </TableContainer>
-      </Card>
+        </Sheet>
+      </Sheet>
 
       {/* --- GLOBAL SYSADMINS --- */}
-      <Card variant="outlined" sx={{ p: 3, borderRadius: 3 }}>
-        <Typography variant="h6" gutterBottom>System Administrators</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+      <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md' }}>
+        <Typography level="h4" mb={1}>System Administrators</Typography>
+        <Typography level="body-sm" color="neutral" mb={2}>
           Users with global access to the entire platform.
         </Typography>
         <Divider sx={{ mb: 2 }} />
-        <List dense>
+        <List>
           {users && users.filter(u => u.system_role === 'sysadmin').map((u) => (
             <ListItem 
               key={u.id} 
-              divider
-              secondaryAction={
+              endAction={
                 u.username !== currentUser?.username && (
-                  <IconButton color="error" size="small" onClick={() => onRemoveUser(u.id)}><Delete fontSize="small" /></IconButton>
+                  <IconButton color="danger" size="sm" variant="plain" onClick={() => onRemoveUser(u.id)}><Delete /></IconButton>
                 )
               }
             >
-              <ListItemText primary={u.username} secondary={u.email || 'No email set'} />
+              <ListItemContent>
+                  <Typography level="title-sm" startDecorator={<Person />}>{u.username}</Typography>
+                  <Typography level="body-xs">{u.email || 'No email set'}</Typography>
+              </ListItemContent>
             </ListItem>
           ))}
         </List>
-      </Card>
+      </Sheet>
 
       {/* --- DIALOG: CREATE HOUSEHOLD --- */}
-      <Dialog open={openAddHouse} onClose={() => setOpenAddHouse(false)}>
-        <form onSubmit={handleCreateHouseSubmit}>
-          <DialogTitle>Create New Household</DialogTitle>
-          <DialogContent>
-            <TextField 
-              margin="dense" label="Household Name" fullWidth required 
-              value={newHouse.name} onChange={e => setNewHouse({...newHouse, name: e.target.value})} 
-            />
-            <Box sx={{ mt: 2, p: 2, bgcolor: 'action.hover', borderRadius: 1 }}>
-              <Typography variant="subtitle2" gutterBottom>Initial Administrator</Typography>
-              <TextField 
-                margin="dense" label="Admin Username" fullWidth required size="small"
-                value={newHouse.adminUsername} onChange={e => setNewHouse({...newHouse, adminUsername: e.target.value})} 
-              />
-              <TextField 
-                margin="dense" label="Admin Password" type="password" fullWidth required size="small"
-                value={newHouse.adminPassword} onChange={e => setNewHouse({...newHouse, adminPassword: e.target.value})} 
-              />
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenAddHouse(false)}>Cancel</Button>
-            <Button type="submit" variant="contained">Create Household</Button>
-          </DialogActions>
-        </form>
-      </Dialog>
+      <Modal open={openAddHouse} onClose={() => setOpenAddHouse(false)}>
+        <ModalDialog>
+            <DialogTitle>Create New Household</DialogTitle>
+            <DialogContent>
+                <form onSubmit={handleCreateHouseSubmit}>
+                    <Stack spacing={2} mt={1}>
+                        <FormControl required>
+                            <FormLabel>Household Name</FormLabel>
+                            <Input 
+                                value={newHouse.name} 
+                                onChange={e => setNewHouse({...newHouse, name: e.target.value})} 
+                            />
+                        </FormControl>
+                        
+                        <Sheet variant="soft" sx={{ p: 2, borderRadius: 'sm' }}>
+                            <Typography level="title-sm" mb={1}>Initial Administrator</Typography>
+                            <Stack spacing={1}>
+                                <FormControl required>
+                                    <FormLabel>Username</FormLabel>
+                                    <Input 
+                                        size="sm"
+                                        value={newHouse.adminUsername} 
+                                        onChange={e => setNewHouse({...newHouse, adminUsername: e.target.value})} 
+                                    />
+                                </FormControl>
+                                <FormControl required>
+                                    <FormLabel>Password</FormLabel>
+                                    <Input 
+                                        type="password" size="sm"
+                                        value={newHouse.adminPassword} 
+                                        onChange={e => setNewHouse({...newHouse, adminPassword: e.target.value})} 
+                                    />
+                                </FormControl>
+                            </Stack>
+                        </Sheet>
+                        
+                        <DialogActions>
+                            <Button variant="plain" color="neutral" onClick={() => setOpenAddHouse(false)}>Cancel</Button>
+                            <Button type="submit" variant="solid">Create Household</Button>
+                        </DialogActions>
+                    </Stack>
+                </form>
+            </DialogContent>
+        </ModalDialog>
+      </Modal>
     </Box>
   );
 }

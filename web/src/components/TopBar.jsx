@@ -1,12 +1,13 @@
-import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Avatar, Box, Tooltip, Popover, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Grid, Divider, ListItemIcon } from '@mui/material';
-import { 
-  Logout, SwapHoriz, Menu as MenuIcon, 
-  DarkMode, LightMode, SettingsBrightness, GetApp, AdminPanelSettings,
-  CalendarMonth, Calculate, Person, Password, Email, AddReaction
-} from '@mui/icons-material';
 import { useState } from 'react';
+import { 
+  Sheet, IconButton, Typography, Avatar, Tooltip, Menu, MenuItem, Box, Divider, 
+  Modal, ModalDialog, DialogTitle, DialogContent, DialogActions,
+  FormControl, FormLabel, Input, Button, Grid
+} from '@mui/joy';
+import { 
+  Logout, Menu as MenuIcon, Calculate, CalendarMonth, GetApp, Person 
+} from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '@mui/material/styles';
 import TotemIcon from './TotemIcon';
 import FloatingCalendar from './FloatingCalendar';
 import FloatingCalculator from './FloatingCalculator';
@@ -16,14 +17,18 @@ import { getEmojiColor } from '../theme';
 export default function TopBar({
   user, currentHousehold, households, onSwitchHousehold,
   onLogout, toggleSidebar, canInstall, onInstall,
-  dates, api, onDateAdded, onUpdateProfile
+  dates, api, onDateAdded, onUpdateProfile, currentMode
 }) {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [userAnchorEl, setUserAnchorEl] = useState(null);
-  const [calAnchor, setCalAnchor] = useState(null);
+  const isDark = currentMode === 'dark';
+  const [anchorEl, setAnchorEl] = useState(null); // Menu anchor (Joy uses Menu components differently?) Joy Menu anchors to element
+  // Joy Menu controls: open + anchorEl
+  
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [userMenuAnchor, setUserMenuAnchor] = useState(null);
+
+  const [showCalendar, setShowCalendar] = useState(false);
   const [showCalc, setShowCalc] = useState(false);
+  
   const [profileOpen, setProfileOpen] = useState(false);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const navigate = useNavigate();
@@ -50,175 +55,192 @@ export default function TopBar({
   };
 
   return (
-    <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-      <Toolbar sx={{ justifyContent: 'space-between' }}>
-        
-        {/* LEFT SECTION: Family Name & Menu */}
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+    <Sheet
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        p: 2,
+        py: 1.5,
+        position: 'sticky', // or fixed
+        top: 0,
+        zIndex: 1100,
+        boxShadow: 'sm',
+        borderBottom: '1px solid',
+        borderColor: 'divider',
+        bgcolor: 'background.surface'
+      }}
+    >
+        {/* LEFT SECTION */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           {currentHousehold && (
-            <IconButton color="inherit" onClick={toggleSidebar} edge="start" sx={{ mr: 2 }}>
+            <IconButton variant="plain" color="neutral" onClick={toggleSidebar} size="sm">
               <MenuIcon />
             </IconButton>
           )}
           
           <Box 
             sx={{ 
-              bgcolor: currentHousehold?.avatar && !currentHousehold.avatar.startsWith('data:image') 
-                ? getEmojiColor(currentHousehold.avatar, isDark) 
-                : 'white', 
-              borderRadius: '50%', p: 0.5, mr: 1.5, display: 'flex', 
-              alignItems: 'center', justifyContent: 'center',
-              boxShadow: 2, cursor: 'pointer',
-              width: 36, height: 36, fontSize: '1.4rem',
-              overflow: 'hidden', flexShrink: 0
+              display: 'flex', alignItems: 'center', gap: 1.5, 
+              cursor: 'pointer' 
             }}
             onClick={() => navigate('/')}
           >
-            {currentHousehold?.avatar ? (
-              currentHousehold.avatar.startsWith('data:image') ? (
-                <Avatar src={currentHousehold.avatar} sx={{ width: '100%', height: '100%' }} />
-              ) : (
-                currentHousehold.avatar
-              )
-            ) : (
-              <TotemIcon sx={{ fontSize: 24 }} />
-            )}
+             <Box 
+                sx={{ 
+                  bgcolor: currentHousehold?.avatar && !currentHousehold.avatar.startsWith('data:image') 
+                    ? getEmojiColor(currentHousehold.avatar, isDark) 
+                    : 'background.level1', 
+                  borderRadius: '50%', p: 0.5,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  width: 36, height: 36, fontSize: '1.4rem',
+                  overflow: 'hidden', border: '1px solid', borderColor: 'divider'
+                }}
+              >
+                {currentHousehold?.avatar ? (
+                  currentHousehold.avatar.startsWith('data:image') ? (
+                    <Avatar src={currentHousehold.avatar} sx={{ width: '100%', height: '100%' }} />
+                  ) : (
+                    currentHousehold.avatar
+                  )
+                ) : (
+                  <TotemIcon sx={{ fontSize: 24 }} />
+                )}
+              </Box>
+              <Typography level="h4" sx={{ display: { xs: 'none', sm: 'block' }, letterSpacing: '1px', textTransform: 'uppercase' }}>
+                {currentHousehold ? currentHousehold.name : 'TOTEM'}
+              </Typography>
           </Box>
-
-          <Typography variant="h6" noWrap sx={{ fontWeight: 'bold', letterSpacing: 1.5, color: 'white', display: { xs: 'none', sm: 'block' } }}>
-            {currentHousehold ? currentHousehold.name.toUpperCase() : 'TOTEM'}
-          </Typography>
         </Box>
 
-        {/* RIGHT SECTION: Actions & Switcher */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          
-          <Tooltip title="Calculator">
-            <IconButton color="inherit" onClick={() => setShowCalc(!showCalc)} sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>
+        {/* RIGHT SECTION */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Tooltip title="Calculator" variant="soft">
+            <IconButton variant="plain" onClick={() => setShowCalc(!showCalc)} sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>
               <Calculate />
             </IconButton>
           </Tooltip>
 
-          <Tooltip title="Calendar">
-            <IconButton color="inherit" onClick={(e) => setCalAnchor(e.currentTarget)} sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>
+          <Tooltip title="Calendar" variant="soft">
+            <IconButton variant="plain" onClick={() => setShowCalendar(true)} sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>
               <CalendarMonth />
             </IconButton>
           </Tooltip>
 
           {canInstall && (
-            <Tooltip title="Install App">
-              <IconButton color="inherit" onClick={onInstall}>
+            <Tooltip title="Install App" variant="soft">
+              <IconButton variant="plain" onClick={onInstall}>
                 <GetApp />
               </IconButton>
             </Tooltip>
           )}
 
-          <Divider orientation="vertical" flexItem sx={{ mx: 1, bgcolor: 'rgba(255,255,255,0.2)', display: { xs: 'none', sm: 'block' } }} />
+          <Divider orientation="vertical" sx={{ height: 24, mx: 1, display: { xs: 'none', sm: 'block' } }} />
 
           {/* User Account */}
-          <Tooltip title="Account Settings">
-            <IconButton 
-              onClick={(e) => setUserAnchorEl(e.currentTarget)}
-              sx={{ p: 0, ml: 1, border: '2px solid rgba(255,255,255,0.5)' }}
+          <IconButton 
+            onClick={(e) => { setUserMenuAnchor(e.currentTarget); setUserMenuOpen(true); }}
+            variant="plain"
+            sx={{ p: 0, borderRadius: '50%' }}
+          >
+            <Avatar 
+              size="sm"
+              sx={{ 
+                bgcolor: user?.avatar ? getEmojiColor(user.avatar, isDark) : 'primary.solidBg',
+              }}
             >
-              <Avatar 
-                sx={{ 
-                  width: 32, height: 32, 
-                  bgcolor: user?.avatar ? getEmojiColor(user.avatar, isDark) : 'secondary.main',
-                  fontSize: '1.1rem'
-                }}
-              >
-                {user?.avatar || user?.username?.[0]?.toUpperCase()}
-              </Avatar>
-            </IconButton>
-          </Tooltip>
+              {user?.avatar || user?.username?.[0]?.toUpperCase()}
+            </Avatar>
+          </IconButton>
+
+          <Menu
+            anchorEl={userMenuAnchor}
+            open={userMenuOpen}
+            onClose={() => setUserMenuOpen(false)}
+            placement="bottom-end"
+            size="sm"
+          >
+            <Box sx={{ px: 2, py: 1 }}>
+                <Typography level="title-sm">{user?.username}</Typography>
+                <Typography level="body-xs" color="neutral">{user?.role}</Typography>
+            </Box>
+            <Divider />
+            <MenuItem onClick={() => { setProfileOpen(true); setUserMenuOpen(false); }}>
+                <Person /> Edit Profile
+            </MenuItem>
+            <MenuItem onClick={onLogout} color="danger">
+                <Logout /> Logout
+            </MenuItem>
+          </Menu>
         </Box>
 
-        {/* --- DROPDOWNS --- */}
+        {/* Calendar Modal (using Modal for simplicity or could be Popover if Joy had one) */}
+        {/* Joy doesn't have Popover yet (v5), usually people use Menu or Popper. Let's use Modal for big calendar */}
+        <Modal open={showCalendar} onClose={() => setShowCalendar(false)}>
+            <ModalDialog layout="center" sx={{ minWidth: 400, minHeight: 500, p: 0, overflow: 'hidden' }}>
+                <FloatingCalendar dates={dates} api={api} onDateAdded={onDateAdded} onClose={() => setShowCalendar(false)} />
+            </ModalDialog>
+        </Modal>
 
-        {/* User Menu */}
-        <Menu
-          anchorEl={userAnchorEl}
-          open={Boolean(userAnchorEl)}
-          onClose={() => setUserAnchorEl(null)}
-          PaperProps={{ sx: { width: 200, mt: 1.5, borderRadius: 2 } }}
-        >
-          <Box sx={{ px: 2, py: 1.5 }}>
-            <Typography variant="subtitle2" noWrap>{user?.username}</Typography>
-            <Typography variant="body2" color="text.secondary" noWrap sx={{ textTransform: 'capitalize' }}>
-              {user?.role}
-            </Typography>
-          </Box>
-          <Divider />
-          <MenuItem onClick={() => { setProfileOpen(true); setUserAnchorEl(null); }}>
-            <ListItemIcon><Person fontSize="small" /></ListItemIcon>
-            Edit Profile
-          </MenuItem>
-          <MenuItem onClick={onLogout} sx={{ color: 'error.main' }}>
-            <ListItemIcon><Logout fontSize="small" color="error" /></ListItemIcon>
-            Logout
-          </MenuItem>
-        </Menu>
-
-        {/* Calendar Popover */}
-        <Popover
-          open={Boolean(calAnchor)}
-          anchorEl={calAnchor}
-          onClose={() => setCalAnchor(null)}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-          PaperProps={{ sx: { mt: 1.5, borderRadius: 3, width: 400, height: 500, overflow: 'hidden' } }}
-        >
-          <FloatingCalendar dates={dates} api={api} onDateAdded={onDateAdded} />
-        </Popover>
-
-        {/* Calculator */}
         {showCalc && <FloatingCalculator onClose={() => setShowCalc(false)} />}
 
         {/* Profile Dialog */}
-        <Dialog open={profileOpen} onClose={() => setProfileOpen(false)} fullWidth maxWidth="xs">
-          <form onSubmit={handleProfileSubmit}>
+        <Modal open={profileOpen} onClose={() => setProfileOpen(false)}>
+          <ModalDialog sx={{ maxWidth: 500, width: '100%' }}>
             <DialogTitle>Edit Profile</DialogTitle>
-            <DialogContent dividers>
-              <Grid container spacing={2} sx={{ mt: 1 }}>
-                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-                   <Box 
-                    sx={{ 
-                      width: 80, height: 80, borderRadius: '50%', 
-                      bgcolor: getEmojiColor(user?.avatar || '👤', isDark),
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: '2.5rem', cursor: 'pointer', border: '3px solid', borderColor: 'primary.main'
-                    }}
-                    onClick={() => setEmojiPickerOpen(true)}
-                   >
-                    {user?.avatar || '👤'}
-                   </Box>
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField name="username" label="Username" defaultValue={user?.username} fullWidth required />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <TextField name="first_name" label="First Name" defaultValue={user?.first_name} fullWidth />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <TextField name="last_name" label="Last Name" defaultValue={user?.last_name} fullWidth />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField name="email" label="Email Address" defaultValue={user?.email} fullWidth />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField name="password" label="New Password" type="password" fullWidth placeholder="Leave blank to keep current" />
-                </Grid>
-              </Grid>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setProfileOpen(false)}>Cancel</Button>
-              <Button type="submit" variant="contained">Save Changes</Button>
-            </DialogActions>
-          </form>
-        </Dialog>
+            <DialogContent>
+              <form onSubmit={handleProfileSubmit}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                       <Box 
+                        sx={{ 
+                          width: 80, height: 80, borderRadius: '50%', 
+                          bgcolor: getEmojiColor(user?.avatar || '👤', isDark),
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: '2.5rem', cursor: 'pointer', border: '3px solid', borderColor: 'primary.solidBg'
+                        }}
+                        onClick={() => setEmojiPickerOpen(true)}
+                       >
+                        {user?.avatar || '👤'}
+                       </Box>
+                    </Box>
 
-        {/* Emoji Picker for Avatar */}
+                    <FormControl required>
+                        <FormLabel>Username</FormLabel>
+                        <Input name="username" defaultValue={user?.username} />
+                    </FormControl>
+
+                    <Box sx={{ display: 'flex', gap: 2 }}>
+                        <FormControl sx={{ flex: 1 }}>
+                            <FormLabel>First Name</FormLabel>
+                            <Input name="first_name" defaultValue={user?.first_name} />
+                        </FormControl>
+                        <FormControl sx={{ flex: 1 }}>
+                            <FormLabel>Last Name</FormLabel>
+                            <Input name="last_name" defaultValue={user?.last_name} />
+                        </FormControl>
+                    </Box>
+
+                    <FormControl>
+                        <FormLabel>Email</FormLabel>
+                        <Input name="email" defaultValue={user?.email} />
+                    </FormControl>
+
+                    <FormControl>
+                        <FormLabel>New Password</FormLabel>
+                        <Input name="password" type="password" placeholder="Leave blank to keep current" />
+                    </FormControl>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
+                        <Button variant="plain" color="neutral" onClick={() => setProfileOpen(false)}>Cancel</Button>
+                        <Button type="submit">Save Changes</Button>
+                    </Box>
+                  </Box>
+              </form>
+            </DialogContent>
+          </ModalDialog>
+        </Modal>
+
         <EmojiPicker 
           open={emojiPickerOpen} 
           onClose={() => setEmojiPickerOpen(false)} 
@@ -229,7 +251,6 @@ export default function TopBar({
           title="Select Avatar Emoji"
         />
 
-      </Toolbar>
-    </AppBar>
+    </Sheet>
   );
 }

@@ -3,6 +3,7 @@ const { app, server } = require('../server');
 
 describe('Intense Multi-Tenant & Asset-First API Tests', () => {
     jest.setTimeout(30000);
+    const uniqueId = Date.now();
     let sysAdminToken = '';
     
     // Household A (Admin + Viewer)
@@ -14,38 +15,38 @@ describe('Intense Multi-Tenant & Asset-First API Tests', () => {
         // 1. SysAdmin Login
         const loginRes = await request(app)
             .post('/auth/login')
-            .send({ username: 'superuser', password: 'superpassword' });
+            .send({ email: 'super@totem.local', password: 'superpassword' });
         sysAdminToken = loginRes.body.token;
 
         // 2. Setup Household A
         const resA = await request(app).post('/admin/households').set('Authorization', `Bearer ${sysAdminToken}`).send({
-            name: 'Household Alpha', adminUsername: 'AdminA', adminPassword: 'password123'
+            name: 'Household Alpha', adminUsername: 'AdminA', adminEmail: `AdminA_${uniqueId}@test.com`, adminPassword: 'password123'
         });
         hhA.id = resA.body.householdId;
         hhA.key = resA.body.accessKey;
         
-        const loginA = await request(app).post('/auth/login').send({ username: 'AdminA', accessKey: hhA.key, password: 'password123' });
+        const loginA = await request(app).post('/auth/login').send({ email: `AdminA_${uniqueId}@test.com`, password: 'password123' });
         hhA.adminToken = loginA.body.token;
 
         await request(app).post('/admin/create-user').set('Authorization', `Bearer ${hhA.adminToken}`).send({
-            username: 'ViewerA', role: 'viewer', password: 'password123'
+            username: 'ViewerA', email: `ViewerA_${uniqueId}@test.com`, role: 'viewer', password: 'password123', householdId: hhA.id
         });
-        const loginViewerA = await request(app).post('/auth/login').send({ username: 'ViewerA', accessKey: hhA.key, password: 'password123' });
+        const loginViewerA = await request(app).post('/auth/login').send({ email: `ViewerA_${uniqueId}@test.com`, password: 'password123' });
         hhA.viewerToken = loginViewerA.body.token;
 
         // 3. Setup Household B
         const resB = await request(app).post('/admin/households').set('Authorization', `Bearer ${sysAdminToken}`).send({
-            name: 'Household Beta', adminUsername: 'AdminB', adminPassword: 'password123'
+            name: 'Household Beta', adminUsername: 'AdminB', adminEmail: `AdminB_${uniqueId}@test.com`, adminPassword: 'password123'
         });
         hhB.id = resB.body.householdId;
         hhB.key = resB.body.accessKey;
-        const loginB = await request(app).post('/auth/login').send({ username: 'AdminB', accessKey: hhB.key, password: 'password123' });
+        const loginB = await request(app).post('/auth/login').send({ email: `AdminB_${uniqueId}@test.com`, password: 'password123' });
         hhB.adminToken = loginB.body.token;
     });
 
     afterAll(async () => {
-        await request(app).delete(`/admin/households/${hhA.id}`).set('Authorization', `Bearer ${sysAdminToken}`);
-        await request(app).delete(`/admin/households/${hhB.id}`).set('Authorization', `Bearer ${sysAdminToken}`);
+        if (hhA.id) await request(app).delete(`/admin/households/${hhA.id}`).set('Authorization', `Bearer ${sysAdminToken}`);
+        if (hhB.id) await request(app).delete(`/admin/households/${hhB.id}`).set('Authorization', `Bearer ${sysAdminToken}`);
         if (server && server.close) server.close();
     });
 
@@ -56,6 +57,7 @@ describe('Intense Multi-Tenant & Asset-First API Tests', () => {
             
             // Try to list from B
             const res = await request(app).get(`/households/${hhB.id}/vehicles`).set('Authorization', `Bearer ${hhB.adminToken}`);
+            // If B list is empty, it means isolation works (B sees 0 of A's items)
             expect(res.body.length).toBe(0);
         });
 

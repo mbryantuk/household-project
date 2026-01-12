@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { Box, Toolbar } from '@mui/material';
+import { Box } from '@mui/joy';
 import TopBar from '../components/TopBar';
 
 export default function RootLayout({ 
@@ -19,7 +19,7 @@ export default function RootLayout({
   onUpdateProfile
 }) {
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'background.body' }}>
       <TopBar 
         user={user} 
         currentHousehold={currentHousehold} 

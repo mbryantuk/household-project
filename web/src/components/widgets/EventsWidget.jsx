@@ -1,12 +1,10 @@
 import { useMemo } from 'react';
-import { Box, Typography, Stack, Chip, useTheme } from '@mui/material';
+import { Box, Typography, Stack, Chip } from '@mui/joy';
 import { Event as EventIcon } from '@mui/icons-material';
 import WidgetWrapper from './WidgetWrapper';
 import { getEmojiColor } from '../../theme';
 
 export default function EventsWidget({ dates }) {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
   const today = useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
@@ -44,7 +42,7 @@ export default function EventsWidget({ dates }) {
   }, [dates, today]);
 
   return (
-    <WidgetWrapper title="Upcoming Events" icon={<EventIcon />} color="secondary">
+    <WidgetWrapper title="Upcoming Events" icon={<EventIcon />} color="neutral"> 
       {upcomingEvents.length > 0 ? (
         <Stack spacing={1.5}>
           {upcomingEvents.map((e) => (
@@ -52,37 +50,38 @@ export default function EventsWidget({ dates }) {
               key={e.id} 
               sx={{ 
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-                p: 1.5, bgcolor: 'action.hover', borderRadius: 2 
+                p: 1.5, bgcolor: 'background.level1', borderRadius: 'sm' 
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Box sx={{ 
                     width: 32, height: 32, borderRadius: '50%', 
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    bgcolor: getEmojiColor(e.emoji || '📅', isDark), 
-                    color: isDark ? 'white' : 'rgba(0,0,0,0.8)'
+                    bgcolor: getEmojiColor(e.emoji || '📅'), 
+                    color: 'white' // Standardize text color on generated backgrounds
                 }}>
                     {e.emoji ? <Typography sx={{ fontSize: '1rem' }}>{e.emoji}</Typography> : <EventIcon sx={{ fontSize: '1.1rem' }} />}
                 </Box>
                 <Box>
-                  <Typography variant="body2" fontWeight="bold">{e.title}</Typography>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography level="body-sm" fontWeight="bold">{e.title}</Typography>
+                  <Typography level="body-xs" color="neutral">
                     {new Date(e.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                   </Typography>
                 </Box>
               </Box>
               <Chip 
-                size="small" 
-                color={e.daysUntil === 0 ? "error" : "secondary"} 
-                variant={e.daysUntil === 0 ? "filled" : "outlined"}
-                label={e.daysUntil === 0 ? "Today!" : e.daysUntil === 1 ? "Tomorrow" : `${e.daysUntil} days`} 
+                size="sm" 
+                color={e.daysUntil === 0 ? "danger" : "neutral"} 
+                variant={e.daysUntil === 0 ? "solid" : "outlined"}
                 sx={{ fontWeight: 'bold', fontSize: '0.7rem' }}
-              />
+              >
+                {e.daysUntil === 0 ? "Today!" : e.daysUntil === 1 ? "Tomorrow" : `${e.daysUntil} days`}
+              </Chip>
             </Box>
           ))}
         </Stack>
       ) : (
-        <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic', py: 2, textAlign: 'center' }}>
+        <Typography level="body-sm" color="neutral" sx={{ fontStyle: 'italic', py: 2, textAlign: 'center' }}>
           No upcoming events scheduled.
         </Typography>
       )}

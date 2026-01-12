@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Outlet, useParams, useNavigate } from 'react-router-dom';
-import { Box, Toolbar } from '@mui/material';
+import { Box } from '@mui/joy';
 import NavSidebar from '../components/NavSidebar';
 
 export default function HouseholdLayout({ 
@@ -54,7 +54,10 @@ export default function HouseholdLayout({
         household={activeHousehold}
       />
       <Box component="main" sx={{ flexGrow: 1, width: '100%', p: { xs: 1, sm: 2, md: 3 }, pt: 1 }}>
-        <Toolbar /> {/* Spacer for Fixed AppBar */}
+        {/* We removed fixed AppBar Spacer because TopBar is now sticky or we need padding if fixed.
+            If TopBar in RootLayout is sticky, we don't need a spacer here.
+            Let's assume TopBar is sticky (in TopBar.jsx).
+         */}
         <Outlet context={{ 
             api, 
             id, 

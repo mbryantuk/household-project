@@ -3,12 +3,27 @@ const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
+const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 const { globalDb, getHouseholdDb } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { listBackups, createBackup, restoreBackup, BACKUP_DIR, DATA_DIR } = require('../services/backup');
 
 // Upload middleware for restores
 const upload = multer({ dest: path.join(__dirname, '../data/temp_uploads/') });
+
+// HELPER: Promisify DB get
+const dbGet = (db, sql, params) => new Promise((resolve, reject) => {
+    db.get(sql, params, (err, row) => err ? reject(err) : resolve(row));
+});
+
+// HELPER: Promisify DB run
+const dbRun = (db, sql, params) => new Promise((resolve, reject) => {
+    db.run(sql, params, function(err) {
+        err ? reject(err) : resolve({ id: this.lastID, changes: this.changes });
+    });
+});
+
 
 // GET /households/:id (Get Single Details)
 router.get('/households/:id', authenticateToken, (req, res) => {
@@ -81,20 +96,91 @@ router.delete('/households/:id', authenticateToken, (req, res) => {
 });
 
 // ==========================================
-// 👥 USER ALLOCATION (Local)
+// 👥 USER ALLOCATION (Global SaaS)
 // ==========================================
 
-// GET /households/:id/users (List Local Users)
+// GET /households/:id/users (List Users linked to Household)
 router.get('/households/:id/users', authenticateToken, requireHouseholdRole('member'), (req, res) => {
     const householdId = req.params.id;
     if (req.user.system_role !== 'sysadmin' && parseInt(req.user.householdId) !== parseInt(householdId)) return res.sendStatus(403);
 
-    const db = getHouseholdDb(householdId);
-    db.all(`SELECT id, username, email, role, avatar FROM users`, [], (err, rows) => {
-        db.close();
+    const sql = `
+        SELECT u.id, u.email, u.first_name, u.last_name, u.avatar, uh.role 
+        FROM users u
+        JOIN user_households uh ON u.id = uh.user_id
+        WHERE uh.household_id = ?
+    `;
+
+    globalDb.all(sql, [householdId], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
+});
+
+// POST /households/:id/users (Invite/Add User)
+router.post('/households/:id/users', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
+    const householdId = req.params.id;
+    const { email, role, firstName, lastName, password } = req.body;
+
+    if (!email) return res.status(400).json({ error: "Email is required" });
+
+    try {
+        // 1. Check if user exists globally
+        let user = await dbGet(globalDb, `SELECT id FROM users WHERE email = ?`, [email]);
+        let userId;
+
+        if (user) {
+            userId = user.id;
+            // Check if already in household
+            const existingLink = await dbGet(globalDb, `SELECT * FROM user_households WHERE user_id = ? AND household_id = ?`, [userId, householdId]);
+            if (existingLink) return res.status(409).json({ error: "User already in household" });
+        } else {
+            // 2. Create new user if not exists
+            const initialPassword = password || crypto.randomBytes(4).toString('hex');
+            const hash = bcrypt.hashSync(initialPassword, 8);
+            
+            const result = await dbRun(globalDb, 
+                `INSERT INTO users (email, password_hash, first_name, last_name, system_role) VALUES (?, ?, ?, ?, 'user')`,
+                [email, hash, firstName || '', lastName || '']
+            );
+            userId = result.id;
+            
+            if (!password) {
+                // TODO: In a real app, send email with initialPassword
+                console.log(`[Invited User] ${email} created with auto-password: ${initialPassword}`);
+            }
+        }
+
+        // 3. Link to Household
+        await dbRun(globalDb, 
+            `INSERT INTO user_households (user_id, household_id, role) VALUES (?, ?, ?)`,
+            [userId, householdId, role || 'member']
+        );
+
+        res.json({ message: "User added to household", userId });
+
+    } catch (err) {
+        console.error("Add User Error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// DELETE /households/:id/users/:userId (Remove User from Household)
+router.delete('/households/:id/users/:userId', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
+    const householdId = req.params.id;
+    const userId = req.params.userId;
+
+    // Prevent removing yourself (optional, but good practice)
+    if (parseInt(userId) === req.user.id) {
+        return res.status(400).json({ error: "Cannot remove yourself. Leave household instead." });
+    }
+
+    try {
+        await dbRun(globalDb, `DELETE FROM user_households WHERE user_id = ? AND household_id = ?`, [userId, householdId]);
+        res.json({ message: "User removed from household" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // ==========================================

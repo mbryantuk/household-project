@@ -1,60 +1,20 @@
 import { useState } from 'react';
 import { 
-  Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, 
-  Toolbar, Divider, IconButton, styled, useTheme, useMediaQuery, Box,
-  Collapse, Avatar
-} from '@mui/material';
+  Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, 
+  IconButton, Divider, Box, Avatar, Typography
+} from '@mui/joy';
 import { 
   Settings, Home as HomeIcon, ChevronLeft, Menu, Event, 
   Groups, Pets, HomeWork, DirectionsCar, 
-  ExpandLess, ExpandMore, Add
+  KeyboardArrowUp, KeyboardArrowDown, Add
 } from '@mui/icons-material';
 import { NavLink, useLocation } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
+import Drawer from '@mui/joy/Drawer'; // Use Joy Drawer if available, otherwise fallback to standard
 
 const drawerWidth = 240;
 
-const openedMixin = (theme) => ({
-  width: drawerWidth,
-  transition: theme.transitions.create('width', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
-  }),
-  overflowX: 'hidden',
-});
-
-const closedMixin = (theme) => ({
-  transition: theme.transitions.create('width', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  overflowX: 'hidden',
-  width: `calc(${theme.spacing(7)} + 1px)`,
-  [theme.breakpoints.up('sm')]: {
-    width: `calc(${theme.spacing(8)} + 1px)`,
-  },
-});
-
-const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-    ...(open && {
-      ...openedMixin(theme),
-      '& .MuiDrawer-paper': openedMixin(theme),
-    }),
-    ...(!open && {
-      ...closedMixin(theme),
-      '& .MuiDrawer-paper': closedMixin(theme),
-    }),
-  }),
-);
-
 export default function NavSidebar({ open, toggleDrawer, members = [], vehicles = [], isDark, household }) {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const location = useLocation();
 
   const [openSub, setOpenSub] = useState({
@@ -66,98 +26,91 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
 
   const handleToggle = (key) => {
     setOpenSub(prev => ({ ...prev, [key]: !prev[key] }));
-    if (!open && !isMobile) toggleDrawer();
+    if (!open) toggleDrawer(); // Auto-open if collapsed
   };
 
   const people = members.filter(m => m.type !== 'pet');
   const pets = members.filter(m => m.type === 'pet');
 
   const renderSubItem = (label, to, icon, emoji = null) => (
-    <ListItem key={to} disablePadding sx={{ display: 'block' }}>
+    <ListItem key={to}>
       <ListItemButton
         component={NavLink}
         to={to}
-        onClick={isMobile ? toggleDrawer : undefined}
+        selected={location.pathname === to}
         sx={{
-          minHeight: 40,
-          pl: 4,
-          '&.active': {
-            bgcolor: 'action.selected',
-            borderRight: '3px solid',
-            borderColor: 'primary.main'
-          }
+            pl: 4,
+            '&.active': {
+                variant: 'soft',
+                color: 'primary.main',
+                bgcolor: 'background.level1'
+            }
         }}
       >
-        <ListItemIcon sx={{ minWidth: 0, mr: 2, justifyContent: 'center' }}>
+        <ListItemDecorator>
           {emoji ? (
-            <Avatar sx={{ width: 24, height: 24, fontSize: '0.8rem', bgcolor: getEmojiColor(emoji, isDark) }}>
+            <Avatar size="sm" sx={{ '--Avatar-size': '24px', fontSize: '1rem', bgcolor: getEmojiColor(emoji, isDark) }}>
               {emoji}
             </Avatar>
           ) : icon}
-        </ListItemIcon>
-        <ListItemText primary={label} primaryTypographyProps={{ variant: 'body2' }} />
+        </ListItemDecorator>
+        <ListItemContent>
+            <Typography level="body-sm">{label}</Typography>
+        </ListItemContent>
       </ListItemButton>
     </ListItem>
   );
 
   const renderParent = (id, label, icon, items, pathPrefix, defaultEmoji = null) => {
     const isOpen = openSub[id];
+    // For collapsed state (desktop closed), we only show the parent icon
+    if (!open) {
+        return (
+            <ListItem>
+                <ListItemButton onClick={() => toggleDrawer()}>
+                    <ListItemDecorator>{icon}</ListItemDecorator>
+                </ListItemButton>
+            </ListItem>
+        );
+    }
+
     return (
-      <Box key={id}>
-        <ListItem disablePadding sx={{ display: 'block' }}>
-          <ListItemButton
-            onClick={() => handleToggle(id)}
-            sx={{
-              minHeight: 48,
-              justifyContent: open || isMobile ? 'initial' : 'center',
-              px: 2.5,
-            }}
-          >
-            <ListItemIcon sx={{ minWidth: 0, mr: open || isMobile ? 3 : 'auto', justifyContent: 'center' }}>
-              {icon}
-            </ListItemIcon>
-            <ListItemText primary={label} sx={{ opacity: open || isMobile ? 1 : 0 }} />
-            {(open || isMobile) && (isOpen ? <ExpandLess /> : <ExpandMore />)}
-          </ListItemButton>
-        </ListItem>
-        <Collapse in={isOpen && (open || isMobile)} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            {items.map(item => renderSubItem(item.name || `${item.make} ${item.model}`, `${pathPrefix}/${item.id}`, null, item.emoji || defaultEmoji))}
-            {id !== 'house' && renderSubItem('Add New', `${pathPrefix}/new`, <Add fontSize="small" />)}
-          </List>
-        </Collapse>
-      </Box>
+      <ListItem nested sx={{ my: 0.5 }}>
+        <ListItemButton onClick={() => handleToggle(id)}>
+            <ListItemDecorator>{icon}</ListItemDecorator>
+            <ListItemContent><Typography level="title-sm">{label}</Typography></ListItemContent>
+            {isOpen ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+        </ListItemButton>
+        {isOpen && (
+            <List>
+                {items.map(item => renderSubItem(item.name || `${item.make} ${item.model}`, `${pathPrefix}/${item.id}`, null, item.emoji || defaultEmoji))}
+                {id !== 'house' && renderSubItem('Add New', `${pathPrefix}/new`, <Add fontSize="small" />)}
+            </List>
+        )}
+      </ListItem>
     );
   };
 
   const drawerContent = (
-    <>
-      <Toolbar sx={{ display: 'flex', alignItems: 'center', justifyContent: open ? 'flex-end' : 'center', px: [1] }}>
-        <IconButton onClick={toggleDrawer}>
-          {!isMobile && !open ? <Menu /> : <ChevronLeft />}
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 2, justifyContent: open ? 'flex-end' : 'center' }}>
+        <IconButton onClick={toggleDrawer} variant="plain" color="neutral">
+          {!open ? <Menu /> : <ChevronLeft />}
         </IconButton>
-      </Toolbar>
+      </Box>
       <Divider />
-      <List>
-        <ListItem disablePadding sx={{ display: 'block' }}>
-          <ListItemButton
-            component={NavLink}
-            to="dashboard"
-            sx={{ minHeight: 48, px: 2.5, justifyContent: open || isMobile ? 'initial' : 'center' }}
-          >
-            <ListItemIcon sx={{ minWidth: 0, mr: open || isMobile ? 3 : 'auto', justifyContent: 'center' }}><HomeIcon /></ListItemIcon>
-            <ListItemText primary="Home" sx={{ opacity: open || isMobile ? 1 : 0 }} />
+      <List size="sm" sx={{ flexGrow: 1, overflow: 'auto' }}>
+        <ListItem>
+          <ListItemButton component={NavLink} to="dashboard" selected={location.pathname.includes('dashboard')}>
+            <ListItemDecorator><HomeIcon /></ListItemDecorator>
+            {open && <ListItemContent>Home</ListItemContent>}
           </ListItemButton>
         </ListItem>
 
-        <ListItem disablePadding sx={{ display: 'block' }}>
-          <ListItemButton
-            component={NavLink}
-            to="calendar"
-            sx={{ minHeight: 48, px: 2.5, justifyContent: open || isMobile ? 'initial' : 'center' }}
-          >
-            <ListItemIcon sx={{ minWidth: 0, mr: open || isMobile ? 3 : 'auto', justifyContent: 'center' }}><Event /></ListItemIcon>
-            <ListItemText primary="Calendar" sx={{ opacity: open || isMobile ? 1 : 0 }} />
+        <ListItem>
+          <ListItemButton component={NavLink} to="calendar" selected={location.pathname.includes('calendar')}>
+            <ListItemDecorator><Event /></ListItemDecorator>
+            {open && <ListItemContent>Calendar</ListItemContent>}
           </ListItemButton>
         </ListItem>
 
@@ -172,37 +125,43 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
 
         <Divider sx={{ my: 1 }} />
 
-        <ListItem disablePadding sx={{ display: 'block' }}>
-          <ListItemButton
-            component={NavLink}
-            to="settings"
-            sx={{ minHeight: 48, px: 2.5, justifyContent: open || isMobile ? 'initial' : 'center' }}
-          >
-            <ListItemIcon sx={{ minWidth: 0, mr: open || isMobile ? 3 : 'auto', justifyContent: 'center' }}><Settings /></ListItemIcon>
-            <ListItemText primary="Settings" sx={{ opacity: open || isMobile ? 1 : 0 }} />
-          </ListItemButton>
+        <ListItem>
+            <ListItemButton component={NavLink} to="settings" selected={location.pathname.includes('settings')}>
+                <ListItemDecorator><Settings /></ListItemDecorator>
+                {open && <ListItemContent>Settings</ListItemContent>}
+            </ListItemButton>
         </ListItem>
       </List>
-    </>
+    </Box>
   );
 
   return (
     <>
-      {isMobile ? (
-        <Drawer
-          variant="temporary"
-          open={open}
-          onClose={toggleDrawer}
-          ModalProps={{ keepMounted: true }}
-          sx={{ '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth } }}
-        >
-          {drawerContent}
-        </Drawer>
-      ) : (
-        <StyledDrawer variant="permanent" open={open}>
-          {drawerContent}
-        </StyledDrawer>
-      )}
+      {/* Mobile Drawer (Temporary) - Only rendered if screen is small, logically handled by parent usually but here we simulate responsive behavior if needed */}
+      <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+         <Drawer open={open} onClose={toggleDrawer} size="sm">
+            {drawerContent}
+         </Drawer>
+      </Box>
+
+      {/* Desktop Drawer (Permanent/Persistent-like via Sheet) */}
+      <Sheet
+        sx={{
+          display: { xs: 'none', md: 'flex' },
+          borderRight: '1px solid',
+          borderColor: 'divider',
+          width: open ? drawerWidth : 64,
+          transition: 'width 0.2s',
+          flexShrink: 0,
+          height: '100vh',
+          position: 'sticky',
+          top: 0,
+          flexDirection: 'column',
+          zIndex: 100, // Below TopBar if fixed, but here TopBar sits next to it usually in new layouts
+        }}
+      >
+        {drawerContent}
+      </Sheet>
     </>
   );
 }

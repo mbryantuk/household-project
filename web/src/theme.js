@@ -1,4 +1,4 @@
-import { createTheme } from '@mui/material/styles';
+import { extendTheme } from '@mui/joy/styles';
 
 // Official Dracula Classic (Dark)
 const DRACULA = {
@@ -57,101 +57,83 @@ const STANDARD_DARK = {
   divider: "rgba(255,255,255,0.12)"
 };
 
-/**
- * Generates a consistent background color for a given emoji/string.
- * Uses a simple hash to pick a hue and returns an HSL color.
- */
 export const getEmojiColor = (emoji, isDark = true) => {
   if (!emoji) return isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
-  
   let hash = 0;
   const str = String(emoji);
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
-  
   const hue = Math.abs(hash % 360);
-  // For dark mode, use lower lightness; for light mode, use higher.
-  // Increase saturation for more vibrant backgrounds.
   const saturation = isDark ? 50 : 70;
   const lightness = isDark ? 25 : 90;
-  
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 };
 
-export const getTotemTheme = (mode = 'light', useDracula = true) => {
-  let effectiveMode = mode;
-  if (mode === 'system') {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    effectiveMode = prefersDark ? 'dark' : 'light';
-  }
+// Joy UI Theme Generator
+export const getTotemTheme = (useDracula = true) => {
+  const lightSpec = useDracula ? ALUCARD : STANDARD_LIGHT;
+  const darkSpec = useDracula ? DRACULA : STANDARD_DARK;
 
-  const isDark = effectiveMode === 'dark';
-  const spec = useDracula ? (isDark ? DRACULA : ALUCARD) : (isDark ? STANDARD_DARK : STANDARD_LIGHT);
-  
-  return createTheme({
-    palette: {
-      mode: isDark ? 'dark' : 'light',
-      primary: { main: spec.primary || spec.purple, contrastText: isDark ? (spec.foreground || '#fff') : '#fff' },
-      secondary: { main: spec.secondary || spec.pink },
-      background: { default: spec.background, paper: isDark ? (spec.backgroundLight || spec.paper) : (spec.paper || "#FFFFFF") },
-      text: { primary: spec.foreground, secondary: spec.comment || (isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)') },
-      divider: spec.selection || spec.divider,
-    },
-    components: {
-      MuiCssBaseline: {
-        styleOverrides: {
-          '.rbc-calendar': {
-            color: `${spec.foreground} !important`,
+  return extendTheme({
+    colorSchemes: {
+      light: {
+        palette: {
+          background: {
+            body: lightSpec.background,
+            surface: lightSpec.paper || lightSpec.backgroundLight || "#fff",
+            level1: lightSpec.backgroundLighter || "#f5f5f5",
           },
-          '.rbc-off-range-bg': {
-            backgroundColor: isDark ? 'rgba(0,0,0,0.2) !important' : 'rgba(0,0,0,0.05) !important',
+          text: {
+            primary: lightSpec.foreground,
+            secondary: lightSpec.comment || "rgba(0,0,0,0.6)",
           },
-          '.rbc-today': {
-            backgroundColor: isDark ? 'rgba(189, 147, 249, 0.1) !important' : 'rgba(100, 74, 201, 0.08) !important',
-            border: `1px solid ${spec.purple} !important`,
+          primary: {
+            solidBg: lightSpec.primary || lightSpec.purple || lightSpec.red,
+            solidHoverBg: lightSpec.secondary || lightSpec.pink,
+            plainColor: lightSpec.primary || lightSpec.purple,
           },
-          '.rbc-header': {
-             borderBottom: `1px solid ${spec.selection || spec.divider} !important`,
-             padding: '8px 0 !important',
-             fontWeight: 'bold',
+          neutral: {
+            outlinedBorder: lightSpec.selection || lightSpec.divider,
           },
-          '.rbc-month-view, .rbc-time-view, .rbc-agenda-view': {
-            border: `1px solid ${spec.selection || spec.divider} !important`,
-            borderRadius: '8px',
-            overflow: 'hidden'
-          },
-          '.rbc-day-bg + .rbc-day-bg, .rbc-month-row + .rbc-month-row, .rbc-time-content > * + *': {
-            borderLeft: `1px solid ${spec.selection || spec.divider} !important`,
-            borderTop: `1px solid ${spec.selection || spec.divider} !important`,
-          },
-          '.rbc-toolbar button': {
-            color: `${spec.foreground} !important`,
-            border: `1px solid ${spec.selection || spec.divider} !important`,
-          },
-          '.rbc-toolbar button:hover, .rbc-toolbar button:active, .rbc-toolbar button.rbc-active': {
-            backgroundColor: `${spec.selection || spec.divider} !important`,
-            color: `${spec.foreground} !important`,
-          }
-        }
-      },
-      MuiAppBar: {
-        styleOverrides: {
-          root: {
-            backgroundColor: useDracula ? (isDark ? DRACULA.backgroundDark : ALUCARD.red) : spec.primary,
-            backgroundImage: 'none',
-            color: '#fff',
-          },
+          divider: lightSpec.selection || lightSpec.divider,
         },
       },
-      MuiDrawer: {
-        styleOverrides: {
-          paper: {
-            backgroundColor: useDracula ? spec.backgroundLighter : (isDark ? spec.paper : "#fff"),
-            borderRight: `1px solid ${spec.selection || spec.divider}`,
+      dark: {
+        palette: {
+          background: {
+            body: darkSpec.background,
+            surface: darkSpec.paper || darkSpec.backgroundLight || "#1e1e1e",
+            level1: darkSpec.backgroundLighter || "#212121",
           },
+          text: {
+            primary: darkSpec.foreground,
+            secondary: darkSpec.comment || "rgba(255,255,255,0.7)",
+          },
+          primary: {
+            solidBg: darkSpec.primary || darkSpec.purple,
+            solidHoverBg: darkSpec.secondary || darkSpec.pink,
+            plainColor: darkSpec.primary || darkSpec.purple,
+          },
+          neutral: {
+            outlinedBorder: darkSpec.selection || darkSpec.divider,
+          },
+          divider: darkSpec.selection || darkSpec.divider,
         },
       },
     },
   });
+};
+
+export const getThemeSpec = (mode = 'light', useDracula = true) => {
+    let effectiveMode = mode;
+    if (mode === 'system') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      effectiveMode = prefersDark ? 'dark' : 'light';
+    }
+    const isDark = effectiveMode === 'dark';
+    return {
+        spec: useDracula ? (isDark ? DRACULA : ALUCARD) : (isDark ? STANDARD_DARK : STANDARD_LIGHT),
+        isDark
+    };
 };

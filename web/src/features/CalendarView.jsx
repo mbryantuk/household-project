@@ -1,12 +1,12 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { 
-  Box, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, FormControl, InputLabel, Select, MenuItem, Stack, IconButton, Tooltip,
-  Switch, FormControlLabel, Grid, Paper, Divider, ToggleButton, ToggleButtonGroup
-} from '@mui/material';
+  Box, Typography, Button, Sheet, DialogTitle, DialogContent, DialogActions,
+  FormControl, FormLabel, Input, Select, Option, Stack, IconButton, Tooltip,
+  Switch, Grid, Divider, ToggleButtonGroup, Modal, ModalDialog, Textarea
+} from '@mui/joy';
 import { 
-  Add, Delete, Edit, Event as EventIcon, Cake, Favorite, Star,
+  Add, Delete, Event as EventIcon, Cake, Favorite, Star,
   ChevronLeft, ChevronRight
 } from '@mui/icons-material';
 import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar';
@@ -46,7 +46,7 @@ const RECURRENCE_OPTIONS = [
 ];
 
 export default function CalendarView({ showNotification }) {
-  const { api, user: currentUser } = useOutletContext();
+  const { api } = useOutletContext();
   const { id: householdId } = useParams();
   
   const [rawDates, setRawDates] = useState([]);
@@ -239,24 +239,23 @@ export default function CalendarView({ showNotification }) {
       
       {/* CUSTOM TOOLBAR */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 2 }}>
-        <Typography variant="h4" fontWeight="300">Calendar</Typography>
+        <Typography level="h2" fontWeight="300">Calendar</Typography>
         
         <Stack direction="row" spacing={1} alignItems="center">
             <ToggleButtonGroup 
                 value={view} 
-                exclusive 
                 onChange={(e, v) => v && setView(v)} 
-                size="small"
-                sx={{ mr: 2 }}
+                size="sm"
+                variant="outlined"
             >
-                <ToggleButton value={Views.MONTH}>Month</ToggleButton>
-                <ToggleButton value={Views.WEEK}>Week</ToggleButton>
-                <ToggleButton value={Views.AGENDA}>Agenda</ToggleButton>
+                <Button value={Views.MONTH}>Month</Button>
+                <Button value={Views.WEEK}>Week</Button>
+                <Button value={Views.AGENDA}>Agenda</Button>
             </ToggleButtonGroup>
 
-            <Button variant="outlined" size="small" onClick={() => setDate(new Date())}>Today</Button>
+            <Button variant="outlined" size="sm" onClick={() => setDate(new Date())}>Today</Button>
             
-            <IconButton size="small" onClick={() => {
+            <IconButton size="sm" variant="outlined" onClick={() => {
                 if (view === Views.MONTH) setDate(addMonths(date, -1));
                 else if (view === Views.WEEK) setDate(addWeeks(date, -1));
                 else setDate(addDays(date, -1));
@@ -264,13 +263,13 @@ export default function CalendarView({ showNotification }) {
                 <ChevronLeft />
             </IconButton>
             
-            <Typography variant="h6" sx={{ minWidth: 180, textAlign: 'center' }}>
+            <Typography level="title-lg" sx={{ minWidth: 180, textAlign: 'center' }}>
                 {view === Views.MONTH ? format(date, 'MMMM yyyy') : (
                     view === Views.WEEK ? `Week of ${format(startOfWeek(date, { weekStartsOn: 1 }), 'MMM d')}` : format(date, 'MMM d, yyyy')
                 )}
             </Typography>
             
-            <IconButton size="small" onClick={() => {
+            <IconButton size="sm" variant="outlined" onClick={() => {
                 if (view === Views.MONTH) setDate(addMonths(date, 1));
                 else if (view === Views.WEEK) setDate(addWeeks(date, 1));
                 else setDate(addDays(date, 1));
@@ -278,15 +277,15 @@ export default function CalendarView({ showNotification }) {
                 <ChevronRight />
             </IconButton>
 
-            <Divider orientation="vertical" flexItem sx={{ mx: 2 }} />
+            <Divider orientation="vertical" sx={{ mx: 2, height: 24 }} />
             
-            <Button variant="contained" startIcon={<Add />} onClick={() => handleSelectSlot({ start: new Date() })}>
+            <Button variant="solid" startDecorator={<Add />} onClick={() => handleSelectSlot({ start: new Date() })}>
                 New Event
             </Button>
         </Stack>
       </Box>
 
-      <Paper sx={{ flexGrow: 1, p: 2 }}>
+      <Sheet variant="outlined" sx={{ flexGrow: 1, p: 2, borderRadius: 'md', overflow: 'hidden' }}>
         <Calendar
             localizer={localizer}
             events={events}
@@ -308,107 +307,120 @@ export default function CalendarView({ showNotification }) {
                 return {};
             }}
         />
-      </Paper>
+      </Sheet>
 
       {/* ADD/EDIT DIALOG */}
-      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
-        <form onSubmit={handleFormSubmit}>
-          <DialogTitle>
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <ModalDialog sx={{ maxWidth: 500, width: '100%', p: 0 }}>
+            <DialogTitle sx={{ p: 2, pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               {editingEvent?.id ? 'Edit Event' : 'New Event'}
-              {editingEvent?.id && <IconButton size="small" onClick={handleDelete} sx={{ float: 'right', color: 'error.main' }}><Delete /></IconButton>}
-          </DialogTitle>
-          <DialogContent dividers>
-            <Stack spacing={3} sx={{ pt: 1 }}>
-                
-                {/* Header: Emoji & Title */}
-                <Box sx={{ display: 'flex', gap: 2 }}>
-                    <Tooltip title="Pick an emoji">
-                        <IconButton onClick={() => setEmojiPickerOpen(true)} sx={{ bgcolor: 'action.hover', border: '1px solid', borderColor: 'divider', width: 56, height: 56 }}>
-                            <Typography sx={{ fontSize: '1.5rem' }}>{selectedEmoji}</Typography>
-                        </IconButton>
-                    </Tooltip>
-                    <TextField name="title" label="Event Title" defaultValue={editingEvent?.title || ''} fullWidth required autoFocus />
-                </Box>
+              {editingEvent?.id && <IconButton size="sm" variant="plain" color="danger" onClick={handleDelete}><Delete /></IconButton>}
+            </DialogTitle>
+            <Divider />
+            <DialogContent sx={{ p: 2 }}>
+                <form onSubmit={handleFormSubmit}>
+                    <Stack spacing={2}>
+                        
+                        {/* Header: Emoji & Title */}
+                        <Box sx={{ display: 'flex', gap: 2 }}>
+                            <Tooltip title="Pick an emoji" variant="soft">
+                                <IconButton 
+                                    onClick={() => setEmojiPickerOpen(true)} 
+                                    variant="outlined"
+                                    sx={{ width: 48, height: 48 }}
+                                >
+                                    <Typography level="h3">{selectedEmoji}</Typography>
+                                </IconButton>
+                            </Tooltip>
+                            <FormControl required sx={{ flex: 1 }}>
+                                <FormLabel>Event Title</FormLabel>
+                                <Input name="title" defaultValue={editingEvent?.title || ''} autoFocus />
+                            </FormControl>
+                        </Box>
 
-                {/* Date & Time */}
-                <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                        <FormControlLabel 
-                            control={<Switch checked={isAllDay} onChange={e => setIsAllDay(e.target.checked)} />} 
-                            label="All-day" 
-                        />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <TextField 
-                            name="date" 
-                            label="Start Date" 
-                            type="date" 
-                            defaultValue={editingEvent?.date || ''} 
-                            InputLabelProps={{ shrink: true }} 
-                            fullWidth required 
-                        />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <TextField 
-                            name="end_date" 
-                            label="End Date" 
-                            type="date" 
-                            defaultValue={editingEvent?.end_date || ''} 
-                            InputLabelProps={{ shrink: true }} 
-                            fullWidth 
-                        />
-                    </Grid>
-                </Grid>
-
-                {/* Type & Recurrence */}
-                <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                        <FormControl fullWidth>
-                            <InputLabel>Type</InputLabel>
-                            <Select name="type" defaultValue={editingEvent?.type || 'event'} label="Type">
-                                {EVENT_TYPES.map(t => <MenuItem key={t.value} value={t.value}>{t.label}</MenuItem>)}
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <FormControl fullWidth>
-                            <InputLabel>Recurrence</InputLabel>
-                            <Select 
-                                name="recurrence" 
-                                value={recurrence} 
-                                onChange={(e) => setRecurrence(e.target.value)} 
-                                label="Recurrence"
-                            >
-                                {RECURRENCE_OPTIONS.map(o => <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>)}
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                    
-                    {recurrence !== 'none' && (
-                        <Grid item xs={12}>
-                             <TextField 
-                                name="recurrence_end_date" 
-                                label="Repeat Until (Optional)" 
-                                type="date" 
-                                defaultValue={editingEvent?.recurrence_end_date || ''} 
-                                InputLabelProps={{ shrink: true }} 
-                                fullWidth 
-                                helperText="Leave blank to repeat forever"
-                            />
+                        {/* Date & Time */}
+                        <Grid container spacing={2}>
+                            <Grid xs={12}>
+                                <FormControl orientation="horizontal" sx={{ gap: 1 }}>
+                                    <Switch checked={isAllDay} onChange={e => setIsAllDay(e.target.checked)} />
+                                    <FormLabel>All-day</FormLabel>
+                                </FormControl>
+                            </Grid>
+                            <Grid xs={6}>
+                                <FormControl required>
+                                    <FormLabel>Start Date</FormLabel>
+                                    <Input 
+                                        name="date" 
+                                        type="date" 
+                                        defaultValue={editingEvent?.date || ''} 
+                                    />
+                                </FormControl>
+                            </Grid>
+                            <Grid xs={6}>
+                                <FormControl>
+                                    <FormLabel>End Date</FormLabel>
+                                    <Input 
+                                        name="end_date" 
+                                        type="date" 
+                                        defaultValue={editingEvent?.end_date || ''} 
+                                    />
+                                </FormControl>
+                            </Grid>
                         </Grid>
-                    )}
-                </Grid>
 
-                <TextField name="description" label="Notes / Description" defaultValue={editingEvent?.description || ''} multiline rows={3} fullWidth />
+                        {/* Type & Recurrence */}
+                        <Grid container spacing={2}>
+                            <Grid xs={6}>
+                                <FormControl>
+                                    <FormLabel>Type</FormLabel>
+                                    <Select name="type" defaultValue={editingEvent?.type || 'event'}>
+                                        {EVENT_TYPES.map(t => <Option key={t.value} value={t.value}>{t.label}</Option>)}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid xs={6}>
+                                <FormControl>
+                                    <FormLabel>Recurrence</FormLabel>
+                                    <Select 
+                                        name="recurrence" 
+                                        value={recurrence} 
+                                        onChange={(e, v) => setRecurrence(v)} 
+                                    >
+                                        {RECURRENCE_OPTIONS.map(o => <Option key={o.value} value={o.value}>{o.label}</Option>)}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            
+                            {recurrence !== 'none' && (
+                                <Grid xs={12}>
+                                    <FormControl>
+                                        <FormLabel>Repeat Until (Optional)</FormLabel>
+                                        <Input 
+                                            name="recurrence_end_date" 
+                                            type="date" 
+                                            defaultValue={editingEvent?.recurrence_end_date || ''} 
+                                            placeholder="Leave blank to repeat forever"
+                                        />
+                                        <Typography level="body-xs" mt={0.5}>Leave blank to repeat forever</Typography>
+                                    </FormControl>
+                                </Grid>
+                            )}
+                        </Grid>
 
-            </Stack>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpen(false)}>Cancel</Button>
-            <Button type="submit" variant="contained">Save</Button>
-          </DialogActions>
-        </form>
-      </Dialog>
+                        <FormControl>
+                            <FormLabel>Notes / Description</FormLabel>
+                            <Textarea name="description" defaultValue={editingEvent?.description || ''} minRows={3} />
+                        </FormControl>
+
+                        <DialogActions sx={{ pt: 2 }}>
+                            <Button variant="plain" color="neutral" onClick={() => setOpen(false)}>Cancel</Button>
+                            <Button type="submit" variant="solid">Save</Button>
+                        </DialogActions>
+                    </Stack>
+                </form>
+            </DialogContent>
+        </ModalDialog>
+      </Modal>
 
       <EmojiPicker 
         open={emojiPickerOpen} 

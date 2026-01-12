@@ -7,19 +7,7 @@ const { verbose } = require('sqlite3');
  */
 
 const SCHEMA_DEFINITIONS = [
-    // --- USERS TABLE ---
-    `CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        household_id INTEGER,
-        username TEXT,
-        password_hash TEXT,
-        email TEXT,
-        first_name TEXT,
-        last_name TEXT,
-        avatar TEXT,
-        role TEXT DEFAULT 'member',
-        dashboard_layout TEXT
-    )`,
+    // NOTE: 'users' table is now GLOBAL (see server/db.js)
 
     // --- MEMBERS TABLE (People & Pets) ---
     `CREATE TABLE IF NOT EXISTS members (
@@ -31,7 +19,7 @@ const SCHEMA_DEFINITIONS = [
         alias TEXT, 
         dob TEXT, 
         species TEXT, 
-        breed TEXT,
+        breed TEXT, 
         gender TEXT,
         emoji TEXT,
         avatar TEXT,
@@ -222,9 +210,7 @@ const SCHEMA_DEFINITIONS = [
 ];
 
 const MIGRATIONS = [
-    ['users', 'household_id', 'INTEGER'],
-    ['users', 'first_name', 'TEXT'],
-    ['users', 'last_name', 'TEXT'],
+    // ['users', 'household_id', 'INTEGER'], // Removed
     ['members', 'household_id', 'INTEGER'],
     ['members', 'will_details', 'TEXT'],
     ['members', 'life_insurance_provider', 'TEXT'],

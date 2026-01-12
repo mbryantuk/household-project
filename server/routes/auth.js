@@ -5,127 +5,176 @@ const jwt = require('jsonwebtoken');
 const { globalDb, getHouseholdDb } = require('../db'); 
 const { SECRET_KEY } = require('../config');
 const { authenticateToken } = require('../middleware/auth');
+const crypto = require('crypto');
 
-// LOGIN: Supports both SysAdmin (Global) and Household (Local) login
-router.post('/login', (req, res) => {
-    const { accessKey, username, password } = req.body;
-    
-    // 1. SYSADMIN LOGIN (No Access Key or "ADMIN")
-    if (!accessKey || accessKey.toUpperCase() === 'ADMIN') {
-        console.log(`🔐 SysAdmin Login Attempt: ${username}`);
-        globalDb.get(`SELECT * FROM users WHERE username = ? COLLATE NOCASE`, [username], (err, user) => {
-            if (err || !user) return res.status(404).json({ error: "System Admin not found" });
-            
-            const isValid = bcrypt.compareSync(password, user.password_hash);
-            if (!isValid) return res.status(401).json({ error: "Invalid credentials" });
+// HELPER: Promisify DB get
+const dbGet = (db, sql, params) => new Promise((resolve, reject) => {
+    db.get(sql, params, (err, row) => err ? reject(err) : resolve(row));
+});
 
-            if (user.system_role !== 'sysadmin') return res.status(403).json({ error: "Not a System Administrator" });
-
-            const token = jwt.sign({ 
-                id: user.id, username: user.username, system_role: 'sysadmin' 
-            }, SECRET_KEY, { expiresIn: '24h' });
-            
-            res.json({ 
-                token, 
-                role: 'sysadmin', 
-                context: 'global',
-                user: { 
-                    id: user.id, 
-                    username: user.username, 
-                    email: user.email, 
-                    avatar: user.avatar,
-                    dashboard_layout: user.dashboard_layout 
-                }
-            });
-        });
-        return;
-    }
-
-    // 2. HOUSEHOLD LOGIN (Access Key Provided)
-    console.log(`🏠 Household Login Attempt: ${username} @ Key: ${accessKey}`);
-    
-    // Find the household by key
-    globalDb.get(`SELECT * FROM households WHERE access_key = ?`, [accessKey], (err, household) => {
-        if (err || !household) return res.status(404).json({ error: "Invalid Household Key" });
-
-        // Open Household DB
-        const hhDb = getHouseholdDb(household.id);
-        
-        hhDb.get(`SELECT * FROM users WHERE username = ? COLLATE NOCASE`, [username], (err, user) => {
-            hhDb.close(); // Always close connection
-            
-            if (err || !user) return res.status(404).json({ error: "User not found in this household" });
-
-            const isValid = bcrypt.compareSync(password, user.password_hash);
-            if (!isValid) return res.status(401).json({ error: "Invalid password" });
-
-            // Generate Token with Household Context
-            const token = jwt.sign({ 
-                id: user.id, 
-                username: user.username, 
-                householdId: household.id,
-                householdName: household.name,
-                role: user.role, // admin, member, viewer
-                system_role: 'user'
-            }, SECRET_KEY, { expiresIn: '24h' });
-
-            res.json({ 
-                token, 
-                role: user.role, 
-                context: 'household',
-                user: { 
-                    id: user.id, 
-                    username: user.username, 
-                    email: user.email, 
-                    avatar: user.avatar,
-                    dashboard_layout: user.dashboard_layout
-                },
-                household: { 
-                    id: household.id, 
-                    name: household.name, 
-                    theme: household.theme,
-                    access_key: household.access_key,
-                    address_street: household.address_street,
-                    address_city: household.address_city,
-                    address_zip: household.address_zip,
-                    date_format: household.date_format,
-                    currency: household.currency,
-                    decimals: household.decimals,
-                    avatar: household.avatar
-                }
-            });
-        });
+// HELPER: Promisify DB run
+const dbRun = (db, sql, params) => new Promise((resolve, reject) => {
+    db.run(sql, params, function(err) {
+        err ? reject(err) : resolve({ id: this.lastID, changes: this.changes });
     });
 });
 
-// PROFILE: Update own details (Works for both contexts)
-router.put('/profile', authenticateToken, (req, res) => {
-    const { username, password, email, avatar, dashboard_layout } = req.body;
-    if (!username && !password && !email && !avatar && !dashboard_layout) return res.status(400).json({ error: "Nothing to update" });
+/**
+ * POST /register
+ * SaaS Signup: Create Tenant + Admin User
+ */
+router.post('/register', async (req, res) => {
+    const { householdName, email, password, firstName, lastName } = req.body;
 
-    const isSysAdmin = req.user.system_role === 'sysadmin';
-    const targetDb = isSysAdmin ? globalDb : getHouseholdDb(req.user.householdId);
+    if (!householdName || !email || !password) {
+        return res.status(400).json({ error: "Missing required fields" });
+    }
 
+    try {
+        // 1. Check if email exists
+        const existingUser = await dbGet(globalDb, `SELECT id FROM users WHERE email = ?`, [email]);
+        if (existingUser) return res.status(409).json({ error: "Email already registered" });
+
+        // 2. Create Household
+        // Generate a random access key just for API compatibility/uniqueness, though not used for login
+        const accessKey = crypto.randomBytes(4).toString('hex').toUpperCase();
+        
+        const hhResult = await dbRun(globalDb, 
+            `INSERT INTO households (name, access_key, theme) VALUES (?, ?, 'default')`, 
+            [householdName, accessKey]
+        );
+        const householdId = hhResult.id;
+
+        // 3. Create Admin User
+        const passwordHash = bcrypt.hashSync(password, 8);
+        const userResult = await dbRun(globalDb,
+            `INSERT INTO users (email, password_hash, first_name, last_name, system_role, default_household_id) VALUES (?, ?, ?, ?, 'user', ?)`,
+            [email, passwordHash, firstName || 'Admin', lastName || '', householdId]
+        );
+        const userId = userResult.id;
+
+        // 4. Link User to Household as Admin
+        await dbRun(globalDb,
+            `INSERT INTO user_households (user_id, household_id, role) VALUES (?, ?, 'admin')`,
+            [userId, householdId]
+        );
+
+        // 5. Initialize Household DB (Trigger creation)
+        const hhDb = getHouseholdDb(householdId);
+        hhDb.close();
+
+        // 6. Return Success (Login required next, or auto-login)
+        res.status(201).json({ message: "Registration successful. Please login." });
+
+    } catch (err) {
+        console.error("Registration Error:", err);
+        res.status(500).json({ error: "Registration failed: " + err.message });
+    }
+});
+
+/**
+ * POST /login
+ * Authenticate against Global Users and return Context
+ */
+router.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        const user = await dbGet(globalDb, `SELECT * FROM users WHERE email = ? COLLATE NOCASE`, [email]);
+        if (!user) return res.status(404).json({ error: "Invalid credentials" });
+
+        const isValid = bcrypt.compareSync(password, user.password_hash);
+        if (!isValid) return res.status(401).json({ error: "Invalid credentials" });
+
+        // Determine Household Context
+        // 1. Use default_household_id
+        // 2. Or query user_households for the first one
+        let householdId = user.default_household_id;
+        let userRole = 'member'; // Default fallback
+
+        if (!householdId) {
+            // Fallback: Find any household
+            const link = await dbGet(globalDb, `SELECT * FROM user_households WHERE user_id = ? LIMIT 1`, [user.id]);
+            if (link) {
+                householdId = link.household_id;
+                userRole = link.role;
+            }
+        } else {
+            // Verify role for default household
+            const link = await dbGet(globalDb, `SELECT * FROM user_households WHERE user_id = ? AND household_id = ?`, [user.id, householdId]);
+            if (link) userRole = link.role;
+            else householdId = null; // Invalid default
+        }
+
+        // Fetch Household Data if applicable
+        let householdData = null;
+        if (householdId) {
+            householdData = await dbGet(globalDb, `SELECT * FROM households WHERE id = ?`, [householdId]);
+        }
+
+        // Generate Token
+        const tokenPayload = {
+            id: user.id,
+            email: user.email,
+            system_role: user.system_role,
+            householdId: householdId,
+            role: userRole // Role within the current household
+        };
+
+        const token = jwt.sign(tokenPayload, SECRET_KEY, { expiresIn: '24h' });
+
+        res.json({
+            token,
+            role: userRole,
+            system_role: user.system_role,
+            context: householdId ? 'household' : 'global',
+            user: {
+                id: user.id,
+                email: user.email,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                avatar: user.avatar,
+                dashboard_layout: user.dashboard_layout
+            },
+            household: householdData
+        });
+
+    } catch (err) {
+        console.error("Login Error:", err);
+        res.status(500).json({ error: "Login failed" });
+    }
+});
+
+/**
+ * PUT /profile
+ * Update Global User Profile
+ */
+router.put('/profile', authenticateToken, async (req, res) => {
+    const { email, password, firstName, lastName, avatar, dashboard_layout } = req.body;
+    
     let fields = [];
     let values = [];
-    if (username) { fields.push('username = ?'); values.push(username); }
+
+    if (email) { fields.push('email = ?'); values.push(email); }
     if (password) { fields.push('password_hash = ?'); values.push(bcrypt.hashSync(password, 8)); }
-    if (email !== undefined) { fields.push('email = ?'); values.push(email); }
+    if (firstName) { fields.push('first_name = ?'); values.push(firstName); }
+    if (lastName) { fields.push('last_name = ?'); values.push(lastName); }
     if (avatar !== undefined) { fields.push('avatar = ?'); values.push(avatar); }
     if (dashboard_layout !== undefined) { 
         fields.push('dashboard_layout = ?'); 
         values.push(typeof dashboard_layout === 'string' ? dashboard_layout : JSON.stringify(dashboard_layout)); 
     }
-    
+
+    if (fields.length === 0) return res.status(400).json({ error: "Nothing to update" });
+
     values.push(req.user.id);
 
-    const sql = `UPDATE users SET ${fields.join(', ')} WHERE id = ?`;
-
-    targetDb.run(sql, values, function(err) {
-        if (!isSysAdmin) targetDb.close();
-        if (err) return res.status(500).json({ error: err.message });
+    try {
+        await dbRun(globalDb, `UPDATE users SET ${fields.join(', ')} WHERE id = ?`, values);
         res.json({ message: "Profile updated" });
-    });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 module.exports = router;

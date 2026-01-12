@@ -1,15 +1,14 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
-  Box, Typography, Paper, Tabs, Tab, TextField, Grid, 
-  ToggleButtonGroup, ToggleButton, Divider, Button,
-  TableContainer, Table, TableHead, TableRow, TableCell, TableBody,
-  Chip, IconButton, FormControl, InputLabel, Select, MenuItem,
-  Dialog, DialogTitle, DialogContent, DialogActions, Avatar, Card, CardHeader,
-  Stack, Tooltip, Switch, FormControlLabel, InputAdornment, LinearProgress, List, ListItem, ListItemText, ListItemSecondaryAction, useTheme, Alert
-} from '@mui/material';
+  Box, Typography, Sheet, Tabs, TabList, Tab, TabPanel, Input, Grid, 
+  ButtonGroup, Button, Table, Chip, IconButton, FormControl, FormLabel, Select, Option,
+  Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Avatar, 
+  Stack, Tooltip, Switch, LinearProgress, List, ListItem, ListItemContent, ListItemDecorator, 
+  Alert, Divider
+} from '@mui/joy';
 import { 
   ManageAccounts, Backup, SettingsBrightness, PersonAdd, Delete, 
-  Edit, Save, Schedule, Download, Restore, CloudDownload,
+  Edit, Schedule, Download, Restore, CloudDownload,
   DarkMode, LightMode
 } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
@@ -22,8 +21,9 @@ export default function SettingsView({
   showNotification, confirmAction
 }) {
   const [tab, setTab] = useState(0);
-  const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
+  // Theme context is now handled via Joy's CssVarsProvider in App.jsx, but we might need explicit checks if logic depends on it
+  const isDark = currentMode === 'dark' || (currentMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  
   const [backups, setBackups] = useState([]);
   const [backupLoading, setBackupLoading] = useState(false);
   const [userDialogOpen, setUserDialogOpen] = useState(false);
@@ -56,7 +56,7 @@ export default function SettingsView({
       showNotification("Manual backup created.", "success");
       fetchBackups();
     } catch (err) {
-      showNotification("Failed to create backup.", "error");
+      showNotification("Failed to create backup.", "danger");
     }
   };
 
@@ -70,7 +70,7 @@ export default function SettingsView({
           showNotification("Restore successful. Refreshing...", "success");
           setTimeout(() => window.location.reload(), 1500);
         } catch (err) {
-          showNotification("Restore failed.", "error");
+          showNotification("Restore failed.", "danger");
         }
       }
     );
@@ -113,226 +113,246 @@ export default function SettingsView({
 
   return (
     <Box>
-      <Typography variant="h4" fontWeight="300" gutterBottom>Settings</Typography>
+      <Typography level="h2" fontWeight="300" mb={2}>Settings</Typography>
       
-      <Paper sx={{ borderRadius: 3, overflow: 'hidden' }} variant="outlined">
-        <Tabs value={tab} onChange={(e, v) => setTab(v)} sx={{ borderBottom: 1, borderColor: 'divider', px: 2, bgcolor: 'action.hover' }}>
-          <Tab icon={<ManageAccounts />} iconPosition="start" label="Users" />
-          <Tab icon={<Backup />} iconPosition="start" label="Maintenance" />
-          <Tab icon={<SettingsBrightness />} iconPosition="start" label="Appearance" />
-        </Tabs>
+      <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'hidden', minHeight: 400 }}>
+        <Tabs value={tab} onChange={(e, v) => setTab(v)} sx={{ bgcolor: 'transparent' }}>
+          <TabList tabFlex={1} sx={{ p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: 2, mt: 2 }}>
+            <Tab variant={tab === 0 ? 'solid' : 'plain'} color={tab === 0 ? 'primary' : 'neutral'} indicatorInset>
+                <ListItemDecorator><ManageAccounts /></ListItemDecorator> Users
+            </Tab>
+            <Tab variant={tab === 1 ? 'solid' : 'plain'} color={tab === 1 ? 'primary' : 'neutral'} indicatorInset>
+                <ListItemDecorator><Backup /></ListItemDecorator> Maintenance
+            </Tab>
+            <Tab variant={tab === 2 ? 'solid' : 'plain'} color={tab === 2 ? 'primary' : 'neutral'} indicatorInset>
+                <ListItemDecorator><SettingsBrightness /></ListItemDecorator> Appearance
+            </Tab>
+          </TabList>
 
-        <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
-          {/* TAB 0: USERS */}
-          {tab === 0 && (
-            <Box>
-                <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="h6">Local Users</Typography>
-                    {isAdmin && <Button variant="outlined" startIcon={<PersonAdd />} onClick={openAddUser}>Add User</Button>}
-                </Box>
-                <TableContainer>
-                    <Table>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell width={60}></TableCell>
-                            <TableCell>Username</TableCell>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Email</TableCell>
-                            <TableCell>Role</TableCell>
-                            <TableCell align="right">Actions</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
+          <Box sx={{ p: 3 }}>
+            {/* TAB 0: USERS */}
+            {tab === 0 && (
+              <Box>
+                  <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography level="h4">Household Members</Typography>
+                      {isAdmin && <Button variant="outlined" startDecorator={<PersonAdd />} onClick={openAddUser}>Invite User</Button>}
+                  </Box>
+                  <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto' }}>
+                    <Table hoverRow>
+                        <thead>
+                          <tr>
+                            <th style={{ width: 60 }}></th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th style={{ textAlign: 'right' }}>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
                             {users.map(u => (
-                                <TableRow key={u.id}>
-                                    <TableCell>
-                                      <Avatar sx={{ 
-                                        width: 32, height: 32, 
-                                        bgcolor: u.avatar ? getEmojiColor(u.avatar, isDark) : 'secondary.main',
-                                        fontSize: '1rem'
-                                      }}>
-                                        {u.avatar || u.username?.[0]?.toUpperCase()}
+                                <tr key={u.id}>
+                                    <td>
+                                      <Avatar size="sm" sx={{ bgcolor: u.avatar ? getEmojiColor(u.avatar, isDark) : 'neutral.solidBg' }}>
+                                        {u.avatar || u.first_name?.[0] || u.email?.[0]?.toUpperCase()}
                                       </Avatar>
-                                    </TableCell>
-                                    <TableCell>{u.username}</TableCell>
-                                    <TableCell>{u.first_name || u.last_name ? `${u.first_name || ''} ${u.last_name || ''}`.trim() : '-'}</TableCell>
-                                    <TableCell>{u.email || '-'}</TableCell>
-                                    <TableCell><Chip label={u.role?.toUpperCase()} size="small" variant="outlined" /></TableCell>
-                                    <TableCell align="right">
+                                    </td>
+                                    <td>{u.first_name || u.last_name ? `${u.first_name || ''} ${u.last_name || ''}`.trim() : (u.username || 'User')}</td>
+                                    <td>{u.email || '-'}</td>
+                                    <td><Chip size="sm" variant="outlined">{u.role?.toUpperCase()}</Chip></td>
+                                    <td style={{ textAlign: 'right' }}>
                                         {isAdmin && (
-                                            <>
-                                                <IconButton color="primary" onClick={() => openEditUser(u)}><Edit /></IconButton>
-                                                {currentUser.username !== u.username && (
-                                                    <IconButton color="error" onClick={() => onRemoveUser(u.id)}><Delete /></IconButton>
+                                            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                                                <IconButton size="sm" color="primary" onClick={() => openEditUser(u)}><Edit /></IconButton>
+                                                {currentUser.id !== u.id && (
+                                                    <IconButton size="sm" color="danger" onClick={() => onRemoveUser(u.id)}><Delete /></IconButton>
                                                 )}
-                                            </>
+                                            </Box>
                                         )}
-                                    </TableCell>
-                                </TableRow>
+                                    </td>
+                                </tr>
                             ))}
-                        </TableBody>
+                        </tbody>
                     </Table>
-                </TableContainer>
-            </Box>
-          )}
+                  </Sheet>
+              </Box>
+            )}
 
-          {/* TAB 1: MAINTENANCE */}
-          {tab === 1 && (
-            <Box>
-                <Typography variant="h6" gutterBottom>Automated Backup Scheduler</Typography>
-                <Paper variant="outlined" sx={{ p: 3, mb: 4, borderRadius: 2 }}>
-                    <form onSubmit={(e) => {
-                        e.preventDefault();
-                        const data = Object.fromEntries(new FormData(e.currentTarget));
-                        onUpdateHousehold({
-                            auto_backup: data.auto_backup === 'on' ? 1 : 0,
-                            backup_retention: parseInt(data.backup_retention)
-                        });
-                    }}>
-                        <Grid container spacing={3} alignItems="center">
-                            <Grid item xs={12} md={4}>
-                                <FormControlLabel
-                                    control={<Switch name="auto_backup" defaultChecked={Boolean(household?.auto_backup)} />}
-                                    label="Enable Nightly Backups"
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={4}>
-                                <TextField 
-                                    name="backup_retention" 
-                                    label="Retention (Days)" 
-                                    type="number" 
-                                    size="small"
-                                    defaultValue={household?.backup_retention || 7} 
-                                    fullWidth
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={4}>
-                                <Button type="submit" variant="outlined" fullWidth startIcon={<Schedule />}>Update Schedule</Button>
-                            </Grid>
-                        </Grid>
-                    </form>
-                </Paper>
+            {/* TAB 1: MAINTENANCE */}
+            {tab === 1 && (
+              <Box>
+                  <Typography level="h4" mb={2}>Automated Backup Scheduler</Typography>
+                  <Sheet variant="outlined" sx={{ p: 3, mb: 4, borderRadius: 'md' }}>
+                      <form onSubmit={(e) => {
+                          e.preventDefault();
+                          const data = Object.fromEntries(new FormData(e.currentTarget));
+                          onUpdateHousehold({
+                              auto_backup: data.auto_backup === 'on' ? 1 : 0,
+                              backup_retention: parseInt(data.backup_retention)
+                          });
+                      }}>
+                          <Grid container spacing={3} alignItems="center">
+                              <Grid xs={12} md={4}>
+                                  <FormControl orientation="horizontal" sx={{ gap: 1 }}>
+                                      <Switch name="auto_backup" defaultChecked={Boolean(household?.auto_backup)} />
+                                      <FormLabel>Enable Nightly Backups</FormLabel>
+                                  </FormControl>
+                              </Grid>
+                              <Grid xs={12} md={4}>
+                                  <FormControl>
+                                    <FormLabel>Retention (Days)</FormLabel>
+                                    <Input 
+                                        name="backup_retention" 
+                                        type="number" 
+                                        defaultValue={household?.backup_retention || 7} 
+                                    />
+                                  </FormControl>
+                              </Grid>
+                              <Grid xs={12} md={4}>
+                                  <Button type="submit" variant="outlined" fullWidth startDecorator={<Schedule />}>Update Schedule</Button>
+                              </Grid>
+                          </Grid>
+                      </form>
+                  </Sheet>
 
-                <Typography variant="h6" gutterBottom>Manual Backup & Export</Typography>
-                <Alert severity="info" sx={{ mb: 3 }}>Backups are stored securely on the server. You can download your entire database at any time.</Alert>
-                
-                <Stack spacing={3}>
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                        <Button variant="contained" startIcon={<Backup />} onClick={handleCreateBackup}>Create Manual Backup</Button>
-                        <Button variant="outlined" startIcon={<CloudDownload />} onClick={handleDownloadRawDb}>Download Live Database (.db)</Button>
-                    </Box>
-
-                    <Divider />
-                    
-                    <Typography variant="subtitle1" fontWeight="bold">Recent Backups</Typography>
-                    {backupLoading ? <LinearProgress /> : (
-                        <List>
-                            {backups.map(b => (
-                                <ListItem key={b.filename} divider>
-                                    <ListItemText primary={b.filename} secondary={`${(b.size / 1024).toFixed(1)} KB - ${b.date}`} />
-                                    <Stack direction="row" spacing={1}>
-                                        <Tooltip title="Download"><IconButton onClick={() => handleDownload(b.filename)}><Download /></IconButton></Tooltip>
-                                        <Tooltip title="Restore"><IconButton color="warning" onClick={() => handleRestore(b.filename)}><Restore /></IconButton></Tooltip>
-                                    </Stack>
-                                </ListItem>
-                            ))}
-                            {backups.length === 0 && <Typography variant="body2" color="text.secondary">No backups found.</Typography>}
-                        </List>
-                    )}
-                </Stack>
-            </Box>
-          )}
-
-          {/* TAB 2: APPEARANCE */}
-          {tab === 2 && (
-            <Box>
-                <Typography variant="h6" gutterBottom>System Theme</Typography>
-                <Stack spacing={4}>
-                    <Box>
-                        <Typography variant="subtitle2" color="text.secondary" gutterBottom>Mode</Typography>
-                        <ToggleButtonGroup value={currentMode} exclusive onChange={(e, v) => v && onModeChange(v)}>
-                            <ToggleButton value="light"><LightMode sx={{ mr: 1 }} /> Light</ToggleButton>
-                            <ToggleButton value="dark"><DarkMode sx={{ mr: 1 }} /> Dark</ToggleButton>
-                            <ToggleButton value="system"><SettingsBrightness sx={{ mr: 1 }} /> System</ToggleButton>
-                        </ToggleButtonGroup>
-                    </Box>
-
-                    <Box>
-                        <FormControlLabel
-                            control={<Switch checked={useDracula} onChange={(e) => onDraculaChange(e.target.checked)} />}
-                            label={
-                                <Box>
-                                    <Typography variant="body1">Enable Dracula Palette</Typography>
-                                    <Typography variant="caption" color="text.secondary">Use high-contrast purple and pink tones for Dark Mode</Typography>
-                                </Box>
-                            }
-                        />
-                    </Box>
-                </Stack>
-            </Box>
-          )}
-        </Box>
-      </Paper>
-
-      {/* USER DIALOG */}
-      <Dialog open={userDialogOpen} onClose={() => { setUserDialogOpen(false); setEditUser(null); }} fullWidth maxWidth="sm">
-        <form onSubmit={handleUserSubmit}>
-            <DialogTitle>{editUser ? 'Edit User' : 'Add Local User'}</DialogTitle>
-            <DialogContent dividers>
-                <Grid container spacing={2} sx={{ mt: 1 }}>
-                    <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-                      <Box 
-                        sx={{ 
-                          width: 64, height: 64, borderRadius: '50%', 
-                          bgcolor: getEmojiColor(selectedUserEmoji, isDark),
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: '2rem', cursor: 'pointer', border: '2px solid', borderColor: 'primary.main'
-                        }}
-                        onClick={() => setEmojiPickerOpen(true)}
-                      >
-                        {selectedUserEmoji}
+                  <Typography level="h4" mb={2}>Manual Backup & Export</Typography>
+                  <Alert color="info" sx={{ mb: 3 }}>Backups are stored securely on the server. You can download your entire database at any time.</Alert>
+                  
+                  <Stack spacing={3}>
+                      <Box sx={{ display: 'flex', gap: 2 }}>
+                          <Button variant="solid" startDecorator={<Backup />} onClick={handleCreateBackup}>Create Manual Backup</Button>
+                          <Button variant="outlined" startDecorator={<CloudDownload />} onClick={handleDownloadRawDb}>Download Live Database (.db)</Button>
                       </Box>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                      <TextField name="username" label="Username" defaultValue={editUser?.username} fullWidth required />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                      <FormControl fullWidth>
-                          <InputLabel>Role</InputLabel>
-                          <Select name="role" defaultValue={editUser?.role || "member"} label="Role">
-                              <MenuItem value="admin">Admin (Full Access)</MenuItem>
-                              <MenuItem value="member">Member (Read/Write)</MenuItem>
-                              <MenuItem value="viewer">Viewer (Read-Only)</MenuItem>
-                          </Select>
-                      </FormControl>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                      <TextField name="first_name" label="First Name" defaultValue={editUser?.first_name} fullWidth />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                      <TextField name="last_name" label="Last Name" defaultValue={editUser?.last_name} fullWidth />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <TextField name="email" label="Email Address" defaultValue={editUser?.email} fullWidth />
-                    </Grid>
-                    {!editUser && (
-                      <Grid item xs={12}>
-                        <TextField name="password" label="Password" type="password" fullWidth required />
-                      </Grid>
-                    )}
-                    {editUser && (
-                      <Grid item xs={12}>
-                        <TextField name="password" label="New Password" type="password" fullWidth placeholder="Leave blank to keep current" />
-                      </Grid>
-                    )}
-                </Grid>
+
+                      <Divider />
+                      
+                      <Typography level="title-lg">Recent Backups</Typography>
+                      {backupLoading ? <LinearProgress /> : (
+                          <List variant="outlined" sx={{ borderRadius: 'sm' }}>
+                              {backups.map((b, i) => (
+                                  <Box key={b.filename}>
+                                      <ListItem endAction={
+                                          <Stack direction="row" spacing={1}>
+                                              <Tooltip title="Download" variant="soft"><IconButton size="sm" onClick={() => handleDownload(b.filename)}><Download /></IconButton></Tooltip>
+                                              <Tooltip title="Restore" variant="soft"><IconButton size="sm" color="warning" onClick={() => handleRestore(b.filename)}><Restore /></IconButton></Tooltip>
+                                          </Stack>
+                                      }>
+                                          <ListItemContent>
+                                              <Typography level="title-sm">{b.filename}</Typography>
+                                              <Typography level="body-xs">{(b.size / 1024).toFixed(1)} KB - {b.date}</Typography>
+                                          </ListItemContent>
+                                      </ListItem>
+                                      {i < backups.length - 1 && <Divider />}
+                                  </Box>
+                              ))}
+                              {backups.length === 0 && <ListItem><ListItemContent>No backups found.</ListItemContent></ListItem>}
+                          </List>
+                      )}
+                  </Stack>
+              </Box>
+            )}
+
+            {/* TAB 2: APPEARANCE */}
+            {tab === 2 && (
+              <Box>
+                  <Typography level="h4" mb={2}>System Theme</Typography>
+                  <Stack spacing={4}>
+                      <Box>
+                          <Typography level="title-md" mb={1}>Mode</Typography>
+                          <ButtonGroup variant="soft" color="primary" spacing={0.5}>
+                              <Button 
+                                variant={currentMode === 'light' ? 'solid' : 'soft'} 
+                                onClick={() => onModeChange('light')}
+                                startDecorator={<LightMode />}
+                              >Light</Button>
+                              <Button 
+                                variant={currentMode === 'dark' ? 'solid' : 'soft'} 
+                                onClick={() => onModeChange('dark')}
+                                startDecorator={<DarkMode />}
+                              >Dark</Button>
+                              <Button 
+                                variant={currentMode === 'system' ? 'solid' : 'soft'} 
+                                onClick={() => onModeChange('system')}
+                                startDecorator={<SettingsBrightness />}
+                              >System</Button>
+                          </ButtonGroup>
+                      </Box>
+
+                      <Box>
+                          <FormControl orientation="horizontal" sx={{ gap: 2, alignItems: 'center' }}>
+                              <Switch checked={useDracula} onChange={(e) => onDraculaChange(e.target.checked)} />
+                              <Box>
+                                  <Typography level="title-md">Enable Dracula Palette</Typography>
+                                  <Typography level="body-sm">Use high-contrast purple and pink tones</Typography>
+                              </Box>
+                          </FormControl>
+                      </Box>
+                  </Stack>
+              </Box>
+            )}
+          </Box>
+        </Tabs>
+      </Sheet>
+
+      {/* USER MODAL */}
+      <Modal open={userDialogOpen} onClose={() => { setUserDialogOpen(false); setEditUser(null); }}>
+        <ModalDialog sx={{ maxWidth: 500, width: '100%' }}>
+            <DialogTitle>{editUser ? 'Edit User' : 'Invite User'}</DialogTitle>
+            <DialogContent>
+                <form onSubmit={handleUserSubmit}>
+                    <Stack spacing={2} sx={{ mt: 1 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+                          <Box 
+                            sx={{ 
+                              width: 64, height: 64, borderRadius: '50%', 
+                              bgcolor: getEmojiColor(selectedUserEmoji, isDark),
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontSize: '2rem', cursor: 'pointer', border: '2px solid', borderColor: 'primary.solidBg'
+                            }}
+                            onClick={() => setEmojiPickerOpen(true)}
+                          >
+                            {selectedUserEmoji}
+                          </Box>
+                        </Box>
+                        
+                        <Stack direction="row" spacing={2}>
+                            <FormControl required sx={{ flex: 1 }}>
+                                <FormLabel>First Name</FormLabel>
+                                <Input name="first_name" defaultValue={editUser?.first_name} />
+                            </FormControl>
+                            <FormControl required sx={{ flex: 1 }}>
+                                <FormLabel>Last Name</FormLabel>
+                                <Input name="last_name" defaultValue={editUser?.last_name} />
+                            </FormControl>
+                        </Stack>
+                        
+                        <FormControl required>
+                            <FormLabel>Email Address</FormLabel>
+                            <Input name="email" defaultValue={editUser?.email} />
+                        </FormControl>
+
+                        <FormControl required>
+                            <FormLabel>Role</FormLabel>
+                            <Select name="role" defaultValue={editUser?.role || "member"}>
+                                <Option value="admin">Admin (Full Access)</Option>
+                                <Option value="member">Member (Read/Write)</Option>
+                                <Option value="viewer">Viewer (Read-Only)</Option>
+                            </Select>
+                        </FormControl>
+                        
+                        <FormControl>
+                            <FormLabel>{editUser ? 'New Password (Optional)' : 'Initial Password (Optional)'}</FormLabel>
+                            <Input name="password" type="password" placeholder="Leave blank to auto-generate/keep" />
+                        </FormControl>
+
+                        <DialogActions>
+                            <Button variant="plain" color="neutral" onClick={() => { setUserDialogOpen(false); setEditUser(null); }}>Cancel</Button>
+                            <Button type="submit" variant="solid">{editUser ? 'Save Changes' : 'Invite User'}</Button>
+                        </DialogActions>
+                    </Stack>
+                </form>
             </DialogContent>
-            <DialogActions>
-                <Button onClick={() => { setUserDialogOpen(false); setEditUser(null); }}>Cancel</Button>
-                <Button type="submit" variant="contained">{editUser ? 'Save Changes' : 'Create User'}</Button>
-            </DialogActions>
-        </form>
-      </Dialog>
+        </ModalDialog>
+      </Modal>
 
       <EmojiPicker 
         open={emojiPickerOpen} 

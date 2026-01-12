@@ -9,13 +9,15 @@ describe('Household Project API Integration Suite (Intense + Renaming)', () => {
     // Household Data
     let householdId = null;
     let accessKey = '';
-    const householdName = `Intense Test Manor ${Date.now()}`;
-    const initialAdmin = { username: 'AdminOwner', password: 'password123' };
+    const uniqueId = Date.now();
+    const householdName = `Intense Test Manor ${uniqueId}`;
+    // Use Email for Admin
+    const initialAdmin = { username: 'AdminOwner', email: `AdminOwner_${uniqueId}@example.com`, password: 'password123' };
 
     // Users to Create & Test
     let users = {
-        member: { id: null, token: '', creds: { username: 'TestMember', password: 'password123', role: 'member' } },
-        viewer: { id: null, token: '', creds: { username: 'TestViewer', password: 'password123', role: 'viewer' } }
+        member: { id: null, token: '', creds: { username: 'TestMember', email: `TestMember_${uniqueId}@example.com`, password: 'password123', role: 'member' } },
+        viewer: { id: null, token: '', creds: { username: 'TestViewer', email: `TestViewer_${uniqueId}@example.com`, password: 'password123', role: 'viewer' } }
     };
     let localAdminToken = ''; // For AdminOwner
 
@@ -45,13 +47,16 @@ describe('Household Project API Integration Suite (Intense + Renaming)', () => {
     // =========================================================================
     describe('1. System Administration', () => {
         it('should login as SysAdmin', async () => {
+            // SysAdmin uses email in bootstrap? No, bootstrap inserts 'superuser' as username and 'super@totem.local' as email.
+            // Check auth.js: "SELECT * FROM users WHERE email = ?". 
+            // So we must use 'super@totem.local' to login.
             const res = await request(app)
                 .post('/auth/login')
-                .send({ username: 'superuser', password: 'superpassword' });
+                .send({ email: 'super@totem.local', password: 'superpassword' });
             
             sysAdminToken = res.body.token;
             expect(res.statusCode).toBe(200);
-            expect(res.body.role).toBe('sysadmin');
+            expect(res.body.system_role).toBe('sysadmin');
             logToReport('SysAdmin Login', '/auth/login', '✅ Success');
         });
 
@@ -61,7 +66,8 @@ describe('Household Project API Integration Suite (Intense + Renaming)', () => {
                 .set('Authorization', `Bearer ${sysAdminToken}`)
                 .send({
                     name: householdName,
-                    adminUsername: initialAdmin.username,
+                    adminUsername: initialAdmin.username, // Legacy field supported by admin.js compat
+                    adminEmail: initialAdmin.email,       // New field
                     adminPassword: initialAdmin.password
                 });
             
@@ -91,28 +97,34 @@ describe('Household Project API Integration Suite (Intense + Renaming)', () => {
     });
 
     // =========================================================================
-    // 2. LOCAL USER MANAGEMENT
+    // 2. USER MANAGEMENT (SaaS Model)
     // =========================================================================
     describe('2. User Management (Roles & Renaming)', () => {
         it('should login as the Household Owner (Admin)', async () => {
             const res = await request(app)
                 .post('/auth/login')
                 .send({
-                    accessKey,
-                    username: initialAdmin.username,
+                    email: initialAdmin.email,
                     password: initialAdmin.password 
                 });
 
             localAdminToken = res.body.token;
             expect(res.statusCode).toBe(200);
+            expect(res.body.context).toBe('household');
             logToReport('Local Admin Login', '/auth/login', '✅ Success');
         });
 
-        it('should create a "Member" role user', async () => {
+        it('should create a "Member" role user via Admin', async () => {
+            // New flow: Local admin invites user via POST /households/:id/users
+            // Or SysAdmin uses POST /admin/create-user
+            // Let's use SysAdmin endpoint as originally intended by this test suite, but utilizing the updated logic
             const res = await request(app)
                 .post('/admin/create-user')
-                .set('Authorization', `Bearer ${localAdminToken}`)
-                .send({ ...users.member.creds, householdId });
+                .set('Authorization', `Bearer ${sysAdminToken}`) // Only SysAdmin can use global create-user now
+                .send({ 
+                    ...users.member.creds, 
+                    householdId 
+                });
             
             expect(res.statusCode).toBe(200);
             users.member.id = res.body.id;
@@ -120,17 +132,17 @@ describe('Household Project API Integration Suite (Intense + Renaming)', () => {
         });
 
         it('should RENAME the local user', async () => {
-            const newUsername = 'UpdatedMemberName';
+            const newName = 'UpdatedMemberName';
             const res = await request(app)
                 .put(`/admin/users/${users.member.id}`)
-                .set('Authorization', `Bearer ${localAdminToken}`)
+                .set('Authorization', `Bearer ${sysAdminToken}`)
                 .send({
-                    username: newUsername,
-                    householdId // Required by backend for routing
+                    username: newName, // Maps to first_name in updated admin.js
+                    householdId 
                 });
             
             expect(res.statusCode).toBe(200);
-            users.member.creds.username = newUsername; // Update for next tests
+            // We update the email expectation if logic changes, but admin.js just updates first_name for 'username'
             logToReport('Rename User', '/admin/users', '✅ Success');
         });
 
@@ -138,8 +150,7 @@ describe('Household Project API Integration Suite (Intense + Renaming)', () => {
             const res = await request(app)
                 .post('/auth/login')
                 .send({
-                    accessKey,
-                    username: users.member.creds.username,
+                    email: users.member.creds.email, // Login uses email
                     password: users.member.creds.password 
                 });
             
@@ -169,6 +180,7 @@ describe('Household Project API Integration Suite (Intense + Renaming)', () => {
                 .get(`/households/${householdId}/dates`)
                 .set('Authorization', `Bearer ${localAdminToken}`);
             
+            // Note: Updated logic might return object or array. Array expected.
             const bday = res.body.find(e => e.member_id === residents.adult.id && e.type === 'birthday');
             expect(bday).toBeDefined();
             expect(bday.title).toBe("Dad's Birthday");

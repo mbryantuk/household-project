@@ -2,11 +2,11 @@ import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Box, Typography, IconButton, Button, Menu, MenuItem, 
-  Pagination, Tooltip, Chip, Stack 
-} from '@mui/material';
+  Stack, Sheet, Tooltip
+} from '@mui/joy';
 import { 
-  Edit, Save, Add, Delete, Close, 
-  AddCircleOutline, RemoveCircleOutline 
+  Edit, Save, Add, Close, 
+  AddCircleOutline, RemoveCircleOutline, MoreVert
 } from '@mui/icons-material';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
@@ -165,8 +165,8 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
       {/* HEADER */}
       <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: '300', mb: 0.5 }}>
-            {greeting}, <Box component="span" sx={{ fontWeight: '700', color: 'primary.main' }}>{currentUser?.username || 'User'}</Box>
+          <Typography level="h2" fontWeight="300" mb={0.5}>
+            {greeting}, <Typography color="primary" fontWeight="lg">{currentUser?.username || 'User'}</Typography>
           </Typography>
         </Box>
         
@@ -176,8 +176,8 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
                     <Stack direction="row" spacing={1} sx={{ mr: 2 }}>
                         <Button 
                             variant="outlined" 
-                            size="small"
-                            startIcon={<AddCircleOutline />} 
+                            size="sm"
+                            startDecorator={<AddCircleOutline />} 
                             onClick={handleAddPage}
                         >
                             Add Page
@@ -185,9 +185,9 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
                         {totalPages > 1 && (
                             <Button 
                                 variant="outlined" 
-                                size="small"
-                                color="error"
-                                startIcon={<RemoveCircleOutline />} 
+                                size="sm"
+                                color="danger"
+                                startDecorator={<RemoveCircleOutline />} 
                                 onClick={handleRemovePage}
                             >
                                 Remove Page
@@ -196,15 +196,15 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
                     </Stack>
                     <Button 
                         variant="outlined" 
-                        startIcon={<Add />} 
+                        startDecorator={<Add />} 
                         onClick={(e) => setAddWidgetAnchor(e.currentTarget)}
                     >
                         Add Widget
                     </Button>
                     <Button 
-                        variant="contained" 
+                        variant="solid" 
                         color="primary" 
-                        startIcon={<Save />} 
+                        startDecorator={<Save />} 
                         onClick={handleSave}
                     >
                         Done
@@ -212,8 +212,8 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
                 </>
             ) : (
                 <Button 
-                    variant="text" 
-                    startIcon={<Edit />} 
+                    variant="plain" 
+                    startDecorator={<Edit />} 
                     onClick={() => setIsEditing(true)}
                 >
                     Edit Dashboard
@@ -222,19 +222,21 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
         </Box>
       </Box>
 
-      {/* PAGE SWITCHER (Top of Widgets) */}
+      {/* PAGE SWITCHER (Top of Widgets) - Using simple Button Group as Joy Pagination is WIP or basic */}
       {totalPages > 1 && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-            <Pagination 
-                count={totalPages} 
-                page={page} 
-                onChange={(e, v) => setPage(v)} 
-                color="primary" 
-                size="large"
-                variant="outlined"
-                shape="rounded"
-            />
-        </Box>
+        <Stack direction="row" justifyContent="center" spacing={1} mb={3}>
+             {Object.keys(layouts).map(pageNum => (
+                 <Button 
+                    key={pageNum}
+                    size="sm"
+                    variant={parseInt(pageNum) === page ? 'solid' : 'outlined'}
+                    color={parseInt(pageNum) === page ? 'primary' : 'neutral'}
+                    onClick={() => setPage(parseInt(pageNum))}
+                 >
+                    {pageNum}
+                 </Button>
+             ))}
+        </Stack>
       )}
 
       {/* GRID */}
@@ -258,11 +260,13 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
                         {isEditing && (
                             <Box sx={{ position: 'absolute', top: -10, right: -10, zIndex: 10 }}>
                                 <IconButton 
-                                    size="small" 
-                                    sx={{ bgcolor: 'error.main', color: 'white', '&:hover': { bgcolor: 'error.dark' } }}
+                                    size="sm" 
+                                    variant="solid"
+                                    color="danger"
                                     onClick={() => handleRemoveWidget(item.i)}
+                                    sx={{ borderRadius: '50%', boxShadow: 'sm' }}
                                 >
-                                    <Close fontSize="small" />
+                                    <Close />
                                 </IconButton>
                             </Box>
                         )}
@@ -272,7 +276,7 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
                                 {WidgetComponent ? (
                                     <WidgetComponent dates={dates} members={members} />
                                 ) : (
-                                    <Typography color="error">Unknown Widget</Typography>
+                                    <Typography color="danger">Unknown Widget</Typography>
                                 )}
                             </Box>
                         </Box>
@@ -284,14 +288,20 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
 
       {/* EMPTY STATE */}
       {currentItems.length === 0 && (
-          <Box sx={{ textAlign: 'center', py: 8, color: 'text.secondary', border: '2px dashed', borderColor: 'divider', borderRadius: 4, mt: 2 }}>
-              <Typography variant="h6">This page is empty.</Typography>
+          <Sheet 
+            variant="outlined" 
+            sx={{ 
+                textAlign: 'center', py: 8, mt: 2,
+                borderRadius: 'lg', borderStyle: 'dashed' 
+            }}
+          >
+              <Typography level="title-lg" mb={1}>This page is empty.</Typography>
               {isEditing ? (
-                  <Button sx={{ mt: 2 }} variant="contained" startIcon={<Add />} onClick={(e) => setAddWidgetAnchor(e.currentTarget)}>Add a widget</Button>
+                  <Button variant="solid" startDecorator={<Add />} onClick={(e) => setAddWidgetAnchor(e.currentTarget)}>Add a widget</Button>
               ) : (
-                  <Typography variant="body2">Click "Edit Dashboard" to add widgets here.</Typography>
+                  <Typography level="body-md">Click "Edit Dashboard" to add widgets here.</Typography>
               )}
-          </Box>
+          </Sheet>
       )}
 
       {/* ADD MENU */}
@@ -299,6 +309,7 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
         anchorEl={addWidgetAnchor}
         open={Boolean(addWidgetAnchor)}
         onClose={() => setAddWidgetAnchor(null)}
+        placement="bottom-end"
       >
         {Object.entries(WIDGET_TYPES).map(([key, config]) => (
             <MenuItem key={key} onClick={() => handleAddWidget(key)}>
