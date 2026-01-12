@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, TabPanel, Input, Grid, 
@@ -7,6 +7,12 @@ import {
   Stack, Tooltip, Switch, LinearProgress, List, ListItem, ListItemContent, ListItemDecorator, 
   Alert, Divider
 } from '@mui/joy';
+import { 
+  ManageAccounts, Backup, SettingsBrightness, PersonAdd, Edit, Delete, 
+  Schedule, CloudDownload, Download, Restore, LightMode, DarkMode 
+} from '@mui/icons-material';
+import EmojiPicker from '../components/EmojiPicker';
+import { getEmojiColor } from '../theme';
 
 export default function SettingsView({
   household, users, currentUser, api, onUpdateHousehold, 
@@ -15,7 +21,7 @@ export default function SettingsView({
   showNotification, confirmAction
 }) {
   const navigate = useNavigate();
-  const [tab, setTab] = useState(0);  // Theme context is now handled via Joy's CssVarsProvider in App.jsx, but we might need explicit checks if logic depends on it
+  const [tab, setTab] = useState(0);
   const isDark = currentMode === 'dark' || (currentMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   
   const [backups, setBackups] = useState([]);
@@ -41,7 +47,7 @@ export default function SettingsView({
   }, [api, household?.id, isAdmin]);
 
   useEffect(() => {
-    if (tab === 1) fetchBackups(); // Tab 1 is now Maintenance
+    if (tab === 1) fetchBackups();
   }, [tab, fetchBackups]);
 
   const handleCreateBackup = async () => {
@@ -124,7 +130,6 @@ export default function SettingsView({
           </TabList>
 
           <Box sx={{ p: 3 }}>
-            {/* TAB 0: USERS */}
             {tab === 0 && (
               <Box>
                   <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -171,7 +176,6 @@ export default function SettingsView({
               </Box>
             )}
 
-            {/* TAB 1: MAINTENANCE */}
             {tab === 1 && (
               <Box>
                   <Typography level="h4" mb={2}>Automated Backup Scheduler</Typography>
@@ -245,7 +249,6 @@ export default function SettingsView({
               </Box>
             )}
 
-            {/* TAB 2: APPEARANCE */}
             {tab === 2 && (
               <Box>
                   <Typography level="h4" mb={2}>System Theme</Typography>
@@ -287,7 +290,6 @@ export default function SettingsView({
         </Tabs>
       </Sheet>
 
-      {/* USER MODAL */}
       <Modal open={userDialogOpen} onClose={() => { setUserDialogOpen(false); setEditUser(null); }}>
         <ModalDialog sx={{ maxWidth: 500, width: '100%' }}>
             <DialogTitle>{editUser ? 'Edit User' : 'Invite User'}</DialogTitle>

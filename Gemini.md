@@ -5,6 +5,16 @@
 
 ---
 
+## 00. AGENT BEHAVIOR (CLI OPTIMIZATION)
+*These rules prevent CLI freezing and looping.*
+
+1.  **NO PLANS:** Do not say "I will run..." or describe what you are going to do. Just do it.
+2.  **NO FAKE TOOLS:** You cannot execute terminal commands. If you need a command run, ask the USER to run it and paste the output.
+3.  **DIRECT CODE:** When modifying files, output the full corrected file content immediately. Do not wait for approval.
+4.  **MAXIMIZE OUTPUT:** Always write as much code/text as possible in a single turn. Do not stop until the task is complete or you hit the hard token limit.
+
+---
+
 ## 0. THE PRIME DIRECTIVES (NON-NEGOTIABLE)
 
 1.  **The Tenancy Rule:**

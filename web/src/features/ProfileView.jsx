@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Button, Input, FormControl, FormLabel, 
@@ -13,7 +13,7 @@ import { getEmojiColor } from '../theme';
 export default function ProfileView() {
   const { userId } = useParams();
   const navigate = useNavigate();
-  const { api, user: currentUser, showNotification, fetchVehicles } = useOutletContext();
+  const { api, user: currentUser, showNotification } = useOutletContext();
   
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -33,7 +33,6 @@ export default function ProfileView() {
     const fetchUser = async () => {
       try {
         setLoading(true);
-        // If it's the current user, we can use the context user initially
         if (isMe) {
           setFormData({
             first_name: currentUser.first_name || '',
@@ -44,7 +43,6 @@ export default function ProfileView() {
           });
         }
         
-        // Always fetch fresh data
         const res = await api.get(isMe ? '/auth/profile' : `/admin/users/${targetId}`);
         const u = res.data;
         setFormData({
@@ -72,8 +70,6 @@ export default function ProfileView() {
       if (isMe) {
         await api.put('/auth/profile', updates);
         showNotification("Your profile has been updated.", "success");
-        // We might need to refresh the global user state here, 
-        // but App.jsx handles it if we trigger a refresh or it pulls from API next time.
       } else {
         await api.put(`/admin/users/${targetId}`, updates);
         showNotification("User updated successfully.", "success");
@@ -102,7 +98,6 @@ export default function ProfileView() {
 
         <form onSubmit={handleSubmit}>
           <Stack spacing={4}>
-            {/* Avatar Selection */}
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
               <Box 
                 sx={{ 
