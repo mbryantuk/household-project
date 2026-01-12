@@ -60,7 +60,6 @@ export default function NavSidebar({
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     const updates = {
-      username: form.get('username'),
       first_name: form.get('first_name'),
       last_name: form.get('last_name'),
       email: form.get('email'),
@@ -158,9 +157,13 @@ export default function NavSidebar({
 
             <Box sx={{ flexGrow: 1 }} />
 
-            <Box sx={{ mt: 1, mb: 8 }}> {/* Added bottom margin for UtilityBar */}
+            <Box sx={{ mt: 'auto', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 8 }}>
+                <Divider sx={{ my: 1, width: '60%' }} />
                 <Avatar 
-                    onClick={(e) => setUserMenuAnchor(e.currentTarget)}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setUserMenuAnchor(e.currentTarget);
+                    }}
                     sx={{ cursor: 'pointer', bgcolor: getEmojiColor(user?.avatar || '?', isDark) }}
                 >
                     {user?.avatar || user?.username?.[0]}
@@ -233,7 +236,14 @@ export default function NavSidebar({
             </List>
         </Sheet>
 
-        <Menu anchorEl={userMenuAnchor} open={Boolean(userMenuAnchor)} onClose={() => setUserMenuAnchor(null)} placement="right-end" size="sm" sx={{ minWidth: 180, zIndex: 1300 }}>
+        <Menu 
+            anchorEl={userMenuAnchor} 
+            open={Boolean(userMenuAnchor)} 
+            onClose={() => setUserMenuAnchor(null)} 
+            placement="right-end" 
+            size="sm" 
+            sx={{ minWidth: 180, zIndex: 1500 }}
+        >
             <MenuItem onClick={openProfile}><Edit /> Edit Profile</MenuItem>
             <Divider />
             <MenuItem onClick={onLogout} color="danger"><Logout /> Logout</MenuItem>
@@ -248,11 +258,8 @@ export default function NavSidebar({
                     <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                        <Box sx={{ width: 80, height: 80, borderRadius: '50%', bgcolor: getEmojiColor(formData.avatar || '👤', isDark), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', cursor: 'pointer', border: '3px solid', borderColor: 'primary.solidBg' }} onClick={() => setEmojiPickerOpen(true)}>{formData.avatar || '👤'}</Box>
                     </Box>
-                    <FormControl required><FormLabel>Username</FormLabel><Input name="username" defaultValue={user?.username} /></FormControl>
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                        <FormControl sx={{ flex: 1 }}><FormLabel>First Name</FormLabel><Input name="first_name" defaultValue={user?.first_name} /></FormControl>
-                        <FormControl sx={{ flex: 1 }}><FormLabel>Last Name</FormLabel><Input name="last_name" defaultValue={user?.last_name} /></FormControl>
-                    </Box>
+                    <FormControl required><FormLabel>First Name</FormLabel><Input name="first_name" defaultValue={user?.first_name} /></FormControl>
+                    <FormControl required><FormLabel>Last Name</FormLabel><Input name="last_name" defaultValue={user?.last_name} /></FormControl>
                     <FormControl><FormLabel>Email</FormLabel><Input name="email" defaultValue={user?.email} /></FormControl>
                     <FormControl><FormLabel>New Password</FormLabel><Input name="password" type="password" placeholder="Leave blank to keep current" /></FormControl>
                     <DialogActions>
