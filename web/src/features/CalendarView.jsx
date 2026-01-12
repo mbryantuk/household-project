@@ -194,27 +194,35 @@ export default function CalendarView({ showNotification }) {
           end: endDate,
         });
       } else {
-        let currentStart = startDate;
-        let currentEnd = endDate;
+        let currentStart = new Date(startDate);
+        let currentEnd = new Date(endDate);
         const duration = currentEnd.getTime() - currentStart.getTime();
 
-        while (isValid(currentStart) && isBefore(currentStart, recurEnd) && isBefore(currentStart, limitDate)) {
-           // Create instance
+        // Safety break to prevent infinite loops
+        let iterations = 0;
+        const MAX_ITERATIONS = 1000;
+
+        while (isValid(currentStart) && isBefore(currentStart, recurEnd) && isBefore(currentStart, limitDate) && iterations < MAX_ITERATIONS) {
+           iterations++;
+           
+           // Calculate current end safely
+           const instanceEnd = new Date(currentStart.getTime() + (isNaN(duration) ? 0 : duration));
+
            expandedEvents.push({
              ...baseEvent,
-             id: `${d.id}_${currentStart.toISOString()}`, // Unique ID for instance
+             id: `${d.id}_${currentStart.toISOString()}`,
              start: new Date(currentStart),
-             end: new Date(currentStart.getTime() + duration),
-             originalId: d.id // Link back to parent
+             end: instanceEnd,
+             originalId: d.id
            });
 
-           // Advance
+           // Advance safely
            switch (d.recurrence) {
              case 'daily': currentStart = addDays(currentStart, 1); break;
              case 'weekly': currentStart = addWeeks(currentStart, 1); break;
              case 'monthly': currentStart = addMonths(currentStart, 1); break;
              case 'yearly': currentStart = addYears(currentStart, 1); break;
-             default: currentStart = addYears(currentStart, 100); // Break loop
+             default: currentStart = addYears(currentStart, 100); 
            }
         }
       }
@@ -242,14 +250,12 @@ export default function CalendarView({ showNotification }) {
   const handleSelectEvent = (event) => {
     const original = event.resource;
     if (original.type === 'holiday' || original.type === 'cost') {
-        // Read-only or handled elsewhere
         if (showNotification) showNotification(`${original.title}: ${original.description || ''}`, "info");
         return;
     }
 
     setEditingEvent({
         ...original,
-        // Ensure dates are strings for inputs
         date: original.date ? original.date.split('T')[0] : '', 
         end_date: original.end_date ? original.end_date.split('T')[0] : (original.date ? original.date.split('T')[0] : '')
     });
@@ -264,7 +270,6 @@ export default function CalendarView({ showNotification }) {
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     
-    // Formatting
     data.emoji = selectedEmoji;
     data.is_all_day = isAllDay ? 1 : 0;
     data.recurrence = recurrence;
@@ -309,7 +314,6 @@ export default function CalendarView({ showNotification }) {
   return (
     <Box sx={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column' }}>
       
-      {/* CUSTOM TOOLBAR */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 2 }}>
         <Typography level="h2" fontWeight="300">Calendar</Typography>
         
@@ -390,7 +394,6 @@ export default function CalendarView({ showNotification }) {
         )}
       </Sheet>
 
-      {/* ADD/EDIT DIALOG */}
       <Modal open={open} onClose={() => setOpen(false)}>
         <ModalDialog sx={{ maxWidth: 500, width: '100%', p: 0 }}>
             <DialogTitle sx={{ p: 2, pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -402,7 +405,6 @@ export default function CalendarView({ showNotification }) {
                 <form onSubmit={handleFormSubmit}>
                     <Stack spacing={2}>
                         
-                        {/* Header: Emoji & Title */}
                         <Box sx={{ display: 'flex', gap: 2 }}>
                             <Tooltip title="Pick an emoji" variant="soft">
                                 <IconButton 
@@ -419,7 +421,6 @@ export default function CalendarView({ showNotification }) {
                             </FormControl>
                         </Box>
 
-                        {/* Date & Time */}
                         <Grid container spacing={2}>
                             <Grid xs={12}>
                                 <FormControl orientation="horizontal" sx={{ gap: 1 }}>
@@ -449,7 +450,6 @@ export default function CalendarView({ showNotification }) {
                             </Grid>
                         </Grid>
 
-                        {/* Type & Recurrence */}
                         <Grid container spacing={2}>
                             <Grid xs={6}>
                                 <FormControl>

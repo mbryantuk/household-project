@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { useOutletContext } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Sheet, Button, 
   IconButton, Chip, Modal, ModalDialog, DialogTitle, DialogContent, 
   DialogActions, Input, List, ListItem, ListItemContent, 
-  Divider, Table, CircularProgress, Tooltip, Stack, FormControl, FormLabel
+  Divider, Table, Tooltip, Stack, FormControl, FormLabel
 } from '@mui/joy';
 import { 
   Add, Delete, Key, AddHome, 
@@ -12,6 +11,7 @@ import {
 } from '@mui/icons-material';
 
 export default function AccessControl({
+  api, // Use prop instead of context
   users, 
   currentUser,
   households, 
@@ -21,8 +21,6 @@ export default function AccessControl({
   showNotification,
   confirmAction
 }) {
-  const { api } = useOutletContext();
-  
   // Household Creation State
   const [openAddHouse, setOpenAddHouse] = useState(false);
   const [newHouse, setNewHouse] = useState({ name: '', adminUsername: 'Admin', adminPassword: '' });
@@ -35,6 +33,7 @@ export default function AccessControl({
   const isSysAdmin = currentUser?.role === 'sysadmin';
 
   const fetchBackups = useCallback(async () => {
+    if (!api) return;
     try {
       const res = await api.get('/admin/backups');
       setBackups(res.data);
@@ -167,7 +166,7 @@ export default function AccessControl({
                 </tr>
               </thead>
               <tbody>
-                {backups.map((b) => (
+                {backups && backups.map((b) => (
                   <tr key={b.filename}>
                     <td>{b.filename}</td>
                     <td>{new Date(b.created).toLocaleString()}</td>
@@ -188,7 +187,7 @@ export default function AccessControl({
                     </td>
                   </tr>
                 ))}
-                {backups.length === 0 && (
+                {(!backups || backups.length === 0) && (
                   <tr>
                     <td colSpan={4} style={{ textAlign: 'center', padding: '2rem', color: 'gray' }}>No system backups found.</td>
                   </tr>

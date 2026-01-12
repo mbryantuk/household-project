@@ -298,11 +298,12 @@ function AppInner({ useDracula, setUseDracula }) {
           </Box>
         } />
         
-        <Route element={token ? <RootLayout /> : <Navigate to="/login" />}>
+        <Route element={token ? <RootLayout context={{ api: authAxios, user, showNotification, confirmAction }} /> : <Navigate to="/login" />}>
 
           <Route index element={household ? <Navigate to={`/household/${household.id}/dashboard`} /> : <Navigate to="/access" />} />
 
           <Route path="access" element={<AccessControl 
+            api={authAxios}
             users={sysUsers}
             currentUser={user}
             households={households}
