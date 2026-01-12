@@ -382,6 +382,10 @@ function AppInner({ useDracula, setUseDracula }) {
         open={notification.open} autoHideDuration={4000} onClose={hideNotification}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         variant="soft" color={notification.severity}
+        sx={{ 
+          zIndex: 3000, 
+          bottom: '50px !important' // Above the 40px utility bar
+        }}
       >
         {notification.message}
       </Snackbar>

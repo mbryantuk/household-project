@@ -153,7 +153,7 @@ export default function UtilityBar({
                 />
             </WidgetWrapper>
 
-            <WidgetWrapper id="fincalc" label="Finance" icon={Savings} color="success" width={350}>
+            <WidgetWrapper id="fincalc" label="Finance" icon={Savings} color="success" width={525}>
                 <FinancialCalculator 
                     isDocked onClose={closeWidget} isDark={isDark}
                     onPopout={() => handlePopout('fincalc', '/fin-calculator-window')}

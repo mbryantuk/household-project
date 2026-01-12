@@ -35,14 +35,15 @@ export default function NavSidebar({
       else if (path.includes('/house/') || path.endsWith('/house')) setActiveCategory('house'); 
       else if (path.includes('/settings')) setActiveCategory('settings');
       else if (path.includes('/profile')) setActiveCategory('account');
-      else setActiveCategory(null); 
+      else if (path.includes('/dashboard')) setActiveCategory('dashboard');
+      else if (path.includes('/calendar')) setActiveCategory('calendar');
   }, [location.pathname]);
 
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
   const handleCategoryClick = (category, hasSubItems) => {
-      if (activeCategory === category) {
-          setActiveCategory(null);
+      if (activeCategory === category && !hasSubItems) {
+          // If it's a direct link and already active, do nothing or collapse
       } else {
           setActiveCategory(category);
       }
@@ -53,11 +54,14 @@ export default function NavSidebar({
           navigate(to);
           if (!hasSubItems && isMobile && onClose) onClose();
       }
-      handleCategoryClick(category, hasSubItems);
+      setActiveCategory(category);
   };
 
   const RailIcon = ({ icon, label, category, to, hasSubItems }) => {
-      const isActive = activeCategory === category || (to && location.pathname.includes(to));
+      // Logic: isActive if path matches OR category matches manually
+      const pathMatches = to && location.pathname.includes(to);
+      const categoryMatches = activeCategory === category;
+      const isActive = pathMatches || categoryMatches;
       
       if (isMobile) {
           return (
@@ -90,11 +94,15 @@ export default function NavSidebar({
                         py: 0.8, 
                         width: 52, // Slightly narrower
                         mx: 'auto',
-                        minHeight: 52
+                        minHeight: 52,
+                        '&.Mui-selected': {
+                            bgcolor: 'background.level1',
+                            color: 'primary.plainColor'
+                        }
                     }}
                 >
                     <ListItemDecorator sx={{ display: 'flex', justifyContent: 'center', m: 0, '& svg': { fontSize: '1.25rem' } }}>{icon}</ListItemDecorator>
-                    <Typography level="body-xs" sx={{ fontSize: '9px', fontWeight: '500' }}>{label}</Typography>
+                    <Typography level="body-xs" sx={{ fontSize: '9px', fontWeight: '500', color: 'inherit' }}>{label}</Typography>
                 </ListItemButton>
             </ListItem>
         </Tooltip>
@@ -118,6 +126,9 @@ export default function NavSidebar({
           </ListItemButton>
       </ListItem>
   );
+
+  // Determine if panel should actually be visible
+  const showPanel = activeCategory && ['people', 'pets', 'house', 'vehicles', 'settings', 'account'].includes(activeCategory);
 
   const sidebarContent = (
     <Box sx={{ display: 'flex', height: '100%' }}>
@@ -204,15 +215,15 @@ export default function NavSidebar({
             </Box>
         </Sheet>
 
-        {(!isMobile || activeCategory) && (
+        {(showPanel || (isMobile && activeCategory)) && (
             <Sheet
                 sx={{
-                    width: isMobile ? '100%' : (activeCategory ? PANEL_WIDTH : 0),
+                    width: isMobile ? '100%' : (showPanel ? PANEL_WIDTH : 0),
                     position: isMobile ? 'absolute' : 'relative',
                     left: isMobile ? 0 : 'auto',
                     top: 0,
                     zIndex: isMobile ? 2600 : 2100,
-                    borderRight: (activeCategory && !isMobile) ? '1px solid' : 'none',
+                    borderRight: (showPanel && !isMobile) ? '1px solid' : 'none',
                     borderColor: 'divider',
                     overflow: 'hidden',
                     transition: isMobile ? 'none' : 'width 0.2s',
@@ -228,7 +239,14 @@ export default function NavSidebar({
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                 }}>
                     <Typography level="title-md" textTransform="uppercase" letterSpacing="1px">{activeCategory}</Typography>
-                    <IconButton size="sm" variant="plain" color="neutral" onClick={() => setActiveCategory(null)}><ChevronLeft /></IconButton>
+                    <IconButton size="sm" variant="plain" color="neutral" onClick={() => {
+                        // When manually closing via Chevron, we don't clear activeCategory
+                        // We just toggle a local "hidden" state or rely on the showPanel logic
+                        // Re-evaluating: To keep the rail icon selected, we need activeCategory to persist.
+                        // But we want the panel to close.
+                        // Solution: Use a separate "expanded" state for the panel.
+                        setActiveCategory(null); // Simple way for now, Rail will re-sync from path
+                    }}><ChevronLeft /></IconButton>
                 </Box>
                 
                 <List sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>
