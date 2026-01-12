@@ -3,7 +3,7 @@ import axios from 'axios';
 import { 
   Box, CssVarsProvider, Button, 
   CircularProgress, Snackbar, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions,
-  GlobalStyles
+  GlobalStyles, useColorScheme
 } from '@mui/joy';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import CssBaseline from '@mui/joy/CssBaseline';
@@ -33,13 +33,16 @@ import VehiclesView from './features/VehiclesView';
 
 const API_URL = window.location.origin;
 
-function AppContent() {
-  const [modeOverride, setModeOverride] = useState(localStorage.getItem('themeMode') || 'system');
+function AppInner() {
+  const { mode, setMode, systemMode } = useColorScheme();
   const [useDracula, setUseDracula] = useState(() => localStorage.getItem('useDracula') !== 'false');
   
-  // Theme Construction
-  const theme = useMemo(() => getTotemTheme(useDracula), [useDracula]);
-  const { spec, isDark } = useMemo(() => getThemeSpec(modeOverride, useDracula), [modeOverride, useDracula]);
+  // Resolve effective mode for JS-side calculations (Dracula/Alucard specs)
+  const effectiveMode = mode === 'system' ? systemMode : mode;
+  // Ensure we have a valid mode before rendering to avoid hydration mismatch or flash
+  const isDark = (effectiveMode || 'light') === 'dark';
+
+  const { spec } = useMemo(() => getThemeSpec(effectiveMode || 'light', useDracula), [effectiveMode, useDracula]);
 
   // Auth & Data State
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -57,7 +60,6 @@ function AppContent() {
   const [hhDates, setHhDates] = useState([]);
 
   const [loading, setLoading] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const [installPrompt, setInstallPrompt] = useState(null);
   const [showUpdate, setShowUpdate] = useState(false);
   
@@ -256,13 +258,7 @@ function AppContent() {
   if (loading) return <Box sx={{display:'flex', justifyContent:'center', mt:10}}><CircularProgress /></Box>;
 
   return (
-    <CssVarsProvider 
-      theme={theme} 
-      defaultMode="system"
-      mode={modeOverride === 'system' ? undefined : modeOverride}
-      disableNestedContext
-    >
-      <CssBaseline />
+    <>
       <GlobalStyles styles={{
           '.rbc-calendar': { color: `${spec.foreground} !important`, fontFamily: 'var(--joy-fontFamily-body, sans-serif)' },
           '.rbc-off-range-bg': { backgroundColor: isDark ? 'rgba(0,0,0,0.2) !important' : 'rgba(0,0,0,0.05) !important' },
@@ -332,14 +328,13 @@ function AppContent() {
               showNotification={showNotification}
               confirmAction={confirmAction}
               
-              // New Props from TopBar Migration
               dates={hhDates}
               onDateAdded={() => household && fetchHhDates(household.id)}
               onUpdateProfile={handleUpdateProfile}
               onLogout={logout}
               onSwitchHousehold={() => {}} 
-              currentMode={modeOverride}
-              onModeChange={(m) => { setModeOverride(m); localStorage.setItem('themeMode', m); }}
+              currentMode={mode}
+              onModeChange={setMode} // Pass setMode directly from useColorScheme
               installPrompt={installPrompt}
               onInstall={handleInstallClick}
             />}>
@@ -357,7 +352,8 @@ function AppContent() {
                 onCreateUser={handleCreateUser} onUpdateUser={handleUpdateUser}
                 onRemoveUser={(userId) => authAxios.delete(`/households/${household.id}/users/${userId}`).then(() => fetchHhUsers(household.id))}
                 onManageAccess={() => {}}
-                currentMode={modeOverride} onModeChange={(m) => { setModeOverride(m); localStorage.setItem('themeMode', m); }}
+                currentMode={mode} 
+                onModeChange={setMode}
                 useDracula={useDracula} onDraculaChange={(v) => { setUseDracula(v); localStorage.setItem('useDracula', v); }}
                 members={hhMembers}
                 onAddMember={(e) => {
@@ -401,14 +397,24 @@ function AppContent() {
       >
         A new version of Totem is available!
       </Snackbar>
-    </CssVarsProvider>
+    </>
   );
 }
 
 export default function App() {
+  // Use Dracula by default for theme constuction
+  const theme = useMemo(() => getTotemTheme(true), []);
+
   return (
     <BrowserRouter>
-      <AppContent />
+      <CssVarsProvider 
+        theme={theme} 
+        defaultMode="system"
+        disableNestedContext
+      >
+        <CssBaseline />
+        <AppInner />
+      </CssVarsProvider>
     </BrowserRouter>
   );
 }
