@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { 
   Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, 
-  IconButton, Divider, Box, Avatar, Typography, Menu, MenuItem, Modal, ModalDialog, DialogTitle, DialogContent, FormControl, FormLabel, Input, Button, DialogActions, Tooltip
+  IconButton, Divider, Box, Avatar, Typography, Menu, MenuItem, Modal, ModalDialog, 
+  DialogTitle, DialogContent, FormControl, FormLabel, Input, Button, DialogActions, Tooltip,
+  Dropdown, MenuButton
 } from '@mui/joy';
 import { 
   Settings, Home as HomeIcon, Event, 
@@ -37,7 +39,6 @@ export default function NavSidebar({
       else setActiveCategory(null); 
   }, [location.pathname]);
 
-  const [userMenuAnchor, setUserMenuAnchor] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [formData, setFormData] = useState({ avatar: '' });
@@ -54,7 +55,6 @@ export default function NavSidebar({
   const openProfile = () => {
     setFormData({ avatar: user?.avatar || '' });
     setProfileOpen(true);
-    setUserMenuAnchor(null);
   };
 
   const handleProfileSubmit = async (e) => {
@@ -114,7 +114,7 @@ export default function NavSidebar({
   );
 
   return (
-    <Box sx={{ display: 'flex', height: '100%', zIndex: 1000, position: 'relative' }}>
+    <Box sx={{ display: 'flex', height: '100%', zIndex: 2500, position: 'relative' }}>
         <Sheet
             sx={{
                 width: RAIL_WIDTH,
@@ -172,15 +172,28 @@ export default function NavSidebar({
                     </Tooltip>
                 )}
                 <Divider sx={{ mb: 2, width: 40 }} />
-                <Avatar 
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        setUserMenuAnchor(e.currentTarget);
-                    }}
-                    sx={{ cursor: 'pointer', bgcolor: getEmojiColor(user?.avatar || '?', isDark), width: 40, height: 40 }}
-                >
-                    {user?.avatar || user?.username?.[0]}
-                </Avatar>
+                
+                <Dropdown>
+                    <MenuButton
+                        slots={{ root: IconButton }}
+                        slotProps={{ root: { variant: 'plain', color: 'neutral', sx: { p: 0, borderRadius: '50%', minWidth: 40, minHeight: 40 } } }}
+                    >
+                        <Avatar 
+                            sx={{ bgcolor: getEmojiColor(user?.avatar || '?', isDark), width: 40, height: 40 }}
+                        >
+                            {user?.avatar || user?.username?.[0]}
+                        </Avatar>
+                    </MenuButton>
+                    <Menu 
+                        placement="right-end" 
+                        size="sm" 
+                        sx={{ minWidth: 180, zIndex: 3000 }}
+                    >
+                        <MenuItem onClick={openProfile}><Edit /> Edit Profile</MenuItem>
+                        <Divider />
+                        <MenuItem onClick={onLogout} color="danger"><Logout /> Logout</MenuItem>
+                    </Menu>
+                </Dropdown>
             </Box>
         </Sheet>
 
@@ -259,21 +272,8 @@ export default function NavSidebar({
             </List>
         </Sheet>
 
-        <Menu 
-            anchorEl={userMenuAnchor} 
-            open={Boolean(userMenuAnchor)} 
-            onClose={() => setUserMenuAnchor(null)} 
-            placement="right-end" 
-            size="sm" 
-            sx={{ minWidth: 180, zIndex: 2100 }}
-        >
-            <MenuItem onClick={openProfile}><Edit /> Edit Profile</MenuItem>
-            <Divider />
-            <MenuItem onClick={onLogout} color="danger"><Logout /> Logout</MenuItem>
-        </Menu>
-
         <Modal open={profileOpen} onClose={() => setProfileOpen(false)}>
-          <ModalDialog sx={{ maxWidth: 500, width: '100%', zIndex: 2200 }}>
+          <ModalDialog sx={{ maxWidth: 500, width: '100%', zIndex: 3100 }}>
             <DialogTitle>Edit Profile</DialogTitle>
             <DialogContent>
               <form onSubmit={handleProfileSubmit}>
