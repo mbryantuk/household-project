@@ -56,17 +56,16 @@ cd ../server && npm start
 cd ../web && npm run dev
 ```
 
-## 🧪 Testing
+## 🧪 Testing & Verification
+The system includes a comprehensive multi-tier testing suite:
+1. **CRUD Isolation:** Verified in `server/tests/comprehensive_crud.test.js`. Covers all entities (Members, Assets, Vehicles, etc.) with strict tenant isolation.
+2. **Performance:** Benchmarked in `server/tests/performance.test.js`. Monitors API latency and concurrent load capacity.
+3. **Stress & Security:** Combinatorial role-based access control (RBAC) verification in `server/tests/stress_matrix.test.js`.
 
-Totem maintains high stability through rigorous integration and smoke testing.
-
-```bash
-# Run all backend and integration tests
-cd server && npm test
-
-# Run specific integration suite
-npx jest tests/api.test.js
-```
+**Commands:**
+- `npm test`: Run all core tests.
+- `npm run test:perf`: Run performance benchmarks.
+- `./deploy_verify.sh`: Full deployment, verification, and commit cycle.
 
 ## 🛡️ Security & Privacy
 *   **Global User Store:** Centralized user management with secure password hashing.

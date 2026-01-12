@@ -22,7 +22,6 @@ function requireHouseholdRole(requiredRole) {
 
         // 1. Check if user is logged into the target household
         // Support both :id and :hhId parameter names
-        // NOTE: For /households/:id/users/:userId, :id is the householdId
         const targetIdRaw = req.params.id || req.params.hhId || req.body.householdId;
         const targetHouseholdId = targetIdRaw ? parseInt(targetIdRaw) : null;
         const userHouseholdId = req.user.householdId ? parseInt(req.user.householdId) : null;

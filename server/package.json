@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "test": "jest --detectOpenHandles --forceExit"
+    "test": "jest --detectOpenHandles --forceExit",
+    "test:full": "jest --detectOpenHandles --forceExit --verbose",
+    "test:perf": "jest server/tests/performance.test.js --detectOpenHandles --forceExit"
   },
   "keywords": [],
   "author": "",

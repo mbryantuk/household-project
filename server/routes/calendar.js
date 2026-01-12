@@ -6,25 +6,32 @@ const { getBankHolidays, getPriorWorkingDay } = require('../services/bankHoliday
 
 // Middleware to init DB and Table
 const useTenantDb = (req, res, next) => {
-    const db = getHouseholdDb(req.params.id);
+    const hhId = req.params.id;
+    if (!hhId) return res.status(400).json({ error: "Household ID required" });
+    const db = getHouseholdDb(hhId);
     req.tenantDb = db;
+    req.hhId = hhId;
     next();
+};
+
+const closeDb = (req) => {
+    if (req.tenantDb) req.tenantDb.close();
 };
 
 // GET /households/:id/dates
 router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, async (req, res) => {
-    const householdId = req.params.id;
+    const householdId = req.hhId;
     const holidays = await getBankHolidays();
 
     req.tenantDb.all(`SELECT * FROM dates WHERE household_id = ? ORDER BY date ASC`, [householdId], (err, dates) => {
         if (err) {
-            req.tenantDb.close();
+            closeDb(req);
             return res.status(500).json({ error: err.message });
         }
 
         // Fetch recurring costs to also show on calendar
         req.tenantDb.all(`SELECT * FROM recurring_costs WHERE household_id = ?`, [householdId], (err, costs) => {
-            req.tenantDb.close();
+            closeDb(req);
             if (err) return res.status(500).json({ error: err.message });
 
             const combined = [...dates];
@@ -75,6 +82,16 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
     });
 });
 
+// GET /households/:id/dates/:itemId
+router.get('/households/:id/dates/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
+    req.tenantDb.get(`SELECT * FROM dates WHERE id = ? AND household_id = ?`, [req.params.itemId, req.hhId], (err, row) => {
+        closeDb(req);
+        if (err) return res.status(500).json({ error: err.message });
+        if (!row) return res.status(404).json({ error: "Date not found" });
+        res.json(row);
+    });
+});
+
 // POST /households/:id/dates
 router.post('/households/:id/dates', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     const { 
@@ -83,7 +100,7 @@ router.post('/households/:id/dates', authenticateToken, requireHouseholdRole('me
     } = req.body;
     
     if (!title || !date) {
-        req.tenantDb.close();
+        closeDb(req);
         return res.status(400).json({ error: "Title and Start Date are required" });
     }
 
@@ -95,10 +112,10 @@ router.post('/households/:id/dates', authenticateToken, requireHouseholdRole('me
     `;
     
     req.tenantDb.run(sql, [
-        req.params.id, title, date, end_date, is_all_day ? 1 : 0, type, description, emoji, 
+        req.hhId, title, date, end_date, is_all_day ? 1 : 0, type, description, emoji, 
         recurrence || 'none', recurrence_end_date
     ], function(err) {
-        req.tenantDb.close();
+        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json({ 
             id: this.lastID, title, date, end_date, is_all_day, type, description, emoji, 
@@ -107,46 +124,35 @@ router.post('/households/:id/dates', authenticateToken, requireHouseholdRole('me
     });
 });
 
-// DELETE /households/:id/dates/:dateId
-router.delete('/households/:id/dates/:dateId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-    req.tenantDb.run(`DELETE FROM dates WHERE id = ? AND household_id = ?`, [req.params.dateId, req.params.id], function(err) {
-        req.tenantDb.close();
+// DELETE /households/:id/dates/:itemId
+router.delete('/households/:id/dates/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
+    req.tenantDb.run(`DELETE FROM dates WHERE id = ? AND household_id = ?`, [req.params.itemId, req.hhId], function(err) {
+        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Date removed" });
     });
 });
 
-// PUT /households/:id/dates/:dateId
-router.put('/households/:id/dates/:dateId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-    const { 
-        title, date, end_date, is_all_day, type, description, emoji, 
-        recurrence, recurrence_end_date 
-    } = req.body;
-    const { dateId } = req.params;
-
-    if (!title || !date) {
-        req.tenantDb.close();
-        return res.status(400).json({ error: "Title and Date are required" });
+// PUT /households/:id/dates/:itemId
+router.put('/households/:id/dates/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
+    const { itemId } = req.params;
+    const fields = Object.keys(req.body).filter(f => f !== 'id' && f !== 'household_id');
+    
+    if (fields.length === 0) {
+        closeDb(req);
+        return res.status(400).json({ error: "No fields to update" });
     }
 
-    const sql = `
-        UPDATE dates SET 
-            title = ?, date = ?, end_date = ?, is_all_day = ?, type = ?, 
-            description = ?, emoji = ?, recurrence = ?, recurrence_end_date = ?
-        WHERE id = ? AND household_id = ?
-    `;
+    const sets = fields.map(f => `${f} = ?`).join(', ');
+    const values = fields.map(f => req.body[f]);
+
+    const sql = `UPDATE dates SET ${sets} WHERE id = ? AND household_id = ?`;
     
-    req.tenantDb.run(sql, [
-        title, date, end_date, is_all_day ? 1 : 0, type, description, emoji, 
-        recurrence || 'none', recurrence_end_date, dateId, req.params.id
-    ], function(err) {
-        req.tenantDb.close();
+    req.tenantDb.run(sql, [...values, itemId, req.hhId], function(err) {
+        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
-        res.json({ 
-            message: "Date updated", id: dateId, 
-            title, date, end_date, is_all_day, type, description, emoji, 
-            recurrence, recurrence_end_date 
-        });
+        if (this.changes === 0) return res.status(404).json({ error: "Date not found" });
+        res.json({ message: "Date updated", id: itemId, ...req.body });
     });
 });
 

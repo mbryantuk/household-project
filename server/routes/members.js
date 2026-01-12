@@ -31,8 +31,8 @@ router.get('/households/:id/members', authenticateToken, requireHouseholdRole('v
 });
 
 // 2. GET SINGLE MEMBER
-router.get('/households/:id/members/:memberId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
-    req.tenantDb.get(`SELECT * FROM members WHERE id = ? AND household_id = ?`, [req.params.memberId, req.hhId], (err, row) => {
+router.get('/households/:id/members/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
+    req.tenantDb.get(`SELECT * FROM members WHERE id = ? AND household_id = ?`, [req.params.itemId, req.hhId], (err, row) => {
         closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         if (!row) return res.status(404).json({ error: "Member not found" });
@@ -71,27 +71,27 @@ router.post('/households/:id/members', authenticateToken, requireHouseholdRole('
 });
 
 // 4. UPDATE MEMBER
-router.put('/households/:id/members/:memberId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, (req, res) => {
-    const memberId = req.params.memberId;
+router.put('/households/:id/members/:itemId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, (req, res) => {
+    const itemId = req.params.itemId;
     const fields = Object.keys(req.body).filter(f => f !== 'id' && f !== 'household_id');
     const sets = fields.map(f => `${f} = ?`).join(', ');
     const values = fields.map(f => req.body[f]);
 
     const sql = `UPDATE members SET ${sets} WHERE id = ? AND household_id = ?`;
 
-    req.tenantDb.run(sql, [...values, memberId, req.hhId], function(err) {
+    req.tenantDb.run(sql, [...values, itemId, req.hhId], function(err) {
         if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
         if (this.changes === 0) { closeDb(req); return res.status(404).json({ error: "Member not found" }); }
 
         // Sync Birthday
         const { name, dob, emoji } = req.body;
         if (dob && name) {
-            req.tenantDb.get(`SELECT id FROM dates WHERE member_id = ? AND type = 'birthday' AND household_id = ?`, [memberId, req.hhId], (sErr, row) => {
+            req.tenantDb.get(`SELECT id FROM dates WHERE member_id = ? AND type = 'birthday' AND household_id = ?`, [itemId, req.hhId], (sErr, row) => {
                 if (row) {
                     req.tenantDb.run(`UPDATE dates SET title = ?, date = ?, emoji = ? WHERE id = ?`, [`${name}'s Birthday`, dob, emoji || '🎂', row.id], () => closeDb(req));
                 } else {
                     req.tenantDb.run(`INSERT INTO dates (household_id, title, date, type, member_id, emoji) VALUES (?, ?, ?, 'birthday', ?, ?)`, 
-                        [req.hhId, `${name}'s Birthday`, dob, memberId, emoji || '🎂'], () => closeDb(req));
+                        [req.hhId, `${name}'s Birthday`, dob, itemId, emoji || '🎂'], () => closeDb(req));
                 }
             });
         } else {
@@ -102,11 +102,11 @@ router.put('/households/:id/members/:memberId', authenticateToken, requireHouseh
 });
 
 // 5. DELETE MEMBER
-router.delete('/households/:id/members/:memberId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, (req, res) => {
-    req.tenantDb.run(`DELETE FROM members WHERE id = ? AND household_id = ?`, [req.params.memberId, req.hhId], function(err) {
+router.delete('/households/:id/members/:itemId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, (req, res) => {
+    req.tenantDb.run(`DELETE FROM members WHERE id = ? AND household_id = ?`, [req.params.itemId, req.hhId], function(err) {
         if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
         // Also delete their birthday
-        req.tenantDb.run(`DELETE FROM dates WHERE member_id = ? AND type = 'birthday' AND household_id = ?`, [req.params.memberId, req.hhId], () => {
+        req.tenantDb.run(`DELETE FROM dates WHERE member_id = ? AND type = 'birthday' AND household_id = ?`, [req.params.itemId, req.hhId], () => {
             closeDb(req);
             res.json({ message: "Deleted" });
         });

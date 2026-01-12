@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const { initializeHouseholdSchema } = require('./schema');
 
-// Ensure paths are consistent with server.js configuration
+// Ensure paths are consistent
 const dataDir = path.join(__dirname, 'data');
 const dbPath = path.join(dataDir, 'totem.db');
 
@@ -11,6 +11,7 @@ if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
 }
 
+// Single Global DB Instance
 const globalDb = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error("Error opening Global DB:", err.message);
@@ -44,7 +45,7 @@ function initGlobalDb() {
         globalDb.run(`CREATE TABLE IF NOT EXISTS households (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            access_key TEXT UNIQUE, -- Kept for legacy/api reference, but not for login
+            access_key TEXT UNIQUE,
             theme TEXT DEFAULT 'default',
             address_street TEXT,
             address_city TEXT,
@@ -69,7 +70,7 @@ function initGlobalDb() {
             FOREIGN KEY(household_id) REFERENCES households(id) ON DELETE CASCADE
         )`);
 
-        // Migrations / Fixes
+        // Self-healing Migrations
         const houseCols = [
             ['address_street', 'TEXT'], ['address_city', 'TEXT'], ['address_zip', 'TEXT'],
             ['date_format', "TEXT DEFAULT 'MM/DD/YYYY'"], ['currency', "TEXT DEFAULT 'USD'"],
@@ -92,7 +93,6 @@ function initGlobalDb() {
 
 /**
  * Tenant Database Factory
- * Automatically fixes NULL household_ids for legacy data.
  */
 const getHouseholdDb = (householdId) => {
     const householdDbPath = path.join(dataDir, `household_${householdId}.db`);
@@ -105,9 +105,7 @@ const getHouseholdDb = (householdId) => {
     db.serialize(() => {
         const tables = ['members', 'dates', 'house_details', 'vehicles', 'assets', 'energy_accounts', 'recurring_costs', 'waste_collections'];
         tables.forEach(table => {
-            db.run(`UPDATE ${table} SET household_id = ? WHERE household_id IS NULL`, [householdId], (err) => {
-                // Ignore if table doesn't exist yet
-            });
+            db.run(`UPDATE ${table} SET household_id = ? WHERE household_id IS NULL`, [householdId], (err) => {});
         });
     });
 
