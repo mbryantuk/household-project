@@ -16,7 +16,6 @@ import { getEmojiColor } from '../theme';
 
 export default function SettingsView({
   household, users, currentUser, api, onUpdateHousehold, 
-  onCreateUser, onUpdateUser, onRemoveUser,
   currentMode, onModeChange, useDracula, onDraculaChange,
   showNotification, confirmAction
 }) {
@@ -24,6 +23,7 @@ export default function SettingsView({
   const [tab, setTab] = useState(0);
   const isDark = currentMode === 'dark' || (currentMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   
+  const [localUsers, setLocalUsers] = useState(users || []);
   const [backups, setBackups] = useState([]);
   const [backupLoading, setBackupLoading] = useState(false);
   const [userDialogOpen, setUserDialogOpen] = useState(false);
@@ -32,6 +32,15 @@ export default function SettingsView({
   const [selectedUserEmoji, setSelectedUserEmoji] = useState('👤');
 
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
+
+  const fetchUsers = useCallback(async () => {
+    try {
+      const res = await api.get(`/households/${household.id}/users`);
+      setLocalUsers(res.data || []);
+    } catch (err) {
+      console.error("Failed to fetch users");
+    }
+  }, [api, household?.id]);
 
   const fetchBackups = useCallback(async () => {
     if (!isAdmin) return;
@@ -47,56 +56,46 @@ export default function SettingsView({
   }, [api, household?.id, isAdmin]);
 
   useEffect(() => {
+    if (tab === 0) fetchUsers();
     if (tab === 1) fetchBackups();
-  }, [tab, fetchBackups]);
+  }, [tab, fetchBackups, fetchUsers]);
 
-  const handleCreateBackup = async () => {
-    try {
-      await api.post(`/households/${household.id}/backups/trigger`);
-      showNotification("Manual backup created.", "success");
-      fetchBackups();
-    } catch (err) {
-      showNotification("Failed to create backup.", "danger");
-    }
-  };
-
-  const handleRestore = (filename) => {
-    confirmAction(
-      "Restore Backup",
-      `Are you sure you want to restore ${filename}? This will overwrite current data.`,
-      async () => {
-        try {
-          await api.post(`/households/${household.id}/backups/restore/${filename}`);
-          showNotification("Restore successful. Refreshing...", "success");
-          setTimeout(() => window.location.reload(), 1500);
-        } catch (err) {
-          showNotification("Restore failed.", "danger");
-        }
-      }
-    );
-  };
-
-  const handleDownload = (filename) => {
-    const url = `${api.defaults.baseURL}/households/${household.id}/backups/download/${filename}`;
-    window.open(url, '_blank');
-  };
-
-  const handleDownloadRawDb = () => {
-    const url = `${api.defaults.baseURL}/households/${household.id}/db/download`;
-    window.open(url, '_blank');
-  };
-
-  const handleUserSubmit = (e) => {
+  const handleUserSubmit = async (e) => {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.currentTarget));
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData);
     data.avatar = selectedUserEmoji;
-    if (editUser) {
-        onUpdateUser(editUser.id, data);
-    } else {
-        onCreateUser({ ...data, householdId: household.id });
+
+    try {
+        if (editUser) {
+            await api.put(`/households/${household.id}/users/${editUser.id}`, data);
+            showNotification("User updated.", "success");
+        } else {
+            await api.post(`/households/${household.id}/users`, data);
+            showNotification("User invited successfully.", "success");
+        }
+        fetchUsers();
+        setUserDialogOpen(false);
+        setEditUser(null);
+    } catch (err) {
+        showNotification(err.response?.data?.error || "Operation failed", "danger");
     }
-    setUserDialogOpen(false);
-    setEditUser(null);
+  };
+
+  const handleRemoveUser = (userId, userName) => {
+    confirmAction(
+        "Remove User",
+        `Are you sure you want to remove ${userName} from this household? They will no longer be able to access this data.`,
+        async () => {
+            try {
+                await api.delete(`/households/${household.id}/users/${userId}`);
+                showNotification("User removed.", "success");
+                fetchUsers();
+            } catch (err) {
+                showNotification("Failed to remove user.", "danger");
+            }
+        }
+    );
   };
 
   const openEditUser = (user) => {
@@ -148,22 +147,22 @@ export default function SettingsView({
                           </tr>
                         </thead>
                         <tbody>
-                            {users.map(u => (
+                            {localUsers.map(u => (
                                 <tr key={u.id}>
                                     <td>
                                       <Avatar size="sm" sx={{ bgcolor: u.avatar ? getEmojiColor(u.avatar, isDark) : 'neutral.solidBg' }}>
                                         {u.avatar || u.first_name?.[0] || u.email?.[0]?.toUpperCase()}
                                       </Avatar>
                                     </td>
-                                    <td>{u.first_name || u.last_name ? `${u.first_name || ''} ${u.last_name || ''}`.trim() : (u.username || 'User')}</td>
+                                    <td>{u.first_name || u.last_name ? `${u.first_name || ''} ${u.last_name || ''}`.trim() : (u.email.split('@')[0])}</td>
                                     <td>{u.email || '-'}</td>
                                     <td><Chip size="sm" variant="outlined">{u.role?.toUpperCase()}</Chip></td>
                                     <td style={{ textAlign: 'right' }}>
                                         {isAdmin && (
                                             <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-                                                <IconButton size="sm" color="primary" onClick={() => navigate(`users/${u.id}`)}><Edit /></IconButton>
+                                                <IconButton size="sm" color="primary" onClick={() => openEditUser(u)}><Edit /></IconButton>
                                                 {currentUser.id !== u.id && (
-                                                    <IconButton size="sm" color="danger" onClick={() => onRemoveUser(u.id)}><Delete /></IconButton>
+                                                    <IconButton size="sm" color="danger" onClick={() => handleRemoveUser(u.id, u.first_name || u.email)}><Delete /></IconButton>
                                                 )}
                                             </Box>
                                         )}
@@ -217,8 +216,15 @@ export default function SettingsView({
                   
                   <Stack spacing={3}>
                       <Box sx={{ display: 'flex', gap: 2 }}>
-                          <Button variant="solid" startDecorator={<Backup />} onClick={handleCreateBackup}>Create Manual Backup</Button>
-                          <Button variant="outlined" startDecorator={<CloudDownload />} onClick={handleDownloadRawDb}>Download Live Database (.db)</Button>
+                          <Button variant="solid" startDecorator={<Backup />} onClick={() => {
+                              api.post(`/households/${household.id}/backups/trigger`)
+                                .then(() => { showNotification("Manual backup created.", "success"); fetchBackups(); })
+                                .catch(() => showNotification("Failed to create backup.", "danger"));
+                          }}>Create Manual Backup</Button>
+                          <Button variant="outlined" startDecorator={<CloudDownload />} onClick={() => {
+                              const url = `${api.defaults.baseURL}/households/${household.id}/db/download`;
+                              window.open(url, '_blank');
+                          }}>Download Live Database (.db)</Button>
                       </Box>
 
                       <Divider />
@@ -230,8 +236,29 @@ export default function SettingsView({
                                   <Box key={b.filename}>
                                       <ListItem endAction={
                                           <Stack direction="row" spacing={1}>
-                                              <Tooltip title="Download" variant="soft"><IconButton size="sm" onClick={() => handleDownload(b.filename)}><Download /></IconButton></Tooltip>
-                                              <Tooltip title="Restore" variant="soft"><IconButton size="sm" color="warning" onClick={() => handleRestore(b.filename)}><Restore /></IconButton></Tooltip>
+                                              <Tooltip title="Download" variant="soft">
+                                                <IconButton size="sm" onClick={() => {
+                                                    const url = `${api.defaults.baseURL}/households/${household.id}/backups/download/${b.filename}`;
+                                                    window.open(url, '_blank');
+                                                }}><Download /></IconButton>
+                                              </Tooltip>
+                                              <Tooltip title="Restore" variant="soft">
+                                                <IconButton size="sm" color="warning" onClick={() => {
+                                                    confirmAction(
+                                                        "Restore Backup",
+                                                        `Are you sure you want to restore ${b.filename}? This will overwrite current data.`,
+                                                        async () => {
+                                                            try {
+                                                                await api.post(`/households/${household.id}/backups/restore/${b.filename}`);
+                                                                showNotification("Restore successful. Refreshing...", "success");
+                                                                setTimeout(() => window.location.reload(), 1500);
+                                                            } catch (err) {
+                                                                showNotification("Restore failed.", "danger");
+                                                            }
+                                                        }
+                                                    );
+                                                }}><Restore /></IconButton>
+                                              </Tooltip>
                                           </Stack>
                                       }>
                                           <ListItemContent>
@@ -313,17 +340,17 @@ export default function SettingsView({
                         <Stack direction="row" spacing={2}>
                             <FormControl required sx={{ flex: 1 }}>
                                 <FormLabel>First Name</FormLabel>
-                                <Input name="first_name" defaultValue={editUser?.first_name} />
+                                <Input name="firstName" defaultValue={editUser?.first_name} />
                             </FormControl>
                             <FormControl required sx={{ flex: 1 }}>
                                 <FormLabel>Last Name</FormLabel>
-                                <Input name="last_name" defaultValue={editUser?.last_name} />
+                                <Input name="lastName" defaultValue={editUser?.last_name} />
                             </FormControl>
                         </Stack>
                         
                         <FormControl required>
                             <FormLabel>Email Address</FormLabel>
-                            <Input name="email" defaultValue={editUser?.email} />
+                            <Input name="email" type="email" defaultValue={editUser?.email} />
                         </FormControl>
 
                         <FormControl required>
@@ -337,7 +364,7 @@ export default function SettingsView({
                         
                         <FormControl>
                             <FormLabel>{editUser ? 'New Password (Optional)' : 'Initial Password (Optional)'}</FormLabel>
-                            <Input name="password" type="password" placeholder="Leave blank to auto-generate/keep" />
+                            <Input name="password" type="password" placeholder="Leave blank to keep current" />
                         </FormControl>
 
                         <DialogActions>
