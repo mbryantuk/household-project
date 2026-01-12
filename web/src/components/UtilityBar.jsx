@@ -3,22 +3,21 @@ import {
   Box, IconButton, Tooltip, Sheet, Typography, Button
 } from '@mui/joy';
 import { 
-  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Savings
+  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Savings, Close
 } from '@mui/icons-material';
 import FloatingCalculator from './FloatingCalculator';
 import FloatingCalendar from './FloatingCalendar';
 import FinancialCalculator from './FinancialCalculator';
 import PostItNote from './PostItNote';
 
-// Utility Bar like Salesforce: persistent bar at bottom, items open upwards
 export default function UtilityBar({ 
     user, api, dates, onDateAdded, onUpdateProfile, isDark
 }) {
-  const [activeWidget, setActiveWidget] = useState(null); // 'notes', 'calc', 'fincalc', 'calendar'
+  const [activeWidgets, setActiveWidgets] = useState({}); // { notes: true, calc: false }
   const [poppedOut, setPoppedOut] = useState({});
   const popoutRefs = useRef({});
 
-  // Poll for closed windows to reset state
+  // Poll for closed windows
   useEffect(() => {
     const timer = setInterval(() => {
         const nextPoppedOut = { ...poppedOut };
@@ -38,109 +37,126 @@ export default function UtilityBar({
   }, [poppedOut]);
 
   const toggleWidget = (widget) => {
-      setActiveWidget(activeWidget === widget ? null : widget);
+      if (poppedOut[widget]) {
+          // If popped out, focus the window or re-open it if blocked
+          if (popoutRefs.current[widget] && !popoutRefs.current[widget].closed) {
+              popoutRefs.current[widget].focus();
+          } else {
+              // State desync? Reset
+              setPoppedOut(prev => ({ ...prev, [widget]: false }));
+              setActiveWidgets(prev => ({ ...prev, [widget]: true }));
+          }
+      } else {
+          setActiveWidgets(prev => ({ ...prev, [widget]: !prev[widget] }));
+      }
+  };
+
+  const closeWidget = (widget) => {
+      setActiveWidgets(prev => ({ ...prev, [widget]: false }));
   };
 
   const handlePopout = (widget, url) => {
       const win = window.open(url, `Totem${widget}`, 'width=400,height=500,menubar=no,toolbar=no,location=no,status=no');
       popoutRefs.current[widget] = win;
       setPoppedOut(prev => ({ ...prev, [widget]: true }));
-      setActiveWidget(null);
+      closeWidget(widget);
   };
 
-  // Salesforce-style tab styling
-  const tabSx = (id, color) => ({
-      height: '100%',
-      px: 2,
-      borderRadius: 0,
-      borderTop: '3px solid',
-      borderColor: activeWidget === id ? `${color}.solidBg` : 'transparent',
-      bgcolor: activeWidget === id ? 'background.level1' : 'transparent',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 1,
-      minWidth: 120,
-      '&:hover': { bgcolor: 'background.level1' }
-  });
+  const WidgetWrapper = ({ id, label, icon: Icon, color, width, children }) => {
+      const isOpen = activeWidgets[id] && !poppedOut[id];
+      const isPopped = poppedOut[id];
+
+      return (
+        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', height: '100%' }}>
+            {/* The Panel (if open) */}
+            {isOpen && (
+                <Box sx={{ 
+                    width: width, 
+                    height: 450, 
+                    mb: 0, 
+                    bgcolor: 'background.surface', 
+                    borderTopLeftRadius: 'md', 
+                    borderTopRightRadius: 'md', 
+                    border: '1px solid', 
+                    borderColor: 'divider',
+                    borderBottom: 'none',
+                    position: 'relative',
+                    boxShadow: '0 -4px 12px rgba(0,0,0,0.1)',
+                    overflow: 'hidden'
+                }}>
+                    {children}
+                </Box>
+            )}
+
+            {/* The Button */}
+            <Button 
+                variant={isOpen ? "solid" : "plain"} 
+                color={isOpen ? color : "neutral"} 
+                onClick={() => toggleWidget(id)}
+                sx={{
+                    height: 40,
+                    borderRadius: 0,
+                    px: 2,
+                    minWidth: 120,
+                    gap: 1,
+                    borderTop: isOpen ? 'none' : '3px solid transparent',
+                    borderColor: isOpen ? 'transparent' : (isPopped ? `${color}.solidBg` : 'transparent'),
+                    width: isOpen ? width : 'auto',
+                    transition: 'width 0.2s'
+                }}
+            >
+                <Icon fontSize="small" />
+                <Typography level="body-xs" fontWeight="bold" textColor={isOpen ? 'common.white' : 'text.primary'}>{label}</Typography>
+                {isOpen ? <KeyboardArrowDown fontSize="small" /> : (isPopped ? <OpenInNew fontSize="small" /> : null)}
+            </Button>
+        </Box>
+      );
+  };
 
   return (
-    <Box sx={{ position: 'relative', width: '100%', flexShrink: 0, zIndex: 2000 }}>
-      {/* Docked Panel Container - Float above the bar */}
-      <Box sx={{ position: 'absolute', bottom: '100%', left: 0, right: 0, height: 0, zIndex: 2002 }}>
-          {activeWidget === 'notes' && !poppedOut.notes && (
-              <Box sx={{ position: 'absolute', bottom: 0, left: 20 }}>
-                  <PostItNote 
-                    isDocked onClose={() => setActiveWidget(null)} user={user} onUpdateProfile={onUpdateProfile}
+    <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 2000, pointerEvents: 'none' }}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-end', pointerEvents: 'auto', width: 'fit-content' }}>
+        <Sheet
+            variant="soft"
+            sx={{
+                height: 40,
+                display: 'flex',
+                alignItems: 'flex-end', // Align items to bottom
+                bgcolor: 'background.surface',
+                boxShadow: '0 -2px 10px rgba(0,0,0,0.1)',
+                borderTopRightRadius: 'md'
+            }}
+        >
+            <WidgetWrapper id="notes" label="Notes" icon={NoteAlt} color="warning" width={320}>
+                <PostItNote 
+                    isDocked onClose={() => closeWidget('notes')} user={user} onUpdateProfile={onUpdateProfile}
                     onPopout={() => handlePopout('notes', '/note-window')}
-                  />
-              </Box>
-          )}
-          {activeWidget === 'calc' && !poppedOut.calc && (
-              <Box sx={{ position: 'absolute', bottom: 0, left: 150 }}>
-                  <FloatingCalculator 
-                    isDocked onClose={() => setActiveWidget(null)} isDark={isDark}
+                />
+            </WidgetWrapper>
+            
+            <WidgetWrapper id="calc" label="Calculator" icon={Calculate} color="primary" width={300}>
+                <FloatingCalculator 
+                    isDocked onClose={() => closeWidget('calc')} isDark={isDark}
                     onPopout={() => handlePopout('calc', '/calculator')}
-                  />
-              </Box>
-          )}
-          {activeWidget === 'fincalc' && !poppedOut.fincalc && (
-              <Box sx={{ position: 'absolute', bottom: 0, left: 280 }}>
-                  <FinancialCalculator 
-                    isDocked onClose={() => setActiveWidget(null)} isDark={isDark}
+                />
+            </WidgetWrapper>
+
+            <WidgetWrapper id="fincalc" label="Finance" icon={Savings} color="success" width={350}>
+                <FinancialCalculator 
+                    isDocked onClose={() => closeWidget('fincalc')} isDark={isDark}
                     onPopout={() => handlePopout('fincalc', '/fin-calculator-window')}
-                  />
-              </Box>
-          )}
-          {activeWidget === 'calendar' && !poppedOut.calendar && (
-              <Box sx={{ position: 'absolute', bottom: 0, left: 410 }}>
-                  <FloatingCalendar 
-                    isDocked onClose={() => setActiveWidget(null)} dates={dates} api={api} 
+                />
+            </WidgetWrapper>
+
+            <WidgetWrapper id="calendar" label="Calendar" icon={CalendarMonth} color="danger" width={350}>
+                 <FloatingCalendar 
+                    isDocked onClose={() => closeWidget('calendar')} dates={dates} api={api} 
                     householdId={user?.default_household_id} currentUser={user} onDateAdded={onDateAdded} isDark={isDark}
                     onPopout={() => handlePopout('calendar', '/calendar-window')}
                   />
-              </Box>
-          )}
+            </WidgetWrapper>
+        </Sheet>
       </Box>
-
-      {/* The Bar */}
-      <Sheet
-        variant="soft"
-        sx={{
-            height: 40,
-            borderTop: '1px solid',
-            borderColor: 'divider',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            bgcolor: 'background.surface',
-            boxShadow: '0 -2px 10px rgba(0,0,0,0.1)',
-            zIndex: 2001
-        }}
-      >
-        <Button variant="plain" color="neutral" sx={tabSx('notes', 'warning')} onClick={() => toggleWidget('notes')}>
-            <NoteAlt fontSize="small" />
-            <Typography level="body-xs" fontWeight="bold">Notes</Typography>
-            {activeWidget === 'notes' && <KeyboardArrowDown fontSize="small" />}
-        </Button>
-
-        <Button variant="plain" color="neutral" sx={tabSx('calc', 'primary')} onClick={() => toggleWidget('calc')}>
-            <Calculate fontSize="small" />
-            <Typography level="body-xs" fontWeight="bold">Calculator</Typography>
-            {activeWidget === 'calc' && <KeyboardArrowDown fontSize="small" />}
-        </Button>
-
-        <Button variant="plain" color="neutral" sx={tabSx('fincalc', 'success')} onClick={() => toggleWidget('fincalc')}>
-            <Savings fontSize="small" />
-            <Typography level="body-xs" fontWeight="bold">Finance</Typography>
-            {activeWidget === 'fincalc' && <KeyboardArrowDown fontSize="small" />}
-        </Button>
-
-        <Button variant="plain" color="neutral" sx={tabSx('calendar', 'danger')} onClick={() => toggleWidget('calendar')}>
-            <CalendarMonth fontSize="small" />
-            <Typography level="body-xs" fontWeight="bold">Calendar</Typography>
-            {activeWidget === 'calendar' && <KeyboardArrowDown fontSize="small" />}
-        </Button>
-      </Sheet>
     </Box>
   );
 }

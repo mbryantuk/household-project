@@ -81,7 +81,7 @@ export default function FloatingCalculator({ onClose, isPopout = false, isDark =
         flexDirection: 'column',
         borderRadius: isPopout || isDocked ? 0 : 'md',
         overflow: 'hidden',
-        opacity: isFocused || isPopout ? 1 : 0.4,
+        opacity: isPopout || isDocked ? 1 : (isFocused ? 1 : 0.6),
         boxShadow: 'lg',
         borderColor: isFocused ? 'primary.500' : 'divider',
         transition: 'opacity 0.2s'

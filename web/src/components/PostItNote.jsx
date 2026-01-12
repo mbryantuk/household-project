@@ -80,8 +80,8 @@ export default function PostItNote({ onClose, user, onUpdateProfile, onPopout, i
         left: isPopout ? 0 : (isDocked ? 'inherit' : pos.x),
         bottom: isDocked ? 0 : 'inherit',
         top: !isDocked && !isPopout ? pos.y : 'inherit',
-        width: 320,
-        height: 450,
+        width: isPopout ? '100%' : 320,
+        height: isPopout ? '100%' : 450,
         bgcolor: YELLOW,
         color: '#000',
         zIndex: 1300,
@@ -90,7 +90,7 @@ export default function PostItNote({ onClose, user, onUpdateProfile, onPopout, i
         flexDirection: 'column',
         borderRadius: isPopout || isDocked ? 0 : 'sm',
         border: '1px solid #e0d040',
-        opacity: isFocused || isPopout ? 1 : 0.4,
+        opacity: isPopout || isDocked ? 1 : (isFocused ? 1 : 0.6),
         transition: 'opacity 0.2s, transform 0.2s'
       }}
     >

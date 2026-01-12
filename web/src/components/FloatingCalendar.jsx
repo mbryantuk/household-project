@@ -85,7 +85,9 @@ export default function FloatingCalendar({
         display: 'flex',
         flexDirection: 'column',
         borderRadius: isPopout || isDocked ? 0 : 'md',
-        boxShadow: 'lg', opacity: isFocused || isPopout ? 1 : 0.4, transition: 'opacity 0.2s'
+        boxShadow: 'lg', 
+        opacity: isPopout || isDocked ? 1 : (isFocused ? 1 : 0.6), 
+        transition: 'opacity 0.2s'
       }}
     >
       <Box onMouseDown={onMouseDown} sx={{ p: 1, bgcolor: 'background.level2', color: 'text.primary', display: 'flex', alignItems: 'center', cursor: isDocked ? 'default' : 'move' }}>
