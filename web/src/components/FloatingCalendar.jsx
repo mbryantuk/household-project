@@ -1,11 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { 
-  Box, Typography, IconButton, Button, 
+  Box, Sheet, Typography, IconButton, Button, Tooltip, Divider,
   Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
-  Select, Option, FormControl, FormLabel, Stack, Tooltip, Divider, Sheet
+  Select, Option, FormControl, FormLabel, Stack 
 } from '@mui/joy';
-import {
-  ChevronLeft, ChevronRight, Add, Event, Cake, Favorite, Star 
+import { 
+  Close, DragIndicator, ChevronLeft, ChevronRight, Add, 
+  Event, Cake, Favorite, Star 
 } from '@mui/icons-material';
 import EmojiPicker from './EmojiPicker';
 import { getEmojiColor } from '../theme';
@@ -17,8 +18,43 @@ const EVENT_TYPES = [
   { value: 'other', label: 'Event', icon: <Event fontSize="small" /> },
 ];
 
-export default function FloatingCalendar({ dates = [], api, householdId, onDateAdded, currentUser, onClose }) {
-  // Joy handles theme internally
+export default function FloatingCalendar({ 
+  dates = [], api, householdId, onDateAdded, currentUser, onClose 
+}) {
+  // --- Dragging State & Logic ---
+  const [pos, setPos] = useState({ x: 100, y: 100 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [rel, setRel] = useState({ x: 0, y: 0 });
+  const [isFocused, setIsFocused] = useState(true);
+  const containerRef = useRef(null);
+
+  const onMouseDown = (e) => {
+    if (e.button !== 0) return;
+    setIsDragging(true);
+    // Calculate click offset relative to the container
+    const rect = containerRef.current.getBoundingClientRect();
+    setRel({ x: e.pageX - rect.left, y: e.pageY - rect.top });
+    e.stopPropagation();
+  };
+
+  useEffect(() => {
+    const onMouseMove = (e) => {
+      if (!isDragging) return;
+      setPos({ x: e.pageX - rel.x, y: e.pageY - rel.y });
+    };
+    const onMouseUp = () => setIsDragging(false);
+    
+    if (isDragging) {
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mouseup', onMouseUp);
+    }
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, [isDragging, rel]);
+
+  // --- Calendar State ---
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [openAdd, setOpenAdd] = useState(false);
@@ -27,6 +63,7 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
 
   const canEdit = currentUser?.role !== 'viewer';
 
+  // --- Calendar Helpers ---
   const daysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
   const firstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
 
@@ -42,7 +79,11 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
   const month = currentDate.getMonth();
   const numDays = daysInMonth(year, month);
   const firstDaySun = firstDayOfMonth(year, month);
-  const firstDay = (firstDaySun + 6) % 7; 
+  const firstDay = (firstDaySun + 6) % 7; // Shift to Monday start if desired, or keep Sunday. Let's assume Mon start for consistency or Sun. Code used Mon start logic previously (firstDaySun + 6 % 7 usually shifts Sun(0) to 6, Mon(1) to 0).
+  
+  // Re-verify day logic. 
+  // Sun=0, Mon=1. 
+  // If we want Mon start: Mon(1)->0, Sun(0)->6. Formula: (day + 6) % 7. Correct.
 
   const prevMonthDate = new Date(year, month - 1);
   const prevMonthDays = daysInMonth(prevMonthDate.getFullYear(), prevMonthDate.getMonth());
@@ -63,7 +104,8 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
     return (dates || []).filter(d => {
       const dDate = new Date(d.date);
       return dDate.getDate() === selectedDate.getDate() &&
-             dDate.getMonth() === selectedDate.getMonth();
+             dDate.getMonth() === selectedDate.getMonth() &&
+             dDate.getFullYear() === selectedDate.getFullYear(); // Add year check for precision
     });
   }, [dates, selectedDate]);
 
@@ -72,7 +114,8 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
     return (dates || []).some(d => {
       const dDate = new Date(d.date);
       return dDate.getDate() === date.getDate() &&
-             dDate.getMonth() === date.getMonth();
+             dDate.getMonth() === date.getMonth() &&
+             dDate.getFullYear() === date.getFullYear();
     });
   };
 
@@ -100,115 +143,165 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
         setOpenAdd(false);
         if (onDateAdded) onDateAdded();
       })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to add event", err));
   };
 
   return (
-    <Sheet sx={{ width: '100%', height: '100%', p: 2, display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-        <Typography level="h4" fontWeight="bold">
-          {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
-        </Typography>
-        <Box>
-          <IconButton size="sm" onClick={handlePrevMonth}><ChevronLeft /></IconButton>
-          <IconButton size="sm" onClick={handleNextMonth}><ChevronRight /></IconButton>
+    <Sheet
+      ref={containerRef}
+      variant="outlined"
+      onFocus={() => setIsFocused(true)}
+      onBlur={(e) => {
+        // Only lose focus if moving outside the container (and not into a portal like the modal)
+        if (!e.currentTarget.contains(e.relatedTarget)) setIsFocused(false);
+      }}
+      tabIndex={0} // Make focusable
+      sx={{
+        position: 'fixed',
+        left: pos.x,
+        top: pos.y,
+        width: 400,
+        minHeight: 500,
+        zIndex: 1200, // Higher than TopBar (1100)
+        display: 'flex',
+        flexDirection: 'column',
+        borderRadius: 'md',
+        boxShadow: isFocused ? 'lg' : 'sm',
+        borderColor: isFocused ? 'primary.500' : 'divider',
+        transition: 'opacity 0.2s',
+        opacity: isFocused ? 1 : 0.85,
+        bgcolor: 'background.surface',
+        '&:hover': { opacity: 1 }
+      }}
+    >
+      {/* --- Header (Draggable) --- */}
+      <Box 
+        onMouseDown={onMouseDown}
+        sx={{ 
+          p: 1, 
+          bgcolor: isFocused ? 'primary.softBg' : 'background.level1', 
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+          display: 'flex', 
+          alignItems: 'center', 
+          cursor: 'move',
+          userSelect: 'none',
+          borderTopLeftRadius: 'md',
+          borderTopRightRadius: 'md'
+        }}
+      >
+        <DragIndicator fontSize="small" sx={{ mr: 1, opacity: 0.5 }} />
+        <Typography level="title-sm" sx={{ flexGrow: 1 }}>Calendar</Typography>
+        <IconButton size="sm" variant="plain" color="neutral" onClick={onClose}>
+          <Close fontSize="small" />
+        </IconButton>
+      </Box>
+
+      {/* --- Content --- */}
+      <Box sx={{ p: 2, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+          <Typography level="h4" fontWeight="bold">
+            {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
+          </Typography>
+          <Box>
+            <IconButton size="sm" onClick={handlePrevMonth}><ChevronLeft /></IconButton>
+            <IconButton size="sm" onClick={handleNextMonth}><ChevronRight /></IconButton>
+          </Box>
         </Box>
-      </Box>
 
-      <Box sx={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(7, 1fr)', 
-        gap: '4px',
-        mb: 2 
-      }}>
-        {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, idx) => (
-          <Typography key={idx} level="body-xs" fontWeight="bold" textColor="neutral.500" textAlign="center">
-            {d}
-          </Typography>
-        ))}
-        {days.map((dayObj, i) => {
-          const { date, isCurrentMonth } = dayObj;
-          const isSelected = date.toDateString() === selectedDate.toDateString();
-          const today = isToday(date);
-
-          return (
-            <Box key={i} sx={{ display: 'flex', justifyContent: 'center' }}>
-                <IconButton 
-                  size="sm" 
-                  onClick={() => {
-                    setSelectedDate(date);
-                    if (!isCurrentMonth) setCurrentDate(new Date(date.getFullYear(), date.getMonth(), 1));
-                  }}
-                  variant={isSelected ? 'solid' : (today ? 'outlined' : 'plain')}
-                  color={isSelected ? 'primary' : (today ? 'primary' : 'neutral')}
-                  sx={{ 
-                    width: 32, height: 32, fontSize: '0.85rem',
-                    opacity: isCurrentMonth ? 1 : 0.4,
-                    position: 'relative',
-                    borderRadius: '50%'
-                  }}
-                >
-                  {date.getDate()}
-                  {hasEvent(date) && (
-                    <Box sx={{ 
-                      position: 'absolute', bottom: 4, width: 4, height: 4, 
-                      borderRadius: '50%', bgcolor: isSelected ? 'common.white' : 'primary.500' 
-                    }} />
-                  )}
-                </IconButton>
-            </Box>
-          );
-        })}
-      </Box>
-
-      <Divider sx={{ mb: 2 }} />
-
-      <Box sx={{ flexGrow: 1, minHeight: 100 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-          <Typography level="title-sm">
-            {selectedDate.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}
-          </Typography>
-          {canEdit && (
-            <Tooltip title="Add Event" variant="soft">
-              <IconButton size="sm" color="primary" onClick={() => setOpenAdd(true)}><Add /></IconButton>
-            </Tooltip>
-          )}
+        {/* Days Header */}
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', mb: 1 }}>
+          {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, idx) => (
+            <Typography key={idx} level="body-xs" fontWeight="bold" textColor="neutral.500" textAlign="center">
+              {d}
+            </Typography>
+          ))}
         </Box>
         
-        {eventsOnSelectedDate.length > 0 ? (
-          <Stack spacing={1}>
-            {eventsOnSelectedDate.map(e => (
-              <Sheet key={e.id} variant="soft" sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, borderRadius: 'sm' }}>
-                <Box sx={{ 
-                    width: 24, height: 24, 
-                    borderRadius: '50%', 
-                    bgcolor: getEmojiColor(e.emoji || '📅'), 
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '0.9rem',
-                    flexShrink: 0
-                }}>
-                    {e.emoji || '📅'}
-                </Box>
-                <Typography level="body-sm" noWrap>{e.title}</Typography>
-              </Sheet>
-            ))}
-          </Stack>
-        ) : (
-          <Typography level="body-xs" color="neutral" sx={{ fontStyle: 'italic', textAlign: 'center', display: 'block', mt: 2 }}>
-            No events today
-          </Typography>
-        )}
+        {/* Calendar Grid */}
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', mb: 2 }}>
+          {days.map((dayObj, i) => {
+            const { date, isCurrentMonth } = dayObj;
+            const isSelected = date.toDateString() === selectedDate.toDateString();
+            const today = isToday(date);
+
+            return (
+              <Box key={i} sx={{ display: 'flex', justifyContent: 'center' }}>
+                  <IconButton 
+                    size="sm" 
+                    onClick={() => {
+                      setSelectedDate(date);
+                      if (!isCurrentMonth) setCurrentDate(new Date(date.getFullYear(), date.getMonth(), 1));
+                    }}
+                    variant={isSelected ? 'solid' : (today ? 'outlined' : 'plain')}
+                    color={isSelected ? 'primary' : (today ? 'primary' : 'neutral')}
+                    sx={{ 
+                      width: 32, height: 32, fontSize: '0.85rem',
+                      opacity: isCurrentMonth ? 1 : 0.4,
+                      position: 'relative',
+                      borderRadius: '50%'
+                    }}
+                  >
+                    {date.getDate()}
+                    {hasEvent(date) && (
+                      <Box sx={{ 
+                        position: 'absolute', bottom: 4, width: 4, height: 4, 
+                        borderRadius: '50%', bgcolor: isSelected ? 'common.white' : 'primary.500' 
+                      }} />
+                    )}
+                  </IconButton>
+              </Box>
+            );
+          })}
+        </Box>
+
+        <Divider sx={{ mb: 2 }} />
+
+        {/* Selected Date & Events */}
+        <Box sx={{ flexGrow: 1, minHeight: 100, overflowY: 'auto', maxHeight: 200 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1, position: 'sticky', top: 0, bgcolor: 'background.surface', zIndex: 1 }}>
+            <Typography level="title-sm">
+              {selectedDate.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+            </Typography>
+            {canEdit && (
+              <Tooltip title="Add Event" variant="soft">
+                <IconButton size="sm" color="primary" onClick={() => setOpenAdd(true)}><Add /></IconButton>
+              </Tooltip>
+            )}
+          </Box>
+          
+          {eventsOnSelectedDate.length > 0 ? (
+            <Stack spacing={1}>
+              {eventsOnSelectedDate.map(e => (
+                <Sheet key={e.id} variant="soft" sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, borderRadius: 'sm' }}>
+                  <Box sx={{ 
+                      width: 24, height: 24, 
+                      borderRadius: '50%', 
+                      bgcolor: getEmojiColor(e.emoji || '📅'), 
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '0.9rem',
+                      flexShrink: 0
+                  }}>
+                      {e.emoji || '📅'}
+                  </Box>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography level="body-sm" noWrap fontWeight="bold">{e.title}</Typography>
+                    {e.description && <Typography level="body-xs" noWrap>{e.description}</Typography>}
+                  </Box>
+                </Sheet>
+              ))}
+            </Stack>
+          ) : (
+            <Typography level="body-xs" color="neutral" sx={{ fontStyle: 'italic', textAlign: 'center', display: 'block', mt: 2 }}>
+              No events today
+            </Typography>
+          )}
+        </Box>
       </Box>
 
-      {/* Button to close calendar when used as a popup/modal content */}
-      {onClose && (
-          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
-              <Button variant="soft" color="neutral" onClick={onClose} size="sm">Close Calendar</Button>
-          </Box>
-      )}
-
+      {/* --- Add Event Modal --- */}
       <Modal open={openAdd} onClose={() => setOpenAdd(false)}>
-        <ModalDialog maxWidth="sm">
+        <ModalDialog maxWidth="sm" sx={{ zIndex: 1300 }}>
             <DialogTitle>Add Event</DialogTitle>
             <DialogContent>
                 <form onSubmit={handleAddSubmit}>
@@ -219,7 +312,7 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
                             </IconButton>
                             <FormControl required sx={{ flexGrow: 1 }}>
                                 <FormLabel>Title</FormLabel>
-                                <Input name="title" />
+                                <Input name="title" autoFocus />
                             </FormControl>
                         </Box>
                         
@@ -245,6 +338,7 @@ export default function FloatingCalendar({ dates = [], api, householdId, onDateA
         </ModalDialog>
       </Modal>
 
+      {/* --- Emoji Picker --- */}
       <EmojiPicker 
         open={emojiPickerOpen} 
         onClose={() => setEmojiPickerOpen(false)} 
