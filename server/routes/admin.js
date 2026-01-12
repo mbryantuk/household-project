@@ -75,22 +75,16 @@ router.post('/households', authenticateToken, async (req, res) => {
     
     if (!name || !adminPassword) return res.status(400).json({ error: "Missing fields" });
     
-    // Fallback if adminEmail not provided (legacy tests compatibility)
-    // In real usage, adminEmail is required. For tests using 'adminUsername', we'll generate a fake email
     const email = adminEmail || `${adminUsername || 'admin'}@example.com`;
-
     const accessKey = crypto.randomBytes(3).toString('hex').toUpperCase();
 
     try {
-        // 1. Create Household
         const hhResult = await dbRun(globalDb, `INSERT INTO households (name, access_key) VALUES (?, ?)`, [name, accessKey]);
         const householdId = hhResult.id;
 
-        // 2. Initialize DB (Trigger creation)
         const hhDb = getHouseholdDb(householdId);
         hhDb.close();
 
-        // 3. Create/Find Admin User
         let userId;
         const existingUser = await dbGet(globalDb, `SELECT id FROM users WHERE email = ?`, [email]);
         
@@ -105,7 +99,6 @@ router.post('/households', authenticateToken, async (req, res) => {
             userId = userResult.id;
         }
 
-        // 4. Link User as Admin
         await dbRun(globalDb, 
             `INSERT INTO user_households (user_id, household_id, role) VALUES (?, ?, 'admin')`,
             [userId, householdId]
@@ -155,27 +148,33 @@ router.get('/users', authenticateToken, (req, res) => {
     });
 });
 
+/**
+ * GET /admin/users/:userId
+ * Retrieve specific user details
+ */
+router.get('/users/:userId', authenticateToken, async (req, res) => {
+    if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
+    try {
+        const user = await dbGet(globalDb, "SELECT id, email, first_name, last_name, avatar, system_role FROM users WHERE id = ?", [req.params.userId]);
+        if (!user) return res.status(404).json({ error: "User not found" });
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 router.post('/create-user', authenticateToken, async (req, res) => {
     const { username, password, role, email, first_name, last_name, avatar, householdId } = req.body;
     const targetHhId = householdId || req.user.householdId;
-    
-    // Legacy support: if 'username' is passed but no 'email', gen fake email
     const finalEmail = email || `${username}@example.com`;
 
     if (req.user.system_role !== 'sysadmin') {
-        // If not sysadmin, must be admin of target household
-        // NOTE: This endpoint is legacy/sysadmin mostly. Regular admins use POST /households/:id/users
-        // We will restrict this endpoint to SysAdmins OR strictly strictly defined logic.
-        // For simplicity, let's allow it if they pass the check, but better to use the other endpoint.
-        // The tests use this.
         if (req.user.role !== 'admin') return res.sendStatus(403);
         if (parseInt(req.user.householdId) !== parseInt(targetHhId)) return res.sendStatus(403);
     }
 
     try {
-        // 1. Create User Global
         const hash = bcrypt.hashSync(password, 8);
-        // Check exist
         let userId;
         const existing = await dbGet(globalDb, `SELECT id FROM users WHERE email = ?`, [finalEmail]);
         if (existing) {
@@ -188,7 +187,6 @@ router.post('/create-user', authenticateToken, async (req, res) => {
             userId = res.id;
         }
 
-        // 2. Link
         if (targetHhId) {
             await dbRun(globalDb, 
                 `INSERT INTO user_households (user_id, household_id, role) VALUES (?, ?, ?)`,
@@ -204,14 +202,11 @@ router.post('/create-user', authenticateToken, async (req, res) => {
 });
 
 router.put('/users/:userId', authenticateToken, async (req, res) => {
-    // Only SysAdmin should use this generic endpoint
-    // Local admins use specific household user management logic usually
     if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
 
     const { username, role, password, email, first_name, last_name, avatar } = req.body;
     
     let fields = []; let values = [];
-    // We map 'username' to first_name for compatibility if needed, or ignore
     if (username) { fields.push('first_name = ?'); values.push(username); }
     if (password) { fields.push('password_hash = ?'); values.push(bcrypt.hashSync(password, 8)); }
     if (email !== undefined) { fields.push('email = ?'); values.push(email); }
@@ -233,7 +228,6 @@ router.put('/users/:userId', authenticateToken, async (req, res) => {
 router.delete('/users/:id', authenticateToken, (req, res) => {
     if (req.user.system_role !== 'sysadmin') return res.sendStatus(403);
     
-    // SysAdmin delete: Remove from global users (cascade deletes links)
     globalDb.run("DELETE FROM users WHERE id = ?", [req.params.id], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Global user removed" });

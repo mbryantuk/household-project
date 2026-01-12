@@ -36,7 +36,6 @@ router.post('/register', async (req, res) => {
         if (existingUser) return res.status(409).json({ error: "Email already registered" });
 
         // 2. Create Household
-        // Generate a random access key just for API compatibility/uniqueness, though not used for login
         const accessKey = crypto.randomBytes(4).toString('hex').toUpperCase();
         
         const hhResult = await dbRun(globalDb, 
@@ -59,11 +58,10 @@ router.post('/register', async (req, res) => {
             [userId, householdId]
         );
 
-        // 5. Initialize Household DB (Trigger creation)
+        // 5. Initialize Household DB
         const hhDb = getHouseholdDb(householdId);
         hhDb.close();
 
-        // 6. Return Success (Login required next, or auto-login)
         res.status(201).json({ message: "Registration successful. Please login." });
 
     } catch (err) {
@@ -74,7 +72,6 @@ router.post('/register', async (req, res) => {
 
 /**
  * POST /login
- * Authenticate against Global Users and return Context
  */
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
@@ -86,39 +83,32 @@ router.post('/login', async (req, res) => {
         const isValid = bcrypt.compareSync(password, user.password_hash);
         if (!isValid) return res.status(401).json({ error: "Invalid credentials" });
 
-        // Determine Household Context
-        // 1. Use default_household_id
-        // 2. Or query user_households for the first one
         let householdId = user.default_household_id;
-        let userRole = 'member'; // Default fallback
+        let userRole = 'member';
 
         if (!householdId) {
-            // Fallback: Find any household
             const link = await dbGet(globalDb, `SELECT * FROM user_households WHERE user_id = ? LIMIT 1`, [user.id]);
             if (link) {
                 householdId = link.household_id;
                 userRole = link.role;
             }
         } else {
-            // Verify role for default household
             const link = await dbGet(globalDb, `SELECT * FROM user_households WHERE user_id = ? AND household_id = ?`, [user.id, householdId]);
             if (link) userRole = link.role;
-            else householdId = null; // Invalid default
+            else householdId = null;
         }
 
-        // Fetch Household Data if applicable
         let householdData = null;
         if (householdId) {
             householdData = await dbGet(globalDb, `SELECT * FROM households WHERE id = ?`, [householdId]);
         }
 
-        // Generate Token
         const tokenPayload = {
             id: user.id,
             email: user.email,
             system_role: user.system_role,
             householdId: householdId,
-            role: userRole // Role within the current household
+            role: userRole
         };
 
         const token = jwt.sign(tokenPayload, SECRET_KEY, { expiresIn: '24h' });
@@ -147,19 +137,42 @@ router.post('/login', async (req, res) => {
 });
 
 /**
+ * GET /profile
+ * Return current user data
+ */
+router.get('/profile', authenticateToken, async (req, res) => {
+    try {
+        const user = await dbGet(globalDb, `SELECT id, email, first_name, last_name, avatar, system_role, dashboard_layout, sticky_note FROM users WHERE id = ?`, [req.user.id]);
+        if (!user) return res.status(404).json({ error: "User not found" });
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/**
  * PUT /profile
- * Update Global User Profile
  */
 router.put('/profile', authenticateToken, async (req, res) => {
-    const { email, password, firstName, lastName, avatar, dashboard_layout, sticky_note } = req.body;
+    const { 
+        email, password, 
+        firstName, lastName, 
+        first_name, last_name, 
+        avatar, dashboard_layout, sticky_note 
+    } = req.body;
     
     let fields = [];
     let values = [];
 
     if (email) { fields.push('email = ?'); values.push(email); }
     if (password) { fields.push('password_hash = ?'); values.push(bcrypt.hashSync(password, 8)); }
-    if (firstName) { fields.push('first_name = ?'); values.push(firstName); }
-    if (lastName) { fields.push('last_name = ?'); values.push(lastName); }
+    
+    // Support both camelCase and snake_case for flexibility
+    const fName = first_name || firstName;
+    const lName = last_name || lastName;
+    if (fName) { fields.push('first_name = ?'); values.push(fName); }
+    if (lName) { fields.push('last_name = ?'); values.push(lName); }
+    
     if (avatar !== undefined) { fields.push('avatar = ?'); values.push(avatar); }
     if (sticky_note !== undefined) { fields.push('sticky_note = ?'); values.push(sticky_note); }
     if (dashboard_layout !== undefined) { 
