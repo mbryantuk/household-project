@@ -7,7 +7,7 @@ import {
   Settings, Home as HomeIcon, Event, 
   Groups, Pets, HomeWork, DirectionsCar, 
   Calculate, NoteAlt, CalendarMonth, GetApp,
-  Logout, Edit, KeyboardArrowRight, ChevronLeft
+  Logout, Edit, KeyboardArrowRight, ChevronLeft, Handyman
 } from '@mui/icons-material';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
@@ -110,7 +110,7 @@ export default function NavSidebar({
                         flexDirection: 'column',
                         gap: 0.5,
                         py: 1,
-                        width: 56, // Fixed width for better alignment
+                        width: 56, 
                         mx: 'auto'
                     }}
                 >
@@ -151,7 +151,8 @@ export default function NavSidebar({
                 alignItems: 'center',
                 py: 2,
                 bgcolor: 'background.surface',
-                zIndex: 1002
+                zIndex: 1002,
+                height: '100%' 
             }}
         >
             {/* Household Icon (Top) */}
@@ -179,34 +180,23 @@ export default function NavSidebar({
                 <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems />
                 <RailIcon icon={<DirectionsCar />} label="Vehicles" category="vehicles" hasSubItems />
                 <Divider sx={{ my: 1, mx: 1.5 }} />
+                <RailIcon icon={<Handyman />} label="Tools" category="tools" hasSubItems />
                 <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems />
             </List>
 
             <Box sx={{ flexGrow: 1 }} />
 
-            <Divider sx={{ my: 1, width: '60%' }} />
-
-            {/* Bottom Tools Tray */}
-            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%' }}>
-                <RailIcon icon={<NoteAlt />} label="Notes" onClick={toggleNote} />
-                <RailIcon icon={<Calculate />} label="Calc" onClick={toggleCalc} />
-                <RailIcon icon={<CalendarMonth />} label="Agenda" onClick={toggleCalendar} />
-                
-                {canInstall && (
-                    <RailIcon icon={<GetApp />} label="Install" onClick={onInstall} />
-                )}
-            </List>
-
-            <Divider sx={{ my: 1, width: '60%' }} />
-
-            {/* User Profile */}
-            <Box sx={{ mt: 1, mb: 1 }}>
-                <Avatar 
-                    onClick={(e) => setUserMenuAnchor(e.currentTarget)}
-                    sx={{ cursor: 'pointer', bgcolor: getEmojiColor(user?.avatar || '?', isDark) }}
-                >
-                    {user?.avatar || user?.username?.[0]}
-                </Avatar>
+            {/* Bottom Section (Profile Only) */}
+            <Box sx={{ mt: 'auto', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <Divider sx={{ my: 1, width: '60%' }} />
+                <Box sx={{ mt: 1, mb: 1 }}>
+                    <Avatar 
+                        onClick={(e) => setUserMenuAnchor(e.currentTarget)}
+                        sx={{ cursor: 'pointer', bgcolor: getEmojiColor(user?.avatar || '?', isDark) }}
+                    >
+                        {user?.avatar || user?.username?.[0]}
+                    </Avatar>
+                </Box>
             </Box>
         </Sheet>
 
@@ -222,7 +212,8 @@ export default function NavSidebar({
                 flexDirection: 'column',
                 bgcolor: 'background.level1',
                 zIndex: 1001,
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                height: '100%' 
             }}
         >
             <Box sx={{ 
@@ -279,6 +270,42 @@ export default function NavSidebar({
                         ))}
                         <Divider sx={{ my: 1 }} />
                         <SubItem label="Add New Vehicle" to="vehicles/new" />
+                    </>
+                )}
+
+                {activeCategory === 'tools' && (
+                    <>
+                       <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>UTILITIES</Typography></ListItem>
+                       <ListItem>
+                           <ListItemButton onClick={toggleNote} sx={{ borderRadius: 'sm' }}>
+                               <ListItemDecorator><NoteAlt /></ListItemDecorator>
+                               <ListItemContent>Sticky Notes</ListItemContent>
+                           </ListItemButton>
+                       </ListItem>
+                       <ListItem>
+                           <ListItemButton onClick={toggleCalc} sx={{ borderRadius: 'sm' }}>
+                               <ListItemDecorator><Calculate /></ListItemDecorator>
+                               <ListItemContent>Calculator</ListItemContent>
+                           </ListItemButton>
+                       </ListItem>
+                       <ListItem>
+                           <ListItemButton onClick={toggleCalendar} sx={{ borderRadius: 'sm' }}>
+                               <ListItemDecorator><CalendarMonth /></ListItemDecorator>
+                               <ListItemContent>Calendar</ListItemContent>
+                           </ListItemButton>
+                       </ListItem>
+                       
+                       {canInstall && (
+                           <>
+                               <Divider sx={{ my: 1 }} />
+                               <ListItem>
+                                   <ListItemButton onClick={onInstall} sx={{ borderRadius: 'sm' }}>
+                                       <ListItemDecorator><GetApp /></ListItemDecorator>
+                                       <ListItemContent>Install App</ListItemContent>
+                                   </ListItemButton>
+                               </ListItem>
+                           </>
+                       )}
                     </>
                 )}
 
