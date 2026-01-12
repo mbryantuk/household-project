@@ -13,7 +13,7 @@ import PostItNote from './PostItNote';
 export default function UtilityBar({ 
     user, api, dates, onDateAdded, onUpdateProfile, isDark
 }) {
-  const [activeWidgets, setActiveWidgets] = useState({}); 
+  const [activeWidget, setActiveWidget] = useState(null); 
   const [poppedOut, setPoppedOut] = useState({});
   const popoutRefs = useRef({});
   const [time, setTime] = useState(new Date());
@@ -48,26 +48,26 @@ export default function UtilityBar({
               popoutRefs.current[widget].focus();
           } else {
               setPoppedOut(prev => ({ ...prev, [widget]: false }));
-              setActiveWidgets(prev => ({ ...prev, [widget]: true }));
+              setActiveWidget(widget);
           }
       } else {
-          setActiveWidgets(prev => ({ ...prev, [widget]: !prev[widget] }));
+          setActiveWidget(activeWidget === widget ? null : widget);
       }
   };
 
-  const closeWidget = (widget) => {
-      setActiveWidgets(prev => ({ ...prev, [widget]: false }));
+  const closeWidget = () => {
+      setActiveWidget(null);
   };
 
   const handlePopout = (widget, url) => {
       const win = window.open(url, `Totem${widget}`, 'width=400,height=500,menubar=no,toolbar=no,location=no,status=no');
       popoutRefs.current[widget] = win;
       setPoppedOut(prev => ({ ...prev, [widget]: true }));
-      closeWidget(widget);
+      closeWidget();
   };
 
   const WidgetWrapper = ({ id, label, icon: Icon, color, width, children }) => {
-      const isOpen = activeWidgets[id] && !poppedOut[id];
+      const isOpen = activeWidget === id && !poppedOut[id];
       const isPopped = poppedOut[id];
 
       return (
@@ -76,11 +76,11 @@ export default function UtilityBar({
             {isOpen && (
                 <Box sx={{ 
                     position: 'absolute',
-                    bottom: '100%',
-                    left: 0,
+                    bottom: '100%', // Sits directly on top of the bar
+                    left: 0,        // Aligns with left edge of button
                     width: width, 
                     height: 450, 
-                    mb: '1px', // Gap for border
+                    mb: '1px', 
                     bgcolor: 'background.surface', 
                     borderTopLeftRadius: 'md', 
                     borderTopRightRadius: 'md', 
@@ -124,7 +124,7 @@ export default function UtilityBar({
     <Sheet
         variant="soft"
         sx={{
-            position: 'relative', // Changed from fixed to flow nicely in flex column
+            position: 'relative',
             width: '100%',
             height: 40,
             display: 'flex',
@@ -137,31 +137,32 @@ export default function UtilityBar({
         }}
     >
         {/* Left Section: Taskbar (75%) */}
-        <Box sx={{ flex: '1 1 75%', display: 'flex', height: '100%', overflowX: 'auto', '::-webkit-scrollbar': { display: 'none' } }}>
+        {/* Removed overflowX: auto to allow absolute panels to display correctly */}
+        <Box sx={{ flex: '1 1 75%', display: 'flex', height: '100%' }}>
             <WidgetWrapper id="notes" label="Notes" icon={NoteAlt} color="warning" width={320}>
                 <PostItNote 
-                    isDocked onClose={() => closeWidget('notes')} user={user} onUpdateProfile={onUpdateProfile}
+                    isDocked onClose={closeWidget} user={user} onUpdateProfile={onUpdateProfile}
                     onPopout={() => handlePopout('notes', '/note-window')}
                 />
             </WidgetWrapper>
             
             <WidgetWrapper id="calc" label="Calculator" icon={Calculate} color="primary" width={300}>
                 <FloatingCalculator 
-                    isDocked onClose={() => closeWidget('calc')} isDark={isDark}
+                    isDocked onClose={closeWidget} isDark={isDark}
                     onPopout={() => handlePopout('calc', '/calculator')}
                 />
             </WidgetWrapper>
 
             <WidgetWrapper id="fincalc" label="Finance" icon={Savings} color="success" width={350}>
                 <FinancialCalculator 
-                    isDocked onClose={() => closeWidget('fincalc')} isDark={isDark}
+                    isDocked onClose={closeWidget} isDark={isDark}
                     onPopout={() => handlePopout('fincalc', '/fin-calculator-window')}
                 />
             </WidgetWrapper>
 
             <WidgetWrapper id="calendar" label="Calendar" icon={CalendarMonth} color="danger" width={350}>
                  <FloatingCalendar 
-                    isDocked onClose={() => closeWidget('calendar')} dates={dates} api={api} 
+                    isDocked onClose={closeWidget} dates={dates} api={api} 
                     householdId={user?.default_household_id} currentUser={user} onDateAdded={onDateAdded} isDark={isDark}
                     onPopout={() => handlePopout('calendar', '/calendar-window')}
                   />
