@@ -134,7 +134,8 @@ router.post('/login', async (req, res) => {
                 first_name: user.first_name,
                 last_name: user.last_name,
                 avatar: user.avatar,
-                dashboard_layout: user.dashboard_layout
+                dashboard_layout: user.dashboard_layout,
+                sticky_note: user.sticky_note
             },
             household: householdData
         });
@@ -150,7 +151,7 @@ router.post('/login', async (req, res) => {
  * Update Global User Profile
  */
 router.put('/profile', authenticateToken, async (req, res) => {
-    const { email, password, firstName, lastName, avatar, dashboard_layout } = req.body;
+    const { email, password, firstName, lastName, avatar, dashboard_layout, sticky_note } = req.body;
     
     let fields = [];
     let values = [];
@@ -160,6 +161,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
     if (firstName) { fields.push('first_name = ?'); values.push(firstName); }
     if (lastName) { fields.push('last_name = ?'); values.push(lastName); }
     if (avatar !== undefined) { fields.push('avatar = ?'); values.push(avatar); }
+    if (sticky_note !== undefined) { fields.push('sticky_note = ?'); values.push(sticky_note); }
     if (dashboard_layout !== undefined) { 
         fields.push('dashboard_layout = ?'); 
         values.push(typeof dashboard_layout === 'string' ? dashboard_layout : JSON.stringify(dashboard_layout)); 

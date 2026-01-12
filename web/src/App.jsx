@@ -12,6 +12,7 @@ import CssBaseline from '@mui/joy/CssBaseline';
 import { getTotemTheme, getThemeSpec } from './theme';
 import FloatingCalculator from './components/FloatingCalculator';
 import FloatingCalendar from './components/FloatingCalendar';
+import PostItNote from './components/PostItNote';
 
 // Layouts & Pages
 import RootLayout from './layouts/RootLayout';
@@ -209,11 +210,14 @@ function AppContent() {
 
   const handleUpdateProfile = useCallback(async (updates) => {
     try {
-      await authAxios.put('/auth/profile', updates);
+      // Optimistic update
       const updatedUser = { ...user, ...updates };
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
-      showNotification("Profile updated.", "success");
+
+      await authAxios.put('/auth/profile', updates);
+      // No notification for silent updates (like note)
+      if (!updates.sticky_note) showNotification("Profile updated.", "success");
     } catch (err) { showNotification("Failed to update profile.", "danger"); throw err; }
   }, [authAxios, user, showNotification]);
 
@@ -288,6 +292,17 @@ function AppContent() {
                 currentUser={user}
                 onDateAdded={() => household && fetchHhDates(household.id)}
             />
+          </Box>
+        } />
+        {/* Added note-window route */}
+        <Route path="/note-window" element={
+          <Box sx={{ height: '100vh', bgcolor: 'background.body' }}>
+             <PostItNote 
+                isPopout={true} 
+                onClose={() => window.close()} 
+                user={user}
+                onUpdateProfile={handleUpdateProfile}
+             />
           </Box>
         } />
         

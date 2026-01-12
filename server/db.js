@@ -35,7 +35,8 @@ function initGlobalDb() {
             system_role TEXT DEFAULT 'user', -- 'sysadmin' or 'user'
             default_household_id INTEGER,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-            dashboard_layout TEXT
+            dashboard_layout TEXT,
+            sticky_note TEXT
         )`);
 
         // --- GLOBAL HOUSEHOLDS TABLE ---
@@ -84,6 +85,7 @@ function initGlobalDb() {
         globalDb.run(`ALTER TABLE users ADD COLUMN first_name TEXT`, (err) => {});
         globalDb.run(`ALTER TABLE users ADD COLUMN last_name TEXT`, (err) => {});
         globalDb.run(`ALTER TABLE users ADD COLUMN default_household_id INTEGER`, (err) => {});
+        globalDb.run(`ALTER TABLE users ADD COLUMN sticky_note TEXT`, (err) => {});
     });
 }
 

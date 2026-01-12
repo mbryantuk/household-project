@@ -21,6 +21,9 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
   const [userMenuAnchor, setUserMenuAnchor] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  
+  // Local state for profile form to prevent premature updates
+  const [formData, setFormData] = useState({ avatar: '' });
 
   const [openSub, setOpenSub] = useState({
     people: location.pathname.includes('/people'),
@@ -38,17 +41,23 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
     }
   };
 
+  const openProfile = () => {
+    setFormData({ avatar: user?.avatar || '' });
+    setProfileOpen(true);
+    setUserMenuAnchor(null);
+  };
+
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+    const form = new FormData(e.currentTarget);
     const updates = {
-      username: formData.get('username'),
-      first_name: formData.get('first_name'),
-      last_name: formData.get('last_name'),
-      email: formData.get('email'),
-      avatar: user.avatar
+      username: form.get('username'),
+      first_name: form.get('first_name'),
+      last_name: form.get('last_name'),
+      email: form.get('email'),
+      avatar: formData.avatar // Use local state which might have been updated by EmojiPicker
     };
-    const password = formData.get('password');
+    const password = form.get('password');
     if (password) updates.password = password;
 
     try {
@@ -69,7 +78,7 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
         to={to}
         selected={location.pathname === to}
         sx={{
-            pl: open ? 5 : 1, // Reduced padding when collapsed (though this func only called when open mostly)
+            pl: open ? 5 : 1, 
             minHeight: 36,
             borderRadius: 'md',
             fontSize: 'sm',
@@ -101,11 +110,9 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
   const renderParent = (id, label, icon, items, pathPrefix, defaultEmoji = null) => {
     const isOpen = openSub[id];
     
-    // If collapsed, just show the parent icon which toggles drawer
     if (!open) {
         return (
             <ListItem>
-                {/* Added px: 0 to ensure centering of the icon/avatar in the collapsed button */}
                 <ListItemButton onClick={() => handleToggle(id)} sx={{ borderRadius: 'md', mb: 0.5, justifyContent: 'center', px: 0 }}>
                     <ListItemDecorator sx={{ display: 'flex', justifyContent: 'center', m: 0 }}>{icon}</ListItemDecorator>
                 </ListItemButton>
@@ -212,7 +219,7 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
         size="sm"
         sx={{ minWidth: 180, zIndex: 1300 }}
       >
-        <MenuItem onClick={() => { setProfileOpen(true); setUserMenuAnchor(null); }}>
+        <MenuItem onClick={openProfile}>
             <Edit /> Edit Profile
         </MenuItem>
         <Divider />
@@ -232,13 +239,13 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
                        <Box 
                         sx={{ 
                           width: 80, height: 80, borderRadius: '50%', 
-                          bgcolor: getEmojiColor(user?.avatar || '👤', isDark),
+                          bgcolor: getEmojiColor(formData.avatar || '👤', isDark),
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           fontSize: '2.5rem', cursor: 'pointer', border: '3px solid', borderColor: 'primary.solidBg'
                         }}
                         onClick={() => setEmojiPickerOpen(true)}
                        >
-                        {user?.avatar || '👤'}
+                        {formData.avatar || '👤'}
                        </Box>
                     </Box>
 
@@ -282,7 +289,8 @@ export default function NavSidebar({ open, toggleDrawer, members = [], vehicles 
           open={emojiPickerOpen} 
           onClose={() => setEmojiPickerOpen(false)} 
           onEmojiSelect={(emoji) => {
-            if (onUpdateProfile) onUpdateProfile({ avatar: emoji });
+            // Only update local form data, do NOT call API immediately
+            setFormData(prev => ({ ...prev, avatar: emoji }));
             setEmojiPickerOpen(false);
           }} 
           title="Select Avatar Emoji"

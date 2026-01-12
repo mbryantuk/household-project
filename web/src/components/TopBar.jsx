@@ -14,7 +14,7 @@ import { getEmojiColor } from '../theme';
 
 export default function TopBar({
   currentHousehold, toggleSidebar, canInstall, onInstall,
-  dates, api, onDateAdded, currentMode, user
+  dates, api, onDateAdded, currentMode, user, onUpdateProfile
 }) {
   const isDark = currentMode === 'dark';
   const [showCalendar, setShowCalendar] = useState(false);
@@ -131,7 +131,7 @@ export default function TopBar({
 
         {showCalc && <FloatingCalculator onClose={() => setShowCalc(false)} isDark={isDark} />}
 
-        {showNote && <PostItNote onClose={() => setShowNote(false)} />}
+        {showNote && <PostItNote onClose={() => setShowNote(false)} user={user} onUpdateProfile={onUpdateProfile} />}
     </Sheet>
   );
 }
