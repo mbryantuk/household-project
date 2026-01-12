@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, CircularProgress, Divider, Grid, Input, Button, Tooltip, IconButton, FormControl, FormLabel, Stack
@@ -81,15 +81,24 @@ export default function HouseView() {
             onChange={(e, v) => setActiveTab(v)} 
             sx={{ bgcolor: 'transparent' }}
         >
-          <TabList tabFlex="auto" variant="plain" sx={{ p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: 2, mt: 2, overflow: 'auto' }}>
-            <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'}><Badge sx={{ mr: 1 }}/> Identity</Tab>
-            <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}><HomeWork sx={{ mr: 1 }}/> General</Tab>
-            <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'}><ElectricBolt sx={{ mr: 1 }}/> Energy</Tab>
-            <Tab variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'}><WaterDrop sx={{ mr: 1 }}/> Water</Tab>
-            <Tab variant={activeTab === 4 ? 'solid' : 'plain'} color={activeTab === 4 ? 'primary' : 'neutral'}><DeleteSweep sx={{ mr: 1 }}/> Waste</Tab>
-            <Tab variant={activeTab === 5 ? 'solid' : 'plain'} color={activeTab === 5 ? 'primary' : 'neutral'}><Inventory sx={{ mr: 1 }}/> Assets</Tab>
-            <Tab variant={activeTab === 6 ? 'solid' : 'plain'} color={activeTab === 6 ? 'primary' : 'neutral'}><AccountBalance sx={{ mr: 1 }}/> Council</Tab>
-            <Tab variant={activeTab === 7 ? 'solid' : 'plain'} color={activeTab === 7 ? 'primary' : 'neutral'}><Payments sx={{ mr: 1 }}/> Misc Costs</Tab>
+          <TabList 
+            variant="plain" 
+            sx={{ 
+                p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: 2, mt: 2, 
+                overflow: 'auto',
+                scrollSnapType: 'x mandatory',
+                '&::-webkit-scrollbar': { display: 'none' },
+                whiteSpace: 'nowrap'
+            }}
+          >
+            <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><Badge sx={{ mr: 1 }}/> Identity</Tab>
+            <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><HomeWork sx={{ mr: 1 }}/> General</Tab>
+            <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><ElectricBolt sx={{ mr: 1 }}/> Energy</Tab>
+            <Tab variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><WaterDrop sx={{ mr: 1 }}/> Water</Tab>
+            <Tab variant={activeTab === 4 ? 'solid' : 'plain'} color={activeTab === 4 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><DeleteSweep sx={{ mr: 1 }}/> Waste</Tab>
+            <Tab variant={activeTab === 5 ? 'solid' : 'plain'} color={activeTab === 5 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><Inventory sx={{ mr: 1 }}/> Assets</Tab>
+            <Tab variant={activeTab === 6 ? 'solid' : 'plain'} color={activeTab === 6 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><AccountBalance sx={{ mr: 1 }}/> Council</Tab>
+            <Tab variant={activeTab === 7 ? 'solid' : 'plain'} color={activeTab === 7 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><Payments sx={{ mr: 1 }}/> Misc Costs</Tab>
           </TabList>
 
           <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>

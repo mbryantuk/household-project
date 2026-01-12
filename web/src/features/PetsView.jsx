@@ -115,10 +115,18 @@ export default function PetsView() {
       <Sheet variant="outlined" sx={{ borderRadius: 'md', minHeight: '600px', overflow: 'hidden' }}>
         {petId !== 'new' && (
             <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} sx={{ bgcolor: 'transparent' }}>
-                <TabList tabFlex="auto" variant="plain" sx={{ p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: 2, mt: 2, overflow: 'auto' }}>
-                    <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'}><Info sx={{ mr: 1 }}/> General</Tab>
-                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}><Shield sx={{ mr: 1 }}/> Insurance & Health</Tab>
-                    <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'}><Payments sx={{ mr: 1 }}/> Misc Costs</Tab>
+                <TabList 
+                    variant="plain" 
+                    sx={{ 
+                        p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: 2, mt: 2, 
+                        overflow: 'auto',
+                        '&::-webkit-scrollbar': { display: 'none' },
+                        whiteSpace: 'nowrap'
+                    }}
+                >
+                    <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Info sx={{ mr: 1 }}/> General</Tab>
+                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Shield sx={{ mr: 1 }}/> Insurance & Health</Tab>
+                    <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Misc Costs</Tab>
                 </TabList>
             </Tabs>
         )}

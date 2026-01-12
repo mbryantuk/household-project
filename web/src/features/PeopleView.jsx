@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, Input, Button, 
@@ -111,10 +111,18 @@ export default function PeopleView() {
       <Sheet variant="outlined" sx={{ borderRadius: 'md', minHeight: '600px', overflow: 'hidden' }}>
         {personId !== 'new' && (
             <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} sx={{ bgcolor: 'transparent' }}>
-                <TabList tabFlex="auto" variant="plain" sx={{ p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: 2, mt: 2, overflow: 'auto' }}>
-                    <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'}><ContactPage sx={{ mr: 1 }}/> Identity</Tab>
-                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} disabled={formData.type === 'child'}><Shield sx={{ mr: 1 }}/> Protection & Legal</Tab>
-                    <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'}><Payments sx={{ mr: 1 }}/> Misc Costs</Tab>
+                <TabList 
+                    variant="plain" 
+                    sx={{ 
+                        p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: 2, mt: 2, 
+                        overflow: 'auto',
+                        '&::-webkit-scrollbar': { display: 'none' },
+                        whiteSpace: 'nowrap'
+                    }}
+                >
+                    <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><ContactPage sx={{ mr: 1 }}/> Identity</Tab>
+                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} disabled={formData.type === 'child'} sx={{ flex: 'none' }}><Shield sx={{ mr: 1 }}/> Protection & Legal</Tab>
+                    <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Misc Costs</Tab>
                 </TabList>
             </Tabs>
         )}

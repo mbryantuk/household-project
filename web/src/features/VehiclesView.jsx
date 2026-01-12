@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Sheet, Tabs, TabList, Tab, Input, Button, 
@@ -140,13 +140,21 @@ export default function VehiclesView() {
                 onChange={(e, v) => setActiveTab(v)} 
                 sx={{ bgcolor: 'transparent' }}
             >
-                <TabList tabFlex="auto" variant="plain" sx={{ p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: 2, mt: 2, overflow: 'auto' }}>
-                  <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'}><DirectionsCar sx={{ mr: 1 }}/> Identity</Tab>
-                  <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}><History sx={{ mr: 1 }}/> Service History</Tab>
-                  <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'}><Receipt sx={{ mr: 1 }}/> Finance</Tab>
-                  <Tab variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'}><Policy sx={{ mr: 1 }}/> Insurance</Tab>
-                  <Tab variant={activeTab === 4 ? 'solid' : 'plain'} color={activeTab === 4 ? 'primary' : 'neutral'}><Handyman sx={{ mr: 1 }}/> Service Plans</Tab>
-                  <Tab variant={activeTab === 5 ? 'solid' : 'plain'} color={activeTab === 5 ? 'primary' : 'neutral'}><Tune sx={{ mr: 1 }}/> Misc Costs</Tab>
+                <TabList 
+                    variant="plain" 
+                    sx={{ 
+                        p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: 2, mt: 2, 
+                        overflow: 'auto',
+                        '&::-webkit-scrollbar': { display: 'none' },
+                        whiteSpace: 'nowrap'
+                    }}
+                >
+                  <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><DirectionsCar sx={{ mr: 1 }}/> Identity</Tab>
+                  <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><History sx={{ mr: 1 }}/> Service History</Tab>
+                  <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Receipt sx={{ mr: 1 }}/> Finance</Tab>
+                  <Tab variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Policy sx={{ mr: 1 }}/> Insurance</Tab>
+                  <Tab variant={activeTab === 4 ? 'solid' : 'plain'} color={activeTab === 4 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Handyman sx={{ mr: 1 }}/> Service Plans</Tab>
+                  <Tab variant={activeTab === 5 ? 'solid' : 'plain'} color={activeTab === 5 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Tune sx={{ mr: 1 }}/> Misc Costs</Tab>
                 </TabList>
             </Tabs>
         )}
