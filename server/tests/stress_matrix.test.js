@@ -123,6 +123,38 @@ describe('🚀 Exhaustive Stress & Isolation Matrix', () => {
         });
     });
 
+    describe('👤 Identity & Profile Coverage', () => {
+        test('[AUTH] All roles can access /auth/profile', async () => {
+            const roles = [hhA.admin, hhA.member, hhA.viewer];
+            for (const token of roles) {
+                const res = await request(app).get('/auth/profile').set('Authorization', `Bearer ${token}`);
+                expect(res.status).toBe(200);
+            }
+        });
+
+        test('[AUTH] SysAdmin can fetch specific users via /admin/users/:id', async () => {
+            // We need a userId. Let's create one.
+            const create = await request(app).post('/admin/create-user').set('Authorization', `Bearer ${sysAdminToken}`).send({ 
+                username: 'FetchTest', email: `fetch_${Date.now()}@test.com`, password: 'password', householdId: hhA.id 
+            });
+            const userId = create.body.id;
+
+            const res = await request(app).get(`/admin/users/${userId}`).set('Authorization', `Bearer ${sysAdminToken}`);
+            expect(res.status).toBe(200);
+            expect(res.body.id).toBe(userId);
+        });
+
+        test('[AUTH] Household Admin CANNOT fetch users via /admin/users/:id (SysAdmin only)', async () => {
+            const create = await request(app).post('/admin/create-user').set('Authorization', `Bearer ${sysAdminToken}`).send({ 
+                username: 'FetchTest2', email: `fetch2_${Date.now()}@test.com`, password: 'password', householdId: hhA.id 
+            });
+            const userId = create.body.id;
+
+            const res = await request(app).get(`/admin/users/${userId}`).set('Authorization', `Bearer ${hhA.admin}`);
+            expect(res.status).toBe(403);
+        });
+    });
+
     describe('🧪 Data Fuzzing & Boundary Tests', () => {
         test('Should handle massive strings and special characters', async () => {
             const massiveString = 'A'.repeat(5000);

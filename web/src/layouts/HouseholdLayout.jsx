@@ -83,7 +83,8 @@ export default function HouseholdLayout({
                 user, 
                 isDark,
                 showNotification,
-                confirmAction
+                confirmAction,
+                onUpdateProfile
             }} />
         </Box>
 

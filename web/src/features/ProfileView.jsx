@@ -13,7 +13,7 @@ import { getEmojiColor } from '../theme';
 export default function ProfileView() {
   const { userId } = useParams();
   const navigate = useNavigate();
-  const { api, user: currentUser, showNotification } = useOutletContext();
+  const { api, user: currentUser, showNotification, onUpdateProfile } = useOutletContext();
   
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -33,6 +33,8 @@ export default function ProfileView() {
     const fetchUser = async () => {
       try {
         setLoading(true);
+        // If it's me, we can initialize from context for speed, 
+        // but we'll still fetch fresh data to be sure.
         if (isMe) {
           setFormData({
             first_name: currentUser.first_name || '',
@@ -68,7 +70,8 @@ export default function ProfileView() {
       if (password) updates.password = password;
 
       if (isMe) {
-        await api.put('/auth/profile', updates);
+        // Use the centralized update function to ensure state/localStorage sync
+        await onUpdateProfile(updates);
         showNotification("Your profile has been updated.", "success");
       } else {
         await api.put(`/admin/users/${targetId}`, updates);
@@ -76,7 +79,9 @@ export default function ProfileView() {
       }
       navigate(-1);
     } catch (err) {
-      showNotification("Failed to update profile.", "danger");
+      // Notification is handled inside onUpdateProfile if it fails, 
+      // but we catch here just in case of other errors.
+      if (!isMe) showNotification("Failed to update profile.", "danger");
     }
   };
 
@@ -98,6 +103,7 @@ export default function ProfileView() {
 
         <form onSubmit={handleSubmit}>
           <Stack spacing={4}>
+            {/* Avatar Selection */}
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
               <Box 
                 sx={{ 

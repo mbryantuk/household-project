@@ -158,6 +158,36 @@ describe('Household Project API Integration Suite (Intense + Renaming)', () => {
             users.member.token = res.body.token;
             logToReport('Verify Login (Renamed User)', '/auth/login', '✅ Success');
         });
+
+        it('should fetch the current user profile (GET /auth/profile)', async () => {
+            const res = await request(app)
+                .get('/auth/profile')
+                .set('Authorization', `Bearer ${users.member.token}`);
+            
+            expect(res.statusCode).toBe(200);
+            expect(res.body.email).toBe(users.member.creds.email);
+            logToReport('Fetch Profile', '/auth/profile', '✅ Success');
+        });
+
+        it('should fetch a specific user as SysAdmin (GET /admin/users/:id)', async () => {
+            const res = await request(app)
+                .get(`/admin/users/${users.member.id}`)
+                .set('Authorization', `Bearer ${sysAdminToken}`);
+            
+            expect(res.statusCode).toBe(200);
+            expect(res.body.id).toBe(users.member.id);
+            expect(res.body.email).toBe(users.member.creds.email);
+            logToReport('Admin Fetch User', `/admin/users/${users.member.id}`, '✅ Success');
+        });
+
+        it('should block non-SysAdmin from fetching other users (GET /admin/users/:id)', async () => {
+            const res = await request(app)
+                .get(`/admin/users/${users.member.id}`)
+                .set('Authorization', `Bearer ${localAdminToken}`);
+            
+            expect(res.statusCode).toBe(403);
+            logToReport('Admin Fetch User (Forbidden)', '/admin/users/:id', '✅ Success');
+        });
     });
 
     // =========================================================================

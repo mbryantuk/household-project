@@ -133,11 +133,11 @@ export default function NavSidebar({
                         <Avatar 
                             size="sm"
                             sx={{ 
-                                bgcolor: getEmojiColor(user?.avatar || '?', isDark), 
+                                bgcolor: getEmojiColor(user?.avatar || '👤', isDark), 
                                 width: 24, height: 24, fontSize: '0.8rem' 
                             }}
                         >
-                            {user?.avatar || user?.username?.[0]}
+                            {user?.avatar || user?.first_name?.[0] || user?.email?.[0]}
                         </Avatar>
                     } 
                     label={user?.first_name || 'Account'} 
