@@ -194,4 +194,46 @@ router.put('/profile', authenticateToken, async (req, res) => {
     }
 });
 
+/**
+
+ * GET /my-households
+
+ * Return all households linked to current user
+
+ */
+
+router.get('/my-households', authenticateToken, async (req, res) => {
+
+    try {
+
+        const sql = `
+
+            SELECT h.*, uh.role 
+
+            FROM households h
+
+            JOIN user_households uh ON h.id = uh.household_id
+
+            WHERE uh.user_id = ?
+
+        `;
+
+        globalDb.all(sql, [req.user.id], (err, rows) => {
+
+            if (err) return res.status(500).json({ error: err.message });
+
+            res.json(rows);
+
+        });
+
+    } catch (err) {
+
+        res.status(500).json({ error: err.message });
+
+    }
+
+});
+
+
+
 module.exports = router;

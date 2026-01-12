@@ -6,7 +6,7 @@ import {
 import { 
   Settings, Home as HomeIcon, Event, 
   Groups, Pets, HomeWork, DirectionsCar, 
-  Logout, Edit, KeyboardArrowRight, ChevronLeft, Download, Close
+  Logout, Edit, KeyboardArrowRight, ChevronLeft, Download, Close, SwapHoriz
 } from '@mui/icons-material';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
@@ -14,7 +14,7 @@ import EmojiPicker from './EmojiPicker';
 import TotemIcon from './TotemIcon';
 
 // Layout Constants
-const RAIL_WIDTH = 64; // Reduced from 72
+const RAIL_WIDTH = 64; 
 const PANEL_WIDTH = 240;
 
 export default function NavSidebar({ 
@@ -41,14 +41,6 @@ export default function NavSidebar({
 
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
-  const handleCategoryClick = (category, hasSubItems) => {
-      if (activeCategory === category && !hasSubItems) {
-          // If it's a direct link and already active, do nothing or collapse
-      } else {
-          setActiveCategory(category);
-      }
-  };
-
   const handleNav = (to, category, hasSubItems) => {
       if (to) {
           navigate(to);
@@ -58,7 +50,6 @@ export default function NavSidebar({
   };
 
   const RailIcon = ({ icon, label, category, to, hasSubItems }) => {
-      // Logic: isActive if path matches OR category matches manually
       const pathMatches = to && location.pathname.includes(to);
       const categoryMatches = activeCategory === category;
       const isActive = pathMatches || categoryMatches;
@@ -86,19 +77,10 @@ export default function NavSidebar({
                     selected={isActive}
                     onClick={() => handleNav(to, category, hasSubItems)}
                     sx={{ 
-                        borderRadius: 'md', 
-                        justifyContent: 'center', 
-                        px: 0, 
-                        flexDirection: 'column', 
-                        gap: 0.2, 
-                        py: 0.8, 
-                        width: 52, // Slightly narrower
-                        mx: 'auto',
-                        minHeight: 52,
-                        '&.Mui-selected': {
-                            bgcolor: 'background.level1',
-                            color: 'primary.plainColor'
-                        }
+                        borderRadius: 'md', justifyContent: 'center', px: 0, 
+                        flexDirection: 'column', gap: 0.2, py: 0.8, width: 52, 
+                        mx: 'auto', minHeight: 52,
+                        '&.Mui-selected': { bgcolor: 'background.level1', color: 'primary.plainColor' }
                     }}
                 >
                     <ListItemDecorator sx={{ display: 'flex', justifyContent: 'center', m: 0, '& svg': { fontSize: '1.25rem' } }}>{icon}</ListItemDecorator>
@@ -127,7 +109,6 @@ export default function NavSidebar({
       </ListItem>
   );
 
-  // Determine if panel should actually be visible
   const showPanel = activeCategory && ['people', 'pets', 'house', 'vehicles', 'settings', 'account'].includes(activeCategory);
 
   const sidebarContent = (
@@ -137,13 +118,9 @@ export default function NavSidebar({
                 width: isMobile ? '100%' : RAIL_WIDTH,
                 borderRight: isMobile ? 'none' : '1px solid',
                 borderColor: 'divider',
-                display: 'flex',
-                flexDirection: 'column',
+                display: 'flex', flexDirection: 'column',
                 alignItems: isMobile ? 'stretch' : 'center',
-                py: 1.5,
-                bgcolor: 'background.surface',
-                zIndex: 2500,
-                height: '100%' 
+                py: 1.5, bgcolor: 'background.surface', zIndex: 2500, height: '100%' 
             }}
         >
             {isMobile && (
@@ -154,16 +131,7 @@ export default function NavSidebar({
             )}
 
             <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'center' }}>
-                <Box 
-                    sx={{ 
-                        width: 42, height: 42, borderRadius: '50%', 
-                        bgcolor: getEmojiColor(household?.avatar || '?', isDark),
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '1.2rem', cursor: 'pointer',
-                        border: '2px solid', borderColor: 'divider',
-                        overflow: 'hidden'
-                    }}
-                >
+                <Box sx={{ width: 42, height: 42, borderRadius: '50%', bgcolor: getEmojiColor(household?.avatar || '?', isDark), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', cursor: 'pointer', border: '2px solid', borderColor: 'divider', overflow: 'hidden' }} onClick={() => navigate('/select-household')}>
                     {household?.avatar ? (household.avatar.startsWith('data:image') ? <img src={household.avatar} alt="HH" style={{width:'100%'}}/> : household.avatar) : <TotemIcon />}
                 </Box>
             </Box>
@@ -180,38 +148,18 @@ export default function NavSidebar({
                 <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems />
                 <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
                 <RailIcon 
-                    icon={
-                        <Avatar 
-                            size="sm"
-                            sx={{ 
-                                bgcolor: getEmojiColor(user?.avatar || '👤', isDark), 
-                                width: 22, height: 22, fontSize: '0.75rem' 
-                            }}
-                        >
-                            {user?.avatar || user?.first_name?.[0] || user?.email?.[0]}
-                        </Avatar>
-                    } 
-                    label="Account" 
-                    category="account" 
-                    hasSubItems 
+                    icon={<Avatar size="sm" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark), width: 22, height: 22, fontSize: '0.75rem' }}>{user?.avatar || user?.first_name?.[0]}</Avatar>} 
+                    label="Account" category="account" hasSubItems 
                 />
             </List>
 
             <Box sx={{ flexGrow: 1 }} />
-
-            <Box sx={{ mt: 'auto', width: '100%', display: 'flex', flexDirection: 'column', alignItems: isMobile ? 'center' : 'center', px: isMobile ? 2 : 0, pb: 1 }}>
-                {canInstall && (
-                    <Tooltip title="Install App" placement="right" arrow size="sm">
-                        <IconButton 
-                            onClick={onInstall} 
-                            variant="soft" 
-                            color="primary" 
-                            sx={{ borderRadius: 'sm', width: 36, height: 36 }}
-                        >
-                            <Download sx={{ fontSize: '1.2rem' }} />
-                        </IconButton>
-                    </Tooltip>
-                )}
+            <Box sx={{ pb: 2 }}>
+                <Tooltip title="Switch Household" placement="right" arrow size="sm">
+                    <IconButton variant="soft" color="neutral" size="sm" onClick={() => navigate('/select-household')}>
+                        <SwapHoriz />
+                    </IconButton>
+                </Tooltip>
             </Box>
         </Sheet>
 
@@ -220,33 +168,18 @@ export default function NavSidebar({
                 sx={{
                     width: isMobile ? '100%' : (showPanel ? PANEL_WIDTH : 0),
                     position: isMobile ? 'absolute' : 'relative',
-                    left: isMobile ? 0 : 'auto',
-                    top: 0,
+                    left: isMobile ? 0 : 'auto', top: 0,
                     zIndex: isMobile ? 2600 : 2100,
                     borderRight: (showPanel && !isMobile) ? '1px solid' : 'none',
-                    borderColor: 'divider',
-                    overflow: 'hidden',
+                    borderColor: 'divider', overflow: 'hidden',
                     transition: isMobile ? 'none' : 'width 0.2s',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    bgcolor: 'background.level1',
-                    whiteSpace: 'nowrap',
-                    height: '100%' 
+                    display: 'flex', flexDirection: 'column',
+                    bgcolor: 'background.level1', whiteSpace: 'nowrap', height: '100%' 
                 }}
             >
-                <Box sx={{ 
-                    p: 2, borderBottom: '1px solid', borderColor: 'divider',
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-                }}>
+                <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography level="title-md" textTransform="uppercase" letterSpacing="1px">{activeCategory}</Typography>
-                    <IconButton size="sm" variant="plain" color="neutral" onClick={() => {
-                        // When manually closing via Chevron, we don't clear activeCategory
-                        // We just toggle a local "hidden" state or rely on the showPanel logic
-                        // Re-evaluating: To keep the rail icon selected, we need activeCategory to persist.
-                        // But we want the panel to close.
-                        // Solution: Use a separate "expanded" state for the panel.
-                        setActiveCategory(null); // Simple way for now, Rail will re-sync from path
-                    }}><ChevronLeft /></IconButton>
+                    <IconButton size="sm" variant="plain" color="neutral" onClick={() => setActiveCategory(null)}><ChevronLeft /></IconButton>
                 </Box>
                 
                 <List sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>
@@ -254,13 +187,7 @@ export default function NavSidebar({
                         <>
                             <ListItem sx={{ px: 2, py: 1.5 }}>
                                 <Stack direction="row" spacing={2} alignItems="center">
-                                    <Avatar 
-                                        size="lg" 
-                                        sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark) }}
-                                        onClick={() => setEmojiPickerOpen(true)}
-                                    >
-                                        {user?.avatar || user?.first_name?.[0]}
-                                    </Avatar>
+                                    <Avatar size="lg" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark) }} onClick={() => setEmojiPickerOpen(true)}>{user?.avatar || user?.first_name?.[0]}</Avatar>
                                     <Box sx={{ minWidth: 0 }}>
                                         <Typography level="title-sm" noWrap>{user?.first_name} {user?.last_name}</Typography>
                                         <Typography level="body-xs" noWrap>{user?.email}</Typography>
@@ -268,24 +195,10 @@ export default function NavSidebar({
                                 </Stack>
                             </ListItem>
                             <Divider sx={{ my: 1 }} />
-                            <ListItem>
-                                <ListItemButton onClick={() => { navigate('profile'); setActiveCategory(null); if (isMobile && onClose) onClose(); }}>
-                                    <ListItemDecorator><Edit /></ListItemDecorator>
-                                    <ListItemContent>Edit Profile</ListItemContent>
-                                </ListItemButton>
-                            </ListItem>
+                            <ListItem><ListItemButton onClick={() => { navigate('profile'); setActiveCategory(null); if (isMobile && onClose) onClose(); }}><ListItemDecorator><Edit /></ListItemDecorator><ListItemContent>Edit Profile</ListItemContent></ListItemButton></ListItem>
+                            <ListItem><ListItemButton onClick={() => { navigate('/select-household'); setActiveCategory(null); }}><ListItemDecorator><SwapHoriz /></ListItemDecorator><ListItemContent>Switch Household</ListItemContent></ListItemButton></ListItem>
                             <Divider sx={{ my: 1 }} />
-                            <ListItem>
-                                <ListItemButton 
-                                    onClick={() => { onLogout(); if (isMobile && onClose) onClose(); }} 
-                                    variant="solid"
-                                    color="danger"
-                                    sx={{ borderRadius: 'sm', mx: 0.5 }}
-                                >
-                                    <ListItemDecorator><Logout sx={{ color: 'inherit' }} /></ListItemDecorator>
-                                    <ListItemContent>Logout</ListItemContent>
-                                </ListItemButton>
-                            </ListItem>
+                            <ListItem><ListItemButton onClick={() => { onLogout(); if (isMobile && onClose) onClose(); }} variant="solid" color="danger" sx={{ borderRadius: 'sm', mx: 0.5 }}><ListItemDecorator><Logout sx={{ color: 'inherit' }} /></ListItemDecorator><ListItemContent>Logout</ListItemContent></ListItemButton></ListItem>
                         </>
                     )}
                     {activeCategory === 'people' && (
@@ -319,21 +232,8 @@ export default function NavSidebar({
                         <>
                         <SubItem label="General" to="settings" />
                         <ListItem><Typography level="body-xs" sx={{ p: 1 }}>Theme</Typography></ListItem>
-                        <ListItem>
-                            <Button variant="soft" color="neutral" fullWidth onClick={() => onModeChange(isDark ? 'light' : 'dark')}>
-                                    {isDark ? 'Switch to Light' : 'Switch to Dark'}
-                                </Button>
-                        </ListItem>
-                        <ListItem sx={{ mt: 1 }}>
-                            <Button 
-                                    variant={useDracula ? 'solid' : 'outlined'} 
-                                    color="danger" 
-                                    fullWidth 
-                                    onClick={() => onDraculaChange && onDraculaChange(!useDracula)}
-                                >
-                                    {useDracula ? 'Disable Dracula' : 'Enable Dracula'}
-                                </Button>
-                        </ListItem>
+                        <ListItem><Button variant="soft" color="neutral" fullWidth onClick={() => onModeChange(isDark ? 'light' : 'dark')}>{isDark ? 'Switch to Light' : 'Switch to Dark'}</Button></ListItem>
+                        <ListItem sx={{ mt: 1 }}><Button variant={useDracula ? 'solid' : 'outlined'} color="danger" fullWidth onClick={() => onDraculaChange && onDraculaChange(!useDracula)}>{useDracula ? 'Disable Dracula' : 'Enable Dracula'}</Button></ListItem>
                         </>
                     )}
                 </List>
@@ -345,16 +245,7 @@ export default function NavSidebar({
   return (
     <Box sx={{ display: 'flex', height: '100%', zIndex: 2500, position: 'relative' }}>
         {sidebarContent}
-        <EmojiPicker 
-            open={emojiPickerOpen} 
-            onClose={() => setEmojiPickerOpen(false)} 
-            onEmojiSelect={(emoji) => { 
-                onUpdateProfile({ avatar: emoji }); 
-                setEmojiPickerOpen(false); 
-            }} 
-            title="Select Avatar Emoji" 
-            isDark={isDark} 
-        />
+        <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(emoji) => { onUpdateProfile({ avatar: emoji }); setEmojiPickerOpen(false); }} title="Select Avatar Emoji" isDark={isDark} />
     </Box>
   );
 }
