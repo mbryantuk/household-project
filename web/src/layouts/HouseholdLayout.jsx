@@ -55,22 +55,24 @@ export default function HouseholdLayout({
   }, [id, households, onSelectHousehold, navigate, fetchVehicles]);
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden', flexDirection: 'column' }}>
-      <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
-        <NavSidebar 
-            members={members} 
-            vehicles={vehicles}
-            isDark={isDark}
-            household={activeHousehold}
-            user={user}
-            onLogout={onLogout}
-            onUpdateProfile={onUpdateProfile}
-            onModeChange={onModeChange}
-            onInstall={onInstall}
-            canInstall={!!installPrompt}
-        />
-        
-        <Box component="main" sx={{ flexGrow: 1, p: { xs: 1, sm: 2, md: 3 }, pt: 1, overflowY: 'auto', minWidth: 0, pb: 8 }}>
+    <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+      <NavSidebar 
+          members={members} 
+          vehicles={vehicles}
+          isDark={isDark}
+          household={activeHousehold}
+          user={user}
+          onLogout={onLogout}
+          onUpdateProfile={onUpdateProfile}
+          onModeChange={onModeChange}
+          onInstall={onInstall}
+          canInstall={!!installPrompt}
+          useDracula={useDracula}
+          onDraculaChange={onDraculaChange}
+      />
+      
+      <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0, height: '100%' }}>
+        <Box component="main" sx={{ flexGrow: 1, p: { xs: 1, sm: 2, md: 3 }, pt: 1, overflowY: 'auto' }}>
             <Outlet context={{ 
                 api, 
                 id, 
@@ -84,19 +86,19 @@ export default function HouseholdLayout({
                 confirmAction
             }} />
         </Box>
-      </Box>
 
-      {/* Persistent Bottom Utility Bar */}
-      <UtilityBar 
-        user={user}
-        api={api}
-        dates={dates}
-        onDateAdded={onDateAdded}
-        onUpdateProfile={onUpdateProfile}
-        isDark={isDark}
-        canInstall={!!installPrompt}
-        onInstall={onInstall}
-      />
+        {/* Persistent Bottom Utility Bar */}
+        <UtilityBar 
+          user={user}
+          api={api}
+          dates={dates}
+          onDateAdded={onDateAdded}
+          onUpdateProfile={onUpdateProfile}
+          isDark={isDark}
+          canInstall={!!installPrompt}
+          onInstall={onInstall}
+        />
+      </Box>
     </Box>
   );
 }

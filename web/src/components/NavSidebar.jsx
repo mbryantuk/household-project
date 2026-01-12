@@ -19,7 +19,8 @@ const PANEL_WIDTH = 240;
 
 export default function NavSidebar({ 
     members = [], vehicles = [], isDark, household, user, 
-    onLogout, onUpdateProfile, onModeChange, onInstall, canInstall
+    onLogout, onUpdateProfile, onModeChange, onInstall, canInstall,
+    useDracula, onDraculaChange
 }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -146,22 +147,21 @@ export default function NavSidebar({
             <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%' }}>
                 <RailIcon icon={<HomeIcon />} label="Home" category="dashboard" to="dashboard" />
                 <RailIcon icon={<Event />} label="Events" category="calendar" to="calendar" />
-                <Divider sx={{ my: 1, mx: 1.5 }} />
+                <Divider sx={{ my: 1, width: 48, mx: 'auto' }} />
                 <RailIcon icon={<Groups />} label="People" category="people" hasSubItems />
                 <RailIcon icon={<Pets />} label="Pets" category="pets" hasSubItems />
                 <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems />
                 <RailIcon icon={<DirectionsCar />} label="Vehicles" category="vehicles" hasSubItems />
-                <Divider sx={{ my: 1, mx: 1.5 }} />
+                <Divider sx={{ my: 1, width: 48, mx: 'auto' }} />
                 <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems />
             </List>
 
             <Box sx={{ flexGrow: 1 }} />
 
             <Box sx={{ mt: 'auto', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 8 }}>
-                <Divider sx={{ my: 1, width: '60%' }} />
+                <Divider sx={{ my: 1, width: 48, mx: 'auto' }} />
                 <Avatar 
                     onClick={(e) => {
-                        e.stopPropagation();
                         setUserMenuAnchor(e.currentTarget);
                     }}
                     sx={{ cursor: 'pointer', bgcolor: getEmojiColor(user?.avatar || '?', isDark) }}
@@ -229,6 +229,16 @@ export default function NavSidebar({
                        <ListItem>
                            <Button variant="soft" color="neutral" fullWidth onClick={() => onModeChange(isDark ? 'light' : 'dark')}>
                                 {isDark ? 'Switch to Light' : 'Switch to Dark'}
+                            </Button>
+                       </ListItem>
+                       <ListItem sx={{ mt: 1 }}>
+                           <Button 
+                                variant={useDracula ? 'solid' : 'outlined'} 
+                                color="danger" 
+                                fullWidth 
+                                onClick={() => onDraculaChange && onDraculaChange(!useDracula)}
+                            >
+                                {useDracula ? 'Disable Dracula' : 'Enable Dracula'}
                             </Button>
                        </ListItem>
                     </>

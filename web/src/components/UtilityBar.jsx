@@ -42,9 +42,9 @@ export default function UtilityBar({
   });
 
   return (
-    <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 2000 }}>
-      {/* Docked Panel Container */}
-      <Box sx={{ position: 'relative', width: '100%' }}>
+    <Box sx={{ position: 'relative', width: '100%', flexShrink: 0, zIndex: 2000 }}>
+      {/* Docked Panel Container - Float above the bar */}
+      <Box sx={{ position: 'absolute', bottom: '100%', left: 0, right: 0, height: 0, zIndex: 2002 }}>
           {activeWidget === 'notes' && !poppedOut.notes && (
               <Box sx={{ position: 'absolute', bottom: 0, left: 20 }}>
                   <PostItNote 

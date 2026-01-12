@@ -79,7 +79,11 @@ export default function FloatingCalendar({
         left: isPopout ? 0 : (isDocked ? 'inherit' : pos.x),
         bottom: isDocked ? 0 : 'inherit',
         top: !isDocked && !isPopout ? pos.y : 'inherit',
-        width: 350, height: 500, zIndex: 1300, display: 'flex', flexDirection: 'column',
+        width: isPopout ? '100%' : 350,
+        height: isPopout ? '100%' : 500,
+        zIndex: 1300,
+        display: 'flex',
+        flexDirection: 'column',
         borderRadius: isPopout || isDocked ? 0 : 'md',
         boxShadow: 'lg', opacity: isFocused || isPopout ? 1 : 0.4, transition: 'opacity 0.2s'
       }}
