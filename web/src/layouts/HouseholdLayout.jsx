@@ -15,7 +15,9 @@ export default function HouseholdLayout({
   user,
   isDark,
   showNotification,
-  confirmAction
+  confirmAction,
+  onLogout,
+  onUpdateProfile
 }) {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -52,12 +54,15 @@ export default function HouseholdLayout({
         vehicles={vehicles}
         isDark={isDark}
         household={activeHousehold}
+        user={user}
+        onLogout={onLogout}
+        onUpdateProfile={onUpdateProfile}
       />
+      {/* Added margin-left if Sidebar is fixed? No, Sidebar is sticky/flex. 
+          The Sidebar is part of the flex container.
+          Content padding is here.
+      */}
       <Box component="main" sx={{ flexGrow: 1, width: '100%', p: { xs: 1, sm: 2, md: 3 }, pt: 1 }}>
-        {/* We removed fixed AppBar Spacer because TopBar is now sticky or we need padding if fixed.
-            If TopBar in RootLayout is sticky, we don't need a spacer here.
-            Let's assume TopBar is sticky (in TopBar.jsx).
-         */}
         <Outlet context={{ 
             api, 
             id, 

@@ -6,7 +6,7 @@ import {
 } from '@mui/joy';
 import { 
   Close, DragIndicator, ChevronLeft, ChevronRight, Add, 
-  Event, Cake, Favorite, Star 
+  Event, Cake, Favorite, Star, OpenInNew 
 } from '@mui/icons-material';
 import EmojiPicker from './EmojiPicker';
 import { getEmojiColor } from '../theme';
@@ -19,7 +19,7 @@ const EVENT_TYPES = [
 ];
 
 export default function FloatingCalendar({ 
-  dates = [], api, householdId, onDateAdded, currentUser, onClose 
+  dates = [], api, householdId, onDateAdded, currentUser, onClose, isPopout = false 
 }) {
   // --- Dragging State & Logic ---
   const [pos, setPos] = useState({ x: 100, y: 100 });
@@ -29,6 +29,7 @@ export default function FloatingCalendar({
   const containerRef = useRef(null);
 
   const onMouseDown = (e) => {
+    if (isPopout) return;
     if (e.button !== 0) return;
     setIsDragging(true);
     // Calculate click offset relative to the container
@@ -38,6 +39,7 @@ export default function FloatingCalendar({
   };
 
   useEffect(() => {
+    if (isPopout) return;
     const onMouseMove = (e) => {
       if (!isDragging) return;
       setPos({ x: e.pageX - rel.x, y: e.pageY - rel.y });
@@ -52,7 +54,7 @@ export default function FloatingCalendar({
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
     };
-  }, [isDragging, rel]);
+  }, [isDragging, rel, isPopout]);
 
   // --- Calendar State ---
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -79,11 +81,7 @@ export default function FloatingCalendar({
   const month = currentDate.getMonth();
   const numDays = daysInMonth(year, month);
   const firstDaySun = firstDayOfMonth(year, month);
-  const firstDay = (firstDaySun + 6) % 7; // Shift to Monday start if desired, or keep Sunday. Let's assume Mon start for consistency or Sun. Code used Mon start logic previously (firstDaySun + 6 % 7 usually shifts Sun(0) to 6, Mon(1) to 0).
-  
-  // Re-verify day logic. 
-  // Sun=0, Mon=1. 
-  // If we want Mon start: Mon(1)->0, Sun(0)->6. Formula: (day + 6) % 7. Correct.
+  const firstDay = (firstDaySun + 6) % 7; 
 
   const prevMonthDate = new Date(year, month - 1);
   const prevMonthDays = daysInMonth(prevMonthDate.getFullYear(), prevMonthDate.getMonth());
@@ -105,7 +103,7 @@ export default function FloatingCalendar({
       const dDate = new Date(d.date);
       return dDate.getDate() === selectedDate.getDate() &&
              dDate.getMonth() === selectedDate.getMonth() &&
-             dDate.getFullYear() === selectedDate.getFullYear(); // Add year check for precision
+             dDate.getFullYear() === selectedDate.getFullYear();
     });
   }, [dates, selectedDate]);
 
@@ -146,6 +144,13 @@ export default function FloatingCalendar({
       .catch((err) => console.error("Failed to add event", err));
   };
 
+  const handlePopout = () => {
+    // Open a new window that points to /calendar-window
+    // Pass current date? No, popout will load defaults or we could pass via query params but keeping it simple.
+    window.open('/calendar-window', 'TotemCalendar', 'width=420,height=600,menubar=no,toolbar=no,location=no,status=no');
+    onClose();
+  };
+
   return (
     <Sheet
       ref={containerRef}
@@ -157,19 +162,20 @@ export default function FloatingCalendar({
       }}
       tabIndex={0} // Make focusable
       sx={{
-        position: 'fixed',
-        left: pos.x,
-        top: pos.y,
-        width: 400,
+        position: isPopout ? 'relative' : 'fixed',
+        left: isPopout ? 0 : pos.x,
+        top: isPopout ? 0 : pos.y,
+        width: isPopout ? '100%' : 400,
+        height: isPopout ? '100%' : 'auto',
         minHeight: 500,
-        zIndex: 1200, // Higher than TopBar (1100)
+        zIndex: 1200, 
         display: 'flex',
         flexDirection: 'column',
-        borderRadius: 'md',
+        borderRadius: isPopout ? 0 : 'md',
         boxShadow: isFocused ? 'lg' : 'sm',
         borderColor: isFocused ? 'primary.500' : 'divider',
         transition: 'opacity 0.2s',
-        opacity: isFocused ? 1 : 0.85,
+        opacity: isPopout ? 1 : (isFocused ? 1 : 0.6), // Always 1 if popout
         bgcolor: 'background.surface',
         '&:hover': { opacity: 1 }
       }}
@@ -179,22 +185,31 @@ export default function FloatingCalendar({
         onMouseDown={onMouseDown}
         sx={{ 
           p: 1, 
-          bgcolor: isFocused ? 'primary.softBg' : 'background.level1', 
+          bgcolor: isFocused ? 'primary.solidBg' : 'background.surface', 
+          color: isFocused ? 'primary.solidColor' : 'text.primary',
           borderBottom: '1px solid',
           borderColor: 'divider',
           display: 'flex', 
           alignItems: 'center', 
-          cursor: 'move',
+          cursor: isPopout ? 'default' : 'move',
           userSelect: 'none',
-          borderTopLeftRadius: 'md',
-          borderTopRightRadius: 'md'
+          borderTopLeftRadius: isPopout ? 0 : 'md',
+          borderTopRightRadius: isPopout ? 0 : 'md'
         }}
       >
-        <DragIndicator fontSize="small" sx={{ mr: 1, opacity: 0.5 }} />
-        <Typography level="title-sm" sx={{ flexGrow: 1 }}>Calendar</Typography>
-        <IconButton size="sm" variant="plain" color="neutral" onClick={onClose}>
-          <Close fontSize="small" />
-        </IconButton>
+        {!isPopout && <DragIndicator fontSize="small" sx={{ mr: 1, opacity: 0.7 }} />}
+        <Typography level="title-sm" sx={{ flexGrow: 1, color: 'inherit' }}>Calendar</Typography>
+        
+        {!isPopout && (
+            <Tooltip title="Pop out" variant="soft">
+                <IconButton size="sm" variant="plain" color="inherit" onClick={handlePopout}><OpenInNew fontSize="inherit" /></IconButton>
+            </Tooltip>
+        )}
+        {!isPopout && (
+            <IconButton size="sm" variant="plain" color="inherit" onClick={onClose} sx={{ ml: 1 }}>
+              <Close fontSize="small" />
+            </IconButton>
+        )}
       </Box>
 
       {/* --- Content --- */}

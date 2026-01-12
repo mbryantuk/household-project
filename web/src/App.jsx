@@ -11,6 +11,7 @@ import CssBaseline from '@mui/joy/CssBaseline';
 // Theme and Local Components
 import { getTotemTheme, getThemeSpec } from './theme';
 import FloatingCalculator from './components/FloatingCalculator';
+import FloatingCalendar from './components/FloatingCalendar';
 
 // Layouts & Pages
 import RootLayout from './layouts/RootLayout';
@@ -275,6 +276,20 @@ function AppContent() {
         <Route path="/login" element={!token ? <Login onLogin={login} /> : <Navigate to="/" />} />
         <Route path="/register" element={!token ? <Register /> : <Navigate to="/" />} />
         <Route path="/calculator" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
+        {/* Added calendar-window route */}
+        <Route path="/calendar-window" element={
+          <Box sx={{ height: '100vh', bgcolor: 'background.body' }}>
+            <FloatingCalendar 
+                isPopout={true} 
+                onClose={() => window.close()} 
+                dates={hhDates}
+                api={authAxios}
+                householdId={household?.id}
+                currentUser={user}
+                onDateAdded={() => household && fetchHhDates(household.id)}
+            />
+          </Box>
+        } />
         
         <Route element={token ? <RootLayout 
             user={user} 

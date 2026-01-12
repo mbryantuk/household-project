@@ -36,7 +36,8 @@ export default function RootLayout({
         onDateAdded={onDateAdded}
         onUpdateProfile={onUpdateProfile}
       />
-      <Box component="main" sx={{ flexGrow: 1, p: { xs: 1, sm: 2, md: 3 } }}>
+      {/* Removed global padding p: { xs: 1, sm: 2, md: 3 } to allow Sidebar to be flush */}
+      <Box component="main" sx={{ flexGrow: 1 }}>
         <Outlet context={{ api }} />
       </Box>
     </Box>

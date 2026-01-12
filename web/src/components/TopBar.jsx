@@ -27,7 +27,7 @@ export default function TopBar({
         alignItems: 'center',
         justifyContent: 'space-between',
         px: 2,
-        py: 1,
+        height: 'var(--Header-height, 60px)',
         position: 'sticky',
         top: 0,
         zIndex: 1100,
