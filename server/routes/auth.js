@@ -78,9 +78,13 @@ router.post('/login', async (req, res) => {
     const identifier = email || username;
 
     try {
-        // Support both email and username for login (SysAdmin uses username usually)
         const user = await dbGet(globalDb, `SELECT * FROM users WHERE email = ? OR username = ? COLLATE NOCASE`, [identifier, identifier]);
         if (!user) return res.status(404).json({ error: "Invalid credentials" });
+
+        // Check if user is active
+        if (!user.is_active) {
+            return res.status(403).json({ error: "Your account is deactivated. Please contact support." });
+        }
 
         const isValid = bcrypt.compareSync(password, user.password_hash);
         if (!isValid) return res.status(401).json({ error: "Invalid credentials" });
@@ -89,15 +93,24 @@ router.post('/login', async (req, res) => {
         let userRole = 'member';
 
         if (!householdId) {
-            const link = await dbGet(globalDb, `SELECT * FROM user_households WHERE user_id = ? LIMIT 1`, [user.id]);
+            const link = await dbGet(globalDb, `SELECT * FROM user_households WHERE user_id = ? AND is_active = 1 LIMIT 1`, [user.id]);
             if (link) {
                 householdId = link.household_id;
                 userRole = link.role;
             }
         } else {
-            const link = await dbGet(globalDb, `SELECT * FROM user_households WHERE user_id = ? AND household_id = ?`, [user.id, householdId]);
-            if (link) userRole = link.role;
-            else householdId = null;
+            const link = await dbGet(globalDb, `SELECT * FROM user_households WHERE user_id = ? AND household_id = ? AND is_active = 1`, [user.id, householdId]);
+            if (link) {
+                userRole = link.role;
+            } else {
+                // Default household might be inactive or user removed
+                householdId = null;
+                const altLink = await dbGet(globalDb, `SELECT * FROM user_households WHERE user_id = ? AND is_active = 1 LIMIT 1`, [user.id]);
+                if (altLink) {
+                    householdId = altLink.household_id;
+                    userRole = altLink.role;
+                }
+            }
         }
 
         let householdData = null;
@@ -141,11 +154,10 @@ router.post('/login', async (req, res) => {
 
 /**
  * GET /profile
- * Return current user data
  */
 router.get('/profile', authenticateToken, async (req, res) => {
     try {
-        const user = await dbGet(globalDb, `SELECT id, email, username, first_name, last_name, avatar, system_role, dashboard_layout, sticky_note FROM users WHERE id = ?`, [req.user.id]);
+        const user = await dbGet(globalDb, `SELECT id, email, username, first_name, last_name, avatar, system_role, dashboard_layout, sticky_note, default_household_id FROM users WHERE id = ?`, [req.user.id]);
         if (!user) return res.status(404).json({ error: "User not found" });
         res.json(user);
     } catch (err) {
@@ -161,7 +173,8 @@ router.put('/profile', authenticateToken, async (req, res) => {
         email, password, 
         firstName, lastName, 
         first_name, last_name, 
-        avatar, dashboard_layout, sticky_note 
+        avatar, dashboard_layout, sticky_note,
+        default_household_id
     } = req.body;
     
     let fields = [];
@@ -177,6 +190,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
     
     if (avatar !== undefined) { fields.push('avatar = ?'); values.push(avatar); }
     if (sticky_note !== undefined) { fields.push('sticky_note = ?'); values.push(sticky_note); }
+    if (default_household_id !== undefined) { fields.push('default_household_id = ?'); values.push(default_household_id); }
     if (dashboard_layout !== undefined) { 
         fields.push('dashboard_layout = ?'); 
         values.push(typeof dashboard_layout === 'string' ? dashboard_layout : JSON.stringify(dashboard_layout)); 
@@ -195,45 +209,25 @@ router.put('/profile', authenticateToken, async (req, res) => {
 });
 
 /**
-
  * GET /my-households
-
- * Return all households linked to current user
-
  */
-
 router.get('/my-households', authenticateToken, async (req, res) => {
-
     try {
-
         const sql = `
-
-            SELECT h.*, uh.role 
-
+            SELECT h.*, uh.role, uh.is_active as link_active
             FROM households h
-
             JOIN user_households uh ON h.id = uh.household_id
-
             WHERE uh.user_id = ?
-
         `;
 
         globalDb.all(sql, [req.user.id], (err, rows) => {
-
             if (err) return res.status(500).json({ error: err.message });
-
             res.json(rows);
-
         });
 
     } catch (err) {
-
         res.status(500).json({ error: err.message });
-
     }
-
 });
-
-
 
 module.exports = router;

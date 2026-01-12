@@ -38,7 +38,8 @@ function initGlobalDb() {
             default_household_id INTEGER,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP,
             dashboard_layout TEXT,
-            sticky_note TEXT
+            sticky_note TEXT,
+            is_active BOOLEAN DEFAULT 1
         )`);
 
         // --- GLOBAL HOUSEHOLDS TABLE ---
@@ -65,6 +66,7 @@ function initGlobalDb() {
             household_id INTEGER,
             role TEXT DEFAULT 'member', -- 'admin', 'member', 'viewer'
             joined_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            is_active BOOLEAN DEFAULT 1,
             PRIMARY KEY (user_id, household_id),
             FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
             FOREIGN KEY(household_id) REFERENCES households(id) ON DELETE CASCADE
@@ -88,6 +90,8 @@ function initGlobalDb() {
         globalDb.run(`ALTER TABLE users ADD COLUMN last_name TEXT`, (err) => {});
         globalDb.run(`ALTER TABLE users ADD COLUMN default_household_id INTEGER`, (err) => {});
         globalDb.run(`ALTER TABLE users ADD COLUMN sticky_note TEXT`, (err) => {});
+        globalDb.run(`ALTER TABLE users ADD COLUMN is_active BOOLEAN DEFAULT 1`, (err) => {});
+        globalDb.run(`ALTER TABLE user_households ADD COLUMN is_active BOOLEAN DEFAULT 1`, (err) => {});
     });
 }
 

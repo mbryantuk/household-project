@@ -10,8 +10,27 @@ function authenticateToken(req, res, next) {
 
     jwt.verify(token, SECRET_KEY, (err, user) => {
         if (err) return res.sendStatus(403); 
-        req.user = user;
-        next();
+        
+        // CRITICAL: Check if user is active globally
+        globalDb.get("SELECT is_active FROM users WHERE id = ?", [user.id], (err, row) => {
+            if (err || !row || !row.is_active) {
+                return res.status(403).json({ error: "Account is inactive." });
+            }
+
+            // If a household context is present, check if that link is active
+            if (user.householdId) {
+                globalDb.get("SELECT is_active FROM user_households WHERE user_id = ? AND household_id = ?", [user.id, user.householdId], (err, link) => {
+                    if (err || !link || !link.is_active) {
+                        return res.status(403).json({ error: "Access to this household is inactive." });
+                    }
+                    req.user = user;
+                    next();
+                });
+            } else {
+                req.user = user;
+                next();
+            }
+        });
     });
 }
 

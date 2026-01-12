@@ -9,7 +9,8 @@ import {
 } from '@mui/joy';
 import { 
   ManageAccounts, Backup, SettingsBrightness, PersonAdd, Edit, Delete, 
-  Schedule, CloudDownload, Download, Restore, LightMode, DarkMode, ExitToApp, Security
+  Schedule, CloudDownload, Download, Restore, LightMode, DarkMode, ExitToApp, Security,
+  ToggleOn, ToggleOff
 } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
 import { getEmojiColor } from '../theme';
@@ -82,6 +83,17 @@ export default function SettingsView({
     }
   };
 
+  const handleToggleActivation = async (user) => {
+    const newStatus = !user.is_active;
+    try {
+        await api.put(`/households/${household.id}/users/${user.id}`, { is_active: newStatus });
+        showNotification(`User ${newStatus ? 'activated' : 'deactivated'}.`, "success");
+        fetchUsers();
+    } catch (err) {
+        showNotification("Failed to update user status.", "danger");
+    }
+  };
+
   const handleRemoveUser = (userId, userName) => {
     const isSelf = userId === currentUser.id;
     confirmAction(
@@ -93,7 +105,7 @@ export default function SettingsView({
             try {
                 await api.delete(`/households/${household.id}/users/${userId}`);
                 showNotification(isSelf ? "You have left the household." : "User removed.", "success");
-                if (isSelf) navigate('/access');
+                if (isSelf) window.location.href = '/select-household';
                 else fetchUsers();
             } catch (err) {
                 showNotification("Failed to remove user.", "danger");
@@ -150,6 +162,7 @@ export default function SettingsView({
                             <th style={{ width: 60 }}></th>
                             <th>User</th>
                             <th>Email</th>
+                            <th>Status</th>
                             <th>Permissions</th>
                             <th style={{ textAlign: 'right' }}>Actions</th>
                           </tr>
@@ -158,14 +171,21 @@ export default function SettingsView({
                             {localUsers.map(u => (
                                 <tr key={u.id}>
                                     <td>
-                                      <Avatar size="sm" sx={{ bgcolor: u.avatar ? getEmojiColor(u.avatar, isDark) : 'neutral.solidBg' }}>
+                                      <Avatar size="sm" sx={{ bgcolor: u.avatar ? getEmojiColor(u.avatar, isDark) : 'neutral.solidBg', opacity: u.is_active ? 1 : 0.5 }}>
                                         {u.avatar || u.first_name?.[0] || u.email?.[0]?.toUpperCase()}
                                       </Avatar>
                                     </td>
                                     <td>
-                                        <Typography level="title-sm">{u.first_name || u.last_name ? `${u.first_name || ''} ${u.last_name || ''}`.trim() : 'New User'}</Typography>
+                                        <Typography level="title-sm" sx={{ textDecoration: u.is_active ? 'none' : 'line-through', opacity: u.is_active ? 1 : 0.6 }}>
+                                            {u.first_name || u.last_name ? `${u.first_name || ''} ${u.last_name || ''}`.trim() : 'New User'}
+                                        </Typography>
                                     </td>
-                                    <td><Typography level="body-xs">{u.email || '-'}</Typography></td>
+                                    <td><Typography level="body-xs" sx={{ opacity: u.is_active ? 1 : 0.6 }}>{u.email || '-'}</Typography></td>
+                                    <td>
+                                        <Chip size="sm" variant="soft" color={u.is_active ? 'success' : 'neutral'}>
+                                            {u.is_active ? 'Active' : 'Inactive'}
+                                        </Chip>
+                                    </td>
                                     <td>
                                         <Chip 
                                             size="sm" variant="soft" 
@@ -177,6 +197,13 @@ export default function SettingsView({
                                     </td>
                                     <td style={{ textAlign: 'right' }}>
                                         <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                                            {isAdmin && currentUser.id !== u.id && (
+                                                <Tooltip title={u.is_active ? "Deactivate" : "Activate"} variant="soft">
+                                                    <IconButton size="sm" color={u.is_active ? "warning" : "success"} onClick={() => handleToggleActivation(u)}>
+                                                        {u.is_active ? <ToggleOn /> : <ToggleOff />}
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
                                             {isAdmin && (
                                                 <Tooltip title="Edit Permissions" variant="soft"><IconButton size="sm" color="primary" onClick={() => openEditUser(u)}><Edit /></IconButton></Tooltip>
                                             )}

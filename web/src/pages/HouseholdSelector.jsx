@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Box, Typography, Card, CardContent, CardActions, Button, 
-  AspectRatio, Grid, Container, IconButton, Stack, Divider, Sheet, Alert
+  AspectRatio, Grid, Container, IconButton, Stack, Divider, Sheet, Alert, Tooltip
 } from '@mui/joy';
-import { Add, Home, ArrowForward, Logout, Settings } from '@mui/icons-material';
+import { Add, Home, ArrowForward, Logout, Settings, DeleteForever } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
 
@@ -32,6 +32,22 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
     window.location.href = `/household/${hh.id}/dashboard`;
   };
 
+  const handleDeleteHousehold = async (e, hh) => {
+    e.stopPropagation(); // Don't trigger card click
+    
+    const confirmed = window.confirm(`⚠️ PERMANENT ACTION: Are you sure you want to DELETE ${hh.name}? This will destroy all vehicles, assets, members and financial data for this household. This cannot be undone.`);
+    
+    if (confirmed) {
+        try {
+            await api.delete(`/households/${hh.id}`);
+            showNotification(`Household "${hh.name}" deleted permanently.`, "success");
+            fetchHouseholds();
+        } catch (err) {
+            showNotification("Failed to delete household. Only admins can perform this action.", "danger");
+        }
+    }
+  };
+
   return (
     <Container maxWidth="md" sx={{ py: 8 }}>
       <Box sx={{ mb: 6, textAlign: 'center' }}>
@@ -45,9 +61,25 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
             <Card variant="outlined" sx={{ 
                 '--Card-padding': '24px', 
                 cursor: 'pointer',
+                position: 'relative',
                 transition: 'transform 0.2s, box-shadow 0.2s',
                 '&:hover': { transform: 'translateY(-4px)', boxShadow: 'md', borderColor: 'primary.outlinedBorder' }
             }} onClick={() => handleSelect(hh)}>
+              
+              {hh.role === 'admin' && (
+                  <Tooltip title="Delete Household" variant="soft" color="danger">
+                      <IconButton 
+                        variant="plain" 
+                        color="danger" 
+                        size="sm"
+                        sx={{ position: 'absolute', top: 8, right: 8, zIndex: 2 }}
+                        onClick={(e) => handleDeleteHousehold(e, hh)}
+                      >
+                          <DeleteForever />
+                      </IconButton>
+                  </Tooltip>
+              )}
+
               <AspectRatio ratio="1" variant="soft" sx={{ borderRadius: '50%', mb: 2, bgcolor: getEmojiColor(hh.avatar || '🏠') }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem' }}>
                     {hh.avatar || '🏠'}
