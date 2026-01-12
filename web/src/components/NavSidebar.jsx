@@ -154,6 +154,23 @@ export default function NavSidebar({
                 <RailIcon icon={<DirectionsCar />} label="Vehicles" category="vehicles" hasSubItems />
                 <Divider sx={{ my: 1, width: 48, mx: 'auto' }} />
                 <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems />
+                <Divider sx={{ my: 1, width: 48, mx: 'auto' }} />
+                <RailIcon 
+                    icon={
+                        <Avatar 
+                            size="sm"
+                            sx={{ 
+                                bgcolor: getEmojiColor(user?.avatar || '?', isDark), 
+                                width: 24, height: 24, fontSize: '0.8rem' 
+                            }}
+                        >
+                            {user?.avatar || user?.username?.[0]}
+                        </Avatar>
+                    } 
+                    label={user?.first_name || 'Account'} 
+                    category="account" 
+                    hasSubItems 
+                />
             </List>
 
             <Box sx={{ flexGrow: 1 }} />
@@ -165,36 +182,12 @@ export default function NavSidebar({
                             onClick={onInstall} 
                             variant="soft" 
                             color="primary" 
-                            sx={{ mb: 2, borderRadius: 'sm', width: 40, height: 40 }}
+                            sx={{ mb: 1, borderRadius: 'sm', width: 40, height: 40 }}
                         >
                             <Download />
                         </IconButton>
                     </Tooltip>
                 )}
-                <Divider sx={{ mb: 2, width: 40 }} />
-                
-                <Dropdown>
-                    <MenuButton
-                        slots={{ root: IconButton }}
-                        slotProps={{ root: { variant: 'plain', color: 'neutral', sx: { p: 0, borderRadius: '50%', minWidth: 40, minHeight: 40 } } }}
-                    >
-                        <Avatar 
-                            sx={{ bgcolor: getEmojiColor(user?.avatar || '?', isDark), width: 40, height: 40 }}
-                        >
-                            {user?.avatar || user?.username?.[0]}
-                        </Avatar>
-                    </MenuButton>
-                    <Menu 
-                        placement="right-end" 
-                        size="sm" 
-                        sx={{ minWidth: 180, zIndex: 4000 }}
-                        disablePortal={false}
-                    >
-                        <MenuItem onClick={openProfile}><Edit /> Edit Profile</MenuItem>
-                        <Divider />
-                        <MenuItem onClick={onLogout} color="danger"><Logout /> Logout</MenuItem>
-                    </Menu>
-                </Dropdown>
             </Box>
         </Sheet>
 
@@ -222,6 +215,23 @@ export default function NavSidebar({
             </Box>
             
             <List sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>
+                {activeCategory === 'account' && (
+                    <>
+                        <ListItem>
+                            <ListItemButton onClick={openProfile}>
+                                <ListItemDecorator><Edit /></ListItemDecorator>
+                                <ListItemContent>Edit Profile</ListItemContent>
+                            </ListItemButton>
+                        </ListItem>
+                        <Divider sx={{ my: 1 }} />
+                        <ListItem>
+                            <ListItemButton onClick={onLogout} sx={{ color: 'danger.main' }}>
+                                <ListItemDecorator><Logout sx={{ color: 'inherit' }} /></ListItemDecorator>
+                                <ListItemContent>Logout</ListItemContent>
+                            </ListItemButton>
+                        </ListItem>
+                    </>
+                )}
                 {activeCategory === 'people' && (
                     <>
                         <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>MEMBERS</Typography></ListItem>
