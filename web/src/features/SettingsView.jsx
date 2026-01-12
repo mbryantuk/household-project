@@ -9,7 +9,7 @@ import {
 } from '@mui/joy';
 import { 
   ManageAccounts, Backup, SettingsBrightness, PersonAdd, Edit, Delete, 
-  Schedule, CloudDownload, Download, Restore, LightMode, DarkMode 
+  Schedule, CloudDownload, Download, Restore, LightMode, DarkMode, ExitToApp, Security
 } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
 import { getEmojiColor } from '../theme';
@@ -31,7 +31,7 @@ export default function SettingsView({
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [selectedUserEmoji, setSelectedUserEmoji] = useState('👤');
 
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'sysadmin';
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.system_role === 'sysadmin';
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -69,10 +69,10 @@ export default function SettingsView({
     try {
         if (editUser) {
             await api.put(`/households/${household.id}/users/${editUser.id}`, data);
-            showNotification("User updated.", "success");
+            showNotification("User permissions updated.", "success");
         } else {
             await api.post(`/households/${household.id}/users`, data);
-            showNotification("User invited successfully.", "success");
+            showNotification(`Invite sent to ${data.email}`, "success");
         }
         fetchUsers();
         setUserDialogOpen(false);
@@ -83,14 +83,18 @@ export default function SettingsView({
   };
 
   const handleRemoveUser = (userId, userName) => {
+    const isSelf = userId === currentUser.id;
     confirmAction(
-        "Remove User",
-        `Are you sure you want to remove ${userName} from this household? They will no longer be able to access this data.`,
+        isSelf ? "Leave Household" : "Remove User",
+        isSelf 
+            ? `Are you sure you want to leave ${household.name}? You will lose access to all data in this household.`
+            : `Are you sure you want to remove ${userName} from this household? They will no longer be able to access this data.`,
         async () => {
             try {
                 await api.delete(`/households/${household.id}/users/${userId}`);
-                showNotification("User removed.", "success");
-                fetchUsers();
+                showNotification(isSelf ? "You have left the household." : "User removed.", "success");
+                if (isSelf) navigate('/access');
+                else fetchUsers();
             } catch (err) {
                 showNotification("Failed to remove user.", "danger");
             }
@@ -112,16 +116,16 @@ export default function SettingsView({
 
   return (
     <Box>
-      <Typography level="h2" fontWeight="300" mb={2}>Settings</Typography>
+      <Typography level="h2" fontWeight="300" mb={2}>Household Settings</Typography>
       
       <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'hidden', minHeight: 400 }}>
         <Tabs value={tab} onChange={(e, v) => setTab(v)} sx={{ bgcolor: 'transparent' }}>
           <TabList tabFlex={1} sx={{ p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: 2, mt: 2 }}>
             <Tab variant={tab === 0 ? 'solid' : 'plain'} color={tab === 0 ? 'primary' : 'neutral'} indicatorInset>
-                <ListItemDecorator><ManageAccounts /></ListItemDecorator> Users
+                <ListItemDecorator><ManageAccounts /></ListItemDecorator> Team & Roles
             </Tab>
             <Tab variant={tab === 1 ? 'solid' : 'plain'} color={tab === 1 ? 'primary' : 'neutral'} indicatorInset>
-                <ListItemDecorator><Backup /></ListItemDecorator> Maintenance
+                <ListItemDecorator><Backup /></ListItemDecorator> Data & Maintenance
             </Tab>
             <Tab variant={tab === 2 ? 'solid' : 'plain'} color={tab === 2 ? 'primary' : 'neutral'} indicatorInset>
                 <ListItemDecorator><SettingsBrightness /></ListItemDecorator> Appearance
@@ -132,17 +136,21 @@ export default function SettingsView({
             {tab === 0 && (
               <Box>
                   <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Typography level="h4">Household Members</Typography>
-                      {isAdmin && <Button variant="outlined" startDecorator={<PersonAdd />} onClick={openAddUser}>Invite User</Button>}
+                      <Box>
+                        <Typography level="h4">Authorized Users</Typography>
+                        <Typography level="body-sm">Manage who has access to your household data.</Typography>
+                      </Box>
+                      {isAdmin && <Button variant="solid" color="primary" startDecorator={<PersonAdd />} onClick={openAddUser}>Invite Collaborator</Button>}
                   </Box>
+                  
                   <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto' }}>
-                    <Table hoverRow>
+                    <Table hoverRow sx={{ '& tr > *': { verticalAlign: 'middle' } }}>
                         <thead>
                           <tr>
                             <th style={{ width: 60 }}></th>
-                            <th>Name</th>
+                            <th>User</th>
                             <th>Email</th>
-                            <th>Role</th>
+                            <th>Permissions</th>
                             <th style={{ textAlign: 'right' }}>Actions</th>
                           </tr>
                         </thead>
@@ -154,18 +162,30 @@ export default function SettingsView({
                                         {u.avatar || u.first_name?.[0] || u.email?.[0]?.toUpperCase()}
                                       </Avatar>
                                     </td>
-                                    <td>{u.first_name || u.last_name ? `${u.first_name || ''} ${u.last_name || ''}`.trim() : (u.email.split('@')[0])}</td>
-                                    <td>{u.email || '-'}</td>
-                                    <td><Chip size="sm" variant="outlined">{u.role?.toUpperCase()}</Chip></td>
+                                    <td>
+                                        <Typography level="title-sm">{u.first_name || u.last_name ? `${u.first_name || ''} ${u.last_name || ''}`.trim() : 'New User'}</Typography>
+                                    </td>
+                                    <td><Typography level="body-xs">{u.email || '-'}</Typography></td>
+                                    <td>
+                                        <Chip 
+                                            size="sm" variant="soft" 
+                                            color={u.role === 'admin' ? 'danger' : (u.role === 'member' ? 'primary' : 'neutral')}
+                                            startDecorator={<Security sx={{ fontSize: '14px' }} />}
+                                        >
+                                            {u.role?.toUpperCase()}
+                                        </Chip>
+                                    </td>
                                     <td style={{ textAlign: 'right' }}>
-                                        {isAdmin && (
-                                            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-                                                <IconButton size="sm" color="primary" onClick={() => openEditUser(u)}><Edit /></IconButton>
-                                                {currentUser.id !== u.id && (
-                                                    <IconButton size="sm" color="danger" onClick={() => handleRemoveUser(u.id, u.first_name || u.email)}><Delete /></IconButton>
-                                                )}
-                                            </Box>
-                                        )}
+                                        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                                            {isAdmin && (
+                                                <Tooltip title="Edit Permissions" variant="soft"><IconButton size="sm" color="primary" onClick={() => openEditUser(u)}><Edit /></IconButton></Tooltip>
+                                            )}
+                                            {currentUser.id !== u.id ? (
+                                                isAdmin && <Tooltip title="Remove User" variant="soft"><IconButton size="sm" color="danger" onClick={() => handleRemoveUser(u.id, u.first_name || u.email)}><Delete /></IconButton></Tooltip>
+                                            ) : (
+                                                <Tooltip title="Leave Household" variant="soft"><IconButton size="sm" color="warning" onClick={() => handleRemoveUser(u.id, 'yourself')}><ExitToApp /></IconButton></Tooltip>
+                                            )}
+                                        </Box>
                                     </td>
                                 </tr>
                             ))}
@@ -319,10 +339,18 @@ export default function SettingsView({
 
       <Modal open={userDialogOpen} onClose={() => { setUserDialogOpen(false); setEditUser(null); }}>
         <ModalDialog sx={{ maxWidth: 500, width: '100%' }}>
-            <DialogTitle>{editUser ? 'Edit User' : 'Invite User'}</DialogTitle>
+            <DialogTitle>
+                <ListItemDecorator sx={{ color: 'primary.main' }}><PersonAdd /></ListItemDecorator>
+                {editUser ? 'Edit Permissions' : 'Invite to Household'}
+            </DialogTitle>
             <DialogContent>
+                <Typography level="body-sm" mb={2}>
+                    {editUser 
+                        ? `Update roles and profile for ${editUser.email}.`
+                        : "Enter the user's email to grant them access to this household."}
+                </Typography>
                 <form onSubmit={handleUserSubmit}>
-                    <Stack spacing={2} sx={{ mt: 1 }}>
+                    <Stack spacing={2}>
                         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
                           <Box 
                             sx={{ 
@@ -340,36 +368,41 @@ export default function SettingsView({
                         <Stack direction="row" spacing={2}>
                             <FormControl required sx={{ flex: 1 }}>
                                 <FormLabel>First Name</FormLabel>
-                                <Input name="firstName" defaultValue={editUser?.first_name} />
+                                <Input name="firstName" defaultValue={editUser?.first_name} placeholder="e.g. John" />
                             </FormControl>
                             <FormControl required sx={{ flex: 1 }}>
                                 <FormLabel>Last Name</FormLabel>
-                                <Input name="lastName" defaultValue={editUser?.last_name} />
+                                <Input name="lastName" defaultValue={editUser?.last_name} placeholder="e.g. Smith" />
                             </FormControl>
                         </Stack>
                         
-                        <FormControl required>
+                        <FormControl required disabled={!!editUser}>
                             <FormLabel>Email Address</FormLabel>
-                            <Input name="email" type="email" defaultValue={editUser?.email} />
+                            <Input name="email" type="email" defaultValue={editUser?.email} placeholder="collaborator@example.com" />
                         </FormControl>
 
                         <FormControl required>
-                            <FormLabel>Role</FormLabel>
+                            <FormLabel>Assigned Role</FormLabel>
                             <Select name="role" defaultValue={editUser?.role || "member"}>
-                                <Option value="admin">Admin (Full Access)</Option>
+                                <Option value="admin">Admin (Full Control)</Option>
                                 <Option value="member">Member (Read/Write)</Option>
                                 <Option value="viewer">Viewer (Read-Only)</Option>
                             </Select>
+                            <Typography level="body-xs" mt={1}>
+                                Admins can manage users and backups. Members can edit data. Viewers can only see data.
+                            </Typography>
                         </FormControl>
                         
-                        <FormControl>
-                            <FormLabel>{editUser ? 'New Password (Optional)' : 'Initial Password (Optional)'}</FormLabel>
-                            <Input name="password" type="password" placeholder="Leave blank to keep current" />
-                        </FormControl>
+                        {!editUser && (
+                            <FormControl>
+                                <FormLabel>Initial Password (Optional)</FormLabel>
+                                <Input name="password" type="password" placeholder="Defaults to secure random" />
+                            </FormControl>
+                        )}
 
-                        <DialogActions>
+                        <DialogActions sx={{ mt: 2 }}>
                             <Button variant="plain" color="neutral" onClick={() => { setUserDialogOpen(false); setEditUser(null); }}>Cancel</Button>
-                            <Button type="submit" variant="solid">{editUser ? 'Save Changes' : 'Invite User'}</Button>
+                            <Button type="submit" variant="solid" color="primary">{editUser ? 'Save Changes' : 'Send Invite'}</Button>
                         </DialogActions>
                     </Stack>
                 </form>
