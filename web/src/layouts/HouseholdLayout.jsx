@@ -2,9 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Outlet, useParams, useNavigate } from 'react-router-dom';
 import { Box } from '@mui/joy';
 import NavSidebar from '../components/NavSidebar';
-import FloatingCalendar from '../components/FloatingCalendar';
-import FloatingCalculator from '../components/FloatingCalculator';
-import PostItNote from '../components/PostItNote';
+import UtilityBar from '../components/UtilityBar';
 
 export default function HouseholdLayout({ 
   households, 
@@ -18,26 +16,22 @@ export default function HouseholdLayout({
   showNotification,
   confirmAction,
   
-  // Props moved from TopBar
   dates,
   onDateAdded,
   onUpdateProfile,
   onLogout,
-  onSwitchHousehold, // Not used here directly, handled by sidebar? 
+  onSwitchHousehold, 
   currentMode,
   onModeChange,
   installPrompt,
-  onInstall
+  onInstall,
+  useDracula,
+  onDraculaChange
 }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [vehicles, setVehicles] = useState([]);
   const [activeHousehold, setActiveHousehold] = useState(null);
-
-  // Widget States
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [showCalc, setShowCalc] = useState(false);
-  const [showNote, setShowNote] = useState(false);
 
   const fetchVehicles = useCallback(async () => {
     try {
@@ -61,59 +55,48 @@ export default function HouseholdLayout({
   }, [id, households, onSelectHousehold, navigate, fetchVehicles]);
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
-      <NavSidebar 
-        // Data
-        members={members} 
-        vehicles={vehicles}
-        isDark={isDark}
-        household={activeHousehold}
-        user={user}
+    <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden', flexDirection: 'column' }}>
+      <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
+        <NavSidebar 
+            members={members} 
+            vehicles={vehicles}
+            isDark={isDark}
+            household={activeHousehold}
+            user={user}
+            onLogout={onLogout}
+            onUpdateProfile={onUpdateProfile}
+            onModeChange={onModeChange}
+            onInstall={onInstall}
+            canInstall={!!installPrompt}
+        />
         
-        // Actions
-        onLogout={onLogout}
-        onUpdateProfile={onUpdateProfile}
-        onModeChange={onModeChange}
-        onInstall={onInstall}
-        canInstall={!!installPrompt}
-        
-        // Widget Toggles
-        toggleCalendar={() => setShowCalendar(!showCalendar)}
-        toggleCalc={() => setShowCalc(!showCalc)}
-        toggleNote={() => setShowNote(!showNote)}
-      />
-      
-      <Box component="main" sx={{ flexGrow: 1, p: { xs: 1, sm: 2, md: 3 }, pt: 1, overflowY: 'auto', minWidth: 0 }}>
-        <Outlet context={{ 
-            api, 
-            id, 
-            onUpdateHousehold,
-            members, 
-            fetchHhMembers, 
-            fetchVehicles,
-            user, 
-            isDark,
-            showNotification,
-            confirmAction
-        }} />
+        <Box component="main" sx={{ flexGrow: 1, p: { xs: 1, sm: 2, md: 3 }, pt: 1, overflowY: 'auto', minWidth: 0, pb: 8 }}>
+            <Outlet context={{ 
+                api, 
+                id, 
+                onUpdateHousehold,
+                members, 
+                fetchHhMembers, 
+                fetchVehicles,
+                user, 
+                isDark,
+                showNotification,
+                confirmAction
+            }} />
+        </Box>
       </Box>
 
-      {/* Floating Widgets Rendered Here */}
-      {showCalendar && (
-          <FloatingCalendar 
-            dates={dates} 
-            api={api} 
-            householdId={activeHousehold?.id}
-            currentUser={user}
-            onDateAdded={onDateAdded} 
-            onClose={() => setShowCalendar(false)}
-            isDark={isDark}
-          />
-        )}
-
-      {showCalc && <FloatingCalculator onClose={() => setShowCalc(false)} isDark={isDark} />}
-
-      {showNote && <PostItNote onClose={() => setShowNote(false)} user={user} onUpdateProfile={onUpdateProfile} />}
+      {/* Persistent Bottom Utility Bar */}
+      <UtilityBar 
+        user={user}
+        api={api}
+        dates={dates}
+        onDateAdded={onDateAdded}
+        onUpdateProfile={onUpdateProfile}
+        isDark={isDark}
+        canInstall={!!installPrompt}
+        onInstall={onInstall}
+      />
     </Box>
   );
 }
