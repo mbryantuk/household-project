@@ -7,7 +7,7 @@ import {
   Settings, Home as HomeIcon, Event, 
   Groups, Pets, HomeWork, DirectionsCar, 
   Calculate, NoteAlt, CalendarMonth, GetApp,
-  Logout, Edit, KeyboardArrowRight
+  Logout, Edit, KeyboardArrowRight, ChevronLeft, Close
 } from '@mui/icons-material';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
@@ -217,10 +217,20 @@ export default function NavSidebar({
                 whiteSpace: 'nowrap'
             }}
         >
-            <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+            <Box sx={{ 
+                p: 2, 
+                borderBottom: '1px solid', 
+                borderColor: 'divider',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+            }}>
                 <Typography level="title-md" textTransform="uppercase" letterSpacing="1px">
                     {activeCategory}
                 </Typography>
+                <IconButton size="sm" variant="plain" color="neutral" onClick={() => setActiveCategory(null)}>
+                    <ChevronLeft />
+                </IconButton>
             </Box>
             
             <List sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>
