@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Box, Sheet, Typography, IconButton, Button, Input, FormControl, FormLabel,
-  Tabs, TabList, Tab, TabPanel, Divider, RadioGroup, Radio, Alert, Stack
+  Tabs, TabList, Tab, TabPanel, Divider, RadioGroup, Radio, Stack
 } from '@mui/joy';
 import { 
-  Close, DragIndicator, OpenInNew, Savings, AccountBalance, Home, ReceiptLong, LocalOffer, Payments
+  Close, DragIndicator, OpenInNew, Savings, AccountBalance, Home
 } from '@mui/icons-material';
 
 export default function FinancialCalculator({ onClose, isPopout = false, isDark = false, isDocked = false, onPopout }) {
@@ -15,7 +15,6 @@ export default function FinancialCalculator({ onClose, isPopout = false, isDark 
   const containerRef = useRef(null);
 
   const [tabIndex, setTabIndex] = useState(0);
-  const [taxSubTab, setTaxSubTab] = useState('income');
 
   const [savingsPrincipal, setSavingsPrincipal] = useState('');
   const [savingsRate, setSavingsRate] = useState('');
@@ -33,13 +32,6 @@ export default function FinancialCalculator({ onClose, isPopout = false, isDark 
   const [mortgageYears, setMortgageYears] = useState('');
   const [mortgageType, setMortgageType] = useState('repayment');
   const [mortgageResult, setMortgageResult] = useState(null);
-
-  const [grossSalary, setGrossSalary] = useState('');
-  const [taxResult, setTaxResult] = useState(null);
-
-  const [propertyPrice, setPropertyPrice] = useState('');
-  const [buyerType, setStandardBuyer] = useState('standard'); 
-  const [sdltResult, setSdltResult] = useState(null);
 
   const calculateSavings = () => {
     const P = parseFloat(savingsPrincipal) || 0;
@@ -70,58 +62,6 @@ export default function FinancialCalculator({ onClose, isPopout = false, isDark 
     setMortgageResult({ monthly, totalPaid, totalInterest: totalPaid - P });
   };
 
-  const calculateIncomeTax = () => {
-    const salary = parseFloat(grossSalary) || 0;
-    let allowance = 12570;
-    if (salary > 100000) {
-        allowance = Math.max(0, 12570 - (salary - 100000) / 2);
-    }
-    let taxable = Math.max(0, salary - allowance);
-    let tax = 0;
-    const basicLimit = 50270 - 12570; 
-    const basicTaxable = Math.min(taxable, basicLimit);
-    tax += basicTaxable * 0.20;
-    taxable -= basicTaxable;
-    const higherLimit = 125140 - 50270;
-    const higherTaxable = Math.min(taxable, higherLimit);
-    tax += higherTaxable * 0.40;
-    taxable -= higherTaxable;
-    if (taxable > 0) tax += taxable * 0.45;
-
-    let ni = 0;
-    const niThreshold = 12576;
-    const niUpperLimit = 50270;
-    if (salary > niThreshold) {
-        ni += (Math.min(salary, niUpperLimit) - niThreshold) * 0.08;
-        if (salary > niUpperLimit) ni += (salary - niUpperLimit) * 0.02;
-    }
-    const takeHome = salary - tax - ni;
-    setTaxResult({ tax, ni, takeHome, monthly: takeHome / 12 });
-  };
-
-  const calculateSDLT = () => {
-    let p = parseFloat(propertyPrice) || 0;
-    let tax = 0;
-    if (buyerType === 'firstTime') {
-        if (p <= 425000) tax = 0;
-        else if (p <= 625000) tax = (p - 425000) * 0.05;
-        else tax = calculateStandardSDLT(p);
-    } else {
-        tax = calculateStandardSDLT(p);
-        if (buyerType === 'secondHome') tax += p * 0.03;
-    }
-    setSdltResult(tax);
-  };
-
-  const calculateStandardSDLT = (p) => {
-    let tax = 0;
-    let price = p;
-    if (price > 1500000) { tax += (price - 1500000) * 0.12; price = 1500000; }
-    if (price > 925000) { tax += (price - 925000) * 0.10; price = 925000; }
-    if (price > 250000) { tax += (price - 250000) * 0.05; price = 250000; }
-    return tax;
-  };
-
   const onMouseDown = (e) => {
     if (isPopout || isDocked || e.button !== 0) return;
     setIsDragging(true);
@@ -148,7 +88,7 @@ export default function FinancialCalculator({ onClose, isPopout = false, isDark 
         left: (isPopout || isDocked) ? 0 : pos.x,
         top: (isPopout || isDocked) ? 0 : pos.y,
         width: (isPopout || isDocked) ? '100%' : 400,
-        height: (isPopout || isDocked) ? '100%' : 600,
+        height: (isPopout || isDocked) ? '100%' : 550,
         zIndex: 1300, display: 'flex', flexDirection: 'column',
         borderRadius: isPopout || isDocked ? 0 : 'md', boxShadow: 'lg', 
         opacity: isPopout || isDocked ? 1 : (isFocused ? 1 : 0.6), 
@@ -163,12 +103,12 @@ export default function FinancialCalculator({ onClose, isPopout = false, isDark 
       </Box>
 
       <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', bgcolor: 'background.surface', overflow: 'auto' }}>
-        <Tabs value={tabIndex} onChange={(e, v) => setTabIndex(v)} sx={{ bgcolor: 'transparent' }}>
-            <TabList disableUnderline sx={{ p: 0.5, gap: 0.5, borderRadius: 'sm', bgcolor: 'background.level1', mx: 2, mt: 2, flexWrap: 'wrap' }}>
-                <Tab disableIndicator variant={tabIndex === 0 ? 'solid' : 'plain'} color={tabIndex === 0 ? 'success' : 'neutral'} value={0} sx={{ borderRadius: 'sm', flex: 1 }}><Savings sx={{ mr: 1 }}/> Savings</Tab>
-                <Tab disableIndicator variant={tabIndex === 1 ? 'solid' : 'plain'} color={tabIndex === 1 ? 'primary' : 'neutral'} value={1} sx={{ borderRadius: 'sm', flex: 1 }}><AccountBalance sx={{ mr: 1 }}/> Loan</Tab>
-                <Tab disableIndicator variant={tabIndex === 2 ? 'solid' : 'plain'} color={tabIndex === 2 ? 'danger' : 'neutral'} value={2} sx={{ borderRadius: 'sm', flex: 1 }}><Home sx={{ mr: 1 }}/> Mortgage</Tab>
-                <Tab disableIndicator variant={tabIndex === 3 ? 'solid' : 'plain'} color={tabIndex === 3 ? 'warning' : 'neutral'} value={3} sx={{ borderRadius: 'sm', flex: 1 }}><Payments sx={{ mr: 1 }}/> Tax</Tab>
+        <Tabs value={tabIndex} onChange={(e, v) => setTabIndex(v)}>
+            {/* STABLE TAB LIST: Fixed gap, no flex-grow on tabs to prevent spacing creep */}
+            <TabList disableUnderline sx={{ p: 0.5, gap: 1, borderRadius: 'sm', bgcolor: 'background.level1', mx: 2, mt: 2 }}>
+                <Tab disableIndicator variant={tabIndex === 0 ? 'solid' : 'plain'} color="success" value={0} sx={{ borderRadius: 'sm', px: 2 }}><Savings sx={{ mr: 1 }}/> Savings</Tab>
+                <Tab disableIndicator variant={tabIndex === 1 ? 'solid' : 'plain'} color="primary" value={1} sx={{ borderRadius: 'sm', px: 2 }}><AccountBalance sx={{ mr: 1 }}/> Loan</Tab>
+                <Tab disableIndicator variant={tabIndex === 2 ? 'solid' : 'plain'} color="danger" value={2} sx={{ borderRadius: 'sm', px: 2 }}><Home sx={{ mr: 1 }}/> Mortgage</Tab>
             </TabList>
             
             <TabPanel value={0} sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -192,37 +132,6 @@ export default function FinancialCalculator({ onClose, isPopout = false, isDark 
                 <FormControl><FormLabel>Repayment Type</FormLabel><RadioGroup row value={mortgageType} onChange={(e) => setMortgageType(e.target.value)}><Radio value="repayment" label="Repayment" variant="outlined" /><Radio value="interestOnly" label="Interest Only" variant="outlined" /></RadioGroup></FormControl>
                 <Button color="danger" onClick={calculateMortgage}>Calculate Mortgage</Button>
                 {mortgageResult && <Box sx={{ p: 2, bgcolor: 'danger.softBg', borderRadius: 'md', display: 'flex', flexDirection: 'column', gap: 1 }}><Box sx={{ textAlign: 'center' }}><Typography level="body-sm">Monthly Payment</Typography><Typography level="h3" color="danger">£{mortgageResult.monthly.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Typography></Box><Divider /><Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography level="body-xs">Total Interest:</Typography><Typography level="body-xs" fontWeight="bold">£{mortgageResult.totalInterest.toLocaleString()}</Typography></Box><Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography level="body-xs">Total Paid:</Typography><Typography level="body-xs" fontWeight="bold">£{mortgageResult.totalPaid.toLocaleString()}</Typography></Box></Box>}
-            </TabPanel>
-
-            <TabPanel value={3} sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <RadioGroup row value={taxSubTab} onChange={(e) => setTaxSubTab(e.target.value)} sx={{ justifyContent: 'center', mb: 1 }}>
-                    <Radio value="income" label="Income Tax" variant="soft" />
-                    <Radio value="sdlt" label="Stamp Duty" variant="soft" />
-                </RadioGroup>
-
-                {taxSubTab === 'income' ? (
-                    <Stack gap={2}>
-                        <FormControl><FormLabel>Gross Annual Salary (£)</FormLabel><Input type="number" value={grossSalary} onChange={e => setGrossSalary(e.target.value)} startDecorator="£" /></FormControl>
-                        <Button color="warning" onClick={calculateIncomeTax}>Calculate Take Home</Button>
-                        {taxResult && (
-                            <Box sx={{ p: 2, bgcolor: 'warning.softBg', borderRadius: 'md', display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                <Box sx={{ textAlign: 'center' }}><Typography level="body-sm">Monthly Take Home</Typography><Typography level="h3" color="warning">£{taxResult.monthly.toLocaleString(undefined, { maximumFractionDigits: 0 })}</Typography></Box>
-                                <Divider />
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography level="body-xs">Income Tax:</Typography><Typography level="body-xs" color="danger">-£{taxResult.tax.toLocaleString()}</Typography></Box>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography level="body-xs">National Insurance:</Typography><Typography level="body-xs" color="danger">-£{taxResult.ni.toLocaleString()}</Typography></Box>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography level="body-xs">Annual Take Home:</Typography><Typography level="body-xs" fontWeight="bold">£{taxResult.takeHome.toLocaleString()}</Typography></Box>
-                            </Box>
-                        )}
-                        <Typography level="body-xs" textAlign="center">Estimates based on 2025/26 UK Tax Bands & NI.</Typography>
-                    </Stack>
-                ) : (
-                    <Stack gap={2}>
-                        <FormControl><FormLabel>Property Price (£)</FormLabel><Input type="number" value={propertyPrice} onChange={e => setPropertyPrice(e.target.value)} startDecorator="£" /></FormControl>
-                        <FormControl><FormLabel>Buyer Context</FormLabel><RadioGroup value={buyerType} onChange={(e) => setStandardBuyer(e.target.value)}><Radio value="firstTime" label="First Time Buyer" variant="outlined" /><Radio value="standard" label="Standard (Moving Home)" variant="outlined" /><Radio value="secondHome" label="Additional Property (+3%)" variant="outlined" /></RadioGroup></FormControl>
-                        <Button color="warning" onClick={calculateSDLT}>Calculate SDLT</Button>
-                        {sdltResult !== null && <Box sx={{ p: 2, bgcolor: 'warning.softBg', borderRadius: 'md', textAlign: 'center' }}><Typography level="body-sm">Stamp Duty Payable</Typography><Typography level="h3" color="warning">£{sdltResult.toLocaleString()}</Typography></Box>}
-                    </Stack>
-                )}
             </TabPanel>
         </Tabs>
       </Box>

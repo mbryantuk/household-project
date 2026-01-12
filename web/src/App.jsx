@@ -272,8 +272,14 @@ function AppInner({ useDracula, setUseDracula }) {
       <Routes>
         <Route path="/login" element={!token ? <Login onLogin={login} /> : <Navigate to="/" />} />
         <Route path="/register" element={!token ? <Register /> : <Navigate to="/" />} />
+import TaxCalculator from './components/TaxCalculator';
+
+// ... (existing imports)
+
+// Inside AppInner Routes:
         <Route path="/calculator" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
         <Route path="/fin-calculator-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FinancialCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
+        <Route path="/tax-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><TaxCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
         <Route path="/calendar-window" element={
           <Box sx={{ height: '100vh', bgcolor: 'background.body' }}>
             <FloatingCalendar 
