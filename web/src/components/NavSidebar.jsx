@@ -153,9 +153,19 @@ export default function NavSidebar({
             )}
 
             <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'center' }}>
-                <IconButton variant="plain" color="neutral" size="lg" onClick={() => navigate('/select-household')}>
-                    <HomeIcon />
-                </IconButton>
+                <Avatar 
+                    variant="soft" 
+                    color="primary" 
+                    size="lg"
+                    sx={{ 
+                        bgcolor: getEmojiColor(household?.avatar || '🏠', isDark),
+                        fontSize: '1.5rem',
+                        fontWeight: 'bold',
+                        boxShadow: 'sm'
+                    }}
+                >
+                    {household?.avatar || '🏠'}
+                </Avatar>
             </Box>
 
             <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
@@ -176,24 +186,11 @@ export default function NavSidebar({
             </List>
 
             <Box sx={{ flexGrow: 1 }} />
-            <Box sx={{ pb: 2, display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center', width: '100%' }}>
+            <Box sx={{ pb: 2, display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'center', width: '100%' }}>
                 {canInstall && (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5, cursor: 'pointer' }} onClick={onInstall}>
-                        <Badge color="danger" variant="solid" size="sm" badgeInset="14%">
-                            <IconButton variant="soft" color="primary" size="sm">
-                                <Download />
-                            </IconButton>
-                        </Badge>
-                        <Typography level="body-xs" sx={{ fontSize: '9px', fontWeight: 'bold' }}>INSTALL</Typography>
-                    </Box>
+                    <RailIcon icon={<Download />} label="Install" onClick={onInstall} />
                 )}
-                
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5, cursor: 'pointer', width: '100%' }} onClick={() => navigate('/select-household')}>
-                    <IconButton variant="soft" color="neutral" size="sm">
-                        <SwapHoriz />
-                    </IconButton>
-                    <Typography level="body-xs" sx={{ fontSize: '9px', fontWeight: 'bold', textAlign: 'center', px: 0.5 }}>SWITCH</Typography>
-                </Box>
+                <RailIcon icon={<SwapHoriz />} label="Switch" onClick={() => navigate('/select-household')} />
             </Box>
         </Sheet>
 
