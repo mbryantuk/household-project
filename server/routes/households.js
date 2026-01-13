@@ -24,6 +24,41 @@ const dbRun = (db, sql, params) => new Promise((resolve, reject) => {
     });
 });
 
+/**
+ * POST /households
+ * Create a new household for existing user
+ */
+router.post('/households', authenticateToken, async (req, res) => {
+    const { name } = req.body;
+    if (!name) return res.status(400).json({ error: "Household name is required" });
+
+    try {
+        const accessKey = crypto.randomBytes(4).toString('hex').toUpperCase();
+        
+        // 1. Create Household
+        const hhResult = await dbRun(globalDb, 
+            `INSERT INTO households (name, access_key, theme) VALUES (?, ?, 'default')`, 
+            [name, accessKey]
+        );
+        const householdId = hhResult.id;
+
+        // 2. Link User as Admin
+        await dbRun(globalDb,
+            `INSERT INTO user_households (user_id, household_id, role) VALUES (?, ?, 'admin')`,
+            [req.user.id, householdId]
+        );
+
+        // 3. Initialize Household DB (by just getting it)
+        const hhDb = getHouseholdDb(householdId);
+        hhDb.close();
+
+        res.status(201).json({ id: householdId, name, access_key: accessKey });
+
+    } catch (err) {
+        console.error("Create Household Error:", err);
+        res.status(500).json({ error: "Failed to create household: " + err.message });
+    }
+});
 
 // GET /households/:id (Get Single Details)
 router.get('/households/:id', authenticateToken, (req, res) => {

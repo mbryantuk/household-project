@@ -1,13 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { 
-  Box, Typography, Grid, Card, CardContent, Avatar, IconButton, 
+  Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
-  FormControl, FormLabel, Select, Option, Stack, Chip, CircularProgress, Divider,
-  Tooltip
+  FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
+  Sheet
 } from '@mui/joy';
-import { Edit, Delete, Add, EventBusy, AccountBalanceWallet } from '@mui/icons-material';
+import { Edit, Delete, Add, EventBusy, AccountBalanceWallet, VerifiedUser } from '@mui/icons-material';
+import { DataGrid } from '@mui/x-data-grid';
 import { getEmojiColor } from '../theme';
+import AppSelect from '../components/ui/AppSelect';
 
 export default function AssetsView() {
   const { api, id: householdId, user: currentUser, isDark } = useOutletContext();
@@ -16,12 +18,22 @@ export default function AssetsView() {
   const [editAsset, setEditAsset] = useState(null);
   const [isNew, setIsNew] = useState(false);
   
+  // Responsive Check (Simple width check or hook)
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 900);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
   const isHouseholdAdmin = currentUser?.role === 'admin';
 
   const fetchAssets = useCallback(async () => {
     setLoading(true);
     try {
       const res = await api.get(`/households/${householdId}/assets`);
+      // Add unique ID for DataGrid if needed (it uses 'id' by default)
       setAssets(res.data || []);
     } catch (err) {
       console.error(err);
@@ -63,11 +75,51 @@ export default function AssetsView() {
     }
   };
 
+  // --- DataGrid Columns (Desktop) ---
+  const columns = [
+    { 
+      field: 'icon', headerName: '', width: 60,
+      renderCell: (params) => (
+        <Avatar size="sm" sx={{ bgcolor: getEmojiColor(params.row.emoji || params.row.name[0], isDark) }}>
+          {params.row.emoji || params.row.name[0]}
+        </Avatar>
+      )
+    },
+    { field: 'name', headerName: 'Asset Name', flex: 1, minWidth: 150 },
+    { field: 'category', headerName: 'Category', width: 120 },
+    { field: 'location', headerName: 'Location', width: 120 },
+    { 
+      field: 'purchase_value', headerName: 'Value', width: 100,
+      renderCell: (params) => `£${params.row.purchase_value}`
+    },
+    { 
+      field: 'insurance_status', headerName: 'Insurance', width: 120,
+      renderCell: (params) => (
+        <Chip 
+            size="sm" 
+            variant="soft" 
+            color={params.value === 'insured' ? 'success' : params.value === 'self-insured' ? 'warning' : 'danger'}
+        >
+            {params.value || 'uninsured'}
+        </Chip>
+      )
+    },
+    {
+      field: 'actions', headerName: 'Actions', width: 100,
+      renderCell: (params) => isHouseholdAdmin && (
+        <Box>
+          <IconButton size="sm" onClick={() => { setEditAsset(params.row); setIsNew(false); }}><Edit /></IconButton>
+          <IconButton size="sm" color="danger" onClick={() => handleDelete(params.row.id)}><Delete /></IconButton>
+        </Box>
+      )
+    }
+  ];
+
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography level="h2" fontWeight="300">Appliance & Asset Register</Typography>
         {isHouseholdAdmin && (
             <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditAsset({}); setIsNew(true); }}>
@@ -76,51 +128,55 @@ export default function AssetsView() {
         )}
       </Box>
 
-      <Grid container spacing={3}>
-        {assets.map(a => (
-          <Grid xs={12} sm={6} md={4} key={a.id}>
-            <Card variant="outlined" sx={{ borderRadius: 'md', height: '100%', flexDirection: 'row', p: 2 }}>
-              <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
-                  <Avatar size="lg" sx={{ 
-                    bgcolor: getEmojiColor(a.emoji || a.name[0], isDark),
-                  }}>
-                    {a.emoji || a.name[0]}
-                  </Avatar>
-                  <Box sx={{ flexGrow: 1 }}>
-                      <Typography level="title-md">{a.name}</Typography>
-                      <Typography level="body-sm" color="neutral">{a.category}</Typography>
-                      
-                      <Stack spacing={1} mt={1}>
-                        {a.location && <Typography level="body-xs">📍 {a.location}</Typography>}
-                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                            {a.purchase_value > 0 && <Chip size="sm" variant="outlined" startDecorator={<AccountBalanceWallet />}>£{a.purchase_value}</Chip>}
-                            {a.warranty_expiry && (
-                                <Chip 
-                                    size="sm" 
-                                    startDecorator={<EventBusy />} 
-                                    color={new Date(a.warranty_expiry) < new Date() ? "danger" : "success"}
-                                    variant="outlined"
-                                >
-                                    {a.warranty_expiry}
-                                </Chip>
-                            )}
+      {/* DESKTOP VIEW: DataGrid */}
+      {!isMobile ? (
+        <Sheet sx={{ height: 600, width: '100%', borderRadius: 'md', overflow: 'hidden' }} variant="outlined">
+            <DataGrid
+                rows={assets}
+                columns={columns}
+                pageSizeOptions={[10, 25, 50]}
+                initialState={{
+                    pagination: { paginationModel: { pageSize: 10 } },
+                }}
+                disableRowSelectionOnClick
+                sx={{
+                    border: 'none',
+                    '& .MuiDataGrid-cell': { fontSize: '0.9rem' },
+                    '--DataGrid-overlayHeight': '300px', // Joy UI theme fix
+                }}
+            />
+        </Sheet>
+      ) : (
+        /* MOBILE VIEW: Cards */
+        <Grid container spacing={2}>
+            {assets.map(a => (
+            <Grid xs={12} key={a.id}>
+                <Card variant="outlined" sx={{ flexDirection: 'row', gap: 2 }}>
+                    <Avatar size="lg" sx={{ bgcolor: getEmojiColor(a.emoji || a.name[0], isDark) }}>
+                        {a.emoji || a.name[0]}
+                    </Avatar>
+                    <Box sx={{ flexGrow: 1 }}>
+                        <Typography level="title-md">{a.name}</Typography>
+                        <Typography level="body-sm">{a.category}</Typography>
+                        <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                            <Chip size="sm" variant="outlined">£{a.purchase_value}</Chip>
+                            <Chip size="sm" color={a.insurance_status === 'insured' ? 'success' : 'neutral'}>
+                                {a.insurance_status || 'uninsured'}
+                            </Chip>
                         </Box>
-                      </Stack>
-                  </Box>
-                  {isHouseholdAdmin && (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                        <IconButton size="sm" variant="plain" onClick={() => { setEditAsset(a); setIsNew(false); }}><Edit /></IconButton>
-                        <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(a.id)}><Delete /></IconButton>
                     </Box>
-                  )}
-              </Box>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+                    <IconButton variant="plain" onClick={() => { setEditAsset(a); setIsNew(false); }}>
+                        <Edit />
+                    </IconButton>
+                </Card>
+            </Grid>
+            ))}
+        </Grid>
+      )}
 
+      {/* EDIT MODAL */}
       <Modal open={Boolean(editAsset)} onClose={() => setEditAsset(null)}>
-        <ModalDialog sx={{ maxWidth: 800, width: '100%' }}>
+        <ModalDialog sx={{ maxWidth: 800, width: '100%', overflowY: 'auto' }}>
             <DialogTitle>{isNew ? 'Add New Asset' : `Edit ${editAsset?.name}`}</DialogTitle>
             <DialogContent>
                 <form onSubmit={handleSubmit}>
@@ -132,50 +188,45 @@ export default function AssetsView() {
                             </FormControl>
                         </Grid>
                         <Grid xs={12} md={6}>
-                            <FormControl>
-                                <FormLabel>Category</FormLabel>
-                                <Select name="category" defaultValue={editAsset?.category || 'Appliance'}>
-                                    <Option value="Appliance">Appliance</Option>
-                                    <Option value="Electronics">Electronics</Option>
-                                    <Option value="Furniture">Furniture</Option>
-                                    <Option value="Tool">Tool</Option>
-                                    <Option value="Other">Other</Option>
-                                </Select>
-                            </FormControl>
+                            <AppSelect 
+                                label="Category"
+                                name="category"
+                                value={editAsset?.category}
+                                // Simple local state handling for uncontrolled form would be tricky with AppSelect
+                                // So we let AppSelect be uncontrolled by passing defaultValue logic if supported or just default
+                                defaultValue={editAsset?.category || 'Appliance'}
+                                options={[
+                                    { value: 'Appliance', label: 'Appliance' },
+                                    { value: 'Electronics', label: 'Electronics' },
+                                    { value: 'Furniture', label: 'Furniture' },
+                                    { value: 'Tool', label: 'Tool' },
+                                    { value: 'Other', label: 'Other' },
+                                ]}
+                            />
                         </Grid>
-                        <Grid xs={12} md={4}>
+                        
+                        <Grid xs={12} md={6}>
+                             <AppSelect 
+                                label="Insurance Status"
+                                name="insurance_status"
+                                defaultValue={editAsset?.insurance_status || 'uninsured'}
+                                options={[
+                                    { value: 'insured', label: 'Insured' },
+                                    { value: 'uninsured', label: 'Uninsured' },
+                                    { value: 'self-insured', label: 'Self-Insured' },
+                                ]}
+                            />
+                        </Grid>
+
+                        <Grid xs={12} md={6}>
                             <FormControl>
-                                <FormLabel>Location (Room)</FormLabel>
+                                <FormLabel>Location</FormLabel>
                                 <Input name="location" defaultValue={editAsset?.location} />
                             </FormControl>
                         </Grid>
-                        <Grid xs={12} md={4}>
-                            <FormControl>
-                                <FormLabel>Manufacturer</FormLabel>
-                                <Input name="manufacturer" defaultValue={editAsset?.manufacturer} />
-                            </FormControl>
-                        </Grid>
-                        <Grid xs={12} md={4}>
-                            <FormControl>
-                                <FormLabel>Model Number</FormLabel>
-                                <Input name="model_number" defaultValue={editAsset?.model_number} />
-                            </FormControl>
-                        </Grid>
+
+                        <Grid xs={12}><Divider>Financials</Divider></Grid>
                         
-                        <Grid xs={12}><Divider>Financial & Warranty</Divider></Grid>
-                        
-                        <Grid xs={6} md={3}>
-                            <FormControl>
-                                <FormLabel>Purchase Date</FormLabel>
-                                <Input name="purchase_date" type="date" defaultValue={editAsset?.purchase_date} />
-                            </FormControl>
-                        </Grid>
-                        <Grid xs={6} md={3}>
-                            <FormControl>
-                                <FormLabel>Warranty Expiry</FormLabel>
-                                <Input name="warranty_expiry" type="date" defaultValue={editAsset?.warranty_expiry} />
-                            </FormControl>
-                        </Grid>
                         <Grid xs={6} md={3}>
                             <FormControl>
                                 <FormLabel>Purchase Value</FormLabel>
@@ -184,42 +235,23 @@ export default function AssetsView() {
                         </Grid>
                         <Grid xs={6} md={3}>
                             <FormControl>
-                                <FormLabel>Replacement Cost</FormLabel>
-                                <Input name="replacement_cost" type="number" defaultValue={editAsset?.replacement_cost} />
-                            </FormControl>
-                        </Grid>
-                        
-                        <Grid xs={6} md={3}>
-                            <FormControl>
-                                <FormLabel>Monthly Maint. Cost</FormLabel>
+                                <FormLabel>Monthly Maintenance</FormLabel>
                                 <Input name="monthly_maintenance_cost" type="number" defaultValue={editAsset?.monthly_maintenance_cost} />
                             </FormControl>
                         </Grid>
-                        <Grid xs={6} md={3}>
-                            <FormControl>
-                                <FormLabel>Annual Depreciation %</FormLabel>
-                                <Input name="depreciation_rate" type="number" defaultValue={editAsset?.depreciation_rate} placeholder="0.10" />
-                            </FormControl>
-                        </Grid>
-                        <Grid xs={6} md={3}>
-                            <FormControl>
-                                <FormLabel>Emoji</FormLabel>
-                                <Input name="emoji" defaultValue={editAsset?.emoji} placeholder="📦" />
-                            </FormControl>
-                        </Grid>
-                        <Grid xs={6} md={3}>
-                            <FormControl>
-                                <FormLabel>Status</FormLabel>
-                                <Input name="status" defaultValue={editAsset?.status || 'active'} />
-                            </FormControl>
-                        </Grid>
-
-                        <Grid xs={12}>
+                         <Grid xs={6} md={3}>
                             <FormControl>
                                 <FormLabel>Notes</FormLabel>
                                 <Input name="notes" defaultValue={editAsset?.notes} />
                             </FormControl>
                         </Grid>
+                        <Grid xs={6} md={3}>
+                            <FormControl>
+                                <FormLabel>Emoji</FormLabel>
+                                <Input name="emoji" defaultValue={editAsset?.emoji} />
+                            </FormControl>
+                        </Grid>
+
                     </Grid>
                     <DialogActions>
                         <Button variant="plain" color="neutral" onClick={() => setEditAsset(null)}>Cancel</Button>

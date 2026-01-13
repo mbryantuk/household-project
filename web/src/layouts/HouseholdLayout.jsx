@@ -1,7 +1,17 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Outlet, useParams, useNavigate } from 'react-router-dom';
-import { Box, IconButton, Drawer, Typography, Sheet } from '@mui/joy';
-import { Menu as MenuIcon } from '@mui/icons-material';
+import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom';
+import { Box, IconButton, Drawer, Typography, Sheet, Stack } from '@mui/joy';
+import { 
+  Home as HomeIcon, 
+  Event as EventIcon, 
+  MoreHoriz as MoreIcon,
+  Groups as PeopleIcon,
+  Pets as PetsIcon,
+  HomeWork as HouseIcon,
+  DirectionsCar as VehicleIcon,
+  Settings as SettingsIcon,
+  Person as ProfileIcon
+} from '@mui/icons-material';
 import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
 
@@ -31,6 +41,7 @@ export default function HouseholdLayout({
 }) {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [vehicles, setVehicles] = useState([]);
   const [activeHousehold, setActiveHousehold] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -56,29 +67,17 @@ export default function HouseholdLayout({
     }
   }, [id, households, onSelectHousehold, navigate, fetchVehicles]);
 
-  return (
-    <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden', flexDirection: { xs: 'column', md: 'row' } }}>
-      
-      {/* Mobile Header */}
-      <Sheet
-        sx={{
-          display: { xs: 'flex', md: 'none' },
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          p: 2,
-          borderBottom: '1px solid',
-          borderColor: 'divider',
-          bgcolor: 'background.surface',
-          zIndex: 1100
-        }}
-      >
-        <IconButton variant="outlined" color="neutral" size="sm" onClick={() => setDrawerOpen(true)}>
-          <MenuIcon />
-        </IconButton>
-        <Typography level="title-md" sx={{ fontWeight: 'bold' }}>TOTEM</Typography>
-        <Box sx={{ width: 32 }} /> {/* Placeholder for balance */}
-      </Sheet>
+  const isTabActive = (path) => location.pathname.includes(path);
 
+  return (
+    <Box sx={{ 
+        display: 'flex', 
+        height: '100dvh', // Use dynamic viewport height for mobile
+        overflow: 'hidden', 
+        flexDirection: { xs: 'column', md: 'row' },
+        bgcolor: 'background.body'
+    }}>
+      
       {/* Desktop Sidebar */}
       <Box sx={{ display: { xs: 'none', md: 'block' }, height: '100%' }}>
         <NavSidebar 
@@ -97,34 +96,32 @@ export default function HouseholdLayout({
         />
       </Box>
 
-      {/* Mobile Drawer */}
-      <Drawer
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        sx={{ display: { md: 'none' } }}
-      >
-        <Box sx={{ height: '100%', width: '100%' }}>
-            <NavSidebar 
-                members={members} 
-                vehicles={vehicles}
-                isDark={isDark}
-                household={activeHousehold}
-                user={user}
-                onLogout={() => { onLogout(); setDrawerOpen(false); }}
-                onUpdateProfile={onUpdateProfile}
-                onModeChange={onModeChange}
-                onInstall={onInstall}
-                canInstall={!!installPrompt}
-                useDracula={useDracula}
-                onDraculaChange={onDraculaChange}
-                isMobile
-                onClose={() => setDrawerOpen(false)}
-            />
-        </Box>
-      </Drawer>
-      
-      <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0, height: '100%' }}>
-        <Box component="main" sx={{ flexGrow: 1, p: { xs: 1, sm: 2, md: 3 }, pt: { xs: 2, md: 1 }, overflowY: 'auto' }}>
+      {/* Main Content Area */}
+      <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0, height: '100%', position: 'relative' }}>
+        
+        {/* Mobile Header (Minimal) */}
+        <Sheet
+          sx={{
+            display: { xs: 'flex', md: 'none' },
+            alignItems: 'center',
+            justifyContent: 'center',
+            p: 1.5,
+            borderBottom: '1px solid',
+            borderColor: 'divider',
+            bgcolor: 'background.surface',
+            zIndex: 100
+          }}
+        >
+          <Typography level="title-md" sx={{ fontWeight: 'bold', letterSpacing: '1px' }}>TOTEM</Typography>
+        </Sheet>
+
+        <Box component="main" sx={{ 
+            flexGrow: 1, 
+            p: { xs: 2, md: 3 }, 
+            pb: { xs: 10, md: 3 }, // Space for mobile bottom nav
+            overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch' 
+        }}>
             <Outlet context={{ 
                 api, 
                 id, 
@@ -153,7 +150,142 @@ export default function HouseholdLayout({
                 onInstall={onInstall}
             />
         </Box>
+
+        {/* Mobile Bottom Navigation (Android Style) */}
+        <Sheet
+            sx={{
+                display: { xs: 'flex', md: 'none' },
+                position: 'fixed',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: 70,
+                borderTop: '1px solid',
+                borderColor: 'divider',
+                bgcolor: 'background.surface',
+                px: 2,
+                justifyContent: 'space-around',
+                alignItems: 'center',
+                zIndex: 1000,
+                boxShadow: '0 -2px 10px rgba(0,0,0,0.05)'
+            }}
+        >
+            <Stack alignItems="center" spacing={0.5} onClick={() => navigate('dashboard')} sx={{ cursor: 'pointer', color: isTabActive('dashboard') ? 'primary.plainColor' : 'neutral.plainColor' }}>
+                <HomeIcon color={isTabActive('dashboard') ? 'primary' : 'inherit'} />
+                <Typography level="body-xs" sx={{ color: 'inherit', fontWeight: isTabActive('dashboard') ? 'bold' : 'normal' }}>Home</Typography>
+            </Stack>
+            
+            <Stack alignItems="center" spacing={0.5} onClick={() => navigate('calendar')} sx={{ cursor: 'pointer', color: isTabActive('calendar') ? 'primary.plainColor' : 'neutral.plainColor' }}>
+                <EventIcon color={isTabActive('calendar') ? 'primary' : 'inherit'} />
+                <Typography level="body-xs" sx={{ color: 'inherit', fontWeight: isTabActive('calendar') ? 'bold' : 'normal' }}>Calendar</Typography>
+            </Stack>
+
+            <Stack alignItems="center" spacing={0.5} onClick={() => setDrawerOpen(true)} sx={{ cursor: 'pointer', color: drawerOpen ? 'primary.plainColor' : 'neutral.plainColor' }}>
+                <MoreIcon color={drawerOpen ? 'primary' : 'inherit'} />
+                <Typography level="body-xs" sx={{ color: 'inherit', fontWeight: drawerOpen ? 'bold' : 'normal' }}>Menu</Typography>
+            </Stack>
+        </Sheet>
       </Box>
+
+      {/* Mobile Draggable Menu Sheet */}
+      <Drawer
+        anchor="bottom"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        slotProps={{
+            content: {
+                sx: {
+                    bgcolor: 'transparent',
+                    p: 0,
+                    height: 'auto',
+                    maxHeight: '80vh',
+                    borderTopLeftRadius: '24px',
+                    borderTopRightRadius: '24px',
+                    boxShadow: 'none'
+                }
+            }
+        }}
+        sx={{ display: { md: 'none' } }}
+      >
+        <Sheet
+            sx={{
+                bgcolor: 'background.surface',
+                borderTopLeftRadius: '24px',
+                borderTopRightRadius: '24px',
+                p: 3,
+                pt: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2
+            }}
+        >
+            {/* Handle for "dragging" feel */}
+            <Box sx={{ 
+                width: 40, height: 4, borderRadius: 2, 
+                bgcolor: 'neutral.300', mx: 'auto', mb: 2 
+            }} />
+
+            <Typography level="title-lg" sx={{ mb: 1 }}>Categories</Typography>
+            
+            <Box sx={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(3, 1fr)', 
+                gap: 2 
+            }}>
+                <MenuTile icon={<PeopleIcon />} label="People" to="people" onClick={() => setDrawerOpen(false)} />
+                <MenuTile icon={<PetsIcon />} label="Pets" to="pets" onClick={() => setDrawerOpen(false)} />
+                <MenuTile icon={<VehicleIcon />} label="Vehicles" to="vehicles" onClick={() => setDrawerOpen(false)} />
+                <MenuTile icon={<HouseIcon />} label="House" to={`house/${activeHousehold?.id}`} onClick={() => setDrawerOpen(false)} />
+                <MenuTile icon={<SettingsIcon />} label="Settings" to="settings" onClick={() => setDrawerOpen(false)} />
+                <MenuTile icon={<ProfileIcon />} label="Profile" to="profile" onClick={() => setDrawerOpen(false)} />
+            </Box>
+
+            <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Box sx={{ 
+                            width: 32, height: 32, borderRadius: '50%', 
+                            bgcolor: 'neutral.softBg', display: 'flex', 
+                            alignItems: 'center', justifyContent: 'center' 
+                        }}>
+                            <Typography level="body-xs">{user?.first_name?.[0]}</Typography>
+                        </Box>
+                        <Box>
+                            <Typography level="title-sm">{user?.first_name} {user?.last_name}</Typography>
+                            <Typography level="body-xs" color="neutral">{user?.email}</Typography>
+                        </Box>
+                    </Box>
+                    <IconButton variant="plain" color="danger" size="sm" onClick={() => { onLogout(); setDrawerOpen(false); }}>
+                        <MoreIcon sx={{ transform: 'rotate(90deg)' }} />
+                    </IconButton>
+                </Stack>
+            </Box>
+        </Sheet>
+      </Drawer>
     </Box>
   );
+
+  function MenuTile({ icon, label, to, onClick }) {
+      const isActive = location.pathname.includes(to);
+      return (
+          <Stack 
+            alignItems="center" 
+            spacing={1} 
+            onClick={() => { navigate(to); onClick(); }}
+            sx={{ 
+                p: 2, 
+                borderRadius: 'xl', 
+                bgcolor: isActive ? 'primary.softBg' : 'background.level1',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                '&:active': { transform: 'scale(0.95)', bgcolor: 'primary.softBg' }
+            }}
+          >
+              <Box sx={{ color: isActive ? 'primary.solidBg' : 'neutral.plainColor' }}>
+                {icon}
+              </Box>
+              <Typography level="body-sm" sx={{ fontWeight: isActive ? 'bold' : 'normal' }}>{label}</Typography>
+          </Stack>
+      );
+  }
 }

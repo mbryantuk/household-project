@@ -15,6 +15,7 @@
     "@mui/icons-material": "^7.3.6",
     "@mui/joy": "^5.0.0-beta.52",
     "@mui/material": "^7.3.7",
+    "@mui/x-data-grid": "^7.23.0",
     "axios": "^1.13.2",
     "date-fns": "^4.1.0",
     "emoji-picker-react": "^4.16.1",

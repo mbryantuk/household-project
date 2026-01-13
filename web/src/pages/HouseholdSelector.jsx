@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Box, Typography, Card, CardContent, CardActions, Button, 
-  AspectRatio, Grid, Container, IconButton, Stack, Divider, Sheet, Alert, Tooltip
+  AspectRatio, Grid, Container, IconButton, Stack, Divider, Sheet, Alert, Tooltip,
+  Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, FormControl, FormLabel, Input
 } from '@mui/joy';
 import { Add, Home, ArrowForward, Logout, Settings, DeleteForever } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +11,9 @@ import { getEmojiColor } from '../theme';
 export default function HouseholdSelector({ api, currentUser, onLogout, showNotification }) {
   const [households, setHouseholds] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newHouseholdName, setNewHouseholdName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,6 +49,28 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
         } catch (err) {
             showNotification("Failed to delete household. Only admins can perform this action.", "danger");
         }
+    }
+  };
+
+  const handleCreateHousehold = async (e) => {
+    e.preventDefault();
+    if (!newHouseholdName.trim()) return;
+    
+    setIsSubmitting(true);
+    try {
+        const res = await api.post('/households', { name: newHouseholdName });
+        const newHh = res.data;
+        showNotification(`Household "${newHouseholdName}" created!`, "success");
+        setIsModalOpen(false);
+        setNewHouseholdName('');
+        
+        // Success Flow: Auto-select and redirect
+        localStorage.setItem('household', JSON.stringify(newHh));
+        window.location.href = `/household/${newHh.id}/dashboard`;
+    } catch (err) {
+        showNotification("Failed to create household.", "danger");
+    } finally {
+        setIsSubmitting(false);
     }
   };
 
@@ -100,14 +126,16 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
           <Card variant="dashed" sx={{ 
               '--Card-padding': '24px', 
               height: '100%', justifyContent: 'center', alignItems: 'center',
-              bgcolor: 'background.level1'
-          }}>
+              bgcolor: 'background.level1',
+              cursor: 'pointer',
+              '&:hover': { bgcolor: 'background.level2', borderColor: 'primary.outlinedBorder' }
+          }} onClick={() => setIsModalOpen(true)}>
             <IconButton variant="soft" color="neutral" size="lg" sx={{ borderRadius: '50%', mb: 2 }}>
                 <Add />
             </IconButton>
             <Typography level="title-md">New Household</Typography>
             <Typography level="body-xs" textAlign="center" sx={{ px: 2 }}>Register a new tenant property</Typography>
-            <Button variant="plain" sx={{ mt: 2 }} onClick={() => navigate('/register')}>Get Started</Button>
+            <Button variant="plain" sx={{ mt: 2 }} onClick={() => setIsModalOpen(true)}>Get Started</Button>
           </Card>
         </Grid>
       </Grid>
@@ -115,6 +143,30 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
       <Box sx={{ mt: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
         <Button variant="plain" color="neutral" startDecorator={<Logout />} onClick={onLogout}>Logout</Button>
       </Box>
+
+      <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <ModalDialog>
+          <DialogTitle>Create New Household</DialogTitle>
+          <DialogContent>Enter a name for your new household property.</DialogContent>
+          <form onSubmit={handleCreateHousehold}>
+            <Stack spacing={2}>
+              <FormControl required>
+                <FormLabel>Household Name</FormLabel>
+                <Input 
+                    autoFocus 
+                    placeholder="e.g. Summer House, Beach Cabin" 
+                    value={newHouseholdName}
+                    onChange={(e) => setNewHouseholdName(e.target.value)}
+                />
+              </FormControl>
+              <DialogActions>
+                <Button type="submit" loading={isSubmitting}>Create Household</Button>
+                <Button variant="plain" color="neutral" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+              </DialogActions>
+            </Stack>
+          </form>
+        </ModalDialog>
+      </Modal>
     </Container>
   );
 }

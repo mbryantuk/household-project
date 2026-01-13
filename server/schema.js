@@ -158,10 +158,12 @@ const SCHEMA_DEFINITIONS = [
         warranty_expiry TEXT,
         notes TEXT,
         emoji TEXT,
+        -- Financials
         purchase_value REAL DEFAULT 0,
         replacement_cost REAL DEFAULT 0,
         monthly_maintenance_cost REAL DEFAULT 0,
-        depreciation_rate REAL DEFAULT 0
+        depreciation_rate REAL DEFAULT 0,
+        insurance_status TEXT DEFAULT 'uninsured' -- insured, uninsured, self-insured
     )`,
 
     // --- ENERGY ACCOUNTS ---
@@ -238,7 +240,8 @@ const MIGRATIONS = [
     ['vehicle_finance', 'household_id', 'INTEGER'],
     ['vehicle_insurance', 'household_id', 'INTEGER'],
     ['recurring_costs', 'household_id', 'INTEGER'],
-    ['recurring_costs', 'nearest_working_day', 'BOOLEAN DEFAULT 0']
+    ['recurring_costs', 'nearest_working_day', 'BOOLEAN DEFAULT 0'],
+    ['assets', 'insurance_status', "TEXT DEFAULT 'uninsured'"]
 ];
 
 function initializeHouseholdSchema(db) {
