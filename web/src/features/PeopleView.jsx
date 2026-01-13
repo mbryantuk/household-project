@@ -94,7 +94,39 @@ export default function PeopleView() {
   };
 
   if (personId !== 'new' && !selectedPerson) {
-    return <Box sx={{ p: 4, textAlign: 'center' }}><Typography color="neutral">Select a person from the menu.</Typography></Box>;
+    const people = (members || []).filter(m => m.type !== 'pet');
+    return (
+        <Box sx={{ p: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography level="h2" fontWeight="300">People</Typography>
+                {isHouseholdAdmin && (
+                    <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>Add Person</Button>
+                )}
+            </Box>
+            <Grid container spacing={2}>
+                {people.map(p => (
+                    <Grid xs={12} sm={6} md={4} key={p.id}>
+                        <Sheet 
+                            variant="outlined" 
+                            sx={{ 
+                                p: 2, borderRadius: 'md', display: 'flex', alignItems: 'center', gap: 2,
+                                cursor: 'pointer',
+                                transition: 'background-color 0.2s',
+                                '&:hover': { bgcolor: 'background.level1' }
+                            }}
+                            onClick={() => navigate(String(p.id))}
+                        >
+                            <Box sx={{ fontSize: '2.5rem' }}>{p.emoji || '👨'}</Box>
+                            <Box>
+                                <Typography level="title-md">{p.name}</Typography>
+                                <Typography level="body-sm" color="neutral">{p.role || p.type}</Typography>
+                            </Box>
+                        </Sheet>
+                    </Grid>
+                ))}
+            </Grid>
+        </Box>
+    );
   }
 
   return (

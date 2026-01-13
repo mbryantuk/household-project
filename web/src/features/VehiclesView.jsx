@@ -119,7 +119,38 @@ export default function VehiclesView() {
 
   if (loading && vehicles.length === 0) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
   if (vehicleId !== 'new' && !selectedVehicle) {
-    return <Box sx={{ p: 4, textAlign: 'center' }}><Typography color="neutral">Select a vehicle from the menu.</Typography></Box>;
+    return (
+        <Box sx={{ p: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography level="h2" fontWeight="300">Fleet</Typography>
+                {isHouseholdAdmin && (
+                    <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>Add Vehicle</Button>
+                )}
+            </Box>
+            <Grid container spacing={2}>
+                {vehicles.map(v => (
+                    <Grid xs={12} sm={6} md={4} key={v.id}>
+                        <Sheet 
+                            variant="outlined" 
+                            sx={{ 
+                                p: 2, borderRadius: 'md', display: 'flex', alignItems: 'center', gap: 2,
+                                cursor: 'pointer',
+                                transition: 'background-color 0.2s',
+                                '&:hover': { bgcolor: 'background.level1' }
+                            }}
+                            onClick={() => navigate(String(v.id))}
+                        >
+                            <Box sx={{ fontSize: '2.5rem' }}>{v.emoji || '🚗'}</Box>
+                            <Box>
+                                <Typography level="title-md">{v.make} {v.model}</Typography>
+                                <Typography level="body-sm" color="neutral">{v.registration}</Typography>
+                            </Box>
+                        </Sheet>
+                    </Grid>
+                ))}
+            </Grid>
+        </Box>
+    );
   }
 
   return (

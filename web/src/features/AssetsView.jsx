@@ -4,10 +4,9 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  Sheet
+  Sheet, Table
 } from '@mui/joy';
 import { Edit, Delete, Add, EventBusy, AccountBalanceWallet, VerifiedUser } from '@mui/icons-material';
-import { DataGrid } from '@mui/x-data-grid';
 import { getEmojiColor } from '../theme';
 import AppSelect from '../components/ui/AppSelect';
 
@@ -33,7 +32,6 @@ export default function AssetsView() {
     setLoading(true);
     try {
       const res = await api.get(`/households/${householdId}/assets`);
-      // Add unique ID for DataGrid if needed (it uses 'id' by default)
       setAssets(res.data || []);
     } catch (err) {
       console.error(err);
@@ -75,46 +73,6 @@ export default function AssetsView() {
     }
   };
 
-  // --- DataGrid Columns (Desktop) ---
-  const columns = [
-    { 
-      field: 'icon', headerName: '', width: 60,
-      renderCell: (params) => (
-        <Avatar size="sm" sx={{ bgcolor: getEmojiColor(params.row.emoji || params.row.name[0], isDark) }}>
-          {params.row.emoji || params.row.name[0]}
-        </Avatar>
-      )
-    },
-    { field: 'name', headerName: 'Asset Name', flex: 1, minWidth: 150 },
-    { field: 'category', headerName: 'Category', width: 120 },
-    { field: 'location', headerName: 'Location', width: 120 },
-    { 
-      field: 'purchase_value', headerName: 'Value', width: 100,
-      renderCell: (params) => `£${params.row.purchase_value}`
-    },
-    { 
-      field: 'insurance_status', headerName: 'Insurance', width: 120,
-      renderCell: (params) => (
-        <Chip 
-            size="sm" 
-            variant="soft" 
-            color={params.value === 'insured' ? 'success' : params.value === 'self-insured' ? 'warning' : 'danger'}
-        >
-            {params.value || 'uninsured'}
-        </Chip>
-      )
-    },
-    {
-      field: 'actions', headerName: 'Actions', width: 100,
-      renderCell: (params) => isHouseholdAdmin && (
-        <Box>
-          <IconButton size="sm" onClick={() => { setEditAsset(params.row); setIsNew(false); }}><Edit /></IconButton>
-          <IconButton size="sm" color="danger" onClick={() => handleDelete(params.row.id)}><Delete /></IconButton>
-        </Box>
-      )
-    }
-  ];
-
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
   return (
@@ -128,23 +86,55 @@ export default function AssetsView() {
         )}
       </Box>
 
-      {/* DESKTOP VIEW: DataGrid */}
+      {/* DESKTOP VIEW: Standard Table (Replaced DataGrid to fix Theme Crash) */}
       {!isMobile ? (
-        <Sheet sx={{ height: 600, width: '100%', borderRadius: 'md', overflow: 'hidden' }} variant="outlined">
-            <DataGrid
-                rows={assets}
-                columns={columns}
-                pageSizeOptions={[10, 25, 50]}
-                initialState={{
-                    pagination: { paginationModel: { pageSize: 10 } },
-                }}
-                disableRowSelectionOnClick
-                sx={{
-                    border: 'none',
-                    '& .MuiDataGrid-cell': { fontSize: '0.9rem' },
-                    '--DataGrid-overlayHeight': '300px', // Joy UI theme fix
-                }}
-            />
+        <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto' }}>
+            <Table hoverRow stickyHeader>
+                <thead>
+                    <tr>
+                        <th style={{ width: 60 }}></th>
+                        <th>Asset Name</th>
+                        <th>Category</th>
+                        <th>Location</th>
+                        <th>Value</th>
+                        <th>Insurance</th>
+                        {isHouseholdAdmin && <th style={{ textAlign: 'right' }}>Actions</th>}
+                    </tr>
+                </thead>
+                <tbody>
+                    {assets.map((row) => (
+                        <tr key={row.id}>
+                            <td>
+                                <Avatar size="sm" sx={{ bgcolor: getEmojiColor(row.emoji || row.name[0], isDark) }}>
+                                    {row.emoji || row.name[0]}
+                                </Avatar>
+                            </td>
+                            <td>
+                                <Typography level="body-md" fontWeight="bold">{row.name}</Typography>
+                                <Typography level="body-xs" color="neutral">{row.manufacturer} {row.model_number}</Typography>
+                            </td>
+                            <td>{row.category}</td>
+                            <td>{row.location}</td>
+                            <td>£{row.purchase_value}</td>
+                            <td>
+                                <Chip 
+                                    size="sm" 
+                                    variant="soft" 
+                                    color={row.insurance_status === 'insured' ? 'success' : row.insurance_status === 'self-insured' ? 'warning' : 'danger'}
+                                >
+                                    {row.insurance_status || 'uninsured'}
+                                </Chip>
+                            </td>
+                            {isHouseholdAdmin && (
+                                <td style={{ textAlign: 'right' }}>
+                                    <IconButton size="sm" variant="plain" onClick={() => { setEditAsset(row); setIsNew(false); }}><Edit /></IconButton>
+                                    <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(row.id)}><Delete /></IconButton>
+                                </td>
+                            )}
+                        </tr>
+                    ))}
+                </tbody>
+            </Table>
         </Sheet>
       ) : (
         /* MOBILE VIEW: Cards */
@@ -222,6 +212,18 @@ export default function AssetsView() {
                             <FormControl>
                                 <FormLabel>Location</FormLabel>
                                 <Input name="location" defaultValue={editAsset?.location} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} md={6}>
+                            <FormControl>
+                                <FormLabel>Manufacturer</FormLabel>
+                                <Input name="manufacturer" defaultValue={editAsset?.manufacturer} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} md={6}>
+                            <FormControl>
+                                <FormLabel>Model Number</FormLabel>
+                                <Input name="model_number" defaultValue={editAsset?.model_number} />
                             </FormControl>
                         </Grid>
 
