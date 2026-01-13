@@ -59,6 +59,26 @@ function AppInner({ useDracula, setUseDracula }) {
 
   const [notification, setNotification] = useState({ open: false, message: '', severity: 'neutral' });
   const [confirmDialog, setConfirmDialog] = useState({ open: false, title: '', message: '', onConfirm: null });
+  const [installPrompt, setInstallPrompt] = useState(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    installPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        setInstallPrompt(null);
+      }
+    });
+  };
 
   const navigate = useNavigate();
   const authAxios = useMemo(() => axios.create({ 
@@ -205,6 +225,7 @@ function AppInner({ useDracula, setUseDracula }) {
               onUpdateProfile={handleUpdateProfile} onLogout={logout}
               currentMode={mode} onModeChange={setMode} 
               useDracula={useDracula} onDraculaChange={(v) => { setUseDracula(v); localStorage.setItem('useDracula', v); }}
+              installPrompt={installPrompt} onInstall={handleInstall}
             />}>
                 <Route index element={<Navigate to="dashboard" replace />} />
                 <Route path="dashboard" element={<HomeView household={household} members={hhMembers} currentUser={user} dates={hhDates} onUpdateProfile={handleUpdateProfile} />} />
