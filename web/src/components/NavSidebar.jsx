@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, 
-  IconButton, Divider, Box, Avatar, Typography, Stack, Tooltip, Button
+  IconButton, Divider, Box, Avatar, Typography, Stack, Tooltip, Button, Badge
 } from '@mui/joy';
 import { 
   Settings, Home as HomeIcon, Event, 
@@ -49,7 +49,7 @@ export default function NavSidebar({
       setActiveCategory(category);
   };
 
-  const RailIcon = ({ icon, label, category, to, hasSubItems }) => {
+  const RailIcon = ({ icon, label, category, to, hasSubItems, badge }) => {
       const pathMatches = to && location.pathname.includes(to);
       const categoryMatches = activeCategory === category;
       const isActive = pathMatches || categoryMatches;
@@ -62,7 +62,9 @@ export default function NavSidebar({
                     onClick={() => handleNav(to, category, hasSubItems)}
                     sx={{ borderRadius: 'sm', gap: 2 }}
                 >
-                    <ListItemDecorator>{icon}</ListItemDecorator>
+                    <ListItemDecorator>
+                        {badge ? <Badge color="danger" size="sm" invisible={!badge}>{icon}</Badge> : icon}
+                    </ListItemDecorator>
                     <ListItemContent>{label}</ListItemContent>
                     {hasSubItems && <KeyboardArrowRight />}
                 </ListItemButton>
@@ -71,7 +73,7 @@ export default function NavSidebar({
       }
 
       return (
-        <Tooltip title={label} placement="right" arrow size="sm">
+        <Tooltip title={label} placement="right" arrow size="sm" sx={{ zIndex: 3000 }}>
             <ListItem>
                 <ListItemButton 
                     selected={isActive}
@@ -83,7 +85,9 @@ export default function NavSidebar({
                         '&.Mui-selected': { bgcolor: 'background.level1', color: 'primary.plainColor' }
                     }}
                 >
-                    <ListItemDecorator sx={{ display: 'flex', justifyContent: 'center', m: 0, '& svg': { fontSize: '1.25rem' } }}>{icon}</ListItemDecorator>
+                    <ListItemDecorator sx={{ display: 'flex', justifyContent: 'center', m: 0, '& svg': { fontSize: '1.25rem' } }}>
+                        {badge ? <Badge color="danger" size="sm" invisible={!badge}>{icon}</Badge> : icon}
+                    </ListItemDecorator>
                     <Typography level="body-xs" sx={{ fontSize: '9px', fontWeight: '500', color: 'inherit' }}>{label}</Typography>
                 </ListItemButton>
             </ListItem>
@@ -145,7 +149,7 @@ export default function NavSidebar({
                 <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems />
                 <RailIcon icon={<DirectionsCar />} label="Vehicles" category="vehicles" hasSubItems />
                 <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
-                <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems />
+                <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems badge={canInstall} />
                 <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
                 <RailIcon 
                     icon={<Avatar size="sm" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark), width: 22, height: 22, fontSize: '0.75rem' }}>{user?.avatar || user?.first_name?.[0]}</Avatar>} 
@@ -162,7 +166,7 @@ export default function NavSidebar({
                         </IconButton>
                     </Tooltip>
                 )}
-                <Tooltip title="Switch Household" placement="right" arrow size="sm">
+                <Tooltip title="Switch Household" placement="right" arrow size="sm" sx={{ zIndex: 3000 }}>
                     <IconButton variant="soft" color="neutral" size="sm" onClick={() => navigate('/select-household')}>
                         <SwapHoriz />
                     </IconButton>

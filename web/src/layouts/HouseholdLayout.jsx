@@ -240,7 +240,20 @@ export default function HouseholdLayout({
                 <MenuTile icon={<SettingsIcon />} label="Settings" to="settings" onClick={() => setDrawerOpen(false)} />
                 <MenuTile icon={<ProfileIcon />} label="Profile" to="profile" onClick={() => setDrawerOpen(false)} />
                 {!!installPrompt && (
-                    <MenuTile icon={<Download />} label="Install" to="#" onClick={() => { onInstall(); setDrawerOpen(false); }} />
+                    <MenuTile 
+                        icon={<Download />} 
+                        label="Install App" 
+                        to="#" 
+                        onClick={() => { onInstall(); setDrawerOpen(false); }} 
+                        sx={{ 
+                            bgcolor: 'primary.solidBg', 
+                            color: 'common.white', 
+                            '&:hover': { bgcolor: 'primary.solidHoverBg' },
+                            '&:active': { transform: 'scale(0.95)' },
+                            boxShadow: 'md'
+                        }}
+                        iconColor="inherit"
+                    />
                 )}
             </Box>
 
@@ -269,7 +282,7 @@ export default function HouseholdLayout({
     </Box>
   );
 
-  function MenuTile({ icon, label, to, onClick }) {
+  function MenuTile({ icon, label, to, onClick, sx = {}, iconColor }) {
       const isActive = location.pathname.includes(to);
       return (
           <Stack 
@@ -282,13 +295,14 @@ export default function HouseholdLayout({
                 bgcolor: isActive ? 'primary.softBg' : 'background.level1',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
-                '&:active': { transform: 'scale(0.95)', bgcolor: 'primary.softBg' }
+                '&:active': { transform: 'scale(0.95)', bgcolor: 'primary.softBg' },
+                ...sx
             }}
           >
-              <Box sx={{ color: isActive ? 'primary.solidBg' : 'neutral.plainColor' }}>
+              <Box sx={{ color: iconColor || (isActive ? 'primary.solidBg' : 'neutral.plainColor') }}>
                 {icon}
               </Box>
-              <Typography level="body-sm" sx={{ fontWeight: isActive ? 'bold' : 'normal' }}>{label}</Typography>
+              <Typography level="body-sm" sx={{ fontWeight: isActive ? 'bold' : 'normal', color: iconColor || 'inherit' }}>{label}</Typography>
           </Stack>
       );
   }
