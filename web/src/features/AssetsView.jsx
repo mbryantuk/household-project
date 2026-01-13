@@ -17,6 +17,10 @@ export default function AssetsView() {
   const [editAsset, setEditAsset] = useState(null);
   const [isNew, setIsNew] = useState(false);
   
+  // Sorting & Filtering State
+  const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
+  const [filterQuery, setFilterQuery] = useState('');
+  
   // Responsive Check (Simple width check or hook)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
 
@@ -43,6 +47,37 @@ export default function AssetsView() {
   useEffect(() => {
     fetchAssets();
   }, [fetchAssets]);
+
+  // Derived State: Filtered & Sorted Assets
+  const processedAssets = assets
+    .filter(a => 
+        a.name.toLowerCase().includes(filterQuery.toLowerCase()) || 
+        a.category.toLowerCase().includes(filterQuery.toLowerCase()) ||
+        (a.location && a.location.toLowerCase().includes(filterQuery.toLowerCase()))
+    )
+    .sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+    });
+
+  const handleSort = (key) => {
+      setSortConfig(prev => ({
+          key,
+          direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+      }));
+  };
+
+  const SortableHeader = ({ label, field, width }) => (
+      <th style={{ width, cursor: 'pointer', userSelect: 'none' }} onClick={() => handleSort(field)}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              {label}
+              {sortConfig.key === field && (
+                  <Typography level="body-xs">{sortConfig.direction === 'asc' ? '▲' : '▼'}</Typography>
+              )}
+          </Box>
+      </th>
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -79,30 +114,38 @@ export default function AssetsView() {
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography level="h2" fontWeight="300">Appliance & Asset Register</Typography>
-        {isHouseholdAdmin && (
-            <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditAsset({}); setIsNew(true); }}>
-                Add Asset
-            </Button>
-        )}
+        <Stack direction="row" spacing={2}>
+            <Input 
+                placeholder="Search assets..." 
+                value={filterQuery} 
+                onChange={e => setFilterQuery(e.target.value)}
+                sx={{ minWidth: 200 }} 
+            />
+            {isHouseholdAdmin && (
+                <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditAsset({}); setIsNew(true); }}>
+                    Add Asset
+                </Button>
+            )}
+        </Stack>
       </Box>
 
-      {/* DESKTOP VIEW: Standard Table (Replaced DataGrid to fix Theme Crash) */}
+      {/* DESKTOP VIEW: Standard Table with Sorting */}
       {!isMobile ? (
-        <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto' }}>
+        <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto', flexGrow: 1 }}>
             <Table hoverRow stickyHeader>
                 <thead>
                     <tr>
                         <th style={{ width: 60 }}></th>
-                        <th>Asset Name</th>
-                        <th>Category</th>
-                        <th>Location</th>
-                        <th>Value</th>
-                        <th>Insurance</th>
+                        <SortableHeader label="Asset Name" field="name" />
+                        <SortableHeader label="Category" field="category" width={150} />
+                        <SortableHeader label="Location" field="location" width={150} />
+                        <SortableHeader label="Value" field="purchase_value" width={120} />
+                        <SortableHeader label="Insurance" field="insurance_status" width={140} />
                         {isHouseholdAdmin && <th style={{ textAlign: 'right' }}>Actions</th>}
                     </tr>
                 </thead>
                 <tbody>
-                    {assets.map((row) => (
+                    {processedAssets.map((row) => (
                         <tr key={row.id}>
                             <td>
                                 <Avatar size="sm" sx={{ bgcolor: getEmojiColor(row.emoji || row.name[0], isDark) }}>
@@ -139,7 +182,7 @@ export default function AssetsView() {
       ) : (
         /* MOBILE VIEW: Cards */
         <Grid container spacing={2}>
-            {assets.map(a => (
+            {processedAssets.map(a => (
             <Grid xs={12} key={a.id}>
                 <Card variant="outlined" sx={{ flexDirection: 'row', gap: 2 }}>
                     <Avatar size="lg" sx={{ bgcolor: getEmojiColor(a.emoji || a.name[0], isDark) }}>
