@@ -124,7 +124,11 @@ export default function UtilityBar({
 
         <Box sx={{ flex: '0 0 25%', height: '100%', borderLeft: '1px solid', borderColor: 'divider', bgcolor: 'background.level1', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', px: 2, gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, opacity: 0.7 }}><Wifi fontSize="small" color="success" /><Typography level="body-xs">Online</Typography></Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, opacity: 0.7 }}><Typography level="body-xs" fontWeight="600">v{pkg.version}</Typography></Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, opacity: 0.7 }}>
+                <Tooltip title={`System Root: v${__SYSTEM_VERSION__}`} variant="soft" arrow>
+                    <Typography level="body-xs" fontWeight="600" sx={{ cursor: 'help' }}>v{pkg.version}</Typography>
+                </Tooltip>
+            </Box>
         </Box>
     </Sheet>
   );

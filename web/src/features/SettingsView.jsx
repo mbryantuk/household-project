@@ -242,7 +242,12 @@ export default function SettingsView({
                           </ButtonGroup>
                       </Box>
                       <FormControl orientation="horizontal" sx={{ gap: 2, alignItems: 'center' }}><Switch checked={useDracula} onChange={(e) => onDraculaChange(e.target.checked)} /><Box><Typography level="title-md">Enable Dracula Palette</Typography><Typography level="body-sm">Use high-contrast purple tones</Typography></Box></FormControl>
-                      <Divider /><Box sx={{ textAlign: 'center', opacity: 0.6 }}><Typography level="body-xs">Totem Application Version</Typography><Typography level="body-sm" fontWeight="bold">v{pkg.version}</Typography></Box>
+                      <Divider /><Box sx={{ textAlign: 'center', opacity: 0.6 }}>
+                        <Typography level="body-xs">Totem Application Version</Typography>
+                        <Tooltip title={`System: v${__SYSTEM_VERSION__}`} variant="soft" arrow>
+                          <Typography level="body-sm" fontWeight="bold" sx={{ cursor: 'help' }}>v{pkg.version}</Typography>
+                        </Tooltip>
+                      </Box>
                   </Stack>
               </Box>
             )}
