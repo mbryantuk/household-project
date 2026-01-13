@@ -1,5 +1,5 @@
 import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { 
   Box, Typography, IconButton, Button, Menu, MenuItem, 
   Stack, Sheet, Tooltip
@@ -13,20 +13,31 @@ import 'react-resizable/css/styles.css';
 
 import BirthdaysWidget from '../components/widgets/BirthdaysWidget';
 import EventsWidget from '../components/widgets/EventsWidget';
+import HomeRecurringCostsWidget from '../components/widgets/HomeRecurringCostsWidget';
+import VehiclesWidget from '../components/widgets/VehiclesWidget';
+import NotesWidget from '../components/widgets/NotesWidget';
 
 const WIDGET_TYPES = {
   birthdays: { component: BirthdaysWidget, label: 'Upcoming Birthdays', defaultH: 4, defaultW: 6 },
   events: { component: EventsWidget, label: 'Upcoming Events', defaultH: 4, defaultW: 6 },
+  costs: { component: HomeRecurringCostsWidget, label: 'Monthly Costs', defaultH: 4, defaultW: 6 },
+  vehicles: { component: VehiclesWidget, label: 'Fleet Status', defaultH: 4, defaultW: 6 },
+  notes: { component: NotesWidget, label: 'Sticky Note', defaultH: 4, defaultW: 4 },
 };
 
 const DEFAULT_LAYOUT = [
   { i: 'birthdays-1', x: 0, y: 0, w: 6, h: 4, type: 'birthdays' },
   { i: 'events-1', x: 6, y: 0, w: 6, h: 4, type: 'events' },
+  { i: 'costs-1', x: 0, y: 4, w: 6, h: 4, type: 'costs' },
 ];
 
-export default function HomeView({ members, household, currentUser, dates, onUpdateProfile }) {
+export default function HomeView({ members, household, currentUser, dates, onUpdateProfile, api }) {
   const [isEditing, setIsEditing] = useState(false);
   const [page, setPage] = useState(1);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Initialize strictly from Server Props (or Default if missing/empty)
+  // We do NOT use localStorage as source of truth to ensure cross-device consistency.
   const [layouts, setLayouts] = useState(() => {
     if (currentUser?.dashboard_layout) {
       try {
@@ -36,13 +47,29 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
         if (cloud && Object.keys(cloud).length > 0) return cloud;
       } catch (e) { console.error("Cloud Layout Parse Error", e); }
     }
-    const saved = localStorage.getItem(`dashboard_${household?.id}_${currentUser?.username}`);
-    return saved ? JSON.parse(saved) : { 1: DEFAULT_LAYOUT };
+    return { 1: DEFAULT_LAYOUT };
   });
 
   const [addWidgetAnchor, setAddWidgetAnchor] = useState(null);
   const [width, setWidth] = useState(1200);
   const containerRef = useRef(null);
+
+  // Sync Layout from Server if it changes remotely (e.g. login/refresh)
+  // BUT only if we are not currently editing/saving to avoid race conditions overwriting local work.
+  useEffect(() => {
+    if (isEditing || isSaving) return;
+    if (currentUser?.dashboard_layout) {
+      try {
+        const cloud = typeof currentUser.dashboard_layout === 'string' 
+          ? JSON.parse(currentUser.dashboard_layout) 
+          : currentUser.dashboard_layout;
+        if (cloud && JSON.stringify(cloud) !== JSON.stringify(layouts)) {
+            // Only update if significantly different structure to avoid jitter
+            setLayouts(cloud);
+        }
+      } catch(e) {}
+    }
+  }, [currentUser?.dashboard_layout, isEditing, isSaving]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -62,7 +89,8 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
     const newItems = layout.map(l => {
         const existing = currentItems.find(i => i.i === l.i);
         const { static: _static, ...cleanLayout } = l;
-        return { ...existing, ...cleanLayout };
+        // Persist custom data fields (like content for notes)
+        return { ...existing, ...cleanLayout, data: existing?.data };
     });
     setLayouts(prev => ({ ...prev, [page]: newItems }));
   };
@@ -71,7 +99,8 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
     const config = WIDGET_TYPES[type];
     const newId = `${type}-${Date.now()}`;
     const newItem = {
-        i: newId, x: (currentItems.length * 6) % 12, y: Infinity, w: config.defaultW, h: config.defaultH, type: type
+        i: newId, x: (currentItems.length * 6) % 12, y: Infinity, w: config.defaultW, h: config.defaultH, type: type,
+        data: {} // For widget-specific data storage
     };
     setLayouts(prev => ({ ...prev, [page]: [...(prev[page] || []), newItem] }));
     setAddWidgetAnchor(null);
@@ -81,12 +110,47 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
       setLayouts(prev => ({ ...prev, [page]: prev[page].filter(i => i.i !== id) }));
   };
 
-  const handleSave = async () => {
-    setIsEditing(false);
+  // Updates specific widget data (e.g. Note content) without needing to be in "Edit Mode"
+  const handleUpdateWidgetData = useCallback((id, newData) => {
+      setLayouts(prev => {
+          const pageItems = prev[page] || [];
+          const updatedItems = pageItems.map(item => 
+              item.i === id ? { ...item, data: { ...item.data, ...newData } } : item
+          );
+          return { ...prev, [page]: updatedItems };
+      });
+  }, [page]);
+
+  // Debounce save for data changes (Notes) could be added here, 
+  // but for now we rely on explicit "Done" or "Save" button for layout changes,
+  // OR we can auto-save data changes.
+  // Let's Add an auto-save effect for data changes if not editing layout.
+  useEffect(() => {
+      if (isEditing) return; // Don't auto-save while dragging
+      const timer = setTimeout(() => {
+          if (currentUser?.dashboard_layout) {
+             const currentStr = typeof currentUser.dashboard_layout === 'string' ? currentUser.dashboard_layout : JSON.stringify(currentUser.dashboard_layout);
+             if (currentStr !== JSON.stringify(layouts)) {
+                 handleSave(true); // Silent save
+             }
+          }
+      }, 2000);
+      return () => clearTimeout(timer);
+  }, [layouts, isEditing]);
+
+  const handleSave = async (silent = false) => {
+    if (!silent) setIsSaving(true);
     if (onUpdateProfile) {
-        try { await onUpdateProfile({ dashboard_layout: JSON.stringify(layouts) }); } catch (err) {}
+        try { 
+            await onUpdateProfile({ dashboard_layout: JSON.stringify(layouts) }); 
+        } catch (err) {
+            console.error("Failed to save layout", err);
+        }
     }
-    localStorage.setItem(`dashboard_${household?.id}_${currentUser?.username}`, JSON.stringify(layouts));
+    if (!silent) {
+        setIsEditing(false);
+        setIsSaving(false);
+    }
   };
 
   const handleAddPage = () => {
@@ -141,7 +205,7 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
                         )}
                     </Stack>
                     <Button variant="soft" startDecorator={<Add />} onClick={(e) => setAddWidgetAnchor(e.currentTarget)}>Widget</Button>
-                    <Button variant="solid" color="primary" startDecorator={<Save />} onClick={handleSave}>Done</Button>
+                    <Button variant="solid" color="primary" loading={isSaving} startDecorator={<Save />} onClick={() => handleSave(false)}>Done</Button>
                 </>
             ) : (
                 <Button variant="plain" color="neutral" startDecorator={<Edit />} onClick={() => setIsEditing(true)}>Customize</Button>
@@ -198,7 +262,14 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
                         )}
                         
                         <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                            {WidgetComponent ? <WidgetComponent dates={dates} members={members} /> : <Typography color="danger">Error</Typography>}
+                            {WidgetComponent ? <WidgetComponent 
+                                dates={dates} 
+                                members={members} 
+                                api={api} 
+                                household={household}
+                                data={item.data || {}}
+                                onSaveData={(newData) => handleUpdateWidgetData(item.i, newData)}
+                            /> : <Typography color="danger">Error</Typography>}
                         </Box>
                     </Box>
                 );

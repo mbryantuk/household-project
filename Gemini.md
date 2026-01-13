@@ -54,6 +54,7 @@
 * **Responsive Strategy (Mobile):**
     * **Complex Tables:** MUST transform into **Stacked Cards** or **List Views** on mobile (`xs`). Inline editing on mobile is forbidden; use **Modal/Drawer** forms instead for touch safety.
     * **Touch Targets:** Minimum **44px** for all inputs/buttons.
+    * **Tools:** Mobile Menu MUST provide full-screen access to utility tools (Calculator, Finance, Tax, Notes) and Household Switching.
 * **Global Components (`components/ui`):**
     * All Selectors/Dropdowns must be **Searchable** by default.
     * All Date inputs must handle local timezone formatting automatically.

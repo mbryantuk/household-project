@@ -228,7 +228,7 @@ function AppInner({ useDracula, setUseDracula }) {
               installPrompt={installPrompt} onInstall={handleInstall}
             />}>
                 <Route index element={<Navigate to="dashboard" replace />} />
-                <Route path="dashboard" element={<HomeView household={household} members={hhMembers} currentUser={user} dates={hhDates} onUpdateProfile={handleUpdateProfile} />} />
+                <Route path="dashboard" element={<HomeView household={household} members={hhMembers} currentUser={user} dates={hhDates} onUpdateProfile={handleUpdateProfile} api={authAxios} />} />
                 <Route path="calendar" element={<CalendarView showNotification={showNotification} confirmAction={confirmAction} />} />
                 <Route path="people/:personId" element={<PeopleView />} /><Route path="people" element={<PeopleView />} />
                 <Route path="pets/:petId" element={<PetsView />} /><Route path="pets" element={<PetsView />} />
