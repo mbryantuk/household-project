@@ -1,43 +1,19 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Box, Sheet, Typography, IconButton, Button, Tooltip, Divider
+  Box, Sheet, Typography, IconButton 
 } from '@mui/joy';
 import { 
-  Close, DragIndicator, ContentCopy, Backspace, OpenInNew
+  Close, DragIndicator, OpenInNew
 } from '@mui/icons-material';
+import CalculatorContent from './tools/CalculatorContent';
 
 export default function FloatingCalculator({ onClose, isPopout = false, isDark = false, isDocked = false, onPopout }) {
-  const [input, setInput] = useState('');
-  const [result, setResult] = useState('');
   const [pos, setPos] = useState({ x: 150, y: 100 });
   const [isDragging, setIsDragging] = useState(false);
   const [rel, setRel] = useState({ x: 0, y: 0 });
   const [isFocused, setIsFocused] = useState(true);
   
   const calcRef = useRef(null);
-
-  const handleAction = useCallback((val) => {
-    if (val === '=') {
-      try {
-        const res = new Function(`return ${input.replace(/[^-+*/.0-9]/g, '')}`)();
-        setResult(String(res));
-      } catch (e) { setResult('Error'); }
-    } else if (val === 'C') { setInput(''); setResult(''); }
-    else if (val === 'DEL') { setInput(prev => prev.slice(0, -1)); }
-    else { setInput(prev => prev + val); }
-  }, [input]);
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (!isFocused) return;
-      if (/[0-9+\-*/.]/.test(e.key)) handleAction(e.key);
-      else if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); handleAction('='); }
-      else if (e.key === 'Backspace') handleAction('DEL');
-      else if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isFocused, handleAction, onClose]);
 
   const onMouseDown = (e) => {
     if (isPopout || isDocked) return;
@@ -93,20 +69,8 @@ export default function FloatingCalculator({ onClose, isPopout = false, isDark =
         <IconButton size="sm" variant="plain" color="inherit" onClick={onClose} sx={{ ml: 1 }}><Close fontSize="small" /></IconButton>
       </Box>
 
-      <Box sx={{ p: 2, bgcolor: 'background.level1', textAlign: 'right', minHeight: 80, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <Typography level="body-xs" color="neutral" sx={{ display: 'block', height: 20 }}>{input || ' '}</Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1 }}>
-            <Typography level="h3" noWrap>{result || '0'}</Typography>
-            <IconButton size="sm" onClick={() => navigator.clipboard.writeText(result || input)}><ContentCopy fontSize="inherit" /></IconButton>
-        </Box>
-      </Box>
-      <Divider />
-      <Box sx={{ p: 1, flexGrow: 1, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
-          {['C', 'DEL', '/', '*'].map(btn => <Button key={btn} variant="outlined" color="neutral" onClick={() => handleAction(btn)}>{btn === 'DEL' ? <Backspace fontSize="small" /> : btn}</Button>)}
-          {['7', '8', '9', '-', '4', '5', '6', '+', '1', '2', '3'].map(btn => <Button key={btn} variant="solid" color="neutral" onClick={() => handleAction(btn)}>{btn}</Button>)}
-          <Button variant="solid" color="primary" sx={{ gridRow: 'span 2' }} onClick={() => handleAction('=')}>=</Button>
-          <Box sx={{ gridColumn: 'span 2' }}><Button fullWidth variant="solid" color="neutral" onClick={() => handleAction('0')}>0</Button></Box>
-          <Button variant="solid" color="neutral" onClick={() => handleAction('.')}>.</Button>
+      <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
+        <CalculatorContent onClose={onClose} />
       </Box>
     </Sheet>
   );

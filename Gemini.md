@@ -89,11 +89,13 @@ You must structure your response in exactly **4 PHASES**. Do not skip phases.
 ### Phase 4: Deployment & Verification
 * Provide a single **Bash Script** block at the very end.
 * **Must include:**
-    1.  `docker compose up -d --build`
+    1.  `docker compose up -d --build` (Initial build for testing)
     2.  `npm test` (Standard Suite: Viewer Restriction, Selector API, Perf tests).
     3.  **NEW FEATURE TEST:** If a new test file was created in Phase 2, execute it here.
     4.  **VERSION BUMP:** ALWAYS execute `node bump_version.js` to increment patch version.
     5.  `git commit` with a **Dynamic Message** based on Phase 2 changes.
+    6.  `git push origin main`
+    7.  `docker compose up -d --build` (FINAL build to apply version bump locally)
 
 ---
 
@@ -104,7 +106,7 @@ You must structure your response in exactly **4 PHASES**. Do not skip phases.
 # 1. Configuration & Safety Check
 echo "🚀 Starting Full Verification Cycle..."
 
-# 2. Build & Deploy
+# 2. Build & Deploy (Pre-Test)
 echo "📦 Building Docker containers..."
 docker compose up -d --build
 
@@ -129,4 +131,9 @@ echo "💾 Saving state and committing..."
 git add .
 # NOTE: Generate a specific message below based on actual work done
 git commit -m "feat(assets): add Car tracking module and Mobile card view"
-echo "✅ All systems verified and committed."
+git push origin main
+
+# 5. Final Local Refresh
+echo "🔄 Refreshing Local Environment..."
+docker compose up -d --build
+echo "✅ All systems verified, committed, and refreshed."

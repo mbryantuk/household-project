@@ -155,8 +155,8 @@ export default function NavSidebar({
             )}
 
             <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'center' }}>
-                <Box sx={{ width: 42, height: 42, borderRadius: '50%', bgcolor: getEmojiColor(household?.avatar || '?', isDark), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', cursor: 'pointer', border: '2px solid', borderColor: 'divider', overflow: 'hidden' }} onClick={() => navigate('/select-household')}>
-                    {household?.avatar ? (household.avatar.startsWith('data:image') ? <img src={household.avatar} alt="HH" style={{width:'100%'}}/> : household.avatar) : <TotemIcon />}
+                <Box sx={{ width: 42, height: 42, borderRadius: '50%', bgcolor: 'primary.solidBg', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '2px solid', borderColor: 'divider', overflow: 'hidden', color: 'white' }} onClick={() => navigate('/select-household')}>
+                    <HomeIcon />
                 </Box>
             </Box>
 

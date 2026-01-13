@@ -12,7 +12,7 @@ import {
   Settings as SettingsIcon,
   Person as ProfileIcon,
   Download,
-  Calculate, Savings, Payments, NoteAlt, SwapHoriz
+  Calculate, Savings, Payments, NoteAlt, SwapHoriz, ChevronLeft
 } from '@mui/icons-material';
 import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
@@ -47,6 +47,7 @@ export default function HouseholdLayout({
   const [vehicles, setVehicles] = useState([]);
   const [activeHousehold, setActiveHousehold] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [activeMenu, setActiveMenu] = useState('main');
 
   const fetchVehicles = useCallback(async () => {
     try {
@@ -216,21 +217,36 @@ export default function HouseholdLayout({
             <Box sx={{ width: 40, height: 4, borderRadius: 2, bgcolor: 'neutral.300', mx: 'auto', mb: 2 }} />
             <Typography level="title-lg" sx={{ mb: 1 }}>Categories</Typography>
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
-                {installPrompt && (
-                    <MenuTile 
-                        icon={<Download />} 
-                        label="Install App" 
-                        onClick={() => { onInstall(); setDrawerOpen(false); }} 
-                        sx={{ bgcolor: 'success.softBg', color: 'success.plainColor' }}
-                    />
+                {activeMenu === 'main' ? (
+                    <>
+                        {installPrompt && (
+                            <MenuTile 
+                                icon={<Download />} 
+                                label="Install App" 
+                                onClick={() => { onInstall(); setDrawerOpen(false); }} 
+                                sx={{ bgcolor: 'success.softBg', color: 'success.plainColor' }}
+                            />
+                        )}
+                        <MenuTile icon={<PeopleIcon />} label="People" to="people" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<PetsIcon />} label="Pets" to="pets" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<VehicleIcon />} label="Vehicles" to="vehicles" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<HouseIcon />} label="House" to={`house/${activeHousehold?.id}`} onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<SettingsIcon />} label="Settings" to="settings" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<ProfileIcon />} label="Profile" to="profile" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<SwapHoriz />} label="Switch" onClick={() => setActiveMenu('switch')} />
+                    </>
+                ) : (
+                    households.map(hh => (
+                        <MenuTile 
+                            key={hh.id}
+                            icon={<HomeIcon />} 
+                            label={hh.name} 
+                            onClick={() => { onSelectHousehold(hh); navigate(`/household/${hh.id}`); setDrawerOpen(false); setActiveMenu('main'); }} 
+                            sx={{ bgcolor: hh.id === activeHousehold?.id ? 'primary.softBg' : 'background.level1' }}
+                        />
+                    ))
                 )}
-                <MenuTile icon={<PeopleIcon />} label="People" to="people" onClick={() => setDrawerOpen(false)} />
-                <MenuTile icon={<PetsIcon />} label="Pets" to="pets" onClick={() => setDrawerOpen(false)} />
-                <MenuTile icon={<VehicleIcon />} label="Vehicles" to="vehicles" onClick={() => setDrawerOpen(false)} />
-                <MenuTile icon={<HouseIcon />} label="House" to={`house/${activeHousehold?.id}`} onClick={() => setDrawerOpen(false)} />
-                <MenuTile icon={<SettingsIcon />} label="Settings" to="settings" onClick={() => setDrawerOpen(false)} />
-                <MenuTile icon={<ProfileIcon />} label="Profile" to="profile" onClick={() => setDrawerOpen(false)} />
-                <MenuTile icon={<SwapHoriz />} label="Switch" onClick={() => { navigate('/select-household'); setDrawerOpen(false); }} />
+                {activeMenu === 'switch' && <MenuTile icon={<ChevronLeft />} label="Back" onClick={() => setActiveMenu('main')} />}
             </Box>
 
             <Box sx={{ width: 40, height: 4, borderRadius: 2, bgcolor: 'neutral.300', mx: 'auto', my: 2 }} />

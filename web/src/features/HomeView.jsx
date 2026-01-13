@@ -1,21 +1,11 @@
-import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { 
-  Box, Typography, IconButton, Button, Menu, MenuItem, 
-  Stack, Sheet, Tooltip
-} from '@mui/joy';
-import { 
-  Edit, Save, Add, Close, 
-  AddCircleOutline, RemoveCircleOutline
-} from '@mui/icons-material';
-import 'react-grid-layout/css/styles.css';
-import 'react-resizable/css/styles.css';
-
 import BirthdaysWidget from '../components/widgets/BirthdaysWidget';
 import EventsWidget from '../components/widgets/EventsWidget';
 import HomeRecurringCostsWidget from '../components/widgets/HomeRecurringCostsWidget';
 import VehiclesWidget from '../components/widgets/VehiclesWidget';
 import NotesWidget from '../components/widgets/NotesWidget';
+import CalculatorWidget from '../components/widgets/CalculatorWidget';
+import FinancialWidget from '../components/widgets/FinancialWidget';
+import TaxWidget from '../components/widgets/TaxWidget';
 
 const WIDGET_TYPES = {
   birthdays: { component: BirthdaysWidget, label: 'Upcoming Birthdays', defaultH: 4, defaultW: 6 },
@@ -23,6 +13,9 @@ const WIDGET_TYPES = {
   costs: { component: HomeRecurringCostsWidget, label: 'Monthly Costs', defaultH: 4, defaultW: 6 },
   vehicles: { component: VehiclesWidget, label: 'Fleet Status', defaultH: 4, defaultW: 6 },
   notes: { component: NotesWidget, label: 'Sticky Note', defaultH: 4, defaultW: 4 },
+  calc: { component: CalculatorWidget, label: 'Calculator', defaultH: 5, defaultW: 4 },
+  finance: { component: FinancialWidget, label: 'Finance Tools', defaultH: 6, defaultW: 5 },
+  tax: { component: TaxWidget, label: 'Tax Tools', defaultH: 6, defaultW: 5 },
 };
 
 const DEFAULT_LAYOUT = [
@@ -56,6 +49,7 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
 
   // Sync Layout from Server if it changes remotely (e.g. login/refresh)
   // BUT only if we are not currently editing/saving to avoid race conditions overwriting local work.
+  // CRITICAL FIX: Only sync if the user ID matches (to avoid cross-user pollution) AND layout is different.
   useEffect(() => {
     if (isEditing || isSaving) return;
     if (currentUser?.dashboard_layout) {
@@ -69,7 +63,7 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
         }
       } catch(e) {}
     }
-  }, [currentUser?.dashboard_layout, isEditing, isSaving]);
+  }, [currentUser?.dashboard_layout, isEditing, isSaving]); // Removed 'layouts' from dependency to prevent loops
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -121,10 +115,7 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
       });
   }, [page]);
 
-  // Debounce save for data changes (Notes) could be added here, 
-  // but for now we rely on explicit "Done" or "Save" button for layout changes,
-  // OR we can auto-save data changes.
-  // Let's Add an auto-save effect for data changes if not editing layout.
+  // Debounce save for layout data changes
   useEffect(() => {
       if (isEditing) return; // Don't auto-save while dragging
       const timer = setTimeout(() => {
@@ -267,6 +258,8 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
                                 members={members} 
                                 api={api} 
                                 household={household}
+                                user={currentUser} 
+                                onUpdateProfile={onUpdateProfile}
                                 data={item.data || {}}
                                 onSaveData={(newData) => handleUpdateWidgetData(item.i, newData)}
                             /> : <Typography color="danger">Error</Typography>}
