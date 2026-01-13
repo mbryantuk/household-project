@@ -16,6 +16,9 @@ import EmojiPicker from '../components/EmojiPicker';
 export default function VehiclesView() {
   const { api, id: householdId, user: currentUser, isDark, showNotification, confirmAction, fetchVehicles: refreshVehicles } = useOutletContext();
   const { vehicleId } = useParams();
+  
+  console.log("🚗 VehiclesView Rendered. ID:", vehicleId, "Mobile:", window.innerWidth < 900);
+
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
