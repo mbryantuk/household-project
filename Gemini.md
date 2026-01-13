@@ -67,7 +67,10 @@ You must structure your response in exactly **4 PHASES**. Do not skip phases.
     > 1.  **Tenancy Check:** [How is `household_id` enforced in this request?]
     > 2.  **Component Audit:** [Am I using shared `components/ui/` wrappers? (Yes/No)]
     > 3.  **View Strategy:** [Desktop: DataGrid w/ Inline Edit | Mobile: Card List w/ Modal Edit]
-    > 4.  **File Impact:** [List of files to be FULLY rewritten.]
+    > 4.  **Versioning Decision:** [Major | Minor | Patch]
+        * *Major:* Breaking changes, API removal.
+        * *Minor:* New features, new database tables.
+        * *Patch:* Bug fixes, UI tweaks, perf updates.
     > 5.  **New Tests:** [Did I create a new test file? If yes, it MUST be added to the Phase 4 script.]
 
 ### Phase 2: Implementation (Atomic)
@@ -83,8 +86,9 @@ You must structure your response in exactly **4 PHASES**. Do not skip phases.
 * **Must include:**
     1.  `docker compose up -d --build`
     2.  `npm test` (Standard Suite: Viewer Restriction, Selector API, Perf tests).
-    3.  **NEW FEATURE TEST:** If a new test file was created in Phase 2, you MUST add a specific execution line for it (e.g., `npm test tests/new_feature.test.js`).
-    4.  `git commit` with a **Dynamic Message** based on Phase 2 changes.
+    3.  **NEW FEATURE TEST:** If a new test file was created in Phase 2, execute it here.
+    4.  **VERSION BUMP:** Execute `npm version --no-git-tag-version <type>` based on Phase 1 analysis.
+    5.  `git commit` with a **Dynamic Message** based on Phase 2 changes.
 
 ---
 
@@ -105,14 +109,18 @@ npm test tests/viewer_restrictions.test.js
 npm test tests/selector.test.js
 
 # [DYNAMIC INSERTION POINT]
-# If you created a new test file (e.g. tests/cars.test.js), inject it here:
+# If you created a new test file, inject it here:
 echo "✨ Verifying New Features..."
 npm test tests/cars.test.js
 
 echo "⚡ Running Performance & Load Tests..."
 npm run test:perf
 
-# 4. Commit Snapshot
+# 4. Versioning & Commit
+echo "🆙 Bumping Version..."
+# NOTE: The AI must choose major/minor/patch based on Phase 1 logic
+npm version --no-git-tag-version patch
+
 echo "💾 Saving state and committing..."
 git add .
 # NOTE: Generate a specific message below based on actual work done

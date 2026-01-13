@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, 
-  IconButton, Divider, Box, Avatar, Typography, Stack, Tooltip, Button, Badge
+  IconButton, Divider, Box, Avatar, Typography, Stack, Tooltip, Button
 } from '@mui/joy';
 import { 
   Settings, Home as HomeIcon, Event, 
@@ -54,6 +54,17 @@ export default function NavSidebar({
       const categoryMatches = activeCategory === category;
       const isActive = pathMatches || categoryMatches;
       
+      const iconElement = (badge && isMobile) ? (
+          <Box sx={{ position: 'relative', display: 'flex' }}>
+              {icon}
+              <Box sx={{ 
+                  position: 'absolute', top: -2, right: -2, width: 8, height: 8, 
+                  bgcolor: 'danger.solidBg', borderRadius: '50%', 
+                  border: '1px solid', borderColor: 'background.surface' 
+              }} />
+          </Box>
+      ) : icon;
+
       if (isMobile) {
           return (
             <ListItem>
@@ -72,7 +83,7 @@ export default function NavSidebar({
                     }}
                 >
                     <ListItemDecorator>
-                        {badge ? <Badge color="danger" size="sm" invisible={!badge}>{icon}</Badge> : icon}
+                        {iconElement}
                     </ListItemDecorator>
                     <ListItemContent>{label}</ListItemContent>
                     {hasSubItems && <KeyboardArrowRight />}
@@ -82,22 +93,22 @@ export default function NavSidebar({
       }
 
       return (
-        <Tooltip title={label} placement="right" arrow size="sm" sx={{ zIndex: 3000 }}>
+        <Tooltip title={label} placement="right" arrow size="sm" slotProps={{ popper: { sx: { zIndex: 10000 } } }}>
             <ListItem>
                 <ListItemButton 
                     selected={isActive}
                     onClick={() => handleNav(to, category, hasSubItems)}
                     sx={{ 
                         borderRadius: 'md', justifyContent: 'center', px: 0, 
-                        flexDirection: 'column', gap: 0.2, py: 0.8, width: 52, 
-                        mx: 'auto', minHeight: 52,
+                        flexDirection: 'column', gap: 0.5, py: 1, width: 56, 
+                        mx: 'auto', minHeight: 60,
                         '&.Mui-selected': { bgcolor: 'background.level1', color: 'primary.plainColor' }
                     }}
                 >
-                    <ListItemDecorator sx={{ display: 'flex', justifyContent: 'center', m: 0, '& svg': { fontSize: '1.25rem' } }}>
-                        {badge ? <Badge color="danger" size="sm" invisible={!badge}>{icon}</Badge> : icon}
+                    <ListItemDecorator sx={{ display: 'flex', justifyContent: 'center', m: 0, '& svg': { fontSize: '1.4rem' } }}>
+                        {icon}
                     </ListItemDecorator>
-                    <Typography level="body-xs" sx={{ fontSize: '9px', fontWeight: '500', color: 'inherit' }}>{label}</Typography>
+                    <Typography level="body-xs" sx={{ fontSize: '10px', fontWeight: isActive ? '600' : '500', color: isActive ? 'primary.plainColor' : 'neutral.plainColor', textAlign: 'center' }}>{label}</Typography>
                 </ListItemButton>
             </ListItem>
         </Tooltip>
@@ -149,7 +160,7 @@ export default function NavSidebar({
                 </Box>
             </Box>
 
-            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '2px', width: '100%', px: isMobile ? 1 : 0 }}>
+            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
                 <RailIcon icon={<HomeIcon />} label="Home" category="dashboard" to="dashboard" />
                 <RailIcon icon={<Event />} label="Events" category="calendar" to="calendar" />
                 <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
@@ -158,7 +169,7 @@ export default function NavSidebar({
                 <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems />
                 <RailIcon icon={<DirectionsCar />} label="Vehicles" category="vehicles" hasSubItems />
                 <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
-                <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems badge={canInstall} />
+                <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems />
                 <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
                 <RailIcon 
                     icon={<Avatar size="sm" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark), width: 22, height: 22, fontSize: '0.75rem' }}>{user?.avatar || user?.first_name?.[0]}</Avatar>} 

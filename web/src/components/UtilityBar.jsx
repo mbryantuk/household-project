@@ -3,13 +3,14 @@ import {
   Box, IconButton, Tooltip, Sheet, Typography, Button
 } from '@mui/joy';
 import { 
-  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Savings, Close, Wifi, AccessTime, Payments
+  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Savings, Close, Wifi, Payments
 } from '@mui/icons-material';
 import FloatingCalculator from './FloatingCalculator';
 import FloatingCalendar from './FloatingCalendar';
 import FinancialCalculator from './FinancialCalculator';
 import PostItNote from './PostItNote';
 import TaxCalculator from './TaxCalculator';
+import pkg from '../../package.json';
 
 export default function UtilityBar({ 
     user, api, dates, onDateAdded, onUpdateProfile, isDark
@@ -17,12 +18,6 @@ export default function UtilityBar({
   const [activeWidget, setActiveWidget] = useState(null); 
   const [poppedOut, setPoppedOut] = useState({});
   const popoutRefs = useRef({});
-  const [time, setTime] = useState(new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 60000);
-    return () => clearInterval(timer);
-  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -129,7 +124,7 @@ export default function UtilityBar({
 
         <Box sx={{ flex: '0 0 25%', height: '100%', borderLeft: '1px solid', borderColor: 'divider', bgcolor: 'background.level1', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', px: 2, gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, opacity: 0.7 }}><Wifi fontSize="small" color="success" /><Typography level="body-xs">Online</Typography></Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, opacity: 0.7 }}><AccessTime fontSize="small" /><Typography level="body-xs">{time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Typography></Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, opacity: 0.7 }}><Typography level="body-xs" fontWeight="600">v{pkg.version}</Typography></Box>
         </Box>
     </Sheet>
   );
