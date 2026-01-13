@@ -77,7 +77,7 @@ export default function NavSidebar({
 
       if (isMobile) {
           return (
-            <ListItem>
+            <ListItem sx={{ px: 0 }}>
                 <ListItemButton 
                     selected={isActive}
                     onClick={handleClick}
@@ -101,7 +101,7 @@ export default function NavSidebar({
       }
 
       return (
-            <ListItem>
+            <ListItem sx={{ p: 0 }}>
                 <ListItemButton 
                     selected={isActive}
                     onClick={handleClick}
@@ -190,7 +190,7 @@ export default function NavSidebar({
 
             <Divider sx={{ mb: 0.5, width: isMobile ? '100%' : 40, mx: 'auto' }} />
 
-            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '0px', width: '100%', px: isMobile ? 1 : 0, pb: 0 }}>
+            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '0px', width: '100%', px: isMobile ? 1 : 0, p: 0, m: 0 }}>
                 {canInstall && (
                     <RailIcon icon={<Download />} label="Install" onClick={onInstall} />
                 )}
