@@ -76,7 +76,6 @@ export default function HouseholdLayout({
     <Box sx={{ 
         display: 'flex', 
         height: '100dvh', 
-        overflow: 'hidden', 
         flexDirection: { xs: 'column', md: 'row' },
         bgcolor: 'background.body'
     }}>
