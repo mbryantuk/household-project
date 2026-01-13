@@ -88,17 +88,20 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
     return () => observer.disconnect();
   }, []);
 
-  const currentItems = useMemo(() => layouts[page] || [], [layouts, page]);
+  const currentItems = useMemo(() => {
+    const pageLayout = layouts[page] || [];
+    if (Array.isArray(pageLayout)) return pageLayout;
+    // If it's a breakpoint object, use lg as base for internal logic
+    return pageLayout.lg || pageLayout.md || pageLayout.sm || [];
+  }, [layouts, page]);
+
   const gridItems = useMemo(() => currentItems.map(item => ({ ...item, static: !isEditing })), [currentItems, isEditing]);
 
-  const handleLayoutChange = (layout) => {
-    const newItems = layout.map(l => {
-        const existing = currentItems.find(i => i.i === l.i);
-        const { static: _static, ...cleanLayout } = l;
-        // Persist custom data fields (like content for notes)
-        return { ...existing, ...cleanLayout, data: existing?.data };
-    });
-    setLayouts(prev => ({ ...prev, [page]: newItems }));
+  const handleLayoutChange = (currentLayout, allLayouts) => {
+    setLayouts(prev => ({
+        ...prev,
+        [page]: allLayouts
+    }));
   };
 
   const handleAddWidget = (type) => {
@@ -108,22 +111,54 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
         i: newId, x: (currentItems.length * 6) % 12, y: Infinity, w: config.defaultW, h: config.defaultH, type: type,
         data: {} // For widget-specific data storage
     };
-    setLayouts(prev => ({ ...prev, [page]: [...(prev[page] || []), newItem] }));
+    
+    // Add to all breakpoints for the current page
+    setLayouts(prev => {
+        const pageLayouts = prev[page] || { lg: [], md: [], sm: [] };
+        const updated = {};
+        Object.keys(pageLayouts).forEach(bp => {
+            updated[bp] = [...pageLayouts[bp], newItem];
+        });
+        // If it was just an array (migration), convert it
+        if (Array.isArray(pageLayouts)) {
+            ['lg', 'md', 'sm'].forEach(bp => { updated[bp] = [...pageLayouts, newItem]; });
+        }
+        return { ...prev, [page]: updated };
+    });
     setAddWidgetAnchor(null);
   };
 
   const handleRemoveWidget = (id) => {
-      setLayouts(prev => ({ ...prev, [page]: prev[page].filter(i => i.i !== id) }));
+      setLayouts(prev => {
+          const pageLayouts = prev[page];
+          const updated = {};
+          if (Array.isArray(pageLayouts)) {
+              return { ...prev, [page]: pageLayouts.filter(i => i.i !== id) };
+          }
+          Object.keys(pageLayouts).forEach(bp => {
+              updated[bp] = pageLayouts[bp].filter(i => i.i !== id);
+          });
+          return { ...prev, [page]: updated };
+      });
   };
 
   // Updates specific widget data (e.g. Note content) without needing to be in "Edit Mode"
   const handleUpdateWidgetData = useCallback((id, newData) => {
       setLayouts(prev => {
-          const pageItems = prev[page] || [];
-          const updatedItems = pageItems.map(item => 
+          const pageLayouts = prev[page] || { lg: [], md: [], sm: [] };
+          const updateItems = (items) => items.map(item => 
               item.i === id ? { ...item, data: { ...item.data, ...newData } } : item
           );
-          return { ...prev, [page]: updatedItems };
+
+          if (Array.isArray(pageLayouts)) {
+              return { ...prev, [page]: updateItems(pageLayouts) };
+          }
+
+          const updated = {};
+          Object.keys(pageLayouts).forEach(bp => {
+              updated[bp] = updateItems(pageLayouts[bp]);
+          });
+          return { ...prev, [page]: updated };
       });
   }, [page]);
 
@@ -238,14 +273,14 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
       <div ref={containerRef}>
         <ResponsiveGridLayout
             className="layout"
-            layouts={{ lg: gridItems, md: gridItems, sm: gridItems }}
+            layouts={Array.isArray(layouts[page]) ? { lg: layouts[page], md: layouts[page], sm: layouts[page] } : layouts[page]}
             breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
             cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
             rowHeight={60}
             width={width}
             isDraggable={isEditing}
             isResizable={isEditing}
-            onLayoutChange={(layout) => handleLayoutChange(layout)}
+            onLayoutChange={handleLayoutChange}
             margin={[24, 24]} // More breathing room
         >
             {gridItems.map(item => {

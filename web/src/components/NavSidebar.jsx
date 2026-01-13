@@ -93,7 +93,6 @@ export default function NavSidebar({
       }
 
       return (
-        <Tooltip title={label} placement="right" arrow size="sm" slotProps={{ popper: { sx: { zIndex: 30000 } } }}>
             <ListItem>
                 <ListItemButton 
                     selected={isActive}
@@ -111,7 +110,6 @@ export default function NavSidebar({
                     <Typography level="body-xs" sx={{ fontSize: '10px', fontWeight: isActive ? '600' : '500', color: isActive ? 'primary.plainColor' : 'neutral.plainColor', textAlign: 'center' }}>{label}</Typography>
                 </ListItemButton>
             </ListItem>
-        </Tooltip>
       );
   };
 
@@ -178,21 +176,24 @@ export default function NavSidebar({
             </List>
 
             <Box sx={{ flexGrow: 1 }} />
-            <Box sx={{ pb: 2, display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'center' }}>
+            <Box sx={{ pb: 2, display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center', width: '100%' }}>
                 {canInstall && (
-                    <Tooltip title="Install App" placement="right" arrow size="sm" slotProps={{ popper: { sx: { zIndex: 30000 } } }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5, cursor: 'pointer' }} onClick={onInstall}>
                         <Badge color="danger" variant="solid" size="sm" badgeInset="14%">
-                            <IconButton variant="soft" color="primary" size="sm" onClick={onInstall}>
+                            <IconButton variant="soft" color="primary" size="sm">
                                 <Download />
                             </IconButton>
                         </Badge>
-                    </Tooltip>
+                        <Typography level="body-xs" sx={{ fontSize: '9px', fontWeight: 'bold' }}>INSTALL</Typography>
+                    </Box>
                 )}
-                <Tooltip title="Switch Household" placement="right" arrow size="sm" slotProps={{ popper: { sx: { zIndex: 30000 } } }}>
-                    <IconButton variant="soft" color="neutral" size="sm" onClick={() => navigate('/select-household')}>
+                
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5, cursor: 'pointer', width: '100%' }} onClick={() => navigate('/select-household')}>
+                    <IconButton variant="soft" color="neutral" size="sm">
                         <SwapHoriz />
                     </IconButton>
-                </Tooltip>
+                    <Typography level="body-xs" sx={{ fontSize: '9px', fontWeight: 'bold', textAlign: 'center', px: 0.5 }}>SWITCH</Typography>
+                </Box>
             </Box>
         </Sheet>
 
