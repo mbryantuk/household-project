@@ -142,70 +142,72 @@ export default function NavSidebar({
   const showPanel = activeCategory && ['people', 'pets', 'house', 'vehicles', 'settings', 'account', 'switch'].includes(activeCategory);
 
   const sidebarContent = (
-    <Box sx={{ display: 'flex', height: '100%' }}>
+    <Box sx={{ display: 'flex', height: '100dvh' }}>
         <Sheet
             sx={{
                 width: isMobile ? '100%' : RAIL_WIDTH,
                 borderRight: isMobile ? 'none' : '1px solid',
                 borderColor: 'divider',
                 display: 'flex', flexDirection: 'column',
+                justifyContent: 'space-between',
                 alignItems: isMobile ? 'stretch' : 'center',
-                pt: 1.5, pb: 0, bgcolor: 'background.surface', zIndex: 2500, height: isMobile ? '100%' : '100vh' 
+                pt: 1.5, pb: 0, bgcolor: 'background.surface', zIndex: 2500, 
+                height: '100dvh', overflowY: 'hidden', position: 'relative'
             }}
         >
-            {isMobile && (
-                <Box sx={{ px: 2, pb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Typography level="title-lg" sx={{ fontWeight: 'bold' }}>Menu</Typography>
-                    <IconButton variant="plain" color="neutral" onClick={onClose}><Close /></IconButton>
-                </Box>
-            )}
+            <Box sx={{ width: '100%' }}>
+                {isMobile && (
+                    <Box sx={{ px: 2, pb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Typography level="title-lg" sx={{ fontWeight: 'bold' }}>Menu</Typography>
+                        <IconButton variant="plain" color="neutral" onClick={onClose}><Close /></IconButton>
+                    </Box>
+                )}
 
-            <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'center' }}>
-                <Avatar 
-                    variant="soft" 
-                    color="primary" 
-                    size="lg"
-                    sx={{ 
-                        bgcolor: getEmojiColor(household?.avatar || '🏠', isDark),
-                        fontSize: '1.5rem',
-                        fontWeight: 'bold',
-                        boxShadow: 'sm'
-                    }}
-                >
-                    {household?.avatar || '🏠'}
-                </Avatar>
+                <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'center' }}>
+                    <Avatar 
+                        variant="soft" 
+                        color="primary" 
+                        size="lg"
+                        sx={{ 
+                            bgcolor: getEmojiColor(household?.avatar || '🏠', isDark),
+                            fontSize: '1.5rem',
+                            fontWeight: 'bold',
+                            boxShadow: 'sm'
+                        }}
+                    >
+                        {household?.avatar || '🏠'}
+                    </Avatar>
+                </Box>
+
+                <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
+                    <RailIcon icon={<HomeIcon />} label="Home" category="dashboard" to="dashboard" />
+                    <RailIcon icon={<Event />} label="Events" category="calendar" to="calendar" />
+                    <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
+                    <RailIcon icon={<Groups />} label="People" category="people" hasSubItems />
+                    <RailIcon icon={<Pets />} label="Pets" category="pets" hasSubItems />
+                    <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems />
+                    <RailIcon icon={<DirectionsCar />} label="Vehicles" category="vehicles" hasSubItems />
+                    
+                    <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
+                    {canInstall && (
+                        <RailIcon icon={<Download />} label="Install" onClick={onInstall} />
+                    )}
+                    {households.length > 1 && (
+                        <RailIcon icon={<SwapHoriz />} label="Switch" category="switch" hasSubItems />
+                    )}
+                    <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems />
+                </List>
             </Box>
 
-            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
-                <RailIcon icon={<HomeIcon />} label="Home" category="dashboard" to="dashboard" />
-                <RailIcon icon={<Event />} label="Events" category="calendar" to="calendar" />
-                <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
-                <RailIcon icon={<Groups />} label="People" category="people" hasSubItems />
-                <RailIcon icon={<Pets />} label="Pets" category="pets" hasSubItems />
-                <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems />
-                <RailIcon icon={<DirectionsCar />} label="Vehicles" category="vehicles" hasSubItems />
-                
-                {/* Utilities grouped with main nav to avoid "big gap" */}
-                <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
-                {canInstall && (
-                    <RailIcon icon={<Download />} label="Install" onClick={onInstall} />
-                )}
-                {households.length > 1 && (
-                    <RailIcon icon={<SwapHoriz />} label="Switch" category="switch" hasSubItems />
-                )}
-                <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems />
-            </List>
-
-            {/* SPACER: Pushes only Account to the bottom */}
-            <Box sx={{ flexGrow: 1 }} />
-
-            {/* ACCOUNT: Forced to absolute bottom */}
-            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '0px', width: '100%', px: isMobile ? 1 : 0, p: 0, m: 0, pb: 0.5 }}>
-                <RailIcon 
-                    icon={<Avatar size="sm" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark), width: 22, height: 22, fontSize: '0.75rem' }}>{user?.avatar || user?.first_name?.[0]}</Avatar>} 
-                    label="Account" category="account" hasSubItems 
-                />
-            </List>
+            {/* Absolute Bottom Anchoring */}
+            <Box sx={{ width: '100%', p: 0, m: 0 }}>
+                <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '0px', width: '100%', px: isMobile ? 1 : 0, p: 0, m: 0 }}>
+                    <RailIcon 
+                        icon={<Avatar size="sm" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark), width: 22, height: 22, fontSize: '0.75rem' }}>{user?.avatar || user?.first_name?.[0]}</Avatar>} 
+                        label="Account" category="account" hasSubItems 
+                    />
+                </List>
+            </Box>
         </Sheet>
 
         {(showPanel || (isMobile && activeCategory)) && (
@@ -219,7 +221,7 @@ export default function NavSidebar({
                     borderColor: 'divider', overflow: 'hidden',
                     transition: isMobile ? 'none' : 'width 0.2s',
                     display: 'flex', flexDirection: 'column',
-                    bgcolor: 'background.level1', whiteSpace: 'nowrap', height: '100%' 
+                    bgcolor: 'background.level1', whiteSpace: 'nowrap', height: '100dvh' 
                 }}
             >
                 <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -307,7 +309,7 @@ export default function NavSidebar({
   );
 
   return (
-    <Box sx={{ display: 'flex', height: '100%', zIndex: 2500, position: 'relative' }}>
+    <Box sx={{ display: 'flex', height: '100dvh', zIndex: 2500, position: 'relative', overflow: 'hidden' }}>
         {sidebarContent}
         <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(emoji) => { onUpdateProfile({ avatar: emoji }); setEmojiPickerOpen(false); }} title="Select Avatar Emoji" isDark={isDark} />
     </Box>
