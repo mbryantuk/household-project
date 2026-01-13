@@ -46,6 +46,10 @@
 * **Framework:** MUI Joy UI + MUI X Data Grid (or TanStack Table).
 * **Advanced Tables (Desktop/Tablet):**
     * MUST support: **Sorting**, **Filtering**, **Column Dragging**, and **Inline Editing**.
+    * **Selection & Aggregation:**
+        * Support `Ctrl+Click` (or Cmd+Click) for multi-row/cell selection.
+        * **Status Bar:** MUST appear when items are selected.
+        * **Metrics:** Always show **Count** of selected items. If selected values are **numeric**, automatically calculate and display the **SUM**.
     * UX: Users should be able to edit cells directly without opening a new page (Excel-style).
 * **Responsive Strategy (Mobile):**
     * **Complex Tables:** MUST transform into **Stacked Cards** or **List Views** on mobile (`xs`). Inline editing on mobile is forbidden; use **Modal/Drawer** forms instead for touch safety.
@@ -66,7 +70,7 @@ You must structure your response in exactly **4 PHASES**. Do not skip phases.
     > **Architect's Analysis:**
     > 1.  **Tenancy Check:** [How is `household_id` enforced in this request?]
     > 2.  **Component Audit:** [Am I using shared `components/ui/` wrappers? (Yes/No)]
-    > 3.  **View Strategy:** [Desktop: DataGrid w/ Inline Edit | Mobile: Card List w/ Modal Edit]
+    > 3.  **View Strategy:** [Desktop: DataGrid w/ Aggregation | Mobile: Card List w/ Modal Edit]
     > 4.  **Versioning Decision:** [Major | Minor | Patch]
         * *Major:* Breaking changes, API removal.
         * *Minor:* New features, new database tables.

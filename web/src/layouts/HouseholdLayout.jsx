@@ -230,7 +230,7 @@ export default function HouseholdLayout({
                 <MenuTile icon={<HouseIcon />} label="House" to={`house/${activeHousehold?.id}`} onClick={() => setDrawerOpen(false)} />
                 <MenuTile icon={<SettingsIcon />} label="Settings" to="settings" onClick={() => setDrawerOpen(false)} />
                 <MenuTile icon={<ProfileIcon />} label="Profile" to="profile" onClick={() => setDrawerOpen(false)} />
-                <MenuTile icon={<SwapHoriz />} label="Switch HH" onClick={() => { navigate('/select-household'); setDrawerOpen(false); }} />
+                <MenuTile icon={<SwapHoriz />} label="Switch" onClick={() => { navigate('/select-household'); setDrawerOpen(false); }} />
             </Box>
 
             <Box sx={{ width: 40, height: 4, borderRadius: 2, bgcolor: 'neutral.300', mx: 'auto', my: 2 }} />

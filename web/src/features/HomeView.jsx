@@ -127,7 +127,7 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
             {greeting}, <Typography color="primary" variant="plain">{currentUser?.first_name || currentUser?.username || 'User'}</Typography>
           </Typography>
           <Typography level="body-md" color="neutral">
-            Here's what's happening in <b>{household?.name} Household</b> today.
+            Here's what's happening in the <b>{household?.name} Household</b> today.
           </Typography>
         </Box>
         
