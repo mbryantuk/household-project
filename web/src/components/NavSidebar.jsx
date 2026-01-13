@@ -93,7 +93,7 @@ export default function NavSidebar({
       }
 
       return (
-        <Tooltip title={label} placement="right" arrow size="sm" slotProps={{ popper: { sx: { zIndex: 20000 } } }}>
+        <Tooltip title={label} placement="right" arrow size="sm" slotProps={{ popper: { sx: { zIndex: 30000 } } }}>
             <ListItem>
                 <ListItemButton 
                     selected={isActive}
@@ -155,9 +155,9 @@ export default function NavSidebar({
             )}
 
             <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'center' }}>
-                <Box sx={{ width: 42, height: 42, borderRadius: '50%', bgcolor: 'primary.solidBg', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '2px solid', borderColor: 'divider', overflow: 'hidden', color: 'white' }} onClick={() => navigate('/select-household')}>
+                <IconButton variant="plain" color="neutral" size="lg" onClick={() => navigate('/select-household')}>
                     <HomeIcon />
-                </Box>
+                </IconButton>
             </Box>
 
             <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
@@ -180,7 +180,7 @@ export default function NavSidebar({
             <Box sx={{ flexGrow: 1 }} />
             <Box sx={{ pb: 2, display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'center' }}>
                 {canInstall && (
-                    <Tooltip title="Install App" placement="right" arrow size="sm" slotProps={{ popper: { sx: { zIndex: 20000 } } }}>
+                    <Tooltip title="Install App" placement="right" arrow size="sm" slotProps={{ popper: { sx: { zIndex: 30000 } } }}>
                         <Badge color="danger" variant="solid" size="sm" badgeInset="14%">
                             <IconButton variant="soft" color="primary" size="sm" onClick={onInstall}>
                                 <Download />
@@ -188,7 +188,7 @@ export default function NavSidebar({
                         </Badge>
                     </Tooltip>
                 )}
-                <Tooltip title="Switch Household" placement="right" arrow size="sm" slotProps={{ popper: { sx: { zIndex: 20000 } } }}>
+                <Tooltip title="Switch Household" placement="right" arrow size="sm" slotProps={{ popper: { sx: { zIndex: 30000 } } }}>
                     <IconButton variant="soft" color="neutral" size="sm" onClick={() => navigate('/select-household')}>
                         <SwapHoriz />
                     </IconButton>

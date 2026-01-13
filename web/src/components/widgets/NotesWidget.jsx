@@ -1,38 +1,122 @@
 import { useState, useEffect } from 'react';
-import { Textarea } from '@mui/joy';
-import { NoteAlt } from '@mui/icons-material';
+import { Sheet, IconButton, List, ListItem, ListItemButton, Checkbox, ListItemContent, Box, Typography, Input, Divider } from '@mui/joy';
+import { NoteAlt, Add, Delete, ChevronLeft } from '@mui/icons-material';
 import WidgetWrapper from './WidgetWrapper';
 
+const YELLOW = '#fff740';
+
 export default function NotesWidget({ user, onUpdateProfile }) {
-  const [text, setText] = useState(user?.sticky_note || '');
+  const [notes, setNotes] = useState(() => {
+      try {
+          const parsed = JSON.parse(user?.sticky_note);
+          return Array.isArray(parsed) ? parsed : [{ id: 1, text: user?.sticky_note || '', done: false }];
+      } catch {
+          return [{ id: 1, text: user?.sticky_note || '', done: false }];
+      }
+  });
+
+  const [activeNoteId, setActiveNoteId] = useState(null);
 
   // Sync if user prop updates (e.g. from server)
   useEffect(() => {
-      if (user?.sticky_note !== text) {
-          setText(user?.sticky_note || '');
-      }
+      try {
+          const parsed = JSON.parse(user?.sticky_note);
+          if (Array.isArray(parsed) && JSON.stringify(parsed) !== JSON.stringify(notes)) {
+              setNotes(parsed);
+          }
+      } catch {}
   }, [user?.sticky_note]);
 
   // Debounce save
   useEffect(() => {
       const timer = setTimeout(() => {
-          if (text !== user?.sticky_note) {
-              onUpdateProfile({ sticky_note: text });
+          const json = JSON.stringify(notes);
+          if (json !== user?.sticky_note) {
+              onUpdateProfile({ sticky_note: json });
           }
       }, 1000);
       return () => clearTimeout(timer);
-  }, [text, onUpdateProfile, user?.sticky_note]);
+  }, [notes, onUpdateProfile, user?.sticky_note]);
+
+  const handleAdd = () => {
+      const newId = Date.now();
+      setNotes([{ id: newId, text: '', done: false }, ...notes]);
+      setActiveNoteId(newId);
+  };
 
   return (
     <WidgetWrapper title="Sticky Note" icon={<NoteAlt />} color="warning">
-      <Textarea 
-        variant="plain" 
-        value={text} 
-        onChange={(e) => setText(e.target.value)} 
-        placeholder="Type a note..." 
-        minRows={3}
-        sx={{ bgcolor: 'transparent', height: '100%' }}
-      />
+      <Sheet sx={{ bgcolor: YELLOW, height: '100%', m: -1, display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
+            {activeNoteId ? (
+                <IconButton size="sm" variant="plain" onClick={() => setActiveNoteId(null)} sx={{ color: '#000' }}>
+                    <ChevronLeft />
+                </IconButton>
+            ) : (
+                <IconButton size="sm" variant="plain" onClick={handleAdd} sx={{ color: '#000' }}>
+                    <Add />
+                </IconButton>
+            )}
+            <Typography level="body-xs" fontWeight="bold" sx={{ color: '#000' }}>
+                {activeNoteId ? 'Editing' : 'Notes'}
+            </Typography>
+            <Box width={28} />
+        </Box>
+
+        <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
+            {activeNoteId ? (
+                <Input
+                    autoFocus
+                    multiline
+                    variant="plain"
+                    fullWidth
+                    value={notes.find(n => n.id === activeNoteId)?.text || ''}
+                    onChange={(e) => setNotes(notes.map(n => n.id === activeNoteId ? { ...n, text: e.target.value } : n))}
+                    sx={{ 
+                        bgcolor: 'transparent', 
+                        fontSize: 'md', p: 1, 
+                        '& textarea': { color: '#000' },
+                        height: '100%'
+                    }}
+                />
+            ) : (
+                <List sx={{ p: 0 }}>
+                    {notes.map(n => (
+                        <ListItem 
+                            key={n.id} 
+                            sx={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }} 
+                            endAction={
+                                <IconButton size="sm" color="danger" onClick={() => setNotes(notes.filter(x => x.id !== n.id))}>
+                                    <Delete fontSize="small" />
+                                </IconButton>
+                            }
+                        >
+                            <ListItemButton onClick={() => setActiveNoteId(n.id)} sx={{ py: 0.5 }}>
+                                <Checkbox 
+                                    checked={n.done} 
+                                    onChange={() => setNotes(notes.map(x => x.id === n.id ? { ...x, done: !x.done } : x))} 
+                                    sx={{ mr: 1 }} 
+                                />
+                                <ListItemContent sx={{ 
+                                    textDecoration: n.done ? 'line-through' : 'none', 
+                                    opacity: n.done ? 0.5 : 1, 
+                                    color: '#000', fontSize: 'sm',
+                                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' 
+                                }}>
+                                    {n.text || 'Empty note...'}
+                                </ListItemContent>
+                            </ListItemButton>
+                        </ListItem>
+                    ))}
+                    {notes.length === 0 && (
+                         <Typography level="body-xs" sx={{ textAlign: 'center', py: 4, opacity: 0.5, color: '#000' }}>
+                             Click + to add a note
+                         </Typography>
+                    )}
+                </List>
+            )}
+        </Box>
+      </Sheet>
     </WidgetWrapper>
   );
 }

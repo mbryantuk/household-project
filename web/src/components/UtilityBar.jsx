@@ -97,7 +97,7 @@ export default function UtilityBar({
         variant="soft"
         sx={{
             position: 'relative', width: '100%', height: 40, display: 'flex', alignItems: 'center',
-            bgcolor: 'background.surface', borderTop: '1px solid', borderColor: 'divider', zIndex: 2000, flexShrink: 0
+            bgcolor: 'background.surface', borderTop: '1px solid', borderColor: 'divider', zIndex: 900, flexShrink: 0
         }}
     >
         <Box sx={{ flex: '1 1 75%', display: 'flex', height: '100%' }}>
