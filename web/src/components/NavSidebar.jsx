@@ -187,8 +187,15 @@ export default function NavSidebar({
                     <RailIcon icon={<Pets />} label="Pets" category="pets" hasSubItems />
                     <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems />
                     <RailIcon icon={<DirectionsCar />} label="Vehicles" category="vehicles" hasSubItems />
-                    
-                    <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
+                </List>
+            </Box>
+
+            <Box sx={{ width: '100%', p: 0, m: 0 }}>
+                {/* Upper Separator */}
+                <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
+                
+                {/* Utilities Section */}
+                <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0, p: 0, m: 0 }}>
                     {canInstall && (
                         <RailIcon icon={<Download />} label="Install" onClick={onInstall} />
                     )}
@@ -197,14 +204,15 @@ export default function NavSidebar({
                     )}
                     <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems />
                 </List>
-            </Box>
 
-            {/* Absolute Bottom Anchoring */}
-            <Box sx={{ width: '100%', p: 0, m: 0 }}>
-                <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '0px', width: '100%', px: isMobile ? 1 : 0, p: 0, m: 0 }}>
+                {/* Lower Separator */}
+                <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
+
+                {/* User Profile Section */}
+                <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '0px', width: '100%', px: isMobile ? 1 : 0, p: 0, m: 0, pb: 0.5 }}>
                     <RailIcon 
                         icon={<Avatar size="sm" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark), width: 22, height: 22, fontSize: '0.75rem' }}>{user?.avatar || user?.first_name?.[0]}</Avatar>} 
-                        label="Account" category="account" hasSubItems 
+                        label="Matt" category="account" hasSubItems 
                     />
                 </List>
             </Box>
