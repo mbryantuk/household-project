@@ -89,13 +89,15 @@ You must structure your response in exactly **4 PHASES**. Do not skip phases.
 ### Phase 4: Deployment & Verification
 * Provide a single **Bash Script** block at the very end.
 * **Must include:**
-    1.  `docker compose up -d --build` (Initial build for testing)
-    2.  `npm test` (Standard Suite: Viewer Restriction, Selector API, Perf tests).
-    3.  **NEW FEATURE TEST:** If a new test file was created in Phase 2, execute it here.
-    4.  **VERSION BUMP:** ALWAYS execute `node bump_version.js` to increment patch version.
-    5.  `git commit` with a **Dynamic Message** based on Phase 2 changes.
-    6.  `git push origin main`
-    7.  `docker compose up -d --build` (FINAL build to apply version bump locally)
+    1.  `docker compose up -d --build` (Initial build for testing). **CRITICAL: DO NOT SKIP.**
+    2.  **VERSION CHECK:** Output the current version from `package.json`.
+    3.  **TEST OVERVIEW:** Echo a list of all tests that are about to run.
+    4.  `npm test` (Standard Suite: Viewer Restriction, Selector API, Perf tests).
+    5.  **NEW FEATURE TEST:** If a new test file was created in Phase 2, execute it here.
+    6.  **VERSION BUMP:** ALWAYS execute `node bump_version.js`.
+    7.  **COMMIT:** `git commit` message MUST start with the new version number (e.g., `v1.2.3 - feat...`).
+    8.  `git push origin main`
+    9.  `docker compose up -d --build` (FINAL build to apply version bump locally).
 
 ---
 
@@ -103,12 +105,22 @@ You must structure your response in exactly **4 PHASES**. Do not skip phases.
 
 ```bash
 #!/bin/bash
-# 1. Configuration & Safety Check
-echo "🚀 Starting Full Verification Cycle..."
+set -e # Exit immediately if a command exits with a non-zero status.
 
-# 2. Build & Deploy (Pre-Test)
-echo "📦 Building Docker containers..."
+# 1. Configuration & Initial Build
+echo "🚀 Starting Deployment Cycle..."
+echo "📦 Building Docker containers (MANDATORY STEP)..."
 docker compose up -d --build
+
+# 2. Version & Test Overview
+CURRENT_VERSION=$(node -p "require('./package.json').version")
+echo "ℹ️  Current System Version: $CURRENT_VERSION"
+
+echo "📋 TEST OVERVIEW - The following suites will be executed:"
+echo "   1. Standard: Tenant Isolation (Viewer Restrictions)"
+echo "   2. Standard: Selector API & Components"
+echo "   3. Standard: Performance Benchmarks"
+echo "   4. New Feature: [INSERT NEW TEST FILE NAME HERE]"
 
 # 3. Verification (CRITICAL)
 echo "🧪 Running Standard Suite..."
@@ -127,13 +139,17 @@ npm run test:perf
 echo "🆙 Bumping Version..."
 node bump_version.js
 
+# Capture the NEW version for the commit message
+NEW_VERSION=$(node -p "require('./package.json').version")
+echo "🎉 New Version: $NEW_VERSION"
+
 echo "💾 Saving state and committing..."
 git add .
-# NOTE: Generate a specific message below based on actual work done
-git commit -m "feat(assets): add Car tracking module and Mobile card view"
+# NOTE: Dynamic message includes the version prefix
+git commit -m "v$NEW_VERSION - feat(assets): add Car tracking module and Mobile card view"
 git push origin main
 
 # 5. Final Local Refresh
-echo "🔄 Refreshing Local Environment..."
+echo "🔄 Refreshing Local Environment with Version $NEW_VERSION..."
 docker compose up -d --build
 echo "✅ All systems verified, committed, and refreshed."
