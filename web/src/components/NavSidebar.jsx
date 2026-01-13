@@ -190,6 +190,7 @@ export default function NavSidebar({
 
             <Divider sx={{ mb: 0.5, width: isMobile ? '100%' : 40, mx: 'auto' }} />
 
+            {/* Utility Section: Above Account */}
             <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '0px', width: '100%', px: isMobile ? 1 : 0, p: 0, m: 0 }}>
                 {canInstall && (
                     <RailIcon icon={<Download />} label="Install" onClick={onInstall} />
@@ -198,6 +199,12 @@ export default function NavSidebar({
                     <RailIcon icon={<SwapHoriz />} label="Switch" category="switch" hasSubItems />
                 )}
                 <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems />
+            </List>
+
+            <Divider sx={{ my: 0.5, width: isMobile ? '100%' : 40, mx: 'auto' }} />
+
+            {/* Account Section: Absolute Bottom Left */}
+            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '0px', width: '100%', px: isMobile ? 1 : 0, p: 0, mb: 0.5 }}>
                 <RailIcon 
                     icon={<Avatar size="sm" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark), width: 22, height: 22, fontSize: '0.75rem' }}>{user?.avatar || user?.first_name?.[0]}</Avatar>} 
                     label="Account" category="account" hasSubItems 
