@@ -99,10 +99,28 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
   const gridItems = useMemo(() => currentItems.map(item => ({ ...item, static: !isEditing })), [currentItems, isEditing]);
 
   const handleLayoutChange = (currentLayout, allLayouts) => {
-    setLayouts(prev => ({
-        ...prev,
-        [page]: allLayouts
-    }));
+    setLayouts(prev => {
+        const pageLayouts = prev[page] || { lg: [], md: [], sm: [] };
+        const updated = {};
+        
+        Object.keys(allLayouts).forEach(bp => {
+            updated[bp] = allLayouts[bp].map(l => {
+                // To prevent data loss, we must merge the new positional data (l) 
+                // with our existing item metadata (type, data fields).
+                let existing = null;
+                if (Array.isArray(pageLayouts)) {
+                    existing = pageLayouts.find(i => i.i === l.i);
+                } else {
+                    // Fallback across breakpoints to find the metadata if it's missing in this specific bp
+                    existing = (pageLayouts[bp] || pageLayouts.lg || pageLayouts.md || pageLayouts.sm || []).find(i => i.i === l.i);
+                }
+                
+                return { ...existing, ...l };
+            });
+        });
+        
+        return { ...prev, [page]: updated };
+    });
   };
 
   const handleAddWidget = (type) => {
@@ -117,12 +135,15 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
     setLayouts(prev => {
         const pageLayouts = prev[page] || { lg: [], md: [], sm: [] };
         const updated = {};
-        Object.keys(pageLayouts).forEach(bp => {
-            updated[bp] = [...pageLayouts[bp], newItem];
-        });
-        // If it was just an array (migration), convert it
+        
         if (Array.isArray(pageLayouts)) {
-            ['lg', 'md', 'sm'].forEach(bp => { updated[bp] = [...pageLayouts, newItem]; });
+            ['lg', 'md', 'sm', 'xs', 'xxs'].forEach(bp => {
+                updated[bp] = [...pageLayouts, newItem];
+            });
+        } else {
+            ['lg', 'md', 'sm', 'xs', 'xxs'].forEach(bp => {
+                updated[bp] = [...(pageLayouts[bp] || pageLayouts.lg || []), newItem];
+            });
         }
         return { ...prev, [page]: updated };
     });
@@ -194,7 +215,7 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
 
   const handleAddPage = () => {
     const nextPageIndex = Object.keys(layouts).length + 1;
-    setLayouts(prev => ({ ...prev, [nextPageIndex]: [] }));
+    setLayouts(prev => ({ ...prev, [nextPageIndex]: { lg: [], md: [], sm: [] } }));
     setPage(nextPageIndex);
   };
 
