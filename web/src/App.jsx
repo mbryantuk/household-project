@@ -209,10 +209,10 @@ function AppInner({ useDracula, setUseDracula }) {
                 <Route index element={<Navigate to="dashboard" replace />} />
                 <Route path="dashboard" element={<HomeView household={household} members={hhMembers} currentUser={user} dates={hhDates} onUpdateProfile={handleUpdateProfile} />} />
                 <Route path="calendar" element={<CalendarView showNotification={showNotification} confirmAction={confirmAction} />} />
-                <Route path="people/:personId" element={<PeopleView />} /><Route path="people" element={<Navigate to="new" replace />} />
-                <Route path="pets/:petId" element={<PetsView />} /><Route path="pets" element={<Navigate to="new" replace />} />
+                <Route path="people/:personId" element={<PeopleView />} /><Route path="people" element={<PeopleView />} />
+                <Route path="pets/:petId" element={<PetsView />} /><Route path="pets" element={<PetsView />} />
                 <Route path="house/:houseId" element={<HouseView />} /><Route path="house" element={<Navigate to={household ? `${household.id}` : '1'} replace />} />
-                <Route path="vehicles/:vehicleId" element={<VehiclesView />} /><Route path="vehicles" element={<Navigate to="new" replace />} />
+                <Route path="vehicles/:vehicleId" element={<VehiclesView />} /><Route path="vehicles" element={<VehiclesView />} />
                 <Route path="profile" element={<ProfileView />} />
                 <Route path="settings" element={<SettingsView 
                     household={household} users={hhUsers} currentUser={user} api={authAxios}
