@@ -88,12 +88,13 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
     return () => observer.disconnect();
   }, []);
 
+  const [breakpoint, setBreakpoint] = useState('lg');
+
   const currentItems = useMemo(() => {
-    const pageLayout = layouts[page] || [];
+    const pageLayout = layouts[page] || { lg: [], md: [], sm: [] };
     if (Array.isArray(pageLayout)) return pageLayout;
-    // If it's a breakpoint object, use lg as base for internal logic
-    return pageLayout.lg || pageLayout.md || pageLayout.sm || [];
-  }, [layouts, page]);
+    return pageLayout[breakpoint] || pageLayout.lg || [];
+  }, [layouts, page, breakpoint]);
 
   const gridItems = useMemo(() => currentItems.map(item => ({ ...item, static: !isEditing })), [currentItems, isEditing]);
 
@@ -281,6 +282,7 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
             isDraggable={isEditing}
             isResizable={isEditing}
             onLayoutChange={handleLayoutChange}
+            onBreakpointChange={(newBp) => setBreakpoint(newBp)}
             margin={[24, 24]} // More breathing room
         >
             {gridItems.map(item => {
