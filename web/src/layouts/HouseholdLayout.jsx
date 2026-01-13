@@ -11,7 +11,8 @@ import {
   DirectionsCar as VehicleIcon,
   Settings as SettingsIcon,
   Person as ProfileIcon,
-  Download
+  Download,
+  Calculate, Savings, Payments, NoteAlt, SwapHoriz
 } from '@mui/icons-material';
 import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
@@ -229,6 +230,16 @@ export default function HouseholdLayout({
                 <MenuTile icon={<HouseIcon />} label="House" to={`house/${activeHousehold?.id}`} onClick={() => setDrawerOpen(false)} />
                 <MenuTile icon={<SettingsIcon />} label="Settings" to="settings" onClick={() => setDrawerOpen(false)} />
                 <MenuTile icon={<ProfileIcon />} label="Profile" to="profile" onClick={() => setDrawerOpen(false)} />
+                <MenuTile icon={<SwapHoriz />} label="Switch HH" onClick={() => { navigate('/select-household'); setDrawerOpen(false); }} />
+            </Box>
+
+            <Box sx={{ width: 40, height: 4, borderRadius: 2, bgcolor: 'neutral.300', mx: 'auto', my: 2 }} />
+            <Typography level="title-lg" sx={{ mb: 1 }}>Tools</Typography>
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
+                <MenuTile icon={<NoteAlt />} label="Notes" to="tools/notes" onClick={() => setDrawerOpen(false)} />
+                <MenuTile icon={<Calculate />} label="Calculator" to="tools/calculator" onClick={() => setDrawerOpen(false)} />
+                <MenuTile icon={<Savings />} label="Finance" to="tools/finance" onClick={() => setDrawerOpen(false)} />
+                <MenuTile icon={<Payments />} label="Tax" to="tools/tax" onClick={() => setDrawerOpen(false)} />
             </Box>
         </Sheet>
       </Drawer>

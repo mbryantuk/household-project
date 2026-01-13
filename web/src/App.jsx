@@ -242,6 +242,11 @@ function AppInner({ useDracula, setUseDracula }) {
                     useDracula={useDracula} onDraculaChange={(v) => { setUseDracula(v); localStorage.setItem('useDracula', v); }}
                     showNotification={showNotification} confirmAction={confirmAction}
                 />} />
+                {/* Mobile Tools Routes */}
+                <Route path="tools/notes" element={<Box sx={{ height: '100%' }}><PostItNote isPopout={true} onClose={() => navigate(-1)} user={user} onUpdateProfile={handleUpdateProfile} /></Box>} />
+                <Route path="tools/calculator" element={<Box sx={{ height: '100%' }}><FloatingCalculator isPopout={true} onClose={() => navigate(-1)} isDark={isDark} /></Box>} />
+                <Route path="tools/finance" element={<Box sx={{ height: '100%' }}><FinancialCalculator isPopout={true} onClose={() => navigate(-1)} isDark={isDark} /></Box>} />
+                <Route path="tools/tax" element={<Box sx={{ height: '100%' }}><TaxCalculator isPopout={true} onClose={() => navigate(-1)} isDark={isDark} /></Box>} />
           </Route>
         </Route>
       </Routes>
