@@ -215,6 +215,14 @@ export default function HouseholdLayout({
             <Box sx={{ width: 40, height: 4, borderRadius: 2, bgcolor: 'neutral.300', mx: 'auto', mb: 2 }} />
             <Typography level="title-lg" sx={{ mb: 1 }}>Categories</Typography>
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
+                {installPrompt && (
+                    <MenuTile 
+                        icon={<Download />} 
+                        label="Install App" 
+                        onClick={() => { onInstall(); setDrawerOpen(false); }} 
+                        sx={{ bgcolor: 'success.softBg', color: 'success.plainColor' }}
+                    />
+                )}
                 <MenuTile icon={<PeopleIcon />} label="People" to="people" onClick={() => setDrawerOpen(false)} />
                 <MenuTile icon={<PetsIcon />} label="Pets" to="pets" onClick={() => setDrawerOpen(false)} />
                 <MenuTile icon={<VehicleIcon />} label="Vehicles" to="vehicles" onClick={() => setDrawerOpen(false)} />

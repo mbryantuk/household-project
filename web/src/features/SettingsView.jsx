@@ -161,14 +161,14 @@ export default function SettingsView({
       <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'hidden', minHeight: 400, bgcolor: 'background.surface' }}>
         <Tabs value={tab} onChange={(e, v) => setTab(v)} sx={{ bgcolor: 'transparent' }}>
           <TabList tabFlex={1} sx={{ p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: { xs: 1, md: 2 }, mt: 2, overflowX: 'auto', '::-webkit-scrollbar': { display: 'none' } }}>
-            <Tab variant={tab === 0 ? 'solid' : 'plain'} color={tab === 0 ? 'primary' : 'neutral'} indicatorInset sx={{ minWidth: 100 }}>
-                <ListItemDecorator><ManageAccounts /></ListItemDecorator> <Typography level="body-sm" sx={{ display: { xs: 'none', sm: 'block' } }}>Team</Typography>
+            <Tab variant={tab === 0 ? 'solid' : 'plain'} color={tab === 0 ? 'primary' : 'neutral'} indicatorInset sx={{ minWidth: 100, flexShrink: 0 }}>
+                <ListItemDecorator><ManageAccounts /></ListItemDecorator> <Typography level="body-sm">Team</Typography>
             </Tab>
-            <Tab variant={tab === 1 ? 'solid' : 'plain'} color={tab === 1 ? 'primary' : 'neutral'} indicatorInset sx={{ minWidth: 100 }}>
-                <ListItemDecorator><Backup /></ListItemDecorator> <Typography level="body-sm" sx={{ display: { xs: 'none', sm: 'block' } }}>Data</Typography>
+            <Tab variant={tab === 1 ? 'solid' : 'plain'} color={tab === 1 ? 'primary' : 'neutral'} indicatorInset sx={{ minWidth: 100, flexShrink: 0 }}>
+                <ListItemDecorator><Backup /></ListItemDecorator> <Typography level="body-sm">Data</Typography>
             </Tab>
-            <Tab variant={tab === 2 ? 'solid' : 'plain'} color={tab === 2 ? 'primary' : 'neutral'} indicatorInset sx={{ minWidth: 100 }}>
-                <ListItemDecorator><SettingsBrightness /></ListItemDecorator> <Typography level="body-sm" sx={{ display: { xs: 'none', sm: 'block' } }}>Theme</Typography>
+            <Tab variant={tab === 2 ? 'solid' : 'plain'} color={tab === 2 ? 'primary' : 'neutral'} indicatorInset sx={{ minWidth: 100, flexShrink: 0 }}>
+                <ListItemDecorator><SettingsBrightness /></ListItemDecorator> <Typography level="body-sm">Theme</Typography>
             </Tab>
           </TabList>
           <Box sx={{ p: { xs: 2, md: 3 } }}>

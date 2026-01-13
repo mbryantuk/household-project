@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, 
-  IconButton, Divider, Box, Avatar, Typography, Stack, Tooltip, Button
+  IconButton, Divider, Box, Avatar, Typography, Stack, Tooltip, Button, Badge
 } from '@mui/joy';
 import { 
   Settings, Home as HomeIcon, Event, 
@@ -93,7 +93,7 @@ export default function NavSidebar({
       }
 
       return (
-        <Tooltip title={label} placement="right" arrow size="sm" slotProps={{ popper: { sx: { zIndex: 10000 } } }}>
+        <Tooltip title={label} placement="right" arrow size="sm" slotProps={{ popper: { sx: { zIndex: 20000 } } }}>
             <ListItem>
                 <ListItemButton 
                     selected={isActive}
@@ -180,13 +180,15 @@ export default function NavSidebar({
             <Box sx={{ flexGrow: 1 }} />
             <Box sx={{ pb: 2, display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'center' }}>
                 {canInstall && (
-                    <Tooltip title="Install App" placement="right" arrow size="sm" slotProps={{ popper: { sx: { zIndex: 10000 } } }}>
-                        <IconButton variant="soft" color="primary" size="sm" onClick={onInstall}>
-                            <Download />
-                        </IconButton>
+                    <Tooltip title="Install App" placement="right" arrow size="sm" slotProps={{ popper: { sx: { zIndex: 20000 } } }}>
+                        <Badge color="danger" variant="solid" size="sm" badgeInset="14%">
+                            <IconButton variant="soft" color="primary" size="sm" onClick={onInstall}>
+                                <Download />
+                            </IconButton>
+                        </Badge>
                     </Tooltip>
                 )}
-                <Tooltip title="Switch Household" placement="right" arrow size="sm" slotProps={{ popper: { sx: { zIndex: 10000 } } }}>
+                <Tooltip title="Switch Household" placement="right" arrow size="sm" slotProps={{ popper: { sx: { zIndex: 20000 } } }}>
                     <IconButton variant="soft" color="neutral" size="sm" onClick={() => navigate('/select-household')}>
                         <SwapHoriz />
                     </IconButton>
