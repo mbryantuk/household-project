@@ -60,7 +60,16 @@ export default function NavSidebar({
                 <ListItemButton 
                     selected={isActive}
                     onClick={() => handleNav(to, category, hasSubItems)}
-                    sx={{ borderRadius: 'sm', gap: 2 }}
+                    sx={{ 
+                        borderRadius: 'sm', gap: 2,
+                        '&.Mui-selected': { 
+                            bgcolor: 'background.level1', 
+                            color: 'primary.plainColor',
+                            fontWeight: 'bold',
+                            borderLeft: '4px solid',
+                            borderColor: 'primary.solidBg'
+                        }
+                    }}
                 >
                     <ListItemDecorator>
                         {badge ? <Badge color="danger" size="sm" invisible={!badge}>{icon}</Badge> : icon}
@@ -160,13 +169,13 @@ export default function NavSidebar({
             <Box sx={{ flexGrow: 1 }} />
             <Box sx={{ pb: 2, display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'center' }}>
                 {canInstall && (
-                    <Tooltip title="Install App" placement="right" arrow size="sm">
+                    <Tooltip title="Install App" placement="right" arrow size="sm" slotProps={{ popper: { sx: { zIndex: 10000 } } }}>
                         <IconButton variant="soft" color="primary" size="sm" onClick={onInstall}>
                             <Download />
                         </IconButton>
                     </Tooltip>
                 )}
-                <Tooltip title="Switch Household" placement="right" arrow size="sm" sx={{ zIndex: 3000 }}>
+                <Tooltip title="Switch Household" placement="right" arrow size="sm" slotProps={{ popper: { sx: { zIndex: 10000 } } }}>
                     <IconButton variant="soft" color="neutral" size="sm" onClick={() => navigate('/select-household')}>
                         <SwapHoriz />
                     </IconButton>

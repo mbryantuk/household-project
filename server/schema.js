@@ -32,7 +32,8 @@ const SCHEMA_DEFINITIONS = [
         pet_insurance_provider TEXT,
         pet_insurance_premium REAL DEFAULT 0,
         pet_insurance_expiry TEXT,
-        food_monthly_cost REAL DEFAULT 0
+        food_monthly_cost REAL DEFAULT 0,
+        microchip_number TEXT
     )`,
 
     // --- RECURRING / MISC COSTS (Centralized for Budgeting) ---
@@ -222,6 +223,7 @@ const MIGRATIONS = [
     ['members', 'pet_insurance_premium', 'REAL DEFAULT 0'],
     ['members', 'pet_insurance_expiry', 'TEXT'],
     ['members', 'food_monthly_cost', 'REAL DEFAULT 0'],
+    ['members', 'microchip_number', 'TEXT'],
     ['dates', 'household_id', 'INTEGER'],
     ['house_details', 'household_id', 'INTEGER'],
     ['house_details', 'icon', 'TEXT'],
