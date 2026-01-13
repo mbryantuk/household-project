@@ -125,7 +125,6 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
         <Box>
           <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
             {greeting}, <Typography color="primary" variant="plain">{currentUser?.first_name || currentUser?.username || 'User'}</Typography>
-            <Typography level="body-xs" variant="soft" color="primary" sx={{ ml: 1, verticalAlign: 'middle' }}>v2.1 (Mobile Fix)</Typography>
           </Typography>
           <Typography level="body-md" color="neutral">
             Here's what's happening in <b>{household?.name} Household</b> today.

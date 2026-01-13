@@ -6,7 +6,7 @@ import {
   Tooltip, IconButton, Grid
 } from '@mui/joy';
 import { 
-  Shield, Delete, Restaurant, MedicalServices, Payments, Info
+  Shield, Delete, Restaurant, MedicalServices, Payments, Info, Add
 } from '@mui/icons-material';
 import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
 import EmojiPicker from '../components/EmojiPicker';

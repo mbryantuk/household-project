@@ -154,7 +154,14 @@ export default function NavSidebar({
             </List>
 
             <Box sx={{ flexGrow: 1 }} />
-            <Box sx={{ pb: 2 }}>
+            <Box sx={{ pb: 2, display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'center' }}>
+                {canInstall && (
+                    <Tooltip title="Install App" placement="right" arrow size="sm">
+                        <IconButton variant="soft" color="primary" size="sm" onClick={onInstall}>
+                            <Download />
+                        </IconButton>
+                    </Tooltip>
+                )}
                 <Tooltip title="Switch Household" placement="right" arrow size="sm">
                     <IconButton variant="soft" color="neutral" size="sm" onClick={() => navigate('/select-household')}>
                         <SwapHoriz />

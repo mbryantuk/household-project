@@ -10,7 +10,8 @@ import {
   HomeWork as HouseIcon,
   DirectionsCar as VehicleIcon,
   Settings as SettingsIcon,
-  Person as ProfileIcon
+  Person as ProfileIcon,
+  Download
 } from '@mui/icons-material';
 import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
@@ -238,6 +239,9 @@ export default function HouseholdLayout({
                 <MenuTile icon={<HouseIcon />} label="House" to={`house/${activeHousehold?.id}`} onClick={() => setDrawerOpen(false)} />
                 <MenuTile icon={<SettingsIcon />} label="Settings" to="settings" onClick={() => setDrawerOpen(false)} />
                 <MenuTile icon={<ProfileIcon />} label="Profile" to="profile" onClick={() => setDrawerOpen(false)} />
+                {!!installPrompt && (
+                    <MenuTile icon={<Download />} label="Install" to="#" onClick={() => { onInstall(); setDrawerOpen(false); }} />
+                )}
             </Box>
 
             <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>

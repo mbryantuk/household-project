@@ -357,6 +357,13 @@ export default function SettingsView({
                               </Box>
                           </FormControl>
                       </Box>
+
+                      <Divider />
+                      
+                      <Box sx={{ textAlign: 'center', opacity: 0.6 }}>
+                          <Typography level="body-xs">Totem Application Version</Typography>
+                          <Typography level="body-sm" fontWeight="bold">v2.1 (Mobile Stability)</Typography>
+                      </Box>
                   </Stack>
               </Box>
             )}
