@@ -150,7 +150,7 @@ export default function NavSidebar({
                 borderColor: 'divider',
                 display: 'flex', flexDirection: 'column',
                 alignItems: isMobile ? 'stretch' : 'center',
-                py: 1.5, bgcolor: 'background.surface', zIndex: 2500, height: '100%' 
+                pt: 1.5, pb: 0, bgcolor: 'background.surface', zIndex: 2500, height: '100%' 
             }}
         >
             {isMobile && (
@@ -188,9 +188,9 @@ export default function NavSidebar({
 
             <Box sx={{ flexGrow: 1 }} />
 
-            <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
+            <Divider sx={{ mb: 0.5, width: isMobile ? '100%' : 40, mx: 'auto' }} />
 
-            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0, pb: 2 }}>
+            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '0px', width: '100%', px: isMobile ? 1 : 0, pb: 0 }}>
                 {canInstall && (
                     <RailIcon icon={<Download />} label="Install" onClick={onInstall} />
                 )}
