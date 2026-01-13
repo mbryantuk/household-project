@@ -184,24 +184,25 @@ export default function NavSidebar({
                 <RailIcon icon={<Pets />} label="Pets" category="pets" hasSubItems />
                 <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems />
                 <RailIcon icon={<DirectionsCar />} label="Vehicles" category="vehicles" hasSubItems />
-                <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
-                <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems />
-                <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
-                <RailIcon 
-                    icon={<Avatar size="sm" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark), width: 22, height: 22, fontSize: '0.75rem' }}>{user?.avatar || user?.first_name?.[0]}</Avatar>} 
-                    label="Account" category="account" hasSubItems 
-                />
             </List>
 
             <Box sx={{ flexGrow: 1 }} />
-            <Box sx={{ pb: 2, display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'center', width: '100%' }}>
+
+            <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
+
+            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0, pb: 2 }}>
                 {canInstall && (
                     <RailIcon icon={<Download />} label="Install" onClick={onInstall} />
                 )}
                 {households.length > 1 && (
                     <RailIcon icon={<SwapHoriz />} label="Switch" category="switch" hasSubItems />
                 )}
-            </Box>
+                <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems />
+                <RailIcon 
+                    icon={<Avatar size="sm" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark), width: 22, height: 22, fontSize: '0.75rem' }}>{user?.avatar || user?.first_name?.[0]}</Avatar>} 
+                    label="Account" category="account" hasSubItems 
+                />
+            </List>
         </Sheet>
 
         {(showPanel || (isMobile && activeCategory)) && (
