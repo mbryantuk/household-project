@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Box, IconButton, Drawer, Typography, Sheet, Stack, Badge } from '@mui/joy';
+import { Box, IconButton, Drawer, Typography, Sheet, Stack, Badge, Avatar } from '@mui/joy';
 import { 
   Home as HomeIcon, 
   Event as EventIcon, 
@@ -16,9 +16,10 @@ import {
 } from '@mui/icons-material';
 import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
+import { getEmojiColor } from '../theme';
 
 export default function HouseholdLayout({ 
-  households, 
+  households = [], 
   onSelectHousehold,
   api,
   onUpdateHousehold,
@@ -85,6 +86,7 @@ export default function HouseholdLayout({
         <NavSidebar 
             members={members} 
             vehicles={vehicles}
+            households={households}
             isDark={isDark}
             household={activeHousehold}
             user={user}
@@ -95,6 +97,9 @@ export default function HouseholdLayout({
             canInstall={!!installPrompt}
             useDracula={useDracula}
             onDraculaChange={onDraculaChange}
+            confirmAction={confirmAction}
+            api={api}
+            showNotification={showNotification}
         />
       </Box>
 
@@ -232,13 +237,22 @@ export default function HouseholdLayout({
                         <MenuTile icon={<HouseIcon />} label="House" to={`house/${activeHousehold?.id}`} onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<SettingsIcon />} label="Settings" to="settings" onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<ProfileIcon />} label="Profile" to="profile" onClick={() => setDrawerOpen(false)} />
-                        <MenuTile icon={<SwapHoriz />} label="Switch" onClick={() => setActiveMenu('switch')} />
+                        {households.length > 1 && (
+                            <MenuTile icon={<SwapHoriz />} label="Switch" onClick={() => setActiveMenu('switch')} />
+                        )}
                     </>
                 ) : (
                     households.map(hh => (
                         <MenuTile 
                             key={hh.id}
-                            icon={<HomeIcon />} 
+                            icon={
+                                <Avatar 
+                                    size="sm" 
+                                    sx={{ bgcolor: getEmojiColor(hh.avatar || '🏠', isDark), fontSize: '1.2rem' }}
+                                >
+                                    {hh.avatar || '🏠'}
+                                </Avatar>
+                            } 
                             label={hh.name} 
                             onClick={() => { onSelectHousehold(hh); navigate(`/household/${hh.id}`); setDrawerOpen(false); setActiveMenu('main'); }} 
                             sx={{ bgcolor: hh.id === activeHousehold?.id ? 'primary.softBg' : 'background.level1' }}
@@ -262,10 +276,10 @@ export default function HouseholdLayout({
   );
 
   function MenuTile({ icon, label, to, onClick, sx = {} }) {
-      const isActive = location.pathname.includes(to);
+      const isActive = to && location.pathname.includes(to);
       return (
           <Stack 
-            alignItems="center" spacing={1} onClick={() => { navigate(to); onClick(); }}
+            alignItems="center" spacing={1} onClick={() => { if (to) navigate(to); onClick(); }}
             sx={{ p: 2, borderRadius: 'xl', bgcolor: isActive ? 'primary.softBg' : 'background.level1', cursor: 'pointer', transition: 'all 0.2s', '&:active': { transform: 'scale(0.95)', bgcolor: 'primary.softBg' }, ...sx }}
           >
               <Box sx={{ color: isActive ? 'primary.solidBg' : 'neutral.plainColor' }}>{icon}</Box>

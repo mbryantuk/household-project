@@ -6,7 +6,8 @@ import {
 import { 
   Settings, Home as HomeIcon, Event, 
   Groups, Pets, HomeWork, DirectionsCar, 
-  Logout, Edit, KeyboardArrowRight, ChevronLeft, Download, Close, SwapHoriz
+  Logout, Edit, KeyboardArrowRight, ChevronLeft, Download, Close, SwapHoriz,
+  Delete
 } from '@mui/icons-material';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
@@ -18,15 +19,16 @@ const RAIL_WIDTH = 64;
 const PANEL_WIDTH = 240;
 
 export default function NavSidebar({ 
-    members = [], vehicles = [], isDark, household, user, 
+    members = [], vehicles = [], households = [], isDark, household, user, 
     onLogout, onUpdateProfile, onModeChange, onInstall, canInstall,
-    useDracula, onDraculaChange, isMobile = false, onClose
+    useDracula, onDraculaChange, isMobile = false, onClose, confirmAction, api, showNotification
 }) {
   const location = useLocation();
   const navigate = useNavigate();
   
   const [activeCategory, setActiveCategory] = useState(null);
-  
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+
   useEffect(() => {
       const path = location.pathname;
       if (path.includes('/people')) setActiveCategory('people');
@@ -39,8 +41,6 @@ export default function NavSidebar({
       else if (path.includes('/calendar')) setActiveCategory('calendar');
   }, [location.pathname]);
 
-  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
-
   const handleNav = (to, category, hasSubItems) => {
       if (to) {
           navigate(to);
@@ -49,28 +49,38 @@ export default function NavSidebar({
       setActiveCategory(category);
   };
 
-  const RailIcon = ({ icon, label, category, to, hasSubItems, badge }) => {
+  const handleDeleteHousehold = (hh) => {
+    confirmAction(
+        "Delete Household",
+        `Are you sure you want to delete '${hh.name}'? This will permanently remove all data, members, and settings. This cannot be undone.`,
+        async () => {
+            try {
+                await api.delete(`/households/${hh.id}`);
+                showNotification(`Household '${hh.name}' deleted.`, "success");
+                window.location.href = '/select-household';
+            } catch (err) {
+                showNotification("Failed to delete household. Ensure you are an admin.", "danger");
+            }
+        }
+    );
+  };
+
+  const RailIcon = ({ icon, label, category, to, hasSubItems, badge, onClick }) => {
       const pathMatches = to && location.pathname.includes(to);
       const categoryMatches = activeCategory === category;
       const isActive = pathMatches || categoryMatches;
       
-      const iconElement = (badge && isMobile) ? (
-          <Box sx={{ position: 'relative', display: 'flex' }}>
-              {icon}
-              <Box sx={{ 
-                  position: 'absolute', top: -2, right: -2, width: 8, height: 8, 
-                  bgcolor: 'danger.solidBg', borderRadius: '50%', 
-                  border: '1px solid', borderColor: 'background.surface' 
-              }} />
-          </Box>
-      ) : icon;
+      const handleClick = () => {
+          if (onClick) onClick();
+          else handleNav(to, category, hasSubItems);
+      };
 
       if (isMobile) {
           return (
             <ListItem>
                 <ListItemButton 
                     selected={isActive}
-                    onClick={() => handleNav(to, category, hasSubItems)}
+                    onClick={handleClick}
                     sx={{ 
                         borderRadius: 'sm', gap: 2,
                         '&.Mui-selected': { 
@@ -82,9 +92,7 @@ export default function NavSidebar({
                         }
                     }}
                 >
-                    <ListItemDecorator>
-                        {iconElement}
-                    </ListItemDecorator>
+                    <ListItemDecorator>{icon}</ListItemDecorator>
                     <ListItemContent>{label}</ListItemContent>
                     {hasSubItems && <KeyboardArrowRight />}
                 </ListItemButton>
@@ -96,7 +104,7 @@ export default function NavSidebar({
             <ListItem>
                 <ListItemButton 
                     selected={isActive}
-                    onClick={() => handleNav(to, category, hasSubItems)}
+                    onClick={handleClick}
                     sx={{ 
                         borderRadius: 'md', justifyContent: 'center', px: 0, 
                         flexDirection: 'column', gap: 0.5, py: 1, width: 56, 
@@ -113,17 +121,17 @@ export default function NavSidebar({
       );
   };
 
-  const SubItem = ({ label, to, emoji }) => (
-      <ListItem>
+  const SubItem = ({ label, to, emoji, onClick, endAction }) => (
+      <ListItem endAction={endAction}>
           <ListItemButton 
-            component={NavLink} 
+            component={to ? NavLink : 'div'} 
             to={to} 
+            onClick={onClick}
             sx={{ borderRadius: 'sm' }}
-            onClick={() => { if (isMobile && onClose) onClose(); }}
           >
               <ListItemDecorator>
                 {emoji ? (
-                    <Avatar size="sm" sx={{ '--Avatar-size': '20px', fontSize: '0.9rem', bgcolor: getEmojiColor(emoji, isDark) }}>{emoji}</Avatar>
+                    <Avatar size="sm" sx={{ '--Avatar-size': '24px', fontSize: '1rem', bgcolor: getEmojiColor(emoji, isDark) }}>{emoji}</Avatar>
                 ) : <KeyboardArrowRight />}
               </ListItemDecorator>
               <ListItemContent>{label}</ListItemContent>
@@ -131,7 +139,7 @@ export default function NavSidebar({
       </ListItem>
   );
 
-  const showPanel = activeCategory && ['people', 'pets', 'house', 'vehicles', 'settings', 'account'].includes(activeCategory);
+  const showPanel = activeCategory && ['people', 'pets', 'house', 'vehicles', 'settings', 'account', 'switch'].includes(activeCategory);
 
   const sidebarContent = (
     <Box sx={{ display: 'flex', height: '100%' }}>
@@ -190,7 +198,9 @@ export default function NavSidebar({
                 {canInstall && (
                     <RailIcon icon={<Download />} label="Install" onClick={onInstall} />
                 )}
-                <RailIcon icon={<SwapHoriz />} label="Switch" onClick={() => navigate('/select-household')} />
+                {households.length > 1 && (
+                    <RailIcon icon={<SwapHoriz />} label="Switch" category="switch" hasSubItems />
+                )}
             </Box>
         </Sheet>
 
@@ -214,6 +224,26 @@ export default function NavSidebar({
                 </Box>
                 
                 <List sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>
+                    {activeCategory === 'switch' && (
+                        <>
+                            <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>SELECT HOUSEHOLD</Typography></ListItem>
+                            {households.map(hh => (
+                                <SubItem 
+                                    key={hh.id} 
+                                    label={hh.name} 
+                                    emoji={hh.avatar || '🏠'} 
+                                    onClick={() => { navigate(`/household/${hh.id}`); setActiveCategory(null); if (isMobile && onClose) onClose(); }}
+                                    endAction={
+                                        hh.role === 'admin' && hh.id !== household?.id ? (
+                                            <IconButton size="sm" color="danger" variant="plain" onClick={() => handleDeleteHousehold(hh)}>
+                                                <Delete fontSize="small" />
+                                            </IconButton>
+                                        ) : null
+                                    }
+                                />
+                            ))}
+                        </>
+                    )}
                     {activeCategory === 'account' && (
                         <>
                             <ListItem sx={{ px: 2, py: 1.5 }}>
@@ -227,7 +257,6 @@ export default function NavSidebar({
                             </ListItem>
                             <Divider sx={{ my: 1 }} />
                             <ListItem><ListItemButton onClick={() => { navigate('profile'); setActiveCategory(null); if (isMobile && onClose) onClose(); }}><ListItemDecorator><Edit /></ListItemDecorator><ListItemContent>Edit Profile</ListItemContent></ListItemButton></ListItem>
-                            <ListItem><ListItemButton onClick={() => { navigate('/select-household'); setActiveCategory(null); }}><ListItemDecorator><SwapHoriz /></ListItemDecorator><ListItemContent>Switch Household</ListItemContent></ListItemButton></ListItem>
                             <Divider sx={{ my: 1 }} />
                             <ListItem><ListItemButton onClick={() => { onLogout(); if (isMobile && onClose) onClose(); }} variant="solid" color="danger" sx={{ borderRadius: 'sm', mx: 0.5 }}><ListItemDecorator><Logout sx={{ color: 'inherit' }} /></ListItemDecorator><ListItemContent>Logout</ListItemContent></ListItemButton></ListItem>
                         </>
