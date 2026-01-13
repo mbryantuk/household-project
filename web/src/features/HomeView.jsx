@@ -1,3 +1,11 @@
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { Box, Typography, Button, Stack, IconButton, Sheet, Menu, MenuItem } from '@mui/joy';
+import { 
+  Add, Save, Edit, Close, 
+  AddCircleOutline, RemoveCircleOutline 
+} from '@mui/icons-material';
+import { Responsive, WidthProvider } from 'react-grid-layout';
+
 import BirthdaysWidget from '../components/widgets/BirthdaysWidget';
 import EventsWidget from '../components/widgets/EventsWidget';
 import HomeRecurringCostsWidget from '../components/widgets/HomeRecurringCostsWidget';
@@ -6,6 +14,8 @@ import NotesWidget from '../components/widgets/NotesWidget';
 import CalculatorWidget from '../components/widgets/CalculatorWidget';
 import FinancialWidget from '../components/widgets/FinancialWidget';
 import TaxWidget from '../components/widgets/TaxWidget';
+
+const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const WIDGET_TYPES = {
   birthdays: { component: BirthdaysWidget, label: 'Upcoming Birthdays', defaultH: 4, defaultW: 6 },
