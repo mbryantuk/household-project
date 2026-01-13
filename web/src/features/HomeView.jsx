@@ -4,7 +4,7 @@ import {
   Add, Save, Edit, Close, 
   AddCircleOutline, RemoveCircleOutline 
 } from '@mui/icons-material';
-import { Responsive, WidthProvider } from 'react-grid-layout';
+import { Responsive, WidthProvider } from 'react-grid-layout/legacy';
 
 import BirthdaysWidget from '../components/widgets/BirthdaysWidget';
 import EventsWidget from '../components/widgets/EventsWidget';
