@@ -87,7 +87,7 @@ You must structure your response in exactly **4 PHASES**. Do not skip phases.
     1.  `docker compose up -d --build`
     2.  `npm test` (Standard Suite: Viewer Restriction, Selector API, Perf tests).
     3.  **NEW FEATURE TEST:** If a new test file was created in Phase 2, execute it here.
-    4.  **VERSION BUMP:** Execute `npm version --no-git-tag-version <type>` based on Phase 1 analysis.
+    4.  **VERSION BUMP:** ALWAYS execute `node bump_version.js` to increment patch version.
     5.  `git commit` with a **Dynamic Message** based on Phase 2 changes.
 
 ---
@@ -118,8 +118,7 @@ npm run test:perf
 
 # 4. Versioning & Commit
 echo "🆙 Bumping Version..."
-# NOTE: The AI must choose major/minor/patch based on Phase 1 logic
-npm version --no-git-tag-version patch
+node bump_version.js
 
 echo "💾 Saving state and committing..."
 git add .

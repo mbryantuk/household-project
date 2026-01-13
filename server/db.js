@@ -22,6 +22,7 @@ const globalDb = new sqlite3.Database(dbPath, (err) => {
         initGlobalDb();
     }
 });
+globalDb.configure('busyTimeout', 5000);
 
 function initGlobalDb() {
     globalDb.serialize(() => {
@@ -101,6 +102,7 @@ function initGlobalDb() {
 const getHouseholdDb = (householdId) => {
     const householdDbPath = path.join(dataDir, `household_${householdId}.db`);
     const db = new sqlite3.Database(householdDbPath);
+    db.configure('busyTimeout', 5000);
     
     // Initialize Schema & Migrations
     initializeHouseholdSchema(db);
