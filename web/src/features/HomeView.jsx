@@ -253,13 +253,22 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
                 return (
                     <Box key={item.i} data-grid={{ ...item, static: !isEditing }} sx={{ position: 'relative' }}>
                         {isEditing && (
-                            <Box sx={{ position: 'absolute', top: -12, right: -12, zIndex: 20 }}>
+                            <Box sx={{ position: 'absolute', top: -14, right: -14, zIndex: 100 }}>
                                 <IconButton 
                                     size="sm" variant="solid" color="danger"
-                                    onClick={() => handleRemoveWidget(item.i)}
-                                    sx={{ borderRadius: '50%', boxShadow: 'md' }}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        handleRemoveWidget(item.i);
+                                    }}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    sx={{ 
+                                        borderRadius: '50%', 
+                                        boxShadow: 'lg',
+                                        '&:hover': { transform: 'scale(1.1)' }
+                                    }}
                                 >
-                                    <Close />
+                                    <Close fontSize="small" />
                                 </IconButton>
                             </Box>
                         )}
