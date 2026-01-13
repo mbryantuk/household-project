@@ -150,7 +150,7 @@ export default function NavSidebar({
                 borderColor: 'divider',
                 display: 'flex', flexDirection: 'column',
                 alignItems: isMobile ? 'stretch' : 'center',
-                pt: 1.5, pb: 0, bgcolor: 'background.surface', zIndex: 2500, height: '100%' 
+                pt: 1.5, pb: 0, bgcolor: 'background.surface', zIndex: 2500, height: isMobile ? '100%' : '100vh' 
             }}
         >
             {isMobile && (
@@ -184,14 +184,9 @@ export default function NavSidebar({
                 <RailIcon icon={<Pets />} label="Pets" category="pets" hasSubItems />
                 <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems />
                 <RailIcon icon={<DirectionsCar />} label="Vehicles" category="vehicles" hasSubItems />
-            </List>
-
-            <Box sx={{ flexGrow: 1 }} />
-
-            <Divider sx={{ mb: 0.5, width: isMobile ? '100%' : 40, mx: 'auto' }} />
-
-            {/* Utility Section: Above Account */}
-            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '0px', width: '100%', px: isMobile ? 1 : 0, p: 0, m: 0 }}>
+                
+                {/* Utilities grouped with main nav to avoid "big gap" */}
+                <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
                 {canInstall && (
                     <RailIcon icon={<Download />} label="Install" onClick={onInstall} />
                 )}
@@ -201,10 +196,11 @@ export default function NavSidebar({
                 <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems />
             </List>
 
-            <Divider sx={{ my: 0.5, width: isMobile ? '100%' : 40, mx: 'auto' }} />
+            {/* SPACER: Pushes only Account to the bottom */}
+            <Box sx={{ flexGrow: 1 }} />
 
-            {/* Account Section: Absolute Bottom Left */}
-            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '0px', width: '100%', px: isMobile ? 1 : 0, p: 0, mb: 0.5 }}>
+            {/* ACCOUNT: Forced to absolute bottom */}
+            <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '0px', width: '100%', px: isMobile ? 1 : 0, p: 0, m: 0, pb: 0.5 }}>
                 <RailIcon 
                     icon={<Avatar size="sm" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark), width: 22, height: 22, fontSize: '0.75rem' }}>{user?.avatar || user?.first_name?.[0]}</Avatar>} 
                     label="Account" category="account" hasSubItems 
