@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { app } = require('../server');
+const { app } = require('../../server');
 
 describe('🛡️ Role Matrix Completion: Member Constraints', () => {
     jest.setTimeout(30000);

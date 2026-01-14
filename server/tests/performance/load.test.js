@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { app } = require('../server');
+const { app } = require('../../server');
 const { performance } = require('perf_hooks');
 
 describe('Performance & Speed Tests', () => {

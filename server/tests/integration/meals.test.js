@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { app } = require('../server');
+const { app } = require('../../server');
 
 describe('Meal Planner API', () => {
     let agent;
