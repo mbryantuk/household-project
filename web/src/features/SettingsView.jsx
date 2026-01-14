@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, Button, Input, 
   FormControl, FormLabel, Stack, Avatar, IconButton, 
-  Divider, Modal, ModalDialog, DialogTitle, Select, Option, Link, Grid
+  Divider, Modal, ModalDialog, DialogTitle, Select, Option, Link, Grid, Chip
 } from '@mui/joy';
 import { 
   PersonAdd, Edit, Delete, ExitToApp, ToggleOn, ToggleOff,
@@ -99,6 +99,15 @@ export default function SettingsView({
     setIsInvite(true); 
   };
 
+  const getRoleColor = (role) => {
+      switch(role) {
+          case 'admin': return 'primary';
+          case 'member': return 'neutral';
+          case 'viewer': return 'success';
+          default: return 'neutral';
+      }
+  };
+
   return (
     <Box>
       <Box sx={{ mb: 4 }}>
@@ -141,8 +150,13 @@ export default function SettingsView({
                             <Stack direction="row" spacing={2} alignItems="center">
                                 <Avatar sx={{ bgcolor: getEmojiColor(u.avatar || u.first_name?.[0], false) }}>{u.avatar || u.first_name?.[0]}</Avatar>
                                 <Box>
-                                    <Typography level="title-sm" sx={{ fontWeight: 'lg' }}>{u.first_name} {u.last_name} {u.id === currentUser.id && '(You)'}</Typography>
-                                    <Typography level="body-xs" color="neutral">{u.email} • {u.role}</Typography>
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                        <Typography level="title-sm" sx={{ fontWeight: 'lg' }}>{u.first_name} {u.last_name} {u.id === currentUser.id && '(You)'}</Typography>
+                                        <Chip size="sm" variant="soft" color={getRoleColor(u.role)} sx={{ textTransform: 'uppercase', fontWeight: 'bold', fontSize: '10px' }}>
+                                            {u.role}
+                                        </Chip>
+                                    </Stack>
+                                    <Typography level="body-xs" color="neutral">{u.email}</Typography>
                                 </Box>
                             </Stack>
                             <Stack direction="row" spacing={1}>
