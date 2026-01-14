@@ -170,21 +170,56 @@ export default function MealPlannerView() {
     <Box sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
       
       {/* HEADER */}
-      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography level="h2" startDecorator={<RestaurantMenu />}>Meal Planner</Typography>
-        <Stack direction="row" spacing={2}>
-            <Button variant="outlined" color="neutral" onClick={handleCopyPreviousWeek}>
-                Copy Last Week
-            </Button>
-            <Button variant="soft" startDecorator={<Restaurant />} onClick={() => { setEditMeal(null); setTempMealEmoji('🍝'); setIsLibraryOpen(true); }}>
-                Meal Library
-            </Button>
-            <Stack direction="row" alignItems="center" spacing={1} sx={{ bgcolor: 'background.level1', borderRadius: 'md', px: 1 }}>
-                <IconButton onClick={() => changeWeek(-7)}><ArrowBack /></IconButton>
-                <Typography fontWeight="bold">Week of {currentWeekStart.toLocaleDateString()}</Typography>
-                <IconButton onClick={() => changeWeek(7)}><ArrowForward /></IconButton>
+      <Box sx={{ 
+          mb: 3, 
+          display: 'flex', 
+          flexDirection: { xs: 'column', md: 'row' }, 
+          justifyContent: 'space-between', 
+          alignItems: { xs: 'stretch', md: 'center' }, 
+          gap: 2 
+      }}>
+        <Typography level="h2">Meal Planner</Typography>
+        
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column-reverse', sm: 'row' }, gap: 2, alignItems: 'center' }}>
+            <Stack direction="row" spacing={1} sx={{ width: { xs: '100%', sm: 'auto' } }}>
+                <Button 
+                    variant="outlined" 
+                    color="neutral" 
+                    onClick={handleCopyPreviousWeek}
+                    sx={{ flex: 1, whiteSpace: 'nowrap' }}
+                >
+                    Copy Prev
+                </Button>
+                <Button 
+                    variant="soft" 
+                    startDecorator={<Restaurant />} 
+                    onClick={() => { setEditMeal(null); setTempMealEmoji('🍝'); setIsLibraryOpen(true); }}
+                    sx={{ flex: 1, whiteSpace: 'nowrap' }}
+                >
+                    Library
+                </Button>
             </Stack>
-        </Stack>
+
+            <Stack 
+                direction="row" 
+                alignItems="center" 
+                justifyContent="space-between"
+                spacing={1} 
+                sx={{ 
+                    bgcolor: 'background.level1', 
+                    borderRadius: 'md', 
+                    px: 1, 
+                    py: 0.5,
+                    width: { xs: '100%', sm: 'auto' }
+                }}
+            >
+                <IconButton size="sm" onClick={() => changeWeek(-7)}><ArrowBack /></IconButton>
+                <Typography fontWeight="bold" level="body-sm">
+                    {currentWeekStart.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} - {new Date(new Date(currentWeekStart).setDate(currentWeekStart.getDate() + 6)).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                </Typography>
+                <IconButton size="sm" onClick={() => changeWeek(7)}><ArrowForward /></IconButton>
+            </Stack>
+        </Box>
       </Box>
 
       {/* DESKTOP PLANNER GRID */}
