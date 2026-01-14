@@ -29,7 +29,7 @@ const dbRun = (db, sql, params) => new Promise((resolve, reject) => {
  * Create a new household for existing user
  */
 router.post('/households', authenticateToken, async (req, res) => {
-    const { name } = req.body;
+    const { name, theme } = req.body;
     if (!name) return res.status(400).json({ error: "Household name is required" });
 
     try {
@@ -37,8 +37,8 @@ router.post('/households', authenticateToken, async (req, res) => {
         
         // 1. Create Household
         const hhResult = await dbRun(globalDb, 
-            `INSERT INTO households (name, access_key, theme) VALUES (?, ?, 'default')`, 
-            [name, accessKey]
+            `INSERT INTO households (name, access_key, theme) VALUES (?, ?, ?)`, 
+            [name, accessKey, theme || 'totem']
         );
         const householdId = hhResult.id;
 

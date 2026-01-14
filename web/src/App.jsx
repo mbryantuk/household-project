@@ -9,7 +9,7 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-route
 import CssBaseline from '@mui/joy/CssBaseline';
 
 // Theme and Local Components
-import { getTotemTheme, getThemeSpec } from './theme';
+import { getTotemTheme, getThemeSpec, THEMES } from './theme';
 import FloatingCalculator from './components/FloatingCalculator';
 import FloatingCalendar from './components/FloatingCalendar';
 import FinancialCalculator from './components/FinancialCalculator';

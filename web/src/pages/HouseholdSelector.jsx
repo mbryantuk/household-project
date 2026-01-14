@@ -2,17 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { 
   Box, Typography, Card, CardContent, CardActions, Button, 
   AspectRatio, Grid, Container, IconButton, Stack, Divider, Sheet, Alert, Tooltip,
-  Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, FormControl, FormLabel, Input
+  Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, FormControl, FormLabel, Input, Select, Option
 } from '@mui/joy';
-import { Add, Home, ArrowForward, Logout, Settings, DeleteForever } from '@mui/icons-material';
+import { Add, Home, ArrowForward, Logout, Settings, DeleteForever, Palette } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { getEmojiColor } from '../theme';
+import { getEmojiColor, THEMES } from '../theme';
 
 export default function HouseholdSelector({ api, currentUser, onLogout, showNotification }) {
   const [households, setHouseholds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newHouseholdName, setNewHouseholdName] = useState('');
+  const [selectedTheme, setSelectedTheme] = useState('totem');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
@@ -58,11 +59,15 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
     
     setIsSubmitting(true);
     try {
-        const res = await api.post('/households', { name: newHouseholdName });
+        const res = await api.post('/households', { 
+          name: newHouseholdName,
+          theme: selectedTheme
+        });
         const newHh = res.data;
         showNotification(`Household "${newHouseholdName}" created!`, "success");
         setIsModalOpen(false);
         setNewHouseholdName('');
+        setSelectedTheme('totem');
         
         // Success Flow: Auto-select and redirect
         localStorage.setItem('household', JSON.stringify(newHh));
@@ -147,7 +152,7 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
       <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <ModalDialog>
           <DialogTitle>Create New Household</DialogTitle>
-          <DialogContent>Enter a name for your new household property.</DialogContent>
+          <DialogContent>Enter a name and select a starting theme for your new property.</DialogContent>
           <form onSubmit={handleCreateHousehold}>
             <Stack spacing={2}>
               <FormControl required>
@@ -159,6 +164,25 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
                     onChange={(e) => setNewHouseholdName(e.target.value)}
                 />
               </FormControl>
+
+              <FormControl required>
+                <FormLabel>Starting Theme</FormLabel>
+                <Select 
+                  value={selectedTheme} 
+                  onChange={(e, v) => setSelectedTheme(v)}
+                  startDecorator={<Palette />}
+                >
+                  {Object.entries(THEMES).map(([id, spec]) => (
+                    <Option key={id} value={id}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Box sx={{ width: 16, height: 16, borderRadius: '2px', bgcolor: spec.primary }} />
+                        {spec.name} ({spec.mode})
+                      </Box>
+                    </Option>
+                  ))}
+                </Select>
+              </FormControl>
+
               <DialogActions>
                 <Button type="submit" loading={isSubmitting}>Create Household</Button>
                 <Button variant="plain" color="neutral" onClick={() => setIsModalOpen(false)}>Cancel</Button>
