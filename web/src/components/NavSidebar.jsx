@@ -3,13 +3,12 @@ import {
   Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, 
   IconButton, Divider, Box, Avatar, Typography, Stack, Button, ButtonGroup, Switch
 } from '@mui/joy';
-import { 
+import {
   Settings, Home as HomeIcon, Event, 
-  Groups, Pets, HomeWork, DirectionsCar, 
+  Groups, Pets, HomeWork, DirectionsCar, RestaurantMenu,
   Logout, Edit, KeyboardArrowRight, ChevronLeft, Download, Close, SwapHoriz,
   Delete, LightMode, DarkMode, SettingsBrightness, Contrast
-} from '@mui/icons-material';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+} from '@mui/icons-material';import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
 import EmojiPicker from './EmojiPicker';
 
@@ -185,6 +184,7 @@ export default function NavSidebar({
                     <RailIcon icon={<Groups />} label="People" category="people" hasSubItems />
                     <RailIcon icon={<Pets />} label="Pets" category="pets" hasSubItems />
                     <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems />
+                    <RailIcon icon={<RestaurantMenu />} label="Meals" category="meals" to="meals" />
                     <RailIcon icon={<DirectionsCar />} label="Vehicles" category="vehicles" hasSubItems />
                 </List>
             </Box>

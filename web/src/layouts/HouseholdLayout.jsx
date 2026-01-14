@@ -12,7 +12,8 @@ import {
   Settings as SettingsIcon,
   Person as ProfileIcon,
   Download,
-  Calculate, Savings, Payments, NoteAlt, SwapHoriz, ChevronLeft
+  Calculate, Savings, Payments, NoteAlt, SwapHoriz, ChevronLeft,
+  RestaurantMenu
 } from '@mui/icons-material';
 import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
@@ -119,7 +120,9 @@ export default function HouseholdLayout({
             zIndex: 100
           }}
         >
-          <Typography level="title-md" sx={{ fontWeight: 'bold', letterSpacing: '1px' }}>TOTEM</Typography>
+          <Typography level="title-md" sx={{ fontWeight: 'bold', letterSpacing: '1px' }}>
+            {activeHousehold?.name || 'TOTEM'}
+          </Typography>
         </Sheet>
 
         <Box component="main" sx={{ 
@@ -233,6 +236,7 @@ export default function HouseholdLayout({
                         )}
                         <MenuTile icon={<PeopleIcon />} label="People" to="people" onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<PetsIcon />} label="Pets" to="pets" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<RestaurantMenu />} label="Meals" to="meals" onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<VehicleIcon />} label="Vehicles" to="vehicles" onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<HouseIcon />} label="House" to={`house/${activeHousehold?.id}`} onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<SettingsIcon />} label="Settings" to="settings" onClick={() => setDrawerOpen(false)} />

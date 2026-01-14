@@ -209,6 +209,26 @@ const SCHEMA_DEFINITIONS = [
         frequency TEXT NOT NULL, -- Daily, Weekly, Biweekly, Monthly
         collection_day TEXT NOT NULL,
         notes TEXT
+    )`,
+
+    // --- MEAL PLANNING ---
+    `CREATE TABLE IF NOT EXISTS meals (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        name TEXT NOT NULL,
+        description TEXT,
+        emoji TEXT
+    )`,
+
+    `CREATE TABLE IF NOT EXISTS meal_plans (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        date TEXT NOT NULL, -- YYYY-MM-DD
+        member_id INTEGER,  -- Link to members table
+        meal_id INTEGER,    -- Link to meals table
+        type TEXT DEFAULT 'dinner', -- lunch, dinner
+        FOREIGN KEY(meal_id) REFERENCES meals(id) ON DELETE CASCADE,
+        FOREIGN KEY(member_id) REFERENCES members(id) ON DELETE CASCADE
     )`
 ];
 
@@ -243,7 +263,9 @@ const MIGRATIONS = [
     ['vehicle_insurance', 'household_id', 'INTEGER'],
     ['recurring_costs', 'household_id', 'INTEGER'],
     ['recurring_costs', 'nearest_working_day', 'BOOLEAN DEFAULT 0'],
-    ['assets', 'insurance_status', "TEXT DEFAULT 'uninsured'"]
+    ['assets', 'insurance_status', "TEXT DEFAULT 'uninsured'"],
+    ['meals', 'household_id', 'INTEGER'],
+    ['meal_plans', 'household_id', 'INTEGER']
 ];
 
 function initializeHouseholdSchema(db) {

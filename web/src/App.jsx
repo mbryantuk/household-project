@@ -27,6 +27,7 @@ import HouseholdSelector from './pages/HouseholdSelector';
 import HomeView from './features/HomeView';
 import MembersView from './features/MembersView';
 import SettingsView from './features/SettingsView';
+import MealPlannerView from './features/MealPlannerView';
 import CalendarView from './features/CalendarView';
 import PeopleView from './features/PeopleView';
 import HouseView from './features/HouseView';
@@ -235,6 +236,7 @@ function AppInner({ useDracula, setUseDracula }) {
                 <Route path="house/:houseId" element={<HouseView />} /><Route path="house" element={<Navigate to={household ? `${household.id}` : '1'} replace />} />
                 <Route path="vehicles/:vehicleId" element={<VehiclesView />} /><Route path="vehicles" element={<VehiclesView />} />
                 <Route path="profile" element={<ProfileView />} />
+                <Route path="meals" element={<MealPlannerView />} />
                 <Route path="settings" element={<SettingsView 
                     household={household} users={hhUsers} currentUser={user} api={authAxios}
                     onUpdateHousehold={handleUpdateHouseholdSettings}
