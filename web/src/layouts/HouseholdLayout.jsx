@@ -35,13 +35,10 @@ export default function HouseholdLayout({
   onDateAdded,
   onUpdateProfile,
   onLogout,
-  onSwitchHousehold, 
-  currentMode,
-  onModeChange,
+  themeId,
+  onThemeChange,
   installPrompt,
-  onInstall,
-  useDracula,
-  onDraculaChange
+  onInstall
 }) {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -115,11 +112,10 @@ export default function HouseholdLayout({
             user={user}
             onLogout={onLogout}
             onUpdateProfile={onUpdateProfile}
-            onModeChange={onModeChange}
+            onThemeChange={onThemeChange}
+            themeId={themeId}
             onInstall={onInstall}
             canInstall={!!installPrompt}
-            useDracula={useDracula}
-            onDraculaChange={onDraculaChange}
             confirmAction={confirmAction}
             api={api}
             showNotification={showNotification}

@@ -2,16 +2,17 @@ import { useState, useEffect } from 'react';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, Button, Input, 
   FormControl, FormLabel, Stack, Avatar, IconButton, 
-  Divider, Modal, ModalDialog, DialogTitle, Select, Option, Link, Grid, Chip
+  Divider, Modal, ModalDialog, DialogTitle, Select, Option, Grid, Chip
 } from '@mui/joy';
 import { 
   PersonAdd, Edit, Delete, ExitToApp, ToggleOn, ToggleOff,
-  OpenInNew, Info, Verified, Code, Policy
+  OpenInNew, Info, Verified, Code, Policy, Palette
 } from '@mui/icons-material';
-import { getEmojiColor } from '../theme';
+import { getEmojiColor, THEMES } from '../theme';
 
 export default function SettingsView({ 
-    household, users, currentUser, api, showNotification, confirmAction, fetchHhUsers
+    household, users, currentUser, api, showNotification, confirmAction, fetchHhUsers,
+    themeId, onThemeChange
 }) {
   const [activeTab, setActiveTab] = useState(0);
   const [editUser, setEditUser] = useState(null);
@@ -129,8 +130,9 @@ export default function SettingsView({
             }}
           >
             <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'}>User Access</Tab>
-            <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}>Developers</Tab>
-            <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'}>About</Tab>
+            <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}>Appearance</Tab>
+            <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'}>Developers</Tab>
+            <Tab variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'}>About</Tab>
           </TabList>
 
           <Box sx={{ p: { xs: 2, md: 4 } }}>
@@ -191,6 +193,41 @@ export default function SettingsView({
             {activeTab === 1 && (
                 <Box>
                     <Box sx={{ mb: 4 }}>
+                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Personalize Totem</Typography>
+                        <Typography level="body-md" color="neutral">Choose from our comprehensive library of 31 vibrant themes to match your household's personality.</Typography>
+                    </Box>
+
+                    <Grid container spacing={2}>
+                        {Object.entries(THEMES).map(([id, spec]) => (
+                            <Grid key={id} xs={6} sm={4} md={3} lg={2.4}>
+                                <Sheet
+                                    variant={themeId === id ? 'solid' : 'outlined'}
+                                    color={themeId === id ? 'primary' : 'neutral'}
+                                    onClick={() => onThemeChange(id)}
+                                    sx={{
+                                        p: 2, borderRadius: 'md', cursor: 'pointer', height: '100%',
+                                        transition: 'transform 0.2s',
+                                        '&:hover': { transform: 'translateY(-2px)', boxShadow: 'sm' },
+                                        position: 'relative',
+                                        display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
+                                    }}
+                                >
+                                    <Box sx={{ width: '100%', height: 40, borderRadius: 'sm', bgcolor: spec.primary, mb: 1.5, border: '1px solid rgba(0,0,0,0.1)' }} />
+                                    <Typography level="title-sm" noWrap sx={{ color: themeId === id ? '#fff' : 'text.primary', width: '100%' }}>{spec.name}</Typography>
+                                    <Typography level="body-xs" sx={{ color: themeId === id ? 'rgba(255,255,255,0.8)' : 'neutral.plainColor', textTransform: 'uppercase' }}>{spec.mode}</Typography>
+                                    {themeId === id && (
+                                        <Palette sx={{ position: 'absolute', top: 8, right: 8, fontSize: '0.8rem', color: '#fff' }} />
+                                    )}
+                                </Sheet>
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Box>
+            )}
+
+            {activeTab === 2 && (
+                <Box>
+                    <Box sx={{ mb: 4 }}>
                         <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Developer Tools</Typography>
                         <Typography level="body-md" color="neutral">Integration and technical documentation for the TOTEM platform.</Typography>
                     </Box>
@@ -214,7 +251,7 @@ export default function SettingsView({
                 </Box>
             )}
 
-            {activeTab === 2 && (
+            {activeTab === 3 && (
                 <Box sx={{ maxWidth: 800 }}>
                     <Box sx={{ mb: 4 }}>
                         <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>About TOTEM</Typography>

@@ -47,11 +47,11 @@
 
 ### C. Styling & Theme Standards (The "Totem" Spec)
 * **Theme Engine:** MUI Joy UI `extendTheme`.
-* **Palette Reference:**
-    * **Dracula (Dark):** Background `#282A36`, Purple `#BD93F9`, Selection `#44475A`, Foreground `#F8F8F2`.
-    * **Alucard (Light):** Background `#FFFBEB`, Purple `#644AC9`, Selection `#CFCFDE`, Foreground `#1F1F1F`.
+* **Palette Standard:** 
+    * Supports 30+ vibrant themes (Light/Dark).
+    * Use theme tokens: `var(--joy-palette-primary-solidBg)` or `var(--joy-palette-background-body)`.
 * **Theming Rules:**
-    1.  **NO INLINE COLORS:** Never use hex codes. Use theme tokens: `var(--joy-palette-primary-solidBg)` or `var(--joy-palette-background-body)`.
+    1.  **NO INLINE COLORS:** Never use hex codes. Use theme tokens.
     2.  **Emoji Styling:** Use `getEmojiColor(emoji, isDark)` for dynamic HSL background generation.
     3.  **Component Styling:** Use the `sx` prop or `styled()` from `@mui/joy/styles`.
 
@@ -66,11 +66,11 @@ You must structure your response in exactly **4 PHASES**.
     > **Architect's Analysis:**
     > 1.  **Tenancy Check:** [How is `household_id` enforced?]
     > 2.  **Component Audit:** [Am I using shared `components/ui/` wrappers? (Yes/No)]
-    > 3.  **Theme Audit:** [Does this adhere to Dracula/Alucard token standards? (Yes/No)]
+    > 3.  **Theme Audit:** [Does this adhere to the 30+ theme token standards? (Yes/No)]
     > 4.  **Versioning Decision:** [Major | Minor | Patch]
     > 5.  **New Tests:** [List any new test files created]
 
-### Phase 2: Implementation (Atomic)
+### Phase 3: Implementation (Atomic)
 * Provide the **FULL CONTENT** of every file.
 
 ### Phase 3: Documentation Sync

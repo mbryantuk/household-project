@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.4.0] - 2026-01-14
+### Added
+- **UI:** Replaced legacy theme system with a comprehensive library of **30+ vibrant themes** (15 Light, 15 Dark, 1 High Contrast).
+- **UI:** Integrated household-level theme storage, ensuring preferences persist across sessions and users within the same household.
+- **UI:** Enhanced **Settings View** with a visual theme gallery for easy personalization.
+- **UI:** Added a **Quick Theme Picker** grid to the Navigation Sidebar for rapid mode/color switching.
+
+### Changed
+- **Branding:** Removed "Dracula" and "Alucard" specific naming in favor of descriptive, fun theme names (e.g., "Midnight City", "Neon Dreams", "Ocean Breeze").
+- **Documentation:** Updated `README.md` and `Gemini.md` to reflect the new 30-theme standard and removed legacy palette references.
+
 ## [2.3.0] - 2026-01-14
 ### Added
 - New UI components for household management (FloatingCalculator, FloatingCalendar, Widget system).

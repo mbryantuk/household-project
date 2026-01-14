@@ -38,11 +38,15 @@ import ProfileView from './features/ProfileView';
 const API_URL = window.location.origin;
 
 // Inner App handles logic that requires useColorScheme context
-function AppInner({ useDracula, setUseDracula }) {
-  const { mode, setMode, systemMode } = useColorScheme();
-  const effectiveMode = mode === 'system' ? systemMode : mode;
-  const isDark = (effectiveMode || 'light') === 'dark';
-  const { spec } = useMemo(() => getThemeSpec(effectiveMode || 'light', useDracula), [effectiveMode, useDracula]);
+function AppInner({ themeId, setThemeId }) {
+  const { setMode } = useColorScheme();
+  
+  const { spec, isDark } = useMemo(() => getThemeSpec(themeId), [themeId]);
+
+  // Synchronize MUI mode with theme spec mode
+  useEffect(() => {
+    setMode(spec.mode);
+  }, [spec.mode, setMode]);
 
   // Auth & Data State
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -188,9 +192,16 @@ function AppInner({ useDracula, setUseDracula }) {
         localStorage.setItem('household', JSON.stringify(updated));
         return updated;
       });
+      if (updates.theme) setThemeId(updates.theme);
       showNotification("Household updated.", "success");
     } catch (err) { showNotification("Failed to update.", "danger"); }
-  }, [authAxios, household, showNotification]);
+  }, [authAxios, household, showNotification, setThemeId]);
+
+  useEffect(() => {
+    if (household?.theme && household.theme !== themeId) {
+      setThemeId(household.theme);
+    }
+  }, [household, themeId, setThemeId]);
 
   const handleUpdateProfile = useCallback(async (updates) => {
     try {
@@ -205,14 +216,14 @@ function AppInner({ useDracula, setUseDracula }) {
   return (
     <>
       <GlobalStyles styles={{
-          '.rbc-calendar': { color: `${spec.foreground} !important`, fontFamily: 'var(--joy-fontFamily-body, sans-serif)' },
+          '.rbc-calendar': { color: `${spec.text} !important`, fontFamily: 'var(--joy-fontFamily-body, sans-serif)' },
           '.rbc-off-range-bg': { backgroundColor: isDark ? 'rgba(0,0,0,0.2) !important' : 'rgba(0,0,0,0.05) !important' },
-          '.rbc-today': { backgroundColor: isDark ? 'rgba(189, 147, 249, 0.1) !important' : 'rgba(100, 74, 201, 0.08) !important', border: `1px solid ${spec.purple} !important` },
-          '.rbc-header': { borderBottom: `1px solid ${spec.selection || spec.divider} !important`, padding: '8px 0 !important', fontWeight: 'bold' },
-          '.rbc-month-view, .rbc-time-view, .rbc-agenda-view': { border: `1px solid ${spec.selection || spec.divider} !important`, borderRadius: '8px', overflow: 'hidden' },
-          '.rbc-day-bg + .rbc-day-bg, .rbc-month-row + .rbc-month-row, .rbc-time-content > * + *': { borderLeft: `1px solid ${spec.selection || spec.divider} !important`, borderTop: `1px solid ${spec.selection || spec.divider} !important` },
-          '.rbc-toolbar button': { color: `${spec.foreground} !important`, border: `1px solid ${spec.selection || spec.divider} !important` },
-          '.rbc-toolbar button:hover, .rbc-toolbar button:active, .rbc-toolbar button.rbc-active': { backgroundColor: `${spec.selection || spec.divider} !important`, color: `${spec.foreground} !important` }
+          '.rbc-today': { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05) !important' : 'rgba(0, 0, 0, 0.03) !important', border: `1px solid ${spec.primary} !important` },
+          '.rbc-header': { borderBottom: `1px solid ${spec.selection} !important`, padding: '8px 0 !important', fontWeight: 'bold' },
+          '.rbc-month-view, .rbc-time-view, .rbc-agenda-view': { border: `1px solid ${spec.selection} !important`, borderRadius: '8px', overflow: 'hidden' },
+          '.rbc-day-bg + .rbc-day-bg, .rbc-month-row + .rbc-month-row, .rbc-time-content > * + *': { borderLeft: `1px solid ${spec.selection} !important`, borderTop: `1px solid ${spec.selection} !important` },
+          '.rbc-toolbar button': { color: `${spec.text} !important`, border: `1px solid ${spec.selection} !important` },
+          '.rbc-toolbar button:hover, .rbc-toolbar button:active, .rbc-toolbar button.rbc-active': { backgroundColor: `${spec.selection} !important`, color: `${spec.text} !important` }
       }} />
 
       <Routes>
@@ -236,8 +247,7 @@ function AppInner({ useDracula, setUseDracula }) {
               showNotification={showNotification} confirmAction={confirmAction}
               dates={hhDates} onDateAdded={() => household && fetchHhDates(household.id)}
               onUpdateProfile={handleUpdateProfile} onLogout={logout}
-              currentMode={mode} onModeChange={setMode} 
-              useDracula={useDracula} onDraculaChange={(v) => { setUseDracula(v); localStorage.setItem('useDracula', v); }}
+              themeId={themeId} onThemeChange={(newId) => handleUpdateHouseholdSettings({ theme: newId })}
               installPrompt={installPrompt} onInstall={handleInstall}
             />}>
                 <Route index element={<Navigate to="dashboard" replace />} />
@@ -252,8 +262,7 @@ function AppInner({ useDracula, setUseDracula }) {
                 <Route path="settings" element={<SettingsView 
                     household={household} users={hhUsers} currentUser={user} api={authAxios}
                     onUpdateHousehold={handleUpdateHouseholdSettings}
-                    currentMode={mode} onModeChange={setMode}
-                    useDracula={useDracula} onDraculaChange={(v) => { setUseDracula(v); localStorage.setItem('useDracula', v); }}
+                    themeId={themeId} onThemeChange={(newId) => handleUpdateHouseholdSettings({ theme: newId })}
                     showNotification={showNotification} confirmAction={confirmAction}
                     fetchHhUsers={fetchHhUsers}
                 />} />
@@ -285,13 +294,19 @@ function AppInner({ useDracula, setUseDracula }) {
 }
 
 export default function App() {
-  const [useDracula, setUseDracula] = useState(() => localStorage.getItem('useDracula') === 'true');
-  const theme = useMemo(() => getTotemTheme(useDracula), [useDracula]);
+  const [themeId, setThemeId] = useState(() => localStorage.getItem('themeId') || 'totem');
+  const theme = useMemo(() => getTotemTheme(themeId), [themeId]);
+  
+  const handleThemeChange = (newThemeId) => {
+    setThemeId(newThemeId);
+    localStorage.setItem('themeId', newThemeId);
+  };
+
   return (
     <BrowserRouter>
-      <CssVarsProvider theme={theme} defaultMode="system" disableNestedContext>
+      <CssVarsProvider theme={theme} defaultMode={THEMES[themeId]?.mode || 'light'} disableNestedContext>
         <CssBaseline />
-        <AppInner useDracula={useDracula} setUseDracula={setUseDracula} />
+        <AppInner themeId={themeId} setThemeId={handleThemeChange} />
       </CssVarsProvider>
     </BrowserRouter>
   );

@@ -1,31 +1,127 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, 
-  IconButton, Divider, Box, Avatar, Typography, Stack, Button, ButtonGroup, Switch
+  IconButton, Divider, Box, Avatar, Typography, Stack, Button, ButtonGroup, Switch, Tooltip
 } from '@mui/joy';
 import {
   Settings, Home as HomeIcon, Event, 
   Groups, Pets, HomeWork, DirectionsCar, RestaurantMenu,
   Logout, Edit, KeyboardArrowRight, ChevronLeft, Download, Close, SwapHoriz,
-  Delete, LightMode, DarkMode, SettingsBrightness, Contrast
+  Delete, LightMode, DarkMode, SettingsBrightness, Contrast,
+  KeyboardArrowUp, KeyboardArrowDown
 } from '@mui/icons-material';import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { getEmojiColor } from '../theme';
+import { getEmojiColor, THEMES } from '../theme';
 import EmojiPicker from './EmojiPicker';
 
 // Layout Constants
 const RAIL_WIDTH = 64; 
 const PANEL_WIDTH = 240;
 
+const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, activeCategory, handleNav, isMobile }) => {
+    const pathMatches = to && location.pathname.includes(to);
+    const categoryMatches = activeCategory === category;
+    const isActive = pathMatches || categoryMatches;
+    
+    const handleClick = () => {
+        if (onClick) onClick();
+        else handleNav(to, category, hasSubItems);
+    };
+
+    if (isMobile) {
+        return (
+          <ListItem sx={{ px: 0 }}>
+              <ListItemButton 
+                  selected={isActive}
+                  onClick={handleClick}
+                  sx={{ 
+                      borderRadius: 'sm', gap: 2,
+                      '&.Mui-selected': { 
+                          bgcolor: 'background.level1', 
+                          color: 'primary.plainColor',
+                          fontWeight: 'bold',
+                          borderLeft: '4px solid',
+                          borderColor: 'primary.solidBg'
+                      }
+                  }}
+              >
+                  <ListItemDecorator>{icon}</ListItemDecorator>
+                  <ListItemContent>{label}</ListItemContent>
+                  {hasSubItems && <KeyboardArrowRight />}
+              </ListItemButton>
+          </ListItem>
+        );
+    }
+
+    return (
+          <ListItem sx={{ p: 0 }}>
+              <ListItemButton 
+                  selected={isActive}
+                  onClick={handleClick}
+                  sx={{ 
+                      borderRadius: 'md', justifyContent: 'center', px: 0, 
+                      flexDirection: 'column', gap: 0.5, py: 1, width: 56, 
+                      mx: 'auto', minHeight: 60,
+                      '&.Mui-selected': { bgcolor: 'background.level1', color: 'primary.plainColor' }
+                  }}
+              >
+                  <ListItemDecorator sx={{ display: 'flex', justifyContent: 'center', m: 0, '& svg': { fontSize: '1.4rem' } }}>
+                      {icon}
+                  </ListItemDecorator>
+                  <Typography level="body-xs" sx={{ fontSize: '10px', fontWeight: isActive ? '600' : '500', color: isActive ? 'primary.plainColor' : 'neutral.plainColor', textAlign: 'center' }}>{label}</Typography>
+              </ListItemButton>
+          </ListItem>
+    );
+};
+
+const SubItem = ({ label, to, emoji, onClick, endAction, isDark }) => (
+    <ListItem endAction={endAction}>
+        <ListItemButton 
+          component={to ? NavLink : 'div'} 
+          to={to} 
+          onClick={onClick}
+          sx={{ borderRadius: 'sm' }}
+        >
+            <ListItemDecorator>
+              {emoji ? (
+                  <Avatar size="sm" sx={{ '--Avatar-size': '24px', fontSize: '1rem', bgcolor: getEmojiColor(emoji, isDark) }}>{emoji}</Avatar>
+              ) : <KeyboardArrowRight />}
+            </ListItemDecorator>
+            <ListItemContent>{label}</ListItemContent>
+        </ListItemButton>
+    </ListItem>
+);
+
 export default function NavSidebar({ 
     members = [], vehicles = [], households = [], isDark, household, user, 
-    onLogout, onUpdateProfile, currentMode, onModeChange, onInstall, canInstall,
-    useDracula, onDraculaChange, isMobile = false, onClose, confirmAction, api, showNotification
+    onLogout, onUpdateProfile, themeId, onThemeChange, onInstall, canInstall,
+    isMobile = false, onClose, confirmAction, api, showNotification
 }) {
   const location = useLocation();
   const navigate = useNavigate();
   
   const [activeCategory, setActiveCategory] = useState(null);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [canScrollUp, setCanScrollUp] = useState(false);
+  const [canScrollDown, setCanScrollDown] = useState(false);
+  const scrollRef = React.useRef(null);
+
+  const checkScroll = () => {
+    if (scrollRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+        setCanScrollUp(scrollTop > 10);
+        setCanScrollDown(scrollTop + clientHeight < scrollHeight - 10);
+    }
+  };
+
+  useEffect(() => {
+    checkScroll();
+    const timer = setTimeout(checkScroll, 500); // Wait for potential layout shifts
+    window.addEventListener('resize', checkScroll);
+    return () => {
+        clearTimeout(timer);
+        window.removeEventListener('resize', checkScroll);
+    };
+  }, [members, vehicles]);
 
   useEffect(() => {
       const path = location.pathname;
@@ -56,86 +152,12 @@ export default function NavSidebar({
                 await api.delete(`/households/${hh.id}`);
                 showNotification(`Household '${hh.name}' deleted.`, "success");
                 window.location.href = '/select-household';
-            } catch (err) {
+            } catch {
                 showNotification("Failed to delete household. Ensure you are an admin.", "danger");
             }
         }
     );
   };
-
-  const RailIcon = ({ icon, label, category, to, hasSubItems, badge, onClick }) => {
-      const pathMatches = to && location.pathname.includes(to);
-      const categoryMatches = activeCategory === category;
-      const isActive = pathMatches || categoryMatches;
-      
-      const handleClick = () => {
-          if (onClick) onClick();
-          else handleNav(to, category, hasSubItems);
-      };
-
-      if (isMobile) {
-          return (
-            <ListItem sx={{ px: 0 }}>
-                <ListItemButton 
-                    selected={isActive}
-                    onClick={handleClick}
-                    sx={{ 
-                        borderRadius: 'sm', gap: 2,
-                        '&.Mui-selected': { 
-                            bgcolor: 'background.level1', 
-                            color: 'primary.plainColor',
-                            fontWeight: 'bold',
-                            borderLeft: '4px solid',
-                            borderColor: 'primary.solidBg'
-                        }
-                    }}
-                >
-                    <ListItemDecorator>{icon}</ListItemDecorator>
-                    <ListItemContent>{label}</ListItemContent>
-                    {hasSubItems && <KeyboardArrowRight />}
-                </ListItemButton>
-            </ListItem>
-          );
-      }
-
-      return (
-            <ListItem sx={{ p: 0 }}>
-                <ListItemButton 
-                    selected={isActive}
-                    onClick={handleClick}
-                    sx={{ 
-                        borderRadius: 'md', justifyContent: 'center', px: 0, 
-                        flexDirection: 'column', gap: 0.5, py: 1, width: 56, 
-                        mx: 'auto', minHeight: 60,
-                        '&.Mui-selected': { bgcolor: 'background.level1', color: 'primary.plainColor' }
-                    }}
-                >
-                    <ListItemDecorator sx={{ display: 'flex', justifyContent: 'center', m: 0, '& svg': { fontSize: '1.4rem' } }}>
-                        {icon}
-                    </ListItemDecorator>
-                    <Typography level="body-xs" sx={{ fontSize: '10px', fontWeight: isActive ? '600' : '500', color: isActive ? 'primary.plainColor' : 'neutral.plainColor', textAlign: 'center' }}>{label}</Typography>
-                </ListItemButton>
-            </ListItem>
-      );
-  };
-
-  const SubItem = ({ label, to, emoji, onClick, endAction }) => (
-      <ListItem endAction={endAction}>
-          <ListItemButton 
-            component={to ? NavLink : 'div'} 
-            to={to} 
-            onClick={onClick}
-            sx={{ borderRadius: 'sm' }}
-          >
-              <ListItemDecorator>
-                {emoji ? (
-                    <Avatar size="sm" sx={{ '--Avatar-size': '24px', fontSize: '1rem', bgcolor: getEmojiColor(emoji, isDark) }}>{emoji}</Avatar>
-                ) : <KeyboardArrowRight />}
-              </ListItemDecorator>
-              <ListItemContent>{label}</ListItemContent>
-          </ListItemButton>
-      </ListItem>
-  );
 
   const showPanel = activeCategory && ['people', 'pets', 'house', 'vehicles', 'settings', 'account', 'switch'].includes(activeCategory);
 
@@ -153,7 +175,8 @@ export default function NavSidebar({
                 height: '100dvh', overflowY: 'hidden', position: 'relative'
             }}
         >
-            <Box sx={{ width: '100%' }}>
+            {/* Pinned Top */}
+            <Box sx={{ width: '100%', flexShrink: 0 }}>
                 {isMobile && (
                     <Box sx={{ px: 2, pb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <Typography level="title-lg" sx={{ fontWeight: 'bold' }}>Menu</Typography>
@@ -176,32 +199,64 @@ export default function NavSidebar({
                         {household?.avatar || '🏠'}
                     </Avatar>
                 </Box>
-
-                <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
-                    <RailIcon icon={<HomeIcon />} label="Home" category="dashboard" to="dashboard" />
-                    <RailIcon icon={<Event />} label="Events" category="calendar" to="calendar" />
-                    <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
-                    <RailIcon icon={<Groups />} label="People" category="people" hasSubItems />
-                    <RailIcon icon={<Pets />} label="Pets" category="pets" hasSubItems />
-                    <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems />
-                    <RailIcon icon={<RestaurantMenu />} label="Meals" category="meals" to="meals" />
-                    <RailIcon icon={<DirectionsCar />} label="Vehicles" category="vehicles" hasSubItems />
+                
+                <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0, mb: 1 }}>
+                    <RailIcon icon={<HomeIcon />} label="Home" category="dashboard" to="dashboard" location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                    <RailIcon icon={<Event />} label="Events" category="calendar" to="calendar" location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                 </List>
+                <Divider sx={{ mb: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
             </Box>
 
-            <Box sx={{ width: '100%', p: 0, m: 0 }}>
+            {/* Scrollable Middle */}
+            <Box sx={{ width: '100%', flexGrow: 1, position: 'relative', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+                {canScrollUp && !isMobile && (
+                    <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: 20, zIndex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: 'background.surface', opacity: 0.8, pointerEvents: 'none' }}>
+                        <KeyboardArrowUp sx={{ fontSize: '1rem', color: 'primary.plainColor' }} />
+                    </Box>
+                )}
+                
+                <Box 
+                    ref={scrollRef}
+                    onScroll={checkScroll}
+                    sx={{ 
+                        width: '100%', 
+                        flexGrow: 1, 
+                        overflowY: 'auto',
+                        scrollbarWidth: 'none', // Firefox
+                        '&::-webkit-scrollbar': { display: 'none' }, // Chrome/Safari
+                        px: isMobile ? 0 : 0
+                    }}
+                >
+                    <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
+                        <RailIcon icon={<Groups />} label="People" category="people" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                        <RailIcon icon={<Pets />} label="Pets" category="pets" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                        <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                        <RailIcon icon={<RestaurantMenu />} label="Meals" category="meals" to="meals" location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                        <RailIcon icon={<DirectionsCar />} label="Vehicles" category="vehicles" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                    </List>
+                </Box>
+
+                {canScrollDown && !isMobile && (
+                    <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 20, zIndex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: 'background.surface', opacity: 0.8, pointerEvents: 'none' }}>
+                        <KeyboardArrowDown sx={{ fontSize: '1rem', color: 'primary.plainColor' }} />
+                    </Box>
+                )}
+            </Box>
+
+            {/* Pinned Bottom */}
+            <Box sx={{ width: '100%', p: 0, m: 0, flexShrink: 0 }}>
                 {/* Upper Separator */}
                 <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
                 
                 {/* Utilities Section */}
                 <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0, p: 0, m: 0 }}>
                     {canInstall && (
-                        <RailIcon icon={<Download />} label="Install" onClick={onInstall} />
+                        <RailIcon icon={<Download />} label="Install" onClick={onInstall} location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                     )}
                     {households.length > 1 && (
-                        <RailIcon icon={<SwapHoriz />} label="Switch" category="switch" hasSubItems />
+                        <RailIcon icon={<SwapHoriz />} label="Switch" category="switch" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                     )}
-                    <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems />
+                    <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                 </List>
 
                 {/* Lower Separator */}
@@ -211,7 +266,7 @@ export default function NavSidebar({
                 <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '0px', width: '100%', px: isMobile ? 1 : 0, p: 0, m: 0, pb: 0.5 }}>
                     <RailIcon 
                         icon={<Avatar size="sm" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark), width: 22, height: 22, fontSize: '0.75rem' }}>{user?.avatar || user?.first_name?.[0]}</Avatar>} 
-                        label={user?.first_name || 'Account'} category="account" hasSubItems 
+                        label={user?.first_name || 'Account'} category="account" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile}
                     />
                 </List>
             </Box>
@@ -245,6 +300,7 @@ export default function NavSidebar({
                                     key={hh.id} 
                                     label={hh.name} 
                                     emoji={hh.avatar || '🏠'} 
+                                    isDark={isDark}
                                     onClick={() => { navigate(`/household/${hh.id}`); setActiveCategory(null); if (isMobile && onClose) onClose(); }}
                                     endAction={
                                         hh.role === 'admin' && hh.id !== household?.id ? (
@@ -277,76 +333,61 @@ export default function NavSidebar({
                     {activeCategory === 'people' && (
                         <>
                             <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>MEMBERS</Typography></ListItem>
-                            {members.filter(m => m.type !== 'pet').map(m => <SubItem key={m.id} label={m.name} to={`people/${m.id}`} emoji={m.emoji} />)}
-                            <Divider sx={{ my: 1 }} /><SubItem label="Add New Person" to="people/new" />
+                            {members.filter(m => m.type !== 'pet').map(m => <SubItem key={m.id} label={m.name} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} />)}
+                            <Divider sx={{ my: 1 }} /><SubItem label="Add New Person" to="people/new" isDark={isDark} />
                         </>
                     )}
                     {activeCategory === 'pets' && (
                         <>
                             <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>PETS</Typography></ListItem>
-                            {members.filter(m => m.type === 'pet').map(m => <SubItem key={m.id} label={m.name} to={`pets/${m.id}`} emoji={m.emoji} />)}
-                            <Divider sx={{ my: 1 }} /><SubItem label="Add New Pet" to="pets/new" />
+                            {members.filter(m => m.type === 'pet').map(m => <SubItem key={m.id} label={m.name} to={`pets/${m.id}`} emoji={m.emoji} isDark={isDark} />)}
+                            <Divider sx={{ my: 1 }} /><SubItem label="Add New Pet" to="pets/new" isDark={isDark} />
                         </>
                     )}
                     {activeCategory === 'house' && (
                         <>
                             <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>PROPERTIES</Typography></ListItem>
-                            <SubItem label={household?.name || 'Main House'} to={`house/${household?.id || 1}`} emoji={household?.avatar || '🏠'} />
+                            <SubItem label={household?.name || 'Main House'} to={`house/${household?.id || 1}`} emoji={household?.avatar || '🏠'} isDark={isDark} />
                         </>
                     )}
                     {activeCategory === 'vehicles' && (
                         <>
                             <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>FLEET</Typography></ListItem>
-                            {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`vehicles/${v.id}`} emoji={v.emoji} />)}
-                            <Divider sx={{ my: 1 }} /><SubItem label="Add New Vehicle" to="vehicles/new" />
+                            {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`vehicles/${v.id}`} emoji={v.emoji} isDark={isDark} />)}
+                            <Divider sx={{ my: 1 }} /><SubItem label="Add New Vehicle" to="vehicles/new" isDark={isDark} />
                         </>
                     )}
                     {activeCategory === 'settings' && (
                         <>
-                        <SubItem label="General" to="settings" />
+                        <SubItem label="General Settings" to="settings" isDark={isDark} />
                         
                         <Divider sx={{ my: 1.5 }} />
-                        <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ px: 1 }}>THEME</Typography></ListItem>
+                        <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ px: 1 }}>QUICK THEME</Typography></ListItem>
                         
-                        <ListItem sx={{ px: 1, py: 0.5 }}>
-                            <ButtonGroup variant="soft" size="sm" sx={{ width: '100%', display: 'flex' }}>
-                                <Button 
-                                    flex={1}
-                                    variant={currentMode === 'light' ? 'solid' : 'soft'} 
-                                    onClick={() => onModeChange('light')}
-                                >
-                                    <LightMode fontSize="small" />
-                                </Button>
-                                <Button 
-                                    flex={1}
-                                    variant={currentMode === 'dark' ? 'solid' : 'soft'} 
-                                    onClick={() => onModeChange('dark')}
-                                >
-                                    <DarkMode fontSize="small" />
-                                </Button>
-                                <Button 
-                                    flex={1}
-                                    variant={currentMode === 'system' ? 'solid' : 'soft'} 
-                                    onClick={() => onModeChange('system')}
-                                >
-                                    <SettingsBrightness fontSize="small" />
-                                </Button>
-                            </ButtonGroup>
-                        </ListItem>
-
-                        <ListItem sx={{ px: 1, py: 0.5 }}>
-                            <Sheet variant="outlined" sx={{ borderRadius: 'sm', p: 1, width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <Stack direction="row" spacing={1} alignItems="center">
-                                    <Contrast fontSize="small" color={useDracula ? 'primary' : 'neutral'} />
-                                    <Typography level="body-sm">{useDracula ? 'Dracula' : 'Classic'}</Typography>
-                                </Stack>
-                                <Switch 
-                                    size="sm" 
-                                    checked={useDracula} 
-                                    onChange={(e) => onDraculaChange && onDraculaChange(e.target.checked)} 
-                                />
-                            </Sheet>
-                        </ListItem>
+                        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 1, p: 1, maxHeight: 400, overflowY: 'auto' }}>
+                            {Object.entries(THEMES).map(([id, spec]) => (
+                                <Tooltip key={id} title={spec.name} variant="soft">
+                                    <IconButton
+                                        variant={themeId === id ? 'solid' : 'outlined'}
+                                        color="neutral"
+                                        onClick={() => onThemeChange(id)}
+                                        sx={{ 
+                                            width: 36, height: 36, 
+                                            bgcolor: spec.primary, 
+                                            color: spec.text,
+                                            '&:hover': { bgcolor: spec.primary, opacity: 0.8 },
+                                            border: themeId === id ? '2px solid' : '1px solid',
+                                            borderColor: themeId === id ? 'primary.solidBg' : 'divider',
+                                            position: 'relative',
+                                            overflow: 'hidden',
+                                            borderRadius: 'sm'
+                                        }}
+                                    >
+                                        {themeId === id && <Box sx={{ position: 'absolute', inset: 0, bgcolor: 'rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✓</Box>}
+                                    </IconButton>
+                                </Tooltip>
+                            ))}
+                        </Box>
                         </>
                     )}
                 </List>
