@@ -20,7 +20,7 @@ export default function GeneralDetailView({ title, icon: defaultIcon, endpoint, 
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState(null);
 
-  const isHouseholdAdmin = currentUser?.role === 'admin';
+  const isAdmin = currentUser?.role === 'admin';
 
   const fetchData = useCallback(async () => {
     try {
@@ -62,10 +62,6 @@ export default function GeneralDetailView({ title, icon: defaultIcon, endpoint, 
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}><CircularProgress /></Box>;
 
-  const displayIcon = selectedEmoji ? (
-    <Typography sx={{ fontSize: '1.5rem' }}>{selectedEmoji}</Typography>
-  ) : defaultIcon;
-
   return (
     <Box>
       <Box sx={{ 
@@ -80,7 +76,6 @@ export default function GeneralDetailView({ title, icon: defaultIcon, endpoint, 
             Property specifications and structural details.
           </Typography>
         </Box>
-
       </Box>
 
       <Sheet variant="outlined" sx={{ p: { xs: 2, md: 3 }, borderRadius: 'md' }}>
@@ -95,21 +90,21 @@ export default function GeneralDetailView({ title, icon: defaultIcon, endpoint, 
                             name={field.name} 
                             defaultValue={data[field.name] || ''} 
                             minRows={field.rows} 
-                            disabled={!isHouseholdAdmin || saving}
+                            disabled={!isAdmin || saving}
                         />
                     ) : (
                         <Input
                             name={field.name}
                             type={field.type || 'text'}
                             defaultValue={data[field.name] || ''}
-                            disabled={!isHouseholdAdmin || saving}
+                            disabled={!isAdmin || saving}
                         />
                     )}
                 </FormControl>
               </Grid>
             ))}
             
-            {isHouseholdAdmin && (
+            {isAdmin && (
               <Grid xs={12}>
                 <Divider sx={{ my: 2 }} />
                 <Button 
