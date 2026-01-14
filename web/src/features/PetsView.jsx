@@ -18,7 +18,7 @@ export default function PetsView() {
   const [activeTab, setActiveTab] = useState(0);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   
-  const isHouseholdAdmin = currentUser?.role === 'admin';
+  const isAdmin = currentUser?.role === 'admin';
 
   const selectedPet = useMemo(() => 
     (members || []).find(m => m.id === parseInt(petId) && m.type === 'pet'), 
@@ -100,12 +100,24 @@ export default function PetsView() {
   if (petId !== 'new' && !selectedPet) {
     const pets = (members || []).filter(m => m.type === 'pet');
     return (
-        <Box sx={{ p: 2 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                <Typography level="h2" fontWeight="300">Pets</Typography>
-                {isHouseholdAdmin && (
-                    <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>Add Pet</Button>
-                )}
+        <Box>
+            <Box sx={{ 
+                mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+                flexWrap: 'wrap', gap: 2 
+            }}>
+              <Box>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+                  Pets & Animals
+                </Typography>
+                <Typography level="body-md" color="neutral">
+                  Manage your furry family members and their needs.
+                </Typography>
+              </Box>
+              <Box>
+                  {isAdmin && (
+                      <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>Add Pet</Button>
+                  )}
+              </Box>
             </Box>
             <Grid container spacing={2}>
                 {pets.map(p => (
@@ -135,13 +147,23 @@ export default function PetsView() {
 
   return (
     <Box key={petId}>
-      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography level="h2" fontWeight="300">
-            {petId === 'new' ? 'Add New Pet' : selectedPet.name}
-        </Typography>
-        {petId !== 'new' && isHouseholdAdmin && (
-            <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={handleDelete}>Remove Pet</Button>
-        )}
+      <Box sx={{ 
+          mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+          flexWrap: 'wrap', gap: 2 
+      }}>
+        <Box>
+            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+                {petId === 'new' ? 'Add New Pet' : selectedPet.name}
+            </Typography>
+            <Typography level="body-md" color="neutral">
+                {petId === 'new' ? 'Enter pet details below.' : 'View and manage pet information.'}
+            </Typography>
+        </Box>
+        <Box>
+            {petId !== 'new' && isAdmin && (
+                <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={handleDelete}>Remove Pet</Button>
+            )}
+        </Box>
       </Box>
 
       <Sheet variant="outlined" sx={{ borderRadius: 'md', minHeight: '600px', overflow: 'hidden' }}>
@@ -279,7 +301,7 @@ export default function PetsView() {
                 householdId={householdId} 
                 parentType="pet" 
                 parentId={petId} 
-                isAdmin={isHouseholdAdmin}
+                isAdmin={isAdmin}
                 showNotification={showNotification}
               />
             </Box>

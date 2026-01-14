@@ -1,50 +1,48 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { 
-  Box, Typography, Grid, Sheet, Tabs, TabList, Tab, Input, Button, 
+  Box, Typography, Sheet, Tabs, TabList, Tab, Input, Button, 
   FormControl, FormLabel, Select, Option, Stack, Divider,
-  Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Table, 
-  CircularProgress, Tooltip, IconButton, Chip
+  Tooltip, IconButton, Grid, Avatar, Chip, CircularProgress
 } from '@mui/joy';
 import { 
-  DirectionsCar, History, Receipt, Policy, 
-  Add, Edit, Delete, Tune, Handyman
+  Edit, Delete, Add, Info, Shield, Payments, DirectionsCar
 } from '@mui/icons-material';
 import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
 import EmojiPicker from '../components/EmojiPicker';
+import { getEmojiColor } from '../theme';
 
 export default function VehiclesView() {
-  const { api, id: householdId, user: currentUser, isDark, showNotification, confirmAction, fetchVehicles: refreshVehicles } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, showNotification, confirmAction, fetchVehicles: refreshSidebar } = useOutletContext();
   const { vehicleId } = useParams();
-  
-  console.log("🚗 VehiclesView Rendered. ID:", vehicleId, "Mobile:", window.innerWidth < 900);
-
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState(null);
   
-  // Local list for identification
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // Sub-data state
   const [subData, setSubData] = useState([]);
   const [subLoading, setSubLoading] = useState(false);
-  const [editSub, setEditSub] = useState(null);
+  const [editItem, setEditItem] = useState(null);
 
-  const isHouseholdAdmin = currentUser?.role === 'admin';
+  const isAdmin = currentUser?.role === 'admin';
 
-  const fetchVehicles = useCallback(async () => {
+  const fetchVehiclesList = useCallback(async () => {
     setLoading(true);
     try {
       const res = await api.get(`/households/${householdId}/vehicles`);
       setVehicles(res.data || []);
-    } catch (err) { console.error(err); }
-    finally { setLoading(false); }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }, [api, householdId]);
 
-  const selectedVehicle = useMemo(() => vehicles.find(v => v.id === parseInt(vehicleId)), [vehicles, vehicleId]);
+  const selectedVehicle = useMemo(() => 
+    vehicles.find(v => v.id === parseInt(vehicleId)), 
+  [vehicles, vehicleId]);
 
   useMemo(() => {
     if (selectedVehicle) setSelectedEmoji(selectedVehicle.emoji || '🚗');
@@ -53,22 +51,27 @@ export default function VehiclesView() {
 
   const fetchSubData = useCallback(async () => {
     if (vehicleId === 'new' || !selectedVehicle) return;
-    const subViews = ['fleet', 'services', 'finance', 'insurance', 'service_plans'];
-    const subView = subViews[activeTab];
-    if (!subView || subView === 'fleet') return;
+    
+    const endpoints = ['fleet', 'services', 'finance', 'insurance', 'service_plans'];
+    const endpoint = endpoints[activeTab];
+    
+    if (!endpoint || endpoint === 'fleet') return;
 
     setSubLoading(true);
     try {
-      const res = await api.get(`/households/${householdId}/vehicles/${vehicleId}/${subView}`);
+      const res = await api.get(`/households/${householdId}/vehicles/${vehicleId}/${endpoint}`);
       setSubData(res.data || []);
-    } catch (err) { console.error(err); }
-    finally { setSubLoading(false); }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubLoading(false);
+    }
   }, [api, householdId, vehicleId, activeTab, selectedVehicle]);
 
-  useEffect(() => { fetchVehicles(); }, [fetchVehicles]);
+  useEffect(() => { fetchVehiclesList(); }, [fetchVehiclesList]);
   useEffect(() => { fetchSubData(); }, [fetchSubData]);
 
-  const handleVehicleSubmit = async (e) => {
+  const handleSubmitVehicle = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
@@ -78,32 +81,40 @@ export default function VehiclesView() {
       if (vehicleId === 'new') {
         const res = await api.post(`/households/${householdId}/vehicles`, data);
         showNotification("Vehicle added.", "success");
-        refreshVehicles();
+        refreshSidebar();
         navigate(`../${res.data.id}`);
       } else {
         await api.put(`/households/${householdId}/vehicles/${vehicleId}`, data);
         showNotification("Vehicle updated.", "success");
-        fetchVehicles();
-        refreshVehicles();
+        fetchVehiclesList();
+        refreshSidebar();
       }
-    } catch (err) { showNotification("Error saving vehicle.", "danger"); }
+    } catch (err) {
+      showNotification("Error saving vehicle.", "danger");
+    }
   };
 
-  const handleSubSubmit = async (e) => {
+  const handleSubmitSubEntry = async (e) => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(e.currentTarget));
-    const subViews = ['fleet', 'services', 'finance', 'insurance', 'service_plans'];
-    const subView = subViews[activeTab];
+    const endpoints = ['', 'services', 'finance', 'insurance', 'service_plans'];
+    const endpoint = endpoints[activeTab];
+
     try {
-        if (editSub.id) await api.put(`/households/${householdId}/vehicles/${vehicleId}/${subView}/${editSub.id}`, data);
-        else await api.post(`/households/${householdId}/vehicles/${vehicleId}/${subView}`, data);
-        showNotification("Entry saved.", "success");
-        fetchSubData();
-        setEditSub(null);
-    } catch (err) { showNotification("Error saving entry.", "danger"); }
+      if (editItem.id) {
+        await api.put(`/households/${householdId}/vehicles/${vehicleId}/${endpoint}/${editItem.id}`, data);
+      } else {
+        await api.post(`/households/${householdId}/vehicles/${vehicleId}/${endpoint}`, data);
+      }
+      showNotification("Entry saved.", "success");
+      fetchSubData();
+      setEditItem(null);
+    } catch (err) {
+      showNotification("Error saving entry.", "danger");
+    }
   };
 
-  const handleDelete = () => {
+  const handleDeleteVehicle = () => {
     confirmAction(
         "Remove Vehicle",
         `Permanently remove ${selectedVehicle.make} ${selectedVehicle.model} from the fleet? All history and financial data will be lost.`,
@@ -111,7 +122,7 @@ export default function VehiclesView() {
             try {
                 await api.delete(`/households/${householdId}/vehicles/${vehicleId}`);
                 showNotification("Vehicle removed.", "neutral");
-                refreshVehicles();
+                refreshSidebar();
                 navigate('..');
             } catch (err) {
                 showNotification("Failed to delete.", "danger");
@@ -121,9 +132,10 @@ export default function VehiclesView() {
   };
 
   if (loading && vehicles.length === 0) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
+
   if (vehicleId !== 'new' && !selectedVehicle) {
     return (
-        <Box sx={{ p: 2 }}>
+        <Box>
             <Box sx={{ 
                 mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
                 flexWrap: 'wrap', gap: 2 
@@ -137,7 +149,7 @@ export default function VehiclesView() {
                 </Typography>
               </Box>
               <Box>
-                  {isHouseholdAdmin && (
+                  {isAdmin && (
                       <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>Add Vehicle</Button>
                   )}
               </Box>
@@ -149,8 +161,7 @@ export default function VehiclesView() {
                             variant="outlined" 
                             sx={{ 
                                 p: 2, borderRadius: 'md', display: 'flex', alignItems: 'center', gap: 2,
-                                cursor: 'pointer',
-                                transition: 'background-color 0.2s',
+                                cursor: 'pointer', transition: 'background-color 0.2s',
                                 '&:hover': { bgcolor: 'background.level1' }
                             }}
                             onClick={() => navigate(String(v.id))}
@@ -169,7 +180,7 @@ export default function VehiclesView() {
   }
 
   return (
-    <Box>
+    <Box key={vehicleId}>
       <Box sx={{ 
           mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
           flexWrap: 'wrap', gap: 2 
@@ -183,19 +194,15 @@ export default function VehiclesView() {
             </Typography>
         </Box>
         <Box>
-            {vehicleId !== 'new' && isHouseholdAdmin && (
-                <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={handleDelete}>Remove Vehicle</Button>
+            {vehicleId !== 'new' && isAdmin && (
+                <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={handleDeleteVehicle}>Remove Vehicle</Button>
             )}
         </Box>
       </Box>
 
       <Sheet variant="outlined" sx={{ borderRadius: 'md', minHeight: '600px', overflow: 'hidden' }}>
         {vehicleId !== 'new' && (
-            <Tabs 
-                value={activeTab} 
-                onChange={(e, v) => setActiveTab(v)} 
-                sx={{ bgcolor: 'transparent' }}
-            >
+            <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} sx={{ bgcolor: 'transparent' }}>
                 <TabList 
                     variant="plain" 
                     sx={{ 
@@ -205,19 +212,19 @@ export default function VehiclesView() {
                         whiteSpace: 'nowrap'
                     }}
                 >
-                  <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><DirectionsCar sx={{ mr: 1 }}/> Identity</Tab>
-                  <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><History sx={{ mr: 1 }}/> Service History</Tab>
-                  <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Receipt sx={{ mr: 1 }}/> Finance</Tab>
-                  <Tab variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Policy sx={{ mr: 1 }}/> Insurance</Tab>
-                  <Tab variant={activeTab === 4 ? 'solid' : 'plain'} color={activeTab === 4 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Handyman sx={{ mr: 1 }}/> Service Plans</Tab>
-                  <Tab variant={activeTab === 5 ? 'solid' : 'plain'} color={activeTab === 5 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Tune sx={{ mr: 1 }}/> Misc Costs</Tab>
+                    <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Info sx={{ mr: 1 }}/> Identity</Tab>
+                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Info sx={{ mr: 1 }}/> Service History</Tab>
+                    <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Finance</Tab>
+                    <Tab variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Shield sx={{ mr: 1 }}/> Insurance</Tab>
+                    <Tab variant={activeTab === 4 ? 'solid' : 'plain'} color={activeTab === 4 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Info sx={{ mr: 1 }}/> Service Plans</Tab>
+                    <Tab variant={activeTab === 5 ? 'solid' : 'plain'} color={activeTab === 5 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Misc Costs</Tab>
                 </TabList>
             </Tabs>
         )}
 
         <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
           {(activeTab === 0 || vehicleId === 'new') && (
-            <form onSubmit={handleVehicleSubmit}>
+            <form onSubmit={handleSubmitVehicle}>
               <Grid container spacing={3}>
                 <Grid xs={12} md={2}>
                     <Tooltip title="Pick an emoji" variant="soft">
@@ -276,7 +283,6 @@ export default function VehiclesView() {
                                 <Input name="depreciation_rate" type="number" defaultValue={selectedVehicle?.depreciation_rate} />
                             </FormControl>
                         </Grid>
-
                         <Grid xs={12}><Divider>Maintenance Schedule</Divider></Grid>
                         <Grid xs={12} md={4}>
                             <FormControl>
@@ -294,9 +300,9 @@ export default function VehiclesView() {
                 )}
                 
                 <Grid xs={12}>
-                    <Button type="submit" variant="solid" size="lg">
-                        {vehicleId === 'new' ? 'Create Vehicle' : 'Update Details'}
-                    </Button>
+                  <Button type="submit" variant="solid" size="lg">
+                    {vehicleId === 'new' ? 'Create Vehicle' : 'Update Details'}
+                  </Button>
                 </Grid>
               </Grid>
             </form>
@@ -304,107 +310,112 @@ export default function VehiclesView() {
 
           {activeTab > 0 && activeTab < 5 && vehicleId !== 'new' && (
             <Box>
-                <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography level="h4">
-                        {activeTab === 1 ? 'Service History' : activeTab === 2 ? 'Finance Agreements' : activeTab === 3 ? 'Insurance Policies' : 'Service Plans'}
-                    </Typography>
-                    {isHouseholdAdmin && <Button size="sm" variant="outlined" startDecorator={<Add />} onClick={() => setEditSub({})}>Add Entry</Button>}
-                </Box>
-                {subLoading ? <CircularProgress /> : (
-                    <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto' }}>
-                        <Table hoverRow>
-                            <thead>
-                                <tr>
-                                    <th>Date / Provider</th>
-                                    <th>Details</th>
-                                    <th style={{ textAlign: 'right' }}>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {subData.map(row => (
-                                    <tr key={row.id}>
-                                        <td>
-                                            <Typography level="body-sm" fontWeight="bold">{row.date || row.start_date || row.provider}</Typography>
-                                            <Typography level="body-xs" color="neutral">{row.provider}</Typography>
-                                        </td>
-                                        <td>
-                                            <Typography level="body-sm">{row.description || row.policy_number || row.details}</Typography>
-                                            {row.cost && <Typography level="body-xs">Cost: £{row.cost}</Typography>}
-                                            {row.monthly_payment && <Typography level="body-xs">Monthly: £{row.monthly_payment}</Typography>}
-                                            {row.expiry_date && <Chip size="sm" sx={{ ml: 1 }}>Expires: {row.expiry_date}</Chip>}
-                                        </td>
-                                        <td style={{ textAlign: 'right' }}>
-                                            <IconButton size="sm" variant="plain" onClick={() => setEditSub(row)}><Edit /></IconButton>
-                                            <IconButton size="sm" variant="plain" color="danger" onClick={() => api.delete(`/households/${householdId}/vehicles/${vehicleId}/${['fleet','services','finance','insurance','service_plans'][activeTab]}/${row.id}`).then(fetchSubData)}><Delete /></IconButton>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
-                    </Sheet>
+              <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between' }}>
+                <Typography level="h4">
+                    {activeTab === 1 ? 'Service History' : activeTab === 2 ? 'Finance Agreements' : activeTab === 3 ? 'Insurance Policies' : 'Service Plans'}
+                </Typography>
+                {isAdmin && (
+                    <Button size="sm" variant="outlined" startDecorator={<Add />} onClick={() => setEditItem({})}>Add Entry</Button>
                 )}
+              </Box>
+              
+              {subLoading ? <CircularProgress /> : (
+                <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto' }}>
+                    <Table hoverRow>
+                        <thead>
+                            <tr>
+                                <th>Date / Provider</th>
+                                <th>Details</th>
+                                {isAdmin && <th style={{ textAlign: 'right' }}>Actions</th>}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {subData.map(item => (
+                                <tr key={item.id}>
+                                    <td>
+                                        <Typography level="body-sm" fontWeight="bold">{item.date || item.start_date || item.provider}</Typography>
+                                        <Typography level="body-xs" color="neutral">{item.provider}</Typography>
+                                    </td>
+                                    <td>
+                                        <Typography level="body-sm">{item.description || item.policy_number || item.details}</Typography>
+                                        {item.cost && <Typography level="body-xs">Cost: £{item.cost}</Typography>}
+                                        {item.monthly_payment && <Typography level="body-xs">Monthly: £{item.monthly_payment}</Typography>}
+                                        {item.expiry_date && <Chip size="sm" sx={{ ml: 1 }}>Expires: {item.expiry_date}</Chip>}
+                                    </td>
+                                    {isAdmin && (
+                                        <td style={{ textAlign: 'right' }}>
+                                            <IconButton size="sm" variant="plain" onClick={() => setEditItem(item)}><Edit /></IconButton>
+                                            <IconButton size="sm" variant="plain" color="danger" onClick={() => api.delete(`/households/${householdId}/vehicles/${vehicleId}/${['fleet', 'services', 'finance', 'insurance', 'service_plans'][activeTab]}/${item.id}`).then(fetchSubData)}><Delete /></IconButton>
+                                        </td>
+                                    )}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                </Sheet>
+              )}
             </Box>
           )}
 
           {activeTab === 5 && vehicleId !== 'new' && (
-            <RecurringCostsWidget 
+            <Box>
+              <Typography level="title-lg" mb={2}>Vehicle-Specific Recurring Costs</Typography>
+              <RecurringCostsWidget 
                 api={api} 
                 householdId={householdId} 
                 parentType="vehicle" 
                 parentId={vehicleId} 
-                isAdmin={isHouseholdAdmin}
+                isAdmin={isAdmin}
                 showNotification={showNotification}
-            />
+              />
+            </Box>
           )}
         </Box>
       </Sheet>
 
-      <Modal open={Boolean(editSub)} onClose={() => setEditSub(null)}>
+      <Modal open={!!editItem} onClose={() => setEditItem(null)}>
         <ModalDialog>
-            <DialogTitle>Add {['','Service','Finance','Insurance','Service Plan'][activeTab]} Entry</DialogTitle>
-            <DialogContent>
-                <form onSubmit={handleSubSubmit}>
-                    <Stack spacing={2} sx={{ mt: 1 }}>
-                        <FormControl required>
-                            <FormLabel>Provider / Garage</FormLabel>
-                            <Input name="provider" defaultValue={editSub?.provider} />
-                        </FormControl>
-                        {(activeTab === 1 || activeTab === 2 || activeTab === 3) && (
-                            <FormControl>
-                                <FormLabel>Date</FormLabel>
-                                <Input name="date" type="date" defaultValue={editSub?.date || editSub?.start_date} />
-                            </FormControl>
-                        )}
-                        {(activeTab === 3 || activeTab === 4) && (
-                            <FormControl>
-                                <FormLabel>Expiry Date</FormLabel>
-                                <Input name="expiry_date" type="date" defaultValue={editSub?.expiry_date} />
-                            </FormControl>
-                        )}
-                        {activeTab === 1 && (
-                            <FormControl>
-                                <FormLabel>Cost (£)</FormLabel>
-                                <Input name="cost" type="number" defaultValue={editSub?.cost} />
-                            </FormControl>
-                        )}
-                        {activeTab === 2 && (
-                            <FormControl>
-                                <FormLabel>Monthly Payment (£)</FormLabel>
-                                <Input name="monthly_payment" type="number" defaultValue={editSub?.monthly_payment} />
-                            </FormControl>
-                        )}
+            <DialogTitle>{editItem?.id ? 'Edit Entry' : 'Add Entry'}</DialogTitle>
+            <form onSubmit={handleSubmitSubEntry}>
+                <Stack spacing={2} sx={{ mt: 1 }}>
+                    <FormControl required>
+                        <FormLabel>Provider / Garage</FormLabel>
+                        <Input name="provider" defaultValue={editItem?.provider} />
+                    </FormControl>
+                    {(activeTab === 1 || activeTab === 2 || activeTab === 3) && (
                         <FormControl>
-                            <FormLabel>Details / Policy #</FormLabel>
-                            <Input name="description" defaultValue={editSub?.description || editSub?.policy_number || editSub?.details} />
+                            <FormLabel>Date</FormLabel>
+                            <Input name="date" type="date" defaultValue={editItem?.date || editItem?.start_date} />
                         </FormControl>
-                        
-                        <DialogActions>
-                            <Button variant="plain" color="neutral" onClick={() => setEditSub(null)}>Cancel</Button>
-                            <Button type="submit" variant="solid">Save Entry</Button>
-                        </DialogActions>
-                    </Stack>
-                </form>
-            </DialogContent>
+                    )}
+                    {(activeTab === 3 || activeTab === 4) && (
+                        <FormControl>
+                            <FormLabel>Expiry Date</FormLabel>
+                            <Input name="expiry_date" type="date" defaultValue={editItem?.expiry_date} />
+                        </FormControl>
+                    )}
+                    {activeTab === 1 && (
+                        <FormControl>
+                            <FormLabel>Cost (£)</FormLabel>
+                            <Input name="cost" type="number" defaultValue={editItem?.cost} />
+                        </FormControl>
+                    )}
+                    {activeTab === 2 && (
+                        <FormControl>
+                            <FormLabel>Monthly Payment (£)</FormLabel>
+                            <Input name="monthly_payment" type="number" defaultValue={editItem?.monthly_payment} />
+                        </FormControl>
+                    )}
+                    <FormControl>
+                        <FormLabel>Details / Policy #</FormLabel>
+                        <Input name="description" defaultValue={editItem?.description || editItem?.policy_number || editItem?.details} />
+                    </FormControl>
+                    <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', pt: 2 }}>
+                        <Button variant="plain" color="neutral" onClick={() => setEditItem(null)}>Cancel</Button>
+                        <Button type="submit" variant="solid">Save Entry</Button>
+                    </Box>
+                </Stack>
+            </form>
         </ModalDialog>
       </Modal>
 

@@ -117,7 +117,10 @@ export default function HouseView() {
             {activeTab === 0 && (
                 loadingHh ? <CircularProgress /> : (
                 <Box>
-                    <Typography level="h4" mb={4} fontWeight="300">Household Identity & Location</Typography>
+                    <Box sx={{ mb: 4 }}>
+                        <Typography level="h3" sx={{ fontWeight: 'lg', mb: 0.5 }}>Household Identity & Location</Typography>
+                        <Typography level="body-sm" color="neutral">Configure your home's core details and shared access.</Typography>
+                    </Box>
                     <form onSubmit={handleUpdateIdentity}>
                     <Grid container spacing={3}>
                         <Grid xs={12} md={2}>

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Box, IconButton, Drawer, Typography, Sheet, Stack, Badge, Avatar } from '@mui/joy';
 import { 
@@ -74,6 +74,21 @@ export default function HouseholdLayout({
 
   const isTabActive = (path) => location.pathname.includes(path);
 
+  // Dynamic Title Logic
+  const pageTitle = useMemo(() => {
+    const path = location.pathname;
+    if (path.includes('/dashboard')) return 'Dashboard';
+    if (path.includes('/calendar')) return 'Calendar';
+    if (path.includes('/people')) return 'People';
+    if (path.includes('/pets')) return 'Pets';
+    if (path.includes('/house')) return 'House Registry';
+    if (path.includes('/vehicles')) return 'Fleet';
+    if (path.includes('/meals')) return 'Meal Planner';
+    if (path.includes('/settings')) return 'Settings';
+    if (path.includes('/profile')) return 'Profile';
+    return activeHousehold?.name || 'TOTEM';
+  }, [location.pathname, activeHousehold]);
+
   return (
     <Box sx={{ 
         display: 'flex', 
@@ -107,7 +122,7 @@ export default function HouseholdLayout({
       {/* Main Content Area */}
       <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0, height: '100%', position: 'relative' }}>
         
-        {/* Mobile Header (Minimal) */}
+        {/* Mobile Header (Dynamic) */}
         <Sheet
           sx={{
             display: { xs: 'flex', md: 'none' },
@@ -117,11 +132,12 @@ export default function HouseholdLayout({
             borderBottom: '1px solid',
             borderColor: 'divider',
             bgcolor: 'background.surface',
-            zIndex: 100
+            zIndex: 100,
+            boxShadow: 'sm'
           }}
         >
-          <Typography level="title-md" sx={{ fontWeight: 'bold', letterSpacing: '1px' }}>
-            {activeHousehold?.name || 'TOTEM'}
+          <Typography level="title-md" sx={{ fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>
+            {pageTitle}
           </Typography>
         </Sheet>
 
@@ -238,7 +254,7 @@ export default function HouseholdLayout({
                         <MenuTile icon={<PetsIcon />} label="Pets" to="pets" onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<RestaurantMenu />} label="Meals" to="meals" onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<VehicleIcon />} label="Vehicles" to="vehicles" onClick={() => setDrawerOpen(false)} />
-                        <MenuTile icon={<HouseIcon />} label="House" to={`house/${activeHousehold?.id}`} onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<HouseIcon />} label="House" to={`house/${id}`} onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<SettingsIcon />} label="Settings" to="settings" onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<ProfileIcon />} label="Profile" to="profile" onClick={() => setDrawerOpen(false)} />
                         {households.length > 1 && (

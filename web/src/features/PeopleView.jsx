@@ -18,7 +18,7 @@ export default function PeopleView() {
   const [activeTab, setActiveTab] = useState(0);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   
-  const isHouseholdAdmin = currentUser?.role === 'admin';
+  const isAdmin = currentUser?.role === 'admin';
 
   const selectedPerson = useMemo(() => 
     (members || []).find(m => m.id === parseInt(personId)), 
@@ -62,10 +62,9 @@ export default function PeopleView() {
     e.preventDefault();
     try {
       if (personId === 'new') {
-        const res = await api.post(`/households/${householdId}/members`, formData);
+        const res = await api.post(`/households/${householdId}/members`, y);
         showNotification("Person added.", "success");
-        fetchHhMembers(householdId);
-        navigate(`../${res.data.id}`);
+        r(t), d(`../${res.data.id}`);
       } else {
         await api.put(`/households/${householdId}/members/${personId}`, formData);
         showNotification("Details updated.", "success");
@@ -96,7 +95,7 @@ export default function PeopleView() {
   if (personId !== 'new' && !selectedPerson) {
     const people = (members || []).filter(m => m.type !== 'pet');
     return (
-        <Box sx={{ p: 2 }}>
+        <Box>
             <Box sx={{ 
                 mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
                 flexWrap: 'wrap', gap: 2 
@@ -110,7 +109,7 @@ export default function PeopleView() {
                 </Typography>
               </Box>
               <Box>
-                  {isHouseholdAdmin && (
+                  {isAdmin && (
                       <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>Add Person</Button>
                   )}
               </Box>
@@ -156,7 +155,7 @@ export default function PeopleView() {
             </Typography>
         </Box>
         <Box>
-            {personId !== 'new' && isHouseholdAdmin && (
+            {personId !== 'new' && isAdmin && (
                 <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={handleDelete}>Remove Person</Button>
             )}
         </Box>
@@ -288,7 +287,7 @@ export default function PeopleView() {
                 householdId={householdId} 
                 parentType="person" 
                 parentId={personId} 
-                isAdmin={isHouseholdAdmin}
+                isAdmin={isAdmin}
                 showNotification={showNotification}
               />
             </Box>
