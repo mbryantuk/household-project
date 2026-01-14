@@ -117,7 +117,7 @@ export default function AssetsView() {
             flexWrap: 'wrap', gap: 2 
         }}>
           <Box>
-            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
+            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
               Appliance & Asset Register
             </Typography>
             <Typography level="body-md" color="neutral">

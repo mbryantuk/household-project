@@ -4,7 +4,7 @@ import {
   Box, Typography, Sheet, Grid, Input, Button, CircularProgress, 
   Divider, Tooltip, IconButton, FormControl, FormLabel, Textarea
 } from '@mui/joy';
-import { Save, Info } from '@mui/icons-material';
+import { Save } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
 import { getEmojiColor } from '../theme';
 
@@ -65,11 +65,11 @@ export default function GeneralDetailView({ title, icon: defaultIcon, endpoint, 
   return (
     <Box>
       <Box sx={{ mb: 4 }}>
-        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
           {title}
         </Typography>
         <Typography level="body-md" color="neutral">
-          View and manage the specific details for this section.
+          View and manage the structural and specific details for this section.
         </Typography>
       </Box>
 

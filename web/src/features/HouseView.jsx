@@ -73,18 +73,13 @@ export default function HouseView() {
 
   return (
     <Box sx={{ pb: 10 }}>
-      <Box sx={{ 
-          mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-          flexWrap: 'wrap', gap: 2 
-      }}>
-        <Box>
-            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
-                House Registry
-            </Typography>
-            <Typography level="body-md" color="neutral">
-                Manage your home's identity, utilities, and structure.
-            </Typography>
-        </Box>
+      <Box sx={{ mb: 4 }}>
+        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
+            House Registry
+        </Typography>
+        <Typography level="body-md" color="neutral">
+            Manage your home's identity, utilities, and structure.
+        </Typography>
       </Box>
       
       <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'hidden', minHeight: 400 }}>
@@ -118,7 +113,7 @@ export default function HouseView() {
                 loadingHh ? <CircularProgress /> : (
                 <Box>
                     <Box sx={{ mb: 4 }}>
-                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
                             Household Identity & Location
                         </Typography>
                         <Typography level="body-md" color="neutral">Configure your home's core details and shared access.</Typography>
@@ -215,15 +210,46 @@ export default function HouseView() {
             )}
             
             {activeTab === 2 && <EnergyView />}
-            {activeTab === 3 && <WaterView />}
+            {activeTab === 3 && (
+                <GeneralDetailView 
+                    title="Water Supply" 
+                    icon={<WaterDrop />} 
+                    endpoint="water" 
+                    fields={[
+                        { name: 'provider', label: 'Water Provider', half: true },
+                        { name: 'account_number', label: 'Account Number', half: true },
+                        { name: 'supply_type', label: 'Supply Type (e.g. Metered)', half: true },
+                        { name: 'meter_serial', label: 'Meter Serial Number', half: true },
+                        { name: 'waste_provider', label: 'Waste Water Provider', half: true },
+                        { name: 'waste_account_number', label: 'Waste Account Number', half: true },
+                        { name: 'color', label: 'Display Color (Hex)', half: true },
+                        { name: 'notes', label: 'Notes', multiline: true, rows: 3 }
+                    ]} 
+                />
+            )}
             {activeTab === 4 && <WasteView />}
             {activeTab === 5 && <AssetsView />}
-            {activeTab === 6 && <CouncilView />}
+            {activeTab === 6 && (
+                <GeneralDetailView 
+                    title="Council Tax" 
+                    icon={<AccountBalance />} 
+                    endpoint="council" 
+                    fields={[
+                        { name: 'authority_name', label: 'Local Authority Name', half: true },
+                        { name: 'account_number', label: 'Account Number', half: true },
+                        { name: 'payment_method', label: 'Payment Method', half: true },
+                        { name: 'monthly_amount', label: 'Monthly Amount', type: 'number', half: true },
+                        { name: 'payment_day', label: 'Payment Day of Month', type: 'number', half: true },
+                        { name: 'color', label: 'Display Color (Hex)', half: true },
+                        { name: 'notes', label: 'Notes', multiline: true, rows: 3 }
+                    ]} 
+                />
+            )}
             
             {activeTab === 7 && (
                 <Box>
                     <Box sx={{ mb: 4 }}>
-                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
                             Miscellaneous Costs
                         </Typography>
                         <Typography level="body-md" color="neutral">Track extra expenses not covered in other categories.</Typography>
