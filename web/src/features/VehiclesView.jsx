@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, Input, Button, 
   FormControl, FormLabel, Select, Option, Stack, Divider,
-  Tooltip, IconButton, Grid, Avatar, Chip, CircularProgress
+  Tooltip, IconButton, Grid, Avatar, Chip, CircularProgress, Table
 } from '@mui/joy';
 import { 
   Edit, Delete, Add, Info, Shield, Payments, DirectionsCar
@@ -44,7 +44,7 @@ export default function VehiclesView() {
     vehicles.find(v => v.id === parseInt(vehicleId)), 
   [vehicles, vehicleId]);
 
-  useMemo(() => {
+  useEffect(() => {
     if (selectedVehicle) setSelectedEmoji(selectedVehicle.emoji || '🚗');
     else if (vehicleId === 'new') setSelectedEmoji('🚗');
   }, [selectedVehicle, vehicleId]);
@@ -168,7 +168,7 @@ export default function VehiclesView() {
                         >
                             <Box sx={{ fontSize: '2.5rem' }}>{v.emoji || '🚗'}</Box>
                             <Box>
-                                <Typography level="title-md">{v.make} {v.model}</Typography>
+                                <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{v.make} {v.model}</Typography>
                                 <Typography level="body-sm" color="neutral">{v.registration}</Typography>
                             </Box>
                         </Sheet>
@@ -310,8 +310,8 @@ export default function VehiclesView() {
 
           {activeTab > 0 && activeTab < 5 && vehicleId !== 'new' && (
             <Box>
-              <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between' }}>
-                <Typography level="h4">
+              <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography level="h3" sx={{ fontWeight: 'lg' }}>
                     {activeTab === 1 ? 'Service History' : activeTab === 2 ? 'Finance Agreements' : activeTab === 3 ? 'Insurance Policies' : 'Service Plans'}
                 </Typography>
                 {isAdmin && (
@@ -359,7 +359,7 @@ export default function VehiclesView() {
 
           {activeTab === 5 && vehicleId !== 'new' && (
             <Box>
-              <Typography level="title-lg" mb={2}>Vehicle-Specific Recurring Costs</Typography>
+              <Typography level="h3" sx={{ fontWeight: 'lg', mb: 2 }}>Vehicle-Specific Recurring Costs</Typography>
               <RecurringCostsWidget 
                 api={api} 
                 householdId={householdId} 

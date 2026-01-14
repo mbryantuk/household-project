@@ -3,7 +3,7 @@ import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, Input, Button, 
   FormControl, FormLabel, Select, Option, Stack, Divider,
-  Tooltip, IconButton, Grid
+  Tooltip, IconButton, Grid, Avatar
 } from '@mui/joy';
 import { 
   Shield, Gavel, Delete, ContactPage, Payments, Add
@@ -62,9 +62,10 @@ export default function PeopleView() {
     e.preventDefault();
     try {
       if (personId === 'new') {
-        const res = await api.post(`/households/${householdId}/members`, y);
+        const res = await api.post(`/households/${householdId}/members`, formData);
         showNotification("Person added.", "success");
-        r(t), d(`../${res.data.id}`);
+        fetchHhMembers(householdId);
+        navigate(`../${res.data.id}`);
       } else {
         await api.put(`/households/${householdId}/members/${personId}`, formData);
         showNotification("Details updated.", "success");
@@ -129,7 +130,7 @@ export default function PeopleView() {
                         >
                             <Box sx={{ fontSize: '2.5rem' }}>{p.emoji || '👨'}</Box>
                             <Box>
-                                <Typography level="title-md">{p.name}</Typography>
+                                <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{p.name}</Typography>
                                 <Typography level="body-sm" color="neutral">{p.role || p.type}</Typography>
                             </Box>
                         </Sheet>
@@ -241,7 +242,7 @@ export default function PeopleView() {
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>
                 <Grid xs={12}>
-                  <Typography level="title-lg">Life Insurance</Typography>
+                  <Typography level="h3" sx={{ fontWeight: 'lg' }}>Life Insurance</Typography>
                 </Grid>
                 <Grid xs={12} md={6}>
                     <FormControl>
@@ -264,7 +265,7 @@ export default function PeopleView() {
                 
                 <Grid xs={12}>
                   <Divider sx={{ my: 2 }} />
-                  <Typography level="title-lg" startDecorator={<Gavel />}>
+                  <Typography level="h3" sx={{ fontWeight: 'lg' }} startDecorator={<Gavel />}>
                       Wills & Estate
                   </Typography>
                   <FormControl sx={{ mt: 2 }}>
@@ -281,7 +282,7 @@ export default function PeopleView() {
 
           {activeTab === 2 && personId !== 'new' && (
             <Box>
-              <Typography level="title-lg" mb={2}>Recurring Miscellaneous Costs</Typography>
+              <Typography level="h3" sx={{ fontWeight: 'lg', mb: 2 }}>Recurring Miscellaneous Costs</Typography>
               <RecurringCostsWidget 
                 api={api} 
                 householdId={householdId} 

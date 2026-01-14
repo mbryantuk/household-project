@@ -3,7 +3,8 @@ import { useOutletContext, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, Button, Input, 
   FormControl, FormLabel, Stack, Grid, Avatar, IconButton, 
-  Divider, ButtonGroup, Switch, CircularProgress, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions
+  Divider, ButtonGroup, Switch, CircularProgress, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions,
+  Select, Option
 } from '@mui/joy';
 import { 
   Settings, Save, PersonAdd, Edit, Delete, LightMode, DarkMode, 
@@ -110,7 +111,7 @@ export default function SettingsView({
             {activeTab === 0 && (
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                    <Typography level="title-lg">Member Permissions</Typography>
+                    <Typography level="h3" sx={{ fontWeight: 'lg' }}>Member Permissions</Typography>
                     {isAdmin && <Button variant="solid" color="primary" startDecorator={<PersonAdd />} onClick={openAddUser}>Invite User</Button>}
                 </Box>
                 
@@ -120,7 +121,7 @@ export default function SettingsView({
                             <Stack direction="row" spacing={2} alignItems="center">
                                 <Avatar sx={{ bgcolor: getEmojiColor(u.avatar || u.first_name?.[0], false) }}>{u.avatar || u.first_name?.[0]}</Avatar>
                                 <Box>
-                                    <Typography level="title-sm">{u.first_name} {u.last_name} {u.id === currentUser.id && '(You)'}</Typography>
+                                    <Typography level="title-sm" sx={{ fontWeight: 'lg' }}>{u.first_name} {u.last_name} {u.id === currentUser.id && '(You)'}</Typography>
                                     <Typography level="body-xs" color="neutral">{u.email} • {u.role}</Typography>
                                 </Box>
                             </Stack>
@@ -137,7 +138,7 @@ export default function SettingsView({
 
             {activeTab === 1 && (
                 <Box>
-                    <Typography level="title-lg" mb={1}>Household Context Roles</Typography>
+                    <Typography level="h3" sx={{ fontWeight: 'lg', mb: 1 }}>Household Context Roles</Typography>
                     <Typography level="body-sm" color="neutral" mb={3}>Assign specific roles to define what each member can edit within this household.</Typography>
                     <Sheet variant="soft" color="warning" sx={{ p: 2, borderRadius: 'md' }}>
                         <Typography level="body-sm" fontWeight="bold">Developer Note:</Typography>
@@ -148,7 +149,7 @@ export default function SettingsView({
 
             {activeTab === 2 && (
                 <Box sx={{ maxWidth: 400 }}>
-                    <Typography level="title-lg" mb={3}>Display Preferences</Typography>
+                    <Typography level="h3" sx={{ fontWeight: 'lg', mb: 3 }}>Display Preferences</Typography>
                     <Stack spacing={3}>
                         <FormControl>
                             <FormLabel>Color Mode</FormLabel>
