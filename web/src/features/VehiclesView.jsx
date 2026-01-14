@@ -141,7 +141,7 @@ export default function VehiclesView() {
                 flexWrap: 'wrap', gap: 2 
             }}>
               <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
                   Fleet Management
                 </Typography>
                 <Typography level="body-md" color="neutral">
@@ -186,7 +186,7 @@ export default function VehiclesView() {
           flexWrap: 'wrap', gap: 2 
       }}>
         <Box>
-            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
                 {vehicleId === 'new' ? 'Add New Vehicle' : `${selectedVehicle.make} ${selectedVehicle.model}`}
             </Typography>
             <Typography level="body-md" color="neutral">
@@ -226,7 +226,7 @@ export default function VehiclesView() {
           {(activeTab === 0 || vehicleId === 'new') && (
             <Box>
                 <Box sx={{ mb: 4 }}>
-                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
+                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
                         Vehicle Identity
                     </Typography>
                     <Typography level="body-md" color="neutral">Primary identification and valuation data.</Typography>
@@ -320,7 +320,7 @@ export default function VehiclesView() {
             <Box>
               <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Box>
-                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
+                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
                         {activeTab === 1 ? 'Service History' : activeTab === 2 ? 'Finance Agreements' : activeTab === 3 ? 'Insurance Policies' : 'Service Plans'}
                     </Typography>
                     <Typography level="body-md" color="neutral">Historical and active records for this vehicle.</Typography>
@@ -371,7 +371,7 @@ export default function VehiclesView() {
           {activeTab === 5 && vehicleId !== 'new' && (
             <Box>
               <Box sx={{ mb: 4 }}>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>Vehicle-Specific Recurring Costs</Typography>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Vehicle-Specific Recurring Costs</Typography>
                 <Typography level="body-md" color="neutral">Ongoing costs tied specifically to this fleet asset.</Typography>
               </Box>
               <RecurringCostsWidget 

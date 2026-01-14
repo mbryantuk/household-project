@@ -106,7 +106,7 @@ export default function PetsView() {
                 flexWrap: 'wrap', gap: 2 
             }}>
               <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
                   Pets & Animals
                 </Typography>
                 <Typography level="body-md" color="neutral">
@@ -125,7 +125,7 @@ export default function PetsView() {
                         <Sheet 
                             variant="outlined" 
                             sx={{ 
-                                p: 2, borderRadius: 'md', display: 'center', alignItems: 'center', gap: 2,
+                                p: 2, borderRadius: 'md', display: 'flex', alignItems: 'center', gap: 2,
                                 cursor: 'pointer',
                                 transition: 'background-color 0.2s',
                                 '&:hover': { bgcolor: 'background.level1' }
@@ -152,7 +152,7 @@ export default function PetsView() {
           flexWrap: 'wrap', gap: 2 
       }}>
         <Box>
-            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
                 {petId === 'new' ? 'Add New Pet' : selectedPet.name}
             </Typography>
             <Typography level="body-md" color="neutral">
@@ -189,7 +189,7 @@ export default function PetsView() {
           {(activeTab === 0 || petId === 'new') && (
             <Box>
                 <Box sx={{ mb: 4 }}>
-                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
+                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
                         Pet Identity
                     </Typography>
                     <Typography level="body-md" color="neutral">Core personal identification and breed background.</Typography>
@@ -262,7 +262,7 @@ export default function PetsView() {
           {activeTab === 1 && petId !== 'new' && (
             <Box>
                 <Box sx={{ mb: 4 }}>
-                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
+                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
                         Insurance & Health
                     </Typography>
                     <Typography level="body-md" color="neutral">Policies and monthly maintenance for your pet.</Typography>
@@ -270,7 +270,7 @@ export default function PetsView() {
                 <form onSubmit={handleSubmit}>
                 <Grid container spacing={3}>
                     <Grid xs={12}>
-                    <Typography level="title-lg">Insurance Details</Typography>
+                    <Typography level="title-lg" sx={{ fontWeight: 'lg' }}>Insurance Details</Typography>
                     </Grid>
                     <Grid xs={12} md={6}>
                         <FormControl>
@@ -293,7 +293,7 @@ export default function PetsView() {
                     
                     <Grid xs={12}>
                     <Divider sx={{ my: 2 }} />
-                    <Typography level="title-lg" startDecorator={<Restaurant />}>
+                    <Typography level="title-lg" sx={{ fontWeight: 'lg' }} startDecorator={<Restaurant />}>
                         Nutrition (Monthly Forecast)
                     </Typography>
                     <FormControl sx={{ mt: 2 }}>
@@ -312,7 +312,7 @@ export default function PetsView() {
           {activeTab === 2 && petId !== 'new' && (
             <Box>
               <Box sx={{ mb: 4 }}>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>Recurring Miscellaneous Costs</Typography>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Recurring Miscellaneous Costs</Typography>
                 <Typography level="body-md" color="neutral">Additional costs specific to this pet.</Typography>
               </Box>
               <RecurringCostsWidget 

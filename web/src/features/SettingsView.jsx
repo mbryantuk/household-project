@@ -138,7 +138,7 @@ export default function SettingsView({
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
                     <Box>
-                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>Member Permissions</Typography>
+                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Member Permissions</Typography>
                         <Typography level="body-md" color="neutral">Control who has access to this household and their level of control.</Typography>
                     </Box>
                     {isAdmin && <Button variant="solid" color="primary" startDecorator={<PersonAdd />} onClick={openAddUser}>Invite User</Button>}
@@ -191,7 +191,7 @@ export default function SettingsView({
             {activeTab === 1 && (
                 <Box>
                     <Box sx={{ mb: 4 }}>
-                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>Developer Tools</Typography>
+                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Developer Tools</Typography>
                         <Typography level="body-md" color="neutral">Integration and technical documentation for the TOTEM platform.</Typography>
                     </Box>
                     
@@ -217,7 +217,7 @@ export default function SettingsView({
             {activeTab === 2 && (
                 <Box sx={{ maxWidth: 800 }}>
                     <Box sx={{ mb: 4 }}>
-                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>About TOTEM</Typography>
+                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>About TOTEM</Typography>
                         <Typography level="body-md" color="neutral">Platform credits, licensing and open source information.</Typography>
                     </Box>
 

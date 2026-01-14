@@ -102,7 +102,7 @@ export default function PeopleView() {
                 flexWrap: 'wrap', gap: 2 
             }}>
               <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
                   People & Residents
                 </Typography>
                 <Typography level="body-md" color="neutral">
@@ -148,7 +148,7 @@ export default function PeopleView() {
           flexWrap: 'wrap', gap: 2 
       }}>
         <Box>
-            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
                 {personId === 'new' ? 'Add New Person' : selectedPerson.name}
             </Typography>
             <Typography level="body-md" color="neutral">
@@ -185,7 +185,7 @@ export default function PeopleView() {
           {(activeTab === 0 || personId === 'new') && (
             <Box>
                 <Box sx={{ mb: 4 }}>
-                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
+                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
                         Personal Identity
                     </Typography>
                     <Typography level="body-md" color="neutral">Core personal identification and background.</Typography>
@@ -249,7 +249,7 @@ export default function PeopleView() {
           {activeTab === 1 && personId !== 'new' && (
             <Box>
                 <Box sx={{ mb: 4 }}>
-                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
+                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
                         Protection & Legal
                     </Typography>
                     <Typography level="body-md" color="neutral">Insurance, Wills, and Legal documentation.</Typography>
@@ -299,7 +299,7 @@ export default function PeopleView() {
           {activeTab === 2 && personId !== 'new' && (
             <Box>
               <Box sx={{ mb: 4 }}>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>Recurring Miscellaneous Costs</Typography>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Recurring Miscellaneous Costs</Typography>
                 <Typography level="body-md" color="neutral">Costs specific to this resident.</Typography>
               </Box>
               <RecurringCostsWidget 
