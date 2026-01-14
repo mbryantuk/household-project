@@ -80,18 +80,7 @@ export default function GeneralDetailView({ title, icon: defaultIcon, endpoint, 
             Property specifications and structural details.
           </Typography>
         </Box>
-        <Box>
-          {isAdmin && (
-            <Button 
-                variant="solid" 
-                startDecorator={saving ? <CircularProgress size="sm" /> : (isEditing ? <Save /> : <Edit />)}
-                onClick={isEditing ? handleSave : () => setIsEditing(true)}
-                loading={saving}
-            >
-              {isEditing ? 'Save Details' : 'Edit Information'}
-            </Button>
-          )}
-        </Box>
+
       </Box>
 
       <Sheet variant="outlined" sx={{ p: { xs: 2, md: 3 }, borderRadius: 'md' }}>
