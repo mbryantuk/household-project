@@ -79,11 +79,25 @@ router.put('/households/:id', authenticateToken, (req, res) => {
     if (req.user.role !== 'admin') return res.sendStatus(403);
     if (parseInt(req.params.id) !== parseInt(req.user.householdId)) return res.sendStatus(403);
 
-    const { name, access_key, theme } = req.body;
+    const { name, 
+        address_street, address_city, address_zip,
+        date_format, currency, decimals, avatar,
+        auto_backup, backup_retention 
+    } = req.body;
     let fields = []; let values = [];
     if (name) { fields.push('name = ?'); values.push(name); }
-    if (access_key) { fields.push('access_key = ?'); values.push(access_key); }
-    if (theme) { fields.push('theme = ?'); values.push(theme); }
+    if (address_street !== undefined) { fields.push('address_street = ?'); values.push(address_street); }
+    if (address_city !== undefined) { fields.push('address_city = ?'); values.push(address_city); }
+    if (address_zip !== undefined) { fields.push('address_zip = ?'); values.push(address_zip); }
+    if (date_format) { fields.push('date_format = ?'); values.push(date_format); }
+    if (currency) { fields.push('currency = ?'); values.push(currency); }
+    if (decimals !== undefined) { fields.push('decimals = ?'); values.push(decimals); }
+    if (avatar !== undefined) { fields.push('avatar = ?'); values.push(avatar); }
+    if (auto_backup !== undefined) { fields.push('auto_backup = ?'); values.push(auto_backup); }
+    if (backup_retention !== undefined) { fields.push('backup_retention = ?'); values.push(backup_retention); }
+
+    if (fields.length === 0) return res.status(400).json({ error: "No fields to update" });
+
     values.push(req.params.id);
     globalDb.run(`UPDATE households SET ${fields.join(', ')} WHERE id = ?`, values, function(err) {
         if (err) return res.status(500).json({ error: err.message });

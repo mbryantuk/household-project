@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { 
-  Box, Sheet, Typography, Input, Button, Alert, Link, FormControl, FormLabel, Stack
+  Box, Sheet, Typography, Input, Button, Alert, Link, FormControl, FormLabel, Stack, Avatar, IconButton
 } from '@mui/joy';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import TotemIcon from '../components/TotemIcon';
+import EmojiPicker from '../components/EmojiPicker';
+import { PhotoCamera } from '@mui/icons-material';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -14,10 +16,12 @@ export default function Register() {
     confirmPassword: '',
     firstName: '',
     lastName: '',
-    householdName: ''
+    householdName: '',
+    avatar: '👤'
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
   const API_URL = window.location.origin;
 
@@ -37,7 +41,8 @@ export default function Register() {
         password: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
-        householdName: formData.householdName
+        householdName: formData.householdName,
+        avatar: formData.avatar
       });
       navigate('/login', { state: { message: "Registration successful! Please login." } });
     } catch (err) {
@@ -84,6 +89,39 @@ export default function Register() {
 
         <form onSubmit={handleSubmit}>
           <Stack spacing={2}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+              <Box sx={{ position: 'relative' }}>
+                <Avatar 
+                  size="lg" 
+                  sx={{ 
+                    '--Avatar-size': '100px', 
+                    fontSize: '2.5rem', 
+                    cursor: 'pointer',
+                    '&:hover': { transform: 'scale(1.05)' },
+                    transition: 'transform 0.2s'
+                  }}
+                  onClick={() => setEmojiPickerOpen(true)}
+                >
+                  {formData.avatar}
+                </Avatar>
+                <IconButton
+                  size="sm"
+                  variant="solid"
+                  color="primary"
+                  sx={{ 
+                    position: 'absolute', 
+                    bottom: 0, 
+                    right: 0, 
+                    borderRadius: '50%',
+                    boxShadow: 'sm' 
+                  }}
+                  onClick={() => setEmojiPickerOpen(true)}
+                >
+                  <PhotoCamera />
+                </IconButton>
+              </Box>
+            </Box>
+
             <Stack direction="row" spacing={2}>
               <FormControl required sx={{ flex: 1 }}>
                 <FormLabel>First Name</FormLabel>
@@ -125,6 +163,16 @@ export default function Register() {
           </Typography>
         </form>
       </Sheet>
+
+      <EmojiPicker 
+        open={emojiPickerOpen} 
+        onClose={() => setEmojiPickerOpen(false)} 
+        onEmojiSelect={(emoji) => {
+          setFormData({...formData, avatar: emoji});
+          setEmojiPickerOpen(false);
+        }}
+        title="Choose Avatar Emoji"
+      />
     </Box>
   );
 }

@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, Button, Input, 
   FormControl, FormLabel, Stack, Avatar, IconButton, 
-  Divider, Modal, ModalDialog, DialogTitle, Select, Option, Grid, Chip, DialogContent, DialogActions
+  Divider, Modal, ModalDialog, DialogTitle, Select, Option, Grid, Chip, DialogContent, DialogActions, Tooltip
 } from '@mui/joy';
 import { 
   PersonAdd, Edit, Delete, ExitToApp, ToggleOn, ToggleOff,
-  OpenInNew, Info, Verified, Code, Policy, Palette, AddHome
+  OpenInNew, Info, Verified, Code, Policy, Palette, AddHome, LightMode, DarkMode
 } from '@mui/icons-material';
 import { getEmojiColor, THEMES } from '../theme';
+import EmojiPicker from '../components/EmojiPicker';
 
 export default function SettingsView({ 
     household, users, currentUser, api, showNotification, confirmAction, fetchHhUsers,
@@ -18,11 +19,11 @@ export default function SettingsView({
   const [editUser, setEditUser] = useState(null);
   const [isInvite, setIsInvite] = useState(false);
   const [savingUser, setSavingUser] = useState(false);
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
   // New Household Modal State
   const [isCreateHhModalOpen, setIsCreateHhModalOpen] = useState(false);
   const [newHhName, setNewHhName] = useState('');
-  const [newHhTheme, setNewHhTheme] = useState('totem');
   const [isCreatingHh, setIsCreatingHh] = useState(false);
   
   // Controlled form state for the modal
@@ -30,10 +31,19 @@ export default function SettingsView({
       email: '',
       role: 'member',
       first_name: '',
-      last_name: ''
+      last_name: '',
+      avatar: '👤'
   });
 
   const isAdmin = currentUser?.role === 'admin';
+
+  const groupedThemes = useMemo(() => {
+    const groups = { light: [], dark: [] };
+    Object.entries(THEMES).forEach(([id, spec]) => {
+      groups[spec.mode].push({ id, ...spec });
+    });
+    return groups;
+  }, []);
 
   useEffect(() => {
       if (editUser) {
@@ -41,7 +51,8 @@ export default function SettingsView({
               email: editUser.email || '',
               role: editUser.role || 'member',
               first_name: editUser.first_name || '',
-              last_name: editUser.last_name || ''
+              last_name: editUser.last_name || '',
+              avatar: editUser.avatar || '👤'
           });
       }
   }, [editUser]);
@@ -103,13 +114,11 @@ export default function SettingsView({
     setIsCreatingHh(true);
     try {
       const res = await api.post('/households', { 
-        name: newHhName,
-        theme: newHhTheme
+        name: newHhName
       });
       showNotification(`Household "${newHhName}" created successfully.`, "success");
       setIsCreateHhModalOpen(false);
       setNewHhName('');
-      setNewHhTheme('totem');
       
       // Navigate to the new household
       window.location.href = `/household/${res.data.id}/dashboard`;
@@ -125,7 +134,7 @@ export default function SettingsView({
     setIsInvite(false); 
   };
   const openAddUser = () => { 
-    setEditUser({ email: '', role: 'member', first_name: '', last_name: '' }); 
+    setEditUser({ email: '', role: 'member', first_name: '', last_name: '', avatar: '👤' }); 
     setIsInvite(true); 
   };
 
@@ -137,6 +146,33 @@ export default function SettingsView({
           default: return 'neutral';
       }
   };
+
+  const ThemeGrid = ({ themes }) => (
+    <Grid container spacing={2}>
+        {themes.map((spec) => (
+            <Grid key={spec.id} xs={6} sm={4} md={3} lg={2.4}>
+                <Sheet
+                    variant={themeId === spec.id ? 'solid' : 'outlined'}
+                    color={themeId === spec.id ? 'primary' : 'neutral'}
+                    onClick={() => onThemeChange(spec.id)}
+                    sx={{
+                        p: 1.5, borderRadius: 'md', cursor: 'pointer', height: '100%',
+                        transition: 'all 0.2s',
+                        '&:hover': { transform: 'translateY(-2px)', boxShadow: 'sm' },
+                        position: 'relative',
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
+                    }}
+                >
+                    <Box sx={{ width: '100%', height: 32, borderRadius: 'sm', bgcolor: spec.primary, mb: 1, border: '1px solid rgba(0,0,0,0.1)' }} />
+                    <Typography level="title-sm" noWrap sx={{ fontSize: '13px', color: themeId === spec.id ? '#fff' : 'text.primary', width: '100%' }}>{spec.name}</Typography>
+                    {themeId === spec.id && (
+                        <Palette sx={{ position: 'absolute', top: 6, right: 6, fontSize: '0.7rem', color: '#fff' }} />
+                    )}
+                </Sheet>
+            </Grid>
+        ))}
+    </Grid>
+  );
 
   return (
     <Box>
@@ -234,35 +270,21 @@ export default function SettingsView({
             {activeTab === 1 && (
                 <Box>
                     <Box sx={{ mb: 4 }}>
-                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Personalize Totem</Typography>
-                        <Typography level="body-md" color="neutral">Choose from our comprehensive library of 31 vibrant themes to match your household's personality.</Typography>
+                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Personalize Your Experience</Typography>
+                        <Typography level="body-md" color="neutral">Select from our library of 50+ themes. Your preference is saved to your profile and follows you across devices.</Typography>
                     </Box>
 
-                    <Grid container spacing={2}>
-                        {Object.entries(THEMES).map(([id, spec]) => (
-                            <Grid key={id} xs={6} sm={4} md={3} lg={2.4}>
-                                <Sheet
-                                    variant={themeId === id ? 'solid' : 'outlined'}
-                                    color={themeId === id ? 'primary' : 'neutral'}
-                                    onClick={() => onThemeChange(id)}
-                                    sx={{
-                                        p: 2, borderRadius: 'md', cursor: 'pointer', height: '100%',
-                                        transition: 'transform 0.2s',
-                                        '&:hover': { transform: 'translateY(-2px)', boxShadow: 'sm' },
-                                        position: 'relative',
-                                        display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
-                                    }}
-                                >
-                                    <Box sx={{ width: '100%', height: 40, borderRadius: 'sm', bgcolor: spec.primary, mb: 1.5, border: '1px solid rgba(0,0,0,0.1)' }} />
-                                    <Typography level="title-sm" noWrap sx={{ color: themeId === id ? '#fff' : 'text.primary', width: '100%' }}>{spec.name}</Typography>
-                                    <Typography level="body-xs" sx={{ color: themeId === id ? 'rgba(255,255,255,0.8)' : 'neutral.plainColor', textTransform: 'uppercase' }}>{spec.mode}</Typography>
-                                    {themeId === id && (
-                                        <Palette sx={{ position: 'absolute', top: 8, right: 8, fontSize: '0.8rem', color: '#fff' }} />
-                                    )}
-                                </Sheet>
-                            </Grid>
-                        ))}
-                    </Grid>
+                    <Stack spacing={4}>
+                      <Box>
+                        <Typography level="title-lg" startDecorator={<LightMode color="warning" />} sx={{ mb: 2 }}>Light Themes</Typography>
+                        <ThemeGrid themes={groupedThemes.light} />
+                      </Box>
+                      <Divider />
+                      <Box>
+                        <Typography level="title-lg" startDecorator={<DarkMode color="primary" />} sx={{ mb: 2 }}>Dark Themes</Typography>
+                        <ThemeGrid themes={groupedThemes.dark} />
+                      </Box>
+                    </Stack>
                 </Box>
             )}
 
@@ -342,6 +364,25 @@ export default function SettingsView({
               <DialogTitle>{isInvite ? 'Invite New Member' : `Edit ${editUser?.first_name || 'User'}`}</DialogTitle>
               <form onSubmit={handleSaveUser}>
                   <Stack spacing={2} mt={1}>
+                      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                        <Tooltip title="Choose Avatar" variant="soft">
+                            <Avatar 
+                                size="lg" 
+                                sx={{ 
+                                    '--Avatar-size': '80px', 
+                                    fontSize: '2rem', 
+                                    bgcolor: getEmojiColor(formData.avatar, false),
+                                    cursor: 'pointer',
+                                    '&:hover': { transform: 'scale(1.05)' },
+                                    transition: 'transform 0.2s'
+                                }}
+                                onClick={() => setEmojiPickerOpen(true)}
+                            >
+                                {formData.avatar}
+                            </Avatar>
+                        </Tooltip>
+                      </Box>
+
                       <FormControl required>
                           <FormLabel>Email Address</FormLabel>
                           <Input 
@@ -393,6 +434,16 @@ export default function SettingsView({
           </ModalDialog>
       </Modal>
 
+      <EmojiPicker 
+        open={emojiPickerOpen} 
+        onClose={() => setEmojiPickerOpen(false)} 
+        onEmojiSelect={(emoji) => {
+          setFormData({...formData, avatar: emoji});
+          setEmojiPickerOpen(false);
+        }}
+        title="Choose Avatar Emoji"
+      />
+
       {/* Create New Household Modal */}
       <Modal open={isCreateHhModalOpen} onClose={() => setIsCreateHhModalOpen(false)}>
         <ModalDialog>
@@ -408,23 +459,6 @@ export default function SettingsView({
                   onChange={(e) => setNewHhName(e.target.value)}
                   autoFocus
                 />
-              </FormControl>
-              <FormControl required>
-                <FormLabel>Theme</FormLabel>
-                <Select 
-                  value={newHhTheme} 
-                  onChange={(e, v) => setNewHhTheme(v)}
-                  startDecorator={<Palette />}
-                >
-                  {Object.entries(THEMES).map(([id, spec]) => (
-                    <Option key={id} value={id}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                        <Box sx={{ width: 16, height: 16, borderRadius: '2px', bgcolor: spec.primary }} />
-                        {spec.name}
-                      </Box>
-                    </Option>
-                  ))}
-                </Select>
               </FormControl>
               <DialogActions>
                 <Button type="submit" loading={isCreatingHh}>Create Household</Button>

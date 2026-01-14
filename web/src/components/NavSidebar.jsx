@@ -358,37 +358,7 @@ export default function NavSidebar({
                         </>
                     )}
                     {activeCategory === 'settings' && (
-                        <>
                         <SubItem label="General Settings" to="settings" isDark={isDark} />
-                        
-                        <Divider sx={{ my: 1.5 }} />
-                        <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ px: 1 }}>QUICK THEME</Typography></ListItem>
-                        
-                        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 1, p: 1, maxHeight: 400, overflowY: 'auto' }}>
-                            {Object.entries(THEMES).map(([id, spec]) => (
-                                <Tooltip key={id} title={spec.name} variant="soft">
-                                    <IconButton
-                                        variant={themeId === id ? 'solid' : 'outlined'}
-                                        color="neutral"
-                                        onClick={() => onThemeChange(id)}
-                                        sx={{ 
-                                            width: 36, height: 36, 
-                                            bgcolor: spec.primary, 
-                                            color: spec.text,
-                                            '&:hover': { bgcolor: spec.primary, opacity: 0.8 },
-                                            border: themeId === id ? '2px solid' : '1px solid',
-                                            borderColor: themeId === id ? 'primary.solidBg' : 'divider',
-                                            position: 'relative',
-                                            overflow: 'hidden',
-                                            borderRadius: 'sm'
-                                        }}
-                                    >
-                                        {themeId === id && <Box sx={{ position: 'absolute', inset: 0, bgcolor: 'rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✓</Box>}
-                                    </IconButton>
-                                </Tooltip>
-                            ))}
-                        </Box>
-                        </>
                     )}
                 </List>
             </Sheet>

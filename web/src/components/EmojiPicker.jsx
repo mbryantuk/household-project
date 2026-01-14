@@ -1,31 +1,33 @@
 import React from 'react';
-import { Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/joy';
-import EmojiPickerReact, { Theme } from 'emoji-picker-react';
+import { Modal, ModalDialog, DialogTitle, DialogContent, Box } from '@mui/joy';
+import Picker from 'emoji-picker-react';
 
-export default function EmojiPicker({ open, onClose, onEmojiSelect, title = "Select Emoji", isDark = false }) {
-  const handleEmojiClick = (emojiData) => {
-    onEmojiSelect(emojiData.emoji);
-  };
-
+export default function EmojiPicker({ open, onClose, onEmojiSelect, title = "Select Emoji", isDark = true }) {
   return (
     <Modal open={open} onClose={onClose}>
-      <ModalDialog layout="center" sx={{ p: 0, minWidth: 350, overflow: 'hidden' }}>
-        <DialogTitle sx={{ p: 2 }}>{title}</DialogTitle>
-        <DialogContent sx={{ p: 0, display: 'flex', justifyContent: 'center' }}>
-            <EmojiPickerReact
-                onEmojiClick={handleEmojiClick}
-                autoFocusSearch={false}
-                theme={isDark ? Theme.DARK : Theme.LIGHT}
-                width="100%"
-                height={400}
-                lazyLoadEmojis={true}
-                searchPlaceHolder="Search emojis..."
-                previewConfig={{ showPreview: false }}
+      <ModalDialog 
+        sx={{ 
+          p: 0, 
+          overflow: 'hidden', 
+          border: 'none',
+          minWidth: { xs: '90vw', sm: '400px' }
+        }}
+      >
+        <DialogTitle sx={{ p: 2, pb: 1 }}>{title}</DialogTitle>
+        <DialogContent>
+          <Box sx={{ width: '100%', height: '450px' }}>
+            <Picker
+              onEmojiClick={(emojiData) => onEmojiSelect(emojiData.emoji)}
+              autoFocusSearch={false}
+              theme={isDark ? 'dark' : 'light'}
+              emojiStyle="native"
+              width="100%"
+              height="100%"
+              lazyLoadEmojis={true}
+              searchPlaceHolder="Search emojis..."
             />
+          </Box>
         </DialogContent>
-        <DialogActions sx={{ p: 2, pt: 1 }}>
-            <Button variant="plain" color="neutral" onClick={onClose}>Close</Button>
-        </DialogActions>
       </ModalDialog>
     </Modal>
   );

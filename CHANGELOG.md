@@ -1,6 +1,27 @@
 # Changelog
 
-## [2.4.0] - 2026-01-14
+## [2.5.1] - 2026-01-14
+### Added
+- **UI/UX:** Integrated Emoji Picker into the **User Management** modal in Settings.
+- **UI/UX:** Standardized Emoji rendering across the app by switching to **Native Emoji Style** for both the picker and display.
+
+### Fixed
+- **UI:** Resolved missing emoji selector when editing or inviting users in Settings.
+- **Consistency:** Aligned emoji styles between selection and assignment screens.
+
+## [2.5.0] - 2026-01-14
+### Added
+- **UI Architecture:** Migrated Theme Storage from **Household-level** to **User-level**. User preferences now follow the profile across all devices and households.
+- **Theme Library:** Expanded to **51 vibrant themes** (25 Light, 26 Dark).
+- **UI:** Enhanced visual impact with deeper color integration in `JoyCard`, `JoySheet`, and background levels.
+- **UI:** Grouped themes by **Light Mode** and **Dark Mode** in Settings for better accessibility.
+
+### Changed
+- **UI:** Removed Theme Quick Picker from Sidebar to declutter navigation.
+- **UI:** Removed theme selection from Household creation (using user's active theme instead).
+- **Backend:** Updated `users` schema to include `theme` and synchronized via Profile API.
+
+## [2.4.1] - 2026-01-14
 ### Added
 - **UI:** Replaced legacy theme system with a comprehensive library of **30+ vibrant themes** (15 Light, 15 Dark, 1 High Contrast).
 - **UI:** Integrated household-level theme storage, ensuring preferences persist across sessions and users within the same household.

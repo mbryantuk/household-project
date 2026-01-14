@@ -1,191 +1,170 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { 
-  Box, Typography, Sheet, Button, Input, FormControl, FormLabel, 
-  Stack, Avatar, IconButton, Divider, Breadcrumbs, Link, Grid
+  Box, Typography, Sheet, Stack, Avatar, Button, Input, 
+  FormControl, FormLabel, Grid, Divider, IconButton, Tooltip 
 } from '@mui/joy';
-import { 
-  Save, ArrowBack, Person, Email, Lock, Badge, ChevronRight
-} from '@mui/icons-material';
-import EmojiPicker from '../components/EmojiPicker';
+import { useOutletContext } from 'react-router-dom';
+import { Edit, Save, PhotoCamera } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
+import EmojiPicker from '../components/EmojiPicker';
 
 export default function ProfileView() {
-  const { userId } = useParams();
-  const navigate = useNavigate();
-  const { api, id: householdId, user: currentUser, showNotification, onUpdateProfile } = useOutletContext();
+  const { user, onUpdateProfile, isDark, showNotification } = useOutletContext();
+  const [isEditing, setIsEditing] = useState(false);
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   
-  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
     email: '',
-    avatar: '👤',
-    role: 'member'
+    username: '',
+    avatar: '👤'
   });
-  const [password, setPassword] = useState('');
-  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
-
-  const isMe = !userId || parseInt(userId) === currentUser.id;
-  const targetId = userId || currentUser.id;
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        setLoading(true);
-        if (isMe) {
-          setFormData({
-            first_name: currentUser.first_name || '',
-            last_name: currentUser.last_name || '',
-            email: currentUser.email || '',
-            avatar: currentUser.avatar || '👤',
-            role: currentUser.role
-          });
-        }
-        
-        const endpoint = isMe ? '/auth/profile' : `/households/${householdId}/users/${targetId}`;
+    if (user) {
+      setFormData({
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
+        email: user.email || '',
+        username: user.username || '',
+        avatar: user.avatar || '👤'
+      });
+    }
+  }, [user]);
 
-        const res = await api.get(endpoint);
-        const u = res.data;
-        setFormData({
-          first_name: u.first_name || '',
-          last_name: u.last_name || '',
-          email: u.email || '',
-          avatar: u.avatar || '👤',
-          role: u.role || 'member'
-        });
-      } catch (err) {
-        showNotification("Failed to load user profile.", "danger");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUser();
-  }, [api, targetId, isMe, currentUser, householdId, showNotification]);
-
-  const handleSubmit = async (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     try {
-      const updates = { ...formData };
-      if (password) updates.password = password;
-
-      if (isMe) {
-        // Use the centralized update function to ensure state/localStorage sync
-        await onUpdateProfile(updates);
-        showNotification("Your profile has been updated.", "success");
-      } else {
-        const endpoint = `/households/${householdId}/users/${targetId}`;
-        await api.put(endpoint, updates);
-        showNotification("User updated successfully.", "success");
-      }
-      navigate(-1);
+      await onUpdateProfile(formData);
+      setIsEditing(false);
+      showNotification("Profile updated successfully", "success");
     } catch (err) {
-      // Notification is handled inside onUpdateProfile if it fails, 
-      // but we catch here just in case of other errors.
-      if (!isMe) showNotification("Failed to update profile.", "danger");
+      showNotification("Failed to update profile", "danger");
     }
   };
 
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', p: { xs: 2, md: 4 } }}>
-      <Breadcrumbs separator={<ChevronRight fontSize="small" />} sx={{ p: 0, mb: 3 }}>
-        <Link color="neutral" onClick={() => navigate('../dashboard')} sx={{ cursor: 'pointer' }}>Home</Link>
-        {!isMe && <Link color="neutral" onClick={() => navigate('../settings')} sx={{ cursor: 'pointer' }}>Settings</Link>}
-        <Typography color="primary">{isMe ? 'My Profile' : 'Edit User'}</Typography>
-      </Breadcrumbs>
+    <Box>
+      <Box sx={{ mb: 4 }}>
+        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Your Profile</Typography>
+        <Typography level="body-md" color="neutral">Manage your personal information and application preferences.</Typography>
+      </Box>
 
-      <Sheet variant="outlined" sx={{ p: 4, borderRadius: 'md', boxShadow: 'sm' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
-          <IconButton onClick={() => navigate(-1)} variant="plain" color="neutral">
-            <ArrowBack />
-          </IconButton>
-          <Typography level="h3">{isMe ? 'My Profile' : `Edit ${formData.first_name}`}</Typography>
-        </Box>
-
-        <form onSubmit={handleSubmit}>
-          <Stack spacing={4}>
-            {/* Avatar Selection */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-              <Box 
-                sx={{ 
-                  position: 'relative',
-                  width: 120, height: 120, borderRadius: '50%', 
-                  bgcolor: getEmojiColor(formData.avatar, false),
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '4rem', cursor: 'pointer',
-                  border: '4px solid', borderColor: 'background.surface',
-                  boxShadow: 'md',
-                  transition: 'transform 0.2s',
-                  '&:hover': { transform: 'scale(1.05)' }
-                }}
-                onClick={() => setEmojiPickerOpen(true)}
-              >
-                {formData.avatar}
+      <Sheet variant="outlined" sx={{ p: { xs: 2, md: 4 }, borderRadius: 'md' }}>
+        <form onSubmit={handleSave}>
+          <Grid container spacing={4}>
+            <Grid xs={12} md={4} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Box sx={{ position: 'relative' }}>
+                <Avatar 
+                  size="lg" 
+                  sx={{ 
+                    '--Avatar-size': '120px', 
+                    fontSize: '3rem', 
+                    bgcolor: getEmojiColor(formData.avatar, isDark),
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s',
+                    '&:hover': { transform: 'scale(1.05)' }
+                  }}
+                  onClick={() => setEmojiPickerOpen(true)}
+                >
+                  {formData.avatar}
+                </Avatar>
+                <IconButton
+                  size="sm"
+                  variant="solid"
+                  color="primary"
+                  sx={{ 
+                    position: 'absolute', 
+                    bottom: 0, 
+                    right: 0, 
+                    borderRadius: '50%',
+                    boxShadow: 'sm' 
+                  }}
+                  onClick={() => setEmojiPickerOpen(true)}
+                >
+                  <PhotoCamera />
+                </IconButton>
               </Box>
-              <Typography level="body-sm">Click to change avatar</Typography>
-            </Box>
-
-            <Grid container spacing={2}>
-              <Grid xs={12} md={6}>
-                <FormControl>
-                  <FormLabel>First Name</FormLabel>
-                  <Input 
-                    startDecorator={<Person />}
-                    value={formData.first_name}
-                    onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                  />
-                </FormControl>
-              </Grid>
-              <Grid xs={12} md={6}>
-                <FormControl>
-                  <FormLabel>Last Name</FormLabel>
-                  <Input 
-                    startDecorator={<Person />}
-                    value={formData.last_name}
-                    onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                  />
-                </FormControl>
-              </Grid>
-              <Grid xs={12}>
-                <FormControl>
-                  <FormLabel>Email</FormLabel>
-                  <Input 
-                    type="email"
-                    startDecorator={<Email />}
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  />
-                </FormControl>
-              </Grid>
-              <Grid xs={12}>
-                <FormControl>
-                  <FormLabel>New Password</FormLabel>
-                  <Input 
-                    type="password"
-                    placeholder="Leave blank to keep current"
-                    startDecorator={<Lock />}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </FormControl>
-              </Grid>
+              <Typography level="title-md" sx={{ mt: 2 }}>{formData.first_name} {formData.last_name}</Typography>
+              <Typography level="body-xs" color="neutral">{formData.username || 'No username set'}</Typography>
             </Grid>
 
-            <Divider />
+            <Grid xs={12} md={8}>
+              <Stack spacing={3}>
+                <Grid container spacing={2}>
+                  <Grid xs={12} sm={6}>
+                    <FormControl>
+                      <FormLabel>First Name</FormLabel>
+                      <Input 
+                        disabled={!isEditing}
+                        value={formData.first_name}
+                        onChange={(e) => setFormData({...formData, first_name: e.target.value})}
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid xs={12} sm={6}>
+                    <FormControl>
+                      <FormLabel>Last Name</FormLabel>
+                      <Input 
+                        disabled={!isEditing}
+                        value={formData.last_name}
+                        onChange={(e) => setFormData({...formData, last_name: e.target.value})}
+                      />
+                    </FormControl>
+                  </Grid>
+                </Grid>
 
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-              <Button variant="plain" color="neutral" onClick={() => navigate(-1)}>Cancel</Button>
-              <Button type="submit" startDecorator={<Save />}>Save Changes</Button>
-            </Box>
-          </Stack>
+                <FormControl>
+                  <FormLabel>Email Address</FormLabel>
+                  <Input 
+                    disabled={true} 
+                    value={formData.email}
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel>Username</FormLabel>
+                  <Input 
+                    disabled={!isEditing}
+                    value={formData.username}
+                    onChange={(e) => setFormData({...formData, username: e.target.value})}
+                  />
+                </FormControl>
+
+                <Divider sx={{ my: 1 }} />
+
+                <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                  {!isEditing ? (
+                    <Button 
+                      variant="outlined" 
+                      color="neutral" 
+                      onClick={() => setIsEditing(true)}
+                    >
+                      Edit Profile
+                    </Button>
+                  ) : (
+                    <>
+                      <Button variant="plain" color="neutral" onClick={() => setIsEditing(false)}>Cancel</Button>
+                      <Button type="submit">Save Changes</Button>
+                    </>
+                  )}
+                </Box>
+              </Stack>
+            </Grid>
+          </Grid>
         </form>
       </Sheet>
 
       <EmojiPicker 
         open={emojiPickerOpen} 
         onClose={() => setEmojiPickerOpen(false)} 
-        onEmojiSelect={(emoji) => setFormData({ ...formData, avatar: emoji })}
-        title="Choose Avatar"
+        onEmojiSelect={(emoji) => {
+          setFormData({...formData, avatar: emoji});
+          setEmojiPickerOpen(false);
+        }}
+        title="Choose Avatar Emoji"
+        isDark={isDark}
       />
     </Box>
   );

@@ -173,6 +173,10 @@ function AppInner({ themeId, setThemeId }) {
       const fullUser = { ...userData, role, system_role };
       setToken(token); setUser(fullUser);
       localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(fullUser));
+      
+      // Update theme from user object
+      if (userData.theme) setThemeId(userData.theme);
+
       if (context === 'household') {
         setHousehold(hhData);
         localStorage.setItem('household', JSON.stringify(hhData));
@@ -181,7 +185,7 @@ function AppInner({ themeId, setThemeId }) {
         setHousehold(null); localStorage.removeItem('household');
         navigate('/select-household');
       }
-  }, [navigate]);
+  }, [navigate, setThemeId]);
 
   const handleUpdateHouseholdSettings = useCallback(async (updates) => {
     if (!household) return;
@@ -192,16 +196,9 @@ function AppInner({ themeId, setThemeId }) {
         localStorage.setItem('household', JSON.stringify(updated));
         return updated;
       });
-      if (updates.theme) setThemeId(updates.theme);
       showNotification("Household updated.", "success");
     } catch (err) { showNotification("Failed to update.", "danger"); }
-  }, [authAxios, household, showNotification, setThemeId]);
-
-  useEffect(() => {
-    if (household?.theme && household.theme !== themeId) {
-      setThemeId(household.theme);
-    }
-  }, [household, themeId, setThemeId]);
+  }, [authAxios, household, showNotification]);
 
   const handleUpdateProfile = useCallback(async (updates) => {
     try {
@@ -209,9 +206,19 @@ function AppInner({ themeId, setThemeId }) {
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
       await authAxios.put('/auth/profile', updates);
-      if (!updates.sticky_note) showNotification("Profile updated.", "success");
+      
+      if (updates.theme) setThemeId(updates.theme);
+      
+      if (!updates.sticky_note && !updates.theme) showNotification("Profile updated.", "success");
     } catch (err) { showNotification("Failed to update profile.", "danger"); throw err; }
-  }, [authAxios, user, showNotification]);
+  }, [authAxios, user, showNotification, setThemeId]);
+
+  // Synchronize themeId with user theme preference
+  useEffect(() => {
+    if (user?.theme && user.theme !== themeId) {
+      setThemeId(user.theme);
+    }
+  }, [user, themeId, setThemeId]);
 
   return (
     <>
@@ -247,7 +254,7 @@ function AppInner({ themeId, setThemeId }) {
               showNotification={showNotification} confirmAction={confirmAction}
               dates={hhDates} onDateAdded={() => household && fetchHhDates(household.id)}
               onUpdateProfile={handleUpdateProfile} onLogout={logout}
-              themeId={themeId} onThemeChange={(newId) => handleUpdateHouseholdSettings({ theme: newId })}
+              themeId={themeId} onThemeChange={(newId) => handleUpdateProfile({ theme: newId })}
               installPrompt={installPrompt} onInstall={handleInstall}
             />}>
                 <Route index element={<Navigate to="dashboard" replace />} />
@@ -262,7 +269,7 @@ function AppInner({ themeId, setThemeId }) {
                 <Route path="settings" element={<SettingsView 
                     household={household} users={hhUsers} currentUser={user} api={authAxios}
                     onUpdateHousehold={handleUpdateHouseholdSettings}
-                    themeId={themeId} onThemeChange={(newId) => handleUpdateHouseholdSettings({ theme: newId })}
+                    themeId={themeId} onThemeChange={(newId) => handleUpdateProfile({ theme: newId })}
                     showNotification={showNotification} confirmAction={confirmAction}
                     fetchHhUsers={fetchHhUsers}
                 />} />
@@ -294,12 +301,14 @@ function AppInner({ themeId, setThemeId }) {
 }
 
 export default function App() {
-  const [themeId, setThemeId] = useState(() => localStorage.getItem('themeId') || 'totem');
+  const [themeId, setThemeId] = useState(() => {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      return user.theme || 'totem';
+  });
   const theme = useMemo(() => getTotemTheme(themeId), [themeId]);
   
   const handleThemeChange = (newThemeId) => {
     setThemeId(newThemeId);
-    localStorage.setItem('themeId', newThemeId);
   };
 
   return (

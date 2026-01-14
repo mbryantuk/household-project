@@ -6,7 +6,7 @@ import {
 import { 
   HomeWork, ElectricBolt, WaterDrop, DeleteSweep, 
   Inventory, AccountBalance, Payments, Info, Badge,
-  Save, ContentCopy
+  Save
 } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
 
@@ -116,7 +116,7 @@ export default function HouseView() {
                         <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
                             Household Identity & Location
                         </Typography>
-                        <Typography level="body-md" color="neutral">Configure your home's core details and shared access.</Typography>
+                        <Typography level="body-md" color="neutral">Configure your home's core details and location.</Typography>
                     </Box>
                     <form onSubmit={handleUpdateIdentity}>
                     <Grid container spacing={3}>
@@ -132,24 +132,10 @@ export default function HouseView() {
                                 </IconButton>
                             </Tooltip>
                         </Grid>
-                        <Grid xs={12} md={5}>
+                        <Grid xs={12} md={10}>
                             <FormControl required>
                                 <FormLabel>Household Name</FormLabel>
                                 <Input name="name" defaultValue={household?.name} disabled={!isAdmin || savingHh} />
-                            </FormControl>
-                        </Grid>
-                        <Grid xs={12} md={5}>
-                            <FormControl>
-                                <FormLabel>Access Key</FormLabel>
-                                <Input 
-                                    value={household?.access_key || ''} 
-                                    disabled 
-                                    endDecorator={
-                                        <IconButton onClick={() => { navigator.clipboard.writeText(household.access_key); showNotification("Key copied!", "info"); }}>
-                                            <ContentCopy />
-                                        </IconButton>
-                                    }
-                                />
                             </FormControl>
                         </Grid>
                         <Grid xs={12}><Divider /></Grid>

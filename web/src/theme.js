@@ -1,7 +1,7 @@
 import { extendTheme } from '@mui/joy/styles';
 
 export const THEMES = {
-  // --- LIGHT THEMES ---
+  // --- LIGHT THEMES (25) ---
   totem: { name: 'Totem Classic', mode: 'light', primary: '#644AC9', bg: '#FFFBEB', surface: '#FFF', selection: '#CFCFDE', text: '#1F1F1F' },
   ocean: { name: 'Ocean Breeze', mode: 'light', primary: '#0284c7', bg: '#f0f9ff', surface: '#fff', selection: '#e0f2fe', text: '#0c4a6e' },
   sakura: { name: 'Sakura Blossom', mode: 'light', primary: '#db2777', bg: '#fff1f2', surface: '#fff', selection: '#ffe4e6', text: '#881337' },
@@ -17,8 +17,18 @@ export const THEMES = {
   paperback: { name: 'Paperback', mode: 'light', primary: '#78350f', bg: '#fef3c7', surface: '#fffcf0', selection: '#fde68a', text: '#451a03' },
   emerald: { name: 'Emerald Isle', mode: 'light', primary: '#059669', bg: '#ecfdf5', surface: '#fff', selection: '#d1fae5', text: '#064e3b' },
   berry: { name: 'Wild Berry', mode: 'light', primary: '#9d174d', bg: '#fdf2f8', surface: '#fff', selection: '#fce7f3', text: '#500724' },
+  rose: { name: 'Rose Garden', mode: 'light', primary: '#e11d48', bg: '#fff1f2', surface: '#fff', selection: '#ffe4e6', text: '#4c0519' },
+  citrus: { name: 'Citrus Grove', mode: 'light', primary: '#f59e0b', bg: '#fffbeb', surface: '#fff', selection: '#fef3c7', text: '#78350f' },
+  sky: { name: 'Morning Sky', mode: 'light', primary: '#0ea5e9', bg: '#f0f9ff', surface: '#fff', selection: '#e0f2fe', text: '#0c4a6e' },
+  matcha: { name: 'Matcha Latte', mode: 'light', primary: '#65a30d', bg: '#f7fee7', surface: '#fff', selection: '#ecfccb', text: '#365314' },
+  peach: { name: 'Peach Sorbet', mode: 'light', primary: '#fb923c', bg: '#fff7ed', surface: '#fff', selection: '#ffedd5', text: '#7c2d12' },
+  lilac: { name: 'Lilac Mist', mode: 'light', primary: '#a855f7', bg: '#f5f3ff', surface: '#fff', selection: '#f3e8ff', text: '#581c87' },
+  coral: { name: 'Coral Reef', mode: 'light', primary: '#f43f5e', bg: '#fff1f2', surface: '#fff', selection: '#ffe4e6', text: '#881337' },
+  pistachio: { name: 'Pistachio', mode: 'light', primary: '#10b981', bg: '#ecfdf5', surface: '#fff', selection: '#d1fae5', text: '#064e3b' },
+  creamsicle: { name: 'Creamsicle', mode: 'light', primary: '#f97316', bg: '#fff7ed', surface: '#fff', selection: '#ffedd5', text: '#7c2d12' },
+  azure: { name: 'Azure Coast', mode: 'light', primary: '#2563eb', bg: '#eff6ff', surface: '#fff', selection: '#dbeafe', text: '#1e3a8a' },
 
-  // --- DARK THEMES ---
+  // --- DARK THEMES (26) ---
   midnight: { name: 'Midnight City', mode: 'dark', primary: '#38bdf8', bg: '#0f172a', surface: '#1e293b', selection: '#334155', text: '#f1f5f9' },
   cyberpunk: { name: 'Cyberpunk 2077', mode: 'dark', primary: '#fdf001', bg: '#000000', surface: '#1a1a1a', selection: '#333333', text: '#fdf001' },
   neon: { name: 'Neon Dreams', mode: 'dark', primary: '#39ff14', bg: '#000000', surface: '#121212', selection: '#222222', text: '#ffffff' },
@@ -34,6 +44,16 @@ export const THEMES = {
   mars: { name: 'Mars Rover', mode: 'dark', primary: '#fb923c', bg: '#431407', surface: '#7c2d12', selection: '#9a3412', text: '#fff7ed' },
   vampire: { name: 'Vampire Night', mode: 'dark', primary: '#e11d48', bg: '#4c0519', surface: '#881337', selection: '#9f1239', text: '#fff1f2' },
   blueprint: { name: 'Architect Blueprint', mode: 'dark', primary: '#3b82f6', bg: '#172554', surface: '#1e3a8a', selection: '#1e40af', text: '#dbeafe' },
+  toxic: { name: 'Toxic Waste', mode: 'dark', primary: '#bef264', bg: '#022c22', surface: '#064e3b', selection: '#14532d', text: '#dcfce7' },
+  nebula: { name: 'Nebula', mode: 'dark', primary: '#f472b6', bg: '#1e1b4b', surface: '#312e81', selection: '#4338ca', text: '#fdf2f8' },
+  abyss: { name: 'Ocean Depths', mode: 'dark', primary: '#06b6d4', bg: '#083344', surface: '#164e63', selection: '#155e75', text: '#ecfeff' },
+  volcano: { name: 'Volcanic Ash', mode: 'dark', primary: '#ef4444', bg: '#1c1917', surface: '#292524', selection: '#44403c', text: '#fef2f2' },
+  nordic: { name: 'Nordic Night', mode: 'dark', primary: '#88c0d0', bg: '#2e3440', surface: '#3b4252', selection: '#434c5e', text: '#eceff4' },
+  amethyst: { name: 'Amethyst Dream', mode: 'dark', primary: '#c084fc', bg: '#1e1b4b', surface: '#312e81', selection: '#4338ca', text: '#f5f3ff' },
+  carbon: { name: 'Carbon Fiber', mode: 'dark', primary: '#94a3b8', bg: '#000000', surface: '#171717', selection: '#262626', text: '#f8fafc' },
+  emerald_night: { name: 'Deep Emerald', mode: 'dark', primary: '#10b981', bg: '#022c22', surface: '#064e3b', selection: '#065f46', text: '#ecfdf5' },
+  wine: { name: 'Ruby Wine', mode: 'dark', primary: '#be123c', bg: '#4c0519', surface: '#881337', selection: '#9f1239', text: '#fff1f2' },
+  shadow: { name: 'Shadow Realm', mode: 'dark', primary: '#475569', bg: '#020617', surface: '#0f172a', selection: '#1e293b', text: '#f8fafc' },
   highcontrast: { name: 'High Contrast', mode: 'dark', primary: '#ffff00', bg: '#000000', surface: '#000000', selection: '#333300', text: '#ffffff' },
 };
 
@@ -58,6 +78,8 @@ export const getTotemTheme = (themeId = 'totem') => {
             body: spec.bg,
             surface: spec.surface,
             level1: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+            level2: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)',
+            level3: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.09)',
           },
           text: {
             primary: spec.text,
@@ -69,9 +91,11 @@ export const getTotemTheme = (themeId = 'totem') => {
             plainColor: spec.primary,
             outlinedColor: spec.primary,
             outlinedBorder: spec.primary,
+            softBg: isDark ? 'rgba(255,255,255,0.1)' : `${spec.primary}15`,
           },
           neutral: {
             outlinedBorder: spec.selection,
+            plainColor: spec.text,
           },
           divider: spec.selection,
         },
@@ -85,6 +109,23 @@ export const getTotemTheme = (themeId = 'totem') => {
                fontSize: '1.5rem',
                fontWeight: 700,
              }),
+          }),
+        },
+      },
+      JoyCard: {
+        styleOverrides: {
+          root: {
+            backgroundColor: 'var(--joy-palette-background-surface)',
+            borderColor: 'var(--joy-palette-divider)',
+          },
+        },
+      },
+      JoySheet: {
+        styleOverrides: {
+          root: ({ ownerState }) => ({
+            ...(ownerState.variant === 'outlined' && {
+                borderColor: 'var(--joy-palette-divider)',
+            }),
           }),
         },
       },
