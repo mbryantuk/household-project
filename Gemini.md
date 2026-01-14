@@ -29,6 +29,7 @@
 3.  **The "Single Source of Truth" UI Rule:**
     * **NEVER** write raw inputs or one-off MUI components.
     * **ALWAYS** use shared wrappers from `components/ui/` (e.g., `<AppSelect />`).
+    * **BRANDING:** You MUST adhere strictly to the typography and layout standards defined in `Branding.md`.
 
 ---
 
@@ -97,3 +98,4 @@ export const getEmojiColor = (emoji, isDark = true) => {
   const hue = Math.abs(hash % 360);
   return `hsl(${hue}, ${isDark ? 50 : 70}%, ${isDark ? 25 : 90}%)`;
 };
+```
