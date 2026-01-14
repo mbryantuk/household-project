@@ -3,11 +3,11 @@ import { useOutletContext } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Table, IconButton, Button, Modal, ModalDialog, DialogTitle, 
   DialogContent, DialogActions, Input, FormControl, FormLabel, Avatar, Select, Option,
-  Stack, Divider, Tooltip, Chip, Drawer, Checkbox, List, ListItem
+  Stack, Divider, Tooltip, Chip, Drawer, Checkbox, List, ListItem, Grid
 } from '@mui/joy';
 import { 
   ArrowBack, ArrowForward, Add, Edit, Delete, Restaurant, RestaurantMenu, Kitchen,
-  Person, Close
+  Person, Close, CheckCircle
 } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
 import { getEmojiColor } from '../theme';
@@ -124,6 +124,20 @@ export default function MealPlannerView() {
       } catch (err) { showNotification("Removal failed.", "danger"); }
   };
 
+  const handleCopyPreviousWeek = async () => {
+    if (!window.confirm("Copy meal plans from the previous week to this week? existing plans for this week will be preserved.")) return;
+    try {
+        const res = await api.post(`/households/${householdId}/meal-plans/copy-previous`, {
+            targetDate: formatDate(currentWeekStart)
+        });
+        showNotification(`Copied ${res.data.copiedCount} plans from previous week.`, "success");
+        fetchPlans();
+    } catch (err) {
+        console.error(err);
+        showNotification("Failed to copy previous week.", "danger");
+    }
+  };
+
   // Week Navigation
   const changeWeek = (days) => {
       const newStart = new Date(currentWeekStart);
@@ -159,6 +173,9 @@ export default function MealPlannerView() {
       <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography level="h2" startDecorator={<RestaurantMenu />}>Meal Planner</Typography>
         <Stack direction="row" spacing={2}>
+            <Button variant="outlined" color="neutral" onClick={handleCopyPreviousWeek}>
+                Copy Last Week
+            </Button>
             <Button variant="soft" startDecorator={<Restaurant />} onClick={() => { setEditMeal(null); setTempMealEmoji('🍝'); setIsLibraryOpen(true); }}>
                 Meal Library
             </Button>
@@ -170,8 +187,8 @@ export default function MealPlannerView() {
         </Stack>
       </Box>
 
-      {/* PLANNER GRID */}
-      <Sheet variant="outlined" sx={{ flexGrow: 1, overflow: 'auto', borderRadius: 'md' }}>
+      {/* DESKTOP PLANNER GRID */}
+      <Sheet variant="outlined" sx={{ flexGrow: 1, overflow: 'auto', borderRadius: 'md', display: { xs: 'none', md: 'block' } }}>
         <Table stickyHeader borderAxis="both" stripe="odd">
             <thead>
                 <tr>
@@ -190,11 +207,15 @@ export default function MealPlannerView() {
                 {weekDays.map(day => {
                     const dateStr = formatDate(day);
                     const isToday = dateStr === formatDate(new Date());
+                    // Check completion
+                    const allAssigned = activeMembers.every(m => getCellContent(dateStr, m.id).length > 0);
+
                     return (
                         <tr key={dateStr} style={isToday ? { backgroundColor: 'var(--joy-palette-primary-50)' } : {}}>
                             <td style={{ textAlign: 'center', fontWeight: 'bold' }}>
                                 <div>{day.toLocaleDateString('en-US', { weekday: 'short' })}</div>
                                 <Typography level="body-xs">{day.getDate()}</Typography>
+                                {allAssigned && <Chip color="success" size="sm" variant="soft" startDecorator={<CheckCircle />}>Done</Chip>}
                             </td>
                             {activeMembers.map(m => {
                                 const dayPlans = getCellContent(dateStr, m.id);
@@ -237,6 +258,71 @@ export default function MealPlannerView() {
             </tbody>
         </Table>
       </Sheet>
+
+      {/* MOBILE PLANNER LIST */}
+      <Box sx={{ display: { xs: 'block', md: 'none' }, flexGrow: 1, overflow: 'auto' }}>
+        <Stack spacing={2}>
+            {weekDays.map(day => {
+                const dateStr = formatDate(day);
+                const allAssigned = activeMembers.every(m => getCellContent(dateStr, m.id).length > 0);
+                
+                return (
+                    <Sheet key={dateStr} variant="outlined" sx={{ p: 2, borderRadius: 'md' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                            <Box>
+                                <Typography level="title-lg">{day.toLocaleDateString(undefined, { weekday: 'long' })}</Typography>
+                                <Typography level="body-sm">{day.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</Typography>
+                            </Box>
+                            {allAssigned && <Chip color="success" variant="soft" startDecorator={<CheckCircle />}>Complete</Chip>}
+                        </Box>
+                        
+                        <Stack spacing={2}>
+                            {activeMembers.map(m => {
+                                const dayPlans = getCellContent(dateStr, m.id);
+                                return (
+                                    <Box key={m.id}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                            <Avatar size="sm">{m.emoji}</Avatar>
+                                            <Typography level="title-sm">{m.name}</Typography>
+                                        </Box>
+                                        {dayPlans.length > 0 ? (
+                                            <Stack spacing={1}>
+                                                {dayPlans.map(p => (
+                                                    <Sheet key={p.id} variant="soft" color="primary" sx={{ p: 1, borderRadius: 'sm', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                            <span>{p.meal_emoji}</span>
+                                                            <Typography level="body-sm">{p.meal_name}</Typography>
+                                                        </Box>
+                                                        <IconButton size="sm" variant="plain" color="danger" onClick={() => handleRemovePlan(p.id)}>
+                                                            <Close fontSize="small" />
+                                                        </IconButton>
+                                                    </Sheet>
+                                                ))}
+                                                <Button size="sm" variant="plain" onClick={() => { setAssignDate(dateStr); setSelectedMemberIds([m.id]); setAssignModalOpen(true); }}>
+                                                    + Add Another
+                                                </Button>
+                                            </Stack>
+                                        ) : (
+                                            <Button 
+                                                size="sm" 
+                                                variant="outlined" 
+                                                color="neutral" 
+                                                fullWidth 
+                                                sx={{ borderStyle: 'dashed' }}
+                                                onClick={() => { setAssignDate(dateStr); setSelectedMemberIds([m.id]); setAssignModalOpen(true); }}
+                                            >
+                                                + Assign Meal
+                                            </Button>
+                                        )}
+                                    </Box>
+                                );
+                            })}
+                        </Stack>
+                    </Sheet>
+                );
+            })}
+        </Stack>
+      </Box>
 
       {/* LIBRARY DRAWER */}
       <Drawer 

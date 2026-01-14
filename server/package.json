@@ -1,13 +1,28 @@
 {
   "name": "household-manager",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
     "test": "jest --detectOpenHandles --forceExit",
     "test:full": "jest --detectOpenHandles --forceExit --verbose",
-    "test:perf": "jest server/tests/performance.test.js --detectOpenHandles --forceExit"
+    "test:perf": "jest server/tests/performance.test.js --detectOpenHandles --forceExit",
+    "test:report": "jest --detectOpenHandles --forceExit --ci --reporters=default --reporters=jest-html-reporter"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "reporters": [
+      "default",
+      [
+        "jest-html-reporter",
+        {
+          "pageTitle": "Master Test Report",
+          "outputPath": "./test-report.html",
+          "includeFailureMsg": true
+        }
+      ]
+    ]
   },
   "keywords": [],
   "author": "",

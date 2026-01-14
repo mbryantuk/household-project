@@ -100,6 +100,74 @@ router.post('/households/:id/meal-plans', authenticateToken, requireHouseholdRol
     );
 });
 
+// Copy Previous Week
+router.post('/households/:id/meal-plans/copy-previous', authenticateToken, requireHouseholdRole('member'), (req, res) => {
+    const { targetDate } = req.body; // Any date in the target week, or specifically the start
+    if (!targetDate) return res.status(400).json({ error: "Target date required" });
+
+    const db = getHouseholdDb(req.params.id);
+    
+    // Logic: Look back 7 days for the "Source"
+    // Let's expand the range to a full week to be safe if they pass Monday.
+    const startOfTargetWeek = new Date(targetDate); 
+    
+    const startOfSourceWeek = new Date(startOfTargetWeek);
+    startOfSourceWeek.setDate(startOfSourceWeek.getDate() - 7);
+    const startOfSourceWeekStr = startOfSourceWeek.toISOString().split('T')[0];
+
+    const endOfSourceWeek = new Date(startOfSourceWeek);
+    endOfSourceWeek.setDate(endOfSourceWeek.getDate() + 6);
+    const endOfSourceWeekStr = endOfSourceWeek.toISOString().split('T')[0];
+
+    // 1. Get Source Plans
+    db.all(
+        "SELECT * FROM meal_plans WHERE household_id = ? AND date BETWEEN ? AND ?",
+        [req.params.id, startOfSourceWeekStr, endOfSourceWeekStr],
+        async (err, rows) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (rows.length === 0) return res.json({ copiedCount: 0 });
+
+            let copiedCount = 0;
+            const stmt = db.prepare("INSERT INTO meal_plans (household_id, date, member_id, meal_id, type) VALUES (?, ?, ?, ?, ?)");
+
+            const processRow = (row) => {
+                return new Promise((resolve, reject) => {
+                    const oldDate = new Date(row.date);
+                    const newDate = new Date(oldDate);
+                    newDate.setDate(newDate.getDate() + 7);
+                    const newDateStr = newDate.toISOString().split('T')[0];
+
+                    db.get(
+                        "SELECT id FROM meal_plans WHERE household_id=? AND date=? AND member_id=? AND meal_id=? AND type=?",
+                        [req.params.id, newDateStr, row.member_id, row.meal_id, row.type],
+                        (checkErr, existing) => {
+                            if (checkErr) return reject(checkErr);
+                            if (!existing) {
+                                stmt.run([req.params.id, newDateStr, row.member_id, row.meal_id, row.type], (runErr) => {
+                                    if (runErr) return reject(runErr);
+                                    copiedCount++;
+                                    resolve();
+                                });
+                            } else {
+                                resolve();
+                            }
+                        }
+                    );
+                });
+            };
+
+            try {
+                await Promise.all(rows.map(processRow));
+                stmt.finalize();
+                res.json({ copiedCount });
+            } catch (procErr) {
+                stmt.finalize();
+                res.status(500).json({ error: procErr.message });
+            }
+        }
+    );
+});
+
 // Remove Plan Entry
 router.delete('/households/:id/meal-plans/:planId', authenticateToken, requireHouseholdRole('member'), (req, res) => {
     const db = getHouseholdDb(req.params.id);

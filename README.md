@@ -21,6 +21,12 @@ Totem is a high-performance, multi-tenant Household Management SaaS designed wit
     *   **Risk Management:** Integrated `insurance_status` tracking (Insured/Uninsured/Self-Insured) across all asset categories.
     *   **Vehicle Fleet Management:** Comprehensive tracking of service history, finance agreements, insurance, and MOT/Tax schedules.
 *   **Physical Asset CRUD with Date Tracking:** Full lifecycle management for Vehicles, Assets, and Energy accounts with automated date-based tracking (MOT, Warranty, Contract Ends).
+*   **Meal Planning Module:**
+    *   **Advanced Scheduling:** Interactive weekly meal planner with assignment logic.
+    *   **Library System:** Reusable meal library with emoji support and quick-copy functionality.
+    *   **Smart Copy:** "Copy Previous Week" feature with intelligent date shifting.
+    *   **Responsive Design:** Optimized **Mobile Card View** for shopping on the go, and **Desktop Grid View** for planning.
+    *   **Status Indicators:** Visual cues for days with incomplete meal assignments.
 *   **Role-Based Access Control (RBAC):** Granular permissions supporting Admin (Full Access), Member (Standard), and Viewer (Read-only) roles.
 
 ## 🛠️ Tech Stack

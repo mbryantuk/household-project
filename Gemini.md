@@ -123,14 +123,15 @@ echo "   3. Standard: Performance Benchmarks"
 echo "   4. New Feature: [INSERT NEW TEST FILE NAME HERE]"
 
 # 3. Verification (CRITICAL)
-echo "🧪 Running Standard Suite..."
-npm test tests/viewer_restrictions.test.js
-npm test tests/selector.test.js
+echo "🧪 Running Master Test Suite (All Objects)..."
+# Runs ALL tests and generates test-report.html
+npm run test:report
 
 # [DYNAMIC INSERTION POINT]
-# If you created a new test file, inject it here:
-echo "✨ Verifying New Features..."
-npm test tests/cars.test.js
+# If you created a new test file, ensure it is covered by the master suite above.
+# If specific isolated verification is needed:
+# echo "✨ Verifying New Features..."
+# npm test tests/cars.test.js
 
 echo "⚡ Running Performance & Load Tests..."
 npm run test:perf
