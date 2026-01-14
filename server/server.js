@@ -3,7 +3,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
-const apiReference = require('@scalar/express-api-reference');
+const { apiReference } = require('@scalar/express-api-reference');
 const swaggerDocument = require('./swagger.json');
 
 // Import unified database instance
