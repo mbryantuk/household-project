@@ -3,14 +3,13 @@ import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, Input, Button, 
   FormControl, FormLabel, Select, Option, Stack, Divider,
-  Tooltip, IconButton, Grid, Avatar, Chip, CircularProgress, Table
+  Tooltip, IconButton, Grid, CircularProgress, Table, Chip
 } from '@mui/joy';
 import { 
-  Edit, Delete, Add, Info, Shield, Payments, DirectionsCar
+  Edit, Delete, Add, Info, Shield, Payments
 } from '@mui/icons-material';
 import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
 import EmojiPicker from '../components/EmojiPicker';
-import { getEmojiColor } from '../theme';
 
 export default function VehiclesView() {
   const { api, id: householdId, user: currentUser, isDark, showNotification, confirmAction, fetchVehicles: refreshSidebar } = useOutletContext();
@@ -224,96 +223,107 @@ export default function VehiclesView() {
 
         <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
           {(activeTab === 0 || vehicleId === 'new') && (
-            <form onSubmit={handleSubmitVehicle}>
-              <Grid container spacing={3}>
-                <Grid xs={12} md={2}>
-                    <Tooltip title="Pick an emoji" variant="soft">
-                        <IconButton 
-                            onClick={() => setEmojiPickerOpen(true)} 
-                            variant="outlined"
-                            sx={{ width: 80, height: 80 }}
-                        >
-                            <Typography level="h1">{selectedEmoji}</Typography>
-                        </IconButton>
-                    </Tooltip>
+            <Box>
+                <Box sx={{ mb: 4 }}>
+                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
+                        Vehicle Identity
+                    </Typography>
+                    <Typography level="body-md" color="neutral">Primary identification and valuation data.</Typography>
+                </Box>
+                <form onSubmit={handleSubmitVehicle}>
+                <Grid container spacing={3}>
+                    <Grid xs={12} md={2}>
+                        <Tooltip title="Pick an emoji" variant="soft">
+                            <IconButton 
+                                onClick={() => setEmojiPickerOpen(true)} 
+                                variant="outlined"
+                                sx={{ width: 80, height: 80 }}
+                            >
+                                <Typography level="h1">{selectedEmoji}</Typography>
+                            </IconButton>
+                        </Tooltip>
+                    </Grid>
+                    <Grid xs={12} md={5}>
+                        <FormControl required>
+                            <FormLabel>Make</FormLabel>
+                            <Input name="make" defaultValue={selectedVehicle?.make} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12} md={5}>
+                        <FormControl required>
+                            <FormLabel>Model</FormLabel>
+                            <Input name="model" defaultValue={selectedVehicle?.model} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12} md={4}>
+                        <FormControl>
+                            <FormLabel>Registration</FormLabel>
+                            <Input name="registration" defaultValue={selectedVehicle?.registration} />
+                        </FormControl>
+                    </Grid>
+                    
+                    {vehicleId !== 'new' && (
+                        <>
+                            <Grid xs={12}><Divider>Asset Valuation</Divider></Grid>
+                            <Grid xs={6} md={3}>
+                                <FormControl>
+                                    <FormLabel>Purchase Value (£)</FormLabel>
+                                    <Input name="purchase_value" type="number" defaultValue={selectedVehicle?.purchase_value} />
+                                </FormControl>
+                            </Grid>
+                            <Grid xs={6} md={3}>
+                                <FormControl>
+                                    <FormLabel>Replacement Cost (£)</FormLabel>
+                                    <Input name="replacement_cost" type="number" defaultValue={selectedVehicle?.replacement_cost} />
+                                </FormControl>
+                            </Grid>
+                            <Grid xs={6} md={3}>
+                                <FormControl>
+                                    <FormLabel>Maint. Forecast (£/mo)</FormLabel>
+                                    <Input name="monthly_maintenance_cost" type="number" defaultValue={selectedVehicle?.monthly_maintenance_cost} />
+                                </FormControl>
+                            </Grid>
+                            <Grid xs={6} md={3}>
+                                <FormControl>
+                                    <FormLabel>Annual Depreciation %</FormLabel>
+                                    <Input name="depreciation_rate" type="number" defaultValue={selectedVehicle?.depreciation_rate} />
+                                </FormControl>
+                            </Grid>
+                            <Grid xs={12}><Divider>Maintenance Schedule</Divider></Grid>
+                            <Grid xs={12} md={4}>
+                                <FormControl>
+                                    <FormLabel>MOT Due Date</FormLabel>
+                                    <Input name="mot_due" type="date" defaultValue={selectedVehicle?.mot_due} />
+                                </FormControl>
+                            </Grid>
+                            <Grid xs={12} md={4}>
+                                <FormControl>
+                                    <FormLabel>Tax Due Date</FormLabel>
+                                    <Input name="tax_due" type="date" defaultValue={selectedVehicle?.tax_due} />
+                                </FormControl>
+                            </Grid>
+                        </>
+                    )}
+                    
+                    <Grid xs={12}>
+                    <Button type="submit" variant="solid" size="lg">
+                        {vehicleId === 'new' ? 'Create Vehicle' : 'Update Details'}
+                    </Button>
+                    </Grid>
                 </Grid>
-                <Grid xs={12} md={5}>
-                    <FormControl required>
-                        <FormLabel>Make</FormLabel>
-                        <Input name="make" defaultValue={selectedVehicle?.make} />
-                    </FormControl>
-                </Grid>
-                <Grid xs={12} md={5}>
-                    <FormControl required>
-                        <FormLabel>Model</FormLabel>
-                        <Input name="model" defaultValue={selectedVehicle?.model} />
-                    </FormControl>
-                </Grid>
-                <Grid xs={12} md={4}>
-                    <FormControl>
-                        <FormLabel>Registration</FormLabel>
-                        <Input name="registration" defaultValue={selectedVehicle?.registration} />
-                    </FormControl>
-                </Grid>
-                
-                {vehicleId !== 'new' && (
-                    <>
-                        <Grid xs={12}><Divider>Asset Valuation</Divider></Grid>
-                        <Grid xs={6} md={3}>
-                            <FormControl>
-                                <FormLabel>Purchase Value (£)</FormLabel>
-                                <Input name="purchase_value" type="number" defaultValue={selectedVehicle?.purchase_value} />
-                            </FormControl>
-                        </Grid>
-                        <Grid xs={6} md={3}>
-                            <FormControl>
-                                <FormLabel>Replacement Cost (£)</FormLabel>
-                                <Input name="replacement_cost" type="number" defaultValue={selectedVehicle?.replacement_cost} />
-                            </FormControl>
-                        </Grid>
-                        <Grid xs={6} md={3}>
-                            <FormControl>
-                                <FormLabel>Maint. Forecast (£/mo)</FormLabel>
-                                <Input name="monthly_maintenance_cost" type="number" defaultValue={selectedVehicle?.monthly_maintenance_cost} />
-                            </FormControl>
-                        </Grid>
-                        <Grid xs={6} md={3}>
-                            <FormControl>
-                                <FormLabel>Annual Depreciation %</FormLabel>
-                                <Input name="depreciation_rate" type="number" defaultValue={selectedVehicle?.depreciation_rate} />
-                            </FormControl>
-                        </Grid>
-                        <Grid xs={12}><Divider>Maintenance Schedule</Divider></Grid>
-                        <Grid xs={12} md={4}>
-                            <FormControl>
-                                <FormLabel>MOT Due Date</FormLabel>
-                                <Input name="mot_due" type="date" defaultValue={selectedVehicle?.mot_due} />
-                            </FormControl>
-                        </Grid>
-                        <Grid xs={12} md={4}>
-                            <FormControl>
-                                <FormLabel>Tax Due Date</FormLabel>
-                                <Input name="tax_due" type="date" defaultValue={selectedVehicle?.tax_due} />
-                            </FormControl>
-                        </Grid>
-                    </>
-                )}
-                
-                <Grid xs={12}>
-                  <Button type="submit" variant="solid" size="lg">
-                    {vehicleId === 'new' ? 'Create Vehicle' : 'Update Details'}
-                  </Button>
-                </Grid>
-              </Grid>
-            </form>
+                </form>
+            </Box>
           )}
 
           {activeTab > 0 && activeTab < 5 && vehicleId !== 'new' && (
             <Box>
-              <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography level="h3" sx={{ fontWeight: 'lg' }}>
-                    {activeTab === 1 ? 'Service History' : activeTab === 2 ? 'Finance Agreements' : activeTab === 3 ? 'Insurance Policies' : 'Service Plans'}
-                </Typography>
+              <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Box>
+                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
+                        {activeTab === 1 ? 'Service History' : activeTab === 2 ? 'Finance Agreements' : activeTab === 3 ? 'Insurance Policies' : 'Service Plans'}
+                    </Typography>
+                    <Typography level="body-md" color="neutral">Historical and active records for this vehicle.</Typography>
+                </Box>
                 {isAdmin && (
                     <Button size="sm" variant="outlined" startDecorator={<Add />} onClick={() => setEditItem({})}>Add Entry</Button>
                 )}
@@ -359,7 +369,10 @@ export default function VehiclesView() {
 
           {activeTab === 5 && vehicleId !== 'new' && (
             <Box>
-              <Typography level="h3" sx={{ fontWeight: 'lg', mb: 2 }}>Vehicle-Specific Recurring Costs</Typography>
+              <Box sx={{ mb: 4 }}>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>Vehicle-Specific Recurring Costs</Typography>
+                <Typography level="body-md" color="neutral">Ongoing costs tied specifically to this fleet asset.</Typography>
+              </Box>
               <RecurringCostsWidget 
                 api={api} 
                 householdId={householdId} 

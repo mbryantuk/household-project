@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, Button, Input, 
@@ -110,8 +110,11 @@ export default function SettingsView({
           <Box sx={{ p: { xs: 2, md: 4 } }}>
             {activeTab === 0 && (
               <Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                    <Typography level="h3" sx={{ fontWeight: 'lg' }}>Member Permissions</Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+                    <Box>
+                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>Member Permissions</Typography>
+                        <Typography level="body-md" color="neutral">Control who has access to this household and their level of control.</Typography>
+                    </Box>
                     {isAdmin && <Button variant="solid" color="primary" startDecorator={<PersonAdd />} onClick={openAddUser}>Invite User</Button>}
                 </Box>
                 
@@ -138,8 +141,10 @@ export default function SettingsView({
 
             {activeTab === 1 && (
                 <Box>
-                    <Typography level="h3" sx={{ fontWeight: 'lg', mb: 1 }}>Household Context Roles</Typography>
-                    <Typography level="body-sm" color="neutral" mb={3}>Assign specific roles to define what each member can edit within this household.</Typography>
+                    <Box sx={{ mb: 4 }}>
+                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>Household Context Roles</Typography>
+                        <Typography level="body-md" color="neutral">Assign specific roles to define what each member can edit within this household.</Typography>
+                    </Box>
                     <Sheet variant="soft" color="warning" sx={{ p: 2, borderRadius: 'md' }}>
                         <Typography level="body-sm" fontWeight="bold">Developer Note:</Typography>
                         <Typography level="body-sm">Granular context-based roles (Finance Lead, Inventory Manager) are planned for the next major release.</Typography>
@@ -149,7 +154,10 @@ export default function SettingsView({
 
             {activeTab === 2 && (
                 <Box sx={{ maxWidth: 400 }}>
-                    <Typography level="h3" sx={{ fontWeight: 'lg', mb: 3 }}>Display Preferences</Typography>
+                    <Box sx={{ mb: 4 }}>
+                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>Display Preferences</Typography>
+                        <Typography level="body-md" color="neutral">Customize how the interface looks and feels for you.</Typography>
+                    </Box>
                     <Stack spacing={3}>
                         <FormControl>
                             <FormLabel>Color Mode</FormLabel>

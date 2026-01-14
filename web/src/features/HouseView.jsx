@@ -118,8 +118,10 @@ export default function HouseView() {
                 loadingHh ? <CircularProgress /> : (
                 <Box>
                     <Box sx={{ mb: 4 }}>
-                        <Typography level="h3" sx={{ fontWeight: 'lg', mb: 0.5 }}>Household Identity & Location</Typography>
-                        <Typography level="body-sm" color="neutral">Configure your home's core details and shared access.</Typography>
+                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
+                            Household Identity & Location
+                        </Typography>
+                        <Typography level="body-md" color="neutral">Configure your home's core details and shared access.</Typography>
                     </Box>
                     <form onSubmit={handleUpdateIdentity}>
                     <Grid container spacing={3}>
@@ -219,14 +221,22 @@ export default function HouseView() {
             {activeTab === 6 && <CouncilView />}
             
             {activeTab === 7 && (
-                <RecurringCostsWidget 
-                    api={api} 
-                    householdId={householdId} 
-                    parentType="house" 
-                    parentId={1} 
-                    isAdmin={isAdmin}
-                    showNotification={showNotification}
-                />
+                <Box>
+                    <Box sx={{ mb: 4 }}>
+                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
+                            Miscellaneous Costs
+                        </Typography>
+                        <Typography level="body-md" color="neutral">Track extra expenses not covered in other categories.</Typography>
+                    </Box>
+                    <RecurringCostsWidget 
+                        api={api} 
+                        householdId={householdId} 
+                        parentType="house" 
+                        parentId={1} 
+                        isAdmin={isAdmin}
+                        showNotification={showNotification}
+                    />
+                </Box>
             )}
           </Box>
         </Tabs>

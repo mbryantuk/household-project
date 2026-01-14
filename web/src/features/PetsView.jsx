@@ -134,7 +134,7 @@ export default function PetsView() {
                         >
                             <Box sx={{ fontSize: '2.5rem' }}>{p.emoji || '🐾'}</Box>
                             <Box>
-                                <Typography level="title-md">{p.name}</Typography>
+                                <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{p.name}</Typography>
                                 <Typography level="body-sm" color="neutral">{p.species} • {p.breed}</Typography>
                             </Box>
                         </Sheet>
@@ -255,7 +255,10 @@ export default function PetsView() {
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>
                 <Grid xs={12}>
-                  <Typography level="title-lg">Insurance Details</Typography>
+                  <Box sx={{ mb: 4 }}>
+                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>Insurance & Health</Typography>
+                    <Typography level="body-md" color="neutral">Policies and monthly maintenance for your pet.</Typography>
+                  </Box>
                 </Grid>
                 <Grid xs={12} md={6}>
                     <FormControl>
@@ -278,9 +281,10 @@ export default function PetsView() {
                 
                 <Grid xs={12}>
                   <Divider sx={{ my: 2 }} />
-                  <Typography level="title-lg" startDecorator={<Restaurant />}>
-                      Nutrition (Monthly Forecast)
-                  </Typography>
+                  <Box sx={{ mb: 4, mt: 2 }}>
+                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }} startDecorator={<Restaurant />}>Nutrition (Monthly Forecast)</Typography>
+                    <Typography level="body-md" color="neutral">Budgeting for food and dietary needs.</Typography>
+                  </Box>
                   <FormControl sx={{ mt: 2 }}>
                       <FormLabel>Estimated Monthly Food Cost (£)</FormLabel>
                       <Input name="food_monthly_cost" type="number" value={formData.food_monthly_cost} onChange={handleChange} />
@@ -295,7 +299,10 @@ export default function PetsView() {
 
           {activeTab === 2 && petId !== 'new' && (
             <Box>
-              <Typography level="title-lg" mb={2}>Pet-Specific Recurring Costs</Typography>
+              <Box sx={{ mb: 4 }}>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>Recurring Miscellaneous Costs</Typography>
+                <Typography level="body-md" color="neutral">Additional costs specific to this pet.</Typography>
+              </Box>
               <RecurringCostsWidget 
                 api={api} 
                 householdId={householdId} 

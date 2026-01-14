@@ -1,9 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, Input, Button, 
   FormControl, FormLabel, Select, Option, Stack, Divider,
-  Tooltip, IconButton, Grid, Avatar
+  Tooltip, IconButton, Grid
 } from '@mui/joy';
 import { 
   Shield, Gavel, Delete, ContactPage, Payments, Add
@@ -183,106 +183,125 @@ export default function PeopleView() {
 
         <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
           {(activeTab === 0 || personId === 'new') && (
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={3}>
-                <Grid xs={12} md={2}>
-                    <Tooltip title="Pick an emoji" variant="soft">
-                        <IconButton 
-                            onClick={() => setEmojiPickerOpen(true)} 
-                            variant="outlined"
-                            sx={{ width: 80, height: 80 }}
-                        >
-                            <Typography level="h1">{formData.emoji}</Typography>
-                        </IconButton>
-                    </Tooltip>
-                </Grid>
-                <Grid xs={12} md={5}>
-                    <FormControl required>
-                        <FormLabel>Full Name</FormLabel>
-                        <Input name="name" value={formData.name} onChange={handleChange} />
-                    </FormControl>
-                </Grid>
-                <Grid xs={12} md={5}>
-                  <FormControl>
-                    <FormLabel>Role / Type</FormLabel>
-                    <Select name="type" value={formData.type} onChange={(e, v) => setFormData(prev => ({ ...prev, type: v }))}>
-                      <Option value="adult">Adult</Option>
-                      <Option value="child">Child</Option>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid xs={12} md={4}>
+            <Box>
+                <Box sx={{ mb: 4 }}>
+                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
+                        Personal Identity
+                    </Typography>
+                    <Typography level="body-md" color="neutral">Core personal identification and background.</Typography>
+                </Box>
+                <form onSubmit={handleSubmit}>
+                <Grid container spacing={3}>
+                    <Grid xs={12} md={2}>
+                        <Tooltip title="Pick an emoji" variant="soft">
+                            <IconButton 
+                                onClick={() => setEmojiPickerOpen(true)} 
+                                variant="outlined"
+                                sx={{ width: 80, height: 80 }}
+                            >
+                                <Typography level="h1">{formData.emoji}</Typography>
+                            </IconButton>
+                        </Tooltip>
+                    </Grid>
+                    <Grid xs={12} md={5}>
+                        <FormControl required>
+                            <FormLabel>Full Name</FormLabel>
+                            <Input name="name" value={formData.name} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12} md={5}>
                     <FormControl>
-                        <FormLabel>Alias</FormLabel>
-                        <Input name="alias" value={formData.alias} onChange={handleChange} />
+                        <FormLabel>Role / Type</FormLabel>
+                        <Select name="type" value={formData.type} onChange={(e, v) => setFormData(prev => ({ ...prev, type: v }))}>
+                        <Option value="adult">Adult</Option>
+                        <Option value="child">Child</Option>
+                        </Select>
                     </FormControl>
+                    </Grid>
+                    <Grid xs={12} md={4}>
+                        <FormControl>
+                            <FormLabel>Alias</FormLabel>
+                            <Input name="alias" value={formData.alias} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12} md={4}>
+                        <FormControl>
+                            <FormLabel>Date of Birth</FormLabel>
+                            <Input name="dob" type="date" value={formData.dob} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12}>
+                        <FormControl>
+                            <FormLabel>Personal Notes</FormLabel>
+                            <Input name="notes" value={formData.notes} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12}>
+                    <Button type="submit" variant="solid" size="lg">
+                        {personId === 'new' ? 'Create Person' : 'Update Identity'}
+                    </Button>
+                    </Grid>
                 </Grid>
-                <Grid xs={12} md={4}>
-                    <FormControl>
-                        <FormLabel>Date of Birth</FormLabel>
-                        <Input name="dob" type="date" value={formData.dob} onChange={handleChange} />
-                    </FormControl>
-                </Grid>
-                <Grid xs={12}>
-                    <FormControl>
-                        <FormLabel>Personal Notes</FormLabel>
-                        <Input name="notes" value={formData.notes} onChange={handleChange} />
-                    </FormControl>
-                </Grid>
-                <Grid xs={12}>
-                  <Button type="submit" variant="solid" size="lg">
-                    {personId === 'new' ? 'Create Person' : 'Update Identity'}
-                  </Button>
-                </Grid>
-              </Grid>
-            </form>
+                </form>
+            </Box>
           )}
 
           {activeTab === 1 && personId !== 'new' && (
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={3}>
-                <Grid xs={12}>
-                  <Typography level="h3" sx={{ fontWeight: 'lg' }}>Life Insurance</Typography>
-                </Grid>
-                <Grid xs={12} md={6}>
-                    <FormControl>
-                        <FormLabel>Provider</FormLabel>
-                        <Input name="life_insurance_provider" value={formData.life_insurance_provider} onChange={handleChange} />
+            <Box>
+                <Box sx={{ mb: 4 }}>
+                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
+                        Protection & Legal
+                    </Typography>
+                    <Typography level="body-md" color="neutral">Insurance, Wills, and Legal documentation.</Typography>
+                </Box>
+                <form onSubmit={handleSubmit}>
+                <Grid container spacing={3}>
+                    <Grid xs={12}>
+                    <Typography level="title-lg" sx={{ fontWeight: 'lg' }}>Life Insurance</Typography>
+                    </Grid>
+                    <Grid xs={12} md={6}>
+                        <FormControl>
+                            <FormLabel>Provider</FormLabel>
+                            <Input name="life_insurance_provider" value={formData.life_insurance_provider} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12} md={3}>
+                        <FormControl>
+                            <FormLabel>Monthly Premium (£)</FormLabel>
+                            <Input name="life_insurance_premium" type="number" value={formData.life_insurance_premium} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12} md={3}>
+                        <FormControl>
+                            <FormLabel>Policy Expiry</FormLabel>
+                            <Input name="life_insurance_expiry" type="date" value={formData.life_insurance_expiry} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    
+                    <Grid xs={12}>
+                    <Divider sx={{ my: 2 }} />
+                    <Typography level="title-lg" sx={{ fontWeight: 'lg' }} startDecorator={<Gavel />}>
+                        Wills & Estate
+                    </Typography>
+                    <FormControl sx={{ mt: 2 }}>
+                        <FormLabel>Will / Estate Details</FormLabel>
+                        <Input name="will_details" value={formData.will_details} onChange={handleChange} placeholder="Location of original document, executors, key instructions..." />
                     </FormControl>
+                    </Grid>
+                    <Grid xs={12}>
+                    <Button type="submit" variant="solid" size="lg">Save Legal Info</Button>
+                    </Grid>
                 </Grid>
-                <Grid xs={12} md={3}>
-                    <FormControl>
-                        <FormLabel>Monthly Premium (£)</FormLabel>
-                        <Input name="life_insurance_premium" type="number" value={formData.life_insurance_premium} onChange={handleChange} />
-                    </FormControl>
-                </Grid>
-                <Grid xs={12} md={3}>
-                    <FormControl>
-                        <FormLabel>Policy Expiry</FormLabel>
-                        <Input name="life_insurance_expiry" type="date" value={formData.life_insurance_expiry} onChange={handleChange} />
-                    </FormControl>
-                </Grid>
-                
-                <Grid xs={12}>
-                  <Divider sx={{ my: 2 }} />
-                  <Typography level="h3" sx={{ fontWeight: 'lg' }} startDecorator={<Gavel />}>
-                      Wills & Estate
-                  </Typography>
-                  <FormControl sx={{ mt: 2 }}>
-                      <FormLabel>Will / Estate Details</FormLabel>
-                      <Input name="will_details" value={formData.will_details} onChange={handleChange} placeholder="Location of original document, executors, key instructions..." />
-                  </FormControl>
-                </Grid>
-                <Grid xs={12}>
-                  <Button type="submit" variant="solid" size="lg">Save Legal Info</Button>
-                </Grid>
-              </Grid>
-            </form>
+                </form>
+            </Box>
           )}
 
           {activeTab === 2 && personId !== 'new' && (
             <Box>
-              <Typography level="h3" sx={{ fontWeight: 'lg', mb: 2 }}>Recurring Miscellaneous Costs</Typography>
+              <Box sx={{ mb: 4 }}>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>Recurring Miscellaneous Costs</Typography>
+                <Typography level="body-md" color="neutral">Costs specific to this resident.</Typography>
+              </Box>
               <RecurringCostsWidget 
                 api={api} 
                 householdId={householdId} 
