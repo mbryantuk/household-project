@@ -29,16 +29,14 @@ const dbRun = (db, sql, params) => new Promise((resolve, reject) => {
  * Create a new household for existing user
  */
 router.post('/households', authenticateToken, async (req, res) => {
-    const { name, theme } = req.body;
+    const { name } = req.body;
     if (!name) return res.status(400).json({ error: "Household name is required" });
 
     try {
-        const accessKey = crypto.randomBytes(4).toString('hex').toUpperCase();
-        
         // 1. Create Household
         const hhResult = await dbRun(globalDb, 
-            `INSERT INTO households (name, access_key, theme) VALUES (?, ?, ?)`, 
-            [name, accessKey, theme || 'totem']
+            `INSERT INTO households (name) VALUES (?)`, 
+            [name]
         );
         const householdId = hhResult.id;
 
@@ -52,7 +50,7 @@ router.post('/households', authenticateToken, async (req, res) => {
         const hhDb = getHouseholdDb(householdId);
         hhDb.close();
 
-        res.status(201).json({ id: householdId, name, access_key: accessKey });
+        res.status(201).json({ id: householdId, name });
 
     } catch (err) {
         console.error("Create Household Error:", err);
@@ -85,14 +83,13 @@ router.put('/households/:id', authenticateToken, async (req, res) => {
     if (!link || link.role !== 'admin') return res.sendStatus(403);
 
     const { 
-        name, theme, 
+        name, 
         address_street, address_city, address_zip,
         date_format, currency, decimals, avatar,
         auto_backup, backup_retention
     } = req.body;
     let fields = []; let values = [];
     if (name) { fields.push('name = ?'); values.push(name); }
-    if (theme) { fields.push('theme = ?'); values.push(theme); }
     if (address_street !== undefined) { fields.push('address_street = ?'); values.push(address_street); }
     if (address_city !== undefined) { fields.push('address_city = ?'); values.push(address_city); }
     if (address_zip !== undefined) { fields.push('address_zip = ?'); values.push(address_zip); }

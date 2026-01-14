@@ -40,6 +40,7 @@ function initGlobalDb() {
             created_at TEXT DEFAULT CURRENT_TIMESTAMP,
             dashboard_layout TEXT,
             sticky_note TEXT,
+            theme TEXT DEFAULT 'totem',
             is_active BOOLEAN DEFAULT 1
         )`);
 
@@ -47,8 +48,6 @@ function initGlobalDb() {
         globalDb.run(`CREATE TABLE IF NOT EXISTS households (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            access_key TEXT UNIQUE,
-            theme TEXT DEFAULT 'default',
             address_street TEXT,
             address_city TEXT,
             address_zip TEXT,
@@ -91,6 +90,7 @@ function initGlobalDb() {
         globalDb.run(`ALTER TABLE users ADD COLUMN last_name TEXT`, (err) => {});
         globalDb.run(`ALTER TABLE users ADD COLUMN default_household_id INTEGER`, (err) => {});
         globalDb.run(`ALTER TABLE users ADD COLUMN sticky_note TEXT`, (err) => {});
+        globalDb.run(`ALTER TABLE users ADD COLUMN theme TEXT DEFAULT 'totem'`, (err) => {});
         globalDb.run(`ALTER TABLE users ADD COLUMN is_active BOOLEAN DEFAULT 1`, (err) => {});
         globalDb.run(`ALTER TABLE user_households ADD COLUMN is_active BOOLEAN DEFAULT 1`, (err) => {});
     });

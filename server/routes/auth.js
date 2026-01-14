@@ -36,11 +36,9 @@ router.post('/register', async (req, res) => {
         if (existingUser) return res.status(409).json({ error: "Email already registered" });
 
         // 2. Create Household
-        const accessKey = crypto.randomBytes(4).toString('hex').toUpperCase();
-        
         const hhResult = await dbRun(globalDb, 
-            `INSERT INTO households (name, access_key, theme) VALUES (?, ?, 'default')`, 
-            [householdName, accessKey]
+            `INSERT INTO households (name) VALUES (?)`, 
+            [householdName]
         );
         const householdId = hhResult.id;
 
@@ -140,6 +138,7 @@ router.post('/login', async (req, res) => {
                 first_name: user.first_name,
                 last_name: user.last_name,
                 avatar: user.avatar,
+                theme: user.theme,
                 dashboard_layout: user.dashboard_layout,
                 sticky_note: user.sticky_note
             },
@@ -157,7 +156,7 @@ router.post('/login', async (req, res) => {
  */
 router.get('/profile', authenticateToken, async (req, res) => {
     try {
-        const user = await dbGet(globalDb, `SELECT id, email, username, first_name, last_name, avatar, system_role, dashboard_layout, sticky_note, default_household_id FROM users WHERE id = ?`, [req.user.id]);
+        const user = await dbGet(globalDb, `SELECT id, email, username, first_name, last_name, avatar, system_role, dashboard_layout, sticky_note, theme, default_household_id FROM users WHERE id = ?`, [req.user.id]);
         if (!user) return res.status(404).json({ error: "User not found" });
         res.json(user);
     } catch (err) {
@@ -174,7 +173,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
         firstName, lastName, 
         first_name, last_name, 
         avatar, dashboard_layout, sticky_note,
-        default_household_id
+        theme, default_household_id
     } = req.body;
     
     let fields = [];
@@ -189,6 +188,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
     if (lName) { fields.push('last_name = ?'); values.push(lName); }
     
     if (avatar !== undefined) { fields.push('avatar = ?'); values.push(avatar); }
+    if (theme !== undefined) { fields.push('theme = ?'); values.push(theme); }
     if (sticky_note !== undefined) { fields.push('sticky_note = ?'); values.push(sticky_note); }
     if (default_household_id !== undefined) { fields.push('default_household_id = ?'); values.push(default_household_id); }
     if (dashboard_layout !== undefined) { 

@@ -1,6 +1,6 @@
 {
   "name": "household-manager",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -44,9 +44,14 @@
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "axios": "^1.13.2",
-    "jest": "^30.2.0",
-    "jest-html-reporter": "^4.3.0",
-    "supertest": "^7.1.4"
+    "@eslint/js": "^9.39.1",
+    "@types/react": "^19.2.5",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "vite": "^7.2.4"
   }
 }
