@@ -118,7 +118,7 @@ export default function HouseView() {
                 loadingHh ? <CircularProgress /> : (
                 <Box>
                     <Box sx={{ mb: 4 }}>
-                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
+                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
                             Household Identity & Location
                         </Typography>
                         <Typography level="body-md" color="neutral">Configure your home's core details and shared access.</Typography>
@@ -223,7 +223,7 @@ export default function HouseView() {
             {activeTab === 7 && (
                 <Box>
                     <Box sx={{ mb: 4 }}>
-                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
+                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
                             Miscellaneous Costs
                         </Typography>
                         <Typography level="body-md" color="neutral">Track extra expenses not covered in other categories.</Typography>

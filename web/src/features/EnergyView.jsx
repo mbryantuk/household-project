@@ -3,7 +3,7 @@ import { useOutletContext } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
-  FormControl, FormLabel, Select, Option, Stack, Chip, CardContent, CircularProgress,
+  FormControl, FormLabel, Select, Option, Stack, Chip, CircularProgress,
   Divider, Textarea
 } from '@mui/joy';
 import { Edit, Delete, ElectricBolt, Add, ReceiptLong } from '@mui/icons-material';
@@ -16,7 +16,7 @@ export default function EnergyView() {
   const [editAccount, setEditAccount] = useState(null);
   const [isNew, setIsNew] = useState(false);
   
-  const isHouseholdAdmin = currentUser?.role === 'admin';
+  const isAdmin = currentUser?.role === 'admin';
 
   const fetchAccounts = useCallback(async () => {
     setLoading(true);
@@ -75,7 +75,7 @@ export default function EnergyView() {
           flexWrap: 'wrap', gap: 2 
       }}>
         <Box>
-          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
             Energy Accounts
           </Typography>
           <Typography level="body-md" color="neutral">
@@ -83,7 +83,7 @@ export default function EnergyView() {
           </Typography>
         </Box>
         <Box>
-          {isHouseholdAdmin && (
+          {isAdmin && (
               <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditAccount({}); setIsNew(true); }}>
                   Add Account
               </Button>
@@ -102,7 +102,7 @@ export default function EnergyView() {
                     <ElectricBolt />
                   </Avatar>
                   <Box sx={{ flexGrow: 1 }}>
-                      <Typography level="title-md">{a.provider}</Typography>
+                      <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{a.provider}</Typography>
                       <Typography level="body-sm" color="neutral">{a.type}</Typography>
                       
                       <Stack spacing={1} mt={1}>
@@ -119,7 +119,7 @@ export default function EnergyView() {
                         )}
                       </Stack>
                   </Box>
-                  {isHouseholdAdmin && (
+                  {isAdmin && (
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                         <IconButton size="sm" variant="plain" onClick={() => { setEditAccount(a); setIsNew(false); }}><Edit /></IconButton>
                         <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(a.id)}><Delete /></IconButton>

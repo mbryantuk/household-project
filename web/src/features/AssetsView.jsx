@@ -6,7 +6,7 @@ import {
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
   Sheet, Table
 } from '@mui/joy';
-import { Edit, Delete, Add, EventBusy, AccountBalanceWallet, VerifiedUser } from '@mui/icons-material';
+import { Edit, Delete, Add } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
 import AppSelect from '../components/ui/AppSelect';
 
@@ -30,7 +30,7 @@ export default function AssetsView() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
   
-  const isHouseholdAdmin = currentUser?.role === 'admin';
+  const isAdmin = currentUser?.role === 'admin';
 
   const fetchAssets = useCallback(async () => {
     setLoading(true);
@@ -117,7 +117,7 @@ export default function AssetsView() {
             flexWrap: 'wrap', gap: 2 
         }}>
           <Box>
-            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
               Appliance & Asset Register
             </Typography>
             <Typography level="body-md" color="neutral">
@@ -126,7 +126,7 @@ export default function AssetsView() {
           </Box>
           
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-              {isHouseholdAdmin && (
+              {isAdmin && (
                   <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditAsset({}); setIsNew(true); }}>
                       Add Asset
                   </Button>
@@ -145,7 +145,7 @@ export default function AssetsView() {
                         <SortableHeader label="Location" field="location" width={150} />
                         <SortableHeader label="Value" field="purchase_value" width={120} />
                         <SortableHeader label="Insurance" field="insurance_status" width={140} />
-                        {isHouseholdAdmin && <th style={{ textAlign: 'right' }}>Actions</th>}
+                        {isAdmin && <th style={{ textAlign: 'right' }}>Actions</th>}
                     </tr>
                 </thead>
                 <tbody>
@@ -157,7 +157,7 @@ export default function AssetsView() {
                                 </Avatar>
                             </td>
                             <td>
-                                <Typography level="body-md" fontWeight="bold">{row.name}</Typography>
+                                <Typography level="body-md" sx={{ fontWeight: 'lg' }}>{row.name}</Typography>
                                 <Typography level="body-xs" color="neutral">{row.manufacturer} {row.model_number}</Typography>
                             </td>
                             <td>{row.category}</td>
@@ -172,7 +172,7 @@ export default function AssetsView() {
                                     {row.insurance_status || 'uninsured'}
                                 </Chip>
                             </td>
-                            {isHouseholdAdmin && (
+                            {isAdmin && (
                                 <td style={{ textAlign: 'right' }}>
                                     <IconButton size="sm" variant="plain" onClick={() => { setEditAsset(row); setIsNew(false); }}><Edit /></IconButton>
                                     <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(row.id)}><Delete /></IconButton>
@@ -193,7 +193,7 @@ export default function AssetsView() {
                         {a.emoji || a.name[0]}
                     </Avatar>
                     <Box sx={{ flexGrow: 1 }}>
-                        <Typography level="title-md">{a.name}</Typography>
+                        <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{a.name}</Typography>
                         <Typography level="body-sm">{a.category}</Typography>
                         <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
                             <Chip size="sm" variant="outlined">£{a.purchase_value}</Chip>
@@ -228,9 +228,6 @@ export default function AssetsView() {
                             <AppSelect 
                                 label="Category"
                                 name="category"
-                                value={editAsset?.category}
-                                // Simple local state handling for uncontrolled form would be tricky with AppSelect
-                                // So we let AppSelect be uncontrolled by passing defaultValue logic if supported or just default
                                 defaultValue={editAsset?.category || 'Appliance'}
                                 options={[
                                     { value: 'Appliance', label: 'Appliance' },

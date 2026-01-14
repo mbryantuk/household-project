@@ -125,7 +125,7 @@ export default function PetsView() {
                         <Sheet 
                             variant="outlined" 
                             sx={{ 
-                                p: 2, borderRadius: 'md', display: 'flex', alignItems: 'center', gap: 2,
+                                p: 2, borderRadius: 'md', display: 'center', alignItems: 'center', gap: 2,
                                 cursor: 'pointer',
                                 transition: 'background-color 0.2s',
                                 '&:hover': { bgcolor: 'background.level1' }
@@ -187,114 +187,126 @@ export default function PetsView() {
 
         <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
           {(activeTab === 0 || petId === 'new') && (
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={3}>
-                <Grid xs={12} md={2}>
-                    <Tooltip title="Pick an emoji" variant="soft">
-                        <IconButton 
-                            onClick={() => setEmojiPickerOpen(true)} 
-                            variant="outlined"
-                            sx={{ width: 80, height: 80 }}
-                        >
-                            <Typography level="h1">{formData.emoji}</Typography>
-                        </IconButton>
-                    </Tooltip>
+            <Box>
+                <Box sx={{ mb: 4 }}>
+                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
+                        Pet Identity
+                    </Typography>
+                    <Typography level="body-md" color="neutral">Core personal identification and breed background.</Typography>
+                </Box>
+                <form onSubmit={handleSubmit}>
+                <Grid container spacing={3}>
+                    <Grid xs={12} md={2}>
+                        <Tooltip title="Pick an emoji" variant="soft">
+                            <IconButton 
+                                onClick={() => setEmojiPickerOpen(true)} 
+                                variant="outlined"
+                                sx={{ width: 80, height: 80 }}
+                            >
+                                <Typography level="h1">{formData.emoji}</Typography>
+                            </IconButton>
+                        </Tooltip>
+                    </Grid>
+                    <Grid xs={12} md={5}>
+                        <FormControl required>
+                            <FormLabel>Pet Name</FormLabel>
+                            <Input name="name" value={formData.name} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12} md={5}>
+                        <FormControl required>
+                            <FormLabel>Species (e.g. Dog, Cat)</FormLabel>
+                            <Input name="species" value={formData.species} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12} md={4}>
+                        <FormControl>
+                            <FormLabel>Breed</FormLabel>
+                            <Input name="breed" value={formData.breed} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12} md={4}>
+                        <FormControl>
+                            <FormLabel>Date of Birth</FormLabel>
+                            <Input name="dob" type="date" value={formData.dob} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12} md={4}>
+                        <FormControl>
+                            <FormLabel>Microchip #</FormLabel>
+                            <Input name="microchip_number" value={formData.microchip_number} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12} md={6}>
+                        <FormControl>
+                            <FormLabel>Gender</FormLabel>
+                            <Input name="gender" value={formData.gender} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12}>
+                        <FormControl>
+                            <FormLabel>Notes</FormLabel>
+                            <Input name="notes" value={formData.notes} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12}>
+                        <Button type="submit" variant="solid" size="lg">
+                            {petId === 'new' ? 'Create Pet' : 'Update General Info'}
+                        </Button>
+                    </Grid>
                 </Grid>
-                <Grid xs={12} md={5}>
-                    <FormControl required>
-                        <FormLabel>Pet Name</FormLabel>
-                        <Input name="name" value={formData.name} onChange={handleChange} />
-                    </FormControl>
-                </Grid>
-                <Grid xs={12} md={5}>
-                    <FormControl required>
-                        <FormLabel>Species (e.g. Dog, Cat)</FormLabel>
-                        <Input name="species" value={formData.species} onChange={handleChange} />
-                    </FormControl>
-                </Grid>
-                <Grid xs={12} md={4}>
-                    <FormControl>
-                        <FormLabel>Breed</FormLabel>
-                        <Input name="breed" value={formData.breed} onChange={handleChange} />
-                    </FormControl>
-                </Grid>
-                <Grid xs={12} md={4}>
-                    <FormControl>
-                        <FormLabel>Date of Birth</FormLabel>
-                        <Input name="dob" type="date" value={formData.dob} onChange={handleChange} />
-                    </FormControl>
-                </Grid>
-                <Grid xs={12} md={4}>
-                    <FormControl>
-                        <FormLabel>Microchip #</FormLabel>
-                        <Input name="microchip_number" value={formData.microchip_number} onChange={handleChange} />
-                    </FormControl>
-                </Grid>
-                <Grid xs={12} md={6}>
-                    <FormControl>
-                        <FormLabel>Gender</FormLabel>
-                        <Input name="gender" value={formData.gender} onChange={handleChange} />
-                    </FormControl>
-                </Grid>
-                <Grid xs={12}>
-                    <FormControl>
-                        <FormLabel>Notes</FormLabel>
-                        <Input name="notes" value={formData.notes} onChange={handleChange} />
-                    </FormControl>
-                </Grid>
-                <Grid xs={12}>
-                    <Button type="submit" variant="solid" size="lg">
-                        {petId === 'new' ? 'Create Pet' : 'Update General Info'}
-                    </Button>
-                </Grid>
-              </Grid>
-            </form>
+                </form>
+            </Box>
           )}
 
           {activeTab === 1 && petId !== 'new' && (
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={3}>
-                <Grid xs={12}>
-                  <Box sx={{ mb: 4 }}>
-                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>Insurance & Health</Typography>
+            <Box>
+                <Box sx={{ mb: 4 }}>
+                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
+                        Insurance & Health
+                    </Typography>
                     <Typography level="body-md" color="neutral">Policies and monthly maintenance for your pet.</Typography>
-                  </Box>
-                </Grid>
-                <Grid xs={12} md={6}>
-                    <FormControl>
-                        <FormLabel>Insurance Provider</FormLabel>
-                        <Input name="pet_insurance_provider" value={formData.pet_insurance_provider} onChange={handleChange} />
+                </Box>
+                <form onSubmit={handleSubmit}>
+                <Grid container spacing={3}>
+                    <Grid xs={12}>
+                    <Typography level="title-lg">Insurance Details</Typography>
+                    </Grid>
+                    <Grid xs={12} md={6}>
+                        <FormControl>
+                            <FormLabel>Insurance Provider</FormLabel>
+                            <Input name="pet_insurance_provider" value={formData.pet_insurance_provider} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12} md={3}>
+                        <FormControl>
+                            <FormLabel>Monthly Premium (£)</FormLabel>
+                            <Input name="pet_insurance_premium" type="number" value={formData.pet_insurance_premium} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12} md={3}>
+                        <FormControl>
+                            <FormLabel>Policy Expiry</FormLabel>
+                            <Input name="pet_insurance_expiry" type="date" value={formData.pet_insurance_expiry} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    
+                    <Grid xs={12}>
+                    <Divider sx={{ my: 2 }} />
+                    <Typography level="title-lg" startDecorator={<Restaurant />}>
+                        Nutrition (Monthly Forecast)
+                    </Typography>
+                    <FormControl sx={{ mt: 2 }}>
+                        <FormLabel>Estimated Monthly Food Cost (£)</FormLabel>
+                        <Input name="food_monthly_cost" type="number" value={formData.food_monthly_cost} onChange={handleChange} />
                     </FormControl>
+                    </Grid>
+                    <Grid xs={12}>
+                        <Button type="submit" variant="solid" size="lg">Save Health & Nutrition</Button>
+                    </Grid>
                 </Grid>
-                <Grid xs={12} md={3}>
-                    <FormControl>
-                        <FormLabel>Monthly Premium (£)</FormLabel>
-                        <Input name="pet_insurance_premium" type="number" value={formData.pet_insurance_premium} onChange={handleChange} />
-                    </FormControl>
-                </Grid>
-                <Grid xs={12} md={3}>
-                    <FormControl>
-                        <FormLabel>Policy Expiry</FormLabel>
-                        <Input name="pet_insurance_expiry" type="date" value={formData.pet_insurance_expiry} onChange={handleChange} />
-                    </FormControl>
-                </Grid>
-                
-                <Grid xs={12}>
-                  <Divider sx={{ my: 2 }} />
-                  <Box sx={{ mb: 4, mt: 2 }}>
-                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }} startDecorator={<Restaurant />}>Nutrition (Monthly Forecast)</Typography>
-                    <Typography level="body-md" color="neutral">Budgeting for food and dietary needs.</Typography>
-                  </Box>
-                  <FormControl sx={{ mt: 2 }}>
-                      <FormLabel>Estimated Monthly Food Cost (£)</FormLabel>
-                      <Input name="food_monthly_cost" type="number" value={formData.food_monthly_cost} onChange={handleChange} />
-                  </FormControl>
-                </Grid>
-                <Grid xs={12}>
-                    <Button type="submit" variant="solid" size="lg">Save Health & Nutrition</Button>
-                </Grid>
-              </Grid>
-            </form>
+                </form>
+            </Box>
           )}
 
           {activeTab === 2 && petId !== 'new' && (

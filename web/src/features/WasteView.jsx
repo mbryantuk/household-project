@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { 
-  Box, Typography, Grid, Card, CardContent, Avatar, IconButton, 
+  Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
-  FormControl, FormLabel, Select, Option, Stack, Chip, CircularProgress
+  FormControl, FormLabel, Select, Option, Stack, CircularProgress
 } from '@mui/joy';
 import { Edit, Delete, DeleteSweep, Add } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
@@ -15,7 +15,7 @@ export default function WasteView() {
   const [editItem, setEditItem] = useState(null);
   const [isNew, setIsNew] = useState(false);
   
-  const isHouseholdAdmin = currentUser?.role === 'admin';
+  const isAdmin = currentUser?.role === 'admin';
 
   const fetchCollections = useCallback(async () => {
     setLoading(true);
@@ -74,12 +74,19 @@ export default function WasteView() {
           flexWrap: 'wrap', gap: 2 
       }}>
         <Box>
-          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
             Waste & Recycling
           </Typography>
           <Typography level="body-md" color="neutral">
             Bin collection schedules and recycling information.
           </Typography>
+        </Box>
+        <Box>
+          {isAdmin && (
+              <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditItem({}); setIsNew(true); }}>
+                  Add Collection
+              </Button>
+          )}
         </Box>
       </Box>
 
@@ -94,13 +101,13 @@ export default function WasteView() {
                     <DeleteSweep />
                   </Avatar>
                   <Box sx={{ flexGrow: 1 }}>
-                      <Typography level="title-md">{c.waste_type}</Typography>
+                      <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{c.waste_type}</Typography>
                       <Typography level="body-sm" color="neutral">{c.frequency} on {c.collection_day}s</Typography>
                       {c.notes && (
                         <Typography level="body-xs" mt={1}>{c.notes}</Typography>
                       )}
                   </Box>
-                  {isHouseholdAdmin && (
+                  {isAdmin && (
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                         <IconButton size="sm" variant="plain" onClick={() => { setEditItem(c); setIsNew(false); }}><Edit /></IconButton>
                         <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(c.id)}><Delete /></IconButton>
