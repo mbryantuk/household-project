@@ -25,126 +25,75 @@
 2.  **The Atomic Write Rule:**
     * **NEVER** use search-and-replace or diffs.
     * When modifying a file, you MUST read the existing content, apply changes in memory, and **output the FULL file content**.
-    * *Reasoning:* Prevents context drift and partial code corruption.
 
 3.  **The "Single Source of Truth" UI Rule:**
-    * **NEVER** write raw inputs (`<input>`, `<select>`) or one-off MUI components (`<Select>`, `<TextField>`) directly in Page views.
-    * **ALWAYS** use shared wrappers from `components/ui/` (e.g., `<AppSelect />`, `<CurrencyInput />`, `<SearchableDropdown />`).
-    * *Reasoning:* Ensures global consistency in styling, error handling, and accessibility.
+    * **NEVER** write raw inputs or one-off MUI components.
+    * **ALWAYS** use shared wrappers from `components/ui/` (e.g., `<AppSelect />`).
 
 ---
 
 ## 1. TECHNICAL SPECIFICATIONS
 
 ### A. Data & Logic
-* **Asset-First Model:** Items (e.g., "Fridge", "Car") are Assets. They require `purchase_value`, `monthly_maintenance_cost`, and `insurance_status`.
-* **Calendar Logic:**
-    * **Algorithm:** "Nearest Working Day" logic. If a recurring bill falls on a weekend/holiday, shift to the *previous* Friday.
-* **Architecture:** Modular design (`modules/assets`, `modules/budget`).
+* **Asset-First Model:** Items require `purchase_value`, `monthly_maintenance_cost`, and `insurance_status`.
+* **Calendar Logic:** "Nearest Working Day" logic. If a recurring bill falls on a weekend, shift to the previous Friday.
 
 ### B. Frontend (The "Excel" Standard)
-* **Framework:** MUI Joy UI + MUI X Data Grid (or TanStack Table).
-* **Advanced Tables (Desktop/Tablet):**
-    * MUST support: **Sorting**, **Filtering**, **Column Dragging**, and **Inline Editing**.
-    * **Selection & Aggregation:**
-        * Support `Ctrl+Click` (or Cmd+Click) for multi-row/cell selection.
-        * **Status Bar:** MUST appear when items are selected.
-        * **Metrics:** Always show **Count** of selected items. If selected values are **numeric**, automatically calculate and display the **SUM**.
-    * UX: Users should be able to edit cells directly without opening a new page (Excel-style).
-* **Responsive Strategy (Mobile):**
-    * **Complex Tables:** MUST transform into **Stacked Cards** or **List Views** on mobile (`xs`). Inline editing on mobile is forbidden; use **Modal/Drawer** forms instead for touch safety.
-    * **Touch Targets:** Minimum **44px** for all inputs/buttons.
-    * **Tools:** Mobile Menu MUST provide full-screen access to utility tools (Calculator, Finance, Tax, Notes) and Household Switching.
-* **Global Components (`components/ui`):**
-    * All Selectors/Dropdowns must be **Searchable** by default.
-    * All Date inputs must handle local timezone formatting automatically.
+* **Framework:** MUI Joy UI + MUI X Data Grid.
+* **Advanced Tables:** MUST support Sorting, Filtering, and Inline Editing.
+* **Status Bar:** MUST appear when items are selected, showing **Count** and numeric **SUM**.
+* **Responsive Strategy:** Tables transform to Stacked Cards on mobile (`xs`). Minimum **44px** touch targets.
+
+### C. Styling & Theme Standards (The "Totem" Spec)
+* **Theme Engine:** MUI Joy UI `extendTheme`.
+* **Palette Reference:**
+    * **Dracula (Dark):** Background `#282A36`, Purple `#BD93F9`, Selection `#44475A`, Foreground `#F8F8F2`.
+    * **Alucard (Light):** Background `#FFFBEB`, Purple `#644AC9`, Selection `#CFCFDE`, Foreground `#1F1F1F`.
+* **Theming Rules:**
+    1.  **NO INLINE COLORS:** Never use hex codes. Use theme tokens: `var(--joy-palette-primary-solidBg)` or `var(--joy-palette-background-body)`.
+    2.  **Emoji Styling:** Use `getEmojiColor(emoji, isDark)` for dynamic HSL background generation.
+    3.  **Component Styling:** Use the `sx` prop or `styled()` from `@mui/joy/styles`.
 
 ---
 
 ## 2. RESPONSE PROTOCOL
 
-You must structure your response in exactly **4 PHASES**. Do not skip phases.
+You must structure your response in exactly **4 PHASES**.
 
 ### Phase 1: The "Thinking" Block
-* **Goal:** Validate constraints before coding.
 * **Output Format:**
     > **Architect's Analysis:**
-    > 1.  **Tenancy Check:** [How is `household_id` enforced in this request?]
+    > 1.  **Tenancy Check:** [How is `household_id` enforced?]
     > 2.  **Component Audit:** [Am I using shared `components/ui/` wrappers? (Yes/No)]
-    > 3.  **View Strategy:** [Desktop: DataGrid w/ Aggregation | Mobile: Card List w/ Modal Edit]
+    > 3.  **Theme Audit:** [Does this adhere to Dracula/Alucard token standards? (Yes/No)]
     > 4.  **Versioning Decision:** [Major | Minor | Patch]
-        * *Major:* Breaking changes, API removal.
-        * *Minor:* New features, new database tables.
-        * *Patch:* Bug fixes, UI tweaks, perf updates.
-    > 5.  **New Tests:** [Did I create a new test file? If yes, it MUST be added to the Phase 4 script.]
+    > 5.  **New Tests:** [List any new test files created]
 
 ### Phase 2: Implementation (Atomic)
-* Provide the **FULL CONTENT** of every file that needs changing.
-* Include filenames prominently.
+* Provide the **FULL CONTENT** of every file.
 
 ### Phase 3: Documentation Sync
-* Output the specific Markdown blocks to update `README.md`.
-* If APIs changed, note the Swagger update.
+* Output Markdown blocks for `README.md` or API updates.
 
 ### Phase 4: Deployment & Verification
-* Provide a single **Bash Script** block at the very end.
-* **Must include:**
-    1.  `docker compose up -d --build` (Initial build for testing). **CRITICAL: DO NOT SKIP.**
-    2.  **VERSION CHECK:** Output the current version from `package.json`.
-    3.  **TEST OVERVIEW:** Echo a list of all tests that are about to run.
-    4.  `npm test` (Standard Suite: Viewer Restriction, Selector API, Perf tests).
-    5.  **NEW FEATURE TEST:** If a new test file was created in Phase 2, execute it here.
-    6.  **VERSION BUMP:** ALWAYS execute `node scripts/utils/bump_version.js`.
-    7.  **COMMIT:** `git commit` message MUST start with the new version number (e.g., `v1.2.3 - feat...`).
-    8.  `git push origin main`
-    9.  `docker compose up -d --build` (FINAL build to apply version bump locally).
+* Provide a single **Bash Script** block that handles:
+    1. `docker compose up -d --build`
+    2. `npm test`
+    3. `node scripts/utils/bump_version.js`
+    4. `git commit -m "vX.X.X - description"`
+    5. `git push origin main`
 
 ---
 
-## 3. EXAMPLE BASH OUTPUT (Strict Template)
+## 3. THEME LOGIC REFERENCE
+*Use this logic when generating theme-aware components.*
 
-```bash
-#!/bin/bash
-set -e # Exit immediately if a command exits with a non-zero status.
-
-# 1. Configuration & Initial Build
-echo "🚀 Starting Deployment Cycle..."
-echo "📦 Building Docker containers (MANDATORY STEP)..."
-docker compose up -d --build
-
-# 2. Version & Test Overview
-CURRENT_VERSION=$(node -p "require('./package.json').version")
-echo "ℹ️  Current System Version: $CURRENT_VERSION"
-
-echo "📋 TEST OVERVIEW - The following suites will be executed:"
-echo "   1. Standard: Tenant Isolation (Viewer Restrictions)"
-echo "   2. Standard: Selector API & Components"
-echo "   3. Standard: Performance Benchmarks"
-echo "   4. New Feature: [INSERT NEW TEST FILE NAME HERE]"
-
-# 3. Verification (CRITICAL)
-echo "🧪 Running Master Test Suite (All Objects)..."
-# Runs ALL tests (including performance/smoke) and generates test-report.html
-npm run test:report
-
-# [DYNAMIC INSERTION POINT]
-# If you created a new test file, ensure it is covered by the master suite above.
-
-# 4. Versioning & Commit
-echo "🆙 Bumping Version..."
-node scripts/utils/bump_version.js
-
-# Capture the NEW version for the commit message
-NEW_VERSION=$(node -p "require('./package.json').version")
-echo "🎉 New Version: $NEW_VERSION"
-
-echo "💾 Saving state and committing..."
-git add .
-# NOTE: Dynamic message includes the version prefix
-git commit -m "v$NEW_VERSION - feat(assets): add Car tracking module and Mobile card view"
-git push origin main
-
-# 5. Final Local Refresh
-echo "🔄 Refreshing Local Environment with Version $NEW_VERSION..."
-docker compose up -d --build
-echo "✅ All systems verified, committed, and refreshed."
+```javascript
+export const getEmojiColor = (emoji, isDark = true) => {
+  if (!emoji) return isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+  let hash = 0;
+  const str = String(emoji);
+  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  const hue = Math.abs(hash % 360);
+  return `hsl(${hue}, ${isDark ? 50 : 70}%, ${isDark ? 25 : 90}%)`;
+};
