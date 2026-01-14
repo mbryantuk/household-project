@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, Button, Input, 
   FormControl, FormLabel, Stack, Avatar, IconButton, 
-  Divider, Modal, ModalDialog, DialogTitle, Select, Option, Link
+  Divider, Modal, ModalDialog, DialogTitle, Select, Option, Link, Grid
 } from '@mui/joy';
 import { 
   PersonAdd, Edit, Delete, ExitToApp, ToggleOn, ToggleOff,
@@ -70,8 +70,14 @@ export default function SettingsView({
       }
   };
 
-  const openEditUser = (u) => { setEditUser(u); setIsInvite(false); };
-  const openAddUser = () => { setEditUser({}); setIsInvite(true); };
+  const openEditUser = (u) => { 
+    setEditUser(u); 
+    setIsInvite(false); 
+  };
+  const openAddUser = () => { 
+    setEditUser({ email: '', role: 'member', first_name: '', last_name: '' }); 
+    setIsInvite(true); 
+  };
 
   return (
     <Box>
@@ -161,7 +167,7 @@ export default function SettingsView({
                             <Typography level="body-sm">Access the full Swagger/OpenAPI specifications to build custom integrations or tools.</Typography>
                             <Button 
                                 component="a" 
-                                href="/docs" 
+                                href="/api-docs" 
                                 target="_blank" 
                                 variant="soft" 
                                 endDecorator={<OpenInNew />}
@@ -220,14 +226,26 @@ export default function SettingsView({
 
       <Modal open={!!editUser} onClose={() => setEditUser(null)}>
           <ModalDialog>
-              <DialogTitle>{isInvite ? 'Invite New Member' : `Edit ${editUser?.first_name}`}</DialogTitle>
+              <DialogTitle>{isInvite ? 'Invite New Member' : `Edit ${editUser?.first_name || 'User'}`}</DialogTitle>
               <form onSubmit={handleSaveUser}>
                   <Stack spacing={2} mt={1}>
+                      {!isInvite && (
+                        <>
+                          <FormControl>
+                              <FormLabel>First Name</FormLabel>
+                              <Input name="first_name" defaultValue={editUser?.first_name} />
+                          </FormControl>
+                          <FormControl>
+                              <FormLabel>Last Name</FormLabel>
+                              <Input name="last_name" defaultValue={editUser?.last_name} />
+                          </FormControl>
+                        </>
+                      )}
                       <FormControl required>
                           <FormLabel>Email Address</FormLabel>
                           <Input name="email" type="email" defaultValue={editUser?.email} disabled={!isInvite} />
                       </FormControl>
-                      <FormControl required={isInvite}>
+                      <FormControl required>
                           <FormLabel>Role</FormLabel>
                           <Select name="role" defaultValue={editUser?.role || 'member'}>
                               <Option value="admin">Administrator</Option>
