@@ -1,5 +1,13 @@
 {
-  "version": "2.5.0",
+  "name": "totem-monorepo",
+  "version": "2.5.1",
+  "private": true,
+  "scripts": {
+    "test": "cd server && npm test",
+    "test:full": "cd server && npm run test:full",
+    "test:perf": "cd server && npm run test:perf",
+    "bump": "node scripts/utils/bump_version.js"
+  },
   "dependencies": {
     "sqlite3": "^5.1.7"
   }
