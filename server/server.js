@@ -3,7 +3,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
-const swaggerUi = require('swagger-ui-express');
+const apiReference = require('@scalar/express-api-reference');
 const swaggerDocument = require('./swagger.json');
 
 // Import unified database instance
@@ -35,8 +35,15 @@ app.use((req, res, next) => {
     next();
 });
 
-// Swagger UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// Scalar API Reference
+app.use(
+  '/api-docs',
+  apiReference({
+    spec: {
+      content: swaggerDocument,
+    },
+  }),
+);
 
 // 4. MOUNT API ROUTES
 app.use('/auth', authRoutes);      
