@@ -74,19 +74,26 @@ export default function HouseholdLayout({
 
   const isTabActive = (path) => location.pathname.includes(path);
 
-  // Dynamic Title Logic
+  // Dynamic Title Logic - Improved to ignore /household/ prefix
   const pageTitle = useMemo(() => {
     const path = location.pathname;
-    if (path.includes('/dashboard')) return 'Dashboard';
-    if (path.includes('/calendar')) return 'Calendar';
-    if (path.includes('/people')) return 'People';
-    if (path.includes('/pets')) return 'Pets';
-    if (path.includes('/house')) return 'House Registry';
-    if (path.includes('/vehicles')) return 'Fleet';
-    if (path.includes('/meals')) return 'Meal Planner';
-    if (path.includes('/settings')) return 'Settings';
-    if (path.includes('/profile')) return 'Profile';
-    return activeHousehold?.name || 'TOTEM';
+    const parts = path.split('/');
+    // Expected structure: /household/:id/:section/...
+    // section is at index 3
+    const section = parts[3];
+
+    switch(section) {
+        case 'dashboard': return 'Dashboard';
+        case 'calendar': return 'Calendar';
+        case 'people': return 'People';
+        case 'pets': return 'Pets';
+        case 'house': return 'House Registry';
+        case 'vehicles': return 'Fleet';
+        case 'meals': return 'Meal Planner';
+        case 'settings': return 'Settings';
+        case 'profile': return 'Profile';
+        default: return activeHousehold?.name || 'TOTEM';
+    }
   }, [location.pathname, activeHousehold]);
 
   return (
