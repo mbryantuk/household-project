@@ -1,6 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-const { globalDb } = require('./db');
+const { globalDb } = require('../db');
 
 const HOUSEHOLD_NAME = "Bryant Household";
 const USER_EMAIL = "mbryantuk@gmail.com";
@@ -77,7 +77,7 @@ async function runMigration() {
         console.error("❌ Migration Failed:", err);
     } finally {
         // We don't close globalDb here as it might be shared, but in a script it's fine.
-        // However, require('./db') opens it. 
+        // However, require('../db') opens it. 
         // Force exit after a moment
         setTimeout(() => process.exit(0), 1000);
     }

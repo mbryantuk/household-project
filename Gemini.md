@@ -94,7 +94,7 @@ You must structure your response in exactly **4 PHASES**. Do not skip phases.
     3.  **TEST OVERVIEW:** Echo a list of all tests that are about to run.
     4.  `npm test` (Standard Suite: Viewer Restriction, Selector API, Perf tests).
     5.  **NEW FEATURE TEST:** If a new test file was created in Phase 2, execute it here.
-    6.  **VERSION BUMP:** ALWAYS execute `node bump_version.js`.
+    6.  **VERSION BUMP:** ALWAYS execute `node scripts/utils/bump_version.js`.
     7.  **COMMIT:** `git commit` message MUST start with the new version number (e.g., `v1.2.3 - feat...`).
     8.  `git push origin main`
     9.  `docker compose up -d --build` (FINAL build to apply version bump locally).
@@ -132,7 +132,7 @@ npm run test:report
 
 # 4. Versioning & Commit
 echo "🆙 Bumping Version..."
-node bump_version.js
+node scripts/utils/bump_version.js
 
 # Capture the NEW version for the commit message
 NEW_VERSION=$(node -p "require('./package.json').version")

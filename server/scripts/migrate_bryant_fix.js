@@ -1,5 +1,5 @@
 const sqlite3 = require('sqlite3').verbose();
-const { globalDb } = require('./db');
+const { globalDb } = require('../db');
 
 const TARGET_HOUSEHOLD_ID = 1;
 const USER_EMAIL = "mbryantuk@gmail.com";

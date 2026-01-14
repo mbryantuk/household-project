@@ -1,4 +1,4 @@
-const { globalDb } = require('./db');
+const { globalDb } = require('../db');
 
 globalDb.all("SELECT id, name FROM households", [], (err, rows) => {
     if (err) {
