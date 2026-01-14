@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, Button, Input, 
   FormControl, FormLabel, Stack, Avatar, IconButton, 
@@ -11,21 +11,41 @@ import {
 import { getEmojiColor } from '../theme';
 
 export default function SettingsView({ 
-    household, users, currentUser, api, showNotification, confirmAction
+    household, users, currentUser, api, showNotification, confirmAction, fetchHhUsers
 }) {
   const [activeTab, setActiveTab] = useState(0);
   const [editUser, setEditUser] = useState(null);
   const [isInvite, setIsInvite] = useState(false);
   const [savingUser, setSavingUser] = useState(false);
+  
+  // Controlled form state for the modal
+  const [formData, setFormData] = useState({
+      email: '',
+      role: 'member',
+      first_name: '',
+      last_name: ''
+  });
 
   const isAdmin = currentUser?.role === 'admin';
+
+  useEffect(() => {
+      if (editUser) {
+          setFormData({
+              email: editUser.email || '',
+              role: editUser.role || 'member',
+              first_name: editUser.first_name || '',
+              last_name: editUser.last_name || ''
+          });
+      }
+  }, [editUser]);
 
   const handleToggleActivation = async (u) => {
     if (!isAdmin) return;
     try {
-      await api.put(`/households/${household.id}/users/${u.id}/status`, { is_active: !u.is_active });
+      await api.put(`/households/${household.id}/users/${u.id}`, { is_active: !u.is_active });
       showNotification(`User ${u.is_active ? 'deactivated' : 'activated'}.`, "success");
-      window.location.reload(); 
+      if (fetchHhUsers) fetchHhUsers(household.id);
+      else window.location.reload(); 
     } catch (err) {
       showNotification("Failed to update user status.", "danger");
     }
@@ -40,6 +60,7 @@ export default function SettingsView({
                 await api.delete(`/households/${household.id}/users/${userId}`);
                 showNotification("User removed.", "success");
                 if (userId === currentUser.id) window.location.href = '/select-household';
+                else if (fetchHhUsers) fetchHhUsers(household.id);
                 else window.location.reload();
             } catch (err) {
                 showNotification("Failed to remove user.", "danger");
@@ -51,18 +72,17 @@ export default function SettingsView({
   const handleSaveUser = async (e) => {
       e.preventDefault();
       setSavingUser(true);
-      const formData = new FormData(e.currentTarget);
-      const data = Object.fromEntries(formData.entries());
       try {
           if (isInvite) {
-              await api.post(`/households/${household.id}/users`, data);
+              await api.post(`/households/${household.id}/users`, formData);
               showNotification("User invited successfully.", "success");
           } else {
-              await api.put(`/households/${household.id}/users/${editUser.id}`, data);
+              await api.put(`/households/${household.id}/users/${editUser.id}`, formData);
               showNotification("User updated successfully.", "success");
           }
           setEditUser(null);
-          window.location.reload();
+          if (fetchHhUsers) fetchHhUsers(household.id);
+          else window.location.reload();
       } catch (err) {
           showNotification("Failed to save user.", "danger");
       } finally {
@@ -167,7 +187,7 @@ export default function SettingsView({
                             <Typography level="body-sm">Access the full Swagger/OpenAPI specifications to build custom integrations or tools.</Typography>
                             <Button 
                                 component="a" 
-                                href="/api-docs" 
+                                href="/api-docs/" 
                                 target="_blank" 
                                 variant="soft" 
                                 endDecorator={<OpenInNew />}
@@ -229,25 +249,43 @@ export default function SettingsView({
               <DialogTitle>{isInvite ? 'Invite New Member' : `Edit ${editUser?.first_name || 'User'}`}</DialogTitle>
               <form onSubmit={handleSaveUser}>
                   <Stack spacing={2} mt={1}>
+                      <FormControl required>
+                          <FormLabel>Email Address</FormLabel>
+                          <Input 
+                            name="email" 
+                            type="email" 
+                            value={formData.email} 
+                            onChange={(e) => setFormData({...formData, email: e.target.value})}
+                            disabled={!isInvite} 
+                          />
+                      </FormControl>
                       {!isInvite && (
                         <>
                           <FormControl>
                               <FormLabel>First Name</FormLabel>
-                              <Input name="first_name" defaultValue={editUser?.first_name} />
+                              <Input 
+                                name="first_name" 
+                                value={formData.first_name} 
+                                onChange={(e) => setFormData({...formData, first_name: e.target.value})}
+                              />
                           </FormControl>
                           <FormControl>
                               <FormLabel>Last Name</FormLabel>
-                              <Input name="last_name" defaultValue={editUser?.last_name} />
+                              <Input 
+                                name="last_name" 
+                                value={formData.last_name} 
+                                onChange={(e) => setFormData({...formData, last_name: e.target.value})}
+                              />
                           </FormControl>
                         </>
                       )}
                       <FormControl required>
-                          <FormLabel>Email Address</FormLabel>
-                          <Input name="email" type="email" defaultValue={editUser?.email} disabled={!isInvite} />
-                      </FormControl>
-                      <FormControl required>
                           <FormLabel>Role</FormLabel>
-                          <Select name="role" defaultValue={editUser?.role || 'member'}>
+                          <Select 
+                            name="role" 
+                            value={formData.role}
+                            onChange={(e, v) => setFormData({...formData, role: v})}
+                          >
                               <Option value="admin">Administrator</Option>
                               <Option value="member">Standard Member</Option>
                               <Option value="viewer">Viewer (Read-only)</Option>

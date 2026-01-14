@@ -134,6 +134,18 @@ function AppInner({ useDracula, setUseDracula }) {
     }
   }, [token, fetchHouseholds]);
 
+  // CRITICAL FIX: Synchronize user role with active household
+  useEffect(() => {
+    if (household && households.length > 0) {
+        const activeLink = households.find(h => h.id === household.id);
+        if (activeLink && activeLink.role !== user?.role) {
+            const updatedUser = { ...user, role: activeLink.role };
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+        }
+    }
+  }, [household, households, user]);
+
   useEffect(() => {
     if (token && household) {
         fetchHhMembers(household.id);
@@ -243,6 +255,7 @@ function AppInner({ useDracula, setUseDracula }) {
                     currentMode={mode} onModeChange={setMode}
                     useDracula={useDracula} onDraculaChange={(v) => { setUseDracula(v); localStorage.setItem('useDracula', v); }}
                     showNotification={showNotification} confirmAction={confirmAction}
+                    fetchHhUsers={fetchHhUsers}
                 />} />
                 {/* Mobile Tools Routes */}
                 <Route path="tools/notes" element={<Box sx={{ height: '100%' }}><PostItNote isPopout={true} onClose={() => navigate(-1)} user={user} onUpdateProfile={handleUpdateProfile} /></Box>} />
