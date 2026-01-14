@@ -1,22 +1,20 @@
 # Changelog
 
-## [Unreleased]
+## [2.3.0] - 2026-01-14
+### Added
+- New UI components for household management (FloatingCalculator, FloatingCalendar, Widget system).
+- Calendar view for tracking household events and budgets.
+- Detailed views for various household aspects (Energy, Waste, Water, etc.).
+
 ### Changed
 - **UI:** Renamed "Household Settings" header to "Settings".
 - **UI:** Renamed "Team" tab to "Users" in Settings.
 - **UI:** Moved Theme controls from Settings tab to Sidebar.
 - **UI:** Enhanced Sidebar Theme Switcher with Light/Dark/System modes and Dracula/Alucard toggle.
 - **UI:** Standardized Settings tabs styling to match People/Pets views.
+
 ### Fixed
 - **Bug:** Fixed unresponsive "Edit User" button in Settings by restoring the missing Modal component.
- - 2026-01-12
-
-### Added
-- New UI components for household management (FloatingCalculator, FloatingCalendar, Widget system).
-- Calendar view for tracking household events and budgets.
-- Detailed views for various household aspects (Energy, Waste, Water, etc.).
-
-### Fixed
 - Improved layout and responsiveness of the main dashboard.
 - Enhanced authentication and member management.
 - Fixed User profile menu click-away behavior and z-index.
