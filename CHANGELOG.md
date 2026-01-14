@@ -1,6 +1,15 @@
 # Changelog
 
-## [Unreleased] - 2026-01-12
+## [Unreleased]
+### Changed
+- **UI:** Renamed "Household Settings" header to "Settings".
+- **UI:** Renamed "Team" tab to "Users" in Settings.
+- **UI:** Moved Theme controls from Settings tab to Sidebar.
+- **UI:** Enhanced Sidebar Theme Switcher with Light/Dark/System modes and Dracula/Alucard toggle.
+- **UI:** Standardized Settings tabs styling to match People/Pets views.
+### Fixed
+- **Bug:** Fixed unresponsive "Edit User" button in Settings by restoring the missing Modal component.
+ - 2026-01-12
 
 ### Added
 - New UI components for household management (FloatingCalculator, FloatingCalendar, Widget system).

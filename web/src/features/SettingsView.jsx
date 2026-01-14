@@ -8,9 +8,9 @@ import {
   Alert, Divider
 } from '@mui/joy';
 import { 
-  ManageAccounts, Backup, SettingsBrightness, PersonAdd, Edit, Delete, 
-  Schedule, CloudDownload, Download, Restore, LightMode, DarkMode, ExitToApp, Security,
-  ToggleOn, ToggleOff
+  ManageAccounts, Backup, PersonAdd, Edit, Delete, 
+  Schedule, CloudDownload, Download, Restore, ExitToApp, Security,
+  ToggleOn, ToggleOff, Mail, Badge
 } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
 import { getEmojiColor } from '../theme';
@@ -18,8 +18,7 @@ import pkg from '../../package.json';
 
 export default function SettingsView({
   household, users, currentUser, api, onUpdateHousehold, 
-  currentMode, onModeChange, useDracula, onDraculaChange,
-  showNotification, confirmAction
+  currentMode, showNotification, confirmAction
 }) {
   const navigate = useNavigate();
   const [tab, setTab] = useState(0);
@@ -157,26 +156,32 @@ export default function SettingsView({
 
   return (
     <Box sx={{ pb: { xs: 10, md: 0 } }}>
-      <Typography level="h2" fontWeight="300" mb={2} sx={{ fontSize: { xs: '1.5rem', md: '2rem' } }}>Household Settings</Typography>
-      <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'hidden', minHeight: 400, bgcolor: 'background.surface' }}>
+      <Typography level="h2" fontWeight="300" mb={2} sx={{ fontSize: { xs: '1.5rem', md: '2rem' } }}>Settings</Typography>
+      
+      <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'hidden', minHeight: 400 }}>
         <Tabs value={tab} onChange={(e, v) => setTab(v)} sx={{ bgcolor: 'transparent' }}>
-          <TabList tabFlex={1} sx={{ p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: { xs: 1, md: 2 }, mt: 2, overflowX: 'auto', '::-webkit-scrollbar': { display: 'none' } }}>
+          <TabList 
+            variant="plain" 
+            sx={{ 
+                p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: { xs: 1, md: 2 }, mt: 2, 
+                overflowX: 'auto', '::-webkit-scrollbar': { display: 'none' },
+                whiteSpace: 'nowrap'
+            }}
+          >
             <Tab variant={tab === 0 ? 'solid' : 'plain'} color={tab === 0 ? 'primary' : 'neutral'} indicatorInset sx={{ minWidth: 100, flexShrink: 0 }}>
-                <ListItemDecorator><ManageAccounts /></ListItemDecorator> <Typography level="body-sm">Team</Typography>
+                <ListItemDecorator><ManageAccounts /></ListItemDecorator> Users
             </Tab>
             <Tab variant={tab === 1 ? 'solid' : 'plain'} color={tab === 1 ? 'primary' : 'neutral'} indicatorInset sx={{ minWidth: 100, flexShrink: 0 }}>
-                <ListItemDecorator><Backup /></ListItemDecorator> <Typography level="body-sm">Data</Typography>
-            </Tab>
-            <Tab variant={tab === 2 ? 'solid' : 'plain'} color={tab === 2 ? 'primary' : 'neutral'} indicatorInset sx={{ minWidth: 100, flexShrink: 0 }}>
-                <ListItemDecorator><SettingsBrightness /></ListItemDecorator> <Typography level="body-sm">Theme</Typography>
+                <ListItemDecorator><Backup /></ListItemDecorator> Data
             </Tab>
           </TabList>
+          
           <Box sx={{ p: { xs: 2, md: 3 } }}>
             {tab === 0 && (
               <Box>
                   <Box sx={{ mb: 3, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2, justifyContent: 'space-between', alignItems: { xs: 'stretch', md: 'center' } }}>
-                      <Box><Typography level="h4">Authorized Users</Typography><Typography level="body-sm">Manage access.</Typography></Box>
-                      {isAdmin && <Button variant="solid" color="primary" startDecorator={<PersonAdd />} onClick={openAddUser}>Invite</Button>}
+                      <Box><Typography level="h4">Authorized Users</Typography><Typography level="body-sm">Manage household members and permissions.</Typography></Box>
+                      {isAdmin && <Button variant="solid" color="primary" startDecorator={<PersonAdd />} onClick={openAddUser}>Invite User</Button>}
                   </Box>
                   <Box sx={{ display: { xs: 'block', md: 'none' } }}>{localUsers.map(u => <MobileUserCard key={u.id} user={u} />)}</Box>
                   <Sheet variant="outlined" sx={{ display: { xs: 'none', md: 'block' }, borderRadius: 'sm', overflow: 'auto' }}>
@@ -230,30 +235,43 @@ export default function SettingsView({
                   </Stack>
               </Box>
             )}
-            {tab === 2 && (
-              <Box>
-                  <Typography level="h4" mb={2}>System Theme</Typography>
-                  <Stack spacing={4}>
-                      <Box><Typography level="title-md" mb={1}>Mode</Typography>
-                          <ButtonGroup variant="soft" color="primary" spacing={0.5} sx={{ display: 'flex', width: '100%' }}>
-                              <Button sx={{ flex: 1 }} variant={currentMode === 'light' ? 'solid' : 'soft'} onClick={() => onModeChange('light')} startDecorator={<LightMode />}>Light</Button>
-                              <Button sx={{ flex: 1 }} variant={currentMode === 'dark' ? 'solid' : 'soft'} onClick={() => onModeChange('dark')} startDecorator={<DarkMode />}>Dark</Button>
-                              <Button sx={{ flex: 1 }} variant={currentMode === 'system' ? 'solid' : 'soft'} onClick={() => onModeChange('system')} startDecorator={<SettingsBrightness />}>System</Button>
-                          </ButtonGroup>
-                      </Box>
-                      <FormControl orientation="horizontal" sx={{ gap: 2, alignItems: 'center' }}><Switch checked={useDracula} onChange={(e) => onDraculaChange(e.target.checked)} /><Box><Typography level="title-md">Enable Dracula Palette</Typography><Typography level="body-sm">Use high-contrast purple tones</Typography></Box></FormControl>
-                      <Divider /><Box sx={{ textAlign: 'center', opacity: 0.6 }}>
-                        <Typography level="body-xs">Totem Application Version</Typography>
-                        <Tooltip title={`System: v${__SYSTEM_VERSION__}`} variant="soft" arrow>
-                          <Typography level="body-sm" fontWeight="bold" sx={{ cursor: 'help' }}>v{pkg.version}</Typography>
-                        </Tooltip>
-                      </Box>
-                  </Stack>
-              </Box>
-            )}
           </Box>
         </Tabs>
       </Sheet>
+
+      <Modal open={userDialogOpen} onClose={() => setUserDialogOpen(false)}>
+        <ModalDialog sx={{ maxWidth: 500, width: '90%' }}>
+            <DialogTitle>{editUser ? 'Edit User' : 'Invite User'}</DialogTitle>
+            <form onSubmit={handleUserSubmit}>
+                <DialogContent>
+                    <Stack spacing={2}>
+                        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+                            <Tooltip title="Change Emoji" variant="soft">
+                                <Avatar 
+                                    size="lg" 
+                                    sx={{ bgcolor: getEmojiColor(selectedUserEmoji, isDark), cursor: 'pointer' }}
+                                    onClick={() => setEmojiPickerOpen(true)}
+                                >
+                                    {selectedUserEmoji}
+                                </Avatar>
+                            </Tooltip>
+                        </Box>
+                        <Stack direction="row" spacing={2}>
+                            <FormControl required sx={{ flex: 1 }}><FormLabel>First Name</FormLabel><Input name="first_name" defaultValue={editUser?.first_name || ''} /></FormControl>
+                            <FormControl required sx={{ flex: 1 }}><FormLabel>Last Name</FormLabel><Input name="last_name" defaultValue={editUser?.last_name || ''} /></FormControl>
+                        </Stack>
+                        <FormControl required><FormLabel>Email Address</FormLabel><Input type="email" name="email" startDecorator={<Mail />} defaultValue={editUser?.email || ''} disabled={!!editUser} /></FormControl>
+                        <FormControl><FormLabel>Role</FormLabel><Select name="role" defaultValue={editUser?.role || 'member'}><Option value="member">Member (Read/Write)</Option><Option value="admin">Admin (Full Access)</Option></Select></FormControl>
+                    </Stack>
+                </DialogContent>
+                <DialogActions>
+                    <Button type="submit" variant="solid">Save User</Button>
+                    <Button variant="plain" color="neutral" onClick={() => setUserDialogOpen(false)}>Cancel</Button>
+                </DialogActions>
+            </form>
+        </ModalDialog>
+      </Modal>
+
       <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(emoji) => { setSelectedUserEmoji(emoji); setEmojiPickerOpen(false); }} title="Select User Emoji" isDark={isDark} />
     </Box>
   );

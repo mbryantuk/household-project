@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, 
-  IconButton, Divider, Box, Avatar, Typography, Stack, Tooltip, Button, Badge
+  IconButton, Divider, Box, Avatar, Typography, Stack, Button, ButtonGroup, Switch
 } from '@mui/joy';
 import { 
   Settings, Home as HomeIcon, Event, 
   Groups, Pets, HomeWork, DirectionsCar, 
   Logout, Edit, KeyboardArrowRight, ChevronLeft, Download, Close, SwapHoriz,
-  Delete
+  Delete, LightMode, DarkMode, SettingsBrightness, Contrast
 } from '@mui/icons-material';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
 import EmojiPicker from './EmojiPicker';
-import TotemIcon from './TotemIcon';
 
 // Layout Constants
 const RAIL_WIDTH = 64; 
@@ -20,7 +19,7 @@ const PANEL_WIDTH = 240;
 
 export default function NavSidebar({ 
     members = [], vehicles = [], households = [], isDark, household, user, 
-    onLogout, onUpdateProfile, onModeChange, onInstall, canInstall,
+    onLogout, onUpdateProfile, currentMode, onModeChange, onInstall, canInstall,
     useDracula, onDraculaChange, isMobile = false, onClose, confirmAction, api, showNotification
 }) {
   const location = useLocation();
@@ -305,9 +304,49 @@ export default function NavSidebar({
                     {activeCategory === 'settings' && (
                         <>
                         <SubItem label="General" to="settings" />
-                        <ListItem><Typography level="body-xs" sx={{ p: 1 }}>Theme</Typography></ListItem>
-                        <ListItem><Button variant="soft" color="neutral" fullWidth onClick={() => onModeChange(isDark ? 'light' : 'dark')}>{isDark ? 'Switch to Light' : 'Switch to Dark'}</Button></ListItem>
-                        <ListItem sx={{ mt: 1 }}><Button variant={useDracula ? 'solid' : 'outlined'} color="danger" fullWidth onClick={() => onDraculaChange && onDraculaChange(!useDracula)}>{useDracula ? 'Disable Dracula' : 'Enable Dracula'}</Button></ListItem>
+                        
+                        <Divider sx={{ my: 1.5 }} />
+                        <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ px: 1 }}>THEME</Typography></ListItem>
+                        
+                        <ListItem sx={{ px: 1, py: 0.5 }}>
+                            <ButtonGroup variant="soft" size="sm" sx={{ width: '100%', display: 'flex' }}>
+                                <Button 
+                                    flex={1}
+                                    variant={currentMode === 'light' ? 'solid' : 'soft'} 
+                                    onClick={() => onModeChange('light')}
+                                >
+                                    <LightMode fontSize="small" />
+                                </Button>
+                                <Button 
+                                    flex={1}
+                                    variant={currentMode === 'dark' ? 'solid' : 'soft'} 
+                                    onClick={() => onModeChange('dark')}
+                                >
+                                    <DarkMode fontSize="small" />
+                                </Button>
+                                <Button 
+                                    flex={1}
+                                    variant={currentMode === 'system' ? 'solid' : 'soft'} 
+                                    onClick={() => onModeChange('system')}
+                                >
+                                    <SettingsBrightness fontSize="small" />
+                                </Button>
+                            </ButtonGroup>
+                        </ListItem>
+
+                        <ListItem sx={{ px: 1, py: 0.5 }}>
+                            <Sheet variant="outlined" sx={{ borderRadius: 'sm', p: 1, width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Stack direction="row" spacing={1} alignItems="center">
+                                    <Contrast fontSize="small" color={useDracula ? 'primary' : 'neutral'} />
+                                    <Typography level="body-sm">{useDracula ? 'Dracula' : 'Classic'}</Typography>
+                                </Stack>
+                                <Switch 
+                                    size="sm" 
+                                    checked={useDracula} 
+                                    onChange={(e) => onDraculaChange && onDraculaChange(e.target.checked)} 
+                                />
+                            </Sheet>
+                        </ListItem>
                         </>
                     )}
                 </List>
