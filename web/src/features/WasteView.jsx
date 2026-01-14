@@ -69,16 +69,21 @@ export default function WasteView() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography level="h2" fontWeight="300">Waste Collections</Typography>
-        {isHouseholdAdmin && (
-            <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditItem({}); setIsNew(true); }}>
-                Add Collection
-            </Button>
-        )}
+      <Box sx={{ 
+          mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+          flexWrap: 'wrap', gap: 2 
+      }}>
+        <Box>
+          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+            Waste & Recycling
+          </Typography>
+          <Typography level="body-md" color="neutral">
+            Bin collection schedules and recycling information.
+          </Typography>
+        </Box>
       </Box>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={2}>
         {collections.map(c => (
           <Grid xs={12} sm={6} md={4} key={c.id}>
             <Card variant="outlined" sx={{ borderRadius: 'md', height: '100%', flexDirection: 'row', p: 2 }}>

@@ -121,17 +121,24 @@ router.delete('/households/:id', authenticateToken, async (req, res) => {
     
     if (!link || link.role !== 'admin') return res.sendStatus(403);
 
-    globalDb.run(`DELETE FROM households WHERE id = ?`, [householdId], function(err) {
-        if (err) return res.status(500).json({ error: err.message });
+    try {
+        // 1. Delete all user links first (Referential integrity)
+        await dbRun(globalDb, `DELETE FROM user_households WHERE household_id = ?`, [householdId]);
 
-        // Delete the physical SQLite file
+        // 2. Delete the household record
+        await dbRun(globalDb, `DELETE FROM households WHERE id = ?`, [householdId]);
+
+        // 3. Delete the physical SQLite file
         const hhDbPath = path.join(DATA_DIR, `household_${householdId}.db`);
         if (fs.existsSync(hhDbPath)) {
             try { fs.unlinkSync(hhDbPath); } catch (e) { console.error("File delete failed", e); }
         }
 
         res.json({ message: "Household deleted" });
-    });
+    } catch (err) {
+        console.error("Delete Household Error:", err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // ==========================================

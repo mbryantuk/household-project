@@ -30,18 +30,30 @@ describe('Feature: Household Management', () => {
 
     describe('Details & Settings', () => {
         it('should update household details', async () => {
-            const res = await request(app)
+            // 1. Update Global Household Identity (Name)
+            const resIdent = await request(app)
+                .put(`/households/${householdId}`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({
+                    name: 'Updated Manor'
+                });
+            expect(resIdent.statusCode).toBe(200);
+
+            // 2. Update Property Specific Details
+            const resDetails = await request(app)
                 .put(`/households/${householdId}/details`)
                 .set('Authorization', `Bearer ${token}`)
                 .send({
-                    name: 'Updated Manor',
-                    address: '123 Fake St',
-                    property_type: 'Detached'
+                    property_type: 'Detached',
+                    construction_year: 1990
                 });
-            expect(res.statusCode).toBe(200);
+            expect(resDetails.statusCode).toBe(200);
             
-            const check = await request(app).get(`/households/${householdId}/details`).set('Authorization', `Bearer ${token}`);
-            expect(check.body.name).toBe('Updated Manor');
+            const checkIdent = await request(app).get(`/households/${householdId}`).set('Authorization', `Bearer ${token}`);
+            expect(checkIdent.body.name).toBe('Updated Manor');
+
+            const checkDetails = await request(app).get(`/households/${householdId}/details`).set('Authorization', `Bearer ${token}`);
+            expect(checkDetails.body.property_type).toBe('Detached');
         });
     });
 

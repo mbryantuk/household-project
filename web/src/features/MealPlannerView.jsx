@@ -178,7 +178,14 @@ export default function MealPlannerView() {
           alignItems: { xs: 'stretch', md: 'center' }, 
           gap: 2 
       }}>
-        <Typography level="h2" fontWeight="300">Meal Planner</Typography>
+        <Box>
+            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+                Meal Planner
+            </Typography>
+            <Typography level="body-md" color="neutral">
+                Plan weekly meals and assignments.
+            </Typography>
+        </Box>
         
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column-reverse', sm: 'row' }, gap: 2, alignItems: 'center' }}>
             <Stack direction="row" spacing={1} sx={{ width: { xs: '100%', sm: 'auto' } }}>

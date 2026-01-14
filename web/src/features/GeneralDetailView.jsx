@@ -68,28 +68,33 @@ export default function GeneralDetailView({ title, icon: defaultIcon, endpoint, 
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
-        <Tooltip title={isHouseholdAdmin ? "Change Icon" : ""} variant="soft">
-          <IconButton 
-            onClick={() => isHouseholdAdmin && setEmojiPickerOpen(true)}
-            variant="outlined"
-            sx={{ 
-              bgcolor: selectedEmoji ? getEmojiColor(selectedEmoji, isDark) : 'primary.solidBg', 
-              color: 'white', 
-              p: 1, 
-              width: 56, height: 56,
-              borderRadius: 'md', 
-              boxShadow: 'sm',
-              '&:hover': { opacity: 0.9 }
-            }}
-          >
-            {displayIcon}
-          </IconButton>
-        </Tooltip>
-        <Typography level="h2" fontWeight="300">{title}</Typography>
+      <Box sx={{ 
+          mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+          flexWrap: 'wrap', gap: 2 
+      }}>
+        <Box>
+          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+            {title}
+          </Typography>
+          <Typography level="body-md" color="neutral">
+            Property specifications and structural details.
+          </Typography>
+        </Box>
+        <Box>
+          {isAdmin && (
+            <Button 
+                variant="solid" 
+                startDecorator={saving ? <CircularProgress size="sm" /> : (isEditing ? <Save /> : <Edit />)}
+                onClick={isEditing ? handleSave : () => setIsEditing(true)}
+                loading={saving}
+            >
+              {isEditing ? 'Save Details' : 'Edit Information'}
+            </Button>
+          )}
+        </Box>
       </Box>
 
-      <Sheet variant="outlined" sx={{ p: { xs: 2, sm: 3, md: 4 }, borderRadius: 'md' }}>
+      <Sheet variant="outlined" sx={{ p: { xs: 2, md: 3 }, borderRadius: 'md' }}>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
             {fields.map(field => (

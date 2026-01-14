@@ -34,29 +34,45 @@ const handleGetSingle = (table) => (req, res) => {
 };
 
 const handleUpdateSingle = (table) => (req, res) => {
-    const fields = Object.keys(req.body).filter(f => f !== 'id');
-    if (fields.length === 0) { closeDb(req); return res.status(400).json({ error: "No fields to update" }); }
-
-    req.body.household_id = req.hhId;
-    const actualFields = Object.keys(req.body);
-    const sets = actualFields.map(f => `${f} = ?`).join(', ');
-    const values = Object.values(req.body);
-
-    req.tenantDb.run(`UPDATE ${table} SET ${sets} WHERE household_id = ?`, [...values, req.hhId], function(err) {
-        if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
+    // 1. Get Schema for the table to ensure we only try to insert/update valid columns
+    req.tenantDb.all(`PRAGMA table_info(${table})`, [], (pErr, cols) => {
+        if (pErr) { closeDb(req); return res.status(500).json({ error: pErr.message }); }
         
-        if (this.changes === 0) {
-            const placeholders = actualFields.join(', ');
-            const qs = actualFields.map(() => '?').join(', ');
-            req.tenantDb.run(`INSERT INTO ${table} (${placeholders}) VALUES (${qs})`, values, (iErr) => {
+        const validColumns = cols.map(c => c.name);
+        const data = { ...req.body, household_id: req.hhId };
+        
+        // Filter out any fields not in schema (like 'id' or extra stuff from request)
+        const updateData = {};
+        Object.keys(data).forEach(key => {
+            if (validColumns.includes(key) && key !== 'id') {
+                updateData[key] = data[key];
+            }
+        });
+
+        const fields = Object.keys(updateData);
+        if (fields.length === 0) { closeDb(req); return res.status(400).json({ error: "No valid fields to update" }); }
+
+        const sets = fields.map(f => `${f} = ?`).join(', ');
+        const values = Object.values(updateData);
+
+        // Try Update first
+        req.tenantDb.run(`UPDATE ${table} SET ${sets} WHERE household_id = ?`, [...values, req.hhId], function(err) {
+            if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
+            
+            if (this.changes === 0) {
+                // Not found -> Insert
+                const placeholders = fields.join(', ');
+                const qs = fields.map(() => '?').join(', ');
+                req.tenantDb.run(`INSERT INTO ${table} (${placeholders}) VALUES (${qs})`, values, (iErr) => {
+                    closeDb(req);
+                    if (iErr) return res.status(500).json({ error: iErr.message });
+                    res.json({ message: "Created" });
+                });
+            } else {
                 closeDb(req);
-                if (iErr) return res.status(500).json({ error: iErr.message });
-                res.json({ message: "Created and updated" });
-            });
-        } else {
-            closeDb(req);
-            res.json({ message: "Updated" });
-        }
+                res.json({ message: "Updated" });
+            }
+        });
     });
 };
 

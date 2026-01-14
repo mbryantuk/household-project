@@ -39,11 +39,23 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
   };
 
   return (
-    <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md' }}>
-      <Typography level="h4" mb={2} startDecorator={<Groups color="primary" />}>
-        Household Residents
-      </Typography>
+    <Box>
+      <Box sx={{ 
+          mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+          flexWrap: 'wrap', gap: 2 
+      }}>
+        <Box>
+          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+            Household Residents
+          </Typography>
+          <Typography level="body-md" color="neutral">
+            Manage family members and pets.
+          </Typography>
+        </Box>
+      </Box>
 
+      <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md' }}>
+      
       {/* ADD FORM */}
       <Sheet variant="soft" sx={{ mb: 4, p: 3, borderRadius: 'sm' }}>
         <form onSubmit={onAddMember}>
@@ -196,5 +208,6 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
         </ModalDialog>
       </Modal>
     </Sheet>
+    </Box>
   );
 }

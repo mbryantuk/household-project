@@ -110,25 +110,29 @@ export default function AssetsView() {
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
-  return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography level="h2" fontWeight="300">Appliance & Asset Register</Typography>
-        <Stack direction="row" spacing={2}>
-            <Input 
-                placeholder="Search assets..." 
-                value={filterQuery} 
-                onChange={e => setFilterQuery(e.target.value)}
-                sx={{ minWidth: 200 }} 
-            />
-            {isHouseholdAdmin && (
-                <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditAsset({}); setIsNew(true); }}>
-                    Add Asset
-                </Button>
-            )}
-        </Stack>
-      </Box>
-
+    return (
+      <Box>
+        <Box sx={{ 
+            mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+            flexWrap: 'wrap', gap: 2 
+        }}>
+          <Box>
+            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+              Appliance & Asset Register
+            </Typography>
+            <Typography level="body-md" color="neutral">
+              Manage your household inventory and valuables.
+            </Typography>
+          </Box>
+          
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+              {isHouseholdAdmin && (
+                  <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditAsset({}); setIsNew(true); }}>
+                      Add Asset
+                  </Button>
+              )}
+          </Box>
+        </Box>
       {/* DESKTOP VIEW: Standard Table with Sorting */}
       {!isMobile ? (
         <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto', flexGrow: 1 }}>

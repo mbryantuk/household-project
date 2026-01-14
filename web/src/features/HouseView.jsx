@@ -72,10 +72,22 @@ export default function HouseView() {
   ];
 
   return (
-    <Box sx={{ height: '100%' }}>
-      <Typography level="h2" mb={2} fontWeight="300">House Registry</Typography>
+    <Box sx={{ pb: 10 }}>
+      <Box sx={{ 
+          mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+          flexWrap: 'wrap', gap: 2 
+      }}>
+        <Box>
+            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+                House Registry
+            </Typography>
+            <Typography level="body-md" color="neutral">
+                Manage your home's identity, utilities, and structure.
+            </Typography>
+        </Box>
+      </Box>
       
-      <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'hidden' }}>
+      <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'hidden', minHeight: 400 }}>
         <Tabs 
             value={activeTab} 
             onChange={(e, v) => setActiveTab(v)} 

@@ -70,13 +70,25 @@ export default function EnergyView() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography level="h2" fontWeight="300">Energy Accounts</Typography>
-        {isHouseholdAdmin && (
-            <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditAccount({}); setIsNew(true); }}>
-                Add Account
-            </Button>
-        )}
+      <Box sx={{ 
+          mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+          flexWrap: 'wrap', gap: 2 
+      }}>
+        <Box>
+          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+            Energy Accounts
+          </Typography>
+          <Typography level="body-md" color="neutral">
+            Monitor electricity and gas usage and tariffs.
+          </Typography>
+        </Box>
+        <Box>
+          {isHouseholdAdmin && (
+              <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditAccount({}); setIsNew(true); }}>
+                  Add Account
+              </Button>
+          )}
+        </Box>
       </Box>
 
       <Grid container spacing={3}>

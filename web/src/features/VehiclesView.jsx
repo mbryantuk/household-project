@@ -124,11 +124,23 @@ export default function VehiclesView() {
   if (vehicleId !== 'new' && !selectedVehicle) {
     return (
         <Box sx={{ p: 2 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                <Typography level="h2" fontWeight="300">Fleet</Typography>
-                {isHouseholdAdmin && (
-                    <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>Add Vehicle</Button>
-                )}
+            <Box sx={{ 
+                mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+                flexWrap: 'wrap', gap: 2 
+            }}>
+              <Box>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+                  Fleet Management
+                </Typography>
+                <Typography level="body-md" color="neutral">
+                  Track maintenance, fuel, and vehicle history.
+                </Typography>
+              </Box>
+              <Box>
+                  {isHouseholdAdmin && (
+                      <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>Add Vehicle</Button>
+                  )}
+              </Box>
             </Box>
             <Grid container spacing={2}>
                 {vehicles.map(v => (
@@ -158,13 +170,23 @@ export default function VehiclesView() {
 
   return (
     <Box>
-      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography level="h2" fontWeight="300">
-            {vehicleId === 'new' ? 'Add New Vehicle' : `${selectedVehicle.make} ${selectedVehicle.model}`}
-        </Typography>
-        {vehicleId !== 'new' && isHouseholdAdmin && (
-            <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={handleDelete}>Remove Vehicle</Button>
-        )}
+      <Box sx={{ 
+          mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+          flexWrap: 'wrap', gap: 2 
+      }}>
+        <Box>
+            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+                {vehicleId === 'new' ? 'Add New Vehicle' : `${selectedVehicle.make} ${selectedVehicle.model}`}
+            </Typography>
+            <Typography level="body-md" color="neutral">
+                {vehicleId === 'new' ? 'Enter vehicle details below.' : 'View and manage vehicle details.'}
+            </Typography>
+        </Box>
+        <Box>
+            {vehicleId !== 'new' && isHouseholdAdmin && (
+                <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={handleDelete}>Remove Vehicle</Button>
+            )}
+        </Box>
       </Box>
 
       <Sheet variant="outlined" sx={{ borderRadius: 'md', minHeight: '600px', overflow: 'hidden' }}>

@@ -315,8 +315,18 @@ export default function CalendarView({ showNotification }) {
     <Box sx={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column' }}>
       
       {/* CUSTOM TOOLBAR */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 2 }}>
-        <Typography level="h2" fontWeight="300">Calendar</Typography>
+      <Box sx={{ 
+          mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+          flexWrap: 'wrap', gap: 2 
+      }}>
+        <Box>
+            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+                Calendar
+            </Typography>
+            <Typography level="body-md" color="neutral">
+                Track events, holidays, and recurring bills.
+            </Typography>
+        </Box>
         
         <Stack direction="row" spacing={1} alignItems="center" sx={{ flexWrap: 'wrap', justifyContent: 'flex-end', width: { xs: '100%', md: 'auto' } }}>
             <ToggleButtonGroup 

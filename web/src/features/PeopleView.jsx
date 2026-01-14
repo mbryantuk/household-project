@@ -97,11 +97,23 @@ export default function PeopleView() {
     const people = (members || []).filter(m => m.type !== 'pet');
     return (
         <Box sx={{ p: 2 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                <Typography level="h2" fontWeight="300">People</Typography>
-                {isHouseholdAdmin && (
-                    <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>Add Person</Button>
-                )}
+            <Box sx={{ 
+                mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+                flexWrap: 'wrap', gap: 2 
+            }}>
+              <Box>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+                  People & Residents
+                </Typography>
+                <Typography level="body-md" color="neutral">
+                  Manage your household members and guests.
+                </Typography>
+              </Box>
+              <Box>
+                  {isHouseholdAdmin && (
+                      <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>Add Person</Button>
+                  )}
+              </Box>
             </Box>
             <Grid container spacing={2}>
                 {people.map(p => (
@@ -131,13 +143,23 @@ export default function PeopleView() {
 
   return (
     <Box key={personId}>
-      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography level="h2" fontWeight="300">
-            {personId === 'new' ? 'Add New Person' : selectedPerson.name}
-        </Typography>
-        {personId !== 'new' && isHouseholdAdmin && (
-            <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={handleDelete}>Remove Person</Button>
-        )}
+      <Box sx={{ 
+          mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+          flexWrap: 'wrap', gap: 2 
+      }}>
+        <Box>
+            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+                {personId === 'new' ? 'Add New Person' : selectedPerson.name}
+            </Typography>
+            <Typography level="body-md" color="neutral">
+                {personId === 'new' ? 'Enter personal details below.' : 'View and manage personal information.'}
+            </Typography>
+        </Box>
+        <Box>
+            {personId !== 'new' && isHouseholdAdmin && (
+                <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={handleDelete}>Remove Person</Button>
+            )}
+        </Box>
       </Box>
 
       <Sheet variant="outlined" sx={{ borderRadius: 'md', minHeight: '600px', overflow: 'hidden' }}>
