@@ -1,27 +1,22 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useOutletContext, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, Button, Input, 
-  FormControl, FormLabel, Stack, Grid, Avatar, IconButton, 
-  Divider, ButtonGroup, Switch, CircularProgress, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions,
-  Select, Option
+  FormControl, FormLabel, Stack, Avatar, IconButton, 
+  Divider, Modal, ModalDialog, DialogTitle, Select, Option, Link
 } from '@mui/joy';
 import { 
-  Settings, Save, PersonAdd, Edit, Delete, LightMode, DarkMode, 
-  SettingsBrightness, Contrast, ExitToApp, ToggleOn, ToggleOff
+  PersonAdd, Edit, Delete, ExitToApp, ToggleOn, ToggleOff,
+  OpenInNew, Info, Verified, Code, Policy
 } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
 
 export default function SettingsView({ 
-    household, users, currentUser, api, onUpdateHousehold, 
-    currentMode, onModeChange, useDracula, onDraculaChange,
-    showNotification, confirmAction
+    household, users, currentUser, api, showNotification, confirmAction
 }) {
   const [activeTab, setActiveTab] = useState(0);
   const [editUser, setEditUser] = useState(null);
   const [isInvite, setIsInvite] = useState(false);
   const [savingUser, setSavingUser] = useState(false);
-  const navigate = useNavigate();
 
   const isAdmin = currentUser?.role === 'admin';
 
@@ -56,7 +51,8 @@ export default function SettingsView({
   const handleSaveUser = async (e) => {
       e.preventDefault();
       setSavingUser(true);
-      const data = Object.fromEntries(new FormData(e.currentTarget));
+      const formData = new FormData(e.currentTarget);
+      const data = Object.fromEntries(formData.entries());
       try {
           if (isInvite) {
               await api.post(`/households/${household.id}/users`, data);
@@ -79,18 +75,13 @@ export default function SettingsView({
 
   return (
     <Box>
-      <Box sx={{ 
-          mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-          flexWrap: 'wrap', gap: 2 
-      }}>
-        <Box>
-          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
-            Household Settings
-          </Typography>
-          <Typography level="body-md" color="neutral">
-            Manage members, roles, and preferences for <b>{household?.name}</b>.
-          </Typography>
-        </Box>
+      <Box sx={{ mb: 4 }}>
+        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
+          Household Settings
+        </Typography>
+        <Typography level="body-md" color="neutral">
+          Manage members and technical configuration for <b>{household?.name}</b>.
+        </Typography>
       </Box>
 
       <Sheet variant="outlined" sx={{ borderRadius: 'md', minHeight: 500, overflow: 'hidden' }}>
@@ -103,8 +94,8 @@ export default function SettingsView({
             }}
           >
             <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'}>User Access</Tab>
-            <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}>System Role</Tab>
-            <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'}>Interface</Tab>
+            <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}>Developers</Tab>
+            <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'}>About</Tab>
           </TabList>
 
           <Box sx={{ p: { xs: 2, md: 4 } }}>
@@ -129,9 +120,27 @@ export default function SettingsView({
                                 </Box>
                             </Stack>
                             <Stack direction="row" spacing={1}>
-                                {isAdmin && currentUser.id !== u.id && <IconButton size="sm" color={u.is_active ? "warning" : "success"} onClick={() => handleToggleActivation(u)}>{u.is_active ? <ToggleOn /> : <ToggleOff />}</IconButton>}
-                                {isAdmin && <IconButton size="sm" color="primary" onClick={() => openEditUser(u)}><Edit /></IconButton>}
-                                {currentUser.id !== u.id ? (isAdmin && <IconButton size="sm" color="danger" onClick={() => handleRemoveUser(u.id, u.first_name || u.email)}><Delete /></IconButton>) : <IconButton size="sm" color="warning" onClick={() => handleRemoveUser(u.id, 'yourself')}><ExitToApp /></IconButton>}
+                                {isAdmin && currentUser.id !== u.id && (
+                                    <IconButton size="sm" color={u.is_active ? "warning" : "success"} onClick={() => handleToggleActivation(u)}>
+                                        {u.is_active ? <ToggleOn /> : <ToggleOff />}
+                                    </IconButton>
+                                )}
+                                {isAdmin && (
+                                    <IconButton size="sm" color="primary" onClick={() => openEditUser(u)}>
+                                        <Edit fontSize="small" />
+                                    </IconButton>
+                                )}
+                                {currentUser.id !== u.id ? (
+                                    isAdmin && (
+                                        <IconButton size="sm" color="danger" onClick={() => handleRemoveUser(u.id, u.first_name || u.email)}>
+                                            <Delete fontSize="small" />
+                                        </IconButton>
+                                    )
+                                ) : (
+                                    <IconButton size="sm" color="warning" onClick={() => handleRemoveUser(u.id, 'yourself')}>
+                                        <ExitToApp fontSize="small" />
+                                    </IconButton>
+                                )}
                             </Stack>
                         </Sheet>
                     ))}
@@ -142,40 +151,67 @@ export default function SettingsView({
             {activeTab === 1 && (
                 <Box>
                     <Box sx={{ mb: 4 }}>
-                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>Household Context Roles</Typography>
-                        <Typography level="body-md" color="neutral">Assign specific roles to define what each member can edit within this household.</Typography>
+                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>Developer Tools</Typography>
+                        <Typography level="body-md" color="neutral">Integration and technical documentation for the TOTEM platform.</Typography>
                     </Box>
-                    <Sheet variant="soft" color="warning" sx={{ p: 2, borderRadius: 'md' }}>
-                        <Typography level="body-sm" fontWeight="bold">Developer Note:</Typography>
-                        <Typography level="body-sm">Granular context-based roles (Finance Lead, Inventory Manager) are planned for the next major release.</Typography>
+                    
+                    <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', maxWidth: 600 }}>
+                        <Stack spacing={2}>
+                            <Typography level="title-md" startDecorator={<Code />}>API Documentation</Typography>
+                            <Typography level="body-sm">Access the full Swagger/OpenAPI specifications to build custom integrations or tools.</Typography>
+                            <Button 
+                                component="a" 
+                                href="/docs" 
+                                target="_blank" 
+                                variant="soft" 
+                                endDecorator={<OpenInNew />}
+                                sx={{ alignSelf: 'flex-start' }}
+                            >
+                                Open API Reference
+                            </Button>
+                        </Stack>
                     </Sheet>
                 </Box>
             )}
 
             {activeTab === 2 && (
-                <Box sx={{ maxWidth: 400 }}>
+                <Box sx={{ maxWidth: 800 }}>
                     <Box sx={{ mb: 4 }}>
-                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>Display Preferences</Typography>
-                        <Typography level="body-md" color="neutral">Customize how the interface looks and feels for you.</Typography>
+                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>About TOTEM</Typography>
+                        <Typography level="body-md" color="neutral">Platform credits, licensing and open source information.</Typography>
                     </Box>
-                    <Stack spacing={3}>
-                        <FormControl>
-                            <FormLabel>Color Mode</FormLabel>
-                            <ButtonGroup variant="soft" sx={{ width: '100%' }}>
-                                <Button fullWidth variant={currentMode === 'light' ? 'solid' : 'soft'} onClick={() => onModeChange('light')}><LightMode /></Button>
-                                <Button fullWidth variant={currentMode === 'dark' ? 'solid' : 'soft'} onClick={() => onModeChange('dark')}><DarkMode /></Button>
-                                <Button fullWidth variant={currentMode === 'system' ? 'solid' : 'soft'} onClick={() => onModeChange('system')}><SettingsBrightness /></Button>
-                            </ButtonGroup>
-                        </FormControl>
 
-                        <FormControl orientation="horizontal" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Box>
-                                <FormLabel sx={{ mb: 0 }}>Dracula Palette</FormLabel>
-                                <Typography level="body-xs">Enhanced dark mode contrast</Typography>
-                            </Box>
-                            <Switch checked={useDracula} onChange={(e) => onDraculaChange(e.target.checked)} />
-                        </FormControl>
-                    </Stack>
+                    <Grid container spacing={3}>
+                        <Grid xs={12} md={6}>
+                            <Stack spacing={2}>
+                                <Typography level="title-md" startDecorator={<Verified color="primary" />}>The Platform</Typography>
+                                <Typography level="body-sm">
+                                    TOTEM is a multi-tenant household management system designed for families who demand absolute data privacy and consistent utility tracking.
+                                </Typography>
+                                <Divider />
+                                <Typography level="title-md" startDecorator={<Info />}>Credits</Typography>
+                                <Typography level="body-sm">
+                                    Built with MUI Joy UI, React, and Node.js. 
+                                    Icons provided by Google Material Icons.
+                                    Database powered by SQLite.
+                                </Typography>
+                            </Stack>
+                        </Grid>
+                        <Grid xs={12} md={6}>
+                            <Stack spacing={2}>
+                                <Typography level="title-md" startDecorator={<Policy />}>Licensing</Typography>
+                                <Typography level="body-sm">
+                                    Licensed under the <b>MIT Open Source License</b>. 
+                                    You are free to use, modify, and distribute this software for personal or commercial use.
+                                </Typography>
+                                <Divider />
+                                <Typography level="title-md">Open Source</Typography>
+                                <Typography level="body-sm">
+                                    This project values community contributions. All shared UI components and API patterns follow the Prime Directives of Tenancy and Atomic consistency.
+                                </Typography>
+                            </Stack>
+                        </Grid>
+                    </Grid>
                 </Box>
             )}
           </Box>
