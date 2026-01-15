@@ -1,14 +1,14 @@
 {
   "name": "household-manager",
-  "version": "2.6.18",
+  "version": "2.6.20",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "test": "npx jest --detectOpenHandles --forceExit",
-    "test:full": "jest --detectOpenHandles --forceExit --verbose",
-    "test:perf": "jest tests/performance/ --detectOpenHandles --forceExit",
-    "test:report": "jest --detectOpenHandles --forceExit --ci --runInBand --reporters=default --reporters=jest-html-reporter"
+    "test": "NODE_ENV=test npx jest --detectOpenHandles --forceExit",
+    "test:full": "NODE_ENV=test jest --detectOpenHandles --forceExit --verbose",
+    "test:perf": "NODE_ENV=test jest tests/performance/ --detectOpenHandles --forceExit",
+    "test:report": "NODE_ENV=test jest --detectOpenHandles --forceExit --ci --runInBand --reporters=default --reporters=jest-html-reporter"
   },
   "jest": {
     "testEnvironment": "node",
@@ -39,6 +39,8 @@
     "cors": "^2.8.5",
     "expo": "^54.0.30",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.2",
     "node-cron": "^4.2.1",

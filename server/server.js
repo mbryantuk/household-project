@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
@@ -9,6 +11,7 @@ const swaggerDocument = require('./swagger.json');
 // Import unified database instance
 const { globalDb } = require('./db');
 const { bootstrap } = require('./bootstrap');
+require('./services/crypto'); // Initialize Encryption Key
 
 // Routes
 const authRoutes = require('./routes/auth');
@@ -24,8 +27,22 @@ const { createBackup, cleanOldBackups } = require('./services/backup');
 const app = express();
 const PORT = 4001;
 
+// Security Middleware
+app.use(helmet({
+    contentSecurityPolicy: false, // Disable CSP for now to avoid breaking inline scripts/images in dev
+    crossOriginEmbedderPolicy: false
+}));
 app.use(cors());
 app.use(express.json());
+
+// Rate Limiter for Auth Routes
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: process.env.NODE_ENV === 'test' ? 1000 : 20, // High limit for tests
+    message: "Too many login attempts, please try again later."
+});
+app.use('/auth/login', authLimiter);
+app.use('/auth/register', authLimiter);
 
 // Log every incoming request
 app.use((req, res, next) => {

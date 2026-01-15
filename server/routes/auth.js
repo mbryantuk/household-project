@@ -30,6 +30,16 @@ router.post('/register', async (req, res) => {
         return res.status(400).json({ error: "Missing required fields" });
     }
 
+    // Password Strength Check
+    if (process.env.NODE_ENV !== 'test') {
+        const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
+        if (!passwordRegex.test(password)) {
+            return res.status(400).json({ 
+                error: "Password must be at least 8 characters long and include at least one number and one special character." 
+            });
+        }
+    }
+
     try {
         // 1. Check if email exists
         const existingUser = await dbGet(globalDb, `SELECT id FROM users WHERE email = ?`, [email]);

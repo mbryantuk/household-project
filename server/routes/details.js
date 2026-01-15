@@ -3,9 +3,10 @@ const router = express.Router();
 const { getHouseholdDb } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 
+const { encrypt, decrypt } = require('../services/crypto');
+
 /**
  * Multi-Tenancy Enforcement:
- * All queries MUST filter by household_id and verify user context via middleware.
  */
 
 const useTenantDb = (req, res, next) => {
@@ -21,6 +22,30 @@ const closeDb = (req) => {
     if (req.tenantDb) req.tenantDb.close();
 };
 
+// SENSITIVE FIELDS MAP
+const SENSITIVE_FIELDS = ['registration', 'policy_number', 'account_number', 'sort_code'];
+
+const encryptPayload = (data) => {
+    const encrypted = { ...data };
+    Object.keys(encrypted).forEach(key => {
+        if (SENSITIVE_FIELDS.includes(key) && encrypted[key]) {
+            encrypted[key] = encrypt(String(encrypted[key]));
+        }
+    });
+    return encrypted;
+};
+
+const decryptRow = (row) => {
+    if (!row) return row;
+    const decrypted = { ...row };
+    Object.keys(decrypted).forEach(key => {
+        if (SENSITIVE_FIELDS.includes(key)) {
+            decrypted[key] = decrypt(decrypted[key]);
+        }
+    });
+    return decrypted;
+};
+
 // ==========================================
 // 🏠 GENERIC CRUD HELPERS (Tenant-Aware)
 // ==========================================
@@ -29,19 +54,17 @@ const handleGetSingle = (table) => (req, res) => {
     req.tenantDb.get(`SELECT * FROM ${table} WHERE household_id = ?`, [req.hhId], (err, row) => {
         closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
-        res.json(row || {});
+        res.json(decryptRow(row) || {});
     });
 };
 
 const handleUpdateSingle = (table) => (req, res) => {
-    // 1. Get Schema for the table to ensure we only try to insert/update valid columns
     req.tenantDb.all(`PRAGMA table_info(${table})`, [], (pErr, cols) => {
         if (pErr) { closeDb(req); return res.status(500).json({ error: pErr.message }); }
         
         const validColumns = cols.map(c => c.name);
-        const data = { ...req.body, household_id: req.hhId };
+        const data = encryptPayload({ ...req.body, household_id: req.hhId });
         
-        // Filter out any fields not in schema (like 'id' or extra stuff from request)
         const updateData = {};
         Object.keys(data).forEach(key => {
             if (validColumns.includes(key) && key !== 'id') {
@@ -55,12 +78,9 @@ const handleUpdateSingle = (table) => (req, res) => {
         const sets = fields.map(f => `${f} = ?`).join(', ');
         const values = Object.values(updateData);
 
-        // Try Update first
         req.tenantDb.run(`UPDATE ${table} SET ${sets} WHERE household_id = ?`, [...values, req.hhId], function(err) {
             if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
-            
             if (this.changes === 0) {
-                // Not found -> Insert
                 const placeholders = fields.join(', ');
                 const qs = fields.map(() => '?').join(', ');
                 req.tenantDb.run(`INSERT INTO ${table} (${placeholders}) VALUES (${qs})`, values, (iErr) => {
@@ -80,7 +100,7 @@ const handleGetList = (table) => (req, res) => {
     req.tenantDb.all(`SELECT * FROM ${table} WHERE household_id = ?`, [req.hhId], (err, rows) => {
         closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
+        res.json((rows || []).map(decryptRow));
     });
 };
 
@@ -89,16 +109,16 @@ const handleGetItem = (table) => (req, res) => {
         closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         if (!row) return res.status(404).json({ error: "Item not found" });
-        res.json(row);
+        res.json(decryptRow(row));
     });
 };
 
 const handleCreateItem = (table) => (req, res) => {
-    req.body.household_id = req.hhId;
-    const fields = Object.keys(req.body);
+    const data = encryptPayload({ ...req.body, household_id: req.hhId });
+    const fields = Object.keys(data);
     const placeholders = fields.join(', ');
     const qs = fields.map(() => '?').join(', ');
-    const values = Object.values(req.body);
+    const values = Object.values(data);
 
     req.tenantDb.run(`INSERT INTO ${table} (${placeholders}) VALUES (${qs})`, values, function(err) {
         closeDb(req);
@@ -106,14 +126,15 @@ const handleCreateItem = (table) => (req, res) => {
             const status = err.message.includes('NOT NULL') || err.message.includes('CHECK') ? 400 : 500;
             return res.status(status).json({ error: err.message });
         }
-        res.json({ id: this.lastID, ...req.body });
+        res.json({ id: this.lastID, ...data });
     });
 };
 
 const handleUpdateItem = (table) => (req, res) => {
-    const fields = Object.keys(req.body).filter(f => f !== 'id' && f !== 'household_id');
+    const data = encryptPayload(req.body);
+    const fields = Object.keys(data).filter(f => f !== 'id' && f !== 'household_id');
     const sets = fields.map(f => `${f} = ?`).join(', ');
-    const values = fields.map(f => req.body[f]);
+    const values = fields.map(f => data[f]);
 
     req.tenantDb.run(`UPDATE ${table} SET ${sets} WHERE id = ? AND household_id = ?`, [...values, req.params.itemId, req.hhId], function(err) {
         closeDb(req);
@@ -175,11 +196,11 @@ VEHICLE_SUBS.forEach(sub => {
         req.tenantDb.all(`SELECT * FROM ${table} WHERE vehicle_id = ? AND household_id = ?`, [req.params.vehicleId, req.hhId], (err, rows) => {
             closeDb(req);
             if (err) return res.status(500).json({ error: err.message });
-            res.json(rows);
+            res.json((rows || []).map(decryptRow));
         });
     });
     router.post(`/households/:id/vehicles/:vehicleId/${sub}`, authenticateToken, requireHouseholdRole('admin'), useTenantDb, (req, res) => {
-        const data = { ...req.body, vehicle_id: req.params.vehicleId, household_id: req.hhId };
+        const data = encryptPayload({ ...req.body, vehicle_id: req.params.vehicleId, household_id: req.hhId });
         const fields = Object.keys(data);
         const placeholders = fields.join(', ');
         const qs = fields.map(() => '?').join(', ');
@@ -190,9 +211,10 @@ VEHICLE_SUBS.forEach(sub => {
         });
     });
     router.put(`/households/:id/vehicles/:vehicleId/${sub}/:itemId`, authenticateToken, requireHouseholdRole('admin'), useTenantDb, (req, res) => {
-        const fields = Object.keys(req.body).filter(f => f !== 'id' && f !== 'household_id' && f !== 'vehicle_id');
+        const data = encryptPayload(req.body);
+        const fields = Object.keys(data).filter(f => f !== 'id' && f !== 'household_id' && f !== 'vehicle_id');
         const sets = fields.map(f => `${f} = ?`).join(', ');
-        const values = fields.map(f => req.body[f]);
+        const values = fields.map(f => data[f]);
         req.tenantDb.run(`UPDATE ${table} SET ${sets} WHERE id = ? AND vehicle_id = ? AND household_id = ?`, [...values, req.params.itemId, req.params.vehicleId, req.hhId], function(err) {
             closeDb(req);
             if (err) return res.status(500).json({ error: err.message });
