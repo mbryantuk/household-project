@@ -1,6 +1,6 @@
 {
   "name": "household-manager",
-  "version": "2.6.20",
+  "version": "2.6.22",
   "description": "",
   "main": "index.js",
   "scripts": {

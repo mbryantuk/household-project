@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { 
   Box, Typography, Sheet, Stack, Avatar, Button, Input, 
-  FormControl, FormLabel, Grid, Divider, IconButton, Tooltip 
+  FormControl, FormLabel, Grid, Divider, IconButton, Tooltip,
+  Modal, ModalDialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/joy';
 import { useOutletContext } from 'react-router-dom';
-import { Edit, Save, PhotoCamera } from '@mui/icons-material';
+import { Edit, Save, PhotoCamera, Lock, Key } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
 import EmojiPicker from '../components/EmojiPicker';
 
@@ -13,11 +14,18 @@ export default function ProfileView() {
   const [isEditing, setIsEditing] = useState(false);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   
+  // Password Change State
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [isSavingPassword, setIsSavingPassword] = useState(false);
+
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
     email: '',
-    username: '',
     avatar: '👤'
   });
 
@@ -27,7 +35,6 @@ export default function ProfileView() {
         first_name: user.first_name || '',
         last_name: user.last_name || '',
         email: user.email || '',
-        username: user.username || '',
         avatar: user.avatar || '👤'
       });
     }
@@ -41,6 +48,26 @@ export default function ProfileView() {
       showNotification("Profile updated successfully", "success");
     } catch (err) {
       showNotification("Failed to update profile", "danger");
+    }
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+        return showNotification("Passwords do not match", "danger");
+    }
+
+    setIsSavingPassword(true);
+    try {
+        await onUpdateProfile({ password: passwordData.newPassword });
+        setIsPasswordModalOpen(false);
+        setPasswordData({ newPassword: '', confirmPassword: '' });
+        showNotification("Password changed successfully", "success");
+    } catch (err) {
+        const msg = err.response?.data?.error || "Failed to change password";
+        showNotification(msg, "danger");
+    } finally {
+        setIsSavingPassword(false);
     }
   };
 
@@ -87,11 +114,12 @@ export default function ProfileView() {
                 </IconButton>
               </Box>
               <Typography level="title-md" sx={{ mt: 2 }}>{formData.first_name} {formData.last_name}</Typography>
-              <Typography level="body-xs" color="neutral">{formData.username || 'No username set'}</Typography>
+              <Typography level="body-xs" color="neutral">{formData.email}</Typography>
             </Grid>
 
             <Grid xs={12} md={8}>
               <Stack spacing={3}>
+                <Typography level="title-lg" startDecorator={<Edit />}>Personal Details</Typography>
                 <Grid container spacing={2}>
                   <Grid xs={12} sm={6}>
                     <FormControl>
@@ -123,17 +151,6 @@ export default function ProfileView() {
                   />
                 </FormControl>
 
-                <FormControl>
-                  <FormLabel>Username</FormLabel>
-                  <Input 
-                    disabled={!isEditing}
-                    value={formData.username}
-                    onChange={(e) => setFormData({...formData, username: e.target.value})}
-                  />
-                </FormControl>
-
-                <Divider sx={{ my: 1 }} />
-
                 <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
                   {!isEditing ? (
                     <Button 
@@ -150,11 +167,63 @@ export default function ProfileView() {
                     </>
                   )}
                 </Box>
+
+                <Divider sx={{ my: 2 }} />
+                
+                <Typography level="title-lg" startDecorator={<Lock />}>Security</Typography>
+                <Sheet variant="soft" color="neutral" sx={{ p: 2, borderRadius: 'md', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box>
+                        <Typography level="title-sm">Account Password</Typography>
+                        <Typography level="body-xs">Update your login credentials regularly to stay secure.</Typography>
+                    </Box>
+                    <Button 
+                        variant="soft" 
+                        color="primary" 
+                        startDecorator={<Key />}
+                        onClick={() => setIsPasswordModalOpen(true)}
+                    >
+                        Change Password
+                    </Button>
+                </Sheet>
               </Stack>
             </Grid>
           </Grid>
         </form>
       </Sheet>
+
+      {/* Password Change Modal */}
+      <Modal open={isPasswordModalOpen} onClose={() => setIsPasswordModalOpen(false)}>
+        <ModalDialog>
+            <DialogTitle>Change Password</DialogTitle>
+            <DialogContent>Passwords must be at least 8 characters long and include a number and special character.</DialogContent>
+            <form onSubmit={handleChangePassword}>
+                <Stack spacing={2} sx={{ mt: 1 }}>
+                    <FormControl required>
+                        <FormLabel>New Password</FormLabel>
+                        <Input 
+                            type="password" 
+                            placeholder="••••••••"
+                            value={passwordData.newPassword}
+                            onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
+                        />
+                    </FormControl>
+                    <FormControl required>
+                        <FormLabel>Confirm New Password</FormLabel>
+                        <Input 
+                            type="password" 
+                            placeholder="••••••••"
+                            value={passwordData.confirmPassword}
+                            onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
+                        />
+                    </FormControl>
+                    <DialogActions>
+                        <Button type="submit" loading={isSavingPassword}>Update Password</Button>
+                        <Button variant="plain" color="neutral" onClick={() => setIsPasswordModalOpen(false)}>Cancel</Button>
+                    </DialogActions>
+                </Stack>
+            </form>
+        </ModalDialog>
+      </Modal>
 
       <EmojiPicker 
         open={emojiPickerOpen} 
