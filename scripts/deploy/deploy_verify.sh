@@ -25,7 +25,8 @@ docker compose exec -T totem-app npm test
 # 4. Commit & Push
 echo "💾 Committing changes..."
 git add .
-git commit -m "v$NEW_VERSION - Deployment"
+COMMIT_MSG="v$NEW_VERSION - ${1:-Deployment}"
+git commit -m "$COMMIT_MSG"
 git push origin main
 
 echo "✅ Deployment of v$NEW_VERSION Complete!"
