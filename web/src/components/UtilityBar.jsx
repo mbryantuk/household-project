@@ -3,7 +3,7 @@ import {
   Box, IconButton, Tooltip, Sheet, Typography, Button, Divider, Avatar, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent
 } from '@mui/joy';
 import { 
-  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Savings, Close, Wifi, Payments, Logout, SwapHoriz, Download
+  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Savings, Close, Wifi, Payments, Logout, SwapHoriz, Download, Edit
 } from '@mui/icons-material';
 import FloatingCalculator from './FloatingCalculator';
 import FloatingCalendar from './FloatingCalendar';
@@ -65,6 +65,11 @@ export default function UtilityBar({
       const isOpen = activeWidget === id && !poppedOut[id];
       const isPopped = poppedOut[id];
 
+      const renderIcon = () => {
+          if (typeof Icon === 'function') return <Icon />;
+          return <Icon fontSize="small" />;
+      };
+
       return (
         <Box sx={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center' }}>
             {isOpen && (
@@ -95,7 +100,7 @@ export default function UtilityBar({
                     transition: 'all 0.2s'
                 }}
             >
-                <Icon fontSize="small" />
+                {renderIcon()}
                 {showLabel && <Typography level="body-xs" fontWeight="bold" textColor={isOpen ? 'common.white' : 'text.primary'}>{label}</Typography>}
                 {showLabel && (isOpen ? <KeyboardArrowDown fontSize="small" /> : (isPopped ? <OpenInNew fontSize="small" /> : null))}
             </Button>
@@ -180,15 +185,38 @@ export default function UtilityBar({
                 </Box>
             </WidgetWrapper>
 
-            <IconButton 
-                size="sm" 
-                variant="plain" 
-                color="danger" 
-                onClick={onLogout}
-                sx={{ height: '100%', borderRadius: 0, px: 2, '&:hover': { bgcolor: 'danger.softBg' } }}
+            <WidgetWrapper 
+                id="account" 
+                label="Account" 
+                icon={() => <Avatar size="sm" sx={{ width: 22, height: 22, fontSize: '0.75rem', bgcolor: getEmojiColor(user?.avatar || '👤', isDark) }}>{user?.avatar || user?.first_name?.[0]}</Avatar>} 
+                color="neutral" 
+                width={240} 
+                showLabel={false} 
+                alignRight
             >
-                <Logout fontSize="small" />
-            </IconButton>
+                <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+                    <Avatar size="lg" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark) }}>{user?.avatar || user?.first_name?.[0]}</Avatar>
+                    <Box sx={{ minWidth: 0 }}>
+                        <Typography level="title-sm" noWrap>{user?.first_name} {user?.last_name}</Typography>
+                        <Typography level="body-xs" noWrap>{user?.email}</Typography>
+                    </Box>
+                </Box>
+                <List size="sm" sx={{ p: 1 }}>
+                    <ListItem>
+                        <ListItemButton onClick={() => { window.location.href = `/household/${user?.default_household_id}/profile`; closeWidget(); }}>
+                            <ListItemDecorator><Edit fontSize="small" /></ListItemDecorator>
+                            <ListItemContent>Edit Profile</ListItemContent>
+                        </ListItemButton>
+                    </ListItem>
+                    <Divider sx={{ my: 1 }} />
+                    <ListItem>
+                        <ListItemButton color="danger" variant="soft" onClick={onLogout}>
+                            <ListItemDecorator><Logout fontSize="small" /></ListItemDecorator>
+                            <ListItemContent>Logout</ListItemContent>
+                        </ListItemButton>
+                    </ListItem>
+                </List>
+            </WidgetWrapper>
         </Box>
     </Sheet>
   );

@@ -160,7 +160,7 @@ export default function NavSidebar({
     );
   };
 
-  const showPanel = activeCategory && ['people', 'pets', 'house', 'vehicles', 'settings', 'account', 'switch'].includes(activeCategory);
+  const showPanel = activeCategory && ['people', 'pets', 'house', 'vehicles', 'switch'].includes(activeCategory);
 
   const sidebarContent = (
     <Box sx={{ display: 'flex', height: '100dvh' }}>
@@ -246,16 +246,7 @@ export default function NavSidebar({
                 <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
                 
                 <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0, p: 0, m: 0 }}>
-                    <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
-                </List>
-
-                <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
-
-                <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '0px', width: '100%', px: isMobile ? 1 : 0, p: 0, m: 0, pb: 0.5 }}>
-                    <RailIcon 
-                        icon={<Avatar size="sm" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark), width: 22, height: 22, fontSize: '0.75rem' }}>{user?.avatar || user?.first_name?.[0]}</Avatar>} 
-                        label={user?.first_name || 'Account'} category="account" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile}
-                    />
+                    <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                 </List>
             </Box>
         </Sheet>
@@ -280,44 +271,6 @@ export default function NavSidebar({
                 </Box>
                 
                 <List sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>
-                    {activeCategory === 'switch' && (
-                        <>
-                            <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>SELECT HOUSEHOLD</Typography></ListItem>
-                            {households.map(hh => (
-                                <SubItem 
-                                    key={hh.id} 
-                                    label={hh.name} 
-                                    emoji={hh.avatar || '🏠'} 
-                                    isDark={isDark}
-                                    onClick={() => { navigate(`/household/${hh.id}`); setActiveCategory(null); if (isMobile && onClose) onClose(); }}
-                                    endAction={
-                                        hh.role === 'admin' && hh.id !== household?.id ? (
-                                            <IconButton size="sm" color="danger" variant="plain" onClick={() => handleDeleteHousehold(hh)}>
-                                                <Delete fontSize="small" />
-                                            </IconButton>
-                                        ) : null
-                                    }
-                                />
-                            ))}
-                        </>
-                    )}
-                    {activeCategory === 'account' && (
-                        <>
-                            <ListItem sx={{ px: 2, py: 1.5 }}>
-                                <Stack direction="row" spacing={2} alignItems="center">
-                                    <Avatar size="lg" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark) }} onClick={() => setEmojiPickerOpen(true)}>{user?.avatar || user?.first_name?.[0]}</Avatar>
-                                    <Box sx={{ minWidth: 0 }}>
-                                        <Typography level="title-sm" noWrap>{user?.first_name} {user?.last_name}</Typography>
-                                        <Typography level="body-xs" noWrap>{user?.email}</Typography>
-                                    </Box>
-                                </Stack>
-                            </ListItem>
-                            <Divider sx={{ my: 1 }} />
-                            <ListItem><ListItemButton onClick={() => { navigate('profile'); setActiveCategory(null); if (isMobile && onClose) onClose(); }}><ListItemDecorator><Edit /></ListItemDecorator><ListItemContent>Edit Profile</ListItemContent></ListItemButton></ListItem>
-                            <Divider sx={{ my: 1 }} />
-                            <ListItem><ListItemButton onClick={() => { onLogout(); if (isMobile && onClose) onClose(); }} variant="solid" color="danger" sx={{ borderRadius: 'sm', mx: 0.5 }}><ListItemDecorator><Logout sx={{ color: 'inherit' }} /></ListItemDecorator><ListItemContent>Logout</ListItemContent></ListItemButton></ListItem>
-                        </>
-                    )}
                     {activeCategory === 'people' && (
                         <>
                             <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>MEMBERS</Typography></ListItem>
@@ -344,9 +297,6 @@ export default function NavSidebar({
                             {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`vehicles/${v.id}`} emoji={v.emoji} isDark={isDark} />)}
                             <Divider sx={{ my: 1 }} /><SubItem label="Add New Vehicle" to="vehicles/new" isDark={isDark} />
                         </>
-                    )}
-                    {activeCategory === 'settings' && (
-                        <SubItem label="General Settings" to="settings" isDark={isDark} />
                     )}
                 </List>
             </Sheet>
