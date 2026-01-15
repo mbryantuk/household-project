@@ -61,7 +61,7 @@ export default function UtilityBar({
       closeWidget();
   };
 
-  const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, showLabel = true, variant = "plain" }) => {
+  const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, showLabel = true, variant = "plain", alignRight = false }) => {
       const isOpen = activeWidget === id && !poppedOut[id];
       const isPopped = poppedOut[id];
 
@@ -69,11 +69,14 @@ export default function UtilityBar({
         <Box sx={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center' }}>
             {isOpen && (
                 <Box sx={{ 
-                    position: 'absolute', bottom: '100%', right: width ? 'auto' : 0, left: width ? 0 : 'auto', width: width || 250, 
-                    maxHeight: 'calc(100vh - 100px)', height: 'fit-content',
+                    position: 'absolute', bottom: '100%', 
+                    ...(alignRight ? { right: 0 } : { left: 0 }),
+                    width: width || 250, 
+                    maxHeight: 'calc(100vh - 80px)', 
                     mb: '1px', bgcolor: 'background.surface', borderTopLeftRadius: 'md', 
                     borderTopRightRadius: 'md', border: '1px solid', borderColor: 'divider',
-                    borderBottom: 'none', boxShadow: '0 -4px 12px rgba(0,0,0,0.1)', overflow: 'hidden', zIndex: 2005,
+                    borderBottom: 'none', boxShadow: '0 -4px 12px rgba(0,0,0,0.1)', 
+                    overflow: 'hidden', zIndex: 2005,
                     display: 'flex', flexDirection: 'column',
                     '& *': {
                         scrollbarWidth: 'none',
@@ -86,7 +89,7 @@ export default function UtilityBar({
             <Button 
                 variant={isOpen ? "solid" : variant} color={isOpen ? color : "neutral"} onClick={() => toggleWidget(id)}
                 sx={{
-                    height: '100%', borderRadius: 0, px: showLabel ? 2 : 1.5, minWidth: showLabel ? 100 : 40, gap: 1,
+                    height: '100%', borderRadius: 0, px: showLabel ? 2 : 1.5, minWidth: showLabel ? 100 : 44, gap: 1,
                     borderTop: isOpen ? 'none' : '3px solid transparent',
                     borderColor: isOpen ? 'transparent' : (isPopped ? `${color}.solidBg` : 'transparent'),
                     transition: 'all 0.2s'
@@ -105,10 +108,12 @@ export default function UtilityBar({
         variant="soft"
         sx={{
             position: 'relative', width: '100%', height: 40, display: 'flex', alignItems: 'center',
-            bgcolor: 'background.surface', borderTop: '1px solid', borderColor: 'divider', zIndex: 900, flexShrink: 0
+            bgcolor: 'background.surface', borderTop: '1px solid', borderColor: 'divider', zIndex: 900, 
+            flexShrink: 0, overflow: 'visible'
         }}
     >
-        <Box sx={{ flex: '1 1 65%', display: 'flex', height: '100%' }}>
+        {/* Left Side: Widgets */}
+        <Box sx={{ flex: '1 1 auto', display: 'flex', height: '100%' }}>
             <WidgetWrapper id="notes" label="Notes" icon={NoteAlt} color="warning" width={320}>
                 <PostItNote isDocked onClose={closeWidget} user={user} onUpdateProfile={onUpdateProfile} onPopout={() => handlePopout('notes', '/note-window')} />
             </WidgetWrapper>
@@ -130,8 +135,20 @@ export default function UtilityBar({
             </WidgetWrapper>
         </Box>
 
-        <Box sx={{ flex: '0 0 35%', height: '100%', borderLeft: '1px solid', borderColor: 'divider', bgcolor: 'background.level1', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', px: 0, gap: 0 }}>
+        {/* Right Side: System Utilities */}
+        <Box sx={{ flex: '0 0 auto', height: '100%', borderLeft: '1px solid', borderColor: 'divider', bgcolor: 'background.level1', display: 'flex', alignItems: 'center', px: 0 }}>
             
+            <Box sx={{ display: { xs: 'none', lg: 'flex' }, alignItems: 'center', gap: 0.5, opacity: 0.7, px: 1.5 }}>
+                <Wifi fontSize="small" color="success" />
+                <Typography level="body-xs">Online</Typography>
+            </Box>
+            
+            <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 0.5, opacity: 0.7, px: 1.5 }}>
+                <Tooltip title={`System Root: v${__SYSTEM_VERSION__}`} variant="soft" arrow>
+                    <Typography level="body-xs" fontWeight="600" sx={{ cursor: 'help' }}>v{pkg.version}</Typography>
+                </Tooltip>
+            </Box>
+
             {canInstall && (
                 <Tooltip title="Install App" variant="soft">
                     <IconButton size="sm" variant="plain" color="success" onClick={onInstall} sx={{ height: '100%', borderRadius: 0, px: 1.5 }}>
@@ -140,39 +157,28 @@ export default function UtilityBar({
                 </Tooltip>
             )}
 
-            <WidgetWrapper id="switch" label="Switch" icon={SwapHoriz} color="primary" width={280} showLabel={false}>
-                <Box sx={{ p: 2, bgcolor: 'background.level1', borderBottom: '1px solid', borderColor: 'divider' }}>
+            <WidgetWrapper id="switch" label="Switch" icon={SwapHoriz} color="primary" width={280} showLabel={false} alignRight>
+                <Box sx={{ p: 2, bgcolor: 'background.level1', borderBottom: '1px solid', borderColor: 'divider', flexShrink: 0 }}>
                     <Typography level="title-sm">Switch Household</Typography>
                 </Box>
-                <List size="sm" sx={{ '--ListItem-radius': '0px', p: 0 }}>
-                    {households.map(hh => (
-                        <ListItem key={hh.id}>
-                            <ListItemButton onClick={() => { onSelectHousehold(hh); window.location.href = `/household/${hh.id}/dashboard`; }}>
-                                <ListItemDecorator>
-                                    <Avatar size="sm" sx={{ bgcolor: getEmojiColor(hh.avatar || '🏠', isDark) }}>{hh.avatar || '🏠'}</Avatar>
-                                </ListItemDecorator>
-                                <ListItemContent>
-                                    <Typography level="title-sm">{hh.name}</Typography>
-                                    <Typography level="body-xs">{hh.role}</Typography>
-                                </ListItemContent>
-                            </ListItemButton>
-                        </ListItem>
-                    ))}
-                </List>
+                <Box sx={{ overflowY: 'auto', flexGrow: 1, maxHeight: '400px' }}>
+                    <List size="sm" sx={{ '--ListItem-radius': '0px', p: 0 }}>
+                        {households.map(hh => (
+                            <ListItem key={hh.id}>
+                                <ListItemButton onClick={() => { onSelectHousehold(hh); window.location.href = `/household/${hh.id}/dashboard`; }}>
+                                    <ListItemDecorator>
+                                        <Avatar size="sm" sx={{ bgcolor: getEmojiColor(hh.avatar || '🏠', isDark) }}>{hh.avatar || '🏠'}</Avatar>
+                                    </ListItemDecorator>
+                                    <ListItemContent>
+                                        <Typography level="title-sm">{hh.name}</Typography>
+                                        <Typography level="body-xs">{hh.role}</Typography>
+                                    </ListItemContent>
+                                </ListItemButton>
+                            </ListItem>
+                        ))}
+                    </List>
+                </Box>
             </WidgetWrapper>
-
-            <Divider orientation="vertical" sx={{ height: 20, mx: 0.5 }} />
-
-            <Box sx={{ display: { xs: 'none', lg: 'flex' }, alignItems: 'center', gap: 0.5, opacity: 0.7, px: 1 }}>
-                <Wifi fontSize="small" color="success" />
-                <Typography level="body-xs">Online</Typography>
-            </Box>
-            
-            <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 0.5, opacity: 0.7, px: 1 }}>
-                <Tooltip title={`System Root: v${__SYSTEM_VERSION__}`} variant="soft" arrow>
-                    <Typography level="body-xs" fontWeight="600" sx={{ cursor: 'help' }}>v{pkg.version}</Typography>
-                </Tooltip>
-            </Box>
 
             <IconButton 
                 size="sm" 
