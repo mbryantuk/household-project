@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useOutletContext, useNavigate } from 'react-router-dom';
+import { useOutletContext, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, CircularProgress, Divider, Grid, Input, Button, Tooltip, IconButton, FormControl, FormLabel, Stack
 } from '@mui/joy';
@@ -24,9 +24,14 @@ export default function HouseView() {
   const { api, id: householdId, onUpdateHousehold, user: currentUser, showNotification } = useOutletContext();
   const isAdmin = currentUser?.role === 'admin';
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [viewMode, setViewMode] = useState('selector'); // 'selector' | 'details'
-  const [activeTab, setActiveTab] = useState(0);
+  // Parse Tab from Query Param
+  const queryParams = new URLSearchParams(location.search);
+  const initialTab = queryParams.get('tab') === 'assets' ? 5 : 0;
+
+  const [viewMode, setViewMode] = useState('details'); // Default to details as per desktop request
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [household, setHousehold] = useState(null);
   const [vehicles, setVehicles] = useState([]);
   const [loadingHh, setLoadingHh] = useState(true);
@@ -50,6 +55,12 @@ export default function HouseView() {
       .catch(err => console.error("Failed to fetch vehicles", err));
 
   }, [api, householdId]);
+
+  // Sync tab if query param changes
+  useEffect(() => {
+    const tab = new URLSearchParams(location.search).get('tab');
+    if (tab === 'assets') setActiveTab(5);
+  }, [location.search]);
 
   const handleUpdateIdentity = async (e) => {
     e.preventDefault();

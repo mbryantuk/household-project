@@ -351,7 +351,7 @@ export default function NavSidebar({
                     {activeCategory === 'house' && (
                         <>
                             <GroupHeader label="Properties" />
-                            <SubItem label={household?.name || 'Main House'} to="settings" emoji={household?.avatar || '🏠'} isDark={isDark} />
+                            <SubItem label={household?.name || 'Main House'} to={`house/${household?.id || 1}?tab=assets`} emoji={household?.avatar || '🏠'} isDark={isDark} />
                             
                             {enabledModules.includes('vehicles') && (
                                 <>
