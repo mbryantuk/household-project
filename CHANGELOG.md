@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.3] - 2026-01-15
+
+### Fixed
+- **Navigation:** Fixed "invisible sidebar" issue by refactoring `NavSidebar` layout and moving the Context Menu outside the flex container to prevent layout conflicts.
+
 ## [2.6.2] - 2026-01-15
 
 ### Fixed

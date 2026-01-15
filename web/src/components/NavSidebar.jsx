@@ -426,12 +426,18 @@ export default function NavSidebar({
                 </List>
             </Sheet>
         )}
+    </Box>
+  );
 
+  return (
+    <Box sx={{ display: 'flex', height: '100dvh', zIndex: 2500, position: 'relative', overflow: 'hidden' }}>
+        {sidebarContent}
+        <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(emoji) => { onUpdateProfile({ avatar: emoji }); setEmojiPickerOpen(false); }} title="Select Avatar Emoji" isDark={isDark} />
+        
         <Menu
             open={!!contextMenu}
             onClose={handleCloseContextMenu}
             anchorEl={contextMenu?.anchorEl}
-            placement="bottom-start"
             sx={{ zIndex: 9999 }}
         >
             <MenuItem onClick={handleHideModule} color="danger">
