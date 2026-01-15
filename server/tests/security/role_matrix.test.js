@@ -15,12 +15,7 @@ describe('🛡️ Role Matrix Completion: Member Constraints', () => {
         });
         const loginA = await request(app).post('/auth/login').send({ email: `admin_mc_${uniqueId}@test.com`, password: 'password' });
         adminToken = loginA.body.token;
-        householdId = loginA.body.household?.id || loginA.body.tokenPayload?.householdId;
-
-        if (!householdId) {
-            const profile = await request(app).get('/auth/profile').set('Authorization', `Bearer ${adminToken}`);
-            householdId = profile.body.default_household_id;
-        }
+        householdId = loginA.body.household?.id;
 
         // 2. Create Member
         await request(app).post(`/households/${householdId}/users`).set('Authorization', `Bearer ${adminToken}`).send({
@@ -40,20 +35,20 @@ describe('🛡️ Role Matrix Completion: Member Constraints', () => {
     ];
 
     endpoints.forEach(ep => {
-        it(`should block MEMBER from creating ${ep.label} (Write Restricted)`, async () => {
+        it(`should ALLOW MEMBER to create ${ep.label} (Write Allowed per Gemini.md)`, async () => {
             const res = await request(app)
                 [ep.method](`/households/${householdId}/${ep.path}`)
                 .set('Authorization', `Bearer ${memberToken}`)
                 .send(ep.payload);
-            expect(res.status).toBe(403);
+            expect(res.status).toBe(200);
         });
     });
 
-    it('should block MEMBER from updating household details', async () => {
+    it('should ALLOW MEMBER to update household details (Write Allowed per Gemini.md)', async () => {
         const res = await request(app)
             .put(`/households/${householdId}/details`)
             .set('Authorization', `Bearer ${memberToken}`)
-            .send({ property_type: 'Hacked' });
-        expect(res.status).toBe(403);
+            .send({ property_type: 'Updated' });
+        expect(res.status).toBe(200);
     });
 });
