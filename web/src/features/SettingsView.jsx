@@ -14,7 +14,7 @@ import EmojiPicker from '../components/EmojiPicker';
 
 export default function SettingsView({ 
     household, users, currentUser, api, showNotification, confirmAction, fetchHhUsers,
-    themeId, onThemeChange
+    themeId, onThemeChange, onUpdateHousehold
 }) {
   const [activeTab, setActiveTab] = useState(0);
   const [editUser, setEditUser] = useState(null);
@@ -78,17 +78,18 @@ export default function SettingsView({
         ? enabledModules.filter(m => m !== module)
         : [...enabledModules, module];
     
+    // Optimistically update local state
     setEnabledModules(newModules);
     
     try {
-        await api.put(`/households/${household.id}`, { 
+        // Use parent handler to update global state without reload
+        await onUpdateHousehold({ 
             enabled_modules: JSON.stringify(newModules) 
         });
-        showNotification(`${module} module ${newModules.includes(module) ? 'enabled' : 'disabled'}.`, 'success');
-        // Reload to refresh sidebar
-        setTimeout(() => window.location.reload(), 500); 
+        // Parent handles notification ("Household updated")
     } catch (err) {
-        showNotification("Failed to update modules.", "danger");
+        // Revert on failure
+        setEnabledModules(enabledModules);
     }
   };
 

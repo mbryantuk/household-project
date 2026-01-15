@@ -190,6 +190,22 @@ export default function NavSidebar({
     setContextMenu(null);
   };
 
+  // Ensure context menu closes on global interaction
+  useEffect(() => {
+    if (contextMenu) {
+      const handleGlobalInteraction = (e) => {
+        if (e.button === 2) return; // Ignore right clicks
+        handleCloseContextMenu();
+      };
+      window.addEventListener('mousedown', handleGlobalInteraction);
+      window.addEventListener('scroll', handleCloseContextMenu);
+      return () => {
+        window.removeEventListener('mousedown', handleGlobalInteraction);
+        window.removeEventListener('scroll', handleCloseContextMenu);
+      };
+    }
+  }, [contextMenu]);
+
   const handleHideModule = async () => {
     if (!contextMenu?.category) return;
     const moduleToHide = contextMenu.category;
@@ -200,11 +216,14 @@ export default function NavSidebar({
             enabled_modules: JSON.stringify(newModules) 
         });
         showNotification(`${moduleToHide} module hidden.`, 'success');
+        // Close menu immediately
+        handleCloseContextMenu();
+        // Short delay to allow state update before reload (or rely on parent if refactored)
         setTimeout(() => window.location.reload(), 500); 
     } catch (err) {
         showNotification("Failed to update modules.", "danger");
+        handleCloseContextMenu();
     }
-    handleCloseContextMenu();
   };
 
   const showPanel = activeCategory && ['people', 'pets', 'house', 'vehicles'].includes(activeCategory);

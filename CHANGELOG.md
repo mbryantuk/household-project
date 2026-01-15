@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.4] - 2026-01-15
+
+### Fixed
+- **Navigation:** Fixed sidebar context menu not closing on click-away by adding a global event listener.
+
 ## [2.6.3] - 2026-01-15
 
 ### Fixed
