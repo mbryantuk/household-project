@@ -211,11 +211,16 @@ function AppInner({ themeId, setThemeId }) {
     if (!household) return;
     try {
       await authAxios.put(`/households/${household.id}`, updates);
-      setHousehold(prev => {
-        const updated = { ...prev, ...updates };
-        localStorage.setItem('household', JSON.stringify(updated));
-        return updated;
-      });
+      
+      const updatedHH = { ...household, ...updates };
+      
+      // Update Single State
+      setHousehold(updatedHH);
+      localStorage.setItem('household', JSON.stringify(updatedHH));
+
+      // Update List State to ensure Layouts depending on list are updated
+      setHouseholds(prev => prev.map(h => h.id === household.id ? { ...h, ...updates } : h));
+
       showNotification("Household updated.", "success");
     } catch (err) { showNotification("Failed to update.", "danger"); }
   }, [authAxios, household, showNotification]);
