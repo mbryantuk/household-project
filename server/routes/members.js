@@ -24,9 +24,44 @@ const closeDb = (req) => {
 // 1. LIST MEMBERS
 router.get('/households/:id/members', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
     req.tenantDb.all(`SELECT * FROM members WHERE household_id = ?`, [req.hhId], (err, rows) => {
-        closeDb(req);
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
+        if (err) {
+            closeDb(req);
+            return res.status(500).json({ error: err.message });
+        }
+
+        const today = new Date();
+        const updates = [];
+
+        rows.forEach(member => {
+            if (member.type === 'child' && member.dob) {
+                const birthDate = new Date(member.dob);
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const m = today.getMonth() - birthDate.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+
+                if (age >= 18) {
+                    // Promote to adult
+                    member.type = 'adult';
+                    updates.push(new Promise((resolve) => {
+                        req.tenantDb.run(`UPDATE members SET type = 'adult' WHERE id = ?`, [member.id], () => resolve());
+                    }));
+                }
+            }
+        });
+
+        // Wait for updates (if any) before closing, though we return early response usually ok, 
+        // better to close after ensuring writes.
+        if (updates.length > 0) {
+            Promise.all(updates).then(() => {
+                closeDb(req);
+                res.json(rows);
+            });
+        } else {
+            closeDb(req);
+            res.json(rows);
+        }
     });
 });
 

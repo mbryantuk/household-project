@@ -255,8 +255,16 @@ export default function NavSidebar({
                 <List sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>
                     {activeCategory === 'people' && (
                         <>
-                            <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>MEMBERS</Typography></ListItem>
-                            {members.filter(m => m.type !== 'pet').map(m => <SubItem key={m.id} label={m.name} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} />)}
+                            <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>ADULTS</Typography></ListItem>
+                            {members.filter(m => m.type !== 'pet' && m.type !== 'child').map(m => <SubItem key={m.id} label={m.name} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} />)}
+                            
+                            {members.some(m => m.type === 'child') && (
+                                <>
+                                    <Divider sx={{ my: 1 }} />
+                                    <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>CHILDREN</Typography></ListItem>
+                                    {members.filter(m => m.type === 'child').map(m => <SubItem key={m.id} label={m.name} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} />)}
+                                </>
+                            )}
                             <Divider sx={{ my: 1 }} /><SubItem label="Add New Person" to="people/new" isDark={isDark} />
                         </>
                     )}
