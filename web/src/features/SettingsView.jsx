@@ -249,14 +249,17 @@ export default function SettingsView({
             variant="plain" 
             sx={{ 
                 p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: 2, mt: 2,
-                overflow: 'auto', '&::-webkit-scrollbar': { display: 'none' }
+                overflowX: 'auto', 
+                flexWrap: 'nowrap',
+                scrollbarWidth: 'none', 
+                '&::-webkit-scrollbar': { display: 'none' }
             }}
           >
-            <Tab value={0} variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'}>User Access</Tab>
-            <Tab value={1} variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}>Appearance</Tab>
-            <Tab value={2} variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'}>Modules</Tab>
-            <Tab value={3} variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'}>Developers</Tab>
-            <Tab value={4} variant={activeTab === 4 ? 'solid' : 'plain'} color={activeTab === 4 ? 'primary' : 'neutral'}>About</Tab>
+            <Tab value={0} variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}>User Access</Tab>
+            <Tab value={1} variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}>Appearance</Tab>
+            <Tab value={2} variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}>Modules</Tab>
+            <Tab value={3} variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}>Developers</Tab>
+            <Tab value={4} variant={activeTab === 4 ? 'solid' : 'plain'} color={activeTab === 4 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}>About</Tab>
           </TabList>
 
           <Box sx={{ p: { xs: 2, md: 4 } }}>

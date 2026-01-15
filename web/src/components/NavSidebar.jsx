@@ -256,7 +256,7 @@ export default function NavSidebar({
                     <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
                         <RailIcon icon={<Groups />} label="People" category="people" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                         
-                        <RailIcon icon={<HomeWork />} label="House" category="house" to={`house/${household?.id || 1}`} hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                        <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                         
                         {enabledModules.includes('meals') && (
                             <RailIcon 
@@ -351,7 +351,7 @@ export default function NavSidebar({
                     {activeCategory === 'house' && (
                         <>
                             <GroupHeader label="Properties" />
-                            <SubItem label={household?.name || 'Main House'} to={`house/${household?.id || 1}`} emoji={household?.avatar || '🏠'} isDark={isDark} />
+                            <SubItem label={household?.name || 'Main House'} to="settings" emoji={household?.avatar || '🏠'} isDark={isDark} />
                             
                             {enabledModules.includes('vehicles') && (
                                 <>

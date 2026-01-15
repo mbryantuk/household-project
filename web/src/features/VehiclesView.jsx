@@ -160,7 +160,7 @@ export default function VehiclesView() {
     return groups;
   }, [vehicles]);
 
-  if (loading && vehicles.length === 0) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
+  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
   if (vehicleId !== 'new' && !selectedVehicle) {
     return (
