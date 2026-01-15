@@ -1,6 +1,6 @@
 {
   "name": "totem-monorepo",
-  "version": "2.6.28",
+  "version": "2.6.29",
   "private": true,
   "scripts": {
     "test": "cd server && npm test",
@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@google/genai": "^1.36.0",
+    "bcryptjs": "^3.0.3",
     "sqlite3": "^5.1.7"
   }
 }
