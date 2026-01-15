@@ -348,7 +348,7 @@ export default function SettingsView({
                                 <Box>
                                     <Typography level="title-md" textTransform="capitalize" startDecorator={<ViewModule />}>{mod}</Typography>
                                     <Typography level="body-xs" color="neutral">
-                                        {mod === 'pets' && "Track pets, microchips, and pet insurance."}
+                                        {mod === 'pets' && "Track pets under the People section."}
                                         {mod === 'vehicles' && "Manage cars, maintenance, and MOTs."}
                                         {mod === 'meals' && "Plan weekly meals and menus."}
                                     </Typography>

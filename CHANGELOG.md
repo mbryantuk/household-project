@@ -2,10 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.6.5] - 2026-01-15
+## [2.6.6] - 2026-01-15
 
 ### Fixed
-- **Settings:** Fixed module toggle (Pets, Vehicles, Meals) not reflecting immediately in the sidebar. The application now correctly synchronizes the global household state upon update, eliminating the need for a page refresh.
+- **Navigation:** Fixed right-click context menu "Hide Module" requiring a page refresh. It now updates the sidebar immediately by synchronizing with the global household state.
+- **Architecture:** Refactored `NavSidebar` to accept `onUpdateHousehold` prop to ensure consistent state propagation from child components.
 
 ## [2.6.5] - 2026-01-15
 

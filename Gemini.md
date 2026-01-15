@@ -78,12 +78,11 @@ You must structure your response in exactly **4 PHASES**.
 * Output Markdown blocks for `README.md` or API updates.
 
 ### Phase 4: Deployment & Verification
-* Provide a single **Bash Script** block that handles:
-    1. `docker compose up -d --build`
-    2. `npm test`
-    3. `node scripts/utils/bump_version.js`
-    4. `git commit -m "vX.X.X - description"`
-    5. `git push origin main`
+* **Mandatory Action:** Execute the standard deployment script.
+    ```bash
+    ./scripts/deploy/deploy_verify.sh
+    ```
+* **Constraint:** Do NOT run individual docker/git commands manually. Use the script.
 
 ---
 

@@ -6,7 +6,7 @@ import {
 import {
   Event, Groups, Pets, HomeWork, DirectionsCar, RestaurantMenu,
   Close, KeyboardArrowRight, ChevronLeft, KeyboardArrowUp, KeyboardArrowDown,
-  VisibilityOff
+  VisibilityOff, PersonAdd, ChildCare, Add
 } from '@mui/icons-material';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
@@ -16,7 +16,7 @@ import EmojiPicker from './EmojiPicker';
 const RAIL_WIDTH = 64; 
 const PANEL_WIDTH = 240;
 
-const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, activeCategory, handleNav, isMobile, onContextMenu }) => {
+const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, activeCategory, handleNav, isMobile }) => {
     const pathMatches = to && location.pathname.includes(to);
     const categoryMatches = activeCategory === category;
     const isActive = pathMatches || categoryMatches;
@@ -26,17 +26,12 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
         else handleNav(to, category, hasSubItems);
     };
 
-    const handleContextMenu = (e) => {
-        if (onContextMenu) onContextMenu(e, category);
-    };
-
     if (isMobile) {
         return (
           <ListItem sx={{ px: 0 }}>
               <ListItemButton 
                   selected={isActive}
                   onClick={handleClick}
-                  onContextMenu={handleContextMenu}
                   sx={{ 
                       borderRadius: 'sm', gap: 2,
                       '&.Mui-selected': { 
@@ -61,7 +56,6 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
               <ListItemButton 
                   selected={isActive}
                   onClick={handleClick}
-                  onContextMenu={handleContextMenu}
                   sx={{ 
                       borderRadius: 'md', justifyContent: 'center', px: 0, 
                       flexDirection: 'column', gap: 0.5, py: 1, width: 56, 
@@ -116,7 +110,6 @@ export default function NavSidebar({
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [canScrollUp, setCanScrollUp] = useState(false);
   const [canScrollDown, setCanScrollDown] = useState(false);
-  const [contextMenu, setContextMenu] = useState(null);
   
   const scrollRef = React.useRef(null);
 
@@ -150,7 +143,7 @@ export default function NavSidebar({
   useEffect(() => {
       const path = location.pathname;
       if (path.includes('/people')) setActiveCategory('people');
-      else if (path.includes('/pets')) setActiveCategory('pets');
+      else if (path.includes('/pets')) setActiveCategory('people'); // Merge pets into people
       else if (path.includes('/vehicles')) setActiveCategory('vehicles');
       else if (path.includes('/house/') || path.endsWith('/house')) setActiveCategory('house'); 
       else if (path.includes('/settings')) setActiveCategory('settings');
@@ -168,71 +161,7 @@ export default function NavSidebar({
       setActiveCategory(category);
   };
 
-  const handleContextMenu = (event, category) => {
-    event.preventDefault();
-    // Create a virtual anchor element for the context menu
-    setContextMenu({
-      category,
-      anchorEl: {
-        getBoundingClientRect: () => ({
-          width: 0,
-          height: 0,
-          top: event.clientY,
-          right: event.clientX,
-          bottom: event.clientY,
-          left: event.clientX,
-        }),
-      },
-    });
-  };
-
-  const handleCloseContextMenu = () => {
-    setContextMenu(null);
-  };
-
-  // Ensure context menu closes on global interaction
-  useEffect(() => {
-    if (contextMenu) {
-      const handleGlobalInteraction = (e) => {
-        if (e.button === 2) return; // Ignore right clicks
-        handleCloseContextMenu();
-      };
-      window.addEventListener('mousedown', handleGlobalInteraction);
-      window.addEventListener('scroll', handleCloseContextMenu);
-      return () => {
-        window.removeEventListener('mousedown', handleGlobalInteraction);
-        window.removeEventListener('scroll', handleCloseContextMenu);
-      };
-    }
-  }, [contextMenu]);
-
-  const handleHideModule = async () => {
-    if (!contextMenu?.category) return;
-    const moduleToHide = contextMenu.category;
-    const newModules = enabledModules.filter(m => m !== moduleToHide);
-
-    try {
-        if (onUpdateHousehold) {
-            await onUpdateHousehold({ 
-                enabled_modules: JSON.stringify(newModules) 
-            });
-            showNotification(`${moduleToHide} module hidden.`, 'success');
-        } else {
-            // Fallback for safety
-            await api.put(`/households/${household.id}`, { 
-                enabled_modules: JSON.stringify(newModules) 
-            });
-            showNotification(`${moduleToHide} module hidden.`, 'success');
-            window.location.reload();
-        }
-        handleCloseContextMenu();
-    } catch (err) {
-        showNotification("Failed to update modules.", "danger");
-        handleCloseContextMenu();
-    }
-  };
-
-  const showPanel = activeCategory && ['people', 'pets', 'house', 'vehicles'].includes(activeCategory);
+  const showPanel = activeCategory && ['people', 'house', 'vehicles'].includes(activeCategory);
 
   // Grouping Logic
   const groupedPets = useMemo(() => {
@@ -327,20 +256,6 @@ export default function NavSidebar({
                     <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
                         <RailIcon icon={<Groups />} label="People" category="people" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                         
-                        {enabledModules.includes('pets') && (
-                            <RailIcon 
-                                icon={<Pets />} 
-                                label="Pets" 
-                                category="pets" 
-                                hasSubItems 
-                                location={location} 
-                                activeCategory={activeCategory} 
-                                handleNav={handleNav} 
-                                isMobile={isMobile}
-                                onContextMenu={handleContextMenu}
-                            />
-                        )}
-                        
                         <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                         
                         {enabledModules.includes('vehicles') && (
@@ -353,7 +268,6 @@ export default function NavSidebar({
                                 activeCategory={activeCategory} 
                                 handleNav={handleNav} 
                                 isMobile={isMobile} 
-                                onContextMenu={handleContextMenu}
                             />
                         )}
 
@@ -367,7 +281,6 @@ export default function NavSidebar({
                                 activeCategory={activeCategory} 
                                 handleNav={handleNav} 
                                 isMobile={isMobile} 
-                                onContextMenu={handleContextMenu}
                             />
                         )}
                     </List>
@@ -408,26 +321,44 @@ export default function NavSidebar({
                             <GroupHeader label="Adults" />
                             {members.filter(m => m.type !== 'pet' && m.type !== 'child').map(m => <SubItem key={m.id} label={m.name} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} />)}
                             
-                            {members.some(m => m.type === 'child') && (
+                            <Divider sx={{ my: 1 }} />
+                            <GroupHeader label="Children" />
+                            {members.filter(m => m.type === 'child').map(m => <SubItem key={m.id} label={m.name} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} />)}
+
+                            {enabledModules.includes('pets') && (
                                 <>
                                     <Divider sx={{ my: 1 }} />
-                                    <GroupHeader label="Children" />
-                                    {members.filter(m => m.type === 'child').map(m => <SubItem key={m.id} label={m.name} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} />)}
+                                    {Object.entries(groupedPets).map(([species, pets]) => (
+                                        <React.Fragment key={species}>
+                                            <GroupHeader label={species} />
+                                            {pets.map(m => <SubItem key={m.id} label={m.name} to={`pets/${m.id}`} emoji={m.emoji} isDark={isDark} />)}
+                                        </React.Fragment>
+                                    ))}
+                                    {Object.keys(groupedPets).length === 0 && <Typography level="body-xs" sx={{ p: 2, color: 'neutral.outlinedColor' }}>No pets found.</Typography>}
                                 </>
                             )}
-                            <Divider sx={{ my: 1 }} /><SubItem label="Add New Person" to="people/new" isDark={isDark} />
-                        </>
-                    )}
-                    {activeCategory === 'pets' && (
-                        <>
-                            {Object.entries(groupedPets).map(([species, pets]) => (
-                                <React.Fragment key={species}>
-                                    <GroupHeader label={species} />
-                                    {pets.map(m => <SubItem key={m.id} label={m.name} to={`pets/${m.id}`} emoji={m.emoji} isDark={isDark} />)}
-                                </React.Fragment>
-                            ))}
-                            {Object.keys(groupedPets).length === 0 && <Typography level="body-xs" sx={{ p: 2, color: 'neutral.outlinedColor' }}>No pets found.</Typography>}
-                            <Divider sx={{ my: 1 }} /><SubItem label="Add New Pet" to="pets/new" isDark={isDark} />
+                            
+                            <Divider sx={{ my: 1 }} />
+                            <Typography level="body-xs" fontWeight="bold" sx={{ px: 2, pt: 1, color: 'neutral.plainColor' }}>ADD NEW</Typography>
+                            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, p: 1 }}>
+                                <Tooltip title="Add Adult" variant="soft">
+                                    <IconButton variant="soft" color="neutral" onClick={() => navigate('people/new?type=adult')} sx={{ borderRadius: 'sm' }}>
+                                        <PersonAdd />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Add Child" variant="soft">
+                                    <IconButton variant="soft" color="neutral" onClick={() => navigate('people/new?type=child')} sx={{ borderRadius: 'sm' }}>
+                                        <ChildCare />
+                                    </IconButton>
+                                </Tooltip>
+                                {enabledModules.includes('pets') && (
+                                    <Tooltip title="Add Pet" variant="soft">
+                                        <IconButton variant="soft" color="neutral" onClick={() => navigate('pets/new')} sx={{ borderRadius: 'sm', gridColumn: 'span 2' }}>
+                                            <Pets />
+                                        </IconButton>
+                                    </Tooltip>
+                                )}
+                            </Box>
                         </>
                     )}
                     {activeCategory === 'house' && (
@@ -458,18 +389,6 @@ export default function NavSidebar({
     <Box sx={{ display: 'flex', height: '100dvh', zIndex: 2500, position: 'relative', overflow: 'hidden' }}>
         {sidebarContent}
         <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(emoji) => { onUpdateProfile({ avatar: emoji }); setEmojiPickerOpen(false); }} title="Select Avatar Emoji" isDark={isDark} />
-        
-        <Menu
-            open={!!contextMenu}
-            onClose={handleCloseContextMenu}
-            anchorEl={contextMenu?.anchorEl}
-            sx={{ zIndex: 9999 }}
-        >
-            <MenuItem onClick={handleHideModule} color="danger">
-                <ListItemDecorator><VisibilityOff /></ListItemDecorator>
-                Hide {contextMenu?.category}
-            </MenuItem>
-        </Menu>
     </Box>
   );
 }

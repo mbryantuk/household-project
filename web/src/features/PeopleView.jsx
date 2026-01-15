@@ -1,6 +1,6 @@
 // ... imports
 import { useState, useMemo, useEffect } from 'react';
-import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
+import { useOutletContext, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Button, Input, FormControl, FormLabel, 
   Stack, Avatar, IconButton, Divider, Tooltip, 
@@ -20,6 +20,7 @@ export default function PeopleView() {
   const { api, id: householdId, members, fetchHhMembers, user: currentUser, showNotification, confirmAction } = useOutletContext();
   const { personId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState(0);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   
@@ -29,9 +30,13 @@ export default function PeopleView() {
     (members || []).find(m => m.id === parseInt(personId)), 
   [members, personId]);
 
+  // Extract query params for pre-filling type
+  const queryParams = new URLSearchParams(location.search);
+  const initialType = queryParams.get('type') || 'adult';
+
   const [formData, setFormData] = useState({
     first_name: '', middle_name: '', last_name: '',
-    type: 'adult', alias: '', dob: '', emoji: '👨', notes: '',
+    type: initialType, alias: '', dob: '', emoji: '👨', notes: '',
     life_insurance_provider: '', life_insurance_premium: 0, life_insurance_expiry: '',
     will_details: ''
   });
@@ -53,14 +58,16 @@ export default function PeopleView() {
         will_details: selectedPerson.will_details || ''
       });
     } else if (personId === 'new') {
+      // Re-read query param for fresh navigation
+      const currentType = new URLSearchParams(location.search).get('type') || 'adult';
       setFormData({
         first_name: '', middle_name: '', last_name: '',
-        type: 'adult', alias: '', dob: '', emoji: '👨', notes: '',
+        type: currentType, alias: '', dob: '', emoji: currentType === 'child' ? '👶' : '👨', notes: '',
         life_insurance_provider: '', life_insurance_premium: 0, life_insurance_expiry: '',
         will_details: ''
       });
     }
-  }, [selectedPerson, personId]);
+  }, [selectedPerson, personId, location.search]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -159,7 +166,7 @@ export default function PeopleView() {
       }}>
         <Box>
             <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                {personId === 'new' ? 'Add New Person' : selectedPerson.name}
+                {personId === 'new' ? `Add New ${formData.type === 'child' ? 'Child' : 'Person'}` : selectedPerson.name}
             </Typography>
             <Typography level="body-md" color="neutral">
                 {personId === 'new' ? 'Enter personal details below.' : 'View and manage personal information.'}
