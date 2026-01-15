@@ -5,6 +5,7 @@ import {
 import { 
   Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Savings, Close, Wifi, Payments, Logout, SwapHoriz, Download, Edit, Settings
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import FloatingCalculator from './FloatingCalculator';
 import FloatingCalendar from './FloatingCalendar';
 import FinancialCalculator from './FinancialCalculator';
@@ -17,6 +18,7 @@ export default function UtilityBar({
     user, api, dates, onDateAdded, onUpdateProfile, isDark, onLogout,
     households = [], onSelectHousehold, onInstall, canInstall
 }) {
+  const navigate = useNavigate();
   const [activeWidget, setActiveWidget] = useState(null); 
   const [poppedOut, setPoppedOut] = useState({});
   const popoutRefs = useRef({});
@@ -182,13 +184,13 @@ export default function UtilityBar({
                 <Box sx={{ overflowY: 'auto', flexGrow: 1, maxHeight: 'calc(100vh - 200px)' }}>
                     <List size="sm" sx={{ p: 1 }}>
                         <ListItem>
-                            <ListItemButton onClick={() => { window.location.href = `/household/${user?.default_household_id}/profile`; closeWidget(); }}>
+                            <ListItemButton onClick={() => { navigate('profile'); closeWidget(); }}>
                                 <ListItemDecorator><Edit fontSize="small" /></ListItemDecorator>
                                 <ListItemContent>Edit Profile</ListItemContent>
                             </ListItemButton>
                         </ListItem>
                         <ListItem>
-                            <ListItemButton onClick={() => { window.location.href = `/household/${user?.default_household_id}/settings`; closeWidget(); }}>
+                            <ListItemButton onClick={() => { navigate('settings'); closeWidget(); }}>
                                 <ListItemDecorator><Settings fontSize="small" /></ListItemDecorator>
                                 <ListItemContent>Household Settings</ListItemContent>
                             </ListItemButton>
@@ -202,7 +204,7 @@ export default function UtilityBar({
                     <List size="sm" sx={{ '--ListItem-radius': '0px', p: 0 }}>
                         {households.map(hh => (
                             <ListItem key={hh.id}>
-                                <ListItemButton selected={hh.id === user?.default_household_id} onClick={() => { onSelectHousehold(hh); window.location.href = `/household/${hh.id}/dashboard`; }}>
+                                <ListItemButton selected={hh.id === user?.default_household_id} onClick={() => { onSelectHousehold(hh); navigate(`/household/${hh.id}/dashboard`); closeWidget(); }}>
                                     <ListItemDecorator>
                                         <Avatar size="sm" sx={{ bgcolor: getEmojiColor(hh.avatar || '🏠', isDark) }}>{hh.avatar || '🏠'}</Avatar>
                                     </ListItemDecorator>
