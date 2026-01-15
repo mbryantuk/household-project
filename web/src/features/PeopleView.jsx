@@ -166,7 +166,7 @@ export default function PeopleView() {
                     <>
                         <Box sx={{ fontSize: '3rem' }}>{person.emoji || (person.type === 'pet' ? '🐾' : '👨')}</Box>
                         <Typography level="title-md" sx={{ fontWeight: 'lg', textAlign: 'center' }}>
-                            {person.name}
+                            {person.alias || (person.name || '').split(' ')[0]}
                         </Typography>
                         <Typography level="body-xs" color="neutral" sx={{ textTransform: 'uppercase' }}>
                             {person.role || person.type}

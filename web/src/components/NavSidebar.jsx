@@ -258,19 +258,6 @@ export default function NavSidebar({
                         
                         <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                         
-                        {enabledModules.includes('vehicles') && (
-                            <RailIcon 
-                                icon={<DirectionsCar />} 
-                                label="Vehicles" 
-                                category="vehicles" 
-                                hasSubItems 
-                                location={location} 
-                                activeCategory={activeCategory} 
-                                handleNav={handleNav} 
-                                isMobile={isMobile} 
-                            />
-                        )}
-
                         {enabledModules.includes('meals') && (
                             <RailIcon 
                                 icon={<RestaurantMenu />} 
@@ -365,18 +352,20 @@ export default function NavSidebar({
                         <>
                             <GroupHeader label="Properties" />
                             <SubItem label={household?.name || 'Main House'} to={`house/${household?.id || 1}`} emoji={household?.avatar || '🏠'} isDark={isDark} />
-                        </>
-                    )}
-                    {activeCategory === 'vehicles' && (
-                        <>
-                            {Object.entries(groupedVehicles).map(([type, list]) => (
-                                <React.Fragment key={type}>
-                                    <GroupHeader label={type} />
-                                    {list.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`vehicles/${v.id}`} emoji={v.emoji} isDark={isDark} />)}
-                                </React.Fragment>
-                            ))}
-                            {Object.keys(groupedVehicles).length === 0 && <Typography level="body-xs" sx={{ p: 2, color: 'neutral.outlinedColor' }}>No vehicles found.</Typography>}
-                            <Divider sx={{ my: 1 }} /><SubItem label="Add New Vehicle" to="vehicles/new" isDark={isDark} />
+                            
+                            {enabledModules.includes('vehicles') && (
+                                <>
+                                    <Divider sx={{ my: 1 }} />
+                                    {Object.entries(groupedVehicles).map(([type, list]) => (
+                                        <React.Fragment key={type}>
+                                            <GroupHeader label={type} />
+                                            {list.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`vehicles/${v.id}`} emoji={v.emoji} isDark={isDark} />)}
+                                        </React.Fragment>
+                                    ))}
+                                    {Object.keys(groupedVehicles).length === 0 && <Typography level="body-xs" sx={{ p: 2, color: 'neutral.outlinedColor' }}>No vehicles found.</Typography>}
+                                    <Divider sx={{ my: 1 }} /><SubItem label="Add New Vehicle" to="vehicles/new" isDark={isDark} />
+                                </>
+                            )}
                         </>
                     )}
                 </List>

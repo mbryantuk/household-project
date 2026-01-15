@@ -154,7 +154,7 @@ export default function PetsView() {
                                 >
                                     <Box sx={{ fontSize: '2.5rem' }}>{p.emoji || '🐾'}</Box>
                                     <Box>
-                                        <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{p.name}</Typography>
+                                        <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{p.alias || (p.name || '').split(' ')[0]}</Typography>
                                         <Typography level="body-sm" color="neutral">{p.species} • {p.breed}</Typography>
                                     </Box>
                                 </Sheet>
