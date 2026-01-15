@@ -136,8 +136,10 @@ export default function HouseholdLayout({
             borderColor: 'divider',
             bgcolor: 'background.surface',
             zIndex: 100,
-            boxShadow: 'sm'
+            boxShadow: 'sm',
+            cursor: 'pointer'
           }}
+          onClick={() => navigate('dashboard')}
         >
           <Typography level="title-md" sx={{ fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>
             {pageTitle}

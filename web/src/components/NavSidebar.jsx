@@ -4,8 +4,7 @@ import {
   IconButton, Divider, Box, Avatar, Typography, Stack, Button, ButtonGroup, Switch, Tooltip
 } from '@mui/joy';
 import {
-  Home as HomeIcon, Event, 
-  Groups, Pets, HomeWork, DirectionsCar, RestaurantMenu,
+  Event, Groups, Pets, HomeWork, DirectionsCar, RestaurantMenu,
   Logout, Edit, KeyboardArrowRight, ChevronLeft, Download, Close, SwapHoriz,
   Delete, LightMode, DarkMode, SettingsBrightness, Contrast,
   KeyboardArrowUp, KeyboardArrowDown
@@ -169,23 +168,28 @@ export default function NavSidebar({
                 )}
 
                 <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'center' }}>
-                    <Avatar 
-                        variant="soft" 
-                        color="primary" 
-                        size="lg"
-                        sx={{ 
-                            bgcolor: getEmojiColor(household?.avatar || '🏠', isDark),
-                            fontSize: '1.5rem',
-                            fontWeight: 'bold',
-                            boxShadow: 'sm'
-                        }}
-                    >
-                        {household?.avatar || '🏠'}
-                    </Avatar>
+                    <Tooltip title="Go to Dashboard" variant="soft" placement="right">
+                        <Avatar 
+                            variant="soft" 
+                            color="primary" 
+                            size="lg"
+                            onClick={() => navigate('dashboard')}
+                            sx={{ 
+                                bgcolor: getEmojiColor(household?.avatar || '🏠', isDark),
+                                fontSize: '1.5rem',
+                                fontWeight: 'bold',
+                                boxShadow: 'sm',
+                                cursor: 'pointer',
+                                transition: 'transform 0.2s',
+                                '&:hover': { transform: 'scale(1.1)' }
+                            }}
+                        >
+                            {household?.avatar || '🏠'}
+                        </Avatar>
+                    </Tooltip>
                 </Box>
                 
                 <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0, mb: 1 }}>
-                    <RailIcon icon={<HomeIcon />} label="Home" category="dashboard" to="dashboard" location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                     <RailIcon icon={<Event />} label="Events" category="calendar" to="calendar" location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                 </List>
                 <Divider sx={{ mb: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />

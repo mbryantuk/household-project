@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Box, IconButton, Tooltip, Sheet, Typography, Button, Divider, Avatar, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent
+  Box, IconButton, Tooltip, Sheet, Typography, Button, Divider, Avatar, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, Chip
 } from '@mui/joy';
 import { 
   Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Savings, Close, Wifi, Payments, Logout, SwapHoriz, Download, Edit, Settings
@@ -110,6 +110,15 @@ export default function UtilityBar({
       );
   };
 
+  const getRoleColor = (role) => {
+    switch(role) {
+        case 'admin': return 'primary';
+        case 'member': return 'neutral';
+        case 'viewer': return 'success';
+        default: return 'neutral';
+    }
+  };
+
   return (
     <Sheet
         variant="soft"
@@ -176,7 +185,12 @@ export default function UtilityBar({
                 <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2, borderBottom: '1px solid', borderColor: 'divider', flexShrink: 0 }}>
                     <Avatar size="lg" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark) }}>{user?.avatar || user?.first_name?.[0]}</Avatar>
                     <Box sx={{ minWidth: 0 }}>
-                        <Typography level="title-sm" noWrap>{user?.first_name} {user?.last_name}</Typography>
+                        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
+                            <Typography level="title-sm" noWrap>{user?.first_name} {user?.last_name}</Typography>
+                            <Chip size="sm" variant="soft" color={getRoleColor(user?.role)} sx={{ textTransform: 'uppercase', fontWeight: 'bold', fontSize: '10px' }}>
+                                {user?.role}
+                            </Chip>
+                        </Stack>
                         <Typography level="body-xs" noWrap>{user?.email}</Typography>
                     </Box>
                 </Box>
