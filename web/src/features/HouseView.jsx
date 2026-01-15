@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useOutletContext, useParams } from 'react-router-dom';
+import { useOutletContext, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, CircularProgress, Divider, Grid, Input, Button, Tooltip, IconButton, FormControl, FormLabel, Stack
 } from '@mui/joy';
 import { 
   HomeWork, ElectricBolt, WaterDrop, DeleteSweep, 
   Inventory, AccountBalance, Payments, Info, Badge,
-  Save
+  Save, ArrowBack, DirectionsCar
 } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
+import EntityGrid from '../components/ui/EntityGrid';
 
 // Feature Components
 import EnergyView from './EnergyView';
@@ -22,15 +23,19 @@ import GeneralDetailView from './GeneralDetailView';
 export default function HouseView() {
   const { api, id: householdId, onUpdateHousehold, user: currentUser, showNotification } = useOutletContext();
   const isAdmin = currentUser?.role === 'admin';
+  const navigate = useNavigate();
 
+  const [viewMode, setViewMode] = useState('selector'); // 'selector' | 'details'
   const [activeTab, setActiveTab] = useState(0);
   const [household, setHousehold] = useState(null);
+  const [vehicles, setVehicles] = useState([]);
   const [loadingHh, setLoadingHh] = useState(true);
   const [savingHh, setSavingHh] = useState(false);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('🏠');
 
   useEffect(() => {
+    // Fetch Household
     api.get(`/households/${householdId}`)
       .then(res => {
         setHousehold(res.data);
@@ -38,6 +43,12 @@ export default function HouseView() {
       })
       .catch(err => console.error("Failed to fetch household details", err))
       .finally(() => setLoadingHh(false));
+
+    // Fetch Vehicles for the Selector
+    api.get(`/households/${householdId}/vehicles`)
+      .then(res => setVehicles(res.data || []))
+      .catch(err => console.error("Failed to fetch vehicles", err));
+
   }, [api, householdId]);
 
   const handleUpdateIdentity = async (e) => {
@@ -71,15 +82,80 @@ export default function HouseView() {
     { name: 'notes', label: 'General Property Notes', multiline: true, rows: 3 }
   ];
 
+  if (loadingHh) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
+
+  // SELECTOR MODE (Dashboard)
+  if (viewMode === 'selector') {
+    const sections = [
+        {
+            title: 'Property',
+            items: [household],
+            onAdd: null,
+            addLabel: ''
+        },
+        {
+            title: 'Fleet & Vehicles',
+            items: vehicles,
+            onAdd: isAdmin ? () => navigate('/vehicles/new') : null,
+            addLabel: 'Add Vehicle'
+        }
+    ];
+
+    return (
+        <Box>
+            <Box sx={{ mb: 4 }}>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
+                    Property & Assets
+                </Typography>
+                <Typography level="body-md" color="neutral">
+                    Select your home or a vehicle to manage.
+                </Typography>
+            </Box>
+
+            <EntityGrid 
+                sections={sections}
+                onSelect={(item) => {
+                    if (item.id === household.id && !item.make) {
+                        setViewMode('details');
+                    } else {
+                        navigate(`/vehicles/${item.id}`);
+                    }
+                }}
+                renderItem={(item) => {
+                    // Distinguish between House and Vehicle based on properties (e.g. 'make')
+                    const isVehicle = !!item.make;
+                    return (
+                        <>
+                            <Box sx={{ fontSize: '3rem' }}>{item.avatar || item.emoji || (isVehicle ? '🚗' : '🏠')}</Box>
+                            <Typography level="title-md" sx={{ fontWeight: 'lg', textAlign: 'center' }}>
+                                {isVehicle ? `${item.make} ${item.model}` : item.name}
+                            </Typography>
+                            <Typography level="body-xs" color="neutral" sx={{ textTransform: 'uppercase' }}>
+                                {isVehicle ? item.registration : 'Primary Residence'}
+                            </Typography>
+                        </>
+                    );
+                }}
+            />
+        </Box>
+    );
+  }
+
+  // DETAIL MODE (Existing Tabs)
   return (
     <Box sx={{ pb: 10 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-            House Registry
-        </Typography>
-        <Typography level="body-md" color="neutral">
-            Manage your home's identity, utilities, and structure.
-        </Typography>
+      <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
+        <IconButton variant="outlined" color="neutral" onClick={() => setViewMode('selector')}>
+            <ArrowBack />
+        </IconButton>
+        <Box>
+            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
+                House Registry
+            </Typography>
+            <Typography level="body-md" color="neutral">
+                Manage your home's identity, utilities, and structure.
+            </Typography>
+        </Box>
       </Box>
       
       <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'hidden', minHeight: 400 }}>

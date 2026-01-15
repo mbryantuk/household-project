@@ -16,6 +16,8 @@ import EmojiPicker from '../components/EmojiPicker';
 import AppSelect from '../components/ui/AppSelect'; // Architect's Rule: Use Shared Components
 import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
 
+import EntityGrid from '../components/ui/EntityGrid';
+
 export default function PeopleView() {
   const { api, id: householdId, members, fetchHhMembers, user: currentUser, showNotification, confirmAction } = useOutletContext();
   const { personId } = useParams();
@@ -109,51 +111,69 @@ export default function PeopleView() {
     );
   };
 
+  const groupedMembers = useMemo(() => {
+    const groups = {
+        adults: [],
+        children: [],
+        pets: []
+    };
+    (members || []).forEach(m => {
+        if (m.type === 'pet') groups.pets.push(m);
+        else if (m.type === 'child') groups.children.push(m);
+        else groups.adults.push(m);
+    });
+    return groups;
+  }, [members]);
+
 
   if (personId !== 'new' && !selectedPerson) {
-    const people = (members || []).filter(m => m.type !== 'pet');
+    const sections = [
+        {
+            title: 'Adults',
+            items: groupedMembers.adults,
+            onAdd: isAdmin ? () => navigate('new?type=adult') : null,
+            addLabel: 'Add Adult'
+        },
+        {
+            title: 'Children',
+            items: groupedMembers.children,
+            onAdd: isAdmin ? () => navigate('new?type=child') : null,
+            addLabel: 'Add Child'
+        },
+        {
+            title: 'Pets',
+            items: groupedMembers.pets,
+            onAdd: isAdmin ? () => navigate('new?type=pet') : null, // Note: PetsView handles pets usually, but simple add here works if supported
+            addLabel: 'Add Pet'
+        }
+    ];
+
     return (
         <Box>
-            <Box sx={{ 
-                mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-                flexWrap: 'wrap', gap: 2 
-            }}>
-              <Box>
+            <Box sx={{ mb: 4 }}>
                 <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
                   People & Residents
                 </Typography>
                 <Typography level="body-md" color="neutral">
-                  Manage your household members and guests.
+                  Select a resident to manage their details.
                 </Typography>
-              </Box>
-              <Box>
-                  {isAdmin && (
-                      <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>Add Person</Button>
-                  )}
-              </Box>
             </Box>
-            <Grid container spacing={2}>
-                {people.map(p => (
-                    <Grid xs={12} sm={6} md={4} key={p.id}>
-                        <Sheet 
-                            variant="outlined" 
-                            sx={{ 
-                                p: 2, borderRadius: 'md', display: 'flex', alignItems: 'center', gap: 2,
-                                cursor: 'pointer',
-                                transition: 'background-color 0.2s',
-                                '&:hover': { bgcolor: 'background.level1' }
-                            }}
-                            onClick={() => navigate(String(p.id))}
-                        >
-                            <Box sx={{ fontSize: '2.5rem' }}>{p.emoji || '👨'}</Box>
-                            <Box>
-                                <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{p.name}</Typography>
-                                <Typography level="body-sm" color="neutral">{p.role || p.type}</Typography>
-                            </Box>
-                        </Sheet>
-                    </Grid>
-                ))}
-            </Grid>
+            
+            <EntityGrid 
+                sections={sections}
+                onSelect={(person) => navigate(String(person.id))}
+                renderItem={(person) => (
+                    <>
+                        <Box sx={{ fontSize: '3rem' }}>{person.emoji || (person.type === 'pet' ? '🐾' : '👨')}</Box>
+                        <Typography level="title-md" sx={{ fontWeight: 'lg', textAlign: 'center' }}>
+                            {person.name}
+                        </Typography>
+                        <Typography level="body-xs" color="neutral" sx={{ textTransform: 'uppercase' }}>
+                            {person.role || person.type}
+                        </Typography>
+                    </>
+                )}
+            />
         </Box>
     );
   }
