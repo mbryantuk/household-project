@@ -182,6 +182,7 @@ export default function HouseholdLayout({
                 onSelectHousehold={onSelectHousehold}
                 canInstall={!!installPrompt}
                 onInstall={onInstall}
+                confirmAction={confirmAction}
             />
         </Box>
 
@@ -268,7 +269,10 @@ export default function HouseholdLayout({
                         <MenuTile 
                             icon={<Logout />} 
                             label="Logout" 
-                            onClick={() => { onLogout(); setDrawerOpen(false); }} 
+                            onClick={() => { 
+                                setDrawerOpen(false);
+                                confirmAction("Log Out", "Are you sure you want to log out?", onLogout);
+                            }} 
                             sx={{ bgcolor: 'danger.softBg', color: 'danger.plainColor' }} 
                         />
                         {households.length > 1 && (

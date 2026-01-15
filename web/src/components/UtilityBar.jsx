@@ -16,7 +16,7 @@ import pkg from '../../package.json';
 
 export default function UtilityBar({ 
     user, api, dates, onDateAdded, onUpdateProfile, isDark, onLogout,
-    households = [], onSelectHousehold, onInstall, canInstall
+    households = [], onSelectHousehold, onInstall, canInstall, confirmAction
 }) {
   const navigate = useNavigate();
   const [activeWidget, setActiveWidget] = useState(null); 
@@ -235,7 +235,7 @@ export default function UtilityBar({
                     
                     <List size="sm" sx={{ p: 1 }}>
                         <ListItem>
-                            <ListItemButton color="danger" variant="soft" onClick={onLogout}>
+                            <ListItemButton color="danger" variant="soft" onClick={() => confirmAction("Log Out", "Are you sure you want to log out?", onLogout)}>
                                 <ListItemDecorator><Logout fontSize="small" /></ListItemDecorator>
                                 <ListItemContent>Logout</ListItemContent>
                             </ListItemButton>
