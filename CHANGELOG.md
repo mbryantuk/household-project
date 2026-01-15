@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.2] - 2026-01-15
+
+### Fixed
+- **Navigation:** Fixed "Sidebar not loading" crash caused by incompatible Context Menu implementation. Switched to using a Virtual Anchor Element for Joy UI compatibility.
+
 ## [2.6.1] - 2026-01-15
 
 ### Added

@@ -170,15 +170,20 @@ export default function NavSidebar({
 
   const handleContextMenu = (event, category) => {
     event.preventDefault();
-    setContextMenu(
-      contextMenu === null
-        ? {
-            mouseX: event.clientX + 2,
-            mouseY: event.clientY - 6,
-            category,
-          }
-        : null,
-    );
+    // Create a virtual anchor element for the context menu
+    setContextMenu({
+      category,
+      anchorEl: {
+        getBoundingClientRect: () => ({
+          width: 0,
+          height: 0,
+          top: event.clientY,
+          right: event.clientX,
+          bottom: event.clientY,
+          left: event.clientX,
+        }),
+      },
+    });
   };
 
   const handleCloseContextMenu = () => {
@@ -425,12 +430,8 @@ export default function NavSidebar({
         <Menu
             open={!!contextMenu}
             onClose={handleCloseContextMenu}
-            anchorReference="anchorPosition"
-            anchorPosition={
-              contextMenu !== null
-                ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
-                : undefined
-            }
+            anchorEl={contextMenu?.anchorEl}
+            placement="bottom-start"
             sx={{ zIndex: 9999 }}
         >
             <MenuItem onClick={handleHideModule} color="danger">
