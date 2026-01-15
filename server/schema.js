@@ -90,6 +90,7 @@ const SCHEMA_DEFINITIONS = [
     `CREATE TABLE IF NOT EXISTS vehicles (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
+        type TEXT DEFAULT 'Car', -- Car, Van, Truck, Boat, Motorbike, Bike
         make TEXT NOT NULL,
         model TEXT NOT NULL,
         registration TEXT,
@@ -264,6 +265,7 @@ const MIGRATIONS = [
     ['recurring_costs', 'household_id', 'INTEGER'],
     ['recurring_costs', 'nearest_working_day', 'BOOLEAN DEFAULT 0'],
     ['assets', 'insurance_status', "TEXT DEFAULT 'uninsured'"],
+    ['vehicles', 'type', "TEXT DEFAULT 'Car'"],
     ['meals', 'household_id', 'INTEGER'],
     ['meal_plans', 'household_id', 'INTEGER']
 ];

@@ -97,8 +97,18 @@ export default function PetsView() {
     );
   };
 
+  const groupedPets = useMemo(() => {
+      const pets = (members || []).filter(m => m.type === 'pet');
+      const groups = {};
+      pets.forEach(p => {
+          const species = p.species || 'Other';
+          if (!groups[species]) groups[species] = [];
+          groups[species].push(p);
+      });
+      return groups;
+  }, [members]);
+
   if (petId !== 'new' && !selectedPet) {
-    const pets = (members || []).filter(m => m.type === 'pet');
     return (
         <Box>
             <Box sx={{ 
@@ -119,28 +129,40 @@ export default function PetsView() {
                   )}
               </Box>
             </Box>
-            <Grid container spacing={2}>
-                {pets.map(p => (
-                    <Grid xs={12} sm={6} md={4} key={p.id}>
-                        <Sheet 
-                            variant="outlined" 
-                            sx={{ 
-                                p: 2, borderRadius: 'md', display: 'flex', alignItems: 'center', gap: 2,
-                                cursor: 'pointer',
-                                transition: 'background-color 0.2s',
-                                '&:hover': { bgcolor: 'background.level1' }
-                            }}
-                            onClick={() => navigate(String(p.id))}
-                        >
-                            <Box sx={{ fontSize: '2.5rem' }}>{p.emoji || '🐾'}</Box>
-                            <Box>
-                                <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{p.name}</Typography>
-                                <Typography level="body-sm" color="neutral">{p.species} • {p.breed}</Typography>
-                            </Box>
-                        </Sheet>
+
+            {Object.keys(groupedPets).length === 0 && (
+                 <Typography level="body-lg" textAlign="center" sx={{ mt: 5, color: 'neutral.500' }}>No pets found.</Typography>
+            )}
+
+            {Object.entries(groupedPets).map(([species, pets]) => (
+                <Box key={species} sx={{ mb: 4 }}>
+                    <Typography level="h4" sx={{ mb: 2, textTransform: 'uppercase', letterSpacing: 'sm', opacity: 0.7 }}>
+                        {species}s
+                    </Typography>
+                    <Grid container spacing={2}>
+                        {pets.map(p => (
+                            <Grid xs={12} sm={6} md={4} key={p.id}>
+                                <Sheet 
+                                    variant="outlined" 
+                                    sx={{ 
+                                        p: 2, borderRadius: 'md', display: 'flex', alignItems: 'center', gap: 2,
+                                        cursor: 'pointer',
+                                        transition: 'background-color 0.2s',
+                                        '&:hover': { bgcolor: 'background.level1' }
+                                    }}
+                                    onClick={() => navigate(String(p.id))}
+                                >
+                                    <Box sx={{ fontSize: '2.5rem' }}>{p.emoji || '🐾'}</Box>
+                                    <Box>
+                                        <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{p.name}</Typography>
+                                        <Typography level="body-sm" color="neutral">{p.species} • {p.breed}</Typography>
+                                    </Box>
+                                </Sheet>
+                            </Grid>
+                        ))}
                     </Grid>
-                ))}
-            </Grid>
+                </Box>
+            ))}
         </Box>
     );
   }
@@ -216,7 +238,7 @@ export default function PetsView() {
                     <Grid xs={12} md={5}>
                         <FormControl required>
                             <FormLabel>Species (e.g. Dog, Cat)</FormLabel>
-                            <Input name="species" value={formData.species} onChange={handleChange} />
+                            <Input name="species" value={formData.species} onChange={handleChange} placeholder="Dog, Cat, Hamster..." />
                         </FormControl>
                     </Grid>
                     <Grid xs={12} md={4}>

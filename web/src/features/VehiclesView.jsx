@@ -7,10 +7,21 @@ import {
   Modal, ModalDialog, DialogTitle
 } from '@mui/joy';
 import { 
-  Edit, Delete, Add, Info, Shield, Payments
+  Edit, Delete, Add, Info, Shield, Payments, DirectionsCar, TwoWheeler, DirectionsBoat, LocalShipping, DirectionsBike
 } from '@mui/icons-material';
 import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
 import EmojiPicker from '../components/EmojiPicker';
+import AppSelect from '../components/ui/AppSelect';
+
+const VEHICLE_TYPES = [
+    { value: 'Car', label: 'Car' },
+    { value: 'Van', label: 'Van' },
+    { value: 'Truck', label: 'Truck' },
+    { value: 'Motorbike', label: 'Motorbike' },
+    { value: 'Bicycle', label: 'Bicycle' },
+    { value: 'Boat', label: 'Boat' },
+    { value: 'Other', label: 'Other' }
+];
 
 export default function VehiclesView() {
   const { api, id: householdId, user: currentUser, isDark, showNotification, confirmAction, fetchVehicles: refreshSidebar } = useOutletContext();
@@ -25,6 +36,8 @@ export default function VehiclesView() {
   const [subData, setSubData] = useState([]);
   const [subLoading, setSubLoading] = useState(false);
   const [editItem, setEditItem] = useState(null);
+
+  const [vehicleType, setVehicleType] = useState('Car');
 
   const isAdmin = currentUser?.role === 'admin';
 
@@ -45,8 +58,13 @@ export default function VehiclesView() {
   [vehicles, vehicleId]);
 
   useEffect(() => {
-    if (selectedVehicle) setSelectedEmoji(selectedVehicle.emoji || '🚗');
-    else if (vehicleId === 'new') setSelectedEmoji('🚗');
+    if (selectedVehicle) {
+        setSelectedEmoji(selectedVehicle.emoji || '🚗');
+        setVehicleType(selectedVehicle.type || 'Car');
+    } else if (vehicleId === 'new') {
+        setSelectedEmoji('🚗');
+        setVehicleType('Car');
+    }
   }, [selectedVehicle, vehicleId]);
 
   const fetchSubData = useCallback(async () => {
@@ -76,6 +94,7 @@ export default function VehiclesView() {
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     data.emoji = selectedEmoji;
+    data.type = vehicleType;
 
     try {
       if (vehicleId === 'new') {
@@ -131,6 +150,16 @@ export default function VehiclesView() {
     );
   };
 
+  const groupedVehicles = useMemo(() => {
+    const groups = {};
+    vehicles.forEach(v => {
+        const type = v.type || 'Other';
+        if (!groups[type]) groups[type] = [];
+        groups[type].push(v);
+    });
+    return groups;
+  }, [vehicles]);
+
   if (loading && vehicles.length === 0) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
   if (vehicleId !== 'new' && !selectedVehicle) {
@@ -154,27 +183,39 @@ export default function VehiclesView() {
                   )}
               </Box>
             </Box>
-            <Grid container spacing={2}>
-                {vehicles.map(v => (
-                    <Grid xs={12} sm={6} md={4} key={v.id}>
-                        <Sheet 
-                            variant="outlined" 
-                            sx={{ 
-                                p: 2, borderRadius: 'md', display: 'flex', alignItems: 'center', gap: 2,
-                                cursor: 'pointer', transition: 'background-color 0.2s',
-                                '&:hover': { bgcolor: 'background.level1' }
-                            }}
-                            onClick={() => navigate(String(v.id))}
-                        >
-                            <Box sx={{ fontSize: '2.5rem' }}>{v.emoji || '🚗'}</Box>
-                            <Box>
-                                <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{v.make} {v.model}</Typography>
-                                <Typography level="body-sm" color="neutral">{v.registration}</Typography>
-                            </Box>
-                        </Sheet>
+            
+            {Object.keys(groupedVehicles).length === 0 && (
+                 <Typography level="body-lg" textAlign="center" sx={{ mt: 5, color: 'neutral.500' }}>No vehicles found.</Typography>
+            )}
+
+            {Object.entries(groupedVehicles).map(([type, groupVehicles]) => (
+                <Box key={type} sx={{ mb: 4 }}>
+                    <Typography level="h4" sx={{ mb: 2, textTransform: 'uppercase', letterSpacing: 'sm', opacity: 0.7 }}>
+                        {type}s
+                    </Typography>
+                    <Grid container spacing={2}>
+                        {groupVehicles.map(v => (
+                            <Grid xs={12} sm={6} md={4} key={v.id}>
+                                <Sheet 
+                                    variant="outlined" 
+                                    sx={{ 
+                                        p: 2, borderRadius: 'md', display: 'flex', alignItems: 'center', gap: 2,
+                                        cursor: 'pointer', transition: 'background-color 0.2s',
+                                        '&:hover': { bgcolor: 'background.level1' }
+                                    }}
+                                    onClick={() => navigate(String(v.id))}
+                                >
+                                    <Box sx={{ fontSize: '2.5rem' }}>{v.emoji || '🚗'}</Box>
+                                    <Box>
+                                        <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{v.make} {v.model}</Typography>
+                                        <Typography level="body-sm" color="neutral">{v.registration}</Typography>
+                                    </Box>
+                                </Sheet>
+                            </Grid>
+                        ))}
                     </Grid>
-                ))}
-            </Grid>
+                </Box>
+            ))}
         </Box>
     );
   }
@@ -243,6 +284,15 @@ export default function VehiclesView() {
                                 <Typography level="h1">{selectedEmoji}</Typography>
                             </IconButton>
                         </Tooltip>
+                    </Grid>
+                    <Grid xs={12} md={5}>
+                        <AppSelect 
+                            label="Type" 
+                            options={VEHICLE_TYPES} 
+                            value={vehicleType} 
+                            onChange={setVehicleType}
+                            required
+                        />
                     </Grid>
                     <Grid xs={12} md={5}>
                         <FormControl required>
