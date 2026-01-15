@@ -146,7 +146,7 @@ export default function NavSidebar({
       else if (path.includes('/pets')) setActiveCategory('people'); // Merge pets into people
       else if (path.includes('/vehicles')) setActiveCategory('house'); // Merge vehicles into house
       else if (path.includes('/house/') || path.endsWith('/house')) setActiveCategory('house'); 
-      else if (path.includes('/settings')) setActiveCategory('settings');
+      else if (path.includes('/settings')) setActiveCategory('house');
       else if (path.includes('/profile')) setActiveCategory('account');
       else if (path.includes('/dashboard')) setActiveCategory('dashboard');
       else if (path.includes('/calendar')) setActiveCategory('calendar');
