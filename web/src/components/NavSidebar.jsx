@@ -4,7 +4,7 @@ import {
   IconButton, Divider, Box, Avatar, Typography, Stack, Button, ButtonGroup, Switch, Tooltip
 } from '@mui/joy';
 import {
-  Settings, Home as HomeIcon, Event, 
+  Home as HomeIcon, Event, 
   Groups, Pets, HomeWork, DirectionsCar, RestaurantMenu,
   Logout, Edit, KeyboardArrowRight, ChevronLeft, Download, Close, SwapHoriz,
   Delete, LightMode, DarkMode, SettingsBrightness, Contrast,
@@ -144,23 +144,7 @@ export default function NavSidebar({
       setActiveCategory(category);
   };
 
-  const handleDeleteHousehold = (hh) => {
-    confirmAction(
-        "Delete Household",
-        `Are you sure you want to delete '${hh.name}'? This will permanently remove all data, members, and settings. This cannot be undone.`,
-        async () => {
-            try {
-                await api.delete(`/households/${hh.id}`);
-                showNotification(`Household '${hh.name}' deleted.`, "success");
-                window.location.href = '/select-household';
-            } catch {
-                showNotification("Failed to delete household. Ensure you are an admin.", "danger");
-            }
-        }
-    );
-  };
-
-  const showPanel = activeCategory && ['people', 'pets', 'house', 'vehicles', 'switch'].includes(activeCategory);
+  const showPanel = activeCategory && ['people', 'pets', 'house', 'vehicles'].includes(activeCategory);
 
   const sidebarContent = (
     <Box sx={{ display: 'flex', height: '100dvh' }}>
@@ -242,13 +226,7 @@ export default function NavSidebar({
                 )}
             </Box>
 
-            <Box sx={{ width: '100%', p: 0, m: 0, flexShrink: 0 }}>
-                <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
-                
-                <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0, p: 0, m: 0 }}>
-                    <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
-                </List>
-            </Box>
+            <Box sx={{ width: '100%', p: 0, m: 0, flexShrink: 0, pb: 1 }} />
         </Sheet>
 
         {(showPanel || (isMobile && activeCategory)) && (

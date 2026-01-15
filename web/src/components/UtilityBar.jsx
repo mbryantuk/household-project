@@ -3,7 +3,7 @@ import {
   Box, IconButton, Tooltip, Sheet, Typography, Button, Divider, Avatar, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent
 } from '@mui/joy';
 import { 
-  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Savings, Close, Wifi, Payments, Logout, SwapHoriz, Download, Edit
+  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Savings, Close, Wifi, Payments, Logout, SwapHoriz, Download, Edit, Settings
 } from '@mui/icons-material';
 import FloatingCalculator from './FloatingCalculator';
 import FloatingCalendar from './FloatingCalendar';
@@ -162,15 +162,47 @@ export default function UtilityBar({
                 </Tooltip>
             )}
 
-            <WidgetWrapper id="switch" label="Switch" icon={SwapHoriz} color="primary" width={280} showLabel={false} alignRight>
-                <Box sx={{ p: 2, bgcolor: 'background.level1', borderBottom: '1px solid', borderColor: 'divider', flexShrink: 0 }}>
-                    <Typography level="title-sm">Switch Household</Typography>
+            <WidgetWrapper 
+                id="account" 
+                label="Account" 
+                icon={() => <Avatar size="sm" sx={{ width: 22, height: 22, fontSize: '0.75rem', bgcolor: getEmojiColor(user?.avatar || '👤', isDark) }}>{user?.avatar || user?.first_name?.[0]}</Avatar>} 
+                color="neutral" 
+                width={280} 
+                showLabel={false} 
+                alignRight
+            >
+                <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2, borderBottom: '1px solid', borderColor: 'divider', flexShrink: 0 }}>
+                    <Avatar size="lg" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark) }}>{user?.avatar || user?.first_name?.[0]}</Avatar>
+                    <Box sx={{ minWidth: 0 }}>
+                        <Typography level="title-sm" noWrap>{user?.first_name} {user?.last_name}</Typography>
+                        <Typography level="body-xs" noWrap>{user?.email}</Typography>
+                    </Box>
                 </Box>
-                <Box sx={{ overflowY: 'auto', flexGrow: 1, maxHeight: '400px' }}>
+                
+                <Box sx={{ overflowY: 'auto', flexGrow: 1, maxHeight: 'calc(100vh - 200px)' }}>
+                    <List size="sm" sx={{ p: 1 }}>
+                        <ListItem>
+                            <ListItemButton onClick={() => { window.location.href = `/household/${user?.default_household_id}/profile`; closeWidget(); }}>
+                                <ListItemDecorator><Edit fontSize="small" /></ListItemDecorator>
+                                <ListItemContent>Edit Profile</ListItemContent>
+                            </ListItemButton>
+                        </ListItem>
+                        <ListItem>
+                            <ListItemButton onClick={() => { window.location.href = `/household/${user?.default_household_id}/settings`; closeWidget(); }}>
+                                <ListItemDecorator><Settings fontSize="small" /></ListItemDecorator>
+                                <ListItemContent>Household Settings</ListItemContent>
+                            </ListItemButton>
+                        </ListItem>
+                    </List>
+
+                    <Divider sx={{ my: 1 }}>
+                        <Typography level="body-xs" fontWeight="bold" sx={{ px: 1, textTransform: 'uppercase' }}>Switch Household</Typography>
+                    </Divider>
+
                     <List size="sm" sx={{ '--ListItem-radius': '0px', p: 0 }}>
                         {households.map(hh => (
                             <ListItem key={hh.id}>
-                                <ListItemButton onClick={() => { onSelectHousehold(hh); window.location.href = `/household/${hh.id}/dashboard`; }}>
+                                <ListItemButton selected={hh.id === user?.default_household_id} onClick={() => { onSelectHousehold(hh); window.location.href = `/household/${hh.id}/dashboard`; }}>
                                     <ListItemDecorator>
                                         <Avatar size="sm" sx={{ bgcolor: getEmojiColor(hh.avatar || '🏠', isDark) }}>{hh.avatar || '🏠'}</Avatar>
                                     </ListItemDecorator>
@@ -182,40 +214,18 @@ export default function UtilityBar({
                             </ListItem>
                         ))}
                     </List>
-                </Box>
-            </WidgetWrapper>
 
-            <WidgetWrapper 
-                id="account" 
-                label="Account" 
-                icon={() => <Avatar size="sm" sx={{ width: 22, height: 22, fontSize: '0.75rem', bgcolor: getEmojiColor(user?.avatar || '👤', isDark) }}>{user?.avatar || user?.first_name?.[0]}</Avatar>} 
-                color="neutral" 
-                width={240} 
-                showLabel={false} 
-                alignRight
-            >
-                <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
-                    <Avatar size="lg" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark) }}>{user?.avatar || user?.first_name?.[0]}</Avatar>
-                    <Box sx={{ minWidth: 0 }}>
-                        <Typography level="title-sm" noWrap>{user?.first_name} {user?.last_name}</Typography>
-                        <Typography level="body-xs" noWrap>{user?.email}</Typography>
-                    </Box>
-                </Box>
-                <List size="sm" sx={{ p: 1 }}>
-                    <ListItem>
-                        <ListItemButton onClick={() => { window.location.href = `/household/${user?.default_household_id}/profile`; closeWidget(); }}>
-                            <ListItemDecorator><Edit fontSize="small" /></ListItemDecorator>
-                            <ListItemContent>Edit Profile</ListItemContent>
-                        </ListItemButton>
-                    </ListItem>
                     <Divider sx={{ my: 1 }} />
-                    <ListItem>
-                        <ListItemButton color="danger" variant="soft" onClick={onLogout}>
-                            <ListItemDecorator><Logout fontSize="small" /></ListItemDecorator>
-                            <ListItemContent>Logout</ListItemContent>
-                        </ListItemButton>
-                    </ListItem>
-                </List>
+                    
+                    <List size="sm" sx={{ p: 1 }}>
+                        <ListItem>
+                            <ListItemButton color="danger" variant="soft" onClick={onLogout}>
+                                <ListItemDecorator><Logout fontSize="small" /></ListItemDecorator>
+                                <ListItemContent>Logout</ListItemContent>
+                            </ListItemButton>
+                        </ListItem>
+                    </List>
+                </Box>
             </WidgetWrapper>
         </Box>
     </Sheet>
