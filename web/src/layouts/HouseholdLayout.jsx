@@ -119,6 +119,7 @@ export default function HouseholdLayout({
             confirmAction={confirmAction}
             api={api}
             showNotification={showNotification}
+            onUpdateHousehold={onUpdateHousehold}
         />
       </Box>
 

@@ -107,7 +107,7 @@ const GroupHeader = ({ label }) => (
 export default function NavSidebar({ 
     members = [], vehicles = [], households = [], isDark, household, user, 
     onLogout, onUpdateProfile, themeId, onThemeChange, onInstall, canInstall,
-    isMobile = false, onClose, confirmAction, api, showNotification
+    isMobile = false, onClose, confirmAction, api, showNotification, onUpdateHousehold
 }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -212,14 +212,20 @@ export default function NavSidebar({
     const newModules = enabledModules.filter(m => m !== moduleToHide);
 
     try {
-        await api.put(`/households/${household.id}`, { 
-            enabled_modules: JSON.stringify(newModules) 
-        });
-        showNotification(`${moduleToHide} module hidden.`, 'success');
-        // Close menu immediately
+        if (onUpdateHousehold) {
+            await onUpdateHousehold({ 
+                enabled_modules: JSON.stringify(newModules) 
+            });
+            showNotification(`${moduleToHide} module hidden.`, 'success');
+        } else {
+            // Fallback for safety
+            await api.put(`/households/${household.id}`, { 
+                enabled_modules: JSON.stringify(newModules) 
+            });
+            showNotification(`${moduleToHide} module hidden.`, 'success');
+            window.location.reload();
+        }
         handleCloseContextMenu();
-        // Short delay to allow state update before reload (or rely on parent if refactored)
-        setTimeout(() => window.location.reload(), 500); 
     } catch (err) {
         showNotification("Failed to update modules.", "danger");
         handleCloseContextMenu();
