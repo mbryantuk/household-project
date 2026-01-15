@@ -7,7 +7,7 @@ import {
   MoreHoriz as MoreIcon,
   Groups as PeopleIcon,
   Pets as PetsIcon,
-  HomeWork as HouseIcon,
+  Inventory2 as AssetsIcon,
   DirectionsCar as VehicleIcon,
   Settings as SettingsIcon,
   Person as ProfileIcon,
@@ -84,7 +84,7 @@ export default function HouseholdLayout({
         case 'calendar': return 'Calendar';
         case 'people': return 'People';
         case 'pets': return 'Pets';
-        case 'house': return 'House Registry';
+        case 'house': return 'Asset Registry';
         case 'vehicles': return 'Fleet';
         case 'meals': return 'Meal Planner';
         case 'settings': return 'Settings';
@@ -265,7 +265,7 @@ export default function HouseholdLayout({
                     <>
                         <MenuTile icon={<PeopleIcon />} label="People" to="people" onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<RestaurantMenu />} label="Meals" to="meals" onClick={() => setDrawerOpen(false)} />
-                        <MenuTile icon={<HouseIcon />} label="House" to={`house/${id}`} onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<AssetsIcon />} label="Assets" to="house/1" onClick={() => setDrawerOpen(false)} />
                     </>
                 ) : (
                     households.map(hh => (

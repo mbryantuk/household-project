@@ -223,8 +223,12 @@ export default function UtilityBar({
                                         <Avatar size="sm" sx={{ bgcolor: getEmojiColor(hh.avatar || '🏠', isDark) }}>{hh.avatar || '🏠'}</Avatar>
                                     </ListItemDecorator>
                                     <ListItemContent>
-                                        <Typography level="title-sm">{hh.name}</Typography>
-                                        <Typography level="body-xs">{hh.role}</Typography>
+                                        <Stack direction="row" spacing={1} alignItems="center">
+                                            <Typography level="title-sm">{hh.name}</Typography>
+                                            <Chip size="sm" variant="soft" color={getRoleColor(hh.role)} sx={{ textTransform: 'uppercase', fontWeight: 'bold', fontSize: '10px' }}>
+                                                {hh.role}
+                                            </Chip>
+                                        </Stack>
                                     </ListItemContent>
                                 </ListItemButton>
                             </ListItem>

@@ -4,7 +4,7 @@ import {
   IconButton, Divider, Box, Avatar, Typography, Tooltip, Menu, MenuItem
 } from '@mui/joy';
 import {
-  Event, Groups, Pets, HomeWork, DirectionsCar, RestaurantMenu,
+  Event, Groups, Pets, Inventory2, DirectionsCar, RestaurantMenu,
   Close, KeyboardArrowRight, ChevronLeft, KeyboardArrowUp, KeyboardArrowDown,
   VisibilityOff, PersonAdd, ChildCare, Add
 } from '@mui/icons-material';
@@ -144,9 +144,9 @@ export default function NavSidebar({
       const path = location.pathname;
       if (path.includes('/people')) setActiveCategory('people');
       else if (path.includes('/pets')) setActiveCategory('people'); // Merge pets into people
-      else if (path.includes('/vehicles')) setActiveCategory('house'); // Merge vehicles into house
-      else if (path.includes('/house/') || path.endsWith('/house')) setActiveCategory('house'); 
-      else if (path.includes('/settings')) setActiveCategory('house');
+      else if (path.includes('/vehicles')) setActiveCategory('assets'); // Merge vehicles into assets
+      else if (path.includes('/house/') || path.endsWith('/house')) setActiveCategory('assets'); 
+      else if (path.includes('/settings')) setActiveCategory('assets');
       else if (path.includes('/profile')) setActiveCategory('account');
       else if (path.includes('/dashboard')) setActiveCategory('dashboard');
       else if (path.includes('/calendar')) setActiveCategory('calendar');
@@ -161,7 +161,7 @@ export default function NavSidebar({
       setActiveCategory(category);
   };
 
-  const showPanel = activeCategory && ['people', 'house', 'vehicles'].includes(activeCategory);
+  const showPanel = activeCategory && ['people', 'assets', 'vehicles'].includes(activeCategory);
 
   // Grouping Logic
   const groupedPets = useMemo(() => {
@@ -256,7 +256,7 @@ export default function NavSidebar({
                     <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
                         <RailIcon icon={<Groups />} label="People" category="people" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                         
-                        <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                        <RailIcon icon={<Inventory2 />} label="Assets" category="assets" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                         
                         {enabledModules.includes('meals') && (
                             <RailIcon 
@@ -348,10 +348,10 @@ export default function NavSidebar({
                             </Box>
                         </>
                     )}
-                    {activeCategory === 'house' && (
+                    {activeCategory === 'assets' && (
                         <>
                             <GroupHeader label="Properties" />
-                            <SubItem label={household?.name || 'Main House'} to={`house/${household?.id || 1}?tab=assets`} emoji={household?.avatar || '🏠'} isDark={isDark} />
+                            <SubItem label={household?.name || 'Main House'} to="house/1" emoji={household?.avatar || '🏠'} isDark={isDark} />
                             
                             {enabledModules.includes('vehicles') && (
                                 <>
