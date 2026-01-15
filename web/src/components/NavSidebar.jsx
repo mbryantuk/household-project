@@ -319,11 +319,11 @@ export default function NavSidebar({
                     {activeCategory === 'people' && (
                         <>
                             <GroupHeader label="Adults" />
-                            {members.filter(m => m.type !== 'pet' && m.type !== 'child').map(m => <SubItem key={m.id} label={m.name} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} />)}
+                            {members.filter(m => m.type !== 'pet' && m.type !== 'child').map(m => <SubItem key={m.id} label={m.alias || (m.name || '').split(' ')[0]} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} />)}
                             
                             <Divider sx={{ my: 1 }} />
                             <GroupHeader label="Children" />
-                            {members.filter(m => m.type === 'child').map(m => <SubItem key={m.id} label={m.name} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} />)}
+                            {members.filter(m => m.type === 'child').map(m => <SubItem key={m.id} label={m.alias || (m.name || '').split(' ')[0]} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} />)}
 
                             {enabledModules.includes('pets') && (
                                 <>

@@ -131,20 +131,31 @@ export default function HouseholdLayout({
           sx={{
             display: { xs: 'flex', md: 'none' },
             alignItems: 'center',
-            justifyContent: 'center',
+            justifyContent: 'space-between',
             p: 1.5,
             borderBottom: '1px solid',
             borderColor: 'divider',
             bgcolor: 'background.surface',
             zIndex: 100,
-            boxShadow: 'sm',
-            cursor: 'pointer'
+            boxShadow: 'sm'
           }}
-          onClick={() => navigate('dashboard')}
         >
-          <Typography level="title-md" sx={{ fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>
+          <IconButton variant="plain" onClick={() => navigate(-1)} size="sm">
+            <ChevronLeft />
+          </IconButton>
+
+          <Typography 
+            level="title-md" 
+            onClick={() => navigate('dashboard')}
+            sx={{ 
+                fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase',
+                cursor: 'pointer' 
+            }}
+          >
             {pageTitle}
           </Typography>
+
+          <Box sx={{ width: 32 }} />
         </Sheet>
 
         <Box component="main" sx={{ 
@@ -252,33 +263,9 @@ export default function HouseholdLayout({
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
                 {activeMenu === 'main' ? (
                     <>
-                        {installPrompt && (
-                            <MenuTile 
-                                icon={<Download />} 
-                                label="Install App" 
-                                onClick={() => { onInstall(); setDrawerOpen(false); }} 
-                                sx={{ bgcolor: 'success.softBg', color: 'success.plainColor' }}
-                            />
-                        )}
                         <MenuTile icon={<PeopleIcon />} label="People" to="people" onClick={() => setDrawerOpen(false)} />
-                        <MenuTile icon={<PetsIcon />} label="Pets" to="pets" onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<RestaurantMenu />} label="Meals" to="meals" onClick={() => setDrawerOpen(false)} />
-                        <MenuTile icon={<VehicleIcon />} label="Vehicles" to="vehicles" onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<HouseIcon />} label="House" to={`house/${id}`} onClick={() => setDrawerOpen(false)} />
-                        <MenuTile icon={<SettingsIcon />} label="Settings" to="settings" onClick={() => setDrawerOpen(false)} />
-                        <MenuTile icon={<ProfileIcon />} label="Profile" to="profile" onClick={() => setDrawerOpen(false)} />
-                        <MenuTile 
-                            icon={<Logout />} 
-                            label="Logout" 
-                            onClick={() => { 
-                                setDrawerOpen(false);
-                                confirmAction("Log Out", "Are you sure you want to log out?", onLogout);
-                            }} 
-                            sx={{ bgcolor: 'danger.softBg', color: 'danger.plainColor' }} 
-                        />
-                        {households.length > 1 && (
-                            <MenuTile icon={<SwapHoriz />} label="Switch" onClick={() => setActiveMenu('switch')} />
-                        )}
                     </>
                 ) : (
                     households.map(hh => (
@@ -301,14 +288,43 @@ export default function HouseholdLayout({
                 {activeMenu === 'switch' && <MenuTile icon={<ChevronLeft />} label="Back" onClick={() => setActiveMenu('main')} />}
             </Box>
 
-            <Box sx={{ width: 40, height: 4, borderRadius: 2, bgcolor: 'neutral.300', mx: 'auto', my: 2 }} />
-            <Typography level="title-lg" sx={{ mb: 1 }}>Tools</Typography>
-            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
-                <MenuTile icon={<NoteAlt />} label="Notes" to="tools/notes" onClick={() => setDrawerOpen(false)} />
-                <MenuTile icon={<Calculate />} label="Calculator" to="tools/calculator" onClick={() => setDrawerOpen(false)} />
-                <MenuTile icon={<Savings />} label="Finance" to="tools/finance" onClick={() => setDrawerOpen(false)} />
-                <MenuTile icon={<Payments />} label="Tax" to="tools/tax" onClick={() => setDrawerOpen(false)} />
-            </Box>
+            {activeMenu === 'main' && (
+                <>
+                    <Typography level="title-lg" sx={{ mt: 2, mb: 1 }}>Tools</Typography>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
+                        <MenuTile icon={<NoteAlt />} label="Notes" to="tools/notes" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<Calculate />} label="Calculator" to="tools/calculator" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<Savings />} label="Finance" to="tools/finance" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<Payments />} label="Tax" to="tools/tax" onClick={() => setDrawerOpen(false)} />
+                    </Box>
+
+                    <Typography level="title-lg" sx={{ mt: 2, mb: 1 }}>Admin</Typography>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
+                        {installPrompt && (
+                            <MenuTile 
+                                icon={<Download />} 
+                                label="Install" 
+                                onClick={() => { onInstall(); setDrawerOpen(false); }} 
+                                sx={{ bgcolor: 'success.softBg', color: 'success.plainColor' }}
+                            />
+                        )}
+                        <MenuTile icon={<SettingsIcon />} label="Settings" to="settings" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<ProfileIcon />} label="Profile" to="profile" onClick={() => setDrawerOpen(false)} />
+                        {households.length > 1 && (
+                            <MenuTile icon={<SwapHoriz />} label="Switch" onClick={() => setActiveMenu('switch')} />
+                        )}
+                        <MenuTile 
+                            icon={<Logout />} 
+                            label="Logout" 
+                            onClick={() => { 
+                                setDrawerOpen(false);
+                                confirmAction("Log Out", "Are you sure you want to log out?", onLogout);
+                            }} 
+                            sx={{ bgcolor: 'danger.softBg', color: 'danger.plainColor' }} 
+                        />
+                    </Box>
+                </>
+            )}
         </Sheet>
       </Drawer>
     </Box>
