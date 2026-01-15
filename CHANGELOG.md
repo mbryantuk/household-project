@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.24] - 2026-01-15
+
+### Added
+- **UI Consistency:** Styled household switcher roles with chips in the account menu for better visual hierarchy.
+- **Navigation:** Renamed "House" sidebar option to "Assets" with a new `Inventory2` icon.
+- **Assets:** Corrected navigation path for primary asset registry to `house/1`.
+
+### Fixed
+- **UX:** Suppressed back button on Asset Registry detail view for desktop users to match Vehicle view behavior.
+- **Styling:** Normalized Meal Planner header typography to match system-wide standards.
+- **Core:** Improved user role synchronization across multiple households.
+
 ## [2.6.6] - 2026-01-15
 
 ### Fixed
