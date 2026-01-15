@@ -144,7 +144,7 @@ export default function NavSidebar({
       const path = location.pathname;
       if (path.includes('/people')) setActiveCategory('people');
       else if (path.includes('/pets')) setActiveCategory('people'); // Merge pets into people
-      else if (path.includes('/vehicles')) setActiveCategory('vehicles');
+      else if (path.includes('/vehicles')) setActiveCategory('house'); // Merge vehicles into house
       else if (path.includes('/house/') || path.endsWith('/house')) setActiveCategory('house'); 
       else if (path.includes('/settings')) setActiveCategory('settings');
       else if (path.includes('/profile')) setActiveCategory('account');
@@ -256,7 +256,7 @@ export default function NavSidebar({
                     <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
                         <RailIcon icon={<Groups />} label="People" category="people" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                         
-                        <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                        <RailIcon icon={<HomeWork />} label="House" category="house" to={`house/${household?.id || 1}`} hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                         
                         {enabledModules.includes('meals') && (
                             <RailIcon 
