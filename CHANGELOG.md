@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.5] - 2026-01-15
+
+### Fixed
+- **Settings:** Fixed module toggle (Pets, Vehicles, Meals) not reflecting immediately in the sidebar. The application now correctly synchronizes the global household state upon update, eliminating the need for a page refresh.
+
 ## [2.6.4] - 2026-01-15
 
 ### Fixed
