@@ -7,24 +7,17 @@ echo "📦 Building Docker containers..."
 docker compose up -d --build
 
 # 3. Verification (CRITICAL)
-echo "🧪 Running Comprehensive CRUD & Isolation Tests..."
-cd server && npm test tests/comprehensive_crud.test.js
-cd ..
+echo "🧪 Running Integration Tests..."
+(cd server && npx jest tests/integration/)
 
-echo "🛡️ Running Viewer Restriction Tests..."
-cd server && npm test tests/viewer_restrictions.test.js
-cd ..
-
-echo "🌍 Running Selector API Tests..."
-cd server && npm test tests/selector.test.js
-cd ..
+echo "🛡️ Running Security Tests..."
+(cd server && npx jest tests/security/)
 
 echo "⚡ Running Performance & Load Tests..."
-cd server && npm run test:perf
-cd ..
+(cd server && npm run test:perf)
 
 # 4. Commit Snapshot
 echo "💾 Saving state and committing..."
 git add .
-git commit -m "test(core): expand CRUD coverage and enhance performance benchmarks"
+git commit -m "chore: automated deployment and verification" || echo "Nothing to commit"
 echo "✅ All systems verified and committed."
