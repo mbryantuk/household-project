@@ -96,30 +96,38 @@ export default function FloatingCalendar({
         <IconButton size="sm" variant="plain" color="inherit" onClick={onClose} sx={{ ml: 1 }}><Close fontSize="small" /></IconButton>
       </Box>
 
-      <Box sx={{ p: 2, flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-          <Typography level="title-md" fontWeight="bold">{currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</Typography>
-          <Box><IconButton size="sm" onClick={() => setCurrentDate(new Date(year, month - 1, 1))}><ChevronLeft /></IconButton><IconButton size="sm" onClick={() => setCurrentDate(new Date(year, month + 1, 1))}><ChevronRight /></IconButton></Box>
+      <Box sx={{ p: 1.5, flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+          <Typography level="title-sm" fontWeight="bold">{currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</Typography>
+          <Box><IconButton size="sm" onClick={() => setCurrentDate(new Date(year, month - 1, 1))}><ChevronLeft fontSize="small" /></IconButton><IconButton size="sm" onClick={() => setCurrentDate(new Date(year, month + 1, 1))}><ChevronRight fontSize="small" /></IconButton></Box>
         </Box>
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', mb: 1 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '2px', mb: 0.5 }}>
           {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => <Typography key={i} level="body-xs" fontWeight="bold" textColor="neutral.500" textAlign="center">{d}</Typography>)}
         </Box>
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', mb: 2 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '2px', mb: 1 }}>
           {days.map((d, i) => {
             const isSelected = d.date.toDateString() === selectedDate.toDateString();
             return (
-              <IconButton key={i} size="sm" variant={isSelected ? 'solid' : 'plain'} color={isSelected ? 'primary' : 'neutral'} onClick={() => setSelectedDate(d.date)} sx={{ opacity: d.isCurrentMonth ? 1 : 0.3 }}>
+              <IconButton key={i} size="sm" variant={isSelected ? 'solid' : 'plain'} color={isSelected ? 'primary' : 'neutral'} onClick={() => setSelectedDate(d.date)} 
+                sx={{ 
+                    opacity: d.isCurrentMonth ? 1 : 0.3,
+                    minHeight: 28, minWidth: 28, fontSize: 'xs'
+                }}>
                 {d.date.getDate()}
               </IconButton>
             );
           })}
         </Box>
         <Divider sx={{ mb: 1 }} />
-        <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
-            {eventsOnSelectedDate.map(e => <Sheet key={e.id} variant="soft" sx={{ p: 1, mb: 1, borderRadius: 'sm', display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography>{e.emoji || '📅'}</Typography>
-                <Typography level="body-xs" fontWeight="bold">{e.title}</Typography>
-            </Sheet>)}
+        <Box sx={{ flexGrow: 1, overflowY: 'auto', minHeight: 0 }}>
+            {eventsOnSelectedDate.length > 0 ? eventsOnSelectedDate.map(e => (
+                <Sheet key={e.id} variant="soft" sx={{ p: 0.75, mb: 0.5, borderRadius: 'sm', display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography fontSize="sm">{e.emoji || '📅'}</Typography>
+                    <Typography level="body-xs" fontWeight="bold">{e.title}</Typography>
+                </Sheet>
+            )) : (
+                <Typography level="body-xs" textAlign="center" sx={{ opacity: 0.5, mt: 2 }}>No events</Typography>
+            )}
         </Box>
       </Box>
     </Sheet>

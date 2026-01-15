@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Box, IconButton, Tooltip, Sheet, Typography, Button
+  Box, IconButton, Tooltip, Sheet, Typography, Button, Divider
 } from '@mui/joy';
 import { 
-  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Savings, Close, Wifi, Payments
+  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Savings, Close, Wifi, Payments, Logout
 } from '@mui/icons-material';
 import FloatingCalculator from './FloatingCalculator';
 import FloatingCalendar from './FloatingCalendar';
@@ -13,7 +13,7 @@ import TaxCalculator from './TaxCalculator';
 import pkg from '../../package.json';
 
 export default function UtilityBar({ 
-    user, api, dates, onDateAdded, onUpdateProfile, isDark
+    user, api, dates, onDateAdded, onUpdateProfile, isDark, onLogout
 }) {
   const [activeWidget, setActiveWidget] = useState(null); 
   const [poppedOut, setPoppedOut] = useState({});
@@ -67,10 +67,16 @@ export default function UtilityBar({
         <Box sx={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center' }}>
             {isOpen && (
                 <Box sx={{ 
-                    position: 'absolute', bottom: '100%', left: 0, width: width, height: 500, 
+                    position: 'absolute', bottom: '100%', left: 0, width: width, 
+                    maxHeight: 'calc(100vh - 100px)', height: 'fit-content',
                     mb: '1px', bgcolor: 'background.surface', borderTopLeftRadius: 'md', 
                     borderTopRightRadius: 'md', border: '1px solid', borderColor: 'divider',
-                    borderBottom: 'none', boxShadow: '0 -4px 12px rgba(0,0,0,0.1)', overflow: 'hidden', zIndex: 2005
+                    borderBottom: 'none', boxShadow: '0 -4px 12px rgba(0,0,0,0.1)', overflow: 'hidden', zIndex: 2005,
+                    display: 'flex', flexDirection: 'column',
+                    '& *': {
+                        scrollbarWidth: 'none',
+                        '&::-webkit-scrollbar': { display: 'none' }
+                    }
                 }}>
                     {children}
                 </Box>
@@ -122,13 +128,23 @@ export default function UtilityBar({
             </WidgetWrapper>
         </Box>
 
-        <Box sx={{ flex: '0 0 25%', height: '100%', borderLeft: '1px solid', borderColor: 'divider', bgcolor: 'background.level1', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', px: 2, gap: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, opacity: 0.7 }}><Wifi fontSize="small" color="success" /><Typography level="body-xs">Online</Typography></Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, opacity: 0.7 }}>
+        <Box sx={{ flex: '0 0 25%', height: '100%', borderLeft: '1px solid', borderColor: 'divider', bgcolor: 'background.level1', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', px: 2, gap: 1.5 }}>
+            <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 0.5, opacity: 0.7 }}><Wifi fontSize="small" color="success" /><Typography level="body-xs">Online</Typography></Box>
+            <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 0.5, opacity: 0.7 }}>
                 <Tooltip title={`System Root: v${__SYSTEM_VERSION__}`} variant="soft" arrow>
                     <Typography level="body-xs" fontWeight="600" sx={{ cursor: 'help' }}>v{pkg.version}</Typography>
                 </Tooltip>
             </Box>
+            <Divider orientation="vertical" sx={{ height: 20, mx: 0.5, display: { xs: 'none', sm: 'block' } }} />
+            <IconButton 
+                size="sm" 
+                variant="plain" 
+                color="danger" 
+                onClick={onLogout}
+                sx={{ borderRadius: 'sm' }}
+            >
+                <Logout fontSize="small" />
+            </IconButton>
         </Box>
     </Sheet>
   );

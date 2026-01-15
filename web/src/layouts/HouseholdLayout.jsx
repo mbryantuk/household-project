@@ -13,7 +13,7 @@ import {
   Person as ProfileIcon,
   Download,
   Calculate, Savings, Payments, NoteAlt, SwapHoriz, ChevronLeft,
-  RestaurantMenu
+  RestaurantMenu, Logout
 } from '@mui/icons-material';
 import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
@@ -175,6 +175,7 @@ export default function HouseholdLayout({
                 onDateAdded={onDateAdded}
                 onUpdateProfile={onUpdateProfile}
                 isDark={isDark}
+                onLogout={onLogout}
                 canInstall={!!installPrompt}
                 onInstall={onInstall}
             />
@@ -192,7 +193,7 @@ export default function HouseholdLayout({
                 borderTop: '1px solid',
                 borderColor: 'divider',
                 bgcolor: 'background.surface',
-                px: 2,
+                px: 1,
                 justifyContent: 'space-around',
                 alignItems: 'center',
                 zIndex: 1000,
@@ -201,7 +202,7 @@ export default function HouseholdLayout({
         >
             <Stack 
                 alignItems="center" spacing={0.5} onClick={() => navigate('dashboard')} 
-                sx={{ cursor: 'pointer', transition: 'transform 0.2s', '&:active': { transform: 'scale(0.95)' } }}
+                sx={{ flex: 1, cursor: 'pointer', transition: 'transform 0.2s', '&:active': { transform: 'scale(0.95)' } }}
             >
                 <HomeIcon sx={{ color: isTabActive('dashboard') ? 'primary.plainColor' : 'neutral.plainColor' }} />
                 <Typography level="body-xs" sx={{ color: isTabActive('dashboard') ? 'primary.plainColor' : 'neutral.plainColor', fontWeight: isTabActive('dashboard') ? 'bold' : 'normal' }}>Home</Typography>
@@ -209,7 +210,7 @@ export default function HouseholdLayout({
             
             <Stack 
                 alignItems="center" spacing={0.5} onClick={() => navigate('calendar')} 
-                sx={{ cursor: 'pointer', transition: 'transform 0.2s', '&:active': { transform: 'scale(0.95)' } }}
+                sx={{ flex: 1, cursor: 'pointer', transition: 'transform 0.2s', '&:active': { transform: 'scale(0.95)' } }}
             >
                 <EventIcon sx={{ color: isTabActive('calendar') ? 'primary.plainColor' : 'neutral.plainColor' }} />
                 <Typography level="body-xs" sx={{ color: isTabActive('calendar') ? 'primary.plainColor' : 'neutral.plainColor', fontWeight: isTabActive('calendar') ? 'bold' : 'normal' }}>Calendar</Typography>
@@ -217,7 +218,7 @@ export default function HouseholdLayout({
 
             <Stack 
                 alignItems="center" spacing={0.5} onClick={() => setDrawerOpen(true)} 
-                sx={{ cursor: 'pointer', transition: 'transform 0.2s', '&:active': { transform: 'scale(0.95)' } }}
+                sx={{ flex: 1, cursor: 'pointer', transition: 'transform 0.2s', '&:active': { transform: 'scale(0.95)' } }}
             >
                 <Badge 
                     color="danger" variant="solid" size="sm" invisible={!installPrompt}
@@ -227,6 +228,14 @@ export default function HouseholdLayout({
                     <MoreIcon sx={{ color: drawerOpen ? 'primary.plainColor' : 'neutral.plainColor' }} />
                 </Badge>
                 <Typography level="body-xs" sx={{ color: drawerOpen ? 'primary.plainColor' : 'neutral.plainColor', fontWeight: drawerOpen ? 'bold' : 'normal' }}>Menu</Typography>
+            </Stack>
+
+            <Stack 
+                alignItems="center" spacing={0.5} onClick={onLogout}
+                sx={{ flex: 1, cursor: 'pointer', transition: 'transform 0.2s', '&:active': { transform: 'scale(0.95)' } }}
+            >
+                <Logout sx={{ color: 'danger.plainColor' }} />
+                <Typography level="body-xs" sx={{ color: 'danger.plainColor' }}>Logout</Typography>
             </Stack>
         </Sheet>
       </Box>

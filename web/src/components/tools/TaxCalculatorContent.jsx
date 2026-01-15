@@ -112,45 +112,45 @@ export default function TaxCalculatorContent() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'auto' }}>
         <Tabs value={subTab} onChange={(e, v) => setSubTab(v)} sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-            <TabList disableUnderline sx={{ p: 0.5, gap: 0.5, bgcolor: 'background.level1', mx: 2, mt: 2 }}>
-                <Tab disableIndicator variant={subTab === 0 ? 'solid' : 'plain'} color="warning" value={0} sx={{ flex: 1 }}><Payments sx={{mr:1}}/> Income Tax</Tab>
-                <Tab disableIndicator variant={subTab === 1 ? 'solid' : 'plain'} color="warning" value={1} sx={{ flex: 1 }}><ReceiptLong sx={{mr:1}}/> Stamp Duty</Tab>
+            <TabList disableUnderline sx={{ p: 0.5, gap: 0.5, bgcolor: 'background.level1', mx: 1, mt: 1 }}>
+                <Tab disableIndicator variant={subTab === 0 ? 'solid' : 'plain'} color="warning" value={0} sx={{ flex: 1, minHeight: 32, px: 1 }}><Payments sx={{mr:0.5, fontSize: 18}}/> Income Tax</Tab>
+                <Tab disableIndicator variant={subTab === 1 ? 'solid' : 'plain'} color="warning" value={1} sx={{ flex: 1, minHeight: 32, px: 1 }}><ReceiptLong sx={{mr:0.5, fontSize: 18}}/> Stamp Duty</Tab>
             </TabList>
 
-            <TabPanel value={0} sx={{ p: 2, flexGrow: 1, overflow: 'auto' }}>
-                <Stack gap={1.5}>
-                    <Box sx={{ display: 'flex', gap: 2 }}>
+            <TabPanel value={0} sx={{ p: 1.5, flexGrow: 1, overflow: 'auto' }}>
+                <Stack gap={1}>
+                    <Box sx={{ display: 'flex', gap: 1.5 }}>
                         <FormControl sx={{ flex: 1 }}>
-                            <FormLabel>Tax Year</FormLabel>
-                            <Select value={taxYear} onChange={(e, v) => setTaxYear(v)}>
+                            <FormLabel sx={{ mb: 0.25, fontSize: 'xs' }}>Tax Year</FormLabel>
+                            <Select size="sm" value={taxYear} onChange={(e, v) => setTaxYear(v)}>
                                 <Option value="2025/26">2025/26</Option>
                                 <Option value="2024/25">2024/25</Option>
                             </Select>
                         </FormControl>
                         <FormControl sx={{ flex: 1 }}>
-                            <FormLabel>Region</FormLabel>
-                            <Select value={region} onChange={(e, v) => setRegion(v)}>
+                            <FormLabel sx={{ mb: 0.25, fontSize: 'xs' }}>Region</FormLabel>
+                            <Select size="sm" value={region} onChange={(e, v) => setRegion(v)}>
                                 <Option value="UK">UK (Excl. Scotland)</Option>
                                 <Option value="Scotland">Scotland</Option>
                             </Select>
                         </FormControl>
                     </Box>
 
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-                        <Checkbox label="Married" checked={isMarried} onChange={e => setIsMarried(e.target.checked)} />
-                        <Checkbox label="Blind" checked={isBlind} onChange={e => setIsBlind(e.target.checked)} />
-                        <Checkbox label="No NI" checked={noNI} onChange={e => setNoNI(e.target.checked)} />
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
+                        <Checkbox size="sm" label="Married" checked={isMarried} onChange={e => setIsMarried(e.target.checked)} />
+                        <Checkbox size="sm" label="Blind" checked={isBlind} onChange={e => setIsBlind(e.target.checked)} />
+                        <Checkbox size="sm" label="No NI" checked={noNI} onChange={e => setNoNI(e.target.checked)} />
                     </Box>
 
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                        <FormControl sx={{ flex: 1 }}><FormLabel>Salary (£)</FormLabel><Input type="number" value={salary} onChange={e => setSalary(e.target.value)} placeholder="per year" /></FormControl>
-                        <FormControl sx={{ flex: 1 }}><FormLabel>Pension %</FormLabel><Input type="number" value={pension} onChange={e => setPension(e.target.value)} /></FormControl>
+                    <Box sx={{ display: 'flex', gap: 1.5 }}>
+                        <FormControl sx={{ flex: 1 }}><FormLabel sx={{ mb: 0.25, fontSize: 'xs' }}>Salary (£)</FormLabel><Input size="sm" type="number" value={salary} onChange={e => setSalary(e.target.value)} placeholder="per year" /></FormControl>
+                        <FormControl sx={{ flex: 1 }}><FormLabel sx={{ mb: 0.25, fontSize: 'xs' }}>Pension %</FormLabel><Input size="sm" type="number" value={pension} onChange={e => setPension(e.target.value)} /></FormControl>
                     </Box>
 
-                    <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Box sx={{ display: 'flex', gap: 1.5 }}>
                         <FormControl sx={{ flex: 1 }}>
-                            <FormLabel>Student Loan</FormLabel>
-                            <Select value={studentLoan} onChange={(e, v) => setStudentLoan(v)}>
+                            <FormLabel sx={{ mb: 0.25, fontSize: 'xs' }}>Student Loan</FormLabel>
+                            <Select size="sm" value={studentLoan} onChange={(e, v) => setStudentLoan(v)}>
                                 <Option value="none">No Loan</Option>
                                 <Option value="plan1">Plan 1</Option>
                                 <Option value="plan2">Plan 2</Option>
@@ -159,47 +159,47 @@ export default function TaxCalculatorContent() {
                             </Select>
                         </FormControl>
                         <FormControl sx={{ flex: 1 }}>
-                            <FormLabel>Age</FormLabel>
-                            <Select value={age} onChange={(e, v) => setAge(v)}>
+                            <FormLabel sx={{ mb: 0.25, fontSize: 'xs' }}>Age</FormLabel>
+                            <Select size="sm" value={age} onChange={(e, v) => setAge(v)}>
                                 <Option value="under65">Under 65</Option>
                                 <Option value="over65">65 or Over</Option>
                             </Select>
                         </FormControl>
                     </Box>
 
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                        <FormControl sx={{ flex: 1 }}><FormLabel>Deductions (£)</FormLabel><Input type="number" value={allowances} onChange={e => setAllowances(e.target.value)} /></FormControl>
-                        <FormControl sx={{ flex: 1 }}><FormLabel>Tax Code</FormLabel><Input placeholder="e.g. 1257L" value={taxCode} onChange={e => setTaxCode(e.target.value)} /></FormControl>
+                    <Box sx={{ display: 'flex', gap: 1.5 }}>
+                        <FormControl sx={{ flex: 1 }}><FormLabel sx={{ mb: 0.25, fontSize: 'xs' }}>Deductions (£)</FormLabel><Input size="sm" type="number" value={allowances} onChange={e => setAllowances(e.target.value)} /></FormControl>
+                        <FormControl sx={{ flex: 1 }}><FormLabel sx={{ mb: 0.25, fontSize: 'xs' }}>Tax Code</FormLabel><Input size="sm" placeholder="e.g. 1257L" value={taxCode} onChange={e => setTaxCode(e.target.value)} /></FormControl>
                     </Box>
 
-                    <Button color="warning" onClick={calculateTax}>Calculate Take Home</Button>
+                    <Button size="sm" color="warning" onClick={calculateTax}>Calculate Take Home</Button>
 
                     {result && (
-                        <Box sx={{ p: 2, bgcolor: 'warning.softBg', borderRadius: 'md', border: '1px solid', borderColor: 'warning.outlinedBorder' }}>
-                            <Typography level="body-xs" sx={{ textAlign: 'center', mb: 1 }}>MONTHLY TAKE HOME</Typography>
-                            <Typography level="h2" color="warning" sx={{ textAlign: 'center', mb: 2 }}>£{result.monthly.toLocaleString(undefined, { maximumFractionDigits: 0 })}</Typography>
-                            <Stack gap={0.5}>
+                        <Box sx={{ p: 1, bgcolor: 'warning.softBg', borderRadius: 'md', border: '1px solid', borderColor: 'warning.outlinedBorder' }}>
+                            <Typography level="body-xs" sx={{ textAlign: 'center', mb: 0.5 }}>MONTHLY TAKE HOME</Typography>
+                            <Typography level="h3" color="warning" sx={{ textAlign: 'center', mb: 1 }}>£{result.monthly.toLocaleString(undefined, { maximumFractionDigits: 0 })}</Typography>
+                            <Stack gap={0.25}>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography level="body-xs">Income Tax:</Typography><Typography level="body-xs" fontWeight="bold">£{result.incomeTax.toLocaleString()}</Typography></Box>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography level="body-xs">National Insurance:</Typography><Typography level="body-xs" fontWeight="bold">£{result.ni.toLocaleString()}</Typography></Box>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography level="body-xs">NI:</Typography><Typography level="body-xs" fontWeight="bold">£{result.ni.toLocaleString()}</Typography></Box>
                                 {result.sl > 0 && <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography level="body-xs">Student Loan:</Typography><Typography level="body-xs" fontWeight="bold">£{result.sl.toLocaleString()}</Typography></Box>}
-                                <Divider sx={{ my: 0.5 }} />
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography level="body-sm">Annual Take Home:</Typography><Typography level="body-sm" fontWeight="bold">£{result.takeHome.toLocaleString()}</Typography></Box>
+                                <Divider sx={{ my: 0.25 }} />
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography level="body-xs">Annual Take Home:</Typography><Typography level="body-xs" fontWeight="bold">£{result.takeHome.toLocaleString()}</Typography></Box>
                             </Stack>
                         </Box>
                     )}
                 </Stack>
             </TabPanel>
 
-            <TabPanel value={1} sx={{ p: 2, flexGrow: 1, overflow: 'auto' }}>
-                <Stack gap={2}>
-                    <FormControl><FormLabel>Property Price (£)</FormLabel><Input type="number" value={propertyPrice} onChange={e => setPropertyPrice(e.target.value)} startDecorator="£" /></FormControl>
-                    <FormControl><FormLabel>Buyer Context</FormLabel><RadioGroup value={buyerType} onChange={(e) => setBuyerType(e.target.value)} sx={{ gap: 1 }}>
-                        <Radio value="firstTime" label="First Time Buyer" />
-                        <Radio value="standard" label="Standard (Moving Home)" />
-                        <Radio value="secondHome" label="Additional Property (+3% Surcharge)" />
+            <TabPanel value={1} sx={{ p: 1.5, flexGrow: 1, overflow: 'auto' }}>
+                <Stack gap={1.5}>
+                    <FormControl><FormLabel sx={{ mb: 0.5, fontSize: 'xs' }}>Property Price (£)</FormLabel><Input size="sm" type="number" value={propertyPrice} onChange={e => setPropertyPrice(e.target.value)} startDecorator="£" /></FormControl>
+                    <FormControl><FormLabel sx={{ mb: 0.5, fontSize: 'xs' }}>Buyer Context</FormLabel><RadioGroup value={buyerType} onChange={(e) => setBuyerType(e.target.value)} sx={{ gap: 0.5 }}>
+                        <Radio size="sm" value="firstTime" label="First Time Buyer" />
+                        <Radio size="sm" value="standard" label="Standard (Moving Home)" />
+                        <Radio size="sm" value="secondHome" label="Additional Property" />
                     </RadioGroup></FormControl>
-                    <Button color="warning" onClick={calculateSDLT}>Calculate Stamp Duty</Button>
-                    {sdltVal !== null && <Box sx={{ p: 2, bgcolor: 'warning.softBg', borderRadius: 'md', textAlign: 'center' }}><Typography level="body-sm">Stamp Duty Payable</Typography><Typography level="h3" color="warning">£{sdltVal.toLocaleString()}</Typography></Box>}
+                    <Button size="sm" color="warning" onClick={calculateSDLT}>Calculate Stamp Duty</Button>
+                    {sdltVal !== null && <Box sx={{ p: 1, bgcolor: 'warning.softBg', borderRadius: 'md', textAlign: 'center' }}><Typography level="body-xs">Stamp Duty Payable</Typography><Typography level="h4" color="warning">£{sdltVal.toLocaleString()}</Typography></Box>}
                 </Stack>
             </TabPanel>
         </Tabs>

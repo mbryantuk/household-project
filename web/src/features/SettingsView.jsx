@@ -163,7 +163,17 @@ export default function SettingsView({
                         display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
                     }}
                 >
-                    <Box sx={{ width: '100%', height: 32, borderRadius: 'sm', bgcolor: spec.primary, mb: 1, border: '1px solid rgba(0,0,0,0.1)' }} />
+                    <Box sx={{ 
+                        display: 'flex', width: '100%', height: 32, borderRadius: 'sm', 
+                        overflow: 'hidden', mb: 1, border: '1px solid rgba(0,0,0,0.1)',
+                        bgcolor: 'background.surface'
+                    }}>
+                        <Tooltip title="Primary" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.primary }} /></Tooltip>
+                        <Tooltip title="Background" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.bg }} /></Tooltip>
+                        <Tooltip title="Surface" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.surface }} /></Tooltip>
+                        <Tooltip title="Selection" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.selection }} /></Tooltip>
+                        <Tooltip title="Text" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.text }} /></Tooltip>
+                    </Box>
                     <Typography level="title-sm" noWrap sx={{ fontSize: '13px', color: themeId === spec.id ? '#fff' : 'text.primary', width: '100%' }}>{spec.name}</Typography>
                     {themeId === spec.id && (
                         <Palette sx={{ position: 'absolute', top: 6, right: 6, fontSize: '0.7rem', color: '#fff' }} />
