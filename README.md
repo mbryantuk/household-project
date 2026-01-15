@@ -7,8 +7,8 @@ Totem is a high-performance, multi-tenant Household Management SaaS designed wit
 *   **SaaS Architecture:** Global User System allowing single sign-on across multiple households.
 *   **Strict Multi-Tenancy:** Secure data isolation using tenant-specific database contexts.
 *   **Modern UI/UX:** Built with **MUI Joy UI** for a sleek, modern aesthetic.
-    *   **Theme Library:** Includes a comprehensive library of **30+ vibrant themes** (Light and Dark) stored at the household level.
-    *   **Dynamic Layout:** Salesforce-style bottom Utility Bar with **Taskbar-like expansion** and integrated **Status Bar**.
+    *   **Theme Library:** Includes a comprehensive library of **50+ vibrant themes** (Light and Dark) stored at the household level, featuring a **visualized palette selector** for precise selection.
+    *   **Dynamic Layout:** Salesforce-style bottom Utility Bar with **Taskbar-like expansion**, integrated **Status Bar**, and **scrollbar-free** widget interfaces with quick-access logout.
     *   **Financial Tools:** Built-in Compound Interest and Mortgage/Loan calculators.
 *   **Enhanced Unified Calendar:** 
     *   **Pop-out Support:** Open the Calendar, Calculator, or Financial Tools in separate windows for multi-screen workflows.

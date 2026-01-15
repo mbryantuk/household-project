@@ -9,7 +9,8 @@ import {
   Logout, Edit, KeyboardArrowRight, ChevronLeft, Download, Close, SwapHoriz,
   Delete, LightMode, DarkMode, SettingsBrightness, Contrast,
   KeyboardArrowUp, KeyboardArrowDown
-} from '@mui/icons-material';import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+} from '@mui/icons-material';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getEmojiColor, THEMES } from '../theme';
 import EmojiPicker from './EmojiPicker';
 
@@ -115,7 +116,7 @@ export default function NavSidebar({
 
   useEffect(() => {
     checkScroll();
-    const timer = setTimeout(checkScroll, 500); // Wait for potential layout shifts
+    const timer = setTimeout(checkScroll, 500); 
     window.addEventListener('resize', checkScroll);
     return () => {
         clearTimeout(timer);
@@ -175,7 +176,6 @@ export default function NavSidebar({
                 height: '100dvh', overflowY: 'hidden', position: 'relative'
             }}
         >
-            {/* Pinned Top */}
             <Box sx={{ width: '100%', flexShrink: 0 }}>
                 {isMobile && (
                     <Box sx={{ px: 2, pb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -207,7 +207,6 @@ export default function NavSidebar({
                 <Divider sx={{ mb: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
             </Box>
 
-            {/* Scrollable Middle */}
             <Box sx={{ width: '100%', flexGrow: 1, position: 'relative', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
                 {canScrollUp && !isMobile && (
                     <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: 20, zIndex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: 'background.surface', opacity: 0.8, pointerEvents: 'none' }}>
@@ -222,8 +221,8 @@ export default function NavSidebar({
                         width: '100%', 
                         flexGrow: 1, 
                         overflowY: 'auto',
-                        scrollbarWidth: 'none', // Firefox
-                        '&::-webkit-scrollbar': { display: 'none' }, // Chrome/Safari
+                        scrollbarWidth: 'none', 
+                        '&::-webkit-scrollbar': { display: 'none' },
                         px: isMobile ? 0 : 0
                     }}
                 >
@@ -243,26 +242,15 @@ export default function NavSidebar({
                 )}
             </Box>
 
-            {/* Pinned Bottom */}
             <Box sx={{ width: '100%', p: 0, m: 0, flexShrink: 0 }}>
-                {/* Upper Separator */}
                 <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
                 
-                {/* Utilities Section */}
                 <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0, p: 0, m: 0 }}>
-                    {canInstall && (
-                        <RailIcon icon={<Download />} label="Install" onClick={onInstall} location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
-                    )}
-                    {households.length > 1 && (
-                        <RailIcon icon={<SwapHoriz />} label="Switch" category="switch" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
-                    )}
                     <RailIcon icon={<Settings />} label="Settings" category="settings" to="settings" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                 </List>
 
-                {/* Lower Separator */}
                 <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
 
-                {/* User Profile Section */}
                 <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '0px', width: '100%', px: isMobile ? 1 : 0, p: 0, m: 0, pb: 0.5 }}>
                     <RailIcon 
                         icon={<Avatar size="sm" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark), width: 22, height: 22, fontSize: '0.75rem' }}>{user?.avatar || user?.first_name?.[0]}</Avatar>} 

@@ -176,6 +176,8 @@ export default function HouseholdLayout({
                 onUpdateProfile={onUpdateProfile}
                 isDark={isDark}
                 onLogout={onLogout}
+                households={households}
+                onSelectHousehold={onSelectHousehold}
                 canInstall={!!installPrompt}
                 onInstall={onInstall}
             />

@@ -1,6 +1,16 @@
 # Changelog
 
-## [2.5.1] - 2026-01-14
+## [2.5.4] - 2026-01-15
+### Added
+- Logout shortcut in mobile bottom navigation bar.
+- Logout button in desktop utility bar.
+- Palette visualization in Theme Selector (Coolors-style).
+
+### Changed
+- Refined Utility Bar widgets to hide visual scrollbars for a native app aesthetic.
+
+## [2.5.3] - 2026-01-14
+
 ### Added
 - **UI/UX:** Integrated Emoji Picker into the **User Management** modal in Settings.
 - **UI/UX:** Standardized Emoji rendering across the app by switching to **Native Emoji Style** for both the picker and display.
