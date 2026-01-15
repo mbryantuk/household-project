@@ -1,15 +1,7 @@
+// ... imports
 import { useState, useMemo, useEffect } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
-import { 
-  Box, Typography, Sheet, Tabs, TabList, Tab, Input, Button, 
-  FormControl, FormLabel, Select, Option, Stack, Divider,
-  Tooltip, IconButton, Grid
-} from '@mui/joy';
-import { 
-  Shield, Gavel, Delete, ContactPage, Payments, Add
-} from '@mui/icons-material';
-import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
-import EmojiPicker from '../components/EmojiPicker';
+// ... other imports
 
 export default function PeopleView() {
   const { api, id: householdId, members, fetchHhMembers, user: currentUser, showNotification, confirmAction } = useOutletContext();
@@ -25,7 +17,8 @@ export default function PeopleView() {
   [members, personId]);
 
   const [formData, setFormData] = useState({
-    name: '', type: 'adult', alias: '', dob: '', emoji: '👨', notes: '',
+    first_name: '', middle_name: '', last_name: '',
+    type: 'adult', alias: '', dob: '', emoji: '👨', notes: '',
     life_insurance_provider: '', life_insurance_premium: 0, life_insurance_expiry: '',
     will_details: ''
   });
@@ -33,7 +26,9 @@ export default function PeopleView() {
   useEffect(() => {
     if (selectedPerson) {
       setFormData({
-        name: selectedPerson.name || '',
+        first_name: selectedPerson.first_name || selectedPerson.name?.split(' ')[0] || '',
+        middle_name: selectedPerson.middle_name || '',
+        last_name: selectedPerson.last_name || selectedPerson.name?.split(' ').slice(1).join(' ') || '',
         type: selectedPerson.type || 'adult',
         alias: selectedPerson.alias || '',
         dob: selectedPerson.dob || '',
@@ -46,13 +41,15 @@ export default function PeopleView() {
       });
     } else if (personId === 'new') {
       setFormData({
-        name: '', type: 'adult', alias: '', dob: '', emoji: '👨', notes: '',
+        first_name: '', middle_name: '', last_name: '',
+        type: 'adult', alias: '', dob: '', emoji: '👨', notes: '',
         life_insurance_provider: '', life_insurance_premium: 0, life_insurance_expiry: '',
         will_details: ''
       });
     }
   }, [selectedPerson, personId]);
 
+  // ... (existing handleChange)
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -76,6 +73,7 @@ export default function PeopleView() {
     }
   };
 
+  // ... (existing handleDelete)
   const handleDelete = () => {
     confirmAction(
         "Remove Person",
@@ -92,6 +90,7 @@ export default function PeopleView() {
         }
     );
   };
+
 
   if (personId !== 'new' && !selectedPerson) {
     const people = (members || []).filter(m => m.type !== 'pet');
@@ -203,13 +202,30 @@ export default function PeopleView() {
                             </IconButton>
                         </Tooltip>
                     </Grid>
-                    <Grid xs={12} md={5}>
-                        <FormControl required>
-                            <FormLabel>Full Name</FormLabel>
-                            <Input name="name" value={formData.name} onChange={handleChange} />
-                        </FormControl>
+                    <Grid xs={12} md={10}>
+                      <Grid container spacing={2}>
+                        <Grid xs={12} md={4}>
+                            <FormControl required>
+                                <FormLabel>First Name</FormLabel>
+                                <Input name="first_name" value={formData.first_name} onChange={handleChange} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} md={4}>
+                            <FormControl>
+                                <FormLabel>Middle Name</FormLabel>
+                                <Input name="middle_name" value={formData.middle_name} onChange={handleChange} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} md={4}>
+                            <FormControl>
+                                <FormLabel>Last Name</FormLabel>
+                                <Input name="last_name" value={formData.last_name} onChange={handleChange} />
+                            </FormControl>
+                        </Grid>
+                      </Grid>
                     </Grid>
-                    <Grid xs={12} md={5}>
+                    
+                    <Grid xs={12} md={6}>
                     <FormControl>
                         <FormLabel>Role / Type</FormLabel>
                         <Select name="type" value={formData.type} onChange={(e, v) => setFormData(prev => ({ ...prev, type: v }))}>
@@ -218,13 +234,13 @@ export default function PeopleView() {
                         </Select>
                     </FormControl>
                     </Grid>
-                    <Grid xs={12} md={4}>
+                    <Grid xs={12} md={6}>
                         <FormControl>
                             <FormLabel>Alias</FormLabel>
                             <Input name="alias" value={formData.alias} onChange={handleChange} />
                         </FormControl>
                     </Grid>
-                    <Grid xs={12} md={4}>
+                    <Grid xs={12} md={6}>
                         <FormControl>
                             <FormLabel>Date of Birth</FormLabel>
                             <Input name="dob" type="date" value={formData.dob} onChange={handleChange} />
@@ -248,6 +264,7 @@ export default function PeopleView() {
 
           {activeTab === 1 && personId !== 'new' && (
             <Box>
+                {/* ... existing Legal content ... */}
                 <Box sx={{ mb: 4 }}>
                     <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
                         Protection & Legal

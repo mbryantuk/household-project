@@ -1,23 +1,21 @@
 #!/bin/bash
-# 1. Configuration & Safety Check
-echo "🚀 Starting Full Verification Cycle..."
+echo "🚀 Starting Deployment..."
 
-# 2. Build & Deploy
-echo "📦 Building Docker containers..."
+# 1. Build and Start Containers
 docker compose up -d --build
 
-# 3. Verification (CRITICAL)
-echo "🧪 Running Integration Tests..."
-(cd server && npx jest tests/integration/)
+# 2. Run Tests (inside container to ensure env consistency)
+echo "🧪 Running Tests..."
+docker compose exec -T totem-app npm test
 
-echo "🛡️ Running Security Tests..."
-(cd server && npx jest tests/security/)
+# 3. Bump Version (on HOST)
+echo "📦 Bumping Version..."
+node scripts/utils/bump_version.js
 
-echo "⚡ Running Performance & Load Tests..."
-(cd server && npm run test:perf)
-
-# 4. Commit Snapshot
-echo "💾 Saving state and committing..."
+# 4. Git Operations
+echo "💾 Committing Changes..."
 git add .
-git commit -m "chore: automated deployment and verification" || echo "Nothing to commit"
-echo "✅ All systems verified and committed."
+git commit -m "v$(node -p "require('./package.json').version") - Name Splitting & Module Toggles"
+git push origin main
+
+echo "✅ Deployment Complete."

@@ -13,7 +13,10 @@ const SCHEMA_DEFINITIONS = [
     `CREATE TABLE IF NOT EXISTS members (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
-        name TEXT NOT NULL,
+        name TEXT, -- Keeping for backward compatibility (computed or filled)
+        first_name TEXT,
+        middle_name TEXT,
+        last_name TEXT,
         type TEXT DEFAULT 'adult', -- adult, child, pet, viewer
         notes TEXT,
         alias TEXT, 
@@ -83,7 +86,8 @@ const SCHEMA_DEFINITIONS = [
         smart_home_hub TEXT,
         notes TEXT,
         icon TEXT,
-        color TEXT
+        color TEXT,
+        enabled_modules TEXT -- JSON string: ["pets", "vehicles", "meals"]
     )`,
 
     // --- VEHICLES ---
@@ -245,10 +249,14 @@ const MIGRATIONS = [
     ['members', 'pet_insurance_expiry', 'TEXT'],
     ['members', 'food_monthly_cost', 'REAL DEFAULT 0'],
     ['members', 'microchip_number', 'TEXT'],
+    ['members', 'first_name', 'TEXT'],
+    ['members', 'middle_name', 'TEXT'],
+    ['members', 'last_name', 'TEXT'],
     ['dates', 'household_id', 'INTEGER'],
     ['house_details', 'household_id', 'INTEGER'],
     ['house_details', 'icon', 'TEXT'],
     ['house_details', 'color', 'TEXT'],
+    ['house_details', 'enabled_modules', 'TEXT'],
     ['vehicles', 'household_id', 'INTEGER'],
     ['assets', 'household_id', 'INTEGER'],
     ['energy_accounts', 'household_id', 'INTEGER'],

@@ -60,12 +60,19 @@ describe('Feature: Members & Residents', () => {
     describe('Residents (Members List)', () => {
         let memberId;
 
-        it('should create a resident (non-login)', async () => {
+        it('should create a resident (non-login) with split names', async () => {
             const res = await request(app)
                 .post(`/households/${householdId}/members`)
                 .set('Authorization', `Bearer ${token}`)
-                .send({ name: 'Kiddo', type: 'child', dob: '2015-01-01', emoji: '👶' });
+                .send({ 
+                    first_name: 'Kiddo', 
+                    last_name: 'Test', 
+                    type: 'child', 
+                    dob: '2015-01-01', 
+                    emoji: '👶' 
+                });
             expect(res.statusCode).toBe(200);
+            expect(res.body.name).toBe('Kiddo Test'); // Verify name construction
             memberId = res.body.id;
         });
 
@@ -76,6 +83,7 @@ describe('Feature: Members & Residents', () => {
             
             const bday = res.body.find(d => d.member_id === memberId && d.type === 'birthday');
             expect(bday).toBeDefined();
+            expect(bday.title).toContain('Kiddo Test');
         });
 
         it('should delete the resident', async () => {

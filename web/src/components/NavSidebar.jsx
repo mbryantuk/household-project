@@ -1,16 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, 
-  IconButton, Divider, Box, Avatar, Typography, Stack, Button, ButtonGroup, Switch, Tooltip
+  IconButton, Divider, Box, Avatar, Typography, Tooltip
 } from '@mui/joy';
 import {
   Event, Groups, Pets, HomeWork, DirectionsCar, RestaurantMenu,
-  Logout, Edit, KeyboardArrowRight, ChevronLeft, Download, Close, SwapHoriz,
-  Delete, LightMode, DarkMode, SettingsBrightness, Contrast,
-  KeyboardArrowUp, KeyboardArrowDown
+  Close, KeyboardArrowRight, ChevronLeft, KeyboardArrowUp, KeyboardArrowDown
 } from '@mui/icons-material';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { getEmojiColor, THEMES } from '../theme';
+import { getEmojiColor } from '../theme';
 import EmojiPicker from './EmojiPicker';
 
 // Layout Constants
@@ -91,6 +89,14 @@ const SubItem = ({ label, to, emoji, onClick, endAction, isDark }) => (
     </ListItem>
 );
 
+const GroupHeader = ({ label }) => (
+    <ListItem sx={{ mt: 1, mb: 0.5 }}>
+        <Typography level="body-xs" fontWeight="bold" textTransform="uppercase" letterSpacing="1px" sx={{ px: 1, color: 'text.tertiary' }}>
+            {label}
+        </Typography>
+    </ListItem>
+);
+
 export default function NavSidebar({ 
     members = [], vehicles = [], households = [], isDark, household, user, 
     onLogout, onUpdateProfile, themeId, onThemeChange, onInstall, canInstall,
@@ -104,6 +110,15 @@ export default function NavSidebar({
   const [canScrollUp, setCanScrollUp] = useState(false);
   const [canScrollDown, setCanScrollDown] = useState(false);
   const scrollRef = React.useRef(null);
+
+  // Enabled Modules
+  const enabledModules = useMemo(() => {
+      try {
+          return household?.enabled_modules ? JSON.parse(household.enabled_modules) : ['pets', 'vehicles', 'meals'];
+      } catch (e) {
+          return ['pets', 'vehicles', 'meals'];
+      }
+  }, [household]);
 
   const checkScroll = () => {
     if (scrollRef.current) {
@@ -133,6 +148,7 @@ export default function NavSidebar({
       else if (path.includes('/profile')) setActiveCategory('account');
       else if (path.includes('/dashboard')) setActiveCategory('dashboard');
       else if (path.includes('/calendar')) setActiveCategory('calendar');
+      else if (path.includes('/meals')) setActiveCategory('meals');
   }, [location.pathname]);
 
   const handleNav = (to, category, hasSubItems) => {
@@ -144,6 +160,27 @@ export default function NavSidebar({
   };
 
   const showPanel = activeCategory && ['people', 'pets', 'house', 'vehicles'].includes(activeCategory);
+
+  // Grouping Logic
+  const groupedPets = useMemo(() => {
+      const groups = {};
+      members.filter(m => m.type === 'pet').forEach(p => {
+          const species = p.species || 'Other';
+          if (!groups[species]) groups[species] = [];
+          groups[species].push(p);
+      });
+      return groups;
+  }, [members]);
+
+  const groupedVehicles = useMemo(() => {
+      const groups = {};
+      vehicles.forEach(v => {
+          const type = v.type || 'Car';
+          if (!groups[type]) groups[type] = [];
+          groups[type].push(v);
+      });
+      return groups;
+  }, [vehicles]);
 
   const sidebarContent = (
     <Box sx={{ display: 'flex', height: '100dvh' }}>
@@ -216,10 +253,20 @@ export default function NavSidebar({
                 >
                     <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
                         <RailIcon icon={<Groups />} label="People" category="people" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
-                        <RailIcon icon={<Pets />} label="Pets" category="pets" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                        
+                        {enabledModules.includes('pets') && (
+                            <RailIcon icon={<Pets />} label="Pets" category="pets" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                        )}
+                        
                         <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
-                        <RailIcon icon={<RestaurantMenu />} label="Meals" category="meals" to="meals" location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
-                        <RailIcon icon={<DirectionsCar />} label="Vehicles" category="vehicles" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                        
+                        {enabledModules.includes('vehicles') && (
+                            <RailIcon icon={<DirectionsCar />} label="Vehicles" category="vehicles" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                        )}
+
+                        {enabledModules.includes('meals') && (
+                            <RailIcon icon={<RestaurantMenu />} label="Meals" category="meals" to="meals" location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                        )}
                     </List>
                 </Box>
 
@@ -255,13 +302,13 @@ export default function NavSidebar({
                 <List sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>
                     {activeCategory === 'people' && (
                         <>
-                            <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>ADULTS</Typography></ListItem>
+                            <GroupHeader label="Adults" />
                             {members.filter(m => m.type !== 'pet' && m.type !== 'child').map(m => <SubItem key={m.id} label={m.name} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} />)}
                             
                             {members.some(m => m.type === 'child') && (
                                 <>
                                     <Divider sx={{ my: 1 }} />
-                                    <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>CHILDREN</Typography></ListItem>
+                                    <GroupHeader label="Children" />
                                     {members.filter(m => m.type === 'child').map(m => <SubItem key={m.id} label={m.name} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} />)}
                                 </>
                             )}
@@ -270,21 +317,31 @@ export default function NavSidebar({
                     )}
                     {activeCategory === 'pets' && (
                         <>
-                            <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>PETS</Typography></ListItem>
-                            {members.filter(m => m.type === 'pet').map(m => <SubItem key={m.id} label={m.name} to={`pets/${m.id}`} emoji={m.emoji} isDark={isDark} />)}
+                            {Object.entries(groupedPets).map(([species, pets]) => (
+                                <React.Fragment key={species}>
+                                    <GroupHeader label={species} />
+                                    {pets.map(m => <SubItem key={m.id} label={m.name} to={`pets/${m.id}`} emoji={m.emoji} isDark={isDark} />)}
+                                </React.Fragment>
+                            ))}
+                            {Object.keys(groupedPets).length === 0 && <Typography level="body-xs" sx={{ p: 2, color: 'neutral.outlinedColor' }}>No pets found.</Typography>}
                             <Divider sx={{ my: 1 }} /><SubItem label="Add New Pet" to="pets/new" isDark={isDark} />
                         </>
                     )}
                     {activeCategory === 'house' && (
                         <>
-                            <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>PROPERTIES</Typography></ListItem>
+                            <GroupHeader label="Properties" />
                             <SubItem label={household?.name || 'Main House'} to={`house/${household?.id || 1}`} emoji={household?.avatar || '🏠'} isDark={isDark} />
                         </>
                     )}
                     {activeCategory === 'vehicles' && (
                         <>
-                            <ListItem><Typography level="body-xs" fontWeight="bold" sx={{ p: 1 }}>FLEET</Typography></ListItem>
-                            {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`vehicles/${v.id}`} emoji={v.emoji} isDark={isDark} />)}
+                            {Object.entries(groupedVehicles).map(([type, list]) => (
+                                <React.Fragment key={type}>
+                                    <GroupHeader label={type} />
+                                    {list.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`vehicles/${v.id}`} emoji={v.emoji} isDark={isDark} />)}
+                                </React.Fragment>
+                            ))}
+                            {Object.keys(groupedVehicles).length === 0 && <Typography level="body-xs" sx={{ p: 2, color: 'neutral.outlinedColor' }}>No vehicles found.</Typography>}
                             <Divider sx={{ my: 1 }} /><SubItem label="Add New Vehicle" to="vehicles/new" isDark={isDark} />
                         </>
                     )}

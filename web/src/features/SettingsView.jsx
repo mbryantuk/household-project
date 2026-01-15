@@ -2,11 +2,12 @@ import { useState, useEffect, useMemo } from 'react';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, Button, Input, 
   FormControl, FormLabel, Stack, Avatar, IconButton, 
-  Divider, Modal, ModalDialog, DialogTitle, Select, Option, Grid, Chip, DialogContent, DialogActions, Tooltip
+  Divider, Modal, ModalDialog, DialogTitle, Select, Option, Grid, Chip, DialogContent, DialogActions, Tooltip, Switch
 } from '@mui/joy';
 import { 
   PersonAdd, Edit, Delete, ExitToApp, ToggleOn, ToggleOff,
-  OpenInNew, Info, Verified, Code, Policy, Palette, AddHome, LightMode, DarkMode
+  OpenInNew, Info, Verified, Code, Policy, Palette, AddHome, LightMode, DarkMode,
+  ViewModule, CheckCircle, Cancel
 } from '@mui/icons-material';
 import { getEmojiColor, THEMES } from '../theme';
 import EmojiPicker from '../components/EmojiPicker';
@@ -26,6 +27,19 @@ export default function SettingsView({
   const [newHhName, setNewHhName] = useState('');
   const [isCreatingHh, setIsCreatingHh] = useState(false);
   
+  // Modules State
+  const [enabledModules, setEnabledModules] = useState(['pets', 'vehicles', 'meals']);
+
+  useEffect(() => {
+      if (household?.enabled_modules) {
+          try {
+              setEnabledModules(JSON.parse(household.enabled_modules));
+          } catch(e) {
+              setEnabledModules(['pets', 'vehicles', 'meals']);
+          }
+      }
+  }, [household]);
+
   // Controlled form state for the modal
   const [formData, setFormData] = useState({
       email: '',
@@ -56,6 +70,27 @@ export default function SettingsView({
           });
       }
   }, [editUser]);
+
+  const toggleModule = async (module) => {
+    if (!isAdmin) return;
+    
+    const newModules = enabledModules.includes(module) 
+        ? enabledModules.filter(m => m !== module)
+        : [...enabledModules, module];
+    
+    setEnabledModules(newModules);
+    
+    try {
+        await api.put(`/households/${household.id}/details`, { 
+            enabled_modules: JSON.stringify(newModules) 
+        });
+        showNotification(`${module} module ${newModules.includes(module) ? 'enabled' : 'disabled'}.`, 'success');
+        // Reload to refresh sidebar
+        setTimeout(() => window.location.reload(), 500); 
+    } catch (err) {
+        showNotification("Failed to update modules.", "danger");
+    }
+  };
 
   const handleToggleActivation = async (u) => {
     if (!isAdmin) return;
@@ -218,6 +253,7 @@ export default function SettingsView({
           >
             <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'}>User Access</Tab>
             <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}>Appearance</Tab>
+            <Tab variant={activeTab === 4 ? 'solid' : 'plain'} color={activeTab === 4 ? 'primary' : 'neutral'}>Modules</Tab>
             <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'}>Developers</Tab>
             <Tab variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'}>About</Tab>
           </TabList>
@@ -294,6 +330,41 @@ export default function SettingsView({
                         <Typography level="title-lg" startDecorator={<DarkMode color="primary" />} sx={{ mb: 2 }}>Dark Themes</Typography>
                         <ThemeGrid themes={groupedThemes.dark} />
                       </Box>
+                    </Stack>
+                </Box>
+            )}
+
+            {activeTab === 4 && (
+                <Box>
+                    <Box sx={{ mb: 4 }}>
+                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Feature Modules</Typography>
+                        <Typography level="body-md" color="neutral">Enable or disable specific sections of the application to suit your household's needs.</Typography>
+                    </Box>
+
+                    <Stack spacing={2}>
+                        {['pets', 'vehicles', 'meals'].map(mod => (
+                            <Sheet key={mod} variant="outlined" sx={{ p: 2, borderRadius: 'md', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Box>
+                                    <Typography level="title-md" textTransform="capitalize" startDecorator={<ViewModule />}>{mod}</Typography>
+                                    <Typography level="body-xs" color="neutral">
+                                        {mod === 'pets' && "Track pets, microchips, and pet insurance."}
+                                        {mod === 'vehicles' && "Manage cars, maintenance, and MOTs."}
+                                        {mod === 'meals' && "Plan weekly meals and menus."}
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                    {enabledModules.includes(mod) ? 
+                                        <Chip color="success" variant="soft" startDecorator={<CheckCircle />}>Enabled</Chip> : 
+                                        <Chip color="neutral" variant="soft" startDecorator={<Cancel />}>Disabled</Chip>
+                                    }
+                                    <Switch 
+                                        checked={enabledModules.includes(mod)}
+                                        onChange={() => toggleModule(mod)}
+                                        disabled={!isAdmin}
+                                    />
+                                </Box>
+                            </Sheet>
+                        ))}
                     </Stack>
                 </Box>
             )}

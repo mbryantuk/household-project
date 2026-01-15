@@ -1,13 +1,13 @@
 {
   "name": "household-manager",
-  "version": "2.5.15",
+  "version": "2.5.16",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
     "test": "npx jest --detectOpenHandles --forceExit",
     "test:full": "jest --detectOpenHandles --forceExit --verbose",
-    "test:perf": "jest server/tests/performance.test.js --detectOpenHandles --forceExit",
+    "test:perf": "jest tests/performance/ --detectOpenHandles --forceExit",
     "test:report": "jest --detectOpenHandles --forceExit --ci --runInBand --reporters=default --reporters=jest-html-reporter"
   },
   "jest": {
