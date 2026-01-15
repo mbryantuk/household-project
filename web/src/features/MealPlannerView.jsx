@@ -179,7 +179,7 @@ export default function MealPlannerView() {
           gap: 2 
       }}>
         <Box>
-            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
                 Meal Planner
             </Typography>
             <Typography level="body-md" color="neutral">

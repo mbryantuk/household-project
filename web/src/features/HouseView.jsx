@@ -156,7 +156,12 @@ export default function HouseView() {
   return (
     <Box sx={{ pb: 10 }}>
       <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
-        <IconButton variant="outlined" color="neutral" onClick={() => setViewMode('selector')}>
+        <IconButton 
+            variant="outlined" 
+            color="neutral" 
+            onClick={() => setViewMode('selector')}
+            sx={{ display: { xs: 'flex', md: 'none' } }}
+        >
             <ArrowBack />
         </IconButton>
         <Box>
