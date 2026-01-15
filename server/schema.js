@@ -279,14 +279,25 @@ const MIGRATIONS = [
 ];
 
 function initializeHouseholdSchema(db) {
-    db.serialize(() => {
-        SCHEMA_DEFINITIONS.forEach(sql => {
-            db.run(sql, (err) => {});
-        });
+    return new Promise((resolve, reject) => {
+        db.serialize(() => {
+            SCHEMA_DEFINITIONS.forEach(sql => {
+                db.run(sql, (err) => {
+                    if (err) console.error("Schema Error:", err.message);
+                });
+            });
 
-        MIGRATIONS.forEach(([table, col, definition]) => {
-            db.run(`ALTER TABLE ${table} ADD COLUMN ${col} ${definition}`, (err) => {
-                // Ignore "duplicate column" errors
+            let migrationsCompleted = 0;
+            if (MIGRATIONS.length === 0) return resolve();
+
+            MIGRATIONS.forEach(([table, col, definition]) => {
+                db.run(`ALTER TABLE ${table} ADD COLUMN ${col} ${definition}`, (err) => {
+                    // Ignore "duplicate column" errors
+                    migrationsCompleted++;
+                    if (migrationsCompleted === MIGRATIONS.length) {
+                        resolve();
+                    }
+                });
             });
         });
     });

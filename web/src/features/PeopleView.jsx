@@ -1,7 +1,20 @@
 // ... imports
 import { useState, useMemo, useEffect } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
-// ... other imports
+import { 
+  Box, Typography, Sheet, Button, Input, FormControl, FormLabel, 
+  Stack, Avatar, IconButton, Divider, Tooltip, 
+  Grid, Card, CardContent, Chip, Tabs, TabList, Tab, Table
+} from '@mui/joy';
+import { 
+  Edit, Save, Delete, PersonAdd, UploadFile, MedicalServices, 
+  Description, Euro, HealthAndSafety, Pets, History,
+  Cake, VerifiedUser, Gavel, Shield, Payments, ContactPage, Add
+} from '@mui/icons-material';
+import { getEmojiColor } from '../theme';
+import EmojiPicker from '../components/EmojiPicker';
+import AppSelect from '../components/ui/AppSelect'; // Architect's Rule: Use Shared Components
+import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
 
 export default function PeopleView() {
   const { api, id: householdId, members, fetchHhMembers, user: currentUser, showNotification, confirmAction } = useOutletContext();
@@ -49,7 +62,6 @@ export default function PeopleView() {
     }
   }, [selectedPerson, personId]);
 
-  // ... (existing handleChange)
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -73,7 +85,6 @@ export default function PeopleView() {
     }
   };
 
-  // ... (existing handleDelete)
   const handleDelete = () => {
     confirmAction(
         "Remove Person",
@@ -226,13 +237,16 @@ export default function PeopleView() {
                     </Grid>
                     
                     <Grid xs={12} md={6}>
-                    <FormControl>
-                        <FormLabel>Role / Type</FormLabel>
-                        <Select name="type" value={formData.type} onChange={(e, v) => setFormData(prev => ({ ...prev, type: v }))}>
-                        <Option value="adult">Adult</Option>
-                        <Option value="child">Child</Option>
-                        </Select>
-                    </FormControl>
+                    <AppSelect 
+                        label="Role / Type"
+                        name="type"
+                        value={formData.type}
+                        onChange={(v) => setFormData(prev => ({ ...prev, type: v }))}
+                        options={[
+                            { value: 'adult', label: 'Adult' },
+                            { value: 'child', label: 'Child' }
+                        ]}
+                    />
                     </Grid>
                     <Grid xs={12} md={6}>
                         <FormControl>

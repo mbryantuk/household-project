@@ -77,7 +77,8 @@ function initGlobalDb() {
             ['address_street', 'TEXT'], ['address_city', 'TEXT'], ['address_zip', 'TEXT'],
             ['date_format', "TEXT DEFAULT 'MM/DD/YYYY'"], ['currency', "TEXT DEFAULT 'USD'"],
             ['decimals', 'INTEGER DEFAULT 2'], ['avatar', 'TEXT'],
-            ['auto_backup', 'BOOLEAN DEFAULT 1'], ['backup_retention', 'INTEGER DEFAULT 7']
+            ['auto_backup', 'BOOLEAN DEFAULT 1'], ['backup_retention', 'INTEGER DEFAULT 7'],
+            ['enabled_modules', 'TEXT']
         ];
         
         houseCols.forEach(([col, type]) => {

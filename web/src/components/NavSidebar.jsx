@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, 
-  IconButton, Divider, Box, Avatar, Typography, Tooltip
+  IconButton, Divider, Box, Avatar, Typography, Tooltip, Menu, MenuItem
 } from '@mui/joy';
 import {
   Event, Groups, Pets, HomeWork, DirectionsCar, RestaurantMenu,
-  Close, KeyboardArrowRight, ChevronLeft, KeyboardArrowUp, KeyboardArrowDown
+  Close, KeyboardArrowRight, ChevronLeft, KeyboardArrowUp, KeyboardArrowDown,
+  VisibilityOff
 } from '@mui/icons-material';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
@@ -15,7 +16,7 @@ import EmojiPicker from './EmojiPicker';
 const RAIL_WIDTH = 64; 
 const PANEL_WIDTH = 240;
 
-const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, activeCategory, handleNav, isMobile }) => {
+const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, activeCategory, handleNav, isMobile, onContextMenu }) => {
     const pathMatches = to && location.pathname.includes(to);
     const categoryMatches = activeCategory === category;
     const isActive = pathMatches || categoryMatches;
@@ -25,12 +26,17 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
         else handleNav(to, category, hasSubItems);
     };
 
+    const handleContextMenu = (e) => {
+        if (onContextMenu) onContextMenu(e, category);
+    };
+
     if (isMobile) {
         return (
           <ListItem sx={{ px: 0 }}>
               <ListItemButton 
                   selected={isActive}
                   onClick={handleClick}
+                  onContextMenu={handleContextMenu}
                   sx={{ 
                       borderRadius: 'sm', gap: 2,
                       '&.Mui-selected': { 
@@ -55,6 +61,7 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
               <ListItemButton 
                   selected={isActive}
                   onClick={handleClick}
+                  onContextMenu={handleContextMenu}
                   sx={{ 
                       borderRadius: 'md', justifyContent: 'center', px: 0, 
                       flexDirection: 'column', gap: 0.5, py: 1, width: 56, 
@@ -109,6 +116,8 @@ export default function NavSidebar({
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [canScrollUp, setCanScrollUp] = useState(false);
   const [canScrollDown, setCanScrollDown] = useState(false);
+  const [contextMenu, setContextMenu] = useState(null);
+  
   const scrollRef = React.useRef(null);
 
   // Enabled Modules
@@ -157,6 +166,40 @@ export default function NavSidebar({
           if (!hasSubItems && isMobile && onClose) onClose();
       }
       setActiveCategory(category);
+  };
+
+  const handleContextMenu = (event, category) => {
+    event.preventDefault();
+    setContextMenu(
+      contextMenu === null
+        ? {
+            mouseX: event.clientX + 2,
+            mouseY: event.clientY - 6,
+            category,
+          }
+        : null,
+    );
+  };
+
+  const handleCloseContextMenu = () => {
+    setContextMenu(null);
+  };
+
+  const handleHideModule = async () => {
+    if (!contextMenu?.category) return;
+    const moduleToHide = contextMenu.category;
+    const newModules = enabledModules.filter(m => m !== moduleToHide);
+
+    try {
+        await api.put(`/households/${household.id}`, { 
+            enabled_modules: JSON.stringify(newModules) 
+        });
+        showNotification(`${moduleToHide} module hidden.`, 'success');
+        setTimeout(() => window.location.reload(), 500); 
+    } catch (err) {
+        showNotification("Failed to update modules.", "danger");
+    }
+    handleCloseContextMenu();
   };
 
   const showPanel = activeCategory && ['people', 'pets', 'house', 'vehicles'].includes(activeCategory);
@@ -255,17 +298,47 @@ export default function NavSidebar({
                         <RailIcon icon={<Groups />} label="People" category="people" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                         
                         {enabledModules.includes('pets') && (
-                            <RailIcon icon={<Pets />} label="Pets" category="pets" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                            <RailIcon 
+                                icon={<Pets />} 
+                                label="Pets" 
+                                category="pets" 
+                                hasSubItems 
+                                location={location} 
+                                activeCategory={activeCategory} 
+                                handleNav={handleNav} 
+                                isMobile={isMobile}
+                                onContextMenu={handleContextMenu}
+                            />
                         )}
                         
                         <RailIcon icon={<HomeWork />} label="House" category="house" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                         
                         {enabledModules.includes('vehicles') && (
-                            <RailIcon icon={<DirectionsCar />} label="Vehicles" category="vehicles" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                            <RailIcon 
+                                icon={<DirectionsCar />} 
+                                label="Vehicles" 
+                                category="vehicles" 
+                                hasSubItems 
+                                location={location} 
+                                activeCategory={activeCategory} 
+                                handleNav={handleNav} 
+                                isMobile={isMobile} 
+                                onContextMenu={handleContextMenu}
+                            />
                         )}
 
                         {enabledModules.includes('meals') && (
-                            <RailIcon icon={<RestaurantMenu />} label="Meals" category="meals" to="meals" location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                            <RailIcon 
+                                icon={<RestaurantMenu />} 
+                                label="Meals" 
+                                category="meals" 
+                                to="meals" 
+                                location={location} 
+                                activeCategory={activeCategory} 
+                                handleNav={handleNav} 
+                                isMobile={isMobile} 
+                                onContextMenu={handleContextMenu}
+                            />
                         )}
                     </List>
                 </Box>
@@ -348,13 +421,23 @@ export default function NavSidebar({
                 </List>
             </Sheet>
         )}
-    </Box>
-  );
 
-  return (
-    <Box sx={{ display: 'flex', height: '100dvh', zIndex: 2500, position: 'relative', overflow: 'hidden' }}>
-        {sidebarContent}
-        <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(emoji) => { onUpdateProfile({ avatar: emoji }); setEmojiPickerOpen(false); }} title="Select Avatar Emoji" isDark={isDark} />
+        <Menu
+            open={!!contextMenu}
+            onClose={handleCloseContextMenu}
+            anchorReference="anchorPosition"
+            anchorPosition={
+              contextMenu !== null
+                ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+                : undefined
+            }
+            sx={{ zIndex: 9999 }}
+        >
+            <MenuItem onClick={handleHideModule} color="danger">
+                <ListItemDecorator><VisibilityOff /></ListItemDecorator>
+                Hide {contextMenu?.category}
+            </MenuItem>
+        </Menu>
     </Box>
   );
 }

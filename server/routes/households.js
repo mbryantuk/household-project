@@ -99,6 +99,7 @@ router.put('/households/:id', authenticateToken, async (req, res) => {
     if (avatar !== undefined) { fields.push('avatar = ?'); values.push(avatar); }
     if (auto_backup !== undefined) { fields.push('auto_backup = ?'); values.push(auto_backup ? 1 : 0); }
     if (backup_retention !== undefined) { fields.push('backup_retention = ?'); values.push(parseInt(backup_retention)); }
+    if (req.body.enabled_modules !== undefined) { fields.push('enabled_modules = ?'); values.push(req.body.enabled_modules); }
     
     if (fields.length === 0) return res.status(400).json({ error: "No fields to update" });
     

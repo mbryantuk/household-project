@@ -81,7 +81,7 @@ export default function SettingsView({
     setEnabledModules(newModules);
     
     try {
-        await api.put(`/households/${household.id}/details`, { 
+        await api.put(`/households/${household.id}`, { 
             enabled_modules: JSON.stringify(newModules) 
         });
         showNotification(`${module} module ${newModules.includes(module) ? 'enabled' : 'disabled'}.`, 'success');
@@ -251,11 +251,11 @@ export default function SettingsView({
                 overflow: 'auto', '&::-webkit-scrollbar': { display: 'none' }
             }}
           >
-            <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'}>User Access</Tab>
-            <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}>Appearance</Tab>
-            <Tab variant={activeTab === 4 ? 'solid' : 'plain'} color={activeTab === 4 ? 'primary' : 'neutral'}>Modules</Tab>
-            <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'}>Developers</Tab>
-            <Tab variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'}>About</Tab>
+            <Tab value={0} variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'}>User Access</Tab>
+            <Tab value={1} variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}>Appearance</Tab>
+            <Tab value={2} variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'}>Modules</Tab>
+            <Tab value={3} variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'}>Developers</Tab>
+            <Tab value={4} variant={activeTab === 4 ? 'solid' : 'plain'} color={activeTab === 4 ? 'primary' : 'neutral'}>About</Tab>
           </TabList>
 
           <Box sx={{ p: { xs: 2, md: 4 } }}>
@@ -334,7 +334,7 @@ export default function SettingsView({
                 </Box>
             )}
 
-            {activeTab === 4 && (
+            {activeTab === 2 && (
                 <Box>
                     <Box sx={{ mb: 4 }}>
                         <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Feature Modules</Typography>
@@ -369,7 +369,7 @@ export default function SettingsView({
                 </Box>
             )}
 
-            {activeTab === 2 && (
+            {activeTab === 3 && (
                 <Box>
                     <Box sx={{ mb: 4 }}>
                         <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Developer Tools</Typography>
@@ -395,7 +395,7 @@ export default function SettingsView({
                 </Box>
             )}
 
-            {activeTab === 3 && (
+            {activeTab === 4 && (
                 <Box sx={{ maxWidth: 800 }}>
                     <Box sx={{ mb: 4 }}>
                         <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>About TOTEM</Typography>

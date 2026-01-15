@@ -2,13 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [2.6.1] - 2026-01-15
 
 ### Added
-- **Vehicles:** Added `type` field to Vehicles (Car, Van, Truck, Boat, Motorbike, Bicycle, Other).
-- **Vehicles:** Added Grouping by Vehicle Type in the Fleet Management view.
-- **Pets:** Added Grouping by Species in the Pets & Animals view.
-- **Backend:** Added migration for `vehicles.type` column.
+- **Navigation:** Right-click context menu on sidebar items to quickly hide modules (Pets, Vehicles, Meals).
+
+### Fixed
+- **People:** Fixed "Box is not defined" crash by adding missing MUI imports.
+- **Settings:** Fixed navigation tab indexing to ensure the correct tab opens (e.g., About).
+- **Core:** Fixed module persistence issue. Enabled modules now persist correctly after reload (Added `enabled_modules` to global `households` schema).
 
 ## [1.0.0] - 2024-01-14
 ### Added
