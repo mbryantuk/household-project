@@ -233,14 +233,6 @@ export default function HouseholdLayout({
                 </Badge>
                 <Typography level="body-xs" sx={{ color: drawerOpen ? 'primary.plainColor' : 'neutral.plainColor', fontWeight: drawerOpen ? 'bold' : 'normal' }}>Menu</Typography>
             </Stack>
-
-            <Stack 
-                alignItems="center" spacing={0.5} onClick={onLogout}
-                sx={{ flex: 1, cursor: 'pointer', transition: 'transform 0.2s', '&:active': { transform: 'scale(0.95)' } }}
-            >
-                <Logout sx={{ color: 'danger.plainColor' }} />
-                <Typography level="body-xs" sx={{ color: 'danger.plainColor' }}>Logout</Typography>
-            </Stack>
         </Sheet>
       </Box>
 
@@ -273,6 +265,12 @@ export default function HouseholdLayout({
                         <MenuTile icon={<HouseIcon />} label="House" to={`house/${id}`} onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<SettingsIcon />} label="Settings" to="settings" onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<ProfileIcon />} label="Profile" to="profile" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile 
+                            icon={<Logout />} 
+                            label="Logout" 
+                            onClick={() => { onLogout(); setDrawerOpen(false); }} 
+                            sx={{ bgcolor: 'danger.softBg', color: 'danger.plainColor' }} 
+                        />
                         {households.length > 1 && (
                             <MenuTile icon={<SwapHoriz />} label="Switch" onClick={() => setActiveMenu('switch')} />
                         )}
