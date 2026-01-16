@@ -286,7 +286,7 @@ export default function BankingView() {
             <DialogContent>
                 <Typography level="body-sm" sx={{ mb: 2 }}>Who has access to {assignItem?.bank_name}?</Typography>
                 <Stack spacing={1}>
-                    {members.map(m => {
+                    {members.filter(m => m.type !== 'pet').map(m => {
                         const isAssigned = getAssignees(assignItem?.id).some(a => a.id === m.id);
                         return (
                             <Box key={m.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 'sm' }}>

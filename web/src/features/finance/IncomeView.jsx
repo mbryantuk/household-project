@@ -279,7 +279,7 @@ export default function IncomeView() {
                                 <AppSelect 
                                     name="member_id"
                                     defaultValue={editItem?.member_id}
-                                    options={members.map(m => ({ value: m.id, label: m.alias || m.name }))}
+                                    options={members.filter(m => m.type !== 'pet').map(m => ({ value: m.id, label: m.alias || m.name }))}
                                     placeholder="Select Person..."
                                 />
                             </FormControl>
