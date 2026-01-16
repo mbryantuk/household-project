@@ -21,7 +21,7 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const WIDGET_TYPES = {
   birthdays: { component: BirthdaysWidget, label: 'Upcoming Birthdays', defaultH: 4, defaultW: 6 },
-  events: { component: EventsWidget, label: 'Upcoming Events', defaultH: 4, defaultW: 6 },
+  events: { component: EventsWidget, label: 'Calendar', defaultH: 4, defaultW: 6 },
   costs: { component: HomeRecurringCostsWidget, label: 'Monthly Costs', defaultH: 4, defaultW: 6 },
   vehicles: { component: VehiclesWidget, label: 'Fleet Status', defaultH: 4, defaultW: 6 },
   notes: { component: NotesWidget, label: 'Sticky Note', defaultH: 4, defaultW: 4 },

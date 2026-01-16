@@ -42,7 +42,7 @@ export default function EventsWidget({ dates }) {
   }, [dates, today]);
 
   return (
-    <WidgetWrapper title="Upcoming Events" icon={<EventIcon />} color="neutral"> 
+    <WidgetWrapper title="Calendar" icon={<EventIcon />} color="neutral"> 
       {upcomingEvents.length > 0 ? (
         <Stack spacing={1.5}>
           {upcomingEvents.map((e) => (

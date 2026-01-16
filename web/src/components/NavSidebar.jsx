@@ -229,7 +229,7 @@ export default function NavSidebar({
                 </Box>
                 
                 <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0, mb: 1 }}>
-                    <RailIcon icon={<Event />} label="Events" category="calendar" to="calendar" location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                    <RailIcon icon={<Event />} label="Calendar" category="calendar" to="calendar" location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                 </List>
                 <Divider sx={{ mb: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
             </Box>
