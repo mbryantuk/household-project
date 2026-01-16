@@ -167,4 +167,63 @@ describe('Feature: Expanded Financial Management', () => {
         });
     });
 
+    describe('Current Accounts', () => {
+        let accountId;
+        it('should create current account', async () => {
+            const res = await request(app).post(`/households/${householdId}/finance/current-accounts`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({ bank_name: 'HSBC', account_name: 'Main', current_balance: 1500, overdraft_limit: 500 });
+            expect(res.statusCode).toBe(200);
+            accountId = res.body.id;
+        });
+        
+        it('should update current account', async () => {
+            const res = await request(app).put(`/households/${householdId}/finance/current-accounts/${accountId}`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({ current_balance: 1200 });
+            expect(res.statusCode).toBe(200);
+        });
+
+        it('should delete current account', async () => {
+            await request(app).delete(`/households/${householdId}/finance/current-accounts/${accountId}`).set('Authorization', `Bearer ${token}`);
+        });
+    });
+
+    describe('Assignments', () => {
+        let memberId;
+        let accountId;
+
+        it('should setup member and account for assignment', async () => {
+            // Get Member
+            const mRes = await request(app).get(`/households/${householdId}/members`).set('Authorization', `Bearer ${token}`);
+            memberId = mRes.body[0].id; // The admin created during registration usually creates a self-member or we use the first one
+
+            // Create Account
+            const cRes = await request(app).post(`/households/${householdId}/finance/current-accounts`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({ bank_name: 'AssignTest', account_name: 'Joint', current_balance: 100 });
+            accountId = cRes.body.id;
+        });
+
+        it('should assign member to account', async () => {
+            const res = await request(app).post(`/households/${householdId}/finance/assignments`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({ entity_type: 'current_account', entity_id: accountId, member_id: memberId });
+            expect(res.statusCode).toBe(200);
+        });
+
+        it('should list assignments', async () => {
+             const res = await request(app).get(`/households/${householdId}/finance/assignments?entity_type=current_account&entity_id=${accountId}`)
+                .set('Authorization', `Bearer ${token}`);
+             expect(res.body.length).toBe(1);
+             expect(res.body[0].member_id).toBe(memberId);
+        });
+
+        it('should unassign member', async () => {
+             const res = await request(app).delete(`/households/${householdId}/finance/assignments/current_account/${accountId}/${memberId}`)
+                .set('Authorization', `Bearer ${token}`);
+             expect(res.statusCode).toBe(200);
+        });
+    });
+
 });

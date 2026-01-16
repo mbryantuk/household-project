@@ -190,6 +190,21 @@
       "put": { "summary": "Update investment", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
       "delete": { "summary": "Delete investment", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
     },
+    "/households/{id}/finance/current-accounts": {
+      "get": { "summary": "List current accounts", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Create current account", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    },
+    "/households/{id}/finance/current-accounts/{itemId}": {
+      "put": { "summary": "Update current account", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
+      "delete": { "summary": "Delete current account", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
+    },
+    "/households/{id}/finance/assignments": {
+      "get": { "summary": "List assignments", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "query", "name": "entity_type", "schema": { "type": "string" } }, { "in": "query", "name": "entity_id", "schema": { "type": "integer" } }, { "in": "query", "name": "member_id", "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Assign member to entity", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Assigned" } } }
+    },
+    "/households/{id}/finance/assignments/{entity_type}/{entity_id}/{member_id}": {
+      "delete": { "summary": "Unassign member from entity", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "entity_type", "required": true, "schema": { "type": "string" } }, { "in": "path", "name": "entity_id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "member_id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Unassigned" } } }
+    },
     "/households/{id}/meals": {
       "get": { "summary": "List meals", "tags": ["Meals"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
       "post": { "summary": "Create meal", "tags": ["Meals"], "description": "Admin/Member", "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }

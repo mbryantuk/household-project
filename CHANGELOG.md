@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.35] - 2026-01-16
+
+### Added
+- **Finance:** Added `finance_current_accounts` table for tracking bank accounts, overdrafts, and balances.
+- **Finance:** Added API endpoints for Current Accounts CRUD operations.
+- **Finance:** Added API endpoints for linking financial entities (Assignments) to household members.
+
 ## [2.6.34] - 2026-01-16
 
 ### Fixed

@@ -271,6 +271,18 @@ const TENANT_SCHEMA = [
         notes TEXT,
         FOREIGN KEY (savings_id) REFERENCES finance_savings(id) ON DELETE CASCADE
     )`,
+    `CREATE TABLE IF NOT EXISTS finance_current_accounts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        bank_name TEXT,
+        account_name TEXT,
+        account_number TEXT, -- Encrypted
+        sort_code TEXT, -- Encrypted
+        overdraft_limit REAL DEFAULT 0,
+        current_balance REAL DEFAULT 0,
+        emoji TEXT,
+        notes TEXT
+    )`,
     `CREATE TABLE IF NOT EXISTS finance_credit_cards (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
@@ -349,7 +361,7 @@ const TENANT_SCHEMA = [
     )`,
     `CREATE TABLE IF NOT EXISTS finance_assignments (
         household_id INTEGER,
-        entity_type TEXT, -- income, savings, credit_card, loan, mortgage, pension, investment
+        entity_type TEXT, -- income, savings, credit_card, loan, mortgage, pension, investment, current_account
         entity_id INTEGER,
         member_id INTEGER,
         PRIMARY KEY (entity_type, entity_id, member_id)
