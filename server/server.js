@@ -21,6 +21,7 @@ const adminRoutes = require('./routes/admin');
 const calendarRoutes = require('./routes/calendar');
 const detailsRoutes = require('./routes/details');
 const mealRoutes = require('./routes/meals');
+const financeRoutes = require('./routes/finance');
 
 const { createBackup, cleanOldBackups } = require('./services/backup');
 
@@ -70,6 +71,7 @@ app.use('/', memberRoutes);
 app.use('/', calendarRoutes);
 app.use('/', detailsRoutes);
 app.use('/', mealRoutes);
+app.use('/', financeRoutes);
 
 app.get('/system/status', (req, res) => {
     globalDb.get("SELECT COUNT(*) as count FROM users", [], (err, row) => {
