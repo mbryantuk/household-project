@@ -161,7 +161,7 @@ export default function NavSidebar({
       setActiveCategory(category);
   };
 
-  const showPanel = activeCategory && ['people', 'assets', 'vehicles'].includes(activeCategory);
+  const showPanel = activeCategory && ['people', 'assets', 'vehicles', 'finance'].includes(activeCategory);
 
   // Grouping Logic
   const groupedPets = useMemo(() => {
@@ -258,7 +258,7 @@ export default function NavSidebar({
                         
                         <RailIcon icon={<Inventory2 />} label="Assets" category="assets" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                         
-                        <RailIcon icon={<AccountBalance />} label="Finance" category="finance" to="finance" location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                        <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                         
                         {enabledModules.includes('meals') && (
                             <RailIcon 
@@ -368,6 +368,26 @@ export default function NavSidebar({
                                     <Divider sx={{ my: 1 }} /><SubItem label="Add New Vehicle" to="vehicles/new" isDark={isDark} />
                                 </>
                             )}
+                        </>
+                    )}
+                    {activeCategory === 'finance' && (
+                        <>
+                            <GroupHeader label="Overview" />
+                            <SubItem label="Budget" to="finance?tab=budget" emoji="📊" isDark={isDark} />
+                            
+                            <Divider sx={{ my: 1 }} />
+                            <GroupHeader label="Accounts" />
+                            <SubItem label="Income" to="finance?tab=income" emoji="💰" isDark={isDark} />
+                            <SubItem label="Banking" to="finance?tab=banking" emoji="🏦" isDark={isDark} />
+                            <SubItem label="Savings" to="finance?tab=savings" emoji="🐷" isDark={isDark} />
+                            <SubItem label="Investments" to="finance?tab=invest" emoji="📈" isDark={isDark} />
+                            <SubItem label="Pensions" to="finance?tab=pensions" emoji="👴" isDark={isDark} />
+
+                            <Divider sx={{ my: 1 }} />
+                            <GroupHeader label="Liabilities" />
+                            <SubItem label="Credit Cards" to="finance?tab=credit" emoji="💳" isDark={isDark} />
+                            <SubItem label="Loans" to="finance?tab=loans" emoji="📝" isDark={isDark} />
+                            <SubItem label="Mortgages" to="finance?tab=mortgage" emoji="🏠" isDark={isDark} />
                         </>
                     )}
                 </List>

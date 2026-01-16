@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.38] - 2026-01-16
+
+### Changed
+- **Navigation:** Refactored Finance module navigation to use the side menu (Rail + Panel) pattern, consistent with People and Assets modules. Removed the top Category Bar.
+
 ## [2.6.37] - 2026-01-16
 
 ### Added

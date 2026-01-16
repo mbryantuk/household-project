@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Box, Typography, Tabs, TabList, Tab, Sheet } from '@mui/joy';
+import React, { useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
+import { Box, Typography, Sheet } from '@mui/joy';
 import { 
   Payments, 
   AccountBalance, 
@@ -29,63 +30,36 @@ const ComingSoonPlaceholder = ({ title, icon: Icon }) => (
 );
 
 export default function FinanceView() {
-  const [activeTab, setActiveTab] = useState(0);
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const tab = queryParams.get('tab') || 'budget';
 
-  const tabs = [
-    { label: 'Income', icon: Payments },
-    { label: 'Banking', icon: AccountBalance },
-    { label: 'Savings', icon: Savings },
-    { label: 'Credit', icon: CreditCard },
-    { label: 'Loans', icon: RequestQuote },
-    { label: 'Mortgage', icon: Home },
-    { label: 'Invest', icon: TrendingUp },
-    { label: 'Pensions', icon: HourglassBottom },
-    { label: 'Budget', icon: PieChart },
-  ];
+  const viewMap = useMemo(() => ({
+    income: { label: 'Income Sources', icon: Payments, desc: 'Manage your salary and other income streams.' },
+    banking: { label: 'Current Accounts', icon: AccountBalance, desc: 'Track daily spending accounts and overdrafts.' },
+    savings: { label: 'Savings & Pots', icon: Savings, desc: 'Monitor savings goals and rainy day funds.' },
+    credit: { label: 'Credit Cards', icon: CreditCard, desc: 'Track credit utilization and repayments.' },
+    loans: { label: 'Personal Loans', icon: RequestQuote, desc: 'Manage unsecured debts and repayment schedules.' },
+    mortgage: { label: 'Mortgages', icon: Home, desc: 'Track property loans and equity.' },
+    invest: { label: 'Investments', icon: TrendingUp, desc: 'Monitor stocks, bonds, and crypto assets.' },
+    pensions: { label: 'Pensions', icon: HourglassBottom, desc: 'Plan for your future retirement.' },
+    budget: { label: 'Budget Overview', icon: PieChart, desc: 'Analyze your financial health and spending limits.' },
+  }), []);
+
+  const activeView = viewMap[tab] || viewMap.budget;
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       {/* Header */}
       <Box sx={{ mb: 4 }}>
-        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Finance</Typography>
-        <Typography level="body-md" color="neutral">Manage your household wealth, debts, and budgets.</Typography>
+        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>{activeView.label}</Typography>
+        <Typography level="body-md" color="neutral">{activeView.desc}</Typography>
       </Box>
-
-      {/* Category Bar */}
-      <Tabs 
-        value={activeTab} 
-        onChange={(e, v) => setActiveTab(v)} 
-        sx={{ bgcolor: 'transparent' }}
-      >
-        <TabList 
-          sx={{ 
-            p: 0.5, 
-            gap: 0.5, 
-            borderRadius: 'xl', 
-            bgcolor: 'background.level1', 
-            overflow: 'auto',
-            scrollSnapType: 'x mandatory',
-            '&::-webkit-scrollbar': { display: 'none' }
-          }}
-        >
-          {tabs.map((tab, index) => (
-            <Tab 
-              key={index}
-              variant={activeTab === index ? 'solid' : 'plain'} 
-              color={activeTab === index ? 'primary' : 'neutral'} 
-              sx={{ flex: 'none', scrollSnapAlign: 'start', borderRadius: 'md' }}
-            >
-              <tab.icon sx={{ mr: 1 }}/> {tab.label}
-            </Tab>
-          ))}
-        </TabList>
-      </Tabs>
 
       {/* Content Area */}
       <Sheet 
         variant="outlined" 
         sx={{ 
-          mt: 2, 
           borderRadius: 'md', 
           p: 2, 
           minHeight: '500px',
@@ -93,8 +67,8 @@ export default function FinanceView() {
         }}
       >
         <ComingSoonPlaceholder 
-          title={tabs[activeTab].label} 
-          icon={tabs[activeTab].icon} 
+          title={activeView.label} 
+          icon={activeView.icon} 
         />
       </Sheet>
     </Box>
