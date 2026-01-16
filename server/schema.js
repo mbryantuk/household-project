@@ -242,13 +242,22 @@ const TENANT_SCHEMA = [
     `CREATE TABLE IF NOT EXISTS finance_income (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
-        source TEXT,
-        amount REAL,
+        member_id INTEGER, -- Assigned Person
+        bank_account_id INTEGER, -- Linked Bank Account
+        employer TEXT,
+        role TEXT,
+        employment_type TEXT, -- self_employed, contractor, employed, retired, unemployed
+        work_type TEXT, -- full_time, part_time
+        gross_annual_salary REAL,
+        addons TEXT, -- JSON or text description of bonuses/stock
+        amount REAL, -- Net amount received (Takehome)
         frequency TEXT, -- monthly, weekly, bi-weekly
         payment_day INTEGER,
         emoji TEXT,
         is_active INTEGER DEFAULT 1,
-        notes TEXT
+        notes TEXT,
+        FOREIGN KEY(member_id) REFERENCES members(id) ON DELETE SET NULL,
+        FOREIGN KEY(bank_account_id) REFERENCES finance_current_accounts(id) ON DELETE SET NULL
     )`,
     `CREATE TABLE IF NOT EXISTS finance_savings (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

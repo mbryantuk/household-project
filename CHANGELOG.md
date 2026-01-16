@@ -2,7 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.6.38] - 2026-01-16
+## [2.6.41] - 2026-01-16
+
+### Added
+- **Finance:** Implemented functional `IncomeView` for tracking employment and salary details.
+- **Finance:** Implemented `BankingView` for managing Current Accounts with multi-user assignment support.
+- **Schema:** Extended `finance_income` table to support detailed employment data (Employer, Role, Type, Gross Salary, etc.) and direct assignment to members/bank accounts.
+
+## [2.6.40] - 2026-01-16
 
 ### Changed
 - **Navigation:** Refactored Finance module navigation to use the side menu (Rail + Panel) pattern, consistent with People and Assets modules. Removed the top Category Bar.

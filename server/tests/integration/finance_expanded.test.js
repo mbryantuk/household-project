@@ -49,19 +49,27 @@ describe('Feature: Expanded Financial Management', () => {
         it('should create income source', async () => {
             const res = await request(app).post(`/households/${householdId}/finance/income`)
                 .set('Authorization', `Bearer ${token}`)
-                .send({ source: 'Salary', amount: 2500, frequency: 'monthly' });
+                .send({ 
+                    employer: 'Tech Corp', 
+                    role: 'Developer', 
+                    employment_type: 'employed',
+                    work_type: 'full_time',
+                    gross_annual_salary: 60000,
+                    amount: 3500, // Net
+                    frequency: 'monthly' 
+                });
             expect(res.statusCode).toBe(200);
             itemId = res.body.id;
         });
         it('should list income', async () => {
             const res = await request(app).get(`/households/${householdId}/finance/income`).set('Authorization', `Bearer ${token}`);
             expect(res.body.length).toBeGreaterThan(0);
-            expect(res.body[0].source).toBe('Salary');
+            expect(res.body[0].employer).toBe('Tech Corp');
         });
         it('should update income', async () => {
             await request(app).put(`/households/${householdId}/finance/income/${itemId}`)
                 .set('Authorization', `Bearer ${token}`)
-                .send({ amount: 3000 });
+                .send({ amount: 3800 });
         });
         it('should delete income', async () => {
             await request(app).delete(`/households/${householdId}/finance/income/${itemId}`).set('Authorization', `Bearer ${token}`);

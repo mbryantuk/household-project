@@ -13,6 +13,9 @@ import {
   PieChart 
 } from '@mui/icons-material';
 
+import IncomeView from './finance/IncomeView';
+import BankingView from './finance/BankingView';
+
 const ComingSoonPlaceholder = ({ title, icon: Icon }) => (
   <Box sx={{ 
     display: 'flex', 
@@ -34,9 +37,10 @@ export default function FinanceView() {
   const queryParams = new URLSearchParams(location.search);
   const tab = queryParams.get('tab') || 'budget';
 
+  if (tab === 'income') return <IncomeView />;
+  if (tab === 'banking') return <BankingView />;
+
   const viewMap = useMemo(() => ({
-    income: { label: 'Income Sources', icon: Payments, desc: 'Manage your salary and other income streams.' },
-    banking: { label: 'Current Accounts', icon: AccountBalance, desc: 'Track daily spending accounts and overdrafts.' },
     savings: { label: 'Savings & Pots', icon: Savings, desc: 'Monitor savings goals and rainy day funds.' },
     credit: { label: 'Credit Cards', icon: CreditCard, desc: 'Track credit utilization and repayments.' },
     loans: { label: 'Personal Loans', icon: RequestQuote, desc: 'Manage unsecured debts and repayment schedules.' },
@@ -49,7 +53,7 @@ export default function FinanceView() {
   const activeView = viewMap[tab] || viewMap.budget;
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 } }}>
+    <Box>
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>{activeView.label}</Typography>
