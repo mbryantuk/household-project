@@ -84,7 +84,7 @@ router.get('/households/:id/members/:itemId', authenticateToken, requireHousehol
 });
 
 // 3. ADD MEMBER
-router.post('/households/:id/members', authenticateToken, requireHouseholdRole('admin'), useTenantDb, (req, res) => {
+router.post('/households/:id/members', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     // ... name logic remains same ...
     if (!req.body.name && req.body.first_name) {
         req.body.name = [req.body.first_name, req.body.middle_name, req.body.last_name].filter(Boolean).join(' ');
@@ -136,7 +136,7 @@ router.post('/households/:id/members', authenticateToken, requireHouseholdRole('
 });
 
 // 4. UPDATE MEMBER
-router.put('/households/:id/members/:itemId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, (req, res) => {
+router.put('/households/:id/members/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     const itemId = req.params.itemId;
 
     if (req.body.first_name || req.body.last_name) {
@@ -190,7 +190,7 @@ router.put('/households/:id/members/:itemId', authenticateToken, requireHousehol
 });
 
 // 5. DELETE MEMBER
-router.delete('/households/:id/members/:itemId', authenticateToken, requireHouseholdRole('admin'), useTenantDb, (req, res) => {
+router.delete('/households/:id/members/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     req.tenantDb.run(`DELETE FROM members WHERE id = ? AND household_id = ?`, [req.params.itemId, req.hhId], function(err) {
         if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
         // Also delete their birthday

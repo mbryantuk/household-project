@@ -1,11 +1,11 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Household Manager API",
-    "version": "1.4.0",
-    "description": "Multi-tenant household management API with Asset-First approach and Financial Integration.",
+    "title": "Totem Household SaaS API",
+    "version": "2.6.25",
+    "description": "Multi-tenant household management API with strict data isolation and RBAC. Admins have full rights, Members have object CRUD except for household management, and Viewers are read-only.",
     "contact": {
-      "name": "DevOps Engineer"
+      "name": "SaaS Architect"
     }
   },
   "servers": [
@@ -20,6 +20,18 @@
       }
     },
     "schemas": {
+      "Household": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "address_street": { "type": "string" },
+          "address_city": { "type": "string" },
+          "address_zip": { "type": "string" },
+          "currency": { "type": "string" },
+          "date_format": { "type": "string" }
+        }
+      },
       "Meal": {
         "type": "object",
         "properties": {
@@ -36,7 +48,8 @@
           "date": { "type": "string", "format": "date" },
           "member_id": { "type": "integer" },
           "meal_id": { "type": "integer" },
-          "type": { "type": "string", "enum": ["breakfast", "lunch", "dinner", "snack"] }
+          "type": { "type": "string", "enum": ["breakfast", "lunch", "dinner"] },
+          "notes": { "type": "string" }
         }
       },
       "RecurringCost": {
@@ -58,30 +71,8 @@
           "make": { "type": "string" },
           "model": { "type": "string" },
           "registration": { "type": "string" },
-          "year": { "type": "integer" },
-          "mot_due": { "type": "string" },
-          "tax_due": { "type": "string" }
-        }
-      },
-      "Asset": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "integer" },
-          "name": { "type": "string" },
-          "category": { "type": "string" },
-          "purchase_date": { "type": "string" },
-          "warranty_expiry": { "type": "string" },
           "purchase_value": { "type": "number" },
-          "replacement_cost": { "type": "number" }
-        }
-      },
-      "HouseDetails": {
-        "type": "object",
-        "properties": {
-          "name": { "type": "string" },
-          "address": { "type": "string" },
-          "property_type": { "type": "string" },
-          "bedrooms": { "type": "integer" }
+          "mot_due": { "type": "string", "format": "date" }
         }
       }
     }
@@ -90,7 +81,7 @@
   "paths": {
     "/auth/register": {
       "post": {
-        "summary": "Register new tenant",
+        "summary": "Register new user and first household",
         "tags": ["Auth"],
         "requestBody": {
           "content": { "application/json": { "schema": { "type": "object", "required": ["email", "password", "householdName"], "properties": { "email": { "type": "string" }, "password": { "type": "string" }, "householdName": { "type": "string" } } } } }
@@ -103,182 +94,53 @@
         "summary": "Login",
         "tags": ["Auth"],
         "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": ["password"],
-                "properties": {
-                  "email": { "type": "string" },
-                  "username": { "type": "string" },
-                  "password": { "type": "string" }
-                }
-              }
-            }
-          }
-        },
-        "responses": { "200": { "description": "OK" } }
+          "content": { "application/json": { "schema": { "type": "object", "required": ["password"], "properties": { "email": { "type": "string" }, "username": { "type": "string" }, "password": { "type": "string" } } } } },
+          "responses": { "200": { "description": "OK" } }
+        }
       }
     },
-    "/auth/profile": {
-      "get": { "summary": "Get User Profile", "tags": ["Auth"], "responses": { "200": { "description": "OK" } } },
-      "put": { "summary": "Update Profile", "tags": ["Auth"], "responses": { "200": { "description": "Updated" } } }
-    },
-    "/households/{id}/meals": {
-      "get": {
-        "summary": "List meals",
-        "tags": ["Meals"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "List of meals" } }
-      },
+    "/households": {
       "post": {
-        "summary": "Create meal",
-        "tags": ["Meals"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Meal" } } } },
-        "responses": { "200": { "description": "Created" } }
+        "summary": "Create a new household",
+        "tags": ["Households"],
+        "description": "Any authenticated user can create a new household. They become Admin of that household.",
+        "requestBody": { "content": { "application/json": { "schema": { "type": "object", "required": ["name"], "properties": { "name": { "type": "string" } } } } } },
+        "responses": { "201": { "description": "Created" } }
       }
     },
-    "/households/{id}/meals/{mealId}": {
+    "/households/{id}": {
+      "get": {
+        "summary": "Get household details",
+        "tags": ["Households"],
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      },
       "put": {
-        "summary": "Update meal",
-        "tags": ["Meals"],
-        "parameters": [
-          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
-          { "in": "path", "name": "mealId", "required": true, "schema": { "type": "integer" } }
-        ],
-        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Meal" } } } },
+        "summary": "Update household details",
+        "tags": ["Households"],
+        "description": "Only Admin can update.",
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
         "responses": { "200": { "description": "Updated" } }
       },
       "delete": {
-        "summary": "Delete meal",
-        "tags": ["Meals"],
-        "parameters": [
-          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
-          { "in": "path", "name": "mealId", "required": true, "schema": { "type": "integer" } }
-        ],
+        "summary": "Delete household and all its data",
+        "tags": ["Households"],
+        "description": "Only Admin can delete.",
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
         "responses": { "200": { "description": "Deleted" } }
       }
     },
+    "/households/{id}/meals": {
+      "get": { "summary": "List meals", "tags": ["Meals"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Create meal", "tags": ["Meals"], "description": "Admin/Member", "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    },
     "/households/{id}/meal-plans": {
-      "get": {
-        "summary": "Get meal plans",
-        "tags": ["Meals"],
-        "parameters": [
-          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
-          { "in": "query", "name": "start", "schema": { "type": "string", "format": "date" } },
-          { "in": "query", "name": "end", "schema": { "type": "string", "format": "date" } }
-        ],
-        "responses": { "200": { "description": "List of plans" } }
-      },
-      "post": {
-        "summary": "Assign meal",
-        "tags": ["Meals"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MealPlan" } } } },
-        "responses": { "200": { "description": "Created" } }
-      }
-    },
-    "/households/{id}/meal-plans/copy-previous": {
-      "post": {
-        "summary": "Copy plans from previous week",
-        "tags": ["Meals"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "requestBody": { "content": { "application/json": { "schema": { "type": "object", "required": ["targetDate"], "properties": { "targetDate": { "type": "string", "format": "date" } } } } } },
-        "responses": { "200": { "description": "Copied" } }
-      }
-    },
-    "/households/{id}/details": {
-      "get": {
-        "summary": "Get house details",
-        "tags": ["Details"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "OK" } }
-      },
-      "put": {
-        "summary": "Update house details",
-        "tags": ["Details"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HouseDetails" } } } },
-        "responses": { "200": { "description": "Updated" } }
-      }
+      "get": { "summary": "Get meal plans (optional range)", "tags": ["Meals"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "query", "name": "start", "schema": { "type": "string", "format": "date" } }, { "in": "query", "name": "end", "schema": { "type": "string", "format": "date" } }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Assign meal to plan", "tags": ["Meals"], "description": "Admin/Member", "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Assigned" } } }
     },
     "/households/{id}/vehicles": {
-      "get": {
-        "summary": "List all vehicles",
-        "tags": ["Assets"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "OK" } }
-      },
-      "post": {
-        "summary": "Create a vehicle",
-        "tags": ["Assets"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "requestBody": {
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Vehicle" } } }
-        },
-        "responses": { "200": { "description": "Created" } }
-      }
-    },
-    "/households/{id}/assets": {
-      "get": {
-        "summary": "List all assets",
-        "tags": ["Assets"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "OK" } }
-      },
-      "post": {
-        "summary": "Create an asset",
-        "tags": ["Assets"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "requestBody": {
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Asset" } } }
-        },
-        "responses": { "200": { "description": "Created" } }
-      }
-    },
-    "/households/{id}/energy": {
-      "get": {
-        "summary": "List energy accounts",
-        "tags": ["Details"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "OK" } }
-      },
-      "post": {
-        "summary": "Create energy account",
-        "tags": ["Details"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "Created" } }
-      }
-    },
-    "/households/{id}/waste": {
-      "get": {
-        "summary": "List waste collections",
-        "tags": ["Details"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "OK" } }
-      },
-      "post": {
-        "summary": "Create waste collection",
-        "tags": ["Details"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "Created" } }
-      }
-    },
-    "/households/{id}/costs": {
-      "get": {
-        "summary": "List recurring costs",
-        "tags": ["Finance"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "OK" } }
-      },
-      "post": {
-        "summary": "Create recurring cost",
-        "tags": ["Finance"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RecurringCost" } } } },
-        "responses": { "200": { "description": "Created" } }
-      }
+      "get": { "summary": "List vehicles", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Create vehicle", "tags": ["Assets"], "description": "Admin/Member", "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
     }
   }
 }

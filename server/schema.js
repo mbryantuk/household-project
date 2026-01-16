@@ -1,306 +1,383 @@
-const { verbose } = require('sqlite3');
+const GLOBAL_SCHEMA = [
+    `CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT UNIQUE,
+        username TEXT UNIQUE,
+        password_hash TEXT,
+        first_name TEXT,
+        last_name TEXT,
+        avatar TEXT,
+        system_role TEXT DEFAULT 'user',
+        dashboard_layout TEXT,
+        sticky_note TEXT,
+        theme TEXT DEFAULT 'totem',
+        default_household_id INTEGER,
+        is_active INTEGER DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE TABLE IF NOT EXISTS households (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        address_street TEXT,
+        address_city TEXT,
+        address_zip TEXT,
+        avatar TEXT,
+        date_format TEXT DEFAULT 'DD/MM/YYYY',
+        currency TEXT DEFAULT 'GBP',
+        decimals INTEGER DEFAULT 2,
+        enabled_modules TEXT DEFAULT '["pets", "vehicles", "meals"]',
+        auto_backup INTEGER DEFAULT 1,
+        backup_retention INTEGER DEFAULT 7,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE TABLE IF NOT EXISTS user_households (
+        user_id INTEGER,
+        household_id INTEGER,
+        role TEXT DEFAULT 'member',
+        is_active INTEGER DEFAULT 1,
+        joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (user_id, household_id)
+    )`
+];
 
-/**
- * Defines the schema for a standard Household Database.
- * Every data model includes household_id for multi-tenancy enforcement.
- * Assets, Vehicles, People, and Pets include financial fields for budget integration.
- */
-
-const SCHEMA_DEFINITIONS = [
-    // NOTE: 'users' table is now GLOBAL (see server/db.js)
-
-    // --- MEMBERS TABLE (People & Pets) ---
+const TENANT_SCHEMA = [
     `CREATE TABLE IF NOT EXISTS members (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
-        name TEXT, -- Keeping for backward compatibility (computed or filled)
+        name TEXT,
         first_name TEXT,
         middle_name TEXT,
         last_name TEXT,
-        type TEXT DEFAULT 'adult', -- adult, child, pet, viewer
-        notes TEXT,
-        alias TEXT, 
-        dob TEXT, 
-        species TEXT, 
-        breed TEXT, 
-        gender TEXT,
+        alias TEXT,
+        type TEXT, -- adult, child, pet
+        species TEXT, -- for pets
         emoji TEXT,
-        avatar TEXT,
-        -- People Specific (Asset-First)
-        will_details TEXT,
-        life_insurance_provider TEXT,
-        life_insurance_premium REAL DEFAULT 0,
-        life_insurance_expiry TEXT,
-        -- Pet Specific (Asset-First)
-        pet_insurance_provider TEXT,
-        pet_insurance_premium REAL DEFAULT 0,
-        pet_insurance_expiry TEXT,
-        food_monthly_cost REAL DEFAULT 0,
-        microchip_number TEXT
+        color TEXT,
+        dob TEXT, -- Encrypted
+        birth_date DATE, -- Legacy/Plain
+        will_details TEXT, -- Encrypted
+        life_insurance_provider TEXT, -- Encrypted
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
-
-    // --- RECURRING / MISC COSTS (Centralized for Budgeting) ---
+    `CREATE TABLE IF NOT EXISTS vehicles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        make TEXT,
+        model TEXT,
+        registration TEXT, -- Encrypted
+        type TEXT, -- Car, Van, etc.
+        emoji TEXT,
+        purchase_date DATE,
+        purchase_value REAL,
+        replacement_cost REAL,
+        monthly_maintenance_cost REAL,
+        depreciation_rate REAL,
+        mot_due DATE,
+        tax_due DATE,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE TABLE IF NOT EXISTS vehicle_services (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        vehicle_id INTEGER,
+        date DATE,
+        description TEXT,
+        cost REAL,
+        mileage INTEGER,
+        notes TEXT,
+        FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
+    )`,
+    `CREATE TABLE IF NOT EXISTS vehicle_finance (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        vehicle_id INTEGER,
+        provider TEXT,
+        account_number TEXT, -- Encrypted
+        monthly_payment REAL,
+        start_date DATE,
+        end_date DATE,
+        notes TEXT,
+        FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
+    )`,
+    `CREATE TABLE IF NOT EXISTS vehicle_insurance (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        vehicle_id INTEGER,
+        provider TEXT,
+        policy_number TEXT, -- Encrypted
+        renewal_date DATE,
+        premium REAL,
+        notes TEXT,
+        FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
+    )`,
+    `CREATE TABLE IF NOT EXISTS assets (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        name TEXT,
+        category TEXT,
+        emoji TEXT,
+        purchase_date DATE,
+        purchase_value REAL,
+        replacement_cost REAL,
+        location TEXT,
+        serial_number TEXT, -- Encrypted
+        warranty_expiry DATE,
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
     `CREATE TABLE IF NOT EXISTS recurring_costs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
-        parent_type TEXT NOT NULL, -- person, pet, vehicle, house, general
+        parent_type TEXT, -- house, vehicle, member, general
         parent_id INTEGER,
-        name TEXT NOT NULL,
-        amount REAL DEFAULT 0,
-        frequency TEXT DEFAULT 'Monthly', -- Daily, Weekly, Biweekly, Monthly, Yearly
-        payment_day INTEGER, -- 1-31 or day of week
-        nearest_working_day BOOLEAN DEFAULT 0,
-        category TEXT, -- insurance, food, tax, misc
-        notes TEXT
+        name TEXT,
+        amount REAL,
+        frequency TEXT, -- monthly, annual, weekly
+        category TEXT, -- insurance, tax, service, utility
+        payment_day INTEGER,
+        last_paid DATE,
+        next_due DATE,
+        is_active INTEGER DEFAULT 1,
+        notes TEXT,
+        nearest_working_day INTEGER DEFAULT 1
     )`,
-
-    // --- DATES TABLE ---
     `CREATE TABLE IF NOT EXISTS dates (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
-        title TEXT NOT NULL,
-        date TEXT NOT NULL,
-        end_date TEXT,
-        is_all_day BOOLEAN DEFAULT 1,
-        type TEXT DEFAULT 'event',
+        title TEXT,
+        date DATE,
+        end_date DATE,
+        type TEXT, -- holiday, birthday, renewal, task
+        parent_type TEXT,
+        parent_id INTEGER,
+        member_id INTEGER, -- Legacy
+        is_all_day INTEGER DEFAULT 1,
+        remind_days INTEGER DEFAULT 0,
         description TEXT,
         emoji TEXT,
         recurrence TEXT DEFAULT 'none',
-        recurrence_end_date TEXT,
-        member_id INTEGER
+        recurrence_end_date DATE
     )`,
-
-    // --- HOUSE INFORMATION ---
-    `CREATE TABLE IF NOT EXISTS house_details (
-        id INTEGER PRIMARY KEY CHECK (id = 1),
+    `CREATE TABLE IF NOT EXISTS meals (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
+        name TEXT,
+        description TEXT,
+        emoji TEXT,
+        category TEXT,
+        last_prepared DATE
+    )`,
+    `CREATE TABLE IF NOT EXISTS meal_plans (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        date DATE,
+        member_id INTEGER,
+        meal_id INTEGER,
+        type TEXT DEFAULT 'dinner',
+        servings INTEGER DEFAULT 1,
+        notes TEXT
+    )`,
+    `CREATE TABLE IF NOT EXISTS house_details (
+        household_id INTEGER PRIMARY KEY,
         property_type TEXT,
         construction_year INTEGER,
         tenure TEXT,
         council_tax_band TEXT,
         broadband_provider TEXT,
         broadband_account TEXT,
-        broadband_router_model TEXT,
         wifi_password TEXT,
-        emergency_contacts TEXT,
         smart_home_hub TEXT,
-        notes TEXT,
-        icon TEXT,
         color TEXT,
-        enabled_modules TEXT -- JSON string: ["pets", "vehicles", "meals"]
-    )`,
-
-    // --- VEHICLES ---
-    `CREATE TABLE IF NOT EXISTS vehicles (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        household_id INTEGER,
-        type TEXT DEFAULT 'Car', -- Car, Van, Truck, Boat, Motorbike, Bike
-        make TEXT NOT NULL,
-        model TEXT NOT NULL,
-        registration TEXT,
-        year INTEGER,
-        fuel_type TEXT,
-        mileage INTEGER,
-        mot_due TEXT,
-        tax_due TEXT,
-        emoji TEXT,
+        emergency_contacts TEXT,
         notes TEXT,
-        -- Financials
-        purchase_value REAL DEFAULT 0,
-        replacement_cost REAL DEFAULT 0,
-        monthly_maintenance_cost REAL DEFAULT 0,
-        depreciation_rate REAL DEFAULT 0
+        enabled_modules TEXT
     )`,
-
-    // --- VEHICLE SUB-MODULES ---
-    `CREATE TABLE IF NOT EXISTS vehicle_services (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        household_id INTEGER,
-        vehicle_id INTEGER,
-        date TEXT NOT NULL,
-        mileage INTEGER,
-        description TEXT,
-        cost REAL,
+    `CREATE TABLE IF NOT EXISTS water_info (
+        household_id INTEGER PRIMARY KEY,
         provider TEXT,
-        FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
+        account_number TEXT, -- Encrypted
+        supply_type TEXT,
+        meter_serial TEXT,
+        monthly_amount REAL,
+        payment_day INTEGER,
+        notes TEXT
     )`,
-
-    `CREATE TABLE IF NOT EXISTS vehicle_finance (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        household_id INTEGER,
-        vehicle_id INTEGER,
-        provider TEXT NOT NULL,
-        monthly_payment REAL,
-        start_date TEXT,
-        end_date TEXT,
-        balloon_payment REAL,
-        FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
+    `CREATE TABLE IF NOT EXISTS council_info (
+        household_id INTEGER PRIMARY KEY,
+        authority_name TEXT,
+        account_number TEXT, -- Encrypted
+        payment_method TEXT,
+        monthly_amount REAL,
+        payment_day INTEGER,
+        band TEXT,
+        notes TEXT
     )`,
-
-    `CREATE TABLE IF NOT EXISTS vehicle_insurance (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        household_id INTEGER,
-        vehicle_id INTEGER,
-        provider TEXT NOT NULL,
-        policy_number TEXT,
-        expiry_date TEXT,
-        premium REAL,
-        excess REAL,
-        FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
-    )`,
-
-    // --- ASSETS ---
-    `CREATE TABLE IF NOT EXISTS assets (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        household_id INTEGER,
-        name TEXT NOT NULL,
-        category TEXT, -- Appliance, Electronics, etc.
-        location TEXT,
-        manufacturer TEXT,
-        model_number TEXT,
-        serial_number TEXT,
-        status TEXT DEFAULT 'active',
-        purchase_date TEXT,
-        warranty_expiry TEXT,
-        notes TEXT,
-        emoji TEXT,
-        -- Financials
-        purchase_value REAL DEFAULT 0,
-        replacement_cost REAL DEFAULT 0,
-        monthly_maintenance_cost REAL DEFAULT 0,
-        depreciation_rate REAL DEFAULT 0,
-        insurance_status TEXT DEFAULT 'uninsured' -- insured, uninsured, self-insured
-    )`,
-
-    // --- ENERGY ACCOUNTS ---
     `CREATE TABLE IF NOT EXISTS energy_accounts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
-        provider TEXT NOT NULL,
-        type TEXT,
-        account_number TEXT,
-        contract_end TEXT,
-        payment_method TEXT,
+        provider TEXT,
+        account_number TEXT, -- Encrypted
+        type TEXT, -- Gas, Electric, Dual
+        tariff_name TEXT,
+        contract_end_date DATE,
+        monthly_amount REAL,
+        payment_day INTEGER,
         notes TEXT
     )`,
-
-    // --- WATER INFO ---
-    `CREATE TABLE IF NOT EXISTS water_info (
-        id INTEGER PRIMARY KEY CHECK (id = 1),
-        household_id INTEGER,
-        provider TEXT,
-        account_number TEXT,
-        notes TEXT,
-        icon TEXT,
-        color TEXT
-    )`,
-
-    // --- COUNCIL INFO ---
-    `CREATE TABLE IF NOT EXISTS council_info (
-        id INTEGER PRIMARY KEY CHECK (id = 1),
-        household_id INTEGER,
-        authority_name TEXT,
-        monthly_amount REAL,
-        notes TEXT,
-        icon TEXT,
-        color TEXT
-    )`,
-
-    // --- WASTE COLLECTIONS ---
     `CREATE TABLE IF NOT EXISTS waste_collections (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
-        waste_type TEXT NOT NULL,
-        frequency TEXT NOT NULL, -- Daily, Weekly, Biweekly, Monthly
-        collection_day TEXT NOT NULL,
+        bin_type TEXT, 
+        waste_type TEXT, -- Alias for tests
+        frequency TEXT,
+        day_of_week TEXT,
+        collection_day TEXT, -- Alias for tests
+        next_date DATE,
+        color TEXT,
+        emoji TEXT,
         notes TEXT
     )`,
-
-    // --- MEAL PLANNING ---
-    `CREATE TABLE IF NOT EXISTS meals (
+    // FINANCE TABLES
+    `CREATE TABLE IF NOT EXISTS finance_income (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
-        name TEXT NOT NULL,
-        description TEXT,
+        source TEXT,
+        amount REAL,
+        frequency TEXT, -- monthly, weekly, bi-weekly
+        payment_day INTEGER,
+        emoji TEXT,
+        is_active INTEGER DEFAULT 1,
+        notes TEXT
+    )`,
+    `CREATE TABLE IF NOT EXISTS finance_savings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        institution TEXT,
+        account_name TEXT,
+        account_number TEXT, -- Encrypted
+        interest_rate REAL,
+        current_balance REAL,
+        emoji TEXT,
+        notes TEXT
+    )`,
+    `CREATE TABLE IF NOT EXISTS finance_savings_pots (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        savings_id INTEGER,
+        name TEXT,
+        target_amount REAL,
+        current_amount REAL,
+        emoji TEXT,
+        notes TEXT,
+        FOREIGN KEY (savings_id) REFERENCES finance_savings(id) ON DELETE CASCADE
+    )`,
+    `CREATE TABLE IF NOT EXISTS finance_credit_cards (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        provider TEXT,
+        card_name TEXT,
+        credit_limit REAL,
+        current_balance REAL,
+        apr REAL,
+        payment_day INTEGER,
+        emoji TEXT,
+        notes TEXT
+    )`,
+    `CREATE TABLE IF NOT EXISTS finance_loans (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        lender TEXT,
+        loan_type TEXT,
+        total_amount REAL,
+        remaining_balance REAL,
+        interest_rate REAL,
+        monthly_payment REAL,
+        start_date DATE,
+        end_date DATE,
+        emoji TEXT,
+        notes TEXT
+    )`,
+    `CREATE TABLE IF NOT EXISTS finance_mortgages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        lender TEXT,
+        property_address TEXT,
+        total_amount REAL,
+        remaining_balance REAL,
+        interest_rate REAL,
+        monthly_payment REAL,
+        term_years INTEGER,
+        start_date DATE,
+        fixed_rate_expiry DATE,
+        repayment_type TEXT, -- Repayment, Interest Only
+        emoji TEXT,
+        notes TEXT
+    )`,
+    `CREATE TABLE IF NOT EXISTS finance_pensions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        provider TEXT,
+        plan_name TEXT,
+        current_value REAL,
+        monthly_contribution REAL,
+        emoji TEXT,
+        notes TEXT
+    )`,
+    `CREATE TABLE IF NOT EXISTS finance_pensions_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        pension_id INTEGER,
+        value REAL,
+        recorded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (pension_id) REFERENCES finance_pensions(id) ON DELETE CASCADE
+    )`,
+    `CREATE TABLE IF NOT EXISTS finance_investments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        platform TEXT,
+        asset_type TEXT, -- Stocks, Crypto, Bonds
+        current_value REAL,
+        total_invested REAL,
+        emoji TEXT,
+        notes TEXT
+    )`,
+    `CREATE TABLE IF NOT EXISTS finance_budget_categories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        name TEXT,
+        monthly_limit REAL,
         emoji TEXT
     )`,
-
-    `CREATE TABLE IF NOT EXISTS meal_plans (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+    `CREATE TABLE IF NOT EXISTS finance_assignments (
         household_id INTEGER,
-        date TEXT NOT NULL, -- YYYY-MM-DD
-        member_id INTEGER,  -- Link to members table
-        meal_id INTEGER,    -- Link to meals table
-        type TEXT DEFAULT 'dinner', -- lunch, dinner
-        FOREIGN KEY(meal_id) REFERENCES meals(id) ON DELETE CASCADE,
-        FOREIGN KEY(member_id) REFERENCES members(id) ON DELETE CASCADE
+        entity_type TEXT, -- income, savings, credit_card, loan, mortgage, pension, investment
+        entity_id INTEGER,
+        member_id INTEGER,
+        PRIMARY KEY (entity_type, entity_id, member_id)
     )`
 ];
 
-const MIGRATIONS = [
-    // ['users', 'household_id', 'INTEGER'], // Removed
-    ['members', 'household_id', 'INTEGER'],
-    ['members', 'will_details', 'TEXT'],
-    ['members', 'life_insurance_provider', 'TEXT'],
-    ['members', 'life_insurance_premium', 'REAL DEFAULT 0'],
-    ['members', 'life_insurance_expiry', 'TEXT'],
-    ['members', 'pet_insurance_provider', 'TEXT'],
-    ['members', 'pet_insurance_premium', 'REAL DEFAULT 0'],
-    ['members', 'pet_insurance_expiry', 'TEXT'],
-    ['members', 'food_monthly_cost', 'REAL DEFAULT 0'],
-    ['members', 'microchip_number', 'TEXT'],
-    ['members', 'first_name', 'TEXT'],
-    ['members', 'middle_name', 'TEXT'],
-    ['members', 'last_name', 'TEXT'],
-    ['dates', 'household_id', 'INTEGER'],
-    ['house_details', 'household_id', 'INTEGER'],
-    ['house_details', 'icon', 'TEXT'],
-    ['house_details', 'color', 'TEXT'],
-    ['house_details', 'enabled_modules', 'TEXT'],
-    ['vehicles', 'household_id', 'INTEGER'],
-    ['assets', 'household_id', 'INTEGER'],
-    ['energy_accounts', 'household_id', 'INTEGER'],
-    ['water_info', 'household_id', 'INTEGER'],
-    ['water_info', 'icon', 'TEXT'],
-    ['water_info', 'color', 'TEXT'],
-    ['council_info', 'household_id', 'INTEGER'],
-    ['council_info', 'icon', 'TEXT'],
-    ['council_info', 'color', 'TEXT'],
-    ['waste_collections', 'household_id', 'INTEGER'],
-    ['vehicle_services', 'household_id', 'INTEGER'],
-    ['vehicle_finance', 'household_id', 'INTEGER'],
-    ['vehicle_insurance', 'household_id', 'INTEGER'],
-    ['recurring_costs', 'household_id', 'INTEGER'],
-    ['recurring_costs', 'nearest_working_day', 'BOOLEAN DEFAULT 0'],
-    ['assets', 'insurance_status', "TEXT DEFAULT 'uninsured'"],
-    ['vehicles', 'type', "TEXT DEFAULT 'Car'"],
-    ['meals', 'household_id', 'INTEGER'],
-    ['meal_plans', 'household_id', 'INTEGER']
-];
-
-function initializeHouseholdSchema(db) {
-    return new Promise((resolve, reject) => {
-        db.serialize(() => {
-            SCHEMA_DEFINITIONS.forEach(sql => {
-                db.run(sql, (err) => {
-                    if (err) console.error("Schema Error:", err.message);
-                });
-            });
-
-            let migrationsCompleted = 0;
-            if (MIGRATIONS.length === 0) return resolve();
-
-            MIGRATIONS.forEach(([table, col, definition]) => {
-                db.run(`ALTER TABLE ${table} ADD COLUMN ${col} ${definition}`, (err) => {
-                    // Ignore "duplicate column" errors
-                    migrationsCompleted++;
-                    if (migrationsCompleted === MIGRATIONS.length) {
-                        resolve();
-                    }
-                });
+function initializeGlobalSchema(db) {
+    db.serialize(() => {
+        GLOBAL_SCHEMA.forEach(sql => {
+            db.run(sql, (err) => {
+                if (err && !err.message.includes('already exists')) {
+                    console.error("Global Schema Init Error:", err.message);
+                }
             });
         });
     });
 }
 
-module.exports = { initializeHouseholdSchema };
+function initializeHouseholdSchema(db) {
+    db.serialize(() => {
+        TENANT_SCHEMA.forEach(sql => {
+            db.run(sql, (err) => {
+                if (err && !err.message.includes('already exists')) {
+                    console.error("Household Schema Init Error:", err.message);
+                }
+            });
+        });
+    });
+}
+
+module.exports = { GLOBAL_SCHEMA, TENANT_SCHEMA, initializeGlobalSchema, initializeHouseholdSchema };

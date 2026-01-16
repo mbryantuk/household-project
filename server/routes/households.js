@@ -6,7 +6,7 @@ const multer = require('multer');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const { globalDb, getHouseholdDb } = require('../db');
-const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
+const { authenticateToken, requireHouseholdRole, requireSystemRole } = require('../middleware/auth');
 const { listBackups, createBackup, restoreBackup, BACKUP_DIR, DATA_DIR } = require('../services/backup');
 
 // Upload middleware for restores
@@ -26,27 +26,27 @@ const dbRun = (db, sql, params) => new Promise((resolve, reject) => {
 
 /**
  * POST /households
- * Create a new household for existing user
+ * Create a new household. Only allowed for users.
  */
 router.post('/households', authenticateToken, async (req, res) => {
     const { name } = req.body;
     if (!name) return res.status(400).json({ error: "Household name is required" });
 
     try {
-        // 1. Create Household
+        // 1. Create Household record in Global DB
         const hhResult = await dbRun(globalDb, 
             `INSERT INTO households (name) VALUES (?)`, 
             [name]
         );
         const householdId = hhResult.id;
 
-        // 2. Link User as Admin
+        // 2. Link User as Admin of this household
         await dbRun(globalDb,
             `INSERT INTO user_households (user_id, household_id, role) VALUES (?, ?, 'admin')`,
             [req.user.id, householdId]
         );
 
-        // 3. Initialize Household DB (by just getting it)
+        // 3. Initialize Household DB file and schema
         const hhDb = getHouseholdDb(householdId);
         hhDb.close();
 
@@ -58,36 +58,24 @@ router.post('/households', authenticateToken, async (req, res) => {
     }
 });
 
-// GET /households/:id (Get Single Details)
-router.get('/households/:id', authenticateToken, (req, res) => {
-    const householdId = parseInt(req.params.id);
-    
-    // Check user_households directly to allow access if admin even if not in current context
-    globalDb.get("SELECT role FROM user_households WHERE user_id = ? AND household_id = ?", [req.user.id, householdId], (err, link) => {
+// GET /households/:id
+router.get('/households/:id', authenticateToken, requireHouseholdRole('viewer'), (req, res) => {
+    globalDb.get(`SELECT * FROM households WHERE id = ?`, [req.params.id], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
-        if (!link) return res.sendStatus(403);
-
-        globalDb.get(`SELECT * FROM households WHERE id = ?`, [householdId], (hErr, row) => {
-            if (hErr) return res.status(500).json({ error: hErr.message });
-            if (!row) return res.status(404).json({ error: "Household not found" });
-            res.json(row);
-        });
+        if (!row) return res.status(404).json({ error: "Household not found" });
+        res.json(row);
     });
 });
 
-// PUT /households/:id (Update)
-router.put('/households/:id', authenticateToken, async (req, res) => {
+// PUT /households/:id (Update) - Admin only
+router.put('/households/:id', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
     const householdId = parseInt(req.params.id);
-    const link = await dbGet(globalDb, "SELECT role FROM user_households WHERE user_id = ? AND household_id = ?", [req.user.id, householdId]);
-    
-    if (!link || link.role !== 'admin') return res.sendStatus(403);
-
     const { 
-        name, 
-        address_street, address_city, address_zip,
+        name, address_street, address_city, address_zip,
         date_format, currency, decimals, avatar,
-        auto_backup, backup_retention
+        auto_backup, backup_retention, enabled_modules
     } = req.body;
+    
     let fields = []; let values = [];
     if (name) { fields.push('name = ?'); values.push(name); }
     if (address_street !== undefined) { fields.push('address_street = ?'); values.push(address_street); }
@@ -99,7 +87,7 @@ router.put('/households/:id', authenticateToken, async (req, res) => {
     if (avatar !== undefined) { fields.push('avatar = ?'); values.push(avatar); }
     if (auto_backup !== undefined) { fields.push('auto_backup = ?'); values.push(auto_backup ? 1 : 0); }
     if (backup_retention !== undefined) { fields.push('backup_retention = ?'); values.push(parseInt(backup_retention)); }
-    if (req.body.enabled_modules !== undefined) { fields.push('enabled_modules = ?'); values.push(req.body.enabled_modules); }
+    if (enabled_modules !== undefined) { fields.push('enabled_modules = ?'); values.push(enabled_modules); }
     
     if (fields.length === 0) return res.status(400).json({ error: "No fields to update" });
     
@@ -112,21 +100,14 @@ router.put('/households/:id', authenticateToken, async (req, res) => {
     });
 });
 
-// 🔴 DELETE /households/:id
-router.delete('/households/:id', authenticateToken, async (req, res) => {
+// DELETE /households/:id - Admin only
+router.delete('/households/:id', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
     const householdId = parseInt(req.params.id);
-    const link = await dbGet(globalDb, "SELECT role FROM user_households WHERE user_id = ? AND household_id = ?", [req.user.id, householdId]);
-    
-    if (!link || link.role !== 'admin') return res.sendStatus(403);
 
     try {
-        // 1. Delete all user links first (Referential integrity)
         await dbRun(globalDb, `DELETE FROM user_households WHERE household_id = ?`, [householdId]);
-
-        // 2. Delete the household record
         await dbRun(globalDb, `DELETE FROM households WHERE id = ?`, [householdId]);
 
-        // 3. Delete the physical SQLite file
         const hhDbPath = path.join(DATA_DIR, `household_${householdId}.db`);
         if (fs.existsSync(hhDbPath)) {
             try { fs.unlinkSync(hhDbPath); } catch (e) { console.error("File delete failed", e); }
@@ -134,37 +115,30 @@ router.delete('/households/:id', authenticateToken, async (req, res) => {
 
         res.json({ message: "Household deleted" });
     } catch (err) {
-        console.error("Delete Household Error:", err);
         res.status(500).json({ error: err.message });
     }
 });
 
 // ==========================================
-// 👥 USER ALLOCATION (Global SaaS)
+// 👥 USER ALLOCATION
 // ==========================================
 
-// GET /households/:id/users (List Users linked to Household)
 router.get('/households/:id/users', authenticateToken, requireHouseholdRole('member'), (req, res) => {
-    const householdId = req.params.id;
-
     const sql = `
         SELECT u.id, u.email, u.first_name, u.last_name, u.avatar, uh.role, uh.is_active 
         FROM users u
         JOIN user_households uh ON u.id = uh.user_id
         WHERE uh.household_id = ?
     `;
-
-    globalDb.all(sql, [householdId], (err, rows) => {
+    globalDb.all(sql, [req.params.id], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });
 
-// POST /households/:id/users (Invite/Add User)
 router.post('/households/:id/users', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
     const householdId = req.params.id;
     const { email, role, firstName, lastName, password } = req.body;
-
     if (!email) return res.status(400).json({ error: "Email is required" });
 
     try {
@@ -178,7 +152,6 @@ router.post('/households/:id/users', authenticateToken, requireHouseholdRole('ad
         } else {
             const initialPassword = password || crypto.randomBytes(4).toString('hex');
             const hash = bcrypt.hashSync(initialPassword, 8);
-            
             const result = await dbRun(globalDb, 
                 `INSERT INTO users (email, password_hash, first_name, last_name, system_role) VALUES (?, ?, ?, ?, 'user')`,
                 [email, hash, firstName || '', lastName || '']
@@ -190,38 +163,17 @@ router.post('/households/:id/users', authenticateToken, requireHouseholdRole('ad
             `INSERT INTO user_households (user_id, household_id, role, is_active) VALUES (?, ?, ?, 1)`,
             [userId, householdId, role || 'member']
         );
-
         res.json({ message: "User added to household", userId });
-
     } catch (err) {
-        console.error("Add User Error:", err);
         res.status(500).json({ error: err.message });
     }
 });
 
-// PUT /households/:id/users/:userId (Update user in household + Activation toggle)
 router.put('/households/:id/users/:userId', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
     const { id: householdId, userId } = req.params;
-    const { email, role, first_name, last_name, firstName, lastName, password, avatar, is_active } = req.body;
+    const { role, is_active } = req.body;
 
     try {
-        // 1. Update Global User Info
-        let fields = []; let values = [];
-        if (email) { fields.push('email = ?'); values.push(email); }
-        if (password) { fields.push('password_hash = ?'); values.push(bcrypt.hashSync(password, 8)); }
-        
-        const fName = first_name || firstName;
-        const lName = last_name || lastName;
-        if (fName) { fields.push('first_name = ?'); values.push(fName); }
-        if (lName) { fields.push('last_name = ?'); values.push(lName); }
-        if (avatar !== undefined) { fields.push('avatar = ?'); values.push(avatar); }
-
-        if (fields.length > 0) {
-            values.push(userId);
-            await dbRun(globalDb, `UPDATE users SET ${fields.join(', ')} WHERE id = ?`, values);
-        }
-
-        // 2. Update Household Role and Activation
         let linkFields = []; let linkValues = [];
         if (role) { linkFields.push('role = ?'); linkValues.push(role); }
         if (is_active !== undefined) { linkFields.push('is_active = ?'); linkValues.push(is_active ? 1 : 0); }
@@ -230,26 +182,18 @@ router.put('/households/:id/users/:userId', authenticateToken, requireHouseholdR
             linkValues.push(userId, householdId);
             await dbRun(globalDb, `UPDATE user_households SET ${linkFields.join(', ')} WHERE user_id = ? AND household_id = ?`, linkValues);
         }
-
         res.json({ message: "User updated successfully" });
-
     } catch (err) {
-        console.error("Update User Error:", err);
         res.status(500).json({ error: err.message });
     }
 });
 
-// DELETE /households/:id/users/:userId
 router.delete('/households/:id/users/:userId', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
-    const householdId = req.params.id;
-    const userId = req.params.userId;
-
-    if (parseInt(userId) === req.user.id) {
+    if (parseInt(req.params.userId) === req.user.id) {
         return res.status(400).json({ error: "Cannot remove yourself. Leave household instead." });
     }
-
     try {
-        await dbRun(globalDb, `DELETE FROM user_households WHERE user_id = ? AND household_id = ?`, [userId, householdId]);
+        await dbRun(globalDb, `DELETE FROM user_households WHERE user_id = ? AND household_id = ?`, [req.params.userId, req.params.id]);
         res.json({ message: "User removed from household" });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -274,46 +218,6 @@ router.post('/households/:id/backups/trigger', authenticateToken, requireHouseho
         const filename = await createBackup(req.params.id);
         res.json({ message: "Household backup created", filename });
     } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-router.get('/households/:id/backups/download/:filename', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
-    const filename = req.params.filename;
-    if (!filename.startsWith(`household-${req.params.id}`)) {
-        return res.status(403).json({ error: "Access denied to this backup file" });
-    }
-    const filePath = path.join(BACKUP_DIR, filename);
-    res.download(filePath);
-});
-
-router.get('/households/:id/db/download', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
-    const dbFile = `household_${req.params.id}.db`;
-    const fullPath = path.join(DATA_DIR, dbFile);
-    if (fs.existsSync(fullPath)) {
-        res.download(fullPath, `totem_data.db`);
-    } else {
-        res.status(404).json({ error: "Database file not found" });
-    }
-});
-
-router.post('/households/:id/backups/restore', authenticateToken, requireHouseholdRole('admin'), upload.single('backup'), async (req, res) => {
-    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
-
-    try {
-        if (req.file.originalname.endsWith('.zip')) {
-            await restoreBackup(req.file.path, req.params.id);
-        } else if (req.file.originalname.endsWith('.db')) {
-            const targetPath = path.join(DATA_DIR, `household_${req.params.id}.db`);
-            fs.copyFileSync(req.file.path, targetPath);
-        } else {
-            return res.status(400).json({ error: "Invalid file type. Upload .zip or .db" });
-        }
-        
-        fs.unlinkSync(req.file.path);
-        res.json({ message: "Household data restored successfully." });
-    } catch (err) {
-        if (req.file) fs.unlinkSync(req.file.path);
         res.status(500).json({ error: err.message });
     }
 });

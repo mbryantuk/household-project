@@ -12,53 +12,68 @@ function authenticateToken(req, res, next) {
         if (err) return res.sendStatus(403); 
         
         // CRITICAL: Check if user is active globally
-        globalDb.get("SELECT is_active FROM users WHERE id = ?", [user.id], (err, row) => {
+        globalDb.get("SELECT is_active, system_role FROM users WHERE id = ?", [user.id], (err, row) => {
             if (err || !row || !row.is_active) {
                 return res.status(403).json({ error: "Account is inactive." });
             }
 
+            req.user = { ...user, systemRole: row.system_role };
+
             // If a household context is present, check if that link is active
             if (user.householdId) {
-                globalDb.get("SELECT is_active FROM user_households WHERE user_id = ? AND household_id = ?", [user.id, user.householdId], (err, link) => {
+                globalDb.get("SELECT role, is_active FROM user_households WHERE user_id = ? AND household_id = ?", [user.id, user.householdId], (err, link) => {
                     if (err || !link || !link.is_active) {
-                        return res.status(403).json({ error: "Access to this household is inactive." });
+                        return res.status(403).json({ error: "Access to this household is inactive or denied." });
                     }
-                    req.user = user;
+                    req.user.role = link.role; // Ensure we use the latest role from DB
                     next();
                 });
             } else {
-                req.user = user;
                 next();
             }
         });
     });
 }
 
+/**
+ * RBAC Enforcement
+ * @param {string} requiredRole - 'viewer', 'member', 'admin'
+ */
 function requireHouseholdRole(requiredRole) {
     return (req, res, next) => {
-        // 1. Check if user is logged into the target household
-        // Support both :id and :hhId parameter names
+        // 1. Context Check
         const targetIdRaw = req.params.id || req.params.hhId || req.body.householdId;
         const targetHouseholdId = targetIdRaw ? parseInt(targetIdRaw) : null;
         const userHouseholdId = req.user.householdId ? parseInt(req.user.householdId) : null;
 
         if (targetHouseholdId && userHouseholdId !== targetHouseholdId) {
-            console.log(`🚫 Context Mismatch: User ${req.user.email} (HH:${userHouseholdId}) tried to access HH:${targetHouseholdId}`);
             return res.status(403).json({ error: "Access denied: Wrong household context" });
         }
 
-        // 2. Check Role Hierarchy
+        // 2. Role Hierarchy
         const roles = ['viewer', 'member', 'admin'];
-        const userRoleIndex = roles.indexOf(req.user.role);
+        const userRoleIndex = roles.indexOf(req.user.role || 'viewer');
         const requiredRoleIndex = roles.indexOf(requiredRole);
 
         if (userRoleIndex >= requiredRoleIndex) {
             next();
         } else {
-            console.log(`🚫 Insufficient Role: User ${req.user.email} is ${req.user.role}, required ${requiredRole}`);
-            res.status(403).json({ error: "Access denied: Insufficient permissions" });
+            res.status(403).json({ error: `Access denied: Required role ${requiredRole}, you are ${req.user.role}` });
         }
     };
 }
 
-module.exports = { authenticateToken, requireHouseholdRole, SECRET_KEY };
+/**
+ * System-wide Role check (for creating households, etc.)
+ */
+function requireSystemRole(role) {
+    return (req, res, next) => {
+        if (req.user && req.user.systemRole === role) {
+            next();
+        } else {
+            res.status(403).json({ error: "Access denied: System administrator required" });
+        }
+    };
+}
+
+module.exports = { authenticateToken, requireHouseholdRole, requireSystemRole, SECRET_KEY };

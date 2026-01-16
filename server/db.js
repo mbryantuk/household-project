@@ -1,7 +1,7 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
-const { initializeHouseholdSchema } = require('./schema');
+const { initializeGlobalSchema, initializeHouseholdSchema } = require('./schema');
 
 // Ensure paths are consistent
 const dataDir = path.join(__dirname, 'data');
@@ -26,74 +26,44 @@ globalDb.configure('busyTimeout', 5000);
 
 function initGlobalDb() {
     globalDb.serialize(() => {
-        // --- GLOBAL USERS TABLE (SaaS Architecture) ---
-        globalDb.run(`CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE,
-            username TEXT UNIQUE,
-            password_hash TEXT NOT NULL,
-            first_name TEXT,
-            last_name TEXT,
-            avatar TEXT,
-            system_role TEXT DEFAULT 'user', -- 'sysadmin' or 'user'
-            default_household_id INTEGER,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-            dashboard_layout TEXT,
-            sticky_note TEXT,
-            theme TEXT DEFAULT 'totem',
-            is_active BOOLEAN DEFAULT 1
-        )`);
+        // Initialize Global Schema Only
+        initializeGlobalSchema(globalDb);
 
-        // --- GLOBAL HOUSEHOLDS TABLE ---
-        globalDb.run(`CREATE TABLE IF NOT EXISTS households (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            address_street TEXT,
-            address_city TEXT,
-            address_zip TEXT,
-            date_format TEXT DEFAULT 'MM/DD/YYYY',
-            currency TEXT DEFAULT 'USD',
-            decimals INTEGER DEFAULT 2,
-            avatar TEXT,
-            auto_backup BOOLEAN DEFAULT 1,
-            backup_retention INTEGER DEFAULT 7,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP
-        )`);
-
-        // --- USER-HOUSEHOLD MAPPING (Tenancy) ---
-        globalDb.run(`CREATE TABLE IF NOT EXISTS user_households (
-            user_id INTEGER,
-            household_id INTEGER,
-            role TEXT DEFAULT 'member', -- 'admin', 'member', 'viewer'
-            joined_at TEXT DEFAULT CURRENT_TIMESTAMP,
-            is_active BOOLEAN DEFAULT 1,
-            PRIMARY KEY (user_id, household_id),
-            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY(household_id) REFERENCES households(id) ON DELETE CASCADE
-        )`);
-
-        // Self-healing Migrations
+        // Self-healing Migrations (Ensure columns exist in case of older DB)
         const houseCols = [
             ['address_street', 'TEXT'], ['address_city', 'TEXT'], ['address_zip', 'TEXT'],
-            ['date_format', "TEXT DEFAULT 'MM/DD/YYYY'"], ['currency', "TEXT DEFAULT 'USD'"],
+            ['date_format', "TEXT DEFAULT 'DD/MM/YYYY'"], ['currency', "TEXT DEFAULT 'GBP'"],
             ['decimals', 'INTEGER DEFAULT 2'], ['avatar', 'TEXT'],
             ['auto_backup', 'BOOLEAN DEFAULT 1'], ['backup_retention', 'INTEGER DEFAULT 7'],
             ['enabled_modules', 'TEXT']
         ];
         
         houseCols.forEach(([col, type]) => {
-            globalDb.run(`ALTER TABLE households ADD COLUMN ${col} ${type}`, (err) => {});
+            globalDb.run(`ALTER TABLE households ADD COLUMN ${col} ${type}`, (err) => {
+                // Ignore "duplicate column name" errors
+            });
         });
 
-        globalDb.run(`ALTER TABLE users ADD COLUMN email TEXT UNIQUE`, (err) => {});
-        globalDb.run(`ALTER TABLE users ADD COLUMN username TEXT UNIQUE`, (err) => {});
-        globalDb.run(`ALTER TABLE users ADD COLUMN first_name TEXT`, (err) => {});
-        globalDb.run(`ALTER TABLE users ADD COLUMN last_name TEXT`, (err) => {});
-        globalDb.run(`ALTER TABLE users ADD COLUMN default_household_id INTEGER`, (err) => {});
-        globalDb.run(`ALTER TABLE users ADD COLUMN sticky_note TEXT`, (err) => {});
-        globalDb.run(`ALTER TABLE users ADD COLUMN theme TEXT DEFAULT 'totem'`, (err) => {});
-        globalDb.run(`ALTER TABLE users ADD COLUMN is_active BOOLEAN DEFAULT 1`, (err) => {});
-        globalDb.run(`ALTER TABLE user_households ADD COLUMN is_active BOOLEAN DEFAULT 1`, (err) => {});
+        const userCols = [
+            ['email', 'TEXT UNIQUE'],
+            ['username', 'TEXT UNIQUE'],
+            ['first_name', 'TEXT'],
+            ['last_name', 'TEXT'],
+            ['default_household_id', 'INTEGER'],
+            ['sticky_note', 'TEXT'],
+            ['theme', "TEXT DEFAULT 'totem'"],
+            ['is_active', 'BOOLEAN DEFAULT 1']
+        ];
+
+        userCols.forEach(([col, type]) => {
+            globalDb.run(`ALTER TABLE users ADD COLUMN ${col} ${type}`, (err) => {
+                // Ignore "duplicate column name" errors
+            });
+        });
+
+        globalDb.run(`ALTER TABLE user_households ADD COLUMN is_active BOOLEAN DEFAULT 1`, (err) => {
+            // Ignore "duplicate column name" errors
+        });
     });
 }
 
@@ -101,18 +71,31 @@ function initGlobalDb() {
  * Tenant Database Factory
  */
 const getHouseholdDb = (householdId) => {
+    if (!householdId) {
+        throw new Error("getHouseholdDb called without householdId");
+    }
     const householdDbPath = path.join(dataDir, `household_${householdId}.db`);
+    
+    // Check if we need to initialize the file (sync check for simplicity in factory)
+    const exists = fs.existsSync(householdDbPath);
+    
     const db = new sqlite3.Database(householdDbPath);
     db.configure('busyTimeout', 5000);
     
-    // Initialize Schema & Migrations
+    // Always initialize schema (handles missing tables in existing files)
     initializeHouseholdSchema(db);
 
     // CRITICAL: Self-healing for NULL household_ids in tenant databases
     db.serialize(() => {
-        const tables = ['members', 'dates', 'house_details', 'vehicles', 'assets', 'energy_accounts', 'recurring_costs', 'waste_collections'];
+        const tables = [
+            'members', 'dates', 'house_details', 'vehicles', 'assets', 
+            'energy_accounts', 'recurring_costs', 'waste_collections',
+            'water_info', 'council_info', 'meals', 'meal_plans'
+        ];
         tables.forEach(table => {
-            db.run(`UPDATE ${table} SET household_id = ? WHERE household_id IS NULL`, [householdId], (err) => {});
+            db.run(`UPDATE ${table} SET household_id = ? WHERE household_id IS NULL`, [householdId], (err) => {
+                // Silent fail if table/column doesn't exist
+            });
         });
     });
 
