@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.37] - 2026-01-16
+
+### Added
+- **Finance:** Introduced `FinanceView` with a tabbed interface for managing Income, Banking, Savings, Credit, Loans, Mortgages, Investments, Pensions, and Budgets (Placeholders).
+- **Navigation:** Added "Finance" option to the desktop sidebar and mobile navigation logic.
+
 ## [2.6.36] - 2026-01-16
 
 ### Fixed

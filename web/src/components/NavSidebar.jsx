@@ -4,7 +4,7 @@ import {
   IconButton, Divider, Box, Avatar, Typography, Tooltip, Menu, MenuItem
 } from '@mui/joy';
 import {
-  Event, Groups, Pets, Inventory2, DirectionsCar, RestaurantMenu,
+  Event, Groups, Pets, Inventory2, DirectionsCar, RestaurantMenu, AccountBalance,
   Close, KeyboardArrowRight, ChevronLeft, KeyboardArrowUp, KeyboardArrowDown,
   VisibilityOff, PersonAdd, ChildCare, Add
 } from '@mui/icons-material';
@@ -257,6 +257,8 @@ export default function NavSidebar({
                         <RailIcon icon={<Groups />} label="People" category="people" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                         
                         <RailIcon icon={<Inventory2 />} label="Assets" category="assets" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                        
+                        <RailIcon icon={<AccountBalance />} label="Finance" category="finance" to="finance" location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                         
                         {enabledModules.includes('meals') && (
                             <RailIcon 

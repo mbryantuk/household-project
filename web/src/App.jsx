@@ -34,6 +34,7 @@ import HouseView from './features/HouseView';
 import PetsView from './features/PetsView';
 import VehiclesView from './features/VehiclesView';
 import ProfileView from './features/ProfileView';
+import FinanceView from './features/FinanceView';
 
 const API_URL = window.location.origin;
 
@@ -299,6 +300,7 @@ function AppInner({ themeId, setThemeId }) {
                 <Route path="vehicles/:vehicleId" element={<VehiclesView />} /><Route path="vehicles" element={<VehiclesView />} />
                 <Route path="profile" element={<ProfileView />} />
                 <Route path="meals" element={<MealPlannerView />} />
+                <Route path="finance" element={<FinanceView />} />
                 <Route path="settings" element={<SettingsView 
                     household={household} users={hhUsers} currentUser={user} api={authAxios}
                     onUpdateHousehold={handleUpdateHouseholdSettings}
