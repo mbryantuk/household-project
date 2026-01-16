@@ -398,6 +398,22 @@ function initializeHouseholdSchema(db) {
                 }
             });
         });
+
+        // 🛠️ MIGRATION: Ensure new finance_income columns exist
+        const financeCols = [
+            ['member_id', 'INTEGER'], 
+            ['bank_account_id', 'INTEGER'], 
+            ['employer', 'TEXT'], 
+            ['role', 'TEXT'], 
+            ['employment_type', 'TEXT'],
+            ['work_type', 'TEXT'], 
+            ['gross_annual_salary', 'REAL'], 
+            ['addons', 'TEXT']
+        ];
+        
+        financeCols.forEach(([col, type]) => {
+            db.run(`ALTER TABLE finance_income ADD COLUMN ${col} ${type}`, () => {});
+        });
     });
 }
 
