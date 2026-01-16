@@ -194,9 +194,13 @@ describe('Feature: Expanded Financial Management', () => {
         let accountId;
 
         it('should setup member and account for assignment', async () => {
-            // Get Member
-            const mRes = await request(app).get(`/households/${householdId}/members`).set('Authorization', `Bearer ${token}`);
-            memberId = mRes.body[0].id; // The admin created during registration usually creates a self-member or we use the first one
+            // Create Member
+            const mRes = await request(app).post(`/households/${householdId}/members`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({ name: 'Assignee', type: 'adult', emoji: '👤' });
+            
+            expect(mRes.statusCode).toBe(200);
+            memberId = mRes.body.id;
 
             // Create Account
             const cRes = await request(app).post(`/households/${householdId}/finance/current-accounts`)

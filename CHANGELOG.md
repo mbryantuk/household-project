@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.36] - 2026-01-16
+
+### Fixed
+- **Tests:** Fixed `finance_expanded.test.js` to explicitly create a member for assignment tests, resolving a `TypeError` when the member list is empty.
+
 ## [2.6.35] - 2026-01-16
 
 ### Added
