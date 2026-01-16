@@ -436,7 +436,7 @@ export default function SettingsView({
                                 <Grid xs={6}>
                                     <Typography level="body-xs">Date</Typography>
                                     <Typography level="body-md" sx={{ fontFamily: 'monospace' }}>
-                                        {regionalSettings.date_format.replace('dd', '16').replace('MM', '01').replace('yyyy', '2026')}
+                                        {(regionalSettings.date_format || 'dd/MM/yyyy').replace('dd', '16').replace('MM', '01').replace('yyyy', '2026')}
                                     </Typography>
                                 </Grid>
                             </Grid>
