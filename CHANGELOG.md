@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.34] - 2026-01-16
+
+### Fixed
+- **Theming:** Implemented dynamic browser tab color (`theme-color` meta tag) to match the active theme's primary color, replacing the hardcoded value.
+
 ## [2.6.31] - 2026-01-16
 
 ### Added

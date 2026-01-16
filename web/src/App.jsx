@@ -48,6 +48,14 @@ function AppInner({ themeId, setThemeId }) {
     setMode(spec.mode);
   }, [spec.mode, setMode]);
 
+  // Synchronize browser tab theme color with theme primary color
+  useEffect(() => {
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor && spec.primary) {
+      metaThemeColor.setAttribute('content', spec.primary);
+    }
+  }, [spec.primary]);
+
   // Auth & Data State
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [user, setUser] = useState(() => {
