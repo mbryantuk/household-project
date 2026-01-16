@@ -7,10 +7,11 @@ import {
 import { 
   PersonAdd, Edit, Delete, ExitToApp, ToggleOn, ToggleOff,
   OpenInNew, Info, Verified, Code, Policy, Palette, AddHome, LightMode, DarkMode,
-  ViewModule, CheckCircle, Cancel
+  ViewModule, CheckCircle, Cancel, Public, ContentCopy
 } from '@mui/icons-material';
 import { getEmojiColor, THEMES } from '../theme';
 import EmojiPicker from '../components/EmojiPicker';
+import AppSelect from '../components/ui/AppSelect';
 
 export default function SettingsView({ 
     household, users, currentUser, api, showNotification, confirmAction, fetchHhUsers,
@@ -26,16 +27,33 @@ export default function SettingsView({
   const [isCreateHhModalOpen, setIsCreateHhModalOpen] = useState(false);
   const [newHhName, setNewHhName] = useState('');
   const [isCreatingHh, setIsCreatingHh] = useState(false);
+
+  // Invite Success Modal
+  const [inviteSuccess, setInviteSuccess] = useState(null); // { email, password }
+  
+  // Regional Settings State
+  const [regionalSettings, setRegionalSettings] = useState({
+      currency: '£',
+      date_format: 'dd/MM/yyyy',
+      decimals: 2
+  });
   
   // Modules State
   const [enabledModules, setEnabledModules] = useState(['pets', 'vehicles', 'meals']);
 
   useEffect(() => {
-      if (household?.enabled_modules) {
+      if (household) {
           try {
-              setEnabledModules(JSON.parse(household.enabled_modules));
+              if (household.enabled_modules) {
+                  setEnabledModules(JSON.parse(household.enabled_modules));
+              }
+              setRegionalSettings({
+                  currency: household.currency || '£',
+                  date_format: household.date_format || 'dd/MM/yyyy',
+                  decimals: household.decimals !== undefined ? household.decimals : 2
+              });
           } catch(e) {
-              setEnabledModules(['pets', 'vehicles', 'meals']);
+              // Fallback
           }
       }
   }, [household]);
@@ -93,6 +111,16 @@ export default function SettingsView({
     }
   };
 
+  const handleSaveRegional = async () => {
+    if (!isAdmin) return;
+    try {
+        await onUpdateHousehold(regionalSettings);
+        // Notification handled by parent
+    } catch (err) {
+        showNotification("Failed to save regional settings.", "danger");
+    }
+  };
+
   const handleToggleActivation = async (u) => {
     if (!isAdmin) return;
     try {
@@ -128,8 +156,15 @@ export default function SettingsView({
       setSavingUser(true);
       try {
           if (isInvite) {
-              await api.post(`/households/${household.id}/users`, formData);
+              const res = await api.post(`/households/${household.id}/users`, formData);
               showNotification("User invited successfully.", "success");
+              
+              if (res.data.generatedPassword) {
+                  setInviteSuccess({
+                      email: formData.email,
+                      password: res.data.generatedPassword
+                  });
+              }
           } else {
               await api.put(`/households/${household.id}/users/${editUser.id}`, formData);
               showNotification("User updated successfully.", "success");
@@ -219,6 +254,12 @@ export default function SettingsView({
         ))}
     </Grid>
   );
+  
+  // Dynamic Tab Style to enforce theme color on text
+  const getTabStyle = (index) => ({
+      flex: 'none',
+      color: activeTab === index ? 'var(--joy-palette-primary-plainColor)' : undefined
+  });
 
   return (
     <Box>
@@ -255,11 +296,12 @@ export default function SettingsView({
                 '&::-webkit-scrollbar': { display: 'none' }
             }}
           >
-            <Tab value={0} variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}>User Access</Tab>
-            <Tab value={1} variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}>Appearance</Tab>
-            <Tab value={2} variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}>Modules</Tab>
-            <Tab value={3} variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}>Developers</Tab>
-            <Tab value={4} variant={activeTab === 4 ? 'solid' : 'plain'} color={activeTab === 4 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}>About</Tab>
+            <Tab value={0} variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={getTabStyle(0)}>User Access</Tab>
+            <Tab value={1} variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={getTabStyle(1)}>Appearance</Tab>
+            <Tab value={2} variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={getTabStyle(2)}>Regional</Tab>
+            <Tab value={3} variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'} sx={getTabStyle(3)}>Modules</Tab>
+            <Tab value={4} variant={activeTab === 4 ? 'solid' : 'plain'} color={activeTab === 4 ? 'primary' : 'neutral'} sx={getTabStyle(4)}>Developers</Tab>
+            <Tab value={5} variant={activeTab === 5 ? 'solid' : 'plain'} color={activeTab === 5 ? 'primary' : 'neutral'} sx={getTabStyle(5)}>About</Tab>
           </TabList>
 
           <Box sx={{ p: { xs: 2, md: 4 } }}>
@@ -341,6 +383,83 @@ export default function SettingsView({
             {activeTab === 2 && (
                 <Box>
                     <Box sx={{ mb: 4 }}>
+                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Regional Settings</Typography>
+                        <Typography level="body-md" color="neutral">Configure currency, date formats, and localization preferences.</Typography>
+                    </Box>
+
+                    <Stack spacing={3} sx={{ maxWidth: 500 }}>
+                        <AppSelect 
+                            label="Currency Symbol" 
+                            value={regionalSettings.currency} 
+                            onChange={(v) => setRegionalSettings({...regionalSettings, currency: v})}
+                            options={[
+                                { value: '£', label: '£ (GBP) - Pound Sterling' },
+                                { value: '$', label: '$ (USD) - US Dollar' },
+                                { value: '€', label: '€ (EUR) - Euro' },
+                                { value: '¥', label: '¥ (JPY) - Japanese Yen' },
+                                { value: '₹', label: '₹ (INR) - Indian Rupee' },
+                                { value: 'R', label: 'R (ZAR) - South African Rand' }
+                            ]}
+                            disabled={!isAdmin}
+                        />
+                        <AppSelect 
+                            label="Date Format" 
+                            value={regionalSettings.date_format} 
+                            onChange={(v) => setRegionalSettings({...regionalSettings, date_format: v})}
+                            options={[
+                                { value: 'dd/MM/yyyy', label: 'DD/MM/YYYY (UK/EU)' },
+                                { value: 'MM/dd/yyyy', label: 'MM/DD/YYYY (US)' },
+                                { value: 'yyyy-MM-dd', label: 'YYYY-MM-DD (ISO)' }
+                            ]}
+                            disabled={!isAdmin}
+                        />
+                        <AppSelect 
+                            label="Currency Precision (Decimals)" 
+                            value={regionalSettings.decimals.toString()} 
+                            onChange={(v) => setRegionalSettings({...regionalSettings, decimals: parseInt(v)})}
+                            options={[
+                                { value: '0', label: '0 (e.g. £10)' },
+                                { value: '2', label: '2 (e.g. £10.00)' }
+                            ]}
+                            disabled={!isAdmin}
+                        />
+
+                        <Sheet variant="soft" color="neutral" sx={{ p: 2, borderRadius: 'sm', bgcolor: 'background.level1' }}>
+                            <Typography level="title-sm" sx={{ mb: 1 }}>Preview</Typography>
+                            <Grid container spacing={2}>
+                                <Grid xs={6}>
+                                    <Typography level="body-xs">Currency</Typography>
+                                    <Typography level="body-md" sx={{ fontFamily: 'monospace' }}>
+                                        {regionalSettings.currency}1,234{regionalSettings.decimals > 0 ? '.' + '99'.padEnd(regionalSettings.decimals, '0') : ''}
+                                    </Typography>
+                                </Grid>
+                                <Grid xs={6}>
+                                    <Typography level="body-xs">Date</Typography>
+                                    <Typography level="body-md" sx={{ fontFamily: 'monospace' }}>
+                                        {regionalSettings.date_format.replace('dd', '16').replace('MM', '01').replace('yyyy', '2026')}
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+                        </Sheet>
+                        
+                        {isAdmin && (
+                            <Button 
+                                variant="solid" 
+                                color="primary" 
+                                startDecorator={<Public />}
+                                onClick={handleSaveRegional}
+                                sx={{ alignSelf: 'flex-start' }}
+                            >
+                                Save Settings
+                            </Button>
+                        )}
+                    </Stack>
+                </Box>
+            )}
+
+            {activeTab === 3 && (
+                <Box>
+                    <Box sx={{ mb: 4 }}>
                         <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Feature Modules</Typography>
                         <Typography level="body-md" color="neutral">Enable or disable specific sections of the application to suit your household's needs.</Typography>
                     </Box>
@@ -373,7 +492,7 @@ export default function SettingsView({
                 </Box>
             )}
 
-            {activeTab === 3 && (
+            {activeTab === 4 && (
                 <Box>
                     <Box sx={{ mb: 4 }}>
                         <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Developer Tools</Typography>
@@ -399,7 +518,7 @@ export default function SettingsView({
                 </Box>
             )}
 
-            {activeTab === 4 && (
+            {activeTab === 5 && (
                 <Box sx={{ maxWidth: 800 }}>
                     <Box sx={{ mb: 4 }}>
                         <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>About TOTEM</Typography>
@@ -478,26 +597,24 @@ export default function SettingsView({
                             disabled={!isInvite} 
                           />
                       </FormControl>
-                      {!isInvite && (
-                        <>
-                          <FormControl>
-                              <FormLabel>First Name</FormLabel>
-                              <Input 
-                                name="first_name" 
-                                value={formData.first_name} 
-                                onChange={(e) => setFormData({...formData, first_name: e.target.value})}
-                              />
-                          </FormControl>
-                          <FormControl>
-                              <FormLabel>Last Name</FormLabel>
-                              <Input 
-                                name="last_name" 
-                                value={formData.last_name} 
-                                onChange={(e) => setFormData({...formData, last_name: e.target.value})}
-                              />
-                          </FormControl>
-                        </>
-                      )}
+                      
+                      <FormControl>
+                          <FormLabel>First Name</FormLabel>
+                          <Input 
+                            name="first_name" 
+                            value={formData.first_name} 
+                            onChange={(e) => setFormData({...formData, first_name: e.target.value})}
+                          />
+                      </FormControl>
+                      <FormControl>
+                          <FormLabel>Last Name</FormLabel>
+                          <Input 
+                            name="last_name" 
+                            value={formData.last_name} 
+                            onChange={(e) => setFormData({...formData, last_name: e.target.value})}
+                          />
+                      </FormControl>
+                      
                       <FormControl required>
                           <FormLabel>Role</FormLabel>
                           <Select 
@@ -528,6 +645,41 @@ export default function SettingsView({
         }}
         title="Choose Avatar Emoji"
       />
+
+      {/* Invite Success Modal */}
+      <Modal open={!!inviteSuccess} onClose={() => setInviteSuccess(null)}>
+        <ModalDialog variant="outlined" role="alertdialog">
+          <DialogTitle color="success">Invitation Sent</DialogTitle>
+          <DialogContent>
+            <Stack spacing={2}>
+              <Typography>
+                User <b>{inviteSuccess?.email}</b> has been added to the household.
+              </Typography>
+              <Sheet variant="soft" color="warning" sx={{ p: 2, borderRadius: 'sm' }}>
+                <Typography level="body-sm" fontWeight="bold">Temporary Password:</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+                  <Typography level="h3" sx={{ fontFamily: 'monospace' }}>{inviteSuccess?.password}</Typography>
+                  <IconButton 
+                    size="sm" 
+                    onClick={() => {
+                        navigator.clipboard.writeText(inviteSuccess?.password);
+                        showNotification("Password copied to clipboard", "success");
+                    }}
+                  >
+                    <ContentCopy />
+                  </IconButton>
+                </Box>
+                <Typography level="body-xs" sx={{ mt: 1 }}>
+                  Please share this password securely with the user. They can change it after logging in.
+                </Typography>
+              </Sheet>
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button variant="solid" color="primary" onClick={() => setInviteSuccess(null)}>Done</Button>
+          </DialogActions>
+        </ModalDialog>
+      </Modal>
 
       {/* Create New Household Modal */}
       <Modal open={isCreateHhModalOpen} onClose={() => setIsCreateHhModalOpen(false)}>

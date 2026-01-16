@@ -1,79 +1,81 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
+// Use the same path as db.js
 const DB_PATH = path.resolve(__dirname, '../data/totem.db');
 const db = new sqlite3.Database(DB_PATH);
 
 function cleanup() {
     console.log('🧹 Starting Test Data Cleanup...');
     
-    // 1. Find all test users (emails ending in @test.com or containing 'test')
-    db.all(`SELECT id, household_id FROM users WHERE email LIKE '%@test.com' OR email LIKE '%test_user%'`, [], (err, users) => {
+    // 1. Find all test users
+    db.all(`SELECT id FROM users WHERE email LIKE '%@test.com' OR email LIKE '%test_user%'`, [], (err, users) => {
         if (err) {
             console.error('Error finding test users:', err);
             return;
         }
 
-        if (users.length === 0) {
-            console.log('✨ No test users found.');
-            // Even if no users, check for orphan test households
-            cleanupHouseholds([]);
-            return;
-        }
-
         const userIds = users.map(u => u.id);
-        const householdIds = [...new Set(users.map(u => u.household_id).filter(id => id))];
+        
+        // 2. Find households created by these users or named "Test Household"
+        // Join with user_households to find households linked to these test users
+        // OR select households with test names.
+        
+        const userIdsClause = userIds.length > 0 ? `id IN (SELECT household_id FROM user_households WHERE user_id IN (${userIds.join(',')})) OR` : '';
+        
+        const query = `SELECT id FROM households WHERE ${userIdsClause} name LIKE '%Test Household%' OR name LIKE 'Test Family' OR name LIKE 'Test Manor'`;
 
-        console.log(`Found ${users.length} test users and ${householdIds.length} associated households.`);
-
-        // 2. Delete test users
-        const placeholders = userIds.map(() => '?').join(',');
-        db.run(`DELETE FROM users WHERE id IN (${placeholders})`, userIds, function(err) {
-            if (err) console.error('Error deleting users:', err);
-            else console.log(`✅ Deleted ${this.changes} users.`);
+        db.all(query, [], (err, households) => {
+            if (err) console.error('Error finding test households:', err);
             
-            cleanupHouseholds(householdIds);
-        });
-    });
-}
+            const householdIds = households ? households.map(h => h.id) : [];
+            
+            if (userIds.length === 0 && householdIds.length === 0) {
+                console.log('✨ No test data found.');
+                db.close();
+                return;
+            }
 
-function cleanupHouseholds(householdIds) {
-    // Also find households with names containing "Test Household"
-    db.all(`SELECT id FROM households WHERE name LIKE '%Test Household%' OR name LIKE 'Test Family'`, [], (err, rows) => {
-        if (err) console.error('Error finding test households:', err);
-        
-        const extraIds = rows ? rows.map(r => r.id) : [];
-        const allIds = [...new Set([...householdIds, ...extraIds])];
+            console.log(`Found ${userIds.length} test users and ${householdIds.length} test households.`);
 
-        if (allIds.length === 0) {
-            console.log('✨ No test households to clean.');
-            db.close();
-            return;
-        }
-
-        const placeholders = allIds.map(() => '?').join(',');
-
-        // We need to clean up related tables first to maintain referential integrity (if enforced, or just for cleanliness)
-        // Tables: members, assets, vehicles, recurring_costs, calendar_events, etc.
-        // Assuming cascade delete might not be fully set up or relying on it:
-        
-        const tables = ['members', 'assets', 'vehicles', 'recurring_costs', 'calendar_events', 'meals'];
-        
-        let completed = 0;
-        
-        tables.forEach(table => {
-            db.run(`DELETE FROM ${table} WHERE household_id IN (${placeholders})`, allIds, function(err) {
-                if (err) console.warn(`Error cleaning ${table}:`, err.message); // Warn only
-                completed++;
-                if (completed === tables.length) {
-                    // Finally delete households
-                    db.run(`DELETE FROM households WHERE id IN (${placeholders})`, allIds, function(err) {
-                        if (err) console.error('Error deleting households:', err);
-                        else console.log(`✅ Deleted ${this.changes} households.`);
-                        db.close();
+            // 3. Delete household data (all tenant tables)
+            // Note: Since everything is in the global DB file now (implied by schema.js usage in main app), we delete from tables there.
+            if (householdIds.length > 0) {
+                const hhPlaceholders = householdIds.map(() => '?').join(',');
+                const tables = ['members', 'assets', 'vehicles', 'recurring_costs', 'dates', 'meals', 'meal_plans', 'house_details', 'water_info', 'council_info', 'waste_collections', 'energy_accounts', 'vehicle_services', 'vehicle_finance', 'vehicle_insurance'];
+                
+                tables.forEach(table => {
+                    db.run(`DELETE FROM ${table} WHERE household_id IN (${hhPlaceholders})`, householdIds, (err) => {
+                       // Ignore if table doesn't exist or other minor errors
                     });
-                }
-            });
+                });
+
+                // Delete from user_households link table
+                db.run(`DELETE FROM user_households WHERE household_id IN (${hhPlaceholders})`, householdIds);
+
+                // Finally delete households
+                db.run(`DELETE FROM households WHERE id IN (${hhPlaceholders})`, householdIds, function(err) {
+                    if (err) console.error('Error deleting households:', err);
+                    else console.log(`✅ Deleted ${this.changes} households.`);
+                });
+            }
+
+            // 4. Delete users
+            if (userIds.length > 0) {
+                const userPlaceholders = userIds.map(() => '?').join(',');
+                // Also remove their links (if any remained)
+                db.run(`DELETE FROM user_households WHERE user_id IN (${userPlaceholders})`, userIds);
+                
+                db.run(`DELETE FROM users WHERE id IN (${userPlaceholders})`, userIds, function(err) {
+                    if (err) console.error('Error deleting users:', err);
+                    else console.log(`✅ Deleted ${this.changes} users.`);
+                });
+            }
+            
+            setTimeout(() => {
+                console.log("Cleanup complete.");
+                db.close();
+            }, 1000);
         });
     });
 }

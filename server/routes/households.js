@@ -138,23 +138,34 @@ router.get('/households/:id/users', authenticateToken, requireHouseholdRole('mem
 
 router.post('/households/:id/users', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
     const householdId = req.params.id;
-    const { email, role, firstName, lastName, password } = req.body;
+    // Accept both camelCase and snake_case for names to support various frontends
+    const { email, role, firstName, lastName, first_name, last_name, avatar, password } = req.body;
+    
     if (!email) return res.status(400).json({ error: "Email is required" });
+    
+    // Resolve names
+    const finalFirstName = firstName || first_name || '';
+    const finalLastName = lastName || last_name || '';
 
     try {
         let user = await dbGet(globalDb, `SELECT id FROM users WHERE email = ?`, [email]);
         let userId;
+        let generatedPassword = null;
 
         if (user) {
             userId = user.id;
             const existingLink = await dbGet(globalDb, `SELECT * FROM user_households WHERE user_id = ? AND household_id = ?`, [userId, householdId]);
             if (existingLink) return res.status(409).json({ error: "User already in household" });
         } else {
-            const initialPassword = password || crypto.randomBytes(4).toString('hex');
-            const hash = bcrypt.hashSync(initialPassword, 8);
+            // Generate a secure password if not provided
+            generatedPassword = password || Array(12).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*")
+                .map(x => x[Math.floor(crypto.randomInt(0, x.length))]).join('');
+            
+            const hash = bcrypt.hashSync(generatedPassword, 8);
+            
             const result = await dbRun(globalDb, 
-                `INSERT INTO users (email, password_hash, first_name, last_name, system_role) VALUES (?, ?, ?, ?, 'user')`,
-                [email, hash, firstName || '', lastName || '']
+                `INSERT INTO users (email, password_hash, first_name, last_name, avatar, system_role) VALUES (?, ?, ?, ?, ?, 'user')`,
+                [email, hash, finalFirstName, finalLastName, avatar || null]
             );
             userId = result.id;
         }
@@ -163,7 +174,13 @@ router.post('/households/:id/users', authenticateToken, requireHouseholdRole('ad
             `INSERT INTO user_households (user_id, household_id, role, is_active) VALUES (?, ?, ?, 1)`,
             [userId, householdId, role || 'member']
         );
-        res.json({ message: "User added to household", userId });
+        
+        // Return userId and the generated password (if a new user was created)
+        res.json({ 
+            message: "User added to household", 
+            userId,
+            generatedPassword: generatedPassword 
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

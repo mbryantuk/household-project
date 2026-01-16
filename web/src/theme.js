@@ -129,6 +129,17 @@ export const getTotemTheme = (themeId = 'totem') => {
           }),
         },
       },
+      JoyTab: {
+        styleOverrides: {
+          root: ({ ownerState }) => ({
+            ...(ownerState.selected && {
+              color: isDark ? '#fff' : 'var(--joy-palette-primary-plainColor)',
+              backgroundColor: ownerState.variant === 'solid' ? 'var(--joy-palette-primary-solidBg)' : 'transparent',
+              fontWeight: 'bold',
+            }),
+          }),
+        },
+      },
     },
   });
 };

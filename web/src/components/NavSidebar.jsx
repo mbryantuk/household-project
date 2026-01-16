@@ -60,7 +60,7 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
                       borderRadius: 'md', justifyContent: 'center', px: 0, 
                       flexDirection: 'column', gap: 0.5, py: 1, width: 56, 
                       mx: 'auto', minHeight: 60,
-                      '&.Mui-selected': { bgcolor: 'background.level1', color: 'primary.plainColor' }
+                      '&.Mui-selected': { bgcolor: 'background.level1', color: 'var(--joy-palette-primary-plainColor)' }
                   }}
               >
                   <ListItemDecorator sx={{ display: 'flex', justifyContent: 'center', m: 0, '& svg': { fontSize: '1.4rem' } }}>

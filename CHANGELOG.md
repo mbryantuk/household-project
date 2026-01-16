@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.31] - 2026-01-16
+
+### Added
+- **Security:** Enhanced "Invite User" flow now generates secure, random passwords and displays them to the admin upon successful invitation.
+- **Identity:** User invitations now correctly capture and store First Name, Last Name, and Avatar/Emoji.
+
+### Fixed
+- **Theming:** Fixed tab labels in Settings View to correctly respect the selected theme's primary color instead of defaulting to blue.
+- **Settings:** Verified and enhanced Regional Settings (Currency, Date Format, Decimals) integration.
+
 ## [2.6.24] - 2026-01-15
 
 ### Added
