@@ -14,6 +14,53 @@ import TaxCalculator from './TaxCalculator';
 import { getEmojiColor } from '../theme';
 import pkg from '../../package.json';
 
+const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, showLabel = true, variant = "plain", alignRight = false, activeWidget, poppedOut, toggleWidget }) => {
+    const isOpen = activeWidget === id && !poppedOut[id];
+    const isPopped = poppedOut[id];
+
+    const renderIcon = () => {
+        if (typeof Icon === 'function') return <Icon />;
+        return <Icon fontSize="small" />;
+    };
+
+    return (
+      <Box sx={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center' }}>
+          {isOpen && (
+              <Box sx={{ 
+                  position: 'absolute', bottom: '100%', 
+                  ...(alignRight ? { right: 0 } : { left: 0 }),
+                  width: width || 250, 
+                  maxHeight: 'calc(100vh - 80px)', 
+                  mb: '1px', bgcolor: 'background.surface', borderTopLeftRadius: 'md', 
+                  borderTopRightRadius: 'md', border: '1px solid', borderColor: 'divider',
+                  borderBottom: 'none', boxShadow: '0 -4px 12px rgba(0,0,0,0.1)', 
+                  overflow: 'hidden', zIndex: 2005,
+                  display: 'flex', flexDirection: 'column',
+                  '& *': {
+                      scrollbarWidth: 'none',
+                      '&::-webkit-scrollbar': { display: 'none' }
+                  }
+              }}>
+                  {children}
+              </Box>
+          )}
+          <Button 
+              variant={isOpen ? "solid" : variant} color={isOpen ? color : "neutral"} onClick={() => toggleWidget(id)}
+              sx={{
+                  height: '100%', borderRadius: 0, px: showLabel ? 2 : 1.5, minWidth: showLabel ? 100 : 44, gap: 1,
+                  borderTop: isOpen ? 'none' : '3px solid transparent',
+                  borderColor: isOpen ? 'transparent' : (isPopped ? `${color}.solidBg` : 'transparent'),
+                  transition: 'all 0.2s'
+              }}
+          >
+              {renderIcon()}
+              {showLabel && <Typography level="body-xs" fontWeight="bold" textColor={isOpen ? 'common.white' : 'text.primary'}>{label}</Typography>}
+              {showLabel && (isOpen ? <KeyboardArrowDown fontSize="small" /> : (isPopped ? <OpenInNew fontSize="small" /> : null))}
+          </Button>
+      </Box>
+    );
+};
+
 export default function UtilityBar({ 
     user, api, dates, onDateAdded, onUpdateProfile, isDark, onLogout,
     households = [], onSelectHousehold, onInstall, canInstall, confirmAction
@@ -63,53 +110,6 @@ export default function UtilityBar({
       closeWidget();
   };
 
-  const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, showLabel = true, variant = "plain", alignRight = false }) => {
-      const isOpen = activeWidget === id && !poppedOut[id];
-      const isPopped = poppedOut[id];
-
-      const renderIcon = () => {
-          if (typeof Icon === 'function') return <Icon />;
-          return <Icon fontSize="small" />;
-      };
-
-      return (
-        <Box sx={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center' }}>
-            {isOpen && (
-                <Box sx={{ 
-                    position: 'absolute', bottom: '100%', 
-                    ...(alignRight ? { right: 0 } : { left: 0 }),
-                    width: width || 250, 
-                    maxHeight: 'calc(100vh - 80px)', 
-                    mb: '1px', bgcolor: 'background.surface', borderTopLeftRadius: 'md', 
-                    borderTopRightRadius: 'md', border: '1px solid', borderColor: 'divider',
-                    borderBottom: 'none', boxShadow: '0 -4px 12px rgba(0,0,0,0.1)', 
-                    overflow: 'hidden', zIndex: 2005,
-                    display: 'flex', flexDirection: 'column',
-                    '& *': {
-                        scrollbarWidth: 'none',
-                        '&::-webkit-scrollbar': { display: 'none' }
-                    }
-                }}>
-                    {children}
-                </Box>
-            )}
-            <Button 
-                variant={isOpen ? "solid" : variant} color={isOpen ? color : "neutral"} onClick={() => toggleWidget(id)}
-                sx={{
-                    height: '100%', borderRadius: 0, px: showLabel ? 2 : 1.5, minWidth: showLabel ? 100 : 44, gap: 1,
-                    borderTop: isOpen ? 'none' : '3px solid transparent',
-                    borderColor: isOpen ? 'transparent' : (isPopped ? `${color}.solidBg` : 'transparent'),
-                    transition: 'all 0.2s'
-                }}
-            >
-                {renderIcon()}
-                {showLabel && <Typography level="body-xs" fontWeight="bold" textColor={isOpen ? 'common.white' : 'text.primary'}>{label}</Typography>}
-                {showLabel && (isOpen ? <KeyboardArrowDown fontSize="small" /> : (isPopped ? <OpenInNew fontSize="small" /> : null))}
-            </Button>
-        </Box>
-      );
-  };
-
   const getRoleColor = (role) => {
     switch(role) {
         case 'admin': return 'primary';
@@ -130,23 +130,23 @@ export default function UtilityBar({
     >
         {/* Left Side: Widgets */}
         <Box sx={{ flex: '1 1 auto', display: 'flex', height: '100%' }}>
-            <WidgetWrapper id="notes" label="Notes" icon={NoteAlt} color="warning" width={320}>
+            <WidgetWrapper id="notes" label="Notes" icon={NoteAlt} color="warning" width={320} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                 <PostItNote isDocked onClose={closeWidget} user={user} onUpdateProfile={onUpdateProfile} onPopout={() => handlePopout('notes', '/note-window')} />
             </WidgetWrapper>
             
-            <WidgetWrapper id="calc" label="Calc" icon={Calculate} color="primary" width={300}>
+            <WidgetWrapper id="calc" label="Calc" icon={Calculate} color="primary" width={300} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                 <FloatingCalculator isDocked onClose={closeWidget} isDark={isDark} onPopout={() => handlePopout('calc', '/calculator')} />
             </WidgetWrapper>
 
-            <WidgetWrapper id="fincalc" label="Finance" icon={Savings} color="success" width={400}>
+            <WidgetWrapper id="fincalc" label="Finance" icon={Savings} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                 <FinancialCalculator isDocked onClose={closeWidget} isDark={isDark} onPopout={() => handlePopout('fincalc', '/fin-calculator-window')} />
             </WidgetWrapper>
 
-            <WidgetWrapper id="tax" label="Tax" icon={Payments} color="warning" width={450}>
+            <WidgetWrapper id="tax" label="Tax" icon={Payments} color="warning" width={450} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                 <TaxCalculator isDocked onClose={closeWidget} isDark={isDark} onPopout={() => handlePopout('tax', '/tax-window')} />
             </WidgetWrapper>
 
-            <WidgetWrapper id="calendar" label="Calendar" icon={CalendarMonth} color="danger" width={350}>
+            <WidgetWrapper id="calendar" label="Calendar" icon={CalendarMonth} color="danger" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                  <FloatingCalendar isDocked onClose={closeWidget} dates={dates} api={api} householdId={user?.default_household_id} currentUser={user} onDateAdded={onDateAdded} isDark={isDark} onPopout={() => handlePopout('calendar', '/calendar-window')} />
             </WidgetWrapper>
         </Box>
@@ -160,7 +160,7 @@ export default function UtilityBar({
             </Box>
             
             <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 0.5, opacity: 0.7, px: 1.5 }}>
-                <Tooltip title={`System Root: v${__SYSTEM_VERSION__}`} variant="soft" arrow>
+                <Tooltip title={`System Root: v${pkg.version}`} variant="soft" arrow>
                     <Typography level="body-xs" fontWeight="600" sx={{ cursor: 'help' }}>v{pkg.version}</Typography>
                 </Tooltip>
             </Box>
@@ -181,6 +181,7 @@ export default function UtilityBar({
                 width={280} 
                 showLabel={false} 
                 alignRight
+                activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}
             >
                 <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2, borderBottom: '1px solid', borderColor: 'divider', flexShrink: 0 }}>
                     <Avatar size="lg" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark) }}>{user?.avatar || user?.first_name?.[0]}</Avatar>

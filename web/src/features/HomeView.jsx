@@ -4,7 +4,8 @@ import {
   Add, Save, Edit, Close, 
   AddCircleOutline, RemoveCircleOutline 
 } from '@mui/icons-material';
-import { Responsive, WidthProvider } from 'react-grid-layout/legacy';
+import { Responsive } from 'react-grid-layout/legacy';
+import WidthProvider from '../components/helpers/WidthProvider';
 
 import BirthdaysWidget from '../components/widgets/BirthdaysWidget';
 import EventsWidget from '../components/widgets/EventsWidget';
@@ -77,17 +78,18 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
     }
   }, [currentUser?.dashboard_layout, isEditing, isSaving]); // Removed 'layouts' from dependency to prevent loops
 
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const observer = new ResizeObserver((entries) => {
-        for (let entry of entries) {
-            setWidth(entry.contentRect.width);
-        }
-    });
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, []);
-
+  // NOTE: WidthProvider handles width now, but we keep this ref for safety/fallback if needed
+  // or if we switch back. Actually, WidthProvider injects `width` prop, so we don't strictly need to measure here
+  // unless we pass it to WidthProvider (which we don't, it measures itself).
+  // However, the `width` state here is passed to `ResponsiveGridLayout` in the original code?
+  // No, `ResponsiveGridLayout` IS the `WidthProvider` wrapped component.
+  // So we DON'T pass width to it. It calculates it.
+  // But wait, the previous code had:
+  // <ResponsiveGridLayout width={width} ... />
+  // AND `const ResponsiveGridLayout = WidthProvider(Responsive);`
+  // WidthProvider *injects* width. If we pass width explicitly, it might override or be ignored.
+  // Let's remove the manual measurement to avoid conflicts, as WidthProvider does it.
+  
   const [breakpoint, setBreakpoint] = useState('lg');
 
   const currentItems = useMemo(() => {
@@ -184,21 +186,7 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
       });
   }, [page]);
 
-  // Debounce save for layout data changes
-  useEffect(() => {
-      if (isEditing) return; // Don't auto-save while dragging
-      const timer = setTimeout(() => {
-          if (currentUser?.dashboard_layout) {
-             const currentStr = typeof currentUser.dashboard_layout === 'string' ? currentUser.dashboard_layout : JSON.stringify(currentUser.dashboard_layout);
-             if (currentStr !== JSON.stringify(layouts)) {
-                 handleSave(true); // Silent save
-             }
-          }
-      }, 2000);
-      return () => clearTimeout(timer);
-  }, [layouts, isEditing]);
-
-  const handleSave = async (silent = false) => {
+  const handleSave = useCallback(async (silent = false) => {
     if (!silent) setIsSaving(true);
     if (onUpdateProfile) {
         try { 
@@ -211,7 +199,21 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
         setIsEditing(false);
         setIsSaving(false);
     }
-  };
+  }, [layouts, onUpdateProfile]);
+
+  // Debounce save for layout data changes
+  useEffect(() => {
+      if (isEditing) return; // Don't auto-save while dragging
+      const timer = setTimeout(() => {
+          if (currentUser?.dashboard_layout) {
+             const currentStr = typeof currentUser.dashboard_layout === 'string' ? currentUser.dashboard_layout : JSON.stringify(currentUser.dashboard_layout);
+             if (currentStr !== JSON.stringify(layouts)) {
+                 handleSave(true); // Silent save
+             }
+          }
+      }, 2000);
+      return () => clearTimeout(timer);
+  }, [layouts, isEditing, currentUser?.dashboard_layout, handleSave]);
 
   const handleAddPage = () => {
     const nextPageIndex = Object.keys(layouts).length + 1;
@@ -299,7 +301,6 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
             breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
             cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
             rowHeight={60}
-            width={width}
             isDraggable={isEditing}
             isResizable={isEditing}
             onLayoutChange={handleLayoutChange}
