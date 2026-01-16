@@ -83,7 +83,7 @@ export default function PeopleView() {
         const res = await api.post(`/households/${householdId}/members`, formData);
         showNotification("Person added.", "success");
         fetchHhMembers(householdId);
-        navigate(`../${res.data.id}`);
+        navigate(`../people/${res.data.id}`);
       } else {
         await api.put(`/households/${householdId}/members/${personId}`, formData);
         showNotification("Details updated.", "success");

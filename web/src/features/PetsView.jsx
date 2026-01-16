@@ -69,7 +69,7 @@ export default function PetsView() {
         const res = await api.post(`/households/${householdId}/members`, data);
         showNotification("Pet added.", "success");
         fetchHhMembers(householdId);
-        navigate(`../${res.data.id}`);
+        navigate(`../pets/${res.data.id}`);
       } else {
         await api.put(`/households/${householdId}/members/${petId}`, data);
         showNotification("Pet updated.", "success");
