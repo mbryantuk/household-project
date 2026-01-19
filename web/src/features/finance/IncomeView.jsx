@@ -10,7 +10,7 @@ import { Edit, Delete, Add } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
-import { getNextPayday } from '../../utils/dateUtils';
+import { getNextPayday, getDaysUntil } from '../../utils/dateUtils';
 
 export default function IncomeView() {
   const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
@@ -196,9 +196,14 @@ export default function IncomeView() {
                             <td>{row.frequency}</td>
                             <td>
                                 {nextPayDate ? (
-                                    <Chip size="sm" variant="outlined" color="primary">
-                                        {format(nextPayDate, 'EEE do MMM')}
-                                    </Chip>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                                        <Chip size="sm" variant="outlined" color="primary">
+                                            {format(nextPayDate, 'EEE do MMM')}
+                                        </Chip>
+                                        <Typography level="body-xs" color="neutral" sx={{ ml: 0.5 }}>
+                                            {getDaysUntil(nextPayDate)} days
+                                        </Typography>
+                                    </Box>
                                 ) : '-'}
                             </td>
                             <td>{getMemberName(row.member_id)}</td>
@@ -232,7 +237,7 @@ export default function IncomeView() {
                                 <Chip size="sm" variant="outlined">{a.frequency}</Chip>
                                 {nextPayDate && (
                                     <Chip size="sm" variant="outlined" color="primary">
-                                        Next: {format(nextPayDate, 'do MMM')}
+                                        Next: {format(nextPayDate, 'do MMM')} ({getDaysUntil(nextPayDate)}d)
                                     </Chip>
                                 )}
                                 <Chip size="sm" variant="soft">{getMemberName(a.member_id)}</Chip>
