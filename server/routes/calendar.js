@@ -21,65 +21,130 @@ const closeDb = (req) => {
 // GET /households/:id/dates
 router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, async (req, res) => {
     const householdId = req.hhId;
-    const holidays = await getBankHolidays();
+    const db = req.tenantDb;
 
-    req.tenantDb.all(`SELECT * FROM dates WHERE household_id = ? ORDER BY date ASC`, [householdId], (err, dates) => {
-        if (err) {
-            closeDb(req);
-            return res.status(500).json({ error: err.message });
-        }
+    // Helper for Promisified DB calls
+    const dbAll = (sql, params = []) => new Promise((resolve, reject) => {
+        db.all(sql, params, (err, rows) => err ? reject(err) : resolve(rows || []));
+    });
 
-        // Fetch recurring costs to also show on calendar
-        req.tenantDb.all(`SELECT * FROM recurring_costs WHERE household_id = ?`, [householdId], (err, costs) => {
-            closeDb(req);
-            if (err) return res.status(500).json({ error: err.message });
+    try {
+        const holidays = await getBankHolidays();
+        const now = new Date();
 
-            const combined = [...dates];
+        // Parallel Fetch of all data sources
+        const [
+            dates, 
+            costs, 
+            incomes, 
+            creditCards, 
+            water, 
+            council, 
+            energy
+        ] = await Promise.all([
+            dbAll(`SELECT * FROM dates WHERE household_id = ? ORDER BY date ASC`, [householdId]),
+            dbAll(`SELECT * FROM recurring_costs WHERE household_id = ?`, [householdId]),
+            dbAll(`SELECT * FROM finance_income WHERE household_id = ?`, [householdId]),
+            dbAll(`SELECT * FROM finance_credit_cards WHERE household_id = ?`, [householdId]),
+            dbAll(`SELECT * FROM water_info WHERE household_id = ?`, [householdId]),
+            dbAll(`SELECT * FROM council_info WHERE household_id = ?`, [householdId]),
+            dbAll(`SELECT * FROM energy_accounts WHERE household_id = ?`, [householdId])
+        ]);
 
-            // Expand recurring costs into events for the next 12 months for the calendar view
-            const now = new Date();
-            costs.forEach(cost => {
-                if (cost.frequency === 'Monthly' && cost.payment_day) {
-                    const day = parseInt(cost.payment_day);
-                    if (isNaN(day)) return;
+        const combined = [...dates];
 
-                    for (let i = -1; i < 12; i++) {
-                        let eventDate = new Date(now.getFullYear(), now.getMonth() + i, day);
-                        
-                        // Factor in Nearest Working Day (Prior)
-                        if (cost.nearest_working_day) {
-                            eventDate = getPriorWorkingDay(eventDate, holidays);
-                        }
+        // Helper to generate 12 months of events
+        const generateMonthlyEvents = (items, dayField, titleFn, type, emojiFn, descFn) => {
+            items.forEach(item => {
+                if (!item[dayField]) return;
+                const day = parseInt(item[dayField]);
+                if (isNaN(day) || day < 1 || day > 31) return;
 
-                        combined.push({
-                            id: `cost_${cost.id}_${i}`,
-                            title: `💸 ${cost.name}`,
-                            date: eventDate.toISOString().split('T')[0],
-                            type: 'cost',
-                            description: `Recurring cost: £${cost.amount}. ${cost.notes || ''}`,
-                            emoji: '💸',
-                            is_all_day: 1,
-                            resource: cost
-                        });
-                    }
+                for (let i = -1; i < 12; i++) {
+                    let eventDate = new Date(now.getFullYear(), now.getMonth() + i, day);
+                    // Shift to previous working day if weekend/holiday
+                    eventDate = getPriorWorkingDay(eventDate, holidays);
+                    
+                    combined.push({
+                        id: `${type}_${item.id || item.household_id}_${i}`,
+                        title: titleFn(item),
+                        date: eventDate.toISOString().split('T')[0],
+                        type: type,
+                        description: descFn(item),
+                        emoji: emojiFn(item),
+                        is_all_day: 1,
+                        resource: item
+                    });
                 }
             });
+        };
 
-            // Also add Bank Holidays as events
-            holidays.forEach(hDate => {
-                combined.push({
-                    id: `holiday_${hDate}`,
-                    title: `🏦 Bank Holiday`,
-                    date: hDate,
-                    type: 'holiday',
-                    emoji: '🇬🇧',
-                    is_all_day: 1
-                });
+        // 1. Recurring Costs
+        generateMonthlyEvents(costs, 'payment_day', 
+            c => `💸 ${c.name}`, 
+            'cost', 
+            c => '💸', 
+            c => `Recurring cost: £${c.amount}`
+        );
+
+        // 2. Income (Paydays)
+        generateMonthlyEvents(incomes, 'payment_day', 
+            inc => `💰 Payday: ${inc.employer}`, 
+            'income', 
+            inc => inc.emoji || '💰', 
+            inc => `Net Pay: £${inc.amount}`
+        );
+
+        // 3. Credit Cards
+        generateMonthlyEvents(creditCards, 'payment_day', 
+            cc => `💳 ${cc.card_name} Bill`, 
+            'bill', 
+            cc => cc.emoji || '💳', 
+            cc => `${cc.provider} Credit Card Bill`
+        );
+
+        // 4. Utilities (Water, Council, Energy)
+        generateMonthlyEvents(water, 'payment_day', 
+            w => `💧 ${w.provider || 'Water'} Bill`, 
+            'bill', 
+            () => '💧', 
+            w => `Water Bill: £${w.monthly_amount || '?'}`
+        );
+
+        generateMonthlyEvents(council, 'payment_day', 
+            c => `🏛️ Council Tax`, 
+            'bill', 
+            () => '🏛️', 
+            c => `Council Tax (${c.authority_name}): £${c.monthly_amount || '?'}`
+        );
+
+        generateMonthlyEvents(energy, 'payment_day', 
+            e => `⚡ ${e.provider || 'Energy'} Bill`, 
+            'bill', 
+            () => '⚡', 
+            e => `${e.type} Bill: £${e.monthly_amount || '?'}`
+        );
+
+        // 5. Bank Holidays
+        holidays.forEach(hDate => {
+            combined.push({
+                id: `holiday_${hDate}`,
+                title: `🏦 Bank Holiday`,
+                date: hDate,
+                type: 'holiday',
+                emoji: '🇬🇧',
+                is_all_day: 1
             });
-
-            res.json(combined);
         });
-    });
+
+        closeDb(req);
+        res.json(combined);
+
+    } catch (err) {
+        closeDb(req);
+        console.error("Calendar Fetch Error:", err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // GET /households/:id/dates/:itemId
