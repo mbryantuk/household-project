@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.42] - 2026-01-19
+
+### Changed
+- **Finance:** Temporarily disabled Savings & Pots backend routes for rebuilding.
+- **Finance:** Updated Savings UI to display a "Work In Progress" placeholder.
+
 ## [2.6.41] - 2026-01-16
 
 ### Added

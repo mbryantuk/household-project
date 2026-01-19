@@ -58,7 +58,7 @@ describe('Feature: Expanded Financial Management', () => {
                     amount: 3500, // Net
                     frequency: 'monthly' 
                 });
-            expect(res.statusCode).toBe(200);
+            expect(res.statusCode).toBe(201);
             itemId = res.body.id;
         });
         it('should list income', async () => {
@@ -84,7 +84,7 @@ describe('Feature: Expanded Financial Management', () => {
             const res = await request(app).post(`/households/${householdId}/finance/savings`)
                 .set('Authorization', `Bearer ${token}`)
                 .send({ institution: 'Chase', account_name: 'Rainy Day', current_balance: 1000 });
-            expect(res.statusCode).toBe(200);
+            expect(res.statusCode).toBe(201);
             savingsId = res.body.id;
         });
 
@@ -92,7 +92,7 @@ describe('Feature: Expanded Financial Management', () => {
             const res = await request(app).post(`/households/${householdId}/finance/savings/${savingsId}/pots`)
                 .set('Authorization', `Bearer ${token}`)
                 .send({ name: 'Holiday', target_amount: 500 });
-            expect(res.statusCode).toBe(200);
+            expect(res.statusCode).toBe(201);
             potId = res.body.id;
         });
 
@@ -117,7 +117,7 @@ describe('Feature: Expanded Financial Management', () => {
             const res = await request(app).post(`/households/${householdId}/finance/credit-cards`)
                 .set('Authorization', `Bearer ${token}`)
                 .send({ provider: 'Amex', card_name: 'Gold', credit_limit: 5000 });
-            expect(res.statusCode).toBe(200);
+            expect(res.statusCode).toBe(201);
             cardId = res.body.id;
         });
         it('should delete credit card', async () => {
@@ -131,7 +131,7 @@ describe('Feature: Expanded Financial Management', () => {
             const res = await request(app).post(`/households/${householdId}/finance/loans`)
                 .set('Authorization', `Bearer ${token}`)
                 .send({ lender: 'Bank', total_amount: 10000 });
-            expect(res.statusCode).toBe(200);
+            expect(res.statusCode).toBe(201);
             loanId = res.body.id;
         });
         it('should delete loan', async () => {
@@ -145,7 +145,7 @@ describe('Feature: Expanded Financial Management', () => {
             const res = await request(app).post(`/households/${householdId}/finance/mortgages`)
                 .set('Authorization', `Bearer ${token}`)
                 .send({ lender: 'Halifax', total_amount: 300000 });
-            expect(res.statusCode).toBe(200);
+            expect(res.statusCode).toBe(201);
             mortId = res.body.id;
         });
         it('should delete mortgage', async () => {
@@ -159,7 +159,7 @@ describe('Feature: Expanded Financial Management', () => {
             const res = await request(app).post(`/households/${householdId}/finance/pensions`)
                 .set('Authorization', `Bearer ${token}`)
                 .send({ provider: 'Aviva', current_value: 50000 });
-            expect(res.statusCode).toBe(200);
+            expect(res.statusCode).toBe(201);
             pensionId = res.body.id;
         });
 
@@ -167,7 +167,7 @@ describe('Feature: Expanded Financial Management', () => {
              const res = await request(app).post(`/households/${householdId}/finance/pensions/${pensionId}/history`)
                 .set('Authorization', `Bearer ${token}`)
                 .send({ value: 51000 });
-            expect(res.statusCode).toBe(200);
+            expect(res.statusCode).toBe(201);
         });
 
         it('should delete pension', async () => {
@@ -181,7 +181,7 @@ describe('Feature: Expanded Financial Management', () => {
             const res = await request(app).post(`/households/${householdId}/finance/current-accounts`)
                 .set('Authorization', `Bearer ${token}`)
                 .send({ bank_name: 'HSBC', account_name: 'Main', current_balance: 1500, overdraft_limit: 500 });
-            expect(res.statusCode).toBe(200);
+            expect(res.statusCode).toBe(201);
             accountId = res.body.id;
         });
         
@@ -221,7 +221,7 @@ describe('Feature: Expanded Financial Management', () => {
             const res = await request(app).post(`/households/${householdId}/finance/assignments`)
                 .set('Authorization', `Bearer ${token}`)
                 .send({ entity_type: 'current_account', entity_id: accountId, member_id: memberId });
-            expect(res.statusCode).toBe(200);
+            expect(res.statusCode).toBe(201);
         });
 
         it('should list assignments', async () => {

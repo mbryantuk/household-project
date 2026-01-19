@@ -10,7 +10,8 @@ import {
   Home, 
   TrendingUp, 
   HourglassBottom, 
-  PieChart 
+  PieChart,
+  Construction
 } from '@mui/icons-material';
 
 import IncomeView from './finance/IncomeView';
@@ -29,6 +30,23 @@ const ComingSoonPlaceholder = ({ title, icon: Icon }) => (
     <Icon sx={{ fontSize: 64, opacity: 0.5 }} />
     <Typography level="h3" sx={{ color: 'inherit' }}>{title}</Typography>
     <Typography level="body-md">Coming Soon</Typography>
+  </Box>
+);
+
+const WipPlaceholder = ({ title }) => (
+  <Box sx={{ 
+    display: 'flex', 
+    flexDirection: 'column', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    height: '400px', 
+    gap: 2,
+    color: 'warning.500'
+  }}>
+    <Construction sx={{ fontSize: 64, opacity: 0.8 }} />
+    <Typography level="h3" sx={{ color: 'inherit' }}>{title}</Typography>
+    <Typography level="body-lg" sx={{ fontWeight: 'lg' }}>Work In Progress</Typography>
+    <Typography level="body-sm" sx={{ color: 'neutral.500' }}>We are currently rebuilding this feature to serve you better.</Typography>
   </Box>
 );
 
@@ -70,10 +88,14 @@ export default function FinanceView() {
           bgcolor: 'background.surface'
         }}
       >
-        <ComingSoonPlaceholder 
-          title={activeView.label} 
-          icon={activeView.icon} 
-        />
+        {tab === 'savings' ? (
+          <WipPlaceholder title={activeView.label} />
+        ) : (
+          <ComingSoonPlaceholder 
+            title={activeView.label} 
+            icon={activeView.icon} 
+          />
+        )}
       </Sheet>
     </Box>
   );
