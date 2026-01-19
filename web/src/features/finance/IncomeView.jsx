@@ -7,8 +7,10 @@ import {
   Sheet, Table
 } from '@mui/joy';
 import { Edit, Delete, Add } from '@mui/icons-material';
+import { format } from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
+import { getNextPayday } from '../../utils/dateUtils';
 
 export default function IncomeView() {
   const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
@@ -161,12 +163,15 @@ export default function IncomeView() {
                         <SortableHeader label="Gross (Ann)" field="gross_annual_salary" width={120} />
                         <SortableHeader label="Net (Pay)" field="amount" width={120} />
                         <SortableHeader label="Frequency" field="frequency" width={100} />
+                        <th style={{ width: 120 }}>Next Payday</th>
                         <SortableHeader label="Assignee" field="member_id" width={150} />
                         {isAdmin && <th style={{ textAlign: 'right', width: 100 }}>Actions</th>}
                     </tr>
                 </thead>
                 <tbody>
-                    {processedData.map((row) => (
+                    {processedData.map((row) => {
+                        const nextPayDate = getNextPayday(row.payment_day);
+                        return (
                         <tr key={row.id}>
                             <td>
                                 <Avatar size="sm" sx={{ bgcolor: getEmojiColor(row.emoji || (row.employer||'?')[0], isDark) }}>
@@ -189,6 +194,13 @@ export default function IncomeView() {
                                 <Typography fontWeight="bold" color="success">£{row.amount?.toLocaleString()}</Typography>
                             </td>
                             <td>{row.frequency}</td>
+                            <td>
+                                {nextPayDate ? (
+                                    <Chip size="sm" variant="outlined" color="primary">
+                                        {format(nextPayDate, 'EEE do MMM')}
+                                    </Chip>
+                                ) : '-'}
+                            </td>
                             <td>{getMemberName(row.member_id)}</td>
                             {isAdmin && (
                                 <td style={{ textAlign: 'right' }}>
@@ -197,33 +209,42 @@ export default function IncomeView() {
                                 </td>
                             )}
                         </tr>
-                    ))}
+                        );
+                    })}
                 </tbody>
             </Table>
         </Sheet>
       ) : (
         <Grid container spacing={2}>
-            {processedData.map(a => (
-            <Grid xs={12} key={a.id}>
-                <Card variant="outlined" sx={{ flexDirection: 'row', gap: 2 }}>
-                    <Avatar size="lg" sx={{ bgcolor: getEmojiColor(a.emoji || (a.employer||'?')[0], isDark) }}>
-                        {a.emoji || (a.employer||'?')[0]}
-                    </Avatar>
-                    <Box sx={{ flexGrow: 1 }}>
-                        <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{a.employer}</Typography>
-                        <Typography level="body-sm">{a.role}</Typography>
-                        <Box sx={{ display: 'flex', gap: 1, mt: 1, flexWrap: 'wrap' }}>
-                            <Chip size="sm" color="success">Net: £{a.amount}</Chip>
-                            <Chip size="sm" variant="outlined">{a.frequency}</Chip>
-                            <Chip size="sm" variant="soft">{getMemberName(a.member_id)}</Chip>
+            {processedData.map(a => {
+                const nextPayDate = getNextPayday(a.payment_day);
+                return (
+                <Grid xs={12} key={a.id}>
+                    <Card variant="outlined" sx={{ flexDirection: 'row', gap: 2 }}>
+                        <Avatar size="lg" sx={{ bgcolor: getEmojiColor(a.emoji || (a.employer||'?')[0], isDark) }}>
+                            {a.emoji || (a.employer||'?')[0]}
+                        </Avatar>
+                        <Box sx={{ flexGrow: 1 }}>
+                            <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{a.employer}</Typography>
+                            <Typography level="body-sm">{a.role}</Typography>
+                            <Box sx={{ display: 'flex', gap: 1, mt: 1, flexWrap: 'wrap' }}>
+                                <Chip size="sm" color="success">Net: £{a.amount}</Chip>
+                                <Chip size="sm" variant="outlined">{a.frequency}</Chip>
+                                {nextPayDate && (
+                                    <Chip size="sm" variant="outlined" color="primary">
+                                        Next: {format(nextPayDate, 'do MMM')}
+                                    </Chip>
+                                )}
+                                <Chip size="sm" variant="soft">{getMemberName(a.member_id)}</Chip>
+                            </Box>
                         </Box>
-                    </Box>
-                    <IconButton variant="plain" onClick={() => { setEditItem(a); setIsNew(false); }}>
-                        <Edit />
-                    </IconButton>
-                </Card>
-            </Grid>
-            ))}
+                        <IconButton variant="plain" onClick={() => { setEditItem(a); setIsNew(false); }}>
+                            <Edit />
+                        </IconButton>
+                    </Card>
+                </Grid>
+                );
+            })}
         </Grid>
       )}
 
