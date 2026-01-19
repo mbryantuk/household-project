@@ -93,7 +93,7 @@ const handleCreateItem = (table) => (req, res) => {
         req.tenantDb.run(`INSERT INTO ${table} (${placeholders}) VALUES (${qs})`, values, function(err) {
             closeDb(req);
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: this.lastID, ...insertData });
+            res.status(201).json({ id: this.lastID, ...insertData });
         });
     });
 };
@@ -140,7 +140,7 @@ const handleDeleteItem = (table) => (req, res) => {
 // For tables that link to a parent (e.g., Pots -> Savings)
 // We must verify the parent belongs to the household first.
 
-const handleSubList = (childTable, parentTable, parentKey, childKey = 'id') => (req, res) => {
+const handleSubList = (childTable, parentTable, parentKey) => (req, res) => {
     const parentId = req.params[parentKey];
     // verify parent ownership
     req.tenantDb.get(`SELECT id FROM ${parentTable} WHERE id = ? AND household_id = ?`, [parentId, req.hhId], (err, row) => {
@@ -180,7 +180,7 @@ const handleSubCreate = (childTable, parentTable, parentKey) => (req, res) => {
             req.tenantDb.run(`INSERT INTO ${childTable} (${placeholders}) VALUES (${qs})`, values, function(iErr) {
                 closeDb(req);
                 if (iErr) return res.status(500).json({ error: iErr.message });
-                res.json({ id: this.lastID, ...insertData });
+                res.status(201).json({ id: this.lastID, ...insertData });
             });
         });
     });
@@ -226,6 +226,7 @@ router.delete('/households/:id/finance/savings/:itemId', authenticateToken, requ
 // --- SAVINGS POTS ---
 router.get('/households/:id/finance/savings/:savingsId/pots', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleSubList('finance_savings_pots', 'finance_savings', 'savingsId'));
 router.post('/households/:id/finance/savings/:savingsId/pots', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleSubCreate('finance_savings_pots', 'finance_savings', 'savingsId'));
+router.put('/households/:id/finance/savings/:savingsId/pots/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('finance_savings_pots'));
 router.delete('/households/:id/finance/savings/:savingsId/pots/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleSubDelete('finance_savings_pots', 'finance_savings', 'savingsId'));
 
 // --- CREDIT CARDS ---
@@ -287,14 +288,13 @@ const handleAssignMember = (req, res) => {
     req.tenantDb.get("SELECT id FROM members WHERE id = ? AND household_id = ?", [member_id, req.hhId], (err, row) => {
         if (err || !row) { closeDb(req); return res.status(404).json({ error: "Member not found" }); }
         
-        // Insert assignment (IGNORE if exists)
         req.tenantDb.run(
             `INSERT OR IGNORE INTO finance_assignments (household_id, entity_type, entity_id, member_id) VALUES (?, ?, ?, ?)`, 
             [req.hhId, entity_type, entity_id, member_id], 
             function(iErr) {
                 closeDb(req);
                 if (iErr) return res.status(500).json({ error: iErr.message });
-                res.json({ message: "Assigned" });
+                res.status(201).json({ message: "Assigned" });
             }
         );
     });
@@ -314,7 +314,6 @@ const handleUnassignMember = (req, res) => {
 };
 
 const handleGetAssignments = (req, res) => {
-    // Optionally filter by entity or member via query params
     let sql = "SELECT * FROM finance_assignments WHERE household_id = ?";
     let params = [req.hhId];
     
