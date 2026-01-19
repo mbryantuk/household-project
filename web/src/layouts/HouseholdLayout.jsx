@@ -13,7 +13,7 @@ import {
   Person as ProfileIcon,
   Download,
   Calculate, Savings, Payments, NoteAlt, SwapHoriz, ChevronLeft,
-  RestaurantMenu, Logout
+  RestaurantMenu, Logout, AccountBalance
 } from '@mui/icons-material';
 import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
@@ -267,6 +267,7 @@ export default function HouseholdLayout({
                         <MenuTile icon={<PeopleIcon />} label="People" to="people" onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<RestaurantMenu />} label="Meals" to="meals" onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<AssetsIcon />} label="Assets" to="house/1" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<AccountBalance />} label="Finance" to="finance" onClick={() => setDrawerOpen(false)} />
                     </>
                 ) : (
                     households.map(hh => (

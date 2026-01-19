@@ -159,12 +159,6 @@ export default function UtilityBar({
                 <Typography level="body-xs">Online</Typography>
             </Box>
             
-            <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 0.5, opacity: 0.7, px: 1.5 }}>
-                <Tooltip title={`System Root: v${pkg.version}`} variant="soft" arrow>
-                    <Typography level="body-xs" fontWeight="600" sx={{ cursor: 'help' }}>v{pkg.version}</Typography>
-                </Tooltip>
-            </Box>
-
             {canInstall && (
                 <Tooltip title="Install App" variant="soft">
                     <IconButton size="sm" variant="plain" color="success" onClick={onInstall} sx={{ height: '100%', borderRadius: 0, px: 1.5 }}>
@@ -172,6 +166,18 @@ export default function UtilityBar({
                     </IconButton>
                 </Tooltip>
             )}
+
+            <Tooltip title="Log Out" variant="soft">
+                <IconButton 
+                    size="sm" 
+                    variant="plain" 
+                    color="danger" 
+                    onClick={() => confirmAction("Log Out", "Are you sure you want to log out?", onLogout)}
+                    sx={{ height: '100%', borderRadius: 0, px: 1.5 }}
+                >
+                    <Logout fontSize="small" />
+                </IconButton>
+            </Tooltip>
 
             <WidgetWrapper 
                 id="account" 
@@ -237,15 +243,9 @@ export default function UtilityBar({
                     </List>
 
                     <Divider sx={{ my: 1 }} />
-                    
-                    <List size="sm" sx={{ p: 1 }}>
-                        <ListItem>
-                            <ListItemButton color="danger" variant="soft" onClick={() => confirmAction("Log Out", "Are you sure you want to log out?", onLogout)}>
-                                <ListItemDecorator><Logout fontSize="small" /></ListItemDecorator>
-                                <ListItemContent>Logout</ListItemContent>
-                            </ListItemButton>
-                        </ListItem>
-                    </List>
+                    <Box sx={{ p: 1.5, display: 'flex', justifyContent: 'center', opacity: 0.5 }}>
+                        <Typography level="body-xs">Totem v{pkg.version}</Typography>
+                    </Box>
                 </Box>
             </WidgetWrapper>
         </Box>
