@@ -376,6 +376,13 @@ export default function BudgetView() {
       } catch (err) { console.error(err); }
   };
 
+  const cycleTotals = useMemo(() => {
+      if (!cycleData) return { total: 0, paid: 0, unpaid: 0 };
+      const total = cycleData.expenses.reduce((sum, e) => sum + e.amount, 0);
+      const paid = cycleData.expenses.filter(e => e.isPaid).reduce((sum, e) => sum + e.amount, 0);
+      return { total, paid, unpaid: total - paid };
+  }, [cycleData]);
+
   const totals = useMemo(() => {
       if (!cycleData) return { total: 0, paid: 0, unpaid: 0 };
       const filtered = cycleData.expenses.filter(exp => !hidePaid || !exp.isPaid);
@@ -402,7 +409,7 @@ export default function BudgetView() {
       return () => setStatusBarData(null);
   }, [selectedTotals, setStatusBarData]);
 
-  const trueDisposable = (parseFloat(currentBalance) || 0) - cycleData?.expenses.filter(e => !e.isPaid).reduce((sum, e) => sum + e.amount, 0);
+  const trueDisposable = (parseFloat(currentBalance) || 0) - cycleTotals.unpaid;
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
   if (!cycleData) return <Box sx={{ p: 4, textAlign: 'center' }}><Typography level="h4">No Primary Income Set</Typography><Button sx={{ mt: 2 }} onClick={fetchData}>Refresh</Button></Box>;
@@ -487,25 +494,43 @@ export default function BudgetView() {
                         </Stack>
                     </Card>
 
-                    <Card variant="solid" color={trueDisposable < 0 ? 'danger' : 'primary'} invertedColors sx={{ p: 3 }}>
-                        <Typography level="title-md">True Disposable</Typography>
-                        <Typography level="h1">{formatCurrency(trueDisposable)}</Typography>
-                        <Typography level="body-xs">Balance ({formatCurrency(parseFloat(currentBalance) || 0)}) - Unpaid Bills ({formatCurrency(totals.unpaid)})</Typography>
+                    <Card variant="solid" color={trueDisposable < 0 ? 'danger' : 'primary'} invertedColors sx={{ p: 3, boxShadow: 'sm' }}>
+                        <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+                            <Box>
+                                <Typography level="title-md" sx={{ opacity: 0.8 }}>True Disposable</Typography>
+                                <Typography level="h1" sx={{ mt: 0.5 }}>{formatCurrency(trueDisposable)}</Typography>
+                            </Box>
+                            <Chip variant="soft" color={trueDisposable < 0 ? 'danger' : 'primary'} size="sm" sx={{ fontWeight: 'bold' }}>
+                                {trueDisposable < 0 ? 'SHORTFALL' : 'SURPLUS'}
+                            </Chip>
+                        </Stack>
                         
-                        <Box sx={{ mt: 3 }}>
+                        <Typography level="body-xs" sx={{ mt: 1, opacity: 0.9 }}>
+                            Balance ({formatCurrency(parseFloat(currentBalance) || 0)}) - Unpaid ({formatCurrency(cycleTotals.unpaid)})
+                        </Typography>
+                        
+                        <Divider sx={{ my: 2, bgcolor: 'rgba(255,255,255,0.1)' }} />
+                        
+                        <Box>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                <Typography level="body-xs">Cycle Progress</Typography>
-                                <Typography level="body-xs">{Math.round((totals.paid / (totals.total || 1)) * 100)}%</Typography>
+                                <Typography level="body-xs" fontWeight="bold">Cycle Progress</Typography>
+                                <Typography level="body-xs" fontWeight="bold">{Math.round((cycleTotals.paid / (cycleTotals.total || 1)) * 100)}%</Typography>
                             </Box>
                             <LinearProgress 
                                 determinate 
-                                value={(totals.paid / (totals.total || 1)) * 100} 
-                                thickness={8}
-                                sx={{ borderRadius: 4, bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }} 
+                                value={(cycleTotals.paid / (cycleTotals.total || 1)) * 100} 
+                                thickness={10}
+                                sx={{ 
+                                    borderRadius: 4, 
+                                    bgcolor: 'rgba(255,255,255,0.2)', 
+                                    color: 'white',
+                                    '--LinearProgress-radius': '8px'
+                                }} 
                             />
-                            <Typography level="body-xs" sx={{ mt: 1, textAlign: 'right' }}>
-                                <b>{formatCurrency(totals.unpaid)}</b> left to pay
-                            </Typography>
+                            <Stack direction="row" justifyContent="space-between" sx={{ mt: 1.5, alignItems: 'center' }}>
+                                <Typography level="body-sm" sx={{ opacity: 0.9 }}>Remaining to pay</Typography>
+                                <Typography level="title-md" sx={{ fontWeight: 'bold' }}>{formatCurrency(cycleTotals.unpaid)}</Typography>
+                            </Stack>
                         </Box>
                     </Card>
                 </Stack>
