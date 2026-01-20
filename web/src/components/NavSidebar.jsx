@@ -151,6 +151,7 @@ export default function NavSidebar({
       else if (path.includes('/dashboard')) setActiveCategory('dashboard');
       else if (path.includes('/calendar')) setActiveCategory('calendar');
       else if (path.includes('/meals')) setActiveCategory('meals');
+      else if (path.includes('/finance')) setActiveCategory('finance');
   }, [location.pathname]);
 
   const handleNav = (to, category, hasSubItems) => {
@@ -258,7 +259,7 @@ export default function NavSidebar({
                         
                         <RailIcon icon={<Inventory2 />} label="Assets" category="assets" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                         
-                        <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
+                        <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems to="finance" location={location} activeCategory={activeCategory} handleNav={handleNav} isMobile={isMobile} />
                         
                         {enabledModules.includes('meals') && (
                             <RailIcon 
@@ -387,7 +388,12 @@ export default function NavSidebar({
                             <GroupHeader label="Liabilities" />
                             <SubItem label="Credit Cards" to="finance?tab=credit" emoji="💳" isDark={isDark} />
                             <SubItem label="Loans" to="finance?tab=loans" emoji="📝" isDark={isDark} />
+                            <SubItem label="Car Finance" to="finance?tab=car" emoji="🚗" isDark={isDark} />
                             <SubItem label="Mortgages" to="finance?tab=mortgage" emoji="🏠" isDark={isDark} />
+                            
+                            <Divider sx={{ my: 1 }} />
+                            <GroupHeader label="Obligations" />
+                            <SubItem label="Agreements" to="finance?tab=agreements" emoji="📑" isDark={isDark} />
                         </>
                     )}
                 </List>

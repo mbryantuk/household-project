@@ -1,26 +1,32 @@
-# 1. Use Playwright image (includes Node 20 + Browsers + System Deps)
-FROM mcr.microsoft.com/playwright:v1.49.1-jammy
+# Stage 1: Build the frontend (Node image)
+FROM node:20-slim AS frontend-builder
+WORKDIR /app
+COPY package*.json ./
+WORKDIR /app/web
+COPY web/package*.json ./
+RUN npm install
+COPY web/ ./
+# We need the root package.json for versioning in vite.config.js
+RUN npm run build
 
-# 2. Set the working directory
+# Stage 2: Final Image (Playwright for tests + Server)
+FROM mcr.microsoft.com/playwright:v1.49.1-jammy
 WORKDIR /app
 
-# 3. Copy package files first (better for Docker caching)
-COPY web/package*.json ./web/
+# Copy server package files and install dependencies
 COPY server/package*.json ./server/
-
-# 4. Install dependencies for both folders
-RUN cd web && npm install
 RUN cd server && npm install
 
-# 5. Copy the rest of the source code
+# Copy all source code (respects .dockerignore)
 COPY . .
 
-# 6. Build the React frontend
-RUN cd web && npm run build
+# Copy the built frontend from Stage 1 and purge heavy node_modules
+COPY --from=frontend-builder /app/web/dist ./web/dist
+RUN rm -rf web/node_modules
 
-# 7. Expose the unified port
+# Expose unified port
 EXPOSE 4001
 
-# 8. Start the server
+# Start the server
 WORKDIR /app/server
 CMD ["node", "server.js"]
