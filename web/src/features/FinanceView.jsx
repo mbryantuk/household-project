@@ -19,6 +19,7 @@ import {
 import IncomeView from './finance/IncomeView';
 import BankingView from './finance/BankingView';
 import SavingsView from './finance/SavingsView';
+import InvestmentsView from './finance/InvestmentsView';
 import { getEmojiColor } from '../theme';
 
 const ComingSoonPlaceholder = ({ title, icon: Icon }) => (
@@ -95,6 +96,7 @@ export default function FinanceView() {
       if (activeTabKey === 'income') return <IncomeView />;
       if (activeTabKey === 'banking') return <BankingView />;
       if (activeTabKey === 'savings') return <SavingsView />;
+      if (activeTabKey === 'invest') return <InvestmentsView />;
       
       // Default placeholder logic
       return (

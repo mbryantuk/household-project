@@ -111,6 +111,33 @@ describe('Feature: Expanded Financial Management', () => {
         });
     });
 
+    describe('Investments', () => {
+        let itemId;
+        it('should create investment', async () => {
+            const res = await request(app).post(`/households/${householdId}/finance/investments`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({ 
+                    name: 'S&P 500', 
+                    symbol: 'VUSA', 
+                    platform: 'Vanguard',
+                    asset_type: 'Stocks',
+                    units: 10,
+                    current_value: 1000,
+                    total_invested: 800
+                });
+            expect(res.statusCode).toBe(201);
+            itemId = res.body.id;
+        });
+        it('should list investments', async () => {
+            const res = await request(app).get(`/households/${householdId}/finance/investments`).set('Authorization', `Bearer ${token}`);
+            expect(res.body.length).toBeGreaterThan(0);
+            expect(res.body[0].symbol).toBe('VUSA');
+        });
+        it('should delete investment', async () => {
+            await request(app).delete(`/households/${householdId}/finance/investments/${itemId}`).set('Authorization', `Bearer ${token}`);
+        });
+    });
+
     describe('Credit Cards', () => {
         let cardId;
         it('should create credit card', async () => {

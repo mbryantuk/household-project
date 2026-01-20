@@ -222,10 +222,10 @@ export default function SavingsView() {
 
   return (
     <Box>
-        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
             <Box>
-                <Typography level="h2">Savings & Investments</Typography>
-                <Typography color="neutral">Track savings goals, pots, and interest.</Typography>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Savings</Typography>
+                <Typography level="body-md" color="neutral">Monitor savings goals and rainy day funds.</Typography>
             </Box>
             {isAdmin && (
                 <Button startDecorator={<Add />} onClick={() => { setEditAccount({}); setIsNewAccount(true); }}>
