@@ -4,14 +4,14 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  Sheet, Table, Checkbox, Tooltip, LinearProgress, List, ListItem, ListItemDecorator, ListItemContent
+  Sheet, Table, Checkbox, Tooltip, LinearProgress, List, ListItem, ListItemDecorator, ListItemContent, Select, Option
 } from '@mui/joy';
 import { 
   PieChart, 
   AccountBalanceWallet, 
   CheckCircle, 
   RadioButtonUnchecked, 
-  TrendingDown, 
+  TrendingUp, 
   Event, 
   Payments,
   Savings as SavingsIcon,
@@ -26,9 +26,13 @@ import {
   Shield,
   HistoryEdu,
   ShoppingBag,
-  PriceCheck
+  PriceCheck,
+  ChevronLeft,
+  ChevronRight,
+  Person,
+  Pets
 } from '@mui/icons-material';
-import { format, addMonths, startOfMonth, endOfMonth, setDate } from 'date-fns';
+import { format, addMonths, startOfMonth, endOfMonth, setDate, parseISO } from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
 
@@ -38,25 +42,28 @@ const formatCurrency = (val) => {
 };
 
 export default function BudgetView() {
-  const { api, id: householdId, user: currentUser, isDark, showNotification } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, showNotification, members } = useOutletContext();
   const [loading, setLoading] = useState(true);
   const [savingProgress, setSavingProgress] = useState(false);
+  const [viewDate, setViewDate] = useState(new Date());
   
   // Data State
   const [incomes, setIncomes] = useState([]);
   const [progress, setProgress] = useState([]); 
+  const [cycles, setCycles] = useState([]); 
   const [liabilities, setLiabilities] = useState({
       mortgages: [], loans: [], agreements: [], vehicle_finance: [], 
       recurring_costs: [], credit_cards: [], water: null, council: null, energy: []
   });
   const [savingsPots, setSavingsPots] = useState([]);
 
-  // User Inputs (Cycle override)
+  // User Inputs
   const [actualPay, setActualPay] = useState('');
   const [currentBalance, setCurrentBalance] = useState('');
 
   // Modal State
   const [quickAddOpen, setQuickAddOpen] = useState(false);
+  const [potAllocationOpen, setPotAllocationOpen] = useState(false);
 
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'member';
 
@@ -64,10 +71,11 @@ export default function BudgetView() {
     setLoading(true);
     try {
       const [
-          incRes, progRes, mortRes, loanRes, agreeRes, carRes, costRes, ccRes, waterRes, councilRes, energyRes, potRes
+          incRes, progRes, cycleRes, mortRes, loanRes, agreeRes, carRes, costRes, ccRes, waterRes, councilRes, energyRes, potRes
       ] = await Promise.all([
           api.get(`/households/${householdId}/finance/income`),
           api.get(`/households/${householdId}/finance/budget-progress`),
+          api.get(`/households/${householdId}/finance/budget-cycles`),
           api.get(`/households/${householdId}/finance/mortgages`),
           api.get(`/households/${householdId}/finance/loans`),
           api.get(`/households/${householdId}/finance/agreements`),
@@ -82,6 +90,7 @@ export default function BudgetView() {
 
       setIncomes(incRes.data || []);
       setProgress(progRes.data || []);
+      setCycles(cycleRes.data || []);
       setLiabilities({
           mortgages: mortRes.data || [],
           loans: loanRes.data || [],
@@ -94,9 +103,6 @@ export default function BudgetView() {
           energy: energyRes.data || []
       });
       setSavingsPots(potRes.data || []);
-
-      const primary = incRes.data?.find(i => i.is_primary);
-      if (primary) setActualPay(primary.amount);
 
     } catch (err) {
       console.error(err);
@@ -112,17 +118,17 @@ export default function BudgetView() {
       const primaryIncome = incomes.find(i => i.is_primary === 1) || incomes.find(i => i.payment_day > 0);
       if (!primaryIncome || !primaryIncome.payment_day) return null;
 
-      const now = new Date();
       const payday = parseInt(primaryIncome.payment_day);
-      
       let startDate;
-      if (now.getDate() >= payday) {
-          startDate = setDate(startOfMonth(now), payday);
+      
+      if (viewDate.getDate() >= payday) {
+          startDate = setDate(startOfMonth(viewDate), payday);
       } else {
-          startDate = setDate(startOfMonth(addMonths(now, -1)), payday);
+          startDate = setDate(startOfMonth(addMonths(viewDate, -1)), payday);
       }
 
       const endDate = addMonths(startDate, 1);
+      const cycleKey = format(startDate, 'yyyy-MM-dd');
       const label = format(startDate, 'MMM yyyy') + " Cycle";
 
       const expenses = [];
@@ -131,7 +137,7 @@ export default function BudgetView() {
           if (!day && type !== 'pot') return;
           const expenseDay = parseInt(day) || 1;
           const key = `${type}_${item.id || 'fixed'}`;
-          const progressItem = progress.find(p => p.item_key === key && p.cycle_start === format(startDate, 'yyyy-MM-dd'));
+          const progressItem = progress.find(p => p.item_key === key && p.cycle_start === cycleKey);
           
           expenses.push({
               key,
@@ -143,8 +149,7 @@ export default function BudgetView() {
               icon,
               category,
               isPaid: !!progressItem,
-              isPot: type === 'pot',
-              rawItem: item
+              isPot: type === 'pot'
           });
       };
 
@@ -156,13 +161,26 @@ export default function BudgetView() {
       liabilities.agreements.forEach(a => addExpense(a, 'agreement', a.agreement_name, a.monthly_payment, a.payment_day, <Assignment />, 'Agreement'));
       // 4. Vehicle Finance
       liabilities.vehicle_finance.forEach(v => addExpense(v, 'car_finance', `${v.provider} (Car)`, v.monthly_payment, v.payment_day, <DirectionsCar />, 'Liability'));
-      // 5. Recurring Costs (General + Asset-linked)
+      // 5. Recurring Costs (Includes People and Pets)
       liabilities.recurring_costs.forEach(c => {
           let icon = <Payments />;
+          let prefix = "";
+          if (c.parent_type === 'member') {
+              const m = members.find(mem => mem.id === c.parent_id);
+              prefix = m ? `${m.alias || m.name}: ` : "User: ";
+              icon = <Person />;
+          } else if (c.parent_type === 'pet') {
+              const p = members.find(mem => mem.id === c.parent_id);
+              prefix = p ? `${p.alias || p.name}: ` : "Pet: ";
+              icon = <Pets />;
+          }
+
           if (c.category === 'insurance') icon = <Shield />;
           if (c.category === 'subscription') icon = <ShoppingBag />;
           if (c.category === 'service') icon = <HistoryEdu />;
-          addExpense(c, 'cost', c.name, c.amount, c.payment_day, icon, c.category || 'Cost');
+          if (c.category === 'saving') icon = <SavingsIcon />;
+
+          addExpense(c, 'cost', `${prefix}${c.name}`, c.amount, c.payment_day, icon, c.category || 'Cost');
       });
       // 6. Credit Cards
       liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit', `${cc.card_name}`, 0, cc.payment_day, <CreditCard />, 'Credit Card'));
@@ -171,16 +189,39 @@ export default function BudgetView() {
       if (liabilities.council) addExpense(liabilities.council, 'council', 'Council Tax', liabilities.council.monthly_amount, liabilities.council.payment_day, <AccountBalance />, 'Utility');
       liabilities.energy.forEach(e => addExpense(e, 'energy', `${e.provider} (${e.type})`, e.monthly_amount, e.payment_day, <ElectricBolt />, 'Utility'));
 
-      // 8. Savings Pots
-      savingsPots.forEach(pot => {
-          addExpense(pot, 'pot', `Fund Pot: ${pot.name}`, 0, null, <SavingsIcon />, 'Saving');
-      });
+      return { startDate, endDate, label, cycleKey, expenses };
+  }, [incomes, liabilities, progress, viewDate, members]);
 
-      return { startDate, endDate, label, expenses };
-  }, [incomes, liabilities, progress, savingsPots]);
+  // Sync cycle inputs
+  useEffect(() => {
+      if (cycleData) {
+          const existing = cycles.find(c => c.cycle_start === cycleData.cycleKey);
+          if (existing) {
+              setActualPay(existing.actual_pay || '');
+              setCurrentBalance(existing.current_balance || '');
+          } else {
+              const primary = incomes.find(i => i.is_primary);
+              setActualPay(primary ? primary.amount : '');
+              setCurrentBalance('');
+          }
+      }
+  }, [cycleData, cycles, incomes]);
+
+  const saveCycleData = async (pay, balance) => {
+      if (!cycleData) return;
+      try {
+          await api.post(`/households/${householdId}/finance/budget-cycles`, {
+              cycle_start: cycleData.cycleKey,
+              actual_pay: parseFloat(pay) || 0,
+              current_balance: parseFloat(balance) || 0
+          });
+          const res = await api.get(`/households/${householdId}/finance/budget-cycles`);
+          setCycles(res.data || []);
+      } catch (err) { console.error(err); }
+  };
 
   const updateActualAmount = async (itemKey, amount) => {
-      const cycleStart = format(cycleData.startDate, 'yyyy-MM-dd');
+      const cycleStart = cycleData.cycleKey;
       try {
           await api.post(`/households/${householdId}/finance/budget-progress`, {
               cycle_start: cycleStart,
@@ -196,7 +237,7 @@ export default function BudgetView() {
   const togglePaid = async (itemKey, amount = 0) => {
       if (!cycleData) return;
       setSavingProgress(true);
-      const cycleStart = format(cycleData.startDate, 'yyyy-MM-dd');
+      const cycleStart = cycleData.cycleKey;
       try {
           const isCurrentlyPaid = progress.some(p => p.item_key === itemKey && p.cycle_start === cycleStart);
           if (isCurrentlyPaid) {
@@ -230,6 +271,24 @@ export default function BudgetView() {
       } catch (err) { alert("Failed to add"); }
   };
 
+  const handlePotAllocation = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.currentTarget);
+      const data = Object.fromEntries(formData.entries());
+      // Logic: Adding a pot allocation creates a recurring cost with category 'saving'
+      data.parent_type = 'general';
+      data.parent_id = 1;
+      data.frequency = 'monthly';
+      data.category = 'saving';
+
+      try {
+          await api.post(`/households/${householdId}/costs`, data);
+          showNotification("Savings allocation added.", "success");
+          fetchData();
+          setPotAllocationOpen(false);
+      } catch (err) { alert("Failed to add"); }
+  };
+
   const totals = useMemo(() => {
       if (!cycleData) return { total: 0, paid: 0, unpaid: 0 };
       const total = cycleData.expenses.reduce((sum, e) => sum + e.amount, 0);
@@ -242,18 +301,32 @@ export default function BudgetView() {
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
+  if (!cycleData) {
+      return (
+          <Box sx={{ p: 4, textAlign: 'center' }}>
+              <Typography level="h4">No Primary Income Set</Typography>
+              <Typography level="body-md">Please flag an income source as 'Primary' to drive the budget cycle.</Typography>
+              <Button sx={{ mt: 2 }} onClick={() => fetchData()}>Refresh</Button>
+          </Box>
+      );
+  }
+
   return (
     <Box>
         <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-            <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>{cycleData.label}</Typography>
-                <Typography level="body-md" color="neutral">
-                    {format(cycleData.startDate, 'do MMM')} to {format(cycleData.endDate, 'do MMM')}
-                </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, -1))}><ChevronLeft /></IconButton>
+                <Box>
+                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>{cycleData.label}</Typography>
+                    <Typography level="body-md" color="neutral">
+                        {format(cycleData.startDate, 'do MMM')} to {format(cycleData.endDate, 'do MMM')}
+                    </Typography>
+                </Box>
+                <IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, 1))}><ChevronRight /></IconButton>
             </Box>
             <Box sx={{ display: 'flex', gap: 1 }}>
-                <Button startDecorator={<Add />} onClick={() => setQuickAddOpen(true)}>Add One-off Expense</Button>
-                <Chip variant="soft" color="primary" startDecorator={<Event />}>Payday: {format(cycleData.startDate, 'do')}</Chip>
+                <Button variant="outlined" startDecorator={<SavingsIcon />} onClick={() => setPotAllocationOpen(true)}>Allocate Pot</Button>
+                <Button startDecorator={<Add />} onClick={() => setQuickAddOpen(true)}>Add Expense</Button>
             </Box>
         </Box>
 
@@ -269,6 +342,7 @@ export default function BudgetView() {
                                     type="number" 
                                     value={actualPay} 
                                     onChange={(e) => setActualPay(e.target.value)}
+                                    onBlur={(e) => saveCycleData(e.target.value, currentBalance)}
                                     slotProps={{ input: { step: 'any' } }}
                                     placeholder="0.00"
                                 />
@@ -279,6 +353,7 @@ export default function BudgetView() {
                                     type="number" 
                                     value={currentBalance} 
                                     onChange={(e) => setCurrentBalance(e.target.value)}
+                                    onBlur={(e) => saveCycleData(actualPay, e.target.value)}
                                     slotProps={{ input: { step: 'any' } }}
                                     placeholder="0.00"
                                     autoFocus
@@ -366,6 +441,7 @@ export default function BudgetView() {
             </Grid>
         </Grid>
 
+        {/* MODALS */}
         <Modal open={quickAddOpen} onClose={() => setQuickAddOpen(false)}>
             <ModalDialog sx={{ maxWidth: 400, width: '100%' }}>
                 <DialogTitle>Quick Add Expense</DialogTitle>
@@ -388,6 +464,29 @@ export default function BudgetView() {
                                 ]}
                             />
                             <Button type="submit">Add to Budget</Button>
+                        </Stack>
+                    </form>
+                </DialogContent>
+            </ModalDialog>
+        </Modal>
+
+        <Modal open={potAllocationOpen} onClose={() => setPotAllocationOpen(false)}>
+            <ModalDialog sx={{ maxWidth: 400, width: '100%' }}>
+                <DialogTitle>Allocate to Savings Pot</DialogTitle>
+                <DialogContent>
+                    <form onSubmit={handlePotAllocation}>
+                        <Stack spacing={2}>
+                            <FormControl required>
+                                <FormLabel>Target Pot</FormLabel>
+                                <Select name="name">
+                                    {savingsPots.map(p => (
+                                        <Option key={p.id} value={`Pot: ${p.name}`}>{p.emoji} {p.name} ({p.account_name})</Option>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <FormControl required><FormLabel>Monthly Allocation (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: 'any' } }} /></FormControl>
+                            <FormControl required><FormLabel>Transfer Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={new Date().getDate()} /></FormControl>
+                            <Button type="submit" color="success">Save Allocation</Button>
                         </Stack>
                     </form>
                 </DialogContent>

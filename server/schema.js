@@ -422,6 +422,13 @@ const TENANT_SCHEMA = [
         actual_amount REAL,
         PRIMARY KEY (household_id, cycle_start, item_key)
     )`,
+    `CREATE TABLE IF NOT EXISTS finance_budget_cycles (
+        household_id INTEGER,
+        cycle_start DATE, 
+        actual_pay REAL,
+        current_balance REAL,
+        PRIMARY KEY (household_id, cycle_start)
+    )`,
     `CREATE TABLE IF NOT EXISTS finance_assignments (
         household_id INTEGER,
         entity_type TEXT, -- income, savings, credit_card, loan, mortgage, pension, investment, current_account, agreement, vehicle_finance

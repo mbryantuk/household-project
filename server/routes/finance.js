@@ -305,6 +305,29 @@ router.get('/households/:id/finance/budget-progress', authenticateToken, require
     });
 });
 
+// --- BUDGET CYCLES ---
+router.get('/households/:id/finance/budget-cycles', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
+    req.tenantDb.all(`SELECT * FROM finance_budget_cycles WHERE household_id = ?`, [req.hhId], (err, rows) => {
+        closeDb(req);
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows || []);
+    });
+});
+
+router.post('/households/:id/finance/budget-cycles', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
+    const { cycle_start, actual_pay, current_balance } = req.body;
+    req.tenantDb.run(
+        `INSERT INTO finance_budget_cycles (household_id, cycle_start, actual_pay, current_balance) VALUES (?, ?, ?, ?)
+         ON CONFLICT(household_id, cycle_start) DO UPDATE SET actual_pay = excluded.actual_pay, current_balance = excluded.current_balance`,
+        [req.hhId, cycle_start, actual_pay, current_balance],
+        function(err) {
+            closeDb(req);
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: "Cycle updated" });
+        }
+    );
+});
+
 router.post('/households/:id/finance/budget-progress', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     const { cycle_start, item_key, is_paid } = req.body;
     req.tenantDb.run(
