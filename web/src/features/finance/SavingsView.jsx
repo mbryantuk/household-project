@@ -404,6 +404,18 @@ export default function SavingsView() {
                                         <Input name="interest_rate" type="number" step="0.01" defaultValue={editAccount?.interest_rate} />
                                     </FormControl>
                                 </Grid>
+                                <Grid xs={12} sm={6}>
+                                    <FormControl>
+                                        <FormLabel>Monthly Deposit (£)</FormLabel>
+                                        <Input name="deposit_amount" type="number" step="0.01" defaultValue={editAccount?.deposit_amount} />
+                                    </FormControl>
+                                </Grid>
+                                <Grid xs={12} sm={6}>
+                                    <FormControl>
+                                        <FormLabel>Deposit Day</FormLabel>
+                                        <Input name="deposit_day" type="number" min="1" max="31" defaultValue={editAccount?.deposit_day} placeholder="e.g. 1" />
+                                    </FormControl>
+                                </Grid>
                             </Grid>
                             <FormControl>
                                 <FormLabel>Account Number (Encrypted)</FormLabel>

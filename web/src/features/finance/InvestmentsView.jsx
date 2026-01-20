@@ -268,6 +268,18 @@ export default function InvestmentsView() {
                                         <Input name="total_invested" type="number" step="0.01" defaultValue={editItem?.total_invested} />
                                     </FormControl>
                                 </Grid>
+                                <Grid xs={12} sm={6}>
+                                    <FormControl>
+                                        <FormLabel>Monthly Deposit (£)</FormLabel>
+                                        <Input name="deposit_amount" type="number" step="0.01" defaultValue={editItem?.deposit_amount} />
+                                    </FormControl>
+                                </Grid>
+                                <Grid xs={12} sm={6}>
+                                    <FormControl>
+                                        <FormLabel>Deposit Day</FormLabel>
+                                        <Input name="deposit_day" type="number" min="1" max="31" defaultValue={editItem?.deposit_day} placeholder="e.g. 1" />
+                                    </FormControl>
+                                </Grid>
                             </Grid>
                             <FormControl>
                                 <FormLabel>Emoji</FormLabel>

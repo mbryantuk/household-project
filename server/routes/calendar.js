@@ -40,7 +40,13 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             creditCards, 
             water, 
             council, 
-            energy
+            energy,
+            mortgages,
+            loans,
+            agreements,
+            vehicleFinance,
+            savings,
+            investments
         ] = await Promise.all([
             dbAll(`SELECT * FROM dates WHERE household_id = ? ORDER BY date ASC`, [householdId]),
             dbAll(`SELECT * FROM recurring_costs WHERE household_id = ?`, [householdId]),
@@ -48,7 +54,13 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             dbAll(`SELECT * FROM finance_credit_cards WHERE household_id = ?`, [householdId]),
             dbAll(`SELECT * FROM water_info WHERE household_id = ?`, [householdId]),
             dbAll(`SELECT * FROM council_info WHERE household_id = ?`, [householdId]),
-            dbAll(`SELECT * FROM energy_accounts WHERE household_id = ?`, [householdId])
+            dbAll(`SELECT * FROM energy_accounts WHERE household_id = ?`, [householdId]),
+            dbAll(`SELECT * FROM finance_mortgages WHERE household_id = ?`, [householdId]),
+            dbAll(`SELECT * FROM finance_loans WHERE household_id = ?`, [householdId]),
+            dbAll(`SELECT * FROM finance_agreements WHERE household_id = ?`, [householdId]),
+            dbAll(`SELECT * FROM vehicle_finance WHERE household_id = ?`, [householdId]),
+            dbAll(`SELECT * FROM finance_savings WHERE household_id = ?`, [householdId]),
+            dbAll(`SELECT * FROM finance_investments WHERE household_id = ?`, [householdId])
         ]);
 
         const combined = [...dates];
@@ -123,6 +135,50 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             'bill', 
             () => '⚡', 
             e => `${e.type} Bill: £${e.monthly_amount || '?'}`
+        );
+
+        // 6. Liabilities (Mortgages, Loans, Agreements, Vehicle Finance)
+        generateMonthlyEvents(mortgages, 'payment_day', 
+            m => `🏠 ${m.lender} Payment`, 
+            'bill', 
+            m => m.emoji || '🏠', 
+            m => `${m.mortgage_type === 'equity' ? 'Equity Loan' : 'Mortgage'} Payment: £${m.monthly_payment}`
+        );
+
+        generateMonthlyEvents(loans, 'payment_day', 
+            l => `💰 ${l.lender} Loan Payment`, 
+            'bill', 
+            l => l.emoji || '💰', 
+            l => `Loan Payment: £${l.monthly_payment}`
+        );
+
+        generateMonthlyEvents(agreements, 'payment_day', 
+            a => `📄 ${a.agreement_name} Payment`, 
+            'bill', 
+            a => a.emoji || '📄', 
+            a => `Agreement Payment (${a.provider}): £${a.monthly_payment}`
+        );
+
+        generateMonthlyEvents(vehicleFinance, 'payment_day', 
+            v => `🚗 Vehicle Finance: ${v.provider}`, 
+            'bill', 
+            v => v.emoji || '🚗', 
+            v => `Vehicle Finance Payment: £${v.monthly_payment}`
+        );
+
+        // 7. Savings & Investments (Recurring Deposits)
+        generateMonthlyEvents(savings, 'deposit_day', 
+            s => `🎯 Saving: ${s.institution}`, 
+            'saving', 
+            s => s.emoji || '🎯', 
+            s => `Monthly Deposit: £${s.deposit_amount}`
+        );
+
+        generateMonthlyEvents(investments, 'deposit_day', 
+            i => `📈 Investment: ${i.name}`, 
+            'saving', 
+            i => i.emoji || '📈', 
+            i => `Monthly Deposit: £${i.deposit_amount}`
         );
 
         // 5. Bank Holidays

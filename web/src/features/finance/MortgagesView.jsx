@@ -407,6 +407,9 @@ export default function MortgagesView() {
                                         <Grid xs={12} md={4}>
                                             <FormControl><FormLabel>Fixed Ends</FormLabel><Input name="fixed_rate_expiry" type="date" defaultValue={editItem?.fixed_rate_expiry} /></FormControl>
                                         </Grid>
+                                        <Grid xs={12} md={4}>
+                                            <FormControl><FormLabel>Payment Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} placeholder="e.g. 1" /></FormControl>
+                                        </Grid>
                                         <Grid xs={12}>
                                             <AppSelect 
                                                 label="Repayment Type"

@@ -229,6 +229,9 @@ export default function VehicleFinanceView() {
                                 <Grid xs={6}>
                                     <FormControl><FormLabel>End Date</FormLabel><Input name="end_date" type="date" defaultValue={editItem?.end_date} /></FormControl>
                                 </Grid>
+                                <Grid xs={6}>
+                                    <FormControl><FormLabel>Payment Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} placeholder="e.g. 1" /></FormControl>
+                                </Grid>
                             </Grid>
                             <FormControl><FormLabel>Emoji</FormLabel>
                                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>

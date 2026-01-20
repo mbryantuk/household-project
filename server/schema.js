@@ -100,6 +100,7 @@ const TENANT_SCHEMA = [
         interest_rate REAL,
         start_date DATE,
         end_date DATE,
+        payment_day INTEGER,
         emoji TEXT,
         notes TEXT,
         FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
@@ -461,6 +462,21 @@ function initializeHouseholdSchema(db) {
 
         mortgageCols.forEach(([col, type]) => {
             db.run(`ALTER TABLE finance_mortgages ADD COLUMN ${col} ${type}`, () => {});
+        });
+
+        const additionalFinanceCols = [
+            ['finance_loans', 'payment_day', 'INTEGER'],
+            ['finance_agreements', 'payment_day', 'INTEGER'],
+            ['vehicle_finance', 'payment_day', 'INTEGER'],
+            ['finance_savings', 'deposit_day', 'INTEGER'],
+            ['finance_savings', 'deposit_amount', 'REAL DEFAULT 0'],
+            ['finance_investments', 'deposit_day', 'INTEGER'],
+            ['finance_investments', 'deposit_amount', 'REAL DEFAULT 0'],
+            ['finance_mortgages', 'payment_day', 'INTEGER']
+        ];
+
+        additionalFinanceCols.forEach(([table, col, type]) => {
+            db.run(`ALTER TABLE ${table} ADD COLUMN ${col} ${type}`, () => {});
         });
     });
 }
