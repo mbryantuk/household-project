@@ -230,6 +230,12 @@ export default function PensionsView() {
                                         <Input name="monthly_contribution" type="number" step="0.01" defaultValue={editItem?.monthly_contribution} />
                                     </FormControl>
                                 </Grid>
+                                <Grid xs={6}>
+                                    <FormControl>
+                                        <FormLabel>Payment Day</FormLabel>
+                                        <Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} placeholder="e.g. 1" />
+                                    </FormControl>
+                                </Grid>
                             </Grid>
                             <FormControl>
                                 <FormLabel>Emoji</FormLabel>

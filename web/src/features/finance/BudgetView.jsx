@@ -32,7 +32,7 @@ import {
   Pets,
   Delete
 } from '@mui/icons-material';
-import { format, addMonths, startOfMonth, endOfMonth, setDate, differenceInDays, isSameDay } from 'date-fns';
+import { format, addMonths, startOfMonth, endOfMonth, setDate, differenceInDays, isSameDay, isAfter } from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
 
@@ -54,7 +54,8 @@ export default function BudgetView() {
   const [cycles, setCycles] = useState([]); 
   const [liabilities, setLiabilities] = useState({
       mortgages: [], loans: [], agreements: [], vehicle_finance: [], 
-      recurring_costs: [], credit_cards: [], water: null, council: null, energy: []
+      recurring_costs: [], credit_cards: [], water: null, council: null, energy: [],
+      pensions: []
   });
   const [savingsPots, setSavingsPots] = useState([]);
 
@@ -76,7 +77,7 @@ export default function BudgetView() {
     setLoading(true);
     try {
       const [
-          incRes, progRes, cycleRes, mortRes, loanRes, agreeRes, carRes, costRes, ccRes, waterRes, councilRes, energyRes, potRes, holidayRes
+          incRes, progRes, cycleRes, mortRes, loanRes, agreeRes, carRes, costRes, ccRes, waterRes, councilRes, energyRes, pensionRes, potRes, holidayRes
       ] = await Promise.all([
           api.get(`/households/${householdId}/finance/income`),
           api.get(`/households/${householdId}/finance/budget-progress`),
@@ -90,6 +91,7 @@ export default function BudgetView() {
           api.get(`/households/${householdId}/water`),
           api.get(`/households/${householdId}/council`),
           api.get(`/households/${householdId}/energy`),
+          api.get(`/households/${householdId}/finance/pensions`),
           api.get(`/households/${householdId}/finance/savings/pots`),
           api.get(`/system/holidays`) 
       ]);
@@ -106,7 +108,8 @@ export default function BudgetView() {
           credit_cards: ccRes.data || [],
           water: waterRes.data,
           council: councilRes.data,
-          energy: energyRes.data || []
+          energy: energyRes.data || [],
+          pensions: pensionRes.data || []
       });
       setSavingsPots(potRes.data || []);
       setBankHolidays(holidayRes.data || []);
@@ -190,6 +193,7 @@ export default function BudgetView() {
       liabilities.loans.forEach(l => addExpense(l, 'loan', `${l.lender} Loan`, l.monthly_payment, l.payment_day, <TrendingDown />, 'Liability'));
       liabilities.agreements.forEach(a => addExpense(a, 'agreement', a.agreement_name, a.monthly_payment, a.payment_day, <Assignment />, 'Agreement'));
       liabilities.vehicle_finance.forEach(v => addExpense(v, 'car_finance', `${v.provider} (Car)`, v.monthly_payment, v.payment_day, <DirectionsCar />, 'Liability'));
+      liabilities.pensions.forEach(p => addExpense(p, 'pension', `Pension: ${p.plan_name}`, p.monthly_contribution, p.payment_day, <SavingsIcon />, 'Pension'));
       
       liabilities.recurring_costs.forEach(c => {
           let icon = <Payments />;

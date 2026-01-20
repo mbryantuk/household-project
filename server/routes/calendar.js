@@ -85,7 +85,8 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             agreements,
             vehicleFinance,
             savings,
-            investments
+            investments,
+            pensions
         ] = await Promise.all([
             dbAll(`SELECT * FROM dates WHERE household_id = ? ORDER BY date ASC`, [householdId]),
             dbAll(`SELECT * FROM recurring_costs WHERE household_id = ?`, [householdId]),
@@ -99,7 +100,8 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             dbAll(`SELECT * FROM finance_agreements WHERE household_id = ?`, [householdId]),
             dbAll(`SELECT * FROM vehicle_finance WHERE household_id = ?`, [householdId]),
             dbAll(`SELECT * FROM finance_savings WHERE household_id = ?`, [householdId]),
-            dbAll(`SELECT * FROM finance_investments WHERE household_id = ?`, [householdId])
+            dbAll(`SELECT * FROM finance_investments WHERE household_id = ?`, [householdId]),
+            dbAll(`SELECT * FROM finance_pensions WHERE household_id = ?`, [householdId])
         ]);
 
         const combined = [...dates];
@@ -229,6 +231,14 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             'saving', 
             i => i.emoji || '📈', 
             i => `Monthly Deposit: £${i.deposit_amount}`,
+            'next'
+        );
+
+        generateMonthlyEvents(pensions, 'payment_day', 
+            p => `👴 Pension: ${p.plan_name}`, 
+            'saving', 
+            p => p.emoji || '👴', 
+            p => `Monthly Contribution: £${p.monthly_contribution}`,
             'next'
         );
 

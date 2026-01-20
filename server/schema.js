@@ -509,7 +509,8 @@ function initializeHouseholdSchema(db) {
             ['house_details', 'current_valuation', 'REAL DEFAULT 0'],
             ['recurring_costs', 'is_subscription', 'INTEGER DEFAULT 0'],
             ['recurring_costs', 'term_type', "TEXT DEFAULT 'rolling'"],
-            ['finance_budget_progress', 'actual_amount', 'REAL']
+            ['finance_budget_progress', 'actual_amount', 'REAL'],
+            ['finance_pensions', 'payment_day', 'INTEGER']
         ];
 
         additionalFinanceCols.forEach(([table, col, type]) => {
