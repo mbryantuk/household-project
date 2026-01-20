@@ -497,25 +497,21 @@ function initializeHouseholdSchema(db) {
         });
 
         const additionalFinanceCols = [
-            ['finance_loans', 'payment_day', 'INTEGER'],
-            ['finance_agreements', 'payment_day', 'INTEGER'],
-            ['vehicle_finance', 'payment_day', 'INTEGER'],
-            ['finance_savings', 'deposit_day', 'INTEGER'],
-            ['finance_savings', 'deposit_amount', 'REAL DEFAULT 0'],
-            ['finance_investments', 'deposit_day', 'INTEGER'],
-            ['finance_investments', 'deposit_amount', 'REAL DEFAULT 0'],
-            ['finance_mortgages', 'payment_day', 'INTEGER'],
-            ['house_details', 'purchase_price', 'REAL DEFAULT 0'],
-            ['house_details', 'current_valuation', 'REAL DEFAULT 0'],
-            ['recurring_costs', 'is_subscription', 'INTEGER DEFAULT 0'],
-            ['recurring_costs', 'term_type', "TEXT DEFAULT 'rolling'"],
             ['finance_budget_progress', 'actual_amount', 'REAL'],
-            ['finance_pensions', 'payment_day', 'INTEGER']
+            ['finance_pensions', 'payment_day', 'INTEGER'],
+            ['finance_income', 'nearest_working_day', 'INTEGER DEFAULT 1'],
+            ['finance_credit_cards', 'nearest_working_day', 'INTEGER DEFAULT 1'],
+            ['finance_loans', 'nearest_working_day', 'INTEGER DEFAULT 1'],
+            ['finance_mortgages', 'nearest_working_day', 'INTEGER DEFAULT 1'],
+            ['finance_agreements', 'nearest_working_day', 'INTEGER DEFAULT 1'],
+            ['vehicle_finance', 'nearest_working_day', 'INTEGER DEFAULT 1'],
+            ['water_info', 'nearest_working_day', 'INTEGER DEFAULT 1'],
+            ['council_info', 'nearest_working_day', 'INTEGER DEFAULT 1'],
+            ['energy_accounts', 'nearest_working_day', 'INTEGER DEFAULT 1'],
+            ['finance_pensions', 'nearest_working_day', 'INTEGER DEFAULT 1']
         ];
 
         additionalFinanceCols.forEach(([table, col, type]) => {
-            db.run(`ALTER TABLE ${table} ADD COLUMN ${col} ${type}`, () => {});
-        });
     });
 }
 

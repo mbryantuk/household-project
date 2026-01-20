@@ -451,7 +451,7 @@ export default function BudgetView() {
         </Box>
 
         <Grid container spacing={3}>
-            <Grid xs={12} md={4}>
+            <Grid xs={12} md={3}>
                 <Stack spacing={3}>
                     <Card variant="outlined" sx={{ p: 3, bgcolor: 'background.surface' }}>
                         <Typography level="title-lg" sx={{ mb: 2 }} startDecorator={<AccountBalanceWallet />}>Cycle Entry</Typography>
@@ -514,7 +514,7 @@ export default function BudgetView() {
                 </Stack>
             </Grid>
 
-            <Grid xs={12} md={8}>
+            <Grid xs={12} md={9}>
                 <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'hidden' }}>
                     <Table hoverRow sx={{ '& tr > *:last-child': { textAlign: 'right' } }}>
                         <thead>
@@ -527,7 +527,9 @@ export default function BudgetView() {
                             </tr>
                         </thead>
                         <tbody>
-                            {cycleData.expenses.map((exp, index) => {
+                            {cycleData.expenses
+                                .filter(exp => !hidePaid || !exp.isPaid)
+                                .map((exp, index) => {
                                 const isSelected = selectedKeys.includes(exp.key);
                                 return (
                                 <tr 
@@ -556,7 +558,14 @@ export default function BudgetView() {
                                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                     {exp.link ? (
                                                         <Link to={exp.link} style={{ textDecoration: 'none' }}>
-                                                            <Typography level="title-sm" sx={{ '&:hover': { textDecoration: 'underline', color: 'primary.plainColor' } }}>
+                                                            <Typography 
+                                                                level="title-sm" 
+                                                                color="primary"
+                                                                sx={{ 
+                                                                    fontWeight: 'lg',
+                                                                    '&:hover': { textDecoration: 'underline' } 
+                                                                }}
+                                                            >
                                                                 {exp.label}
                                                             </Typography>
                                                         </Link>
