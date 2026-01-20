@@ -138,6 +138,32 @@ describe('Feature: Expanded Financial Management', () => {
         });
     });
 
+    describe('Pensions', () => {
+        let itemId;
+        it('should create pension', async () => {
+            const res = await request(app).post(`/households/${householdId}/finance/pensions`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({ 
+                    provider: 'Aviva', 
+                    plan_name: 'Workplace Pension', 
+                    account_number: '12345678',
+                    type: 'Workplace',
+                    current_value: 50000,
+                    monthly_contribution: 500
+                });
+            expect(res.statusCode).toBe(201);
+            itemId = res.body.id;
+        });
+        it('should list pensions', async () => {
+            const res = await request(app).get(`/households/${householdId}/finance/pensions`).set('Authorization', `Bearer ${token}`);
+            expect(res.body.length).toBeGreaterThan(0);
+            expect(res.body[0].plan_name).toBe('Workplace Pension');
+        });
+        it('should delete pension', async () => {
+            await request(app).delete(`/households/${householdId}/finance/pensions/${itemId}`).set('Authorization', `Bearer ${token}`);
+        });
+    });
+
     describe('Credit Cards', () => {
         let cardId;
         it('should create credit card', async () => {

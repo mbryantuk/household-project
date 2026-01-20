@@ -339,6 +339,8 @@ const TENANT_SCHEMA = [
         household_id INTEGER,
         provider TEXT,
         plan_name TEXT,
+        account_number TEXT, -- Encrypted
+        type TEXT, -- SIPP, Workplace, etc.
         current_value REAL,
         monthly_contribution REAL,
         emoji TEXT,
