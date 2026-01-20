@@ -536,8 +536,8 @@ export default function BudgetView() {
             </Grid>
 
             <Grid xs={12} md={9}>
-                <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'hidden' }}>
-                    <Table hoverRow>
+                <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto', maxHeight: 'calc(100vh - 220px)' }}>
+                    <Table hoverRow stickyHeader>
                         <thead>
                             <tr>
                                 <th>Expense</th>
