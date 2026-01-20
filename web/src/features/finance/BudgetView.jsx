@@ -425,7 +425,7 @@ export default function BudgetView() {
                                             <Avatar size="sm">{exp.icon}</Avatar>
                                             <Box>
                                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                    {exp.link ? <Link to={exp.link} style={{ textDecoration: 'none' }}><Typography level="title-sm" color="primary" sx={{ fontWeight: 'lg', '&:hover': { textDecoration: 'underline' } }}>{exp.label}</Typography></Link> : <Typography level="title-sm">{exp.label}</Typography>}
+                                                    <Typography level="title-sm">{exp.label}</Typography>
                                                     {exp.object && <Chip size="sm" variant="soft" startDecorator={exp.object.emoji}>{exp.object.name}</Chip>}
                                                 </Box>
                                                 <Typography level="body-xs" color="neutral">{exp.category.toUpperCase()}</Typography>
