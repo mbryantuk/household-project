@@ -339,6 +339,7 @@ const TENANT_SCHEMA = [
         interest_rate REAL,
         monthly_payment REAL,
         term_years INTEGER,
+        term_months INTEGER DEFAULT 0,
         start_date DATE,
         fixed_rate_expiry DATE,
         repayment_type TEXT, -- Repayment, Interest Only
@@ -463,7 +464,8 @@ function initializeHouseholdSchema(db) {
             ['estimated_value', 'REAL'],
             ['other_secured_debt', 'REAL'],
             ['mortgage_type', "TEXT DEFAULT 'mortgage'"],
-            ['asset_id', 'INTEGER']
+            ['asset_id', 'INTEGER'],
+            ['term_months', 'INTEGER DEFAULT 0']
         ];
 
         mortgageCols.forEach(([col, type]) => {

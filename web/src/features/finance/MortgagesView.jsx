@@ -6,7 +6,7 @@ import {
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
   AvatarGroup, LinearProgress, Table, Sheet, Dropdown, Menu, MenuButton, MenuItem
 } from '@mui/joy';
-import { Edit, Delete, Add, GroupAdd, Home, InfoOutlined, ArrowDropDown, LocationOn } from '@mui/icons-material';
+import { Edit, Delete, Add, GroupAdd, Home, InfoOutlined, ArrowDropDown } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import AppSelect from '../../components/ui/AppSelect';
@@ -74,7 +74,7 @@ export default function MortgagesView() {
     const data = Object.fromEntries(formData.entries());
     
     // Ensure numeric fields are numbers or zero
-    const numericFields = ['estimated_value', 'other_secured_debt', 'total_amount', 'remaining_balance', 'interest_rate', 'monthly_payment', 'term_years', 'equity_loan_amount', 'equity_loan_interest_rate', 'equity_loan_cpi_rate'];
+    const numericFields = ['estimated_value', 'other_secured_debt', 'total_amount', 'remaining_balance', 'interest_rate', 'monthly_payment', 'term_years', 'term_months', 'equity_loan_amount', 'equity_loan_interest_rate', 'equity_loan_cpi_rate'];
     numericFields.forEach(field => {
         if (data[field] === '') data[field] = 0;
     });
@@ -168,8 +168,8 @@ export default function MortgagesView() {
 
   const groupedMortgages = properties.map(prop => {
       const associated = mortgages.filter(m => {
-          if (prop.id === 'primary') return !m.asset_id;
-          return m.asset_id === prop.id;
+          if (prop.id === 'primary') return !m.asset_id || m.asset_id === 'primary';
+          return String(m.asset_id) === String(prop.id);
       });
       return { ...prop, mortgages: associated };
   }).filter(p => p.mortgages.length > 0 || p.id === 'primary');
@@ -209,7 +209,7 @@ export default function MortgagesView() {
                     const h2b = parseFloat(m.equity_loan_amount) || 0;
                     return sum + main + extra + h2b;
                 }, 0);
-                const equityValue = prop.valuation - totalDebt;
+                const equityValue = (parseFloat(prop.valuation)||0) - totalDebt;
                 const ltv = prop.valuation > 0 ? (totalDebt / prop.valuation) * 100 : 0;
 
                 return (
@@ -282,7 +282,11 @@ export default function MortgagesView() {
                                                 </Grid>
                                                 <Grid xs={4}>
                                                     <Typography level="body-xs" color="neutral">{isEquityType ? 'Started' : 'Term'}</Typography>
-                                                    <Typography level="body-sm" fontWeight="bold">{isEquityType ? (mort.equity_loan_start_date || 'N/A') : `${mort.term_years} Yrs`}</Typography>
+                                                    <Typography level="body-sm" fontWeight="bold">
+                                                        {isEquityType ? (mort.equity_loan_start_date || 'N/A') : (
+                                                            mort.term_months > 0 ? `${mort.term_years}y ${mort.term_months}m` : `${mort.term_years}y`
+                                                        )}
+                                                    </Typography>
                                                 </Grid>
                                             </Grid>
 
@@ -373,8 +377,11 @@ export default function MortgagesView() {
                                         <Grid xs={12} sm={6} md={4}>
                                             <FormControl><FormLabel>Monthly Payment (£)</FormLabel><Input name="monthly_payment" type="number" step="0.01" defaultValue={editItem?.monthly_payment} /></FormControl>
                                         </Grid>
-                                        <Grid xs={12} sm={6} md={4}>
-                                            <FormControl><FormLabel>Term (Years)</FormLabel><Input name="term_years" type="number" defaultValue={editItem?.term_years} /></FormControl>
+                                        <Grid xs={6} sm={3} md={2}>
+                                            <FormControl><FormLabel>Yrs</FormLabel><Input name="term_years" type="number" defaultValue={editItem?.term_years} /></FormControl>
+                                        </Grid>
+                                        <Grid xs={6} sm={3} md={2}>
+                                            <FormControl><FormLabel>Months</FormLabel><Input name="term_months" type="number" defaultValue={editItem?.term_months || 0} /></FormControl>
                                         </Grid>
                                         <Grid xs={12} sm={6} md={4}>
                                             <FormControl><FormLabel>Fixed Ends</FormLabel><Input name="fixed_rate_expiry" type="date" defaultValue={editItem?.fixed_rate_expiry} /></FormControl>
