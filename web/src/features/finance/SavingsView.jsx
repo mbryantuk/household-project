@@ -11,6 +11,16 @@ import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import AppSelect from '../../components/ui/AppSelect';
 
+const formatCurrency = (val) => {
+    const num = parseFloat(val) || 0;
+    return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
+const formatPercent = (val) => {
+    const num = parseFloat(val) || 0;
+    return num.toFixed(2) + '%';
+};
+
 export default function SavingsView() {
   const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
   const [accounts, setAccounts] = useState([]);
@@ -254,8 +264,8 @@ export default function SavingsView() {
                                     <Typography level="body-sm">{acc.account_name}</Typography>
                                 </Box>
                                 <Box sx={{ textAlign: 'right' }}>
-                                    <Typography level="h3" color="success">£{acc.current_balance?.toLocaleString()}</Typography>
-                                    <Typography level="body-xs" color="neutral">{acc.interest_rate}% AER</Typography>
+                                    <Typography level="h3" color="success">{formatCurrency(acc.current_balance)}</Typography>
+                                    <Typography level="body-xs" color="neutral">{formatPercent(acc.interest_rate)} AER</Typography>
                                 </Box>
                             </Box>
 
@@ -267,7 +277,7 @@ export default function SavingsView() {
                                     <Typography level="title-sm" startDecorator={<Savings fontSize="sm" />}>Pots</Typography>
                                     {unallocated > 0.01 && (
                                         <Button size="sm" variant="soft" color="warning" onClick={() => setEditPot({ savingsId: acc.id, pot: { current_amount: unallocated } })}>
-                                            Allocate £{unallocated.toLocaleString()}
+                                            Allocate {formatCurrency(unallocated)}
                                         </Button>
                                     )}
                                 </Box>
@@ -293,8 +303,8 @@ export default function SavingsView() {
                                                     </Box>
                                                 </Box>
                                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <Typography level="body-sm">£{pot.current_amount?.toLocaleString()}</Typography>
-                                                    {pot.target_amount && <Typography level="body-xs" color="neutral">of £{pot.target_amount?.toLocaleString()}</Typography>}
+                                                    <Typography level="body-sm">{formatCurrency(pot.current_amount)}</Typography>
+                                                    {pot.target_amount && <Typography level="body-xs" color="neutral">of {formatCurrency(pot.target_amount)}</Typography>}
                                                 </Box>
                                                 {pot.target_amount && <LinearProgress determinate value={Math.min(progress, 100)} size="sm" color={progress >= 100 ? 'success' : 'primary'} />}
                                             </Card>
@@ -329,8 +339,8 @@ export default function SavingsView() {
                                             {forecast.map(f => (
                                                 <tr key={f.year}>
                                                     <td>Year {f.year}</td>
-                                                    <td style={{ textAlign: 'right' }}>£{f.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
-                                                    <td style={{ textAlign: 'right' }} className="text-success">+£{(f.amount - acc.current_balance).toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
+                                                    <td style={{ textAlign: 'right' }}>{formatCurrency(f.amount)}</td>
+                                                    <td style={{ textAlign: 'right' }} className="text-success">+{formatCurrency(f.amount - acc.current_balance)}</td>
                                                 </tr>
                                             ))}
                                         </tbody>

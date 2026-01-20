@@ -11,6 +11,16 @@ import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import AppSelect from '../../components/ui/AppSelect';
 
+const formatCurrency = (val) => {
+    const num = parseFloat(val) || 0;
+    return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
+const formatPercent = (val) => {
+    const num = parseFloat(val) || 0;
+    return num.toFixed(2) + '%';
+};
+
 export default function VehicleFinanceView() {
   const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
   const [finances, setFinances] = useState([]);
@@ -140,15 +150,15 @@ export default function VehicleFinanceView() {
                                     </Typography>
                                 </Box>
                                 <Box sx={{ textAlign: 'right' }}>
-                                    <Typography level="h3" color="danger">£{remaining.toLocaleString()}</Typography>
-                                    <Typography level="body-xs" color="neutral">of £{total.toLocaleString()}</Typography>
+                                    <Typography level="h3" color="danger">{formatCurrency(remaining)}</Typography>
+                                    <Typography level="body-xs" color="neutral">of {formatCurrency(total)}</Typography>
                                 </Box>
                             </Box>
 
                             <Box>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                                     <Typography level="body-xs">Payoff Progress</Typography>
-                                    <Typography level="body-xs" fontWeight="bold">{progress.toFixed(1)}%</Typography>
+                                    <Typography level="body-xs" fontWeight="bold">{progress.toFixed(2)}%</Typography>
                                 </Box>
                                 <LinearProgress determinate value={Math.min(progress, 100)} color="success" />
                             </Box>
@@ -156,11 +166,11 @@ export default function VehicleFinanceView() {
                             <Grid container spacing={2}>
                                 <Grid xs={6}>
                                     <Typography level="body-xs" color="neutral">Monthly Payment</Typography>
-                                    <Typography level="body-sm">£{fin.monthly_payment?.toLocaleString()}</Typography>
+                                    <Typography level="body-sm">{formatCurrency(fin.monthly_payment)}</Typography>
                                 </Grid>
                                 <Grid xs={6}>
                                     <Typography level="body-xs" color="neutral">Interest Rate</Typography>
-                                    <Typography level="body-sm">{fin.interest_rate}%</Typography>
+                                    <Typography level="body-sm">{formatPercent(fin.interest_rate)}</Typography>
                                 </Grid>
                                 <Grid xs={12}>
                                     <Typography level="body-xs" color="neutral">Term</Typography>

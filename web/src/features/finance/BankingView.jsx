@@ -10,6 +10,11 @@ import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
 
+const formatCurrency = (val) => {
+    const num = parseFloat(val) || 0;
+    return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
 export default function BankingView() {
   const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
   const [accounts, setAccounts] = useState([]);
@@ -160,10 +165,10 @@ export default function BankingView() {
                             </td>
                             <td>{row.sort_code || '??-??-??'}</td>
                             <td>{row.account_number ? `•••• ${row.account_number.slice(-4)}` : '••••'}</td>
-                            <td>{row.overdraft_limit ? `£${row.overdraft_limit}` : '-'}</td>
+                            <td>{row.overdraft_limit ? formatCurrency(row.overdraft_limit) : '-'}</td>
                             <td>
                                 <Typography fontWeight="bold" color={row.current_balance < 0 ? 'danger' : 'success'}>
-                                    £{row.current_balance?.toLocaleString()}
+                                    {formatCurrency(row.current_balance)}
                                 </Typography>
                             </td>
                             <td>
@@ -198,7 +203,7 @@ export default function BankingView() {
                     <Box sx={{ flexGrow: 1 }}>
                         <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{a.bank_name}</Typography>
                         <Typography level="body-sm">{a.account_name}</Typography>
-                        <Typography level="body-xs" fontWeight="bold">£{a.current_balance}</Typography>
+                        <Typography level="body-xs" fontWeight="bold">{formatCurrency(a.current_balance)}</Typography>
                         <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
                              {getAssignees(a.id).map(m => (
                                 <Chip key={m.id} size="sm" variant="soft">{m.alias || m.name}</Chip>
@@ -253,13 +258,13 @@ export default function BankingView() {
                         <Grid xs={6}>
                             <FormControl>
                                 <FormLabel>Current Balance (£)</FormLabel>
-                                <Input name="current_balance" type="number" defaultValue={editItem?.current_balance} />
+                                <Input name="current_balance" type="number" step="0.01" defaultValue={editItem?.current_balance} />
                             </FormControl>
                         </Grid>
                         <Grid xs={6}>
                             <FormControl>
                                 <FormLabel>Overdraft Limit (£)</FormLabel>
-                                <Input name="overdraft_limit" type="number" defaultValue={editItem?.overdraft_limit} />
+                                <Input name="overdraft_limit" type="number" step="0.01" defaultValue={editItem?.overdraft_limit} />
                             </FormControl>
                         </Grid>
 

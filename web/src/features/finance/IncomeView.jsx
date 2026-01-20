@@ -12,6 +12,11 @@ import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
 import { getNextPayday, getDaysUntil } from '../../utils/dateUtils';
 
+const formatCurrency = (val) => {
+    const num = parseFloat(val) || 0;
+    return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
 export default function IncomeView() {
   const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
   const [incomeList, setIncomeList] = useState([]);
@@ -160,8 +165,8 @@ export default function IncomeView() {
                         <SortableHeader label="Employer / Source" field="employer" />
                         <SortableHeader label="Role" field="role" />
                         <SortableHeader label="Type" field="employment_type" width={120} />
-                        <SortableHeader label="Gross (Ann)" field="gross_annual_salary" width={120} />
-                        <SortableHeader label="Net (Pay)" field="amount" width={120} />
+                        <SortableHeader label="Gross (Ann)" field="gross_annual_salary" width={150} />
+                        <SortableHeader label="Net (Pay)" field="amount" width={150} />
                         <SortableHeader label="Frequency" field="frequency" width={100} />
                         <th style={{ width: 120 }}>Next Payday</th>
                         <SortableHeader label="Assignee" field="member_id" width={150} />
@@ -189,9 +194,9 @@ export default function IncomeView() {
                                     {row.work_type === 'part_time' && <Chip size="sm" color="warning">PT</Chip>}
                                 </Stack>
                             </td>
-                            <td>{row.gross_annual_salary ? `£${row.gross_annual_salary.toLocaleString()}` : '-'}</td>
+                            <td>{row.gross_annual_salary ? formatCurrency(row.gross_annual_salary) : '-'}</td>
                             <td>
-                                <Typography fontWeight="bold" color="success">£{row.amount?.toLocaleString()}</Typography>
+                                <Typography fontWeight="bold" color="success">{formatCurrency(row.amount)}</Typography>
                             </td>
                             <td>{row.frequency}</td>
                             <td>
@@ -233,7 +238,7 @@ export default function IncomeView() {
                             <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{a.employer}</Typography>
                             <Typography level="body-sm">{a.role}</Typography>
                             <Box sx={{ display: 'flex', gap: 1, mt: 1, flexWrap: 'wrap' }}>
-                                <Chip size="sm" color="success">Net: £{a.amount}</Chip>
+                                <Chip size="sm" color="success">Net: {formatCurrency(a.amount)}</Chip>
                                 <Chip size="sm" variant="outlined">{a.frequency}</Chip>
                                 {nextPayDate && (
                                     <Chip size="sm" variant="outlined" color="primary">
@@ -327,13 +332,13 @@ export default function IncomeView() {
                         <Grid xs={6} md={3}>
                             <FormControl>
                                 <FormLabel>Gross Annual (£)</FormLabel>
-                                <Input name="gross_annual_salary" type="number" defaultValue={editItem?.gross_annual_salary} />
+                                <Input name="gross_annual_salary" type="number" step="0.01" defaultValue={editItem?.gross_annual_salary} />
                             </FormControl>
                         </Grid>
                         <Grid xs={6} md={3}>
                             <FormControl>
                                 <FormLabel>Net Pay (per freq)</FormLabel>
-                                <Input name="amount" type="number" defaultValue={editItem?.amount} required />
+                                <Input name="amount" type="number" step="0.01" defaultValue={editItem?.amount} required />
                             </FormControl>
                         </Grid>
                         <Grid xs={6} md={3}>

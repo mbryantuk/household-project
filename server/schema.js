@@ -338,6 +338,10 @@ const TENANT_SCHEMA = [
         start_date DATE,
         fixed_rate_expiry DATE,
         repayment_type TEXT, -- Repayment, Interest Only
+        equity_loan_amount REAL DEFAULT 0,
+        equity_loan_start_date DATE,
+        equity_loan_interest_rate REAL DEFAULT 1.75,
+        equity_loan_cpi_rate REAL DEFAULT 2.0,
         emoji TEXT,
         notes TEXT
     )`,
@@ -426,8 +430,8 @@ function initializeHouseholdSchema(db) {
             });
         });
 
-        // 🛠️ MIGRATION: Ensure new finance_income columns exist
-        const financeCols = [
+        // 🛠️ MIGRATION: Ensure new finance columns exist
+        const financeIncomeCols = [
             ['member_id', 'INTEGER'], 
             ['bank_account_id', 'INTEGER'], 
             ['employer', 'TEXT'], 
@@ -438,8 +442,19 @@ function initializeHouseholdSchema(db) {
             ['addons', 'TEXT']
         ];
         
-        financeCols.forEach(([col, type]) => {
+        financeIncomeCols.forEach(([col, type]) => {
             db.run(`ALTER TABLE finance_income ADD COLUMN ${col} ${type}`, () => {});
+        });
+
+        const mortgageCols = [
+            ['equity_loan_amount', 'REAL'],
+            ['equity_loan_start_date', 'DATE'],
+            ['equity_loan_interest_rate', 'REAL'],
+            ['equity_loan_cpi_rate', 'REAL']
+        ];
+
+        mortgageCols.forEach(([col, type]) => {
+            db.run(`ALTER TABLE finance_mortgages ADD COLUMN ${col} ${type}`, () => {});
         });
     });
 }

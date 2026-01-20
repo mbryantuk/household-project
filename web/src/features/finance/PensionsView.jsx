@@ -10,6 +10,11 @@ import { Edit, Delete, Add, GroupAdd, HourglassBottom } from '@mui/icons-materia
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 
+const formatCurrency = (val) => {
+    const num = parseFloat(val) || 0;
+    return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
 export default function PensionsView() {
   const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
   const [pensions, setPensions] = useState([]);
@@ -154,9 +159,9 @@ export default function PensionsView() {
                                     <Typography level="body-sm" color="neutral">{pen.provider} • {pen.type || 'Other'}</Typography>
                                 </Box>
                                 <Box sx={{ textAlign: 'right' }}>
-                                    <Typography level="h3" color="primary">£{currentValue.toLocaleString()}</Typography>
+                                    <Typography level="h3" color="primary">{formatCurrency(currentValue)}</Typography>
                                     <Typography level="body-xs" color="neutral">
-                                        +£{monthlyContribution.toLocaleString()}/mo
+                                        +{formatCurrency(monthlyContribution)}/mo
                                     </Typography>
                                 </Box>
                             </Box>

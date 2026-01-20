@@ -10,6 +10,16 @@ import { Edit, Delete, Add, GroupAdd, Assignment } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 
+const formatCurrency = (val) => {
+    const num = parseFloat(val) || 0;
+    return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
+const formatPercent = (val) => {
+    const num = parseFloat(val) || 0;
+    return num.toFixed(2) + '%';
+};
+
 export default function AgreementsView() {
   const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
   const [agreements, setAgreements] = useState([]);
@@ -135,11 +145,11 @@ export default function AgreementsView() {
                                 <Box sx={{ textAlign: 'right' }}>
                                     {remaining > 0 ? (
                                         <>
-                                            <Typography level="h3" color="danger">£{remaining.toLocaleString()}</Typography>
-                                            <Typography level="body-xs" color="neutral">of £{total.toLocaleString()}</Typography>
+                                            <Typography level="h3" color="danger">{formatCurrency(remaining)}</Typography>
+                                            <Typography level="body-xs" color="neutral">of {formatCurrency(total)}</Typography>
                                         </>
                                     ) : (
-                                        <Typography level="h3">£{agree.monthly_payment?.toLocaleString()}<Typography level="body-xs" color="neutral">/mo</Typography></Typography>
+                                        <Typography level="h3">{formatCurrency(agree.monthly_payment)}<Typography level="body-xs" color="neutral">/mo</Typography></Typography>
                                     )}
                                 </Box>
                             </Box>
@@ -148,7 +158,7 @@ export default function AgreementsView() {
                                 <Box>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                                         <Typography level="body-xs">Contract Progress</Typography>
-                                        <Typography level="body-xs" fontWeight="bold">{progress.toFixed(1)}%</Typography>
+                                        <Typography level="body-xs" fontWeight="bold">{progress.toFixed(2)}%</Typography>
                                     </Box>
                                     <LinearProgress determinate value={Math.min(progress, 100)} color="success" />
                                 </Box>
@@ -157,11 +167,11 @@ export default function AgreementsView() {
                             <Grid container spacing={2}>
                                 <Grid xs={6}>
                                     <Typography level="body-xs" color="neutral">Monthly Payment</Typography>
-                                    <Typography level="body-sm">£{agree.monthly_payment?.toLocaleString()}</Typography>
+                                    <Typography level="body-sm">{formatCurrency(agree.monthly_payment)}</Typography>
                                 </Grid>
                                 <Grid xs={6}>
                                     <Typography level="body-xs" color="neutral">Interest Rate</Typography>
-                                    <Typography level="body-sm">{agree.interest_rate || 0}%</Typography>
+                                    <Typography level="body-sm">{formatPercent(agree.interest_rate)}</Typography>
                                 </Grid>
                                 <Grid xs={12}>
                                     <Typography level="body-xs" color="neutral">Dates</Typography>

@@ -10,6 +10,16 @@ import { Edit, Delete, Add, GroupAdd, CreditCard } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 
+const formatCurrency = (val) => {
+    const num = parseFloat(val) || 0;
+    return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
+const formatPercent = (val) => {
+    const num = parseFloat(val) || 0;
+    return num.toFixed(2) + '%';
+};
+
 export default function CreditCardsView() {
   const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
   const [cards, setCards] = useState([]);
@@ -133,15 +143,15 @@ export default function CreditCardsView() {
                                     <Typography level="body-sm" color="neutral">{card.provider}</Typography>
                                 </Box>
                                 <Box sx={{ textAlign: 'right' }}>
-                                    <Typography level="h3" color={utilization > 80 ? 'danger' : 'neutral'}>£{balance.toLocaleString()}</Typography>
-                                    <Typography level="body-xs" color="neutral">of £{limit.toLocaleString()} limit</Typography>
+                                    <Typography level="h3" color={utilization > 80 ? 'danger' : 'neutral'}>{formatCurrency(balance)}</Typography>
+                                    <Typography level="body-xs" color="neutral">of {formatCurrency(limit)} limit</Typography>
                                 </Box>
                             </Box>
 
                             <Box>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                                     <Typography level="body-xs">Utilization</Typography>
-                                    <Typography level="body-xs" fontWeight="bold">{utilization.toFixed(1)}%</Typography>
+                                    <Typography level="body-xs" fontWeight="bold">{utilization.toFixed(2)}%</Typography>
                                 </Box>
                                 <LinearProgress determinate value={Math.min(utilization, 100)} color={utilization > 80 ? 'danger' : (utilization > 50 ? 'warning' : 'success')} />
                             </Box>
@@ -149,7 +159,7 @@ export default function CreditCardsView() {
                             <Grid container spacing={2}>
                                 <Grid xs={6}>
                                     <Typography level="body-xs" color="neutral">APR</Typography>
-                                    <Typography level="body-sm">{card.apr}%</Typography>
+                                    <Typography level="body-sm">{formatPercent(card.apr)}</Typography>
                                 </Grid>
                                 <Grid xs={6}>
                                     <Typography level="body-xs" color="neutral">Payment Day</Typography>

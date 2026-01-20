@@ -10,6 +10,16 @@ import { Edit, Delete, Add, GroupAdd, TrendingUp, ShowChart } from '@mui/icons-m
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 
+const formatCurrency = (val) => {
+    const num = parseFloat(val) || 0;
+    return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
+const formatPercent = (val) => {
+    const num = parseFloat(val) || 0;
+    return num.toFixed(2) + '%';
+};
+
 export default function InvestmentsView() {
   const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
   const [investments, setInvestments] = useState([]);
@@ -156,9 +166,9 @@ export default function InvestmentsView() {
                                     <Typography level="body-sm" color="neutral">{inv.symbol ? `${inv.symbol} • ` : ''}{inv.platform}</Typography>
                                 </Box>
                                 <Box sx={{ textAlign: 'right' }}>
-                                    <Typography level="h3" color="success">£{currentValue.toLocaleString()}</Typography>
+                                    <Typography level="h3" color="success">{formatCurrency(currentValue)}</Typography>
                                     <Typography level="body-xs" color={gainLoss >= 0 ? 'success.500' : 'danger.500'} fontWeight="bold">
-                                        {gainLoss >= 0 ? '+' : ''}{gainLoss.toLocaleString()} ({gainLossPct.toFixed(2)}%)
+                                        {gainLoss >= 0 ? '+' : ''}{formatCurrency(gainLoss)} ({formatPercent(gainLossPct)})
                                     </Typography>
                                 </Box>
                             </Box>
@@ -176,7 +186,7 @@ export default function InvestmentsView() {
                                 </Grid>
                                 <Grid xs={6}>
                                     <Typography level="body-xs" color="neutral">Total Invested</Typography>
-                                    <Typography level="body-sm">£{totalInvested.toLocaleString()}</Typography>
+                                    <Typography level="body-sm">{formatCurrency(totalInvested)}</Typography>
                                 </Grid>
                                 <Grid xs={6}>
                                     <Typography level="body-xs" color="neutral">Avg. Price</Typography>
