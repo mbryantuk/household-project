@@ -94,9 +94,13 @@ const TENANT_SCHEMA = [
         vehicle_id INTEGER,
         provider TEXT,
         account_number TEXT, -- Encrypted
+        total_amount REAL,
+        remaining_balance REAL,
         monthly_payment REAL,
+        interest_rate REAL,
         start_date DATE,
         end_date DATE,
+        emoji TEXT,
         notes TEXT,
         FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
     )`,
@@ -297,6 +301,7 @@ const TENANT_SCHEMA = [
         household_id INTEGER,
         provider TEXT,
         card_name TEXT,
+        account_number TEXT, -- Encrypted
         credit_limit REAL,
         current_balance REAL,
         apr REAL,
@@ -309,6 +314,7 @@ const TENANT_SCHEMA = [
         household_id INTEGER,
         lender TEXT,
         loan_type TEXT,
+        account_number TEXT, -- Encrypted
         total_amount REAL,
         remaining_balance REAL,
         interest_rate REAL,
@@ -323,6 +329,7 @@ const TENANT_SCHEMA = [
         household_id INTEGER,
         lender TEXT,
         property_address TEXT,
+        account_number TEXT, -- Encrypted
         total_amount REAL,
         remaining_balance REAL,
         interest_rate REAL,
@@ -366,6 +373,21 @@ const TENANT_SCHEMA = [
         emoji TEXT,
         notes TEXT
     )`,
+    `CREATE TABLE IF NOT EXISTS finance_agreements (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        provider TEXT,
+        agreement_name TEXT,
+        account_number TEXT, -- Encrypted
+        total_amount REAL,
+        remaining_balance REAL,
+        monthly_payment REAL,
+        interest_rate REAL,
+        start_date DATE,
+        end_date DATE,
+        emoji TEXT,
+        notes TEXT
+    )`,
     `CREATE TABLE IF NOT EXISTS finance_budget_categories (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
@@ -375,7 +397,7 @@ const TENANT_SCHEMA = [
     )`,
     `CREATE TABLE IF NOT EXISTS finance_assignments (
         household_id INTEGER,
-        entity_type TEXT, -- income, savings, credit_card, loan, mortgage, pension, investment, current_account
+        entity_type TEXT, -- income, savings, credit_card, loan, mortgage, pension, investment, current_account, agreement, vehicle_finance
         entity_id INTEGER,
         member_id INTEGER,
         PRIMARY KEY (entity_type, entity_id, member_id)

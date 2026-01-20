@@ -259,6 +259,18 @@ router.post('/households/:id/finance/pensions', authenticateToken, requireHouseh
 router.put('/households/:id/finance/pensions/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('finance_pensions'));
 router.delete('/households/:id/finance/pensions/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('finance_pensions'));
 
+// --- FINANCE AGREEMENTS ---
+router.get('/households/:id/finance/agreements', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('finance_agreements'));
+router.post('/households/:id/finance/agreements', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('finance_agreements'));
+router.put('/households/:id/finance/agreements/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('finance_agreements'));
+router.delete('/households/:id/finance/agreements/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('finance_agreements'));
+
+// --- VEHICLE FINANCE ---
+router.get('/households/:id/finance/vehicle-finance', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('vehicle_finance'));
+router.post('/households/:id/finance/vehicle-finance', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('vehicle_finance'));
+router.put('/households/:id/finance/vehicle-finance/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('vehicle_finance'));
+router.delete('/households/:id/finance/vehicle-finance/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('vehicle_finance'));
+
 // --- PENSIONS HISTORY ---
 router.get('/households/:id/finance/pensions/:pensionId/history', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleSubList('finance_pensions_history', 'finance_pensions', 'pensionId'));
 router.post('/households/:id/finance/pensions/:pensionId/history', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleSubCreate('finance_pensions_history', 'finance_pensions', 'pensionId'));

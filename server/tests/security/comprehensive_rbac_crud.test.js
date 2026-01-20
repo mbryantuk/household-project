@@ -75,7 +75,9 @@ describe('🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle', () => {
         { name: 'Finance Loans', path: 'finance/loans', payload: { lender: 'Bank', total_amount: 5000 }, update: { total_amount: 4500 }, status: 201 },
         { name: 'Finance Mortgages', path: 'finance/mortgages', payload: { lender: 'Halifax', total_amount: 250000 }, update: { total_amount: 240000 }, status: 201 },
         { name: 'Finance Investments', path: 'finance/investments', payload: { name: 'Index Fund', platform: 'Vanguard', current_value: 1000 }, update: { current_value: 1050 }, status: 201 },
-        { name: 'Finance Pensions', path: 'finance/pensions', payload: { provider: 'Aviva', plan_name: 'Work', current_value: 50000 }, update: { current_value: 51000 }, status: 201 }
+        { name: 'Finance Pensions', path: 'finance/pensions', payload: { provider: 'Aviva', plan_name: 'Work', current_value: 50000 }, update: { current_value: 51000 }, status: 201 },
+        { name: 'Finance Agreements', path: 'finance/agreements', payload: { provider: 'O2', agreement_name: 'iPhone', monthly_payment: 50 }, update: { monthly_payment: 55 }, status: 201 },
+        { name: 'Vehicle Finance', path: 'finance/vehicle-finance', payload: { provider: 'VW Finance', total_amount: 20000, vehicle_id: 1 }, update: { total_amount: 19000 }, status: 201 }
     ];
 
     describe('🔑 Role-Based Access Control (RBAC) Integrity', () => {
