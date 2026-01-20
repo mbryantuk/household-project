@@ -354,8 +354,11 @@ const TENANT_SCHEMA = [
     `CREATE TABLE IF NOT EXISTS finance_investments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
+        name TEXT,
+        symbol TEXT,
         platform TEXT,
         asset_type TEXT, -- Stocks, Crypto, Bonds
+        units REAL,
         current_value REAL,
         total_invested REAL,
         emoji TEXT,
