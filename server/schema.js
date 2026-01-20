@@ -512,6 +512,8 @@ function initializeHouseholdSchema(db) {
         ];
 
         additionalFinanceCols.forEach(([table, col, type]) => {
+            db.run(`ALTER TABLE ${table} ADD COLUMN ${col} ${type}`, () => {});
+        });
     });
 }
 

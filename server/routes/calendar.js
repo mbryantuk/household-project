@@ -159,7 +159,7 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             'income', 
             inc => inc.emoji || '💰', 
             inc => `Net Pay: £${inc.amount}`,
-            'prior'
+            'dynamic'
         );
 
         // 3. Credit Cards
@@ -168,7 +168,7 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             'bill', 
             cc => cc.emoji || '💳', 
             cc => `${cc.provider} Credit Card Bill`,
-            'next'
+            'dynamic'
         );
 
         // 4. Utilities (Water, Council, Energy)
@@ -176,21 +176,24 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             w => `💧 ${w.provider || 'Water'} Bill`, 
             'bill', 
             () => '💧', 
-            w => `Water Bill: £${w.monthly_amount || '?'}`
+            w => `Water Bill: £${w.monthly_amount || '?'}`,
+            'dynamic'
         );
 
         generateMonthlyEvents(council, 'payment_day', 
             c => `🏛️ Council Tax`, 
             'bill', 
             () => '🏛️', 
-            c => `Council Tax (${c.authority_name}): £${c.monthly_amount || '?'}`
+            c => `Council Tax (${c.authority_name}): £${c.monthly_amount || '?'}`,
+            'dynamic'
         );
 
         generateMonthlyEvents(energy, 'payment_day', 
             e => `⚡ ${e.provider || 'Energy'} Bill`, 
             'bill', 
             () => '⚡', 
-            e => `${e.type} Bill: £${e.monthly_amount || '?'}`
+            e => `${e.type} Bill: £${e.monthly_amount || '?'}`,
+            'dynamic'
         );
 
         // 6. Liabilities (Mortgages, Loans, Agreements, Vehicle Finance)
@@ -199,7 +202,7 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             'bill', 
             m => m.emoji || '🏠', 
             m => `${m.mortgage_type === 'equity' ? 'Equity Loan' : 'Mortgage'} Payment: £${m.monthly_payment}`,
-            'next'
+            'dynamic'
         );
 
         generateMonthlyEvents(loans, 'payment_day', 
@@ -207,7 +210,7 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             'bill', 
             l => l.emoji || '💰', 
             l => `Loan Payment: £${l.monthly_payment}`,
-            'next'
+            'dynamic'
         );
 
         generateMonthlyEvents(agreements, 'payment_day', 
@@ -215,7 +218,7 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             'bill', 
             a => a.emoji || '📄', 
             a => `Agreement Payment (${a.provider}): £${a.monthly_payment}`,
-            'next'
+            'dynamic'
         );
 
         generateMonthlyEvents(vehicleFinance, 'payment_day', 
@@ -223,7 +226,7 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             'bill', 
             v => v.emoji || '🚗', 
             v => `Vehicle Finance Payment: £${v.monthly_payment}`,
-            'next'
+            'dynamic'
         );
 
         // 7. Savings & Investments (Recurring Deposits)
@@ -233,7 +236,7 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             'saving', 
             s => s.emoji || '🎯', 
             s => `Monthly Deposit: £${s.deposit_amount}`,
-            'next'
+            'dynamic'
         );
 
         generateMonthlyEvents(investments, 'deposit_day', 
@@ -241,7 +244,7 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             'saving', 
             i => i.emoji || '📈', 
             i => `Monthly Deposit: £${i.deposit_amount}`,
-            'next'
+            'dynamic'
         );
 
         generateMonthlyEvents(pensions, 'payment_day', 
@@ -249,7 +252,7 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             'saving', 
             p => p.emoji || '👴', 
             p => `Monthly Contribution: £${p.monthly_contribution}`,
-            'next'
+            'dynamic'
         );
 
 

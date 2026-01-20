@@ -408,12 +408,20 @@ export default function IncomeView() {
                         </Grid>
 
                         <Grid xs={12}>
-                            <Checkbox 
-                                label="Primary Paycheck (Drivers Budget Cycle)" 
-                                name="is_primary"
-                                defaultChecked={editItem?.is_primary === 1}
-                                value="1"
-                            />
+                            <Stack direction="row" spacing={2}>
+                                <Checkbox 
+                                    label="Primary Paycheck (Drivers Budget Cycle)" 
+                                    name="is_primary"
+                                    defaultChecked={editItem?.is_primary === 1}
+                                    value="1"
+                                />
+                                <Checkbox 
+                                    label="Nearest Working Day (Prior)" 
+                                    name="nearest_working_day"
+                                    defaultChecked={editItem?.nearest_working_day !== 0} // Default to 1
+                                    value="1"
+                                />
+                            </Stack>
                         </Grid>
 
                     </Grid>
