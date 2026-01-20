@@ -98,7 +98,8 @@ export default function BudgetView() {
 
   // --- LOGIC: PAYCHECK TO PAYCHECK ---
   const cycleData = useMemo(() => {
-      const primaryIncome = incomes.find(i => i.is_primary) || incomes[0];
+      // Find explicitly flagged primary, or fallback to any income with a payment_day
+      const primaryIncome = incomes.find(i => i.is_primary === 1) || incomes.find(i => i.payment_day > 0);
       if (!primaryIncome || !primaryIncome.payment_day) return null;
 
       const now = new Date();

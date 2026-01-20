@@ -6,7 +6,7 @@ import {
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
   Sheet, Table, Checkbox
 } from '@mui/joy';
-import { Edit, Delete, Add } from '@mui/icons-material';
+import { Edit, Delete, Add, Star, StarBorder } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
@@ -66,6 +66,10 @@ export default function IncomeView() {
         (a.role || '').toLowerCase().includes(filterQuery.toLowerCase())
     )
     .sort((a, b) => {
+        // Primary always at top
+        if (a.is_primary && !b.is_primary) return -1;
+        if (!a.is_primary && b.is_primary) return 1;
+
         const valA = a[sortConfig.key] || '';
         const valB = b[sortConfig.key] || '';
         if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
@@ -96,6 +100,9 @@ export default function IncomeView() {
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
 
+    // Explicitly handle checkbox (if not present in FormData, it's 0)
+    data.is_primary = data.is_primary === "1" ? 1 : 0;
+
     try {
       if (isNew) {
         await api.post(`/households/${householdId}/finance/income`, data);
@@ -106,8 +113,18 @@ export default function IncomeView() {
       setEditItem(null);
       setIsNew(false);
     } catch (err) {
-      alert("Failed to save");
+      alert("Failed to save: " + err.message);
     }
+  };
+
+  const setPrimaryDirect = async (item) => {
+      try {
+          await api.put(`/households/${householdId}/finance/income/${item.id}`, {
+              ...item,
+              is_primary: 1
+          });
+          fetchData();
+      } catch (err) { console.error(err); }
   };
 
   const handleDelete = async (id) => {
@@ -184,7 +201,10 @@ export default function IncomeView() {
                                 </Avatar>
                             </td>
                             <td>
-                                <Typography level="body-md" sx={{ fontWeight: 'lg' }}>{row.employer}</Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Typography level="body-md" sx={{ fontWeight: 'lg' }}>{row.employer}</Typography>
+                                    {row.is_primary === 1 && <Chip size="sm" color="primary" variant="solid" startDecorator={<Star sx={{ fontSize: '0.8rem' }}/>}>PRIMARY</Chip>}
+                                </Box>
                                 <Typography level="body-xs" color="neutral">{getBankName(row.bank_account_id)}</Typography>
                             </td>
                             <td>{row.role}</td>
@@ -214,8 +234,15 @@ export default function IncomeView() {
                             <td>{getMemberName(row.member_id)}</td>
                             {isAdmin && (
                                 <td style={{ textAlign: 'right' }}>
-                                    <IconButton size="sm" variant="plain" onClick={() => { setEditItem(row); setIsNew(false); }} sx={{ minHeight: '44px', minWidth: '44px' }}><Edit /></IconButton>
-                                    <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(row.id)} sx={{ minHeight: '44px', minWidth: '44px' }}><Delete /></IconButton>
+                                    <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
+                                        {!row.is_primary && (
+                                            <Tooltip title="Set as Primary Payday">
+                                                <IconButton size="sm" variant="plain" onClick={() => setPrimaryDirect(row)}><StarBorder /></IconButton>
+                                            </Tooltip>
+                                        )}
+                                        <IconButton size="sm" variant="plain" onClick={() => { setEditItem(row); setIsNew(false); }} sx={{ minHeight: '44px', minWidth: '44px' }}><Edit /></IconButton>
+                                        <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(row.id)} sx={{ minHeight: '44px', minWidth: '44px' }}><Delete /></IconButton>
+                                    </Box>
                                 </td>
                             )}
                         </tr>
@@ -230,12 +257,15 @@ export default function IncomeView() {
                 const nextPayDate = getNextPayday(a.payment_day);
                 return (
                 <Grid xs={12} key={a.id}>
-                    <Card variant="outlined" sx={{ flexDirection: 'row', gap: 2, p: 2, minHeight: '80px' }}>
+                    <Card variant="outlined" sx={{ flexDirection: 'row', gap: 2, p: 2, minHeight: '80px', borderLeft: a.is_primary ? '4px solid' : undefined, borderLeftColor: 'primary.solidBg' }}>
                         <Avatar size="lg" sx={{ bgcolor: getEmojiColor(a.emoji || (a.employer||'?')[0], isDark) }}>
                             {a.emoji || (a.employer||'?')[0]}
                         </Avatar>
                         <Box sx={{ flexGrow: 1 }}>
-                            <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{a.employer}</Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{a.employer}</Typography>
+                                {a.is_primary === 1 && <Star color="primary" sx={{ fontSize: '1rem' }} />}
+                            </Box>
                             <Typography level="body-sm">{a.role}</Typography>
                             <Box sx={{ display: 'flex', gap: 1, mt: 1, flexWrap: 'wrap' }}>
                                 <Chip size="sm" color="success">Net: {formatCurrency(a.amount)}</Chip>
@@ -328,13 +358,13 @@ export default function IncomeView() {
                         <Grid xs={12} sm={6} md={3}>
                             <FormControl>
                                 <FormLabel>Gross Annual (£)</FormLabel>
-                                <Input name="gross_annual_salary" type="number" step="0.01" defaultValue={editItem?.gross_annual_salary} />
+                                <Input name="gross_annual_salary" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.gross_annual_salary} />
                             </FormControl>
                         </Grid>
                         <Grid xs={12} sm={6} md={3}>
                             <FormControl required>
                                 <FormLabel>Net Pay (per freq)</FormLabel>
-                                <Input name="amount" type="number" step="0.01" defaultValue={editItem?.amount} />
+                                <Input name="amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.amount} />
                             </FormControl>
                         </Grid>
                         <Grid xs={12} sm={6} md={3}>
@@ -351,9 +381,9 @@ export default function IncomeView() {
                             />
                         </Grid>
                         <Grid xs={12} sm={6} md={3}>
-                            <FormControl>
+                            <FormControl required>
                                 <FormLabel>Payment Day</FormLabel>
-                                <Input name="payment_day" type="number" defaultValue={editItem?.payment_day} placeholder="e.g. 25" />
+                                <Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} placeholder="e.g. 25" />
                             </FormControl>
                         </Grid>
 
