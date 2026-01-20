@@ -244,6 +244,19 @@ export default function BudgetView() {
       return { startDate, endDate, label, cycleKey, progressPct, cycleDuration, expenses: expenses.sort((a, b) => (a.computedDate || 0) - (b.computedDate || 0)) };
   }, [incomes, liabilities, progress, viewDate, members, bankHolidays]);
 
+  useEffect(() => {
+      if (cycleData && cycles) {
+          const currentCycle = cycles.find(c => c.cycle_start === cycleData.cycleKey);
+          if (currentCycle) {
+              setActualPay(currentCycle.actual_pay);
+              setCurrentBalance(currentCycle.current_balance);
+          } else {
+              setActualPay('');
+              setCurrentBalance('');
+          }
+      }
+  }, [cycleData, cycles]);
+
   // --- HANDLERS ---
   const handleRowClick = (e, index, key) => {
       const isShift = e.shiftKey; const isCtrl = e.metaKey || e.ctrlKey;
@@ -354,6 +367,19 @@ export default function BudgetView() {
       return { total, paid, unpaid: total - paid };
   }, [cycleData, hidePaid]);
 
+  const selectedTotals = useMemo(() => {
+      if (!selectedKeys.length || !cycleData) return null;
+      const selected = cycleData.expenses.filter(e => selectedKeys.includes(e.key));
+      const total = selected.reduce((sum, e) => sum + e.amount, 0);
+      const paid = selected.filter(e => e.isPaid).reduce((sum, e) => sum + e.amount, 0);
+      return {
+          count: selected.length,
+          total,
+          paid,
+          unpaid: total - paid
+      };
+  }, [selectedKeys, cycleData]);
+
   const trueDisposable = (parseFloat(currentBalance) || 0) - cycleData?.expenses.filter(e => !e.isPaid).reduce((sum, e) => sum + e.amount, 0);
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
@@ -391,8 +417,8 @@ export default function BudgetView() {
                     <Card variant="outlined" sx={{ p: 3 }}>
                         <Typography level="title-lg" sx={{ mb: 2 }} startDecorator={<AccountBalanceWallet />}>Cycle Entry</Typography>
                         <Stack spacing={2}>
-                            <FormControl><FormLabel>Pay (£)</FormLabel><Input type="number" value={actualPay} onChange={(e) => setActualPay(e.target.value)} onBlur={(e) => saveCycleData(e.target.value, currentBalance)} /></FormControl>
-                            <FormControl><FormLabel>Balance (£)</FormLabel><Input type="number" value={currentBalance} onChange={(e) => setCurrentBalance(e.target.value)} onBlur={(e) => saveCycleData(actualPay, e.target.value)} autoFocus /></FormControl>
+                            <FormControl><FormLabel>Pay (£)</FormLabel><Input type="number" value={actualPay} onChange={(e) => setActualPay(e.target.value)} onBlur={(e) => saveCycleData(e.target.value, currentBalance)} slotProps={{ input: { step: '0.01' } }} /></FormControl>
+                            <FormControl><FormLabel>Balance (£)</FormLabel><Input type="number" value={currentBalance} onChange={(e) => setCurrentBalance(e.target.value)} onBlur={(e) => saveCycleData(actualPay, e.target.value)} autoFocus slotProps={{ input: { step: '0.01' } }} /></FormControl>
                         </Stack>
                     </Card>
                     <Card variant="solid" color={trueDisposable < 0 ? 'danger' : 'primary'} invertedColors sx={{ p: 3 }}>
@@ -440,6 +466,45 @@ export default function BudgetView() {
                         </tbody>
                     </Table>
                 </Sheet>
+
+                <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 4, px: 2, flexWrap: 'wrap' }}>
+                    {selectedTotals && (
+                        <Box sx={{ display: 'flex', gap: 3, alignItems: 'center', bgcolor: 'primary.softBg', px: 2, py: 1, borderRadius: 'sm', border: '1px solid', borderColor: 'primary.outlinedBorder' }}>
+                            <Typography level="body-sm" fontWeight="lg">{selectedTotals.count} Selected:</Typography>
+                            <Box>
+                                <Typography level="body-xs">Total</Typography>
+                                <Typography level="title-sm">{formatCurrency(selectedTotals.total)}</Typography>
+                            </Box>
+                            {(selectedTotals.paid > 0 && selectedTotals.unpaid > 0) && (
+                                <>
+                                    <Box>
+                                        <Typography level="body-xs" color="success">Paid</Typography>
+                                        <Typography level="title-sm" color="success">{formatCurrency(selectedTotals.paid)}</Typography>
+                                    </Box>
+                                    <Box>
+                                        <Typography level="body-xs" color="danger">Unpaid</Typography>
+                                        <Typography level="title-sm" color="danger">{formatCurrency(selectedTotals.unpaid)}</Typography>
+                                    </Box>
+                                </>
+                            )}
+                        </Box>
+                    )}
+                    
+                    <Box sx={{ display: 'flex', gap: 3 }}>
+                         <Box sx={{ textAlign: 'right' }}>
+                            <Typography level="body-xs">Cycle Total</Typography>
+                            <Typography level="title-lg">{formatCurrency(totals.total)}</Typography>
+                        </Box>
+                        <Box sx={{ textAlign: 'right' }}>
+                            <Typography level="body-xs">Paid</Typography>
+                            <Typography level="title-lg" color="success">{formatCurrency(totals.paid)}</Typography>
+                        </Box>
+                        <Box sx={{ textAlign: 'right' }}>
+                            <Typography level="body-xs">Remaining</Typography>
+                            <Typography level="title-lg" color="warning">{formatCurrency(totals.unpaid)}</Typography>
+                        </Box>
+                    </Box>
+                </Box>
             </Grid>
         </Grid>
 
@@ -451,7 +516,7 @@ export default function BudgetView() {
                     <form onSubmit={handleQuickAdd}>
                         <Stack spacing={2}>
                             <FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus /></FormControl>
-                            <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: 'any' } }} /></FormControl>
+                            <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: '0.01' } }} /></FormControl>
                             <FormControl required><FormLabel>Due Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={new Date().getDate()} /></FormControl>
                             <Checkbox label="Nearest Working Day (Next)" name="nearest_working_day" defaultChecked value="1" />
                             <AppSelect label="Category" name="category" defaultValue="other" options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'other', label: 'Other' }]} />
@@ -506,7 +571,7 @@ export default function BudgetView() {
                                     ))}
                                 </Select>
                             </FormControl>
-                            <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: 'any' } }} /></FormControl>
+                            <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: '0.01' } }} /></FormControl>
                             <FormControl required><FormLabel>Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={new Date().getDate()} /></FormControl>
                             <Checkbox label="Nearest Working Day (Next)" name="nearest_working_day" defaultChecked value="1" />
                             <Button type="submit" color="success">Save Allocation</Button>

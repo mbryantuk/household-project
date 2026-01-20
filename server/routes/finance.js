@@ -329,11 +329,11 @@ router.post('/households/:id/finance/budget-cycles', authenticateToken, requireH
 });
 
 router.post('/households/:id/finance/budget-progress', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-    const { cycle_start, item_key, is_paid } = req.body;
+    const { cycle_start, item_key, is_paid, actual_amount } = req.body;
     req.tenantDb.run(
-        `INSERT INTO finance_budget_progress (household_id, cycle_start, item_key, is_paid) VALUES (?, ?, ?, ?)
-         ON CONFLICT(household_id, cycle_start, item_key) DO UPDATE SET is_paid = excluded.is_paid`,
-        [req.hhId, cycle_start, item_key, is_paid],
+        `INSERT INTO finance_budget_progress (household_id, cycle_start, item_key, is_paid, actual_amount) VALUES (?, ?, ?, ?, ?)
+         ON CONFLICT(household_id, cycle_start, item_key) DO UPDATE SET is_paid = excluded.is_paid, actual_amount = excluded.actual_amount`,
+        [req.hhId, cycle_start, item_key, is_paid, actual_amount],
         function(err) {
             closeDb(req);
             if (err) return res.status(500).json({ error: err.message });
