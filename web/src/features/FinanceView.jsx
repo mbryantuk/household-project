@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useLocation, useNavigate, useOutletContext } from 'react-router-dom';
-import { Box, Typography, Sheet, Tabs, TabList, Tab, tabClasses, Grid, Card, Avatar, Button, IconButton } from '@mui/joy';
+import { Box, Typography, Sheet, Grid, Card, Avatar, IconButton } from '@mui/joy';
 import { 
   Payments, 
   AccountBalance, 
@@ -13,7 +13,9 @@ import {
   PieChart,
   Construction,
   ArrowBack,
-  ChevronRight
+  ChevronRight,
+  DirectionsCar,
+  Assignment
 } from '@mui/icons-material';
 
 import IncomeView from './finance/IncomeView';
@@ -21,6 +23,11 @@ import BankingView from './finance/BankingView';
 import SavingsView from './finance/SavingsView';
 import InvestmentsView from './finance/InvestmentsView';
 import PensionsView from './finance/PensionsView';
+import CreditCardsView from './finance/CreditCardsView';
+import LoansView from './finance/LoansView';
+import MortgagesView from './finance/MortgagesView';
+import VehicleFinanceView from './finance/VehicleFinanceView';
+import AgreementsView from './finance/AgreementsView';
 import { getEmojiColor } from '../theme';
 
 const ComingSoonPlaceholder = ({ title, icon: Icon }) => (
@@ -36,23 +43,6 @@ const ComingSoonPlaceholder = ({ title, icon: Icon }) => (
     <Icon sx={{ fontSize: 64, opacity: 0.5 }} />
     <Typography level="h3" sx={{ color: 'inherit' }}>{title}</Typography>
     <Typography level="body-md">Coming Soon</Typography>
-  </Box>
-);
-
-const WipPlaceholder = ({ title }) => (
-  <Box sx={{ 
-    display: 'flex', 
-    flexDirection: 'column', 
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    height: '400px', 
-    gap: 2,
-    color: 'warning.500'
-  }}>
-    <Construction sx={{ fontSize: 64, opacity: 0.8 }} />
-    <Typography level="h3" sx={{ color: 'inherit' }}>{title}</Typography>
-    <Typography level="body-lg" sx={{ fontWeight: 'lg' }}>Work In Progress</Typography>
-    <Typography level="body-sm" sx={{ color: 'neutral.500' }}>We are currently rebuilding this feature to serve you better.</Typography>
   </Box>
 );
 
@@ -76,22 +66,17 @@ export default function FinanceView() {
     income: { label: 'Income', icon: Payments, desc: 'Manage salary, contracting, and other income streams.' },
     banking: { label: 'Banking', icon: AccountBalance, desc: 'Track balances, overdrafts, and account holders.' },
     savings: { label: 'Savings', icon: Savings, desc: 'Monitor savings goals and rainy day funds.' },
-    credit: { label: 'Credit Cards', icon: CreditCard, desc: 'Track credit utilization and repayments.' },
-    loans: { label: 'Loans', icon: RequestQuote, desc: 'Manage unsecured debts and repayment schedules.' },
-    mortgage: { label: 'Mortgage', icon: Home, desc: 'Track property loans and equity.' },
     invest: { label: 'Investments', icon: TrendingUp, desc: 'Monitor stocks, bonds, and crypto assets.' },
     pensions: { label: 'Pensions', icon: HourglassBottom, desc: 'Plan for your future retirement.' },
+    credit: { label: 'Credit Cards', icon: CreditCard, desc: 'Track credit utilization and repayments.' },
+    loans: { label: 'Loans', icon: RequestQuote, desc: 'Manage unsecured debts and repayment schedules.' },
+    mortgage: { label: 'Mortgage', icon: Home, desc: 'Track property loans and home equity.' },
+    car: { label: 'Car Finance', icon: DirectionsCar, desc: 'Track loans and leases for your fleet.' },
+    agreements: { label: 'Agreements', icon: Assignment, desc: 'Track mobile contracts and other obligations.' },
   }), []);
 
-  // Determine active tab. 
-  // Desktop default: 'budget'. 
-  // Mobile default: null (triggers menu) unless explicitly set.
   const activeTabKey = tabParam || (isMobile ? null : 'budget');
   const activeView = activeTabKey ? viewMap[activeTabKey] : null;
-
-  const handleTabChange = (event, newValue) => {
-    navigate(`?tab=${newValue}`);
-  };
 
   const renderContent = () => {
       if (activeTabKey === 'income') return <IncomeView />;
@@ -99,6 +84,11 @@ export default function FinanceView() {
       if (activeTabKey === 'savings') return <SavingsView />;
       if (activeTabKey === 'invest') return <InvestmentsView />;
       if (activeTabKey === 'pensions') return <PensionsView />;
+      if (activeTabKey === 'credit') return <CreditCardsView />;
+      if (activeTabKey === 'loans') return <LoansView />;
+      if (activeTabKey === 'mortgage') return <MortgagesView />;
+      if (activeTabKey === 'car') return <VehicleFinanceView />;
+      if (activeTabKey === 'agreements') return <AgreementsView />;
       
       // Default placeholder logic
       return (
@@ -125,7 +115,6 @@ export default function FinanceView() {
       );
   };
 
-  // MOBILE: Dashboard / Menu View
   if (isMobile && !activeTabKey) {
     return (
       <Box>
@@ -169,7 +158,6 @@ export default function FinanceView() {
     );
   }
 
-  // MOBILE: Detail View (with Back button)
   if (isMobile && activeTabKey) {
     return (
       <Box sx={{ width: '100%' }}>
@@ -186,7 +174,6 @@ export default function FinanceView() {
     );
   }
 
-  // DESKTOP: Content Only (Navigation via Left Sidebar)
   return (
     <Box sx={{ width: '100%' }}>
       {renderContent()}
