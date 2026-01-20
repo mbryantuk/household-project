@@ -8,6 +8,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import FloatingCalculator from './FloatingCalculator';
 import FloatingCalendar from './FloatingCalendar';
+import FloatingSavings from './FloatingSavings';
 import FinancialCalculator from './FinancialCalculator';
 import PostItNote from './PostItNote';
 import TaxCalculator from './TaxCalculator';
@@ -64,7 +65,7 @@ const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, showLabe
 
 export default function UtilityBar({ 
     user, api, dates, onDateAdded, onUpdateProfile, isDark, onLogout,
-    households = [], onSelectHousehold, onInstall, canInstall, confirmAction
+    households = [], onSelectHousehold, onInstall, canInstall, confirmAction, activeHouseholdId
 }) {
   const navigate = useNavigate();
   const [activeWidget, setActiveWidget] = useState(null); 
@@ -139,7 +140,11 @@ export default function UtilityBar({
                 <FloatingCalculator isDocked onClose={closeWidget} isDark={isDark} onPopout={() => handlePopout('calc', '/calculator')} />
             </WidgetWrapper>
 
-            <WidgetWrapper id="fincalc" label="Finance" icon={Savings} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+            <WidgetWrapper id="quick_savings" label="Savings" icon={Savings} color="success" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                <FloatingSavings isDocked onClose={closeWidget} api={api} householdId={activeHouseholdId || user?.default_household_id} isDark={isDark} onPopout={() => handlePopout('quick_savings', '/savings-window')} />
+            </WidgetWrapper>
+
+            <WidgetWrapper id="fincalc" label="Finance" icon={Payments} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                 <FinancialCalculator isDocked onClose={closeWidget} isDark={isDark} onPopout={() => handlePopout('fincalc', '/fin-calculator-window')} />
             </WidgetWrapper>
 

@@ -196,6 +196,7 @@ export default function HouseholdLayout({
                 canInstall={!!installPrompt}
                 onInstall={onInstall}
                 confirmAction={confirmAction}
+                activeHouseholdId={id}
             />
         </Box>
 

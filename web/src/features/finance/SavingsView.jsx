@@ -6,7 +6,7 @@ import {
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
   AvatarGroup, LinearProgress, Accordion, AccordionSummary, AccordionDetails, Table
 } from '@mui/joy';
-import { Edit, Delete, Add, GroupAdd, ExpandMore, Savings, TrendingUp } from '@mui/icons-material';
+import { Edit, Delete, Add, GroupAdd, ExpandMore, Savings, TrendingUp, Remove } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import AppSelect from '../../components/ui/AppSelect';
@@ -22,6 +22,7 @@ export default function SavingsView() {
   const [editAccount, setEditAccount] = useState(null);
   const [isNewAccount, setIsNewAccount] = useState(false);
   const [editPot, setEditPot] = useState(null); // { savingsId, pot: {} }
+  const [adjustPot, setAdjustPot] = useState(null); // { savingsId, pot, type: 'add'|'remove' }
   const [assignItem, setAssignItem] = useState(null);
 
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'member';
@@ -113,6 +114,29 @@ export default function SavingsView() {
           const potRes = await api.get(`/households/${householdId}/finance/savings/${savingsId}/pots`);
           setPots(prev => ({ ...prev, [savingsId]: potRes.data }));
       } catch (err) { alert("Failed to delete pot"); }
+  };
+
+  const handleAdjustSubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.currentTarget);
+      const amount = parseFloat(formData.get('amount'));
+      if (!amount || amount <= 0) return;
+
+      const { savingsId, pot, type } = adjustPot;
+      const newAmount = type === 'add' 
+          ? (pot.current_amount || 0) + amount 
+          : (pot.current_amount || 0) - amount;
+
+      try {
+          await api.put(`/households/${householdId}/finance/savings/${savingsId}/pots/${pot.id}`, {
+              ...pot,
+              current_amount: newAmount
+          });
+          
+          const potRes = await api.get(`/households/${householdId}/finance/savings/${savingsId}/pots`);
+          setPots(prev => ({ ...prev, [savingsId]: potRes.data }));
+          setAdjustPot(null);
+      } catch (err) { alert("Failed to update balance"); }
   };
 
 
@@ -220,7 +244,13 @@ export default function SavingsView() {
                                             <Card key={pot.id} variant="soft" size="sm" sx={{ p: 1.5 }}>
                                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                                                     <Typography level="title-sm">{pot.emoji} {pot.name}</Typography>
-                                                    <Box>
+                                                    <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                                        <IconButton size="sm" variant="outlined" color="danger" onClick={() => setAdjustPot({ savingsId: acc.id, pot, type: 'remove' })}>
+                                                            <Remove fontSize="small" />
+                                                        </IconButton>
+                                                        <IconButton size="sm" variant="outlined" color="success" onClick={() => setAdjustPot({ savingsId: acc.id, pot, type: 'add' })}>
+                                                            <Add fontSize="small" />
+                                                        </IconButton>
                                                         <IconButton size="sm" onClick={() => setEditPot({ savingsId: acc.id, pot })}> <Edit fontSize="small" /> </IconButton>
                                                         <IconButton size="sm" color="danger" onClick={() => handlePotDelete(acc.id, pot.id)}> <Delete fontSize="small" /> </IconButton>
                                                     </Box>
@@ -277,6 +307,27 @@ export default function SavingsView() {
         </Grid>
 
         {/* --- MODALS --- */}
+
+        {/* ADJUST MODAL */}
+        <Modal open={Boolean(adjustPot)} onClose={() => setAdjustPot(null)}>
+            <ModalDialog size="sm">
+                <DialogTitle>{adjustPot?.type === 'add' ? 'Add Funds' : 'Remove Funds'}</DialogTitle>
+                <DialogContent>
+                    <form onSubmit={handleAdjustSubmit}>
+                        <FormControl required>
+                            <FormLabel>Amount (£)</FormLabel>
+                            <Input name="amount" type="number" step="0.01" autoFocus />
+                        </FormControl>
+                        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                            <Button variant="plain" color="neutral" onClick={() => setAdjustPot(null)}>Cancel</Button>
+                            <Button type="submit" color={adjustPot?.type === 'add' ? 'success' : 'danger'}>
+                                {adjustPot?.type === 'add' ? 'Add' : 'Remove'}
+                            </Button>
+                        </Box>
+                    </form>
+                </DialogContent>
+            </ModalDialog>
+        </Modal>
 
         {/* ACCOUNT MODAL */}
         <Modal open={Boolean(editAccount)} onClose={() => setEditAccount(null)}>
