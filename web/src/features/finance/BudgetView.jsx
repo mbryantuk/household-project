@@ -155,14 +155,16 @@ export default function BudgetView() {
       const endDate = getPriorWorkingDay(addMonths(rawStartDate, 1));
       
       const cycleKey = format(startDate, 'yyyy-MM-dd');
-      const label = format(startDate, 'MMM yyyy') + " Cycle";
+      const label = format(startDate, 'MMM yyyy') + " Budget";
       const cycleDuration = differenceInDays(endDate, startDate);
 
       const now = new Date();
       let progressPct = 0;
+      let daysRemaining = differenceInDays(endDate, now);
       if (isSameDay(now, startDate) || isAfter(now, startDate)) {
           progressPct = Math.min((differenceInDays(now, startDate) / cycleDuration) * 100, 100);
       }
+      if (daysRemaining < 0) daysRemaining = 0;
 
       const expenses = [];
       const addExpense = (item, type, label, amount, day, icon, category, object = null) => {
@@ -212,7 +214,7 @@ export default function BudgetView() {
       if (liabilities.council) addExpense(liabilities.council, 'council', 'Council Tax', liabilities.council.monthly_amount, liabilities.council.payment_day, <AccountBalance />, 'Utility', { name: 'House', emoji: '🏛️' });
       if (liabilities.energy) liabilities.energy.forEach(e => addExpense(e, 'energy', `${e.provider} (${e.type})`, e.monthly_amount, e.payment_day, <ElectricBolt />, 'Utility', { name: 'House', emoji: '⚡' }));
 
-      return { startDate, endDate, label, cycleKey, progressPct, cycleDuration, expenses: expenses.sort((a, b) => (a.computedDate || 0) - (b.computedDate || 0)) };
+      return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, expenses: expenses.sort((a, b) => (a.computedDate || 0) - (b.computedDate || 0)) };
   }, [incomes, liabilities, progress, viewDate, members, getPriorWorkingDay, getAdjustedDate]);
 
   const currentCycleRecord = useMemo(() => {
@@ -428,7 +430,7 @@ export default function BudgetView() {
 
             <Card variant="outlined" sx={{ width: '100%', maxWidth: 500, p: 3, mb: 4, alignItems: 'center', textAlign: 'center', gap: 2 }}>
                 <AccountBalanceWallet sx={{ fontSize: 48, color: 'primary.plainColor' }} />
-                <Typography level="h3">Start a New Budget Cycle</Typography>
+                <Typography level="h3">Start a New Budget</Typography>
                 <Typography level="body-md">This cycle has not been initialized yet. Choose how you want to start.</Typography>
                 
                 <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
@@ -439,7 +441,7 @@ export default function BudgetView() {
 
             {cycleEvents.length > 0 && (
                 <Card variant="soft" sx={{ width: '100%', maxWidth: 500, p: 2 }}>
-                    <Typography level="title-md" startDecorator={<Event />} sx={{ mb: 2 }}>Events in this Cycle</Typography>
+                    <Typography level="title-md" startDecorator={<Event />} sx={{ mb: 2 }}>Events in this Budget</Typography>
                     <Stack spacing={1}>
                         {cycleEvents.map((evt, i) => (
                             <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 1, bgcolor: 'background.surface', borderRadius: 'sm', border: '1px solid', borderColor: 'divider' }}>
@@ -459,7 +461,7 @@ export default function BudgetView() {
 
   return (
     <Box sx={{ userSelect: 'none' }}>
-        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+        <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, -1))}><ChevronLeft /></IconButton>
                 <Box>
@@ -483,42 +485,19 @@ export default function BudgetView() {
             </Box>
         </Box>
 
-        <Box sx={{ mb: 4 }}>
+        <Box sx={{ mb: 2 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
                 <Typography level="body-xs" fontWeight="bold" sx={{ textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                    Cycle Progress
+                    Days Left
                 </Typography>
                 <Typography level="body-xs" fontWeight="bold">
-                    {Math.round(cycleData.progressPct)}% of cycle elapsed
+                    {cycleData.daysRemaining} days to go
                 </Typography>
             </Box>
             <LinearProgress 
                 determinate 
                 value={cycleData.progressPct} 
-                thickness={12}
-                variant="soft"
-                color="primary"
-                sx={{ 
-                    borderRadius: 'sm',
-                    '--LinearProgress-radius': '4px',
-                    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)'
-                }} 
-            />
-        </Box>
-
-        <Box sx={{ mb: 4 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
-                <Typography level="body-xs" fontWeight="bold" sx={{ textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                    Cycle Progress
-                </Typography>
-                <Typography level="body-xs" fontWeight="bold">
-                    {Math.round(cycleData.progressPct)}% of cycle elapsed
-                </Typography>
-            </Box>
-            <LinearProgress 
-                determinate 
-                value={cycleData.progressPct} 
-                thickness={12}
+                thickness={6}
                 variant="soft"
                 color="primary"
                 sx={{ 
@@ -533,7 +512,7 @@ export default function BudgetView() {
             <Grid xs={12} md={3}>
                 <Stack spacing={3}>
                     <Card variant="outlined" sx={{ p: 3 }}>
-                        <Typography level="title-lg" sx={{ mb: 2 }} startDecorator={<AccountBalanceWallet />}>Cycle Entry</Typography>
+                        <Typography level="title-lg" sx={{ mb: 2 }} startDecorator={<AccountBalanceWallet />}>Budget Entry</Typography>
                         <Stack spacing={2}>
                             <FormControl><FormLabel>Pay (£)</FormLabel><Input type="number" value={actualPay} onChange={(e) => setActualPay(e.target.value)} onBlur={(e) => saveCycleData(e.target.value, currentBalance)} slotProps={{ input: { step: '0.01' } }} /></FormControl>
                             <FormControl><FormLabel>Balance (£)</FormLabel><Input type="number" value={currentBalance} onChange={(e) => setCurrentBalance(e.target.value)} onBlur={(e) => saveCycleData(actualPay, e.target.value)} autoFocus slotProps={{ input: { step: '0.01' } }} /></FormControl>
@@ -541,7 +520,7 @@ export default function BudgetView() {
                     </Card>
 
                     <Card variant="outlined" sx={{ p: 3, boxShadow: 'sm' }}>
-                        <Typography level="title-lg" startDecorator={<AccountBalanceWallet />} sx={{ mb: 2 }}>Cycle Overview</Typography>
+                        <Typography level="title-lg" startDecorator={<AccountBalanceWallet />} sx={{ mb: 2 }}>Budget Overview</Typography>
                         
                         <Stack spacing={1} sx={{ mb: 3 }}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
