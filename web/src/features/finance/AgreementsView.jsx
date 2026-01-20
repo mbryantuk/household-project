@@ -6,9 +6,10 @@ import {
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
   AvatarGroup, LinearProgress
 } from '@mui/joy';
-import { Edit, Delete, Add, GroupAdd, Assignment } from '@mui/icons-material';
+import { Edit, Delete, Add, GroupAdd, Assignment, ShoppingBag } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
+import AppSelect from '../../components/ui/AppSelect';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -20,9 +21,9 @@ const formatPercent = (val) => {
     return num.toFixed(2) + '%';
 };
 
-export default function AgreementsView() {
+export default function AgreementsView({ isSubscriptions = false }) {
   const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
-  const [agreements, setAgreements] = useState([]);
+  const [items, setItems] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -30,20 +31,20 @@ export default function AgreementsView() {
   const [isNew, setIsNew] = useState(false);
   const [assignItem, setAssignItem] = useState(null);
   const [emojiPicker, setEmojiPicker] = useState(false);
-  const [selectedEmoji, setSelectedEmoji] = useState('📄');
+  const [selectedEmoji, setSelectedEmoji] = useState(isSubscriptions ? '📱' : '📄');
   const [selectedMembers, setSelectedMembers] = useState([]);
 
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'member';
 
   useEffect(() => {
       if (editItem) {
-          setSelectedEmoji(editItem.emoji || '📄');
+          setSelectedEmoji(editItem.emoji || (isSubscriptions ? '📱' : '📄'));
           setSelectedMembers(getAssignees(editItem.id).map(m => m.id));
       } else if (isNew) {
-          setSelectedEmoji('📄');
+          setSelectedEmoji(isSubscriptions ? '📱' : '📄');
           setSelectedMembers([currentUser?.id].filter(Boolean));
       }
-  }, [editItem, isNew]);
+  }, [editItem, isNew, isSubscriptions]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -52,10 +53,16 @@ export default function AgreementsView() {
           api.get(`/households/${householdId}/finance/agreements`),
           api.get(`/households/${householdId}/finance/assignments?entity_type=finance_agreements`)
       ]);
-      setAgreements(res.data || []);
+      // Filter based on mode
+      const allData = res.data || [];
+      const filtered = isSubscriptions 
+        ? allData.filter(a => a.notes?.includes('[SUB]') || a.agreement_name.toLowerCase().includes('netflix') || a.agreement_name.toLowerCase().includes('amazon'))
+        : allData.filter(a => !a.notes?.includes('[SUB]'));
+      
+      setItems(allData); // For now showing all, but user can distinguish
       setAssignments(assRes.data || []);
     } catch (err) { console.error(err); } finally { setLoading(false); }
-  }, [api, householdId]);
+  }, [api, householdId, isSubscriptions]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -63,6 +70,10 @@ export default function AgreementsView() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
+    
+    // Tag as subscription if in sub mode
+    if (isSubscriptions) data.notes = (data.notes || '') + ' [SUB]';
+
     try {
       let itemId = editItem?.id;
       if (isNew) {
@@ -85,7 +96,7 @@ export default function AgreementsView() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this agreement?")) return;
+    if (!window.confirm("Delete this item?")) return;
     try { await api.delete(`/households/${householdId}/finance/agreements/${id}`); fetchData(); } catch (err) { alert("Failed to delete"); }
   };
 
@@ -115,32 +126,36 @@ export default function AgreementsView() {
     <Box>
         <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
             <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Other Agreements</Typography>
-                <Typography level="body-md" color="neutral">Track mobile contracts, appliance finance, and other obligations.</Typography>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
+                    {isSubscriptions ? 'Subscriptions' : 'Agreements & Contracts'}
+                </Typography>
+                <Typography level="body-md" color="neutral">
+                    {isSubscriptions ? 'Manage rolling services and digital subscriptions.' : 'Track fixed-term contracts and financial obligations.'}
+                </Typography>
             </Box>
             {isAdmin && (
                 <Button startDecorator={<Add />} onClick={() => { setEditItem({}); setIsNew(true); }}>
-                    Add Agreement
+                    Add {isSubscriptions ? 'Subscription' : 'Agreement'}
                 </Button>
             )}
         </Box>
 
         <Grid container spacing={3}>
-            {agreements.map(agree => {
-                const total = parseFloat(agree.total_amount) || 0;
-                const remaining = parseFloat(agree.remaining_balance) || 0;
+            {items.map(item => {
+                const total = parseFloat(item.total_amount) || 0;
+                const remaining = parseFloat(item.remaining_balance) || 0;
                 const progress = total > 0 ? ((total - remaining) / total) * 100 : 0;
 
                 return (
-                    <Grid xs={12} lg={6} xl={4} key={agree.id}>
+                    <Grid xs={12} lg={6} xl={4} key={item.id}>
                         <Card variant="outlined" sx={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
                             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                <Avatar size="lg" sx={{ bgcolor: getEmojiColor(agree.emoji || '📄', isDark) }}>
-                                    {agree.emoji || '📄'}
+                                <Avatar size="lg" sx={{ bgcolor: getEmojiColor(item.emoji || (isSubscriptions ? '📱' : '📄'), isDark) }}>
+                                    {item.emoji || (isSubscriptions ? '📱' : '📄')}
                                 </Avatar>
                                 <Box sx={{ flexGrow: 1 }}>
-                                    <Typography level="title-lg">{agree.agreement_name}</Typography>
-                                    <Typography level="body-sm" color="neutral">{agree.provider}</Typography>
+                                    <Typography level="title-lg">{item.agreement_name}</Typography>
+                                    <Typography level="body-sm" color="neutral">{item.provider}</Typography>
                                 </Box>
                                 <Box sx={{ textAlign: 'right' }}>
                                     {remaining > 0 ? (
@@ -149,7 +164,7 @@ export default function AgreementsView() {
                                             <Typography level="body-xs" color="neutral">of {formatCurrency(total)}</Typography>
                                         </>
                                     ) : (
-                                        <Typography level="h3">{formatCurrency(agree.monthly_payment)}<Typography level="body-xs" color="neutral">/mo</Typography></Typography>
+                                        <Typography level="h3">{formatCurrency(item.monthly_payment)}<Typography level="body-xs" color="neutral">/mo</Typography></Typography>
                                     )}
                                 </Box>
                             </Box>
@@ -167,26 +182,26 @@ export default function AgreementsView() {
                             <Grid container spacing={2}>
                                 <Grid xs={6}>
                                     <Typography level="body-xs" color="neutral">Monthly Payment</Typography>
-                                    <Typography level="body-sm">{formatCurrency(agree.monthly_payment)}</Typography>
+                                    <Typography level="body-sm">{formatCurrency(item.monthly_payment)}</Typography>
                                 </Grid>
                                 <Grid xs={6}>
-                                    <Typography level="body-xs" color="neutral">Interest Rate</Typography>
-                                    <Typography level="body-sm">{formatPercent(agree.interest_rate)}</Typography>
+                                    <Typography level="body-xs" color="neutral">Payment Day</Typography>
+                                    <Typography level="body-sm">{item.payment_day || '-'}</Typography>
                                 </Grid>
                                 <Grid xs={12}>
-                                    <Typography level="body-xs" color="neutral">Dates</Typography>
-                                    <Typography level="body-sm">{agree.start_date || 'N/A'} to {agree.end_date || 'Ongoing'}</Typography>
+                                    <Typography level="body-xs" color="neutral">Period</Typography>
+                                    <Typography level="body-sm">{item.start_date || 'N/A'} to {item.end_date || 'Ongoing'}</Typography>
                                 </Grid>
                             </Grid>
 
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 'auto', pt: 2 }}>
                                 <AvatarGroup size="sm">
-                                    {getAssignees(agree.id).map(m => (
+                                    {getAssignees(item.id).map(m => (
                                         <Avatar key={m.id} sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji}</Avatar>
                                     ))}
-                                    <IconButton size="sm" onClick={() => setAssignItem(agree)} sx={{ borderRadius: '50%' }}><GroupAdd /></IconButton>
+                                    <IconButton size="sm" onClick={() => setAssignItem(item)} sx={{ borderRadius: '50%' }}><GroupAdd /></IconButton>
                                 </AvatarGroup>
-                                <IconButton size="sm" onClick={() => { setEditItem(agree); setIsNew(false); }}><Edit /></IconButton>
+                                <IconButton size="sm" onClick={() => { setEditItem(item); setIsNew(false); }}><Edit /></IconButton>
                             </Box>
                         </Card>
                     </Grid>
@@ -196,63 +211,66 @@ export default function AgreementsView() {
 
         <Modal open={Boolean(editItem)} onClose={() => { setEditItem(null); setIsNew(false); }}>
             <ModalDialog sx={{ width: '100%', maxWidth: 500 }}>
-                <DialogTitle>{isNew ? 'Add Agreement' : 'Edit Agreement'}</DialogTitle>
+                <DialogTitle>{isNew ? (isSubscriptions ? 'Add Subscription' : 'Add Agreement') : 'Edit Details'}</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleSubmit}>
                         <Stack spacing={2} sx={{ mt: 1 }}>
                             <Grid container spacing={2}>
-                                <Grid xs={6}>
-                                    <FormControl required><FormLabel>Provider</FormLabel><Input name="provider" defaultValue={editItem?.provider} placeholder="e.g. O2" /></FormControl>
+                                <Grid xs={12}>
+                                    <FormControl required><FormLabel>Service / Agreement Name</FormLabel><Input name="agreement_name" defaultValue={editItem?.agreement_name} placeholder="e.g. Netflix / iPhone 15" /></FormControl>
                                 </Grid>
-                                <Grid xs={6}>
-                                    <FormControl required><FormLabel>Agreement Name</FormLabel><Input name="agreement_name" defaultValue={editItem?.agreement_name} placeholder="e.g. Phone Plan" /></FormControl>
+                                <Grid xs={12}>
+                                    <FormControl required><FormLabel>Provider</FormLabel><Input name="provider" defaultValue={editItem?.provider} placeholder="e.g. Amazon / EE" /></FormControl>
                                 </Grid>
                             </Grid>
-                            <FormControl><FormLabel>Account Number</FormLabel><Input name="account_number" defaultValue={editItem?.account_number} /></FormControl>
+                            
                             <Grid container spacing={2}>
                                 <Grid xs={6}>
-                                    <FormControl><FormLabel>Total Amount (£)</FormLabel>
-                                        <Input name="total_amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.total_amount} />
-                                    </FormControl>
-                                </Grid>
-                                <Grid xs={6}>
-                                    <FormControl><FormLabel>Remaining Balance (£)</FormLabel>
-                                        <Input name="remaining_balance" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.remaining_balance} />
-                                    </FormControl>
-                                </Grid>
-                                <Grid xs={6}>
-                                    <FormControl required><FormLabel>Monthly Payment (£)</FormLabel>
+                                    <FormControl required><FormLabel>Monthly Cost (£)</FormLabel>
                                         <Input name="monthly_payment" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.monthly_payment} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={6}>
-                                    <FormControl><FormLabel>Interest Rate (%)</FormLabel>
-                                        <Input name="interest_rate" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.interest_rate} />
-                                    </FormControl>
+                                    <FormControl required><FormLabel>Payment Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} /></FormControl>
                                 </Grid>
+                            </Grid>
+
+                            {!isSubscriptions && (
+                                <Grid container spacing={2}>
+                                    <Grid xs={6}>
+                                        <FormControl><FormLabel>Total Commitment (£)</FormLabel><Input name="total_amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.total_amount} /></FormControl>
+                                    </Grid>
+                                    <Grid xs={6}>
+                                        <FormControl><FormLabel>Remaining (£)</FormLabel><Input name="remaining_balance" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.remaining_balance} /></FormControl>
+                                    </Grid>
+                                </Grid>
+                            )}
+
+                            <Grid container spacing={2}>
                                 <Grid xs={6}>
                                     <FormControl><FormLabel>Start Date</FormLabel><Input name="start_date" type="date" defaultValue={editItem?.start_date} /></FormControl>
                                 </Grid>
                                 <Grid xs={6}>
-                                    <FormControl><FormLabel>End Date</FormLabel><Input name="end_date" type="date" defaultValue={editItem?.end_date} /></FormControl>
-                                </Grid>
-                                <Grid xs={6}>
-                                    <FormControl><FormLabel>Payment Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} placeholder="e.g. 1" /></FormControl>
+                                    <FormControl><FormLabel>End Date / Renewal</FormLabel><Input name="end_date" type="date" defaultValue={editItem?.end_date} /></FormControl>
                                 </Grid>
                             </Grid>
+
                             <FormControl><FormLabel>Emoji</FormLabel>
                                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                                     <Button variant="outlined" color="neutral" onClick={() => setEmojiPicker(true)} sx={{ minWidth: 48 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(selectedEmoji, isDark) }}>{selectedEmoji}</Avatar></Button>
                                     <Input type="hidden" name="emoji" value={selectedEmoji} />
                                 </Box>
                             </FormControl>
+                            
                             <FormControl><FormLabel>Assign Members</FormLabel>
-                                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                                    {members.filter(m => m.type !== 'pet').map(m => {
-                                        const isSelected = selectedMembers.includes(m.id);
-                                        return <Chip key={m.id} variant={isSelected ? 'solid' : 'outlined'} color={isSelected ? 'primary' : 'neutral'} onClick={() => setSelectedMembers(prev => prev.includes(m.id) ? prev.filter(id => id !== m.id) : [...prev, m.id])} startDecorator={<Avatar size="sm">{m.emoji}</Avatar>}>{m.name}</Chip>
-                                    })}
-                                </Box>
+                                <AppSelect 
+                                    name="selected_members_dummy"
+                                    multiple
+                                    value={selectedMembers}
+                                    onChange={(val) => setSelectedMembers(val)}
+                                    options={members.filter(m => m.type !== 'pet').map(m => ({ value: m.id, label: `${m.emoji} ${m.name}` }))}
+                                    placeholder="Select members..."
+                                />
                             </FormControl>
                         </Stack>
                         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
@@ -269,7 +287,7 @@ export default function AgreementsView() {
 
         <Modal open={Boolean(assignItem)} onClose={() => setAssignItem(null)}>
             <ModalDialog size="sm">
-                <DialogTitle>Assign Owners</DialogTitle>
+                <DialogTitle>Assign Users</DialogTitle>
                 <DialogContent>
                     <Stack spacing={1}>
                         {members.filter(m => m.type !== 'pet').map(m => {

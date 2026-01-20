@@ -224,6 +224,20 @@ router.put('/households/:id/finance/savings/:itemId', authenticateToken, require
 router.delete('/households/:id/finance/savings/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('finance_savings'));
 
 // --- SAVINGS POTS ---
+router.get('/households/:id/finance/savings/pots', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
+    const sql = `
+        SELECT p.*, s.institution, s.account_name 
+        FROM finance_savings_pots p
+        JOIN finance_savings s ON p.savings_id = s.id
+        WHERE s.household_id = ?
+    `;
+    req.tenantDb.all(sql, [req.hhId], (err, rows) => {
+        closeDb(req);
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows || []);
+    });
+});
+
 router.get('/households/:id/finance/savings/:savingsId/pots', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleSubList('finance_savings_pots', 'finance_savings', 'savingsId'));
 router.post('/households/:id/finance/savings/:savingsId/pots', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleSubCreate('finance_savings_pots', 'finance_savings', 'savingsId'));
 router.put('/households/:id/finance/savings/:savingsId/pots/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('finance_savings_pots'));

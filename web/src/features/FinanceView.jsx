@@ -72,6 +72,7 @@ export default function FinanceView() {
     credit: { label: 'Credit Cards', icon: CreditCard, desc: 'Track credit utilization and repayments.' },
     loans: { label: 'Loans', icon: RequestQuote, desc: 'Manage unsecured debts and repayment schedules.' },
     mortgage: { label: 'Mortgage', icon: Home, desc: 'Track property loans and home equity.' },
+    subscriptions: { label: 'Subscriptions', icon: Assignment, desc: 'Manage Netflix, Amazon, and other recurring services.' },
     car: { label: 'Car Finance', icon: DirectionsCar, desc: 'Track loans and leases for your fleet.' },
     agreements: { label: 'Agreements', icon: Assignment, desc: 'Track mobile contracts and other obligations.' },
   }), []);
@@ -89,6 +90,7 @@ export default function FinanceView() {
       if (activeTabKey === 'credit') return <CreditCardsView />;
       if (activeTabKey === 'loans') return <LoansView />;
       if (activeTabKey === 'mortgage') return <MortgagesView />;
+      if (activeTabKey === 'subscriptions') return <AgreementsView isSubscriptions />;
       if (activeTabKey === 'car') return <VehicleFinanceView />;
       if (activeTabKey === 'agreements') return <AgreementsView />;
       

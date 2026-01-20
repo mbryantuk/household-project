@@ -134,18 +134,20 @@ const TENANT_SCHEMA = [
     `CREATE TABLE IF NOT EXISTS recurring_costs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
-        parent_type TEXT, -- house, vehicle, member, general
+        parent_type TEXT, -- house, vehicle, member, general, pet, asset
         parent_id INTEGER,
         name TEXT,
         amount REAL,
-        frequency TEXT, -- monthly, annual, weekly
-        category TEXT, -- insurance, tax, service, utility
+        frequency TEXT, -- monthly, annual, weekly, one-off
+        category TEXT, -- insurance, tax, service, utility, subscription, other
         payment_day INTEGER,
         last_paid DATE,
         next_due DATE,
         is_active INTEGER DEFAULT 1,
         notes TEXT,
-        nearest_working_day INTEGER DEFAULT 1
+        nearest_working_day INTEGER DEFAULT 1,
+        is_subscription INTEGER DEFAULT 0,
+        term_type TEXT DEFAULT 'rolling' -- fixed, rolling
     )`,
     `CREATE TABLE IF NOT EXISTS dates (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -417,6 +419,7 @@ const TENANT_SCHEMA = [
         cycle_start DATE, -- The payday date starting this cycle
         item_key TEXT,    -- Format: 'type_id' e.g. 'mortgage_5'
         is_paid INTEGER DEFAULT 0,
+        actual_amount REAL,
         PRIMARY KEY (household_id, cycle_start, item_key)
     )`,
     `CREATE TABLE IF NOT EXISTS finance_assignments (
@@ -496,7 +499,10 @@ function initializeHouseholdSchema(db) {
             ['finance_investments', 'deposit_amount', 'REAL DEFAULT 0'],
             ['finance_mortgages', 'payment_day', 'INTEGER'],
             ['house_details', 'purchase_price', 'REAL DEFAULT 0'],
-            ['house_details', 'current_valuation', 'REAL DEFAULT 0']
+            ['house_details', 'current_valuation', 'REAL DEFAULT 0'],
+            ['recurring_costs', 'is_subscription', 'INTEGER DEFAULT 0'],
+            ['recurring_costs', 'term_type', "TEXT DEFAULT 'rolling'"],
+            ['finance_budget_progress', 'actual_amount', 'REAL']
         ];
 
         additionalFinanceCols.forEach(([table, col, type]) => {
