@@ -12,6 +12,8 @@ import CssBaseline from '@mui/joy/CssBaseline';
 import { getTotemTheme, getThemeSpec, THEMES } from './theme';
 import FloatingCalculator from './components/FloatingCalculator';
 import FloatingCalendar from './components/FloatingCalendar';
+import FloatingSavings from './components/FloatingSavings';
+import FloatingInvestments from './components/FloatingInvestments';
 import FinancialCalculator from './components/FinancialCalculator';
 import TaxCalculator from './components/TaxCalculator';
 import PostItNote from './components/PostItNote';
@@ -274,6 +276,8 @@ function AppInner({ themeId, setThemeId }) {
         <Route path="/fin-calculator-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FinancialCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
         <Route path="/tax-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><TaxCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
         <Route path="/calendar-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingCalendar isPopout={true} onClose={() => window.close()} dates={hhDates} api={authAxios} householdId={household?.id} currentUser={user} onDateAdded={() => household && fetchHhDates(household.id)} /></Box>} />
+        <Route path="/savings-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingSavings isPopout={true} onClose={() => window.close()} api={authAxios} householdId={household?.id} isDark={isDark} /></Box>} />
+        <Route path="/investments-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingInvestments isPopout={true} onClose={() => window.close()} api={authAxios} householdId={household?.id} isDark={isDark} /></Box>} />
         <Route path="/note-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><PostItNote isPopout={true} onClose={() => window.close()} user={user} onUpdateProfile={handleUpdateProfile} /></Box>} />
         
         <Route element={token ? <RootLayout context={{ api: authAxios, user, showNotification, confirmAction }} /> : <Navigate to="/login" />}>
