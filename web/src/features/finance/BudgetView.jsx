@@ -57,12 +57,12 @@ export default function BudgetView() {
           incRes, progRes, mortRes, loanRes, agreeRes, carRes, costRes, ccRes, waterRes, councilRes, energyRes
       ] = await Promise.all([
           api.get(`/households/${householdId}/finance/income`),
-          api.get(`/households/${householdId}/finance/budget-progress`), // We'll need this endpoint
+          api.get(`/households/${householdId}/finance/budget-progress`), 
           api.get(`/households/${householdId}/finance/mortgages`),
           api.get(`/households/${householdId}/finance/loans`),
           api.get(`/households/${householdId}/finance/agreements`),
           api.get(`/households/${householdId}/finance/vehicle-finance`),
-          api.get(`/households/${householdId}/recurring-costs`),
+          api.get(`/households/${householdId}/costs`),
           api.get(`/households/${householdId}/finance/credit-cards`),
           api.get(`/households/${householdId}/water`),
           api.get(`/households/${householdId}/council`),
