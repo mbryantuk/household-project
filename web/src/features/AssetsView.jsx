@@ -234,6 +234,7 @@ export default function AssetsView() {
                                     { value: 'Electronics', label: 'Electronics' },
                                     { value: 'Furniture', label: 'Furniture' },
                                     { value: 'Tool', label: 'Tool' },
+                                    { value: 'Property', label: 'Property / Real Estate' },
                                     { value: 'Other', label: 'Other' },
                                 ]}
                             />
@@ -276,13 +277,13 @@ export default function AssetsView() {
                         <Grid xs={6} md={3}>
                             <FormControl>
                                 <FormLabel>Purchase Value</FormLabel>
-                                <Input name="purchase_value" type="number" defaultValue={editAsset?.purchase_value} />
+                                <Input name="purchase_value" type="number" step="0.01" defaultValue={editAsset?.purchase_value} />
                             </FormControl>
                         </Grid>
                         <Grid xs={6} md={3}>
                             <FormControl>
                                 <FormLabel>Monthly Maintenance</FormLabel>
-                                <Input name="monthly_maintenance_cost" type="number" defaultValue={editAsset?.monthly_maintenance_cost} />
+                                <Input name="monthly_maintenance_cost" type="number" step="0.01" defaultValue={editAsset?.monthly_maintenance_cost} />
                             </FormControl>
                         </Grid>
                          <Grid xs={6} md={3}>

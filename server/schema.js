@@ -196,7 +196,9 @@ const TENANT_SCHEMA = [
         color TEXT,
         emergency_contacts TEXT,
         notes TEXT,
-        enabled_modules TEXT
+        enabled_modules TEXT,
+        purchase_price REAL DEFAULT 0,
+        current_valuation REAL DEFAULT 0
     )`,
     `CREATE TABLE IF NOT EXISTS water_info (
         household_id INTEGER PRIMARY KEY,
@@ -328,6 +330,7 @@ const TENANT_SCHEMA = [
     `CREATE TABLE IF NOT EXISTS finance_mortgages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
+        asset_id INTEGER, -- Linked to assets table (Property)
         lender TEXT,
         property_address TEXT,
         account_number TEXT, -- Encrypted
@@ -346,8 +349,10 @@ const TENANT_SCHEMA = [
         estimated_value REAL DEFAULT 0,
         other_secured_debt REAL DEFAULT 0,
         mortgage_type TEXT DEFAULT 'mortgage', -- mortgage, equity
+        payment_day INTEGER,
         emoji TEXT,
-        notes TEXT
+        notes TEXT,
+        FOREIGN KEY(asset_id) REFERENCES assets(id) ON DELETE SET NULL
     )`,
     `CREATE TABLE IF NOT EXISTS finance_pensions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -457,7 +462,8 @@ function initializeHouseholdSchema(db) {
             ['equity_loan_cpi_rate', 'REAL'],
             ['estimated_value', 'REAL'],
             ['other_secured_debt', 'REAL'],
-            ['mortgage_type', "TEXT DEFAULT 'mortgage'"]
+            ['mortgage_type', "TEXT DEFAULT 'mortgage'"],
+            ['asset_id', 'INTEGER']
         ];
 
         mortgageCols.forEach(([col, type]) => {
@@ -472,7 +478,9 @@ function initializeHouseholdSchema(db) {
             ['finance_savings', 'deposit_amount', 'REAL DEFAULT 0'],
             ['finance_investments', 'deposit_day', 'INTEGER'],
             ['finance_investments', 'deposit_amount', 'REAL DEFAULT 0'],
-            ['finance_mortgages', 'payment_day', 'INTEGER']
+            ['finance_mortgages', 'payment_day', 'INTEGER'],
+            ['house_details', 'purchase_price', 'REAL DEFAULT 0'],
+            ['house_details', 'current_valuation', 'REAL DEFAULT 0']
         ];
 
         additionalFinanceCols.forEach(([table, col, type]) => {

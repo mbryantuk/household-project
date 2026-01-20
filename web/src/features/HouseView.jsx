@@ -84,6 +84,8 @@ export default function HouseView() {
     { name: 'construction_year', label: 'Construction Year', type: 'number', half: true },
     { name: 'tenure', label: 'Tenure (e.g. Freehold, Leasehold)', half: true },
     { name: 'council_tax_band', label: 'Council Tax Band', half: true },
+    { name: 'purchase_price', label: 'Purchase Price (£)', type: 'number', half: true },
+    { name: 'current_valuation', label: 'Property Valuation (£)', type: 'number', half: true },
     { name: 'broadband_provider', label: 'Broadband Provider', half: true },
     { name: 'broadband_account', label: 'Broadband Account #', half: true },
     { name: 'wifi_password', label: 'WiFi Password', half: true },
