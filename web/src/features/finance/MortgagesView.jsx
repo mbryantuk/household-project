@@ -131,42 +131,53 @@ export default function MortgagesView() {
   const calculateH2BProjections = (originalLoan, startDate, rpiRate) => {
       if (!originalLoan || !startDate) return null;
       const start = new Date(startDate);
-      const currentYear = new Date().getFullYear();
+      const baseYear = start.getFullYear();
+      const now = new Date();
+      // A HtB year runs April to April. Check if we are past April this year.
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth(); // 0-indexed, so 3 is April
+      const taxYearStart = currentMonth >= 3 ? currentYear : currentYear - 1;
+
       const projections = [];
       const baseAmount = parseFloat(originalLoan);
       const rpiPlusOne = (parseFloat(rpiRate) || 4.0) + 1.0;
 
       let runningRate = 1.75;
 
-      for (let yearNum = 1; yearNum <= 15; yearNum++) {
-          const calYear = start.getFullYear() + yearNum - 1;
+      for (let yearNum = 1; yearNum <= 25; yearNum++) {
+          const periodStart = baseYear + yearNum - 1;
+          const periodEnd = periodStart + 1;
           let rateApplied = 0;
           let annualCost = 0;
+          let status = "";
 
           if (yearNum <= 5) {
               rateApplied = 0;
               annualCost = 0;
+              status = "Interest Free";
           } else if (yearNum === 6) {
               rateApplied = 1.75;
               annualCost = baseAmount * (rateApplied / 100);
+              status = periodStart < taxYearStart ? "Paid" : (periodStart === taxYearStart ? "Active" : "Forecast");
           } else {
               const multiplier = 1 + (rpiPlusOne / 100);
               rateApplied = runningRate * multiplier;
               runningRate = rateApplied;
               annualCost = baseAmount * (rateApplied / 100);
+              status = periodStart < taxYearStart ? "Paid" : (periodStart === taxYearStart ? "Active" : "Forecast");
           }
 
-          if (calYear >= currentYear || yearNum >= 6) {
-              projections.push({
-                  year: calYear,
-                  age: yearNum,
-                  rate: rateApplied.toFixed(2) + "%",
-                  fee: annualCost,
-                  isCurrent: calYear === currentYear
-              });
-          }
-          
-          if (projections.length >= 10) break;
+          if (periodStart === taxYearStart) status = "YOU ARE HERE";
+          if (yearNum === 25) status = "Final Year";
+
+          projections.push({
+              year: yearNum,
+              period: `${periodStart} – ${periodEnd}`,
+              rate: rateApplied.toFixed(2) + "%",
+              fee: annualCost,
+              status: status,
+              isCurrent: periodStart === taxYearStart
+          });
       }
       return projections;
   };
@@ -276,21 +287,24 @@ export default function MortgagesView() {
                                                     {isEquityType && (
                                                         <Sheet variant="soft" color="warning" sx={{ mt: 2, p: 1.5, borderRadius: 'sm' }}>
                                                             <Typography level="title-sm" startDecorator={<Sell />}>Redemption Scenario</Typography>
-                                                            <Typography level="body-xs">If you sold now at {formatCurrency(prop.valuation)}, you would owe the government <b>{formatCurrency(currentRedemption)}</b>.</Typography>
+                                                            <Typography level="body-xs">Based on {formatCurrency(prop.valuation)} valuation, the government's share is <b>{formatCurrency(currentRedemption)}</b>.</Typography>
                                                         </Sheet>
                                                     )}
                                                 </Grid>
 
                                                 {isEquityType && h2bProjections && (
                                                     <Grid xs={12} md={8}>
-                                                        <Sheet variant="outlined" sx={{ p: 1, borderRadius: 'sm', height: '100%', overflowX: 'auto' }}>
-                                                            <Typography level="title-sm" sx={{ mb: 1 }} startDecorator={<TrendingUp />}>Interest Snowball (RPI + 1%)</Typography>
-                                                            <Table size="sm" sx={{ '--TableCell-paddingX': '8px' }}>
-                                                                <thead><tr><th>Year</th><th>Age</th><th>Rate</th><th>Annual Fee</th><th>Monthly</th></tr></thead>
+                                                        <Sheet variant="outlined" sx={{ p: 1, borderRadius: 'sm', height: '100%', maxHeight: 350, overflowY: 'auto' }}>
+                                                            <Typography level="title-sm" sx={{ mb: 1, position: 'sticky', top: 0, bgcolor: 'background.surface', zIndex: 1 }} startDecorator={<TrendingUp />}>25-Year Interest Breakdown (RPI + 1%)</Typography>
+                                                            <Table size="sm" stickyHeader sx={{ '--TableCell-paddingX': '8px' }}>
+                                                                <thead><tr><th>Year</th><th>Period</th><th>Rate</th><th>Monthly</th><th>Annual</th><th>Status</th></tr></thead>
                                                                 <tbody>
                                                                     {h2bProjections.map((p, idx) => (
-                                                                        <tr key={idx} style={p.isCurrent ? { backgroundColor: 'var(--joy-palette-primary-softBg)' } : {}}>
-                                                                            <td>{p.year}</td><td>Yr {p.age}</td><td>{p.rate}</td><td>{formatCurrency(p.fee)}</td><td>{formatCurrency(p.fee/12)}</td>
+                                                                        <tr key={idx} style={p.isCurrent ? { backgroundColor: 'var(--joy-palette-warning-softBg)' } : {}}>
+                                                                            <td>{p.year}</td><td style={{ whiteSpace: 'nowrap' }}>{p.period}</td><td>{p.rate}</td><td>{formatCurrency(p.fee/12)}</td><td>{formatCurrency(p.fee)}</td>
+                                                                            <td>
+                                                                                <Typography level="body-xs" fontWeight="bold" color={p.isCurrent ? "primary" : "neutral"}>{p.status}</Typography>
+                                                                            </td>
                                                                         </tr>
                                                                     ))}
                                                                 </tbody>
@@ -327,7 +341,7 @@ export default function MortgagesView() {
                         <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(selectedEmoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => setEmojiPicker(true)}>{selectedEmoji}</Avatar>
                         <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => setEmojiPicker(true)}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
                     </Box>
-                    <Box sx={{ flexGrow: 1 }}><DialogTitle>{isNew ? (activeType === 'equity' ? 'Add Equity Loan' : 'Add Mortgage Part') : 'Edit Mortgage Details'}</DialogTitle><Typography level="body-sm" color="neutral">Capture professional statement data with full decimal precision.</Typography></Box>
+                    <Box sx={{ flexGrow: 1 }}><DialogTitle>{isNew ? (activeType === 'equity' ? 'Add Equity Loan' : 'Add Mortgage') : 'Edit Mortgage Details'}</DialogTitle><Typography level="body-sm" color="neutral">Capture professional statement data with full decimal precision.</Typography></Box>
                 </Box>
                 
                 <DialogContent>
