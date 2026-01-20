@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { 
   Box, IconButton, Tooltip, Sheet, Typography, Button, Divider, Avatar, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, Chip, Stack
 } from '@mui/joy';
 import { 
-  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Savings, Close, Wifi, Payments, Logout, SwapHoriz, Download, Edit, Settings, TrendingUp, HourglassBottom, ChevronLeft, ChevronRight
+  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Savings, Logout, Wifi, Download, Edit, Settings, TrendingUp, HourglassBottom, ChevronLeft, ChevronRight, Payments
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import FloatingCalculator from './FloatingCalculator';
@@ -21,6 +21,30 @@ import gitInfo from '../git-info.json';
 const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, showLabel = true, variant = "plain", alignRight = false, activeWidget, poppedOut, toggleWidget }) => {
     const isOpen = activeWidget === id && !poppedOut[id];
     const isPopped = poppedOut[id];
+    const buttonRef = useRef(null);
+    const [leftPos, setLeftPos] = useState(0);
+
+    useLayoutEffect(() => {
+        if (isOpen && buttonRef.current) {
+            const rect = buttonRef.current.getBoundingClientRect();
+            const widgetWidth = width || 250;
+            const screenWidth = window.innerWidth;
+            
+            let calcLeft = rect.left;
+            if (alignRight) {
+                calcLeft = rect.right - widgetWidth;
+            }
+
+            if (calcLeft + widgetWidth > screenWidth) {
+                calcLeft = screenWidth - widgetWidth - 10;
+            }
+            if (calcLeft < 10) {
+                calcLeft = 10;
+            }
+
+            setLeftPos(calcLeft);
+        }
+    }, [isOpen, width, alignRight]);
 
     const renderIcon = () => {
         if (typeof Icon === 'function') return <Icon />;
@@ -31,14 +55,18 @@ const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, showLabe
       <Box sx={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
           {isOpen && (
               <Box sx={{ 
-                  position: 'absolute', bottom: '100%', 
-                  ...(alignRight ? { right: 0 } : { left: 0 }),
+                  position: 'fixed', 
+                  bottom: 42,
+                  left: leftPos,
                   width: width || 250, 
-                  maxHeight: 'calc(100vh - 80px)', 
-                  mb: '1px', bgcolor: 'background.surface', borderTopLeftRadius: 'md', 
-                  borderTopRightRadius: 'md', border: '1px solid', borderColor: 'divider',
-                  borderBottom: 'none', boxShadow: '0 -4px 12px rgba(0,0,0,0.1)', 
-                  overflow: 'hidden', zIndex: 2005,
+                  maxHeight: 'calc(100vh - 60px)', 
+                  bgcolor: 'background.surface', 
+                  borderTopLeftRadius: 'md', 
+                  borderTopRightRadius: 'md', 
+                  border: '1px solid', borderColor: 'divider',
+                  boxShadow: '0 -4px 12px rgba(0,0,0,0.1)', 
+                  overflow: 'hidden', 
+                  zIndex: 2005,
                   display: 'flex', flexDirection: 'column',
                   '& *': {
                       scrollbarWidth: 'none',
@@ -49,6 +77,7 @@ const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, showLabe
               </Box>
           )}
           <Button 
+              ref={buttonRef}
               variant={isOpen ? "solid" : variant} color={isOpen ? color : "neutral"} onClick={() => toggleWidget(id)}
               sx={{
                   height: '100%', borderRadius: 0, px: showLabel ? 2 : 1.5, minWidth: showLabel ? 100 : 44, gap: 1,
@@ -149,84 +178,64 @@ export default function UtilityBar({
             flexShrink: 0, overflow: 'visible'
         }}
     >
-        {/* Left Side: Scrollable Widgets */}
         <Box sx={{ flex: '1 1 auto', display: 'flex', height: '100%', minWidth: 0, alignItems: 'center', position: 'relative' }}>
-            <Box 
-                sx={{ 
-                    display: { xs: 'flex', md: 'none' }, 
-                    height: '100%', alignItems: 'center', borderRight: '1px solid', borderColor: 'divider' 
-                }}
-            >
+            <Box sx={{ display: { xs: 'flex', md: 'none' }, height: '100%', alignItems: 'center', borderRight: '1px solid', borderColor: 'divider' }}>
                 <IconButton onClick={() => scroll(-200)} variant="plain" size="sm" sx={{ borderRadius: 0, height: '100%' }}>
                     <ChevronLeft />
                 </IconButton>
             </Box>
 
-            <Box 
-                ref={scrollRef}
-                sx={{ 
-                    display: 'flex', 
-                    height: '100%', 
-                    overflowX: 'auto', 
-                    scrollbarWidth: 'none', 
-                    '&::-webkit-scrollbar': { display: 'none' },
-                    flexGrow: 1
-                }}
-            >
+            <Box ref={scrollRef} sx={{ display: 'flex', height: '100%', overflowX: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' }, flexGrow: 1 }}>
                 <WidgetWrapper id="notes" label="Notes" icon={NoteAlt} color="warning" width={320} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <PostItNote isDocked onClose={closeWidget} user={user} onUpdateProfile={onUpdateProfile} onPopout={() => handlePopout('notes', '/note-window')} />
                 </WidgetWrapper>
-                
                 <WidgetWrapper id="calc" label="Calc" icon={Calculate} color="primary" width={300} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <FloatingCalculator isDocked onClose={closeWidget} isDark={isDark} onPopout={() => handlePopout('calc', '/calculator')} />
                 </WidgetWrapper>
-
                 <WidgetWrapper id="quick_savings" label="Savings" icon={Savings} color="success" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <FloatingSavings isDocked onClose={closeWidget} api={api} householdId={activeHouseholdId || user?.default_household_id} isDark={isDark} onPopout={() => handlePopout('quick_savings', '/savings-window')} />
                 </WidgetWrapper>
-
                 <WidgetWrapper id="quick_invest" label="Invest" icon={TrendingUp} color="primary" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <FloatingInvestments isDocked onClose={closeWidget} api={api} householdId={activeHouseholdId || user?.default_household_id} isDark={isDark} onPopout={() => handlePopout('quick_invest', '/investments-window')} />
                 </WidgetWrapper>
-
                 <WidgetWrapper id="quick_pensions" label="Pensions" icon={HourglassBottom} color="primary" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <FloatingPensions isDocked onClose={closeWidget} api={api} householdId={activeHouseholdId || user?.default_household_id} isDark={isDark} onPopout={() => handlePopout('quick_pensions', '/pensions-window')} />
                 </WidgetWrapper>
-
                 <WidgetWrapper id="fincalc" label="Finance" icon={Payments} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <FinancialCalculator isDocked onClose={closeWidget} isDark={isDark} onPopout={() => handlePopout('fincalc', '/fin-calculator-window')} />
                 </WidgetWrapper>
-
                 <WidgetWrapper id="tax" label="Tax" icon={Payments} color="warning" width={450} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <TaxCalculator isDocked onClose={closeWidget} isDark={isDark} onPopout={() => handlePopout('tax', '/tax-window')} />
                 </WidgetWrapper>
-
                 <WidgetWrapper id="calendar" label="Calendar" icon={CalendarMonth} color="danger" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                      <FloatingCalendar isDocked onClose={closeWidget} dates={dates} api={api} householdId={user?.default_household_id} currentUser={user} onDateAdded={onDateAdded} isDark={isDark} onPopout={() => handlePopout('calendar', '/calendar-window')} />
                 </WidgetWrapper>
             </Box>
 
-            <Box 
-                sx={{ 
-                    display: { xs: 'flex', md: 'none' }, 
-                    height: '100%', alignItems: 'center', borderLeft: '1px solid', borderColor: 'divider' 
-                }}
-            >
+            <Box sx={{ display: { xs: 'flex', md: 'none' }, height: '100%', alignItems: 'center', borderLeft: '1px solid', borderColor: 'divider' }}>
                 <IconButton onClick={() => scroll(200)} variant="plain" size="sm" sx={{ borderRadius: 0, height: '100%' }}>
                     <ChevronRight />
                 </IconButton>
             </Box>
         </Box>
 
-        {/* Right Side: System Utilities */}
         <Box sx={{ flex: '0 0 auto', height: '100%', borderLeft: '1px solid', borderColor: 'divider', bgcolor: 'background.level1', display: 'flex', alignItems: 'center', px: 0 }}>
-            
             {statusBarData && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 2, borderRight: '1px solid', borderColor: 'divider' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 2, borderRight: '1px solid', borderColor: 'divider', height: '100%', bgcolor: 'primary.softBg' }}>
                     <Typography level="body-xs" fontWeight="bold">Selected: {statusBarData.count}</Typography>
                     <Typography level="body-xs">Total: <b>{formatCurrency(statusBarData.total)}</b></Typography>
-                    <Typography level="body-xs" color="success">Paid: <b>{formatCurrency(statusBarData.paid)}</b></Typography>
-                    <Typography level="body-xs" color="danger">Unpaid: <b>{formatCurrency(statusBarData.unpaid)}</b></Typography>
+                    
+                    {statusBarData.paid > 0 && statusBarData.unpaid > 0 ? (
+                        <>
+                            <Divider orientation="vertical" sx={{ mx: 0.5, height: '60%' }} />
+                            <Typography level="body-xs" color="success">Paid: <b>{formatCurrency(statusBarData.paid)}</b></Typography>
+                            <Typography level="body-xs" color="danger">Unpaid: <b>{formatCurrency(statusBarData.unpaid)}</b></Typography>
+                        </>
+                    ) : statusBarData.paid > 0 ? (
+                        <Chip size="sm" variant="soft" color="success" sx={{ fontSize: '10px', fontWeight: 'bold' }}>ALL PAID</Chip>
+                    ) : statusBarData.unpaid > 0 ? (
+                        <Chip size="sm" variant="soft" color="danger" sx={{ fontSize: '10px', fontWeight: 'bold' }}>ALL UNPAID</Chip>
+                    ) : null}
                 </Box>
             )}
 

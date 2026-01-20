@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+- **Finance:** "New Cycle" creation workflow for future budget months.
+- **Finance:** Display Bank Holidays and Birthdays in the "New Cycle" setup view.
+- **Finance:** "Copy Last Month" option for initializing new budget cycles.
+
+### Changed
+- **Finance:** Enhanced Status Bar in Finance view to show Paid/Unpaid breakdown only when mixed.
+- **Finance:** Moved "Cycle Totals" summary to a sidebar card in Budget view.
+
+## [0.1.0] - 2025-05-19
+
 ## [2.6.42] - 2026-01-19
 
 ### Changed
