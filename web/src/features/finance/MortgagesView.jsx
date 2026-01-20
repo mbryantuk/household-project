@@ -40,10 +40,10 @@ export default function MortgagesView() {
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'member';
 
   useEffect(() => {
-      if (editItem) {
+      if (editItem && editItem.id) {
           setSelectedEmoji(editItem.emoji || (editItem.mortgage_type === 'equity' ? '💰' : '🏠'));
           setSelectedMembers(getAssignees(editItem.id).map(m => m.id));
-          setActiveType(editItem.mortgage_type || 'mortgage');
+          if (editItem.mortgage_type) setActiveType(editItem.mortgage_type);
       } else if (isNew) {
           setSelectedEmoji(activeType === 'equity' ? '💰' : '🏠');
           setSelectedMembers([currentUser?.id].filter(Boolean));
@@ -199,7 +199,7 @@ export default function MortgagesView() {
                 <Dropdown>
                     <MenuButton variant="solid" color="primary" startDecorator={<Add />} endDecorator={<ArrowDropDown />}>Add New</MenuButton>
                     <Menu placement="bottom-end">
-                        <MenuItem onClick={() => { setEditItem({}); setIsNew(true); setActiveType('mortgage'); }}>Add Mortgage Part</MenuItem>
+                        <MenuItem onClick={() => { setEditItem({}); setIsNew(true); setActiveType('mortgage'); }}>Add Mortgage</MenuItem>
                         <MenuItem onClick={() => { setEditItem({}); setIsNew(true); setActiveType('equity'); }}>Add Equity Loan</MenuItem>
                     </Menu>
                 </Dropdown>
