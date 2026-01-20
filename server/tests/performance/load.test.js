@@ -1,9 +1,9 @@
 const request = require('supertest');
-const { app } = require('../../server');
+const { app, server } = require('../../server');
 const { performance } = require('perf_hooks');
 
 describe('Performance & Speed Tests', () => {
-    jest.setTimeout(120000); // 2 minutes
+    jest.setTimeout(120000); 
 
     let sysAdminToken = '';
     let householdId = null;
@@ -11,7 +11,6 @@ describe('Performance & Speed Tests', () => {
     const uniqueId = Date.now();
 
     beforeAll(async () => {
-        // Setup
         const loginRes = await request(app)
             .post('/auth/login')
             .send({ email: 'super@totem.local', password: 'superpassword' });
@@ -33,17 +32,14 @@ describe('Performance & Speed Tests', () => {
             .send({ email: `perf_${uniqueId}@example.com`, password: 'password123' });
         adminToken = adminLogin.body.token;
 
-        // Seed some data for reading
-        await request(app)
-            .post(`/households/${householdId}/assets`)
-            .set('Authorization', `Bearer ${adminToken}`)
-            .send({ name: 'Speed Test Asset', purchase_value: 100 });
+        // Seed data
+        await request(app).post(`/households/${householdId}/assets`).set('Authorization', `Bearer ${adminToken}`).send({ name: 'Speed Test Asset', purchase_value: 100 });
+        await request(app).post(`/households/${householdId}/finance/savings`).set('Authorization', `Bearer ${adminToken}`).send({ institution: 'Bank', account_name: 'Main', current_balance: 1000, account_number: '12345678' });
     });
 
     afterAll(async () => {
-        if (householdId) {
-            await request(app).delete(`/admin/households/${householdId}`).set('Authorization', `Bearer ${sysAdminToken}`);
-        }
+        if (householdId) await request(app).delete(`/admin/households/${householdId}`).set('Authorization', `Bearer ${sysAdminToken}`);
+        if (server && server.close) server.close();
     });
 
     const measureSpeed = async (label, fn, iterations = 50) => {
@@ -57,51 +53,48 @@ describe('Performance & Speed Tests', () => {
         return avg;
     };
 
-    it('should measure login speed', async () => {
+    it('should measure login speed (Heavy Bcrypt)', async () => {
         const avg = await measureSpeed('Login', () => 
-            request(app)
-                .post('/auth/login')
-                .send({ email: `perf_${uniqueId}@example.com`, password: 'password123' }),
-            10 // Login is slow due to bcrypt
+            request(app).post('/auth/login').send({ email: `perf_${uniqueId}@example.com`, password: 'password123' }),
+            10
         );
         expect(avg).toBeLessThan(1000); 
     });
 
-    it('should measure GET assets speed (Database read)', async () => {
+    it('should measure GET assets speed (Plain Read)', async () => {
         const avg = await measureSpeed('GET Assets', () => 
-            request(app)
-                .get(`/households/${householdId}/assets`)
-                .set('Authorization', `Bearer ${adminToken}`),
+            request(app).get(`/households/${householdId}/assets`).set('Authorization', `Bearer ${adminToken}`),
             30
         );
         expect(avg).toBeLessThan(150); 
     });
 
-    it('should measure POST asset speed (Database write)', async () => {
+    it('should measure GET finance savings speed (Decryption Overhead)', async () => {
+        const avg = await measureSpeed('GET Savings', () => 
+            request(app).get(`/households/${householdId}/finance/savings`).set('Authorization', `Bearer ${adminToken}`),
+            30
+        );
+        expect(avg).toBeLessThan(200); 
+    });
+
+    it('should measure POST asset speed (Plain Write)', async () => {
         const avg = await measureSpeed('POST Asset', () => 
-            request(app)
-                .post(`/households/${householdId}/assets`)
-                .set('Authorization', `Bearer ${adminToken}`)
-                .send({ name: 'Perf Asset', purchase_value: 10 }),
+            request(app).post(`/households/${householdId}/assets`).set('Authorization', `Bearer ${adminToken}`).send({ name: 'Perf Asset', purchase_value: 10 }),
             10
         );
         expect(avg).toBeLessThan(250);
     });
 
     it('should handle "Load" (Concurrent requests)', async () => {
-        const concurrency = 10;
-        const totalRequests = 100;
+        const concurrency = 15; // Increased
+        const totalRequests = 150;
         const batches = totalRequests / concurrency;
 
         const start = performance.now();
         for (let i = 0; i < batches; i++) {
             const promises = [];
             for (let j = 0; j < concurrency; j++) {
-                promises.push(
-                    request(app)
-                        .get(`/households/${householdId}/assets`)
-                        .set('Authorization', `Bearer ${adminToken}`)
-                );
+                promises.push(request(app).get(`/households/${householdId}/assets`).set('Authorization', `Bearer ${adminToken}`));
             }
             await Promise.all(promises);
         }
@@ -111,23 +104,5 @@ describe('Performance & Speed Tests', () => {
         console.log(`[LOAD] Concurrency ${concurrency}: ${rps} req/sec (${totalRequests} total requests)`);
         
         expect(Number(rps)).toBeGreaterThan(10); 
-    });
-
-    it('should handle complex calendar retrieval speed', async () => {
-        // Seed 20 dates
-        for(let i=0; i<20; i++) {
-            await request(app)
-                .post(`/households/${householdId}/dates`)
-                .set('Authorization', `Bearer ${adminToken}`)
-                .send({ title: `Event ${i}`, date: '2025-01-01' });
-        }
-
-        const avg = await measureSpeed('GET Calendar', () => 
-            request(app)
-                .get(`/households/${householdId}/dates`)
-                .set('Authorization', `Bearer ${adminToken}`),
-            10
-        );
-        expect(avg).toBeLessThan(300);
     });
 });

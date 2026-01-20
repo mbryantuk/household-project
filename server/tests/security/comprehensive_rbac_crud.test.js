@@ -1,11 +1,9 @@
 const request = require('supertest');
 const { app, server } = require('../../server');
 const { globalDb } = require('../../db');
-const fs = require('fs');
-const path = require('path');
 
 describe('🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle', () => {
-    jest.setTimeout(60000);
+    jest.setTimeout(90000); // Increased timeout for larger suite
     
     const uniqueId = Date.now();
     const emails = {
@@ -47,7 +45,6 @@ describe('🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle', () => {
     });
 
     afterAll(async () => {
-        // Cleanup all test data
         if (householdId) await request(app).delete(`/households/${householdId}`).set('Authorization', `Bearer ${tokens.admin}`);
         if (otherHouseholdId) await request(app).delete(`/households/${otherHouseholdId}`).set('Authorization', `Bearer ${tokens.outsider}`);
         
@@ -61,23 +58,35 @@ describe('🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle', () => {
     });
 
     const CRUD_SUITE = [
+        // Core Entities
         { name: 'Members', path: 'members', payload: { name: 'Test Member', type: 'adult' }, update: { name: 'Updated Member' } },
         { name: 'Assets', path: 'assets', payload: { name: 'Test Asset', category: 'Tech' }, update: { name: 'Updated Asset' } },
         { name: 'Vehicles', path: 'vehicles', payload: { make: 'Tesla', model: '3' }, update: { model: 'S' } },
         { name: 'Energy', path: 'energy', payload: { provider: 'Octopus', type: 'Dual' }, update: { provider: 'Ovo' } },
         { name: 'Costs', path: 'costs', payload: { name: 'Spotify', amount: 15, parent_type: 'general' }, update: { amount: 20 } },
         { name: 'Meals', path: 'meals', payload: { name: 'Tacos', emoji: '🌮' }, update: { name: 'Super Tacos' } },
-        { name: 'Waste', path: 'waste', payload: { bin_type: 'Recycling', frequency: 'Fortnightly' }, update: { day_of_week: 'Friday' } }
+        { name: 'Waste', path: 'waste', payload: { bin_type: 'Recycling', frequency: 'Fortnightly' }, update: { day_of_week: 'Friday' } },
+        
+        // Finance Entities
+        { name: 'Finance Income', path: 'finance/income', payload: { employer: 'Corp', amount: 5000, frequency: 'monthly' }, update: { amount: 5500 }, status: 201 },
+        { name: 'Finance Savings', path: 'finance/savings', payload: { institution: 'Natwest', account_name: 'Main', current_balance: 1000 }, update: { current_balance: 1100 }, status: 201 },
+        { name: 'Finance Current Accounts', path: 'finance/current-accounts', payload: { bank_name: 'HSBC', account_name: 'Daily', current_balance: 500 }, update: { current_balance: 400 }, status: 201 },
+        { name: 'Finance Credit Cards', path: 'finance/credit-cards', payload: { provider: 'Amex', card_name: 'Gold', current_balance: 0 }, update: { current_balance: 100 }, status: 201 },
+        { name: 'Finance Loans', path: 'finance/loans', payload: { lender: 'Bank', total_amount: 5000 }, update: { total_amount: 4500 }, status: 201 },
+        { name: 'Finance Mortgages', path: 'finance/mortgages', payload: { lender: 'Halifax', total_amount: 250000 }, update: { total_amount: 240000 }, status: 201 },
+        { name: 'Finance Investments', path: 'finance/investments', payload: { name: 'Index Fund', platform: 'Vanguard', current_value: 1000 }, update: { current_value: 1050 }, status: 201 },
+        { name: 'Finance Pensions', path: 'finance/pensions', payload: { provider: 'Aviva', plan_name: 'Work', current_value: 50000 }, update: { current_value: 51000 }, status: 201 }
     ];
 
     describe('🔑 Role-Based Access Control (RBAC) Integrity', () => {
         CRUD_SUITE.forEach(entity => {
             describe(`Entity: ${entity.name}`, () => {
                 let itemId;
+                const successStatus = entity.status || 200;
 
                 test(`[MEMBER] should perform CREATE and UPDATE on ${entity.name}`, async () => {
                     const create = await request(app).post(`/households/${householdId}/${entity.path}`).set('Authorization', `Bearer ${tokens.member}`).send(entity.payload);
-                    expect(create.status).toBe(200);
+                    expect(create.status).toBe(successStatus);
                     itemId = create.body.id;
 
                     const update = await request(app).put(`/households/${householdId}/${entity.path}/${itemId}`).set('Authorization', `Bearer ${tokens.member}`).send(entity.update);
@@ -91,6 +100,11 @@ describe('🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle', () => {
 
                 test(`[OUTSIDER] should be BLOCKED from READ on ${entity.name}`, async () => {
                     const res = await request(app).get(`/households/${householdId}/${entity.path}`).set('Authorization', `Bearer ${tokens.outsider}`);
+                    expect(res.status).toBe(403);
+                });
+
+                test(`[OUTSIDER] should be BLOCKED from UPDATE on ${entity.name}`, async () => {
+                    const res = await request(app).put(`/households/${householdId}/${entity.path}/${itemId}`).set('Authorization', `Bearer ${tokens.outsider}`).send(entity.update);
                     expect(res.status).toBe(403);
                 });
 
