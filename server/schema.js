@@ -351,6 +351,8 @@ const TENANT_SCHEMA = [
         other_secured_debt REAL DEFAULT 0,
         mortgage_type TEXT DEFAULT 'mortgage', -- mortgage, equity
         payment_day INTEGER,
+        follow_on_rate REAL,
+        follow_on_payment REAL,
         emoji TEXT,
         notes TEXT,
         FOREIGN KEY(asset_id) REFERENCES assets(id) ON DELETE SET NULL
@@ -465,7 +467,9 @@ function initializeHouseholdSchema(db) {
             ['other_secured_debt', 'REAL'],
             ['mortgage_type', "TEXT DEFAULT 'mortgage'"],
             ['asset_id', 'INTEGER'],
-            ['term_months', 'INTEGER DEFAULT 0']
+            ['term_months', 'INTEGER DEFAULT 0'],
+            ['follow_on_rate', 'REAL'],
+            ['follow_on_payment', 'REAL']
         ];
 
         mortgageCols.forEach(([col, type]) => {

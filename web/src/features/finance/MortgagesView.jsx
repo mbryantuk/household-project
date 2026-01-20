@@ -6,7 +6,7 @@ import {
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
   AvatarGroup, LinearProgress, Table, Sheet, Dropdown, Menu, MenuButton, MenuItem
 } from '@mui/joy';
-import { Edit, Delete, Add, GroupAdd, Home, InfoOutlined, ArrowDropDown } from '@mui/icons-material';
+import { Edit, Delete, Add, GroupAdd, Home, InfoOutlined, ArrowDropDown, LocationOn, TrendingUp } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import AppSelect from '../../components/ui/AppSelect';
@@ -73,10 +73,13 @@ export default function MortgagesView() {
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     
+    // Explicitly handle dummy fields
+    delete data.selected_members_dummy;
+
     // Ensure numeric fields are numbers or zero
-    const numericFields = ['estimated_value', 'other_secured_debt', 'total_amount', 'remaining_balance', 'interest_rate', 'monthly_payment', 'term_years', 'term_months', 'equity_loan_amount', 'equity_loan_interest_rate', 'equity_loan_cpi_rate'];
+    const numericFields = ['total_amount', 'remaining_balance', 'interest_rate', 'monthly_payment', 'term_years', 'term_months', 'equity_loan_amount', 'equity_loan_interest_rate', 'equity_loan_cpi_rate', 'other_secured_debt', 'follow_on_rate', 'follow_on_payment'];
     numericFields.forEach(field => {
-        if (data[field] === '') data[field] = 0;
+        if (data[field] === '' || data[field] === undefined) data[field] = 0;
     });
 
     try {
@@ -194,7 +197,7 @@ export default function MortgagesView() {
                         Add New
                     </MenuButton>
                     <Menu placement="bottom-end">
-                        <MenuItem onClick={() => { setEditItem({}); setIsNew(true); setActiveType('mortgage'); }}>Add Mortgage</MenuItem>
+                        <MenuItem onClick={() => { setEditItem({}); setIsNew(true); setActiveType('mortgage'); }}>Add Mortgage Part</MenuItem>
                         <MenuItem onClick={() => { setEditItem({}); setIsNew(true); setActiveType('equity'); }}>Add Equity Loan</MenuItem>
                     </Menu>
                 </Dropdown>
@@ -219,16 +222,16 @@ export default function MortgagesView() {
                                 <Avatar sx={{ bgcolor: 'primary.solidBg' }}>{prop.emoji}</Avatar>
                                 <Box>
                                     <Typography level="title-md">{prop.name}</Typography>
-                                    <Typography level="body-xs">Value: {formatCurrency(prop.valuation)}</Typography>
+                                    <Typography level="body-xs">Valuation: {formatCurrency(prop.valuation)}</Typography>
                                 </Box>
                             </Box>
-                            <Box sx={{ display: 'flex', gap: 3 }}>
+                            <Box sx={{ display: 'flex', gap: { xs: 2, sm: 4 } }}>
                                 <Box>
                                     <Typography level="body-xs" sx={{ textTransform: 'uppercase', fontWeight: 'bold' }}>Total Debt</Typography>
                                     <Typography level="title-md" color="danger">{formatCurrency(totalDebt)}</Typography>
                                 </Box>
                                 <Box>
-                                    <Typography level="body-xs" sx={{ textTransform: 'uppercase', fontWeight: 'bold' }}>Equity</Typography>
+                                    <Typography level="body-xs" sx={{ textTransform: 'uppercase', fontWeight: 'bold' }}>Net Equity</Typography>
                                     <Typography level="title-md" color="success">{formatCurrency(equityValue)}</Typography>
                                 </Box>
                                 <Box>
@@ -244,10 +247,7 @@ export default function MortgagesView() {
                                 const main = parseFloat(mort.remaining_balance) || 0;
                                 const h2bPayback = parseFloat(mort.equity_loan_amount) || 0;
                                 const progress = !isEquityType && (parseFloat(mort.total_amount) || 0) > 0 ? ((parseFloat(mort.total_amount) - main) / parseFloat(mort.total_amount)) * 100 : 0;
-                                const h2bProjections = isEquityType && h2bPayback > 0 ? calculateH2BProjections(
-                                    mort.equity_loan_amount, mort.equity_loan_start_date, mort.equity_loan_interest_rate, mort.equity_loan_cpi_rate
-                                ) : null;
-
+                                
                                 return (
                                     <Grid xs={12} lg={6} key={mort.id}>
                                         <Card variant="outlined" sx={{ p: 2, height: '100%' }}>
@@ -257,11 +257,11 @@ export default function MortgagesView() {
                                                 </Avatar>
                                                 <Box sx={{ flexGrow: 1 }}>
                                                     <Typography level="title-md">{mort.lender}</Typography>
-                                                    <Typography level="body-xs" color="neutral">{isEquityType ? 'Equity Loan' : 'Mortgage'}</Typography>
+                                                    <Typography level="body-xs" color="neutral">{isEquityType ? 'Equity Loan' : 'Mortgage Part'}</Typography>
                                                 </Box>
                                                 <Box sx={{ textAlign: 'right' }}>
                                                     <Typography level="title-md" color="danger">{formatCurrency(isEquityType ? h2bPayback : main)}</Typography>
-                                                    <Typography level="body-xs">{formatPercent(isEquityType ? mort.equity_loan_interest_rate : mort.interest_rate)}</Typography>
+                                                    <Typography level="body-xs" fontWeight="bold">{formatPercent(isEquityType ? mort.equity_loan_interest_rate : mort.interest_rate)}</Typography>
                                                 </Box>
                                             </Box>
 
@@ -290,6 +290,14 @@ export default function MortgagesView() {
                                                 </Grid>
                                             </Grid>
 
+                                            {!isEquityType && (mort.follow_on_rate > 0 || mort.follow_on_payment > 0) && (
+                                                <Sheet variant="soft" sx={{ mt: 2, p: 1, borderRadius: 'sm', bgcolor: 'background.level1' }}>
+                                                    <Typography level="body-xs" color="neutral" startDecorator={<TrendingUp sx={{ fontSize: '0.9rem' }}/>}>
+                                                        After fixed rate: <b>{formatPercent(mort.follow_on_rate)}</b> ({formatCurrency(mort.follow_on_payment)}/mo)
+                                                    </Typography>
+                                                </Sheet>
+                                            )}
+
                                             <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <AvatarGroup size="sm">
                                                     {getAssignees(mort.id).map(m => (
@@ -313,7 +321,7 @@ export default function MortgagesView() {
         </Stack>
 
         <Modal open={Boolean(editItem)} onClose={() => { setEditItem(null); setIsNew(false); }}>
-            <ModalDialog sx={{ width: '100%', maxWidth: 650, maxHeight: '90vh', overflowY: 'auto' }}>
+            <ModalDialog sx={{ width: '100%', maxWidth: 700, maxHeight: '95vh', overflowY: 'auto' }}>
                 <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
                     <Box sx={{ position: 'relative' }}>
                         <Avatar 
@@ -330,8 +338,8 @@ export default function MortgagesView() {
                         ><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
                     </Box>
                     <Box sx={{ flexGrow: 1 }}>
-                        <DialogTitle>{isNew ? (activeType === 'equity' ? 'Add Equity Loan' : 'Add Mortgage') : 'Edit Details'}</DialogTitle>
-                        <Typography level="body-sm" color="neutral">Capture liability details with full decimal precision.</Typography>
+                        <DialogTitle>{isNew ? (activeType === 'equity' ? 'Add Equity Loan' : 'Add Mortgage Part') : 'Edit Mortgage Details'}</DialogTitle>
+                        <Typography level="body-sm" color="neutral">Capture professional statement data with full decimal precision.</Typography>
                     </Box>
                 </Box>
                 
@@ -354,43 +362,49 @@ export default function MortgagesView() {
                                     />
                                 </Grid>
                                 <Grid xs={12} md={6}>
-                                    <FormControl required><FormLabel>Lender</FormLabel><Input name="lender" defaultValue={editItem?.lender} /></FormControl>
-                                </Grid>
-                                <Grid xs={12}>
-                                    <FormControl><FormLabel>Property Address (Optional)</FormLabel><Input name="property_address" defaultValue={editItem?.property_address} placeholder="Defaults to linked property address" /></FormControl>
+                                    <FormControl required><FormLabel>Lender</FormLabel><Input name="lender" defaultValue={editItem?.lender} placeholder="e.g. Nationwide" /></FormControl>
                                 </Grid>
                             </Grid>
 
                             {activeType === 'mortgage' ? (
                                 <>
-                                    <Divider><Chip variant="soft" size="sm">MORTGAGE DETAILS</Chip></Divider>
+                                    <Divider><Chip variant="soft" size="sm">CURRENT FIXED RATE PERIOD</Chip></Divider>
                                     <Grid container spacing={2}>
                                         <Grid xs={12} sm={6} md={4}>
-                                            <FormControl required><FormLabel>Total Loan (£)</FormLabel><Input name="total_amount" type="number" step="any" defaultValue={editItem?.total_amount} /></FormControl>
+                                            <FormControl required><FormLabel>Total Loan Amount (£)</FormLabel>
+                                                <Input name="total_amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.total_amount} />
+                                            </FormControl>
                                         </Grid>
                                         <Grid xs={12} sm={6} md={4}>
-                                            <FormControl required><FormLabel>Remaining Balance (£)</FormLabel><Input name="remaining_balance" type="number" step="any" defaultValue={editItem?.remaining_balance} /></FormControl>
+                                            <FormControl required><FormLabel>Current Balance (£)</FormLabel>
+                                                <Input name="remaining_balance" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.remaining_balance} />
+                                            </FormControl>
                                         </Grid>
                                         <Grid xs={12} sm={6} md={4}>
-                                            <FormControl required><FormLabel>Interest Rate (%)</FormLabel><Input name="interest_rate" type="number" step="any" defaultValue={editItem?.interest_rate} /></FormControl>
+                                            <FormControl required><FormLabel>Interest Rate (%)</FormLabel>
+                                                <Input name="interest_rate" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.interest_rate} />
+                                            </FormControl>
                                         </Grid>
                                         <Grid xs={12} sm={6} md={4}>
-                                            <FormControl><FormLabel>Monthly Payment (£)</FormLabel><Input name="monthly_payment" type="number" step="any" defaultValue={editItem?.monthly_payment} /></FormControl>
-                                        </Grid>
-                                        <Grid xs={6} sm={3} md={2}>
-                                            <FormControl><FormLabel>Yrs</FormLabel><Input name="term_years" type="number" defaultValue={editItem?.term_years} /></FormControl>
-                                        </Grid>
-                                        <Grid xs={6} sm={3} md={2}>
-                                            <FormControl><FormLabel>Months</FormLabel><Input name="term_months" type="number" defaultValue={editItem?.term_months || 0} /></FormControl>
+                                            <FormControl required><FormLabel>Monthly Payment (£)</FormLabel>
+                                                <Input name="monthly_payment" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.monthly_payment} />
+                                            </FormControl>
                                         </Grid>
                                         <Grid xs={12} sm={6} md={4}>
-                                            <FormControl><FormLabel>Fixed Ends</FormLabel><Input name="fixed_rate_expiry" type="date" defaultValue={editItem?.fixed_rate_expiry} /></FormControl>
+                                            <FormControl><FormLabel>Fixed Rate Expiry</FormLabel><Input name="fixed_rate_expiry" type="date" defaultValue={editItem?.fixed_rate_expiry} /></FormControl>
                                         </Grid>
                                         <Grid xs={12} sm={6} md={4}>
                                             <FormControl><FormLabel>Payment Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} placeholder="e.g. 1" /></FormControl>
                                         </Grid>
-                                        <Grid xs={12} sm={6} md={4}>
-                                            <FormControl><FormLabel>Other Secured Debt (£)</FormLabel><Input name="other_secured_debt" type="number" step="any" defaultValue={editItem?.other_secured_debt} /></FormControl>
+                                    </Grid>
+
+                                    <Divider><Chip variant="soft" size="sm">REMAINING TERM</Chip></Divider>
+                                    <Grid container spacing={2}>
+                                        <Grid xs={6}>
+                                            <FormControl><FormLabel>Years</FormLabel><Input name="term_years" type="number" defaultValue={editItem?.term_years} /></FormControl>
+                                        </Grid>
+                                        <Grid xs={6}>
+                                            <FormControl><FormLabel>Months</FormLabel><Input name="term_months" type="number" defaultValue={editItem?.term_months || 0} /></FormControl>
                                         </Grid>
                                         <Grid xs={12}>
                                             <AppSelect 
@@ -404,25 +418,47 @@ export default function MortgagesView() {
                                             />
                                         </Grid>
                                     </Grid>
+
+                                    <Divider><Chip variant="soft" color="warning" size="sm">FOLLOW-ON RATE (AFTER FIXED ENDS)</Chip></Divider>
+                                    <Grid container spacing={2}>
+                                        <Grid xs={12} sm={6}>
+                                            <FormControl><FormLabel>Expected Follow-on Rate (%)</FormLabel>
+                                                <Input name="follow_on_rate" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.follow_on_rate} placeholder="e.g. 8.49" />
+                                            </FormControl>
+                                        </Grid>
+                                        <Grid xs={12} sm={6}>
+                                            <FormControl><FormLabel>Follow-on Monthly Payment (£)</FormLabel>
+                                                <Input name="follow_on_payment" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.follow_on_payment} placeholder="e.g. 1187.36" />
+                                            </FormControl>
+                                        </Grid>
+                                    </Grid>
                                 </>
                             ) : (
                                 <>
                                     <Divider><Chip variant="soft" color="warning" size="sm">EQUITY LOAN DETAILS</Chip></Divider>
                                     <Grid container spacing={2}>
                                         <Grid xs={12} sm={6}>
-                                            <FormControl required><FormLabel>Loan Amount (£)</FormLabel><Input name="equity_loan_amount" type="number" step="any" defaultValue={editItem?.equity_loan_amount} /></FormControl>
+                                            <FormControl required><FormLabel>Loan Amount (£)</FormLabel>
+                                                <Input name="equity_loan_amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.equity_loan_amount} />
+                                            </FormControl>
                                         </Grid>
                                         <Grid xs={12} sm={6}>
                                             <FormControl required><FormLabel>Start Date</FormLabel><Input name="equity_loan_start_date" type="date" defaultValue={editItem?.equity_loan_start_date} /></FormControl>
                                         </Grid>
                                         <Grid xs={12} sm={6}>
-                                            <FormControl><FormLabel>Fee Rate After 5yr (%)</FormLabel><Input name="equity_loan_interest_rate" type="number" step="any" defaultValue={editItem?.equity_loan_interest_rate || 1.75} /></FormControl>
+                                            <FormControl><FormLabel>Fee Rate After 5yr (%)</FormLabel>
+                                                <Input name="equity_loan_interest_rate" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.equity_loan_interest_rate || 1.75} />
+                                            </FormControl>
                                         </Grid>
                                         <Grid xs={12} sm={6}>
-                                            <FormControl><FormLabel>Estimated CPI (%)</FormLabel><Input name="equity_loan_cpi_rate" type="number" step="any" defaultValue={editItem?.equity_loan_cpi_rate || 2.0} /></FormControl>
+                                            <FormControl><FormLabel>Estimated CPI (%)</FormLabel>
+                                                <Input name="equity_loan_cpi_rate" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.equity_loan_cpi_rate || 2.0} />
+                                            </FormControl>
                                         </Grid>
                                         <Grid xs={12} sm={6}>
-                                            <FormControl><FormLabel>Monthly Payment (£)</FormLabel><Input name="monthly_payment" type="number" step="any" defaultValue={editItem?.monthly_payment} /></FormControl>
+                                            <FormControl><FormLabel>Monthly Payment (£)</FormLabel>
+                                                <Input name="monthly_payment" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.monthly_payment} />
+                                            </FormControl>
                                         </Grid>
                                         <Grid xs={12} sm={6}>
                                             <FormControl><FormLabel>Payment Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} /></FormControl>
@@ -446,7 +482,7 @@ export default function MortgagesView() {
                             {!isNew && <Button color="danger" variant="soft" onClick={() => { handleDelete(editItem.id); setEditItem(null); }}>Delete</Button>}
                             <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
                                 <Button variant="plain" color="neutral" onClick={() => { setEditItem(null); setIsNew(false); }}>Cancel</Button>
-                                <Button type="submit" color="primary">Save {activeType === 'equity' ? 'Equity Loan' : 'Mortgage'}</Button>
+                                <Button type="submit" color="primary">Save Mortgage Details</Button>
                             </Box>
                         </Box>
                     </form>
