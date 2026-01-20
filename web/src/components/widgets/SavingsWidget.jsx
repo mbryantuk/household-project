@@ -4,10 +4,11 @@ import { Savings, Add, Remove } from '@mui/icons-material';
 import WidgetWrapper from './WidgetWrapper';
 import AppSelect from '../ui/AppSelect';
 
-export default function SavingsWidget({ api, household, user }) {
+export default function SavingsWidget({ api, household, user, data, onSaveData }) {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedAccountId, setSelectedAccountId] = useState('total');
+  
+  const selectedAccountId = data?.selectedAccountId || 'total';
 
   const fetchData = useCallback(async () => {
     if (!api || !household?.id) return;
@@ -44,7 +45,7 @@ export default function SavingsWidget({ api, household, user }) {
             <AppSelect
                 placeholder="Select Account"
                 value={selectedAccountId}
-                onChange={(e, val) => setSelectedAccountId(val)}
+                onChange={(val) => onSaveData({ selectedAccountId: val })}
                 options={[
                     { value: 'total', label: 'Total Savings' },
                     ...accounts.map(acc => ({ value: String(acc.id), label: `${acc.emoji || '💰'} ${acc.account_name}` }))
