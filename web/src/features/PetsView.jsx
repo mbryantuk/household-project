@@ -26,8 +26,7 @@ export default function PetsView() {
 
   const [formData, setFormData] = useState({
     name: '', species: '', breed: '', dob: '', emoji: '🐾', notes: '',
-    microchip_number: '', gender: '', pet_insurance_provider: '',
-    pet_insurance_premium: 0, pet_insurance_expiry: '', food_monthly_cost: 0
+    microchip_number: '', gender: ''
   });
 
   useEffect(() => {
@@ -40,17 +39,12 @@ export default function PetsView() {
         emoji: selectedPet.emoji || '🐾',
         notes: selectedPet.notes || '',
         microchip_number: selectedPet.microchip_number || '',
-        gender: selectedPet.gender || '',
-        pet_insurance_provider: selectedPet.pet_insurance_provider || '',
-        pet_insurance_premium: selectedPet.pet_insurance_premium || 0,
-        pet_insurance_expiry: selectedPet.pet_insurance_expiry || '',
-        food_monthly_cost: selectedPet.food_monthly_cost || 0
+        gender: selectedPet.gender || ''
       });
     } else if (petId === 'new') {
       setFormData({
         name: '', species: '', breed: '', dob: '', emoji: '🐾', notes: '',
-        microchip_number: '', gender: '', pet_insurance_provider: '',
-        pet_insurance_premium: 0, pet_insurance_expiry: '', food_monthly_cost: 0
+        microchip_number: '', gender: ''
       });
     }
   }, [selectedPet, petId]);
@@ -83,7 +77,7 @@ export default function PetsView() {
   const handleDelete = () => {
     confirmAction(
         "Remove Pet",
-        `Are you sure you want to remove ${selectedPet.name}? This will delete all their nutritional and insurance data.`,
+        `Are you sure you want to remove ${selectedPet.name}? This will delete all their data.`,
         async () => {
             try {
                 await api.delete(`/households/${householdId}/members/${petId}`);
@@ -201,8 +195,9 @@ export default function PetsView() {
                     }}
                 >
                     <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Info sx={{ mr: 1 }}/> General</Tab>
-                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Shield sx={{ mr: 1 }}/> Insurance & Health</Tab>
-                    <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Misc Costs</Tab>
+                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><MedicalServices sx={{ mr: 1 }}/> Vet & Insurance</Tab>
+                    <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Restaurant sx={{ mr: 1 }}/> Food & Supplies</Tab>
+                    <Tab variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Misc Costs</Tab>
                 </TabList>
             </Tabs>
         )}
@@ -285,56 +280,44 @@ export default function PetsView() {
             <Box>
                 <Box sx={{ mb: 4 }}>
                     <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                        Insurance & Health
+                        Vet & Insurance
                     </Typography>
-                    <Typography level="body-md" color="neutral">Policies and monthly maintenance for your pet.</Typography>
+                    <Typography level="body-md" color="neutral">Manage recurring medical and insurance costs.</Typography>
                 </Box>
-                <form onSubmit={handleSubmit}>
-                <Grid container spacing={3}>
-                    <Grid xs={12}>
-                    <Typography level="title-lg" sx={{ fontWeight: 'lg' }}>Insurance Details</Typography>
-                    </Grid>
-                    <Grid xs={12} md={6}>
-                        <FormControl>
-                            <FormLabel>Insurance Provider</FormLabel>
-                            <Input name="pet_insurance_provider" value={formData.pet_insurance_provider} onChange={handleChange} />
-                        </FormControl>
-                    </Grid>
-                    <Grid xs={12} md={3}>
-                        <FormControl>
-                            <FormLabel>Monthly Premium (£)</FormLabel>
-                            <Input name="pet_insurance_premium" type="number" value={formData.pet_insurance_premium} onChange={handleChange} />
-                        </FormControl>
-                    </Grid>
-                    <Grid xs={12} md={3}>
-                        <FormControl>
-                            <FormLabel>Policy Expiry</FormLabel>
-                            <Input name="pet_insurance_expiry" type="date" value={formData.pet_insurance_expiry} onChange={handleChange} />
-                        </FormControl>
-                    </Grid>
-                    
-                    <Grid xs={12}>
-                    <Divider sx={{ my: 2 }} />
-                    <Typography level="title-lg" sx={{ fontWeight: 'lg' }} startDecorator={<Restaurant />}>
-                        Nutrition (Monthly Forecast)
-                    </Typography>
-                    <FormControl sx={{ mt: 2 }}>
-                        <FormLabel>Estimated Monthly Food Cost (£)</FormLabel>
-                        <Input name="food_monthly_cost" type="number" value={formData.food_monthly_cost} onChange={handleChange} />
-                    </FormControl>
-                    </Grid>
-                    <Grid xs={12}>
-                        <Button type="submit" variant="solid" size="lg">Save Health & Nutrition</Button>
-                    </Grid>
-                </Grid>
-                </form>
+                <RecurringCostsWidget 
+                    api={api} 
+                    householdId={householdId} 
+                    parentType="pet" 
+                    parentId={petId} 
+                    isAdmin={isAdmin}
+                    showNotification={showNotification}
+                />
             </Box>
           )}
 
           {activeTab === 2 && petId !== 'new' && (
             <Box>
+                <Box sx={{ mb: 4 }}>
+                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
+                        Food & Supplies
+                    </Typography>
+                    <Typography level="body-md" color="neutral">Manage recurring nutritional and supply costs.</Typography>
+                </Box>
+                <RecurringCostsWidget 
+                    api={api} 
+                    householdId={householdId} 
+                    parentType="pet" 
+                    parentId={petId} 
+                    isAdmin={isAdmin}
+                    showNotification={showNotification}
+                />
+            </Box>
+          )}
+
+          {activeTab === 3 && petId !== 'new' && (
+            <Box>
               <Box sx={{ mb: 4 }}>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Recurring Miscellaneous Costs</Typography>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Other Misc Costs</Typography>
                 <Typography level="body-md" color="neutral">Additional costs specific to this pet.</Typography>
               </Box>
               <RecurringCostsWidget 
