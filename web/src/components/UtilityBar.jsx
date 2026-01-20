@@ -13,6 +13,7 @@ import PostItNote from './PostItNote';
 import TaxCalculator from './TaxCalculator';
 import { getEmojiColor } from '../theme';
 import pkg from '../../package.json';
+import gitInfo from '../git-info.json';
 
 const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, showLabel = true, variant = "plain", alignRight = false, activeWidget, poppedOut, toggleWidget }) => {
     const isOpen = activeWidget === id && !poppedOut[id];
@@ -244,7 +245,9 @@ export default function UtilityBar({
 
                     <Divider sx={{ my: 1 }} />
                     <Box sx={{ p: 1.5, display: 'flex', justifyContent: 'center', opacity: 0.5 }}>
-                        <Typography level="body-xs">Totem v{pkg.version}</Typography>
+                        <Tooltip title={gitInfo.commitMessage || "Unknown"} variant="soft" size="sm">
+                            <Typography level="body-xs">Totem v{pkg.version}</Typography>
+                        </Tooltip>
                     </Box>
                 </Box>
             </WidgetWrapper>

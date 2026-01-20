@@ -220,7 +220,7 @@ router.put('/households/:id/costs/:itemId', authenticateToken, requireHouseholdR
 router.delete('/households/:id/costs/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('recurring_costs'));
 
 // Vehicle Sub-modules
-const VEHICLE_SUBS = ['services', 'finance', 'insurance'];
+const VEHICLE_SUBS = ['services', 'finance', 'insurance', 'service_plans'];
 VEHICLE_SUBS.forEach(sub => {
     const table = `vehicle_${sub}`;
     router.get(`/households/:id/vehicles/:vehicleId/${sub}`, authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
