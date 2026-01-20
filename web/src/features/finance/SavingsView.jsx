@@ -395,19 +395,19 @@ export default function SavingsView() {
                                 <Grid xs={12} sm={6}>
                                     <FormControl required>
                                         <FormLabel>Current Balance (£)</FormLabel>
-                                        <Input name="current_balance" type="number" step="0.01" defaultValue={editAccount?.current_balance} />
+                                        <Input name="current_balance" type="number" step="any" defaultValue={editAccount?.current_balance} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={12} sm={6}>
                                     <FormControl>
                                         <FormLabel>Interest Rate (%)</FormLabel>
-                                        <Input name="interest_rate" type="number" step="0.01" defaultValue={editAccount?.interest_rate} />
+                                        <Input name="interest_rate" type="number" step="any" defaultValue={editAccount?.interest_rate} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={12} sm={6}>
                                     <FormControl>
                                         <FormLabel>Monthly Deposit (£)</FormLabel>
-                                        <Input name="deposit_amount" type="number" step="0.01" defaultValue={editAccount?.deposit_amount} />
+                                        <Input name="deposit_amount" type="number" step="any" defaultValue={editAccount?.deposit_amount} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={12} sm={6}>

@@ -253,25 +253,25 @@ export default function InvestmentsView() {
                                 <Grid xs={12} sm={4}>
                                     <FormControl>
                                         <FormLabel>Units</FormLabel>
-                                        <Input name="units" type="number" step="0.000001" defaultValue={editItem?.units} />
+                                        <Input name="units" type="number" step="any" defaultValue={editItem?.units} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={12} sm={4}>
                                     <FormControl required>
                                         <FormLabel>Current Value (£)</FormLabel>
-                                        <Input name="current_value" type="number" step="0.01" defaultValue={editItem?.current_value} />
+                                        <Input name="current_value" type="number" step="any" defaultValue={editItem?.current_value} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={12} sm={4}>
                                     <FormControl required>
                                         <FormLabel>Total Invested (£)</FormLabel>
-                                        <Input name="total_invested" type="number" step="0.01" defaultValue={editItem?.total_invested} />
+                                        <Input name="total_invested" type="number" step="any" defaultValue={editItem?.total_invested} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={12} sm={6}>
                                     <FormControl>
                                         <FormLabel>Monthly Deposit (£)</FormLabel>
-                                        <Input name="deposit_amount" type="number" step="0.01" defaultValue={editItem?.deposit_amount} />
+                                        <Input name="deposit_amount" type="number" step="any" defaultValue={editItem?.deposit_amount} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={12} sm={6}>

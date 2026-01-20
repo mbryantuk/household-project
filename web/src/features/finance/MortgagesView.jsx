@@ -366,16 +366,16 @@ export default function MortgagesView() {
                                     <Divider><Chip variant="soft" size="sm">MORTGAGE DETAILS</Chip></Divider>
                                     <Grid container spacing={2}>
                                         <Grid xs={12} sm={6} md={4}>
-                                            <FormControl required><FormLabel>Total Loan (£)</FormLabel><Input name="total_amount" type="number" step="0.01" defaultValue={editItem?.total_amount} /></FormControl>
+                                            <FormControl required><FormLabel>Total Loan (£)</FormLabel><Input name="total_amount" type="number" step="any" defaultValue={editItem?.total_amount} /></FormControl>
                                         </Grid>
                                         <Grid xs={12} sm={6} md={4}>
-                                            <FormControl required><FormLabel>Remaining Balance (£)</FormLabel><Input name="remaining_balance" type="number" step="0.01" defaultValue={editItem?.remaining_balance} /></FormControl>
+                                            <FormControl required><FormLabel>Remaining Balance (£)</FormLabel><Input name="remaining_balance" type="number" step="any" defaultValue={editItem?.remaining_balance} /></FormControl>
                                         </Grid>
                                         <Grid xs={12} sm={6} md={4}>
-                                            <FormControl required><FormLabel>Interest Rate (%)</FormLabel><Input name="interest_rate" type="number" step="0.01" defaultValue={editItem?.interest_rate} /></FormControl>
+                                            <FormControl required><FormLabel>Interest Rate (%)</FormLabel><Input name="interest_rate" type="number" step="any" defaultValue={editItem?.interest_rate} /></FormControl>
                                         </Grid>
                                         <Grid xs={12} sm={6} md={4}>
-                                            <FormControl><FormLabel>Monthly Payment (£)</FormLabel><Input name="monthly_payment" type="number" step="0.01" defaultValue={editItem?.monthly_payment} /></FormControl>
+                                            <FormControl><FormLabel>Monthly Payment (£)</FormLabel><Input name="monthly_payment" type="number" step="any" defaultValue={editItem?.monthly_payment} /></FormControl>
                                         </Grid>
                                         <Grid xs={6} sm={3} md={2}>
                                             <FormControl><FormLabel>Yrs</FormLabel><Input name="term_years" type="number" defaultValue={editItem?.term_years} /></FormControl>
@@ -390,7 +390,7 @@ export default function MortgagesView() {
                                             <FormControl><FormLabel>Payment Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} placeholder="e.g. 1" /></FormControl>
                                         </Grid>
                                         <Grid xs={12} sm={6} md={4}>
-                                            <FormControl><FormLabel>Other Secured Debt (£)</FormLabel><Input name="other_secured_debt" type="number" step="0.01" defaultValue={editItem?.other_secured_debt} /></FormControl>
+                                            <FormControl><FormLabel>Other Secured Debt (£)</FormLabel><Input name="other_secured_debt" type="number" step="any" defaultValue={editItem?.other_secured_debt} /></FormControl>
                                         </Grid>
                                         <Grid xs={12}>
                                             <AppSelect 
@@ -410,19 +410,19 @@ export default function MortgagesView() {
                                     <Divider><Chip variant="soft" color="warning" size="sm">EQUITY LOAN DETAILS</Chip></Divider>
                                     <Grid container spacing={2}>
                                         <Grid xs={12} sm={6}>
-                                            <FormControl required><FormLabel>Loan Amount (£)</FormLabel><Input name="equity_loan_amount" type="number" step="0.01" defaultValue={editItem?.equity_loan_amount} /></FormControl>
+                                            <FormControl required><FormLabel>Loan Amount (£)</FormLabel><Input name="equity_loan_amount" type="number" step="any" defaultValue={editItem?.equity_loan_amount} /></FormControl>
                                         </Grid>
                                         <Grid xs={12} sm={6}>
                                             <FormControl required><FormLabel>Start Date</FormLabel><Input name="equity_loan_start_date" type="date" defaultValue={editItem?.equity_loan_start_date} /></FormControl>
                                         </Grid>
                                         <Grid xs={12} sm={6}>
-                                            <FormControl><FormLabel>Fee Rate After 5yr (%)</FormLabel><Input name="equity_loan_interest_rate" type="number" step="0.01" defaultValue={editItem?.equity_loan_interest_rate || 1.75} /></FormControl>
+                                            <FormControl><FormLabel>Fee Rate After 5yr (%)</FormLabel><Input name="equity_loan_interest_rate" type="number" step="any" defaultValue={editItem?.equity_loan_interest_rate || 1.75} /></FormControl>
                                         </Grid>
                                         <Grid xs={12} sm={6}>
-                                            <FormControl><FormLabel>Estimated CPI (%)</FormLabel><Input name="equity_loan_cpi_rate" type="number" step="0.01" defaultValue={editItem?.equity_loan_cpi_rate || 2.0} /></FormControl>
+                                            <FormControl><FormLabel>Estimated CPI (%)</FormLabel><Input name="equity_loan_cpi_rate" type="number" step="any" defaultValue={editItem?.equity_loan_cpi_rate || 2.0} /></FormControl>
                                         </Grid>
                                         <Grid xs={12} sm={6}>
-                                            <FormControl><FormLabel>Monthly Payment (£)</FormLabel><Input name="monthly_payment" type="number" step="0.01" defaultValue={editItem?.monthly_payment} /></FormControl>
+                                            <FormControl><FormLabel>Monthly Payment (£)</FormLabel><Input name="monthly_payment" type="number" step="any" defaultValue={editItem?.monthly_payment} /></FormControl>
                                         </Grid>
                                         <Grid xs={12} sm={6}>
                                             <FormControl><FormLabel>Payment Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} /></FormControl>

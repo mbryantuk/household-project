@@ -91,6 +91,7 @@ export default function GeneralDetailView({ title, icon: defaultIcon, endpoint, 
                         <Input
                             name={field.name}
                             type={field.type || 'text'}
+                            step={field.step}
                             defaultValue={data[field.name] || ''}
                             disabled={!isAdmin || saving}
                         />
