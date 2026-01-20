@@ -409,20 +409,19 @@ export default function BudgetView() {
                     <Table hoverRow>
                         <thead>
                             <tr>
-                                <th style={{ width: 48 }}>Paid</th>
                                 <th>Expense</th>
                                 <th style={{ width: 100, textAlign: 'center' }}>Date</th>
                                 <th style={{ width: 120 }}>Amount</th>
+                                <th style={{ width: 48, textAlign: 'center' }}>Paid</th>
                                 <th style={{ width: 48 }}></th>
                             </tr>
                         </thead>
                         <tbody>
                             {cycleData.expenses.filter(exp => !hidePaid || !exp.isPaid).map((exp, index) => (
                                 <tr key={exp.key} onClick={(e) => handleRowClick(e, index, exp.key)} style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}>
-                                    <td><Checkbox checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} disabled={savingProgress} uncheckedIcon={<RadioButtonUnchecked />} checkedIcon={<CheckCircle color="success" />} /></td>
                                     <td>
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                            <Avatar size="sm">{exp.icon}</Avatar>
+                                            <Avatar size="sm" sx={{ bgcolor: getEmojiColor(exp.label, isDark), color: '#fff' }}>{exp.icon}</Avatar>
                                             <Box>
                                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                     <Typography level="title-sm">{exp.label}</Typography>
@@ -434,6 +433,7 @@ export default function BudgetView() {
                                     </td>
                                     <td><Box sx={{ textAlign: 'center' }}><Typography level="body-sm" fontWeight="lg">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral">{format(exp.computedDate, 'EEE do')}</Typography>}</Box></td>
                                     <td><Input size="sm" type="number" variant="soft" defaultValue={exp.amount} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} slotProps={{ input: { step: 'any' } }} /></td>
+                                    <td style={{ textAlign: 'center' }}><Checkbox checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} disabled={savingProgress} uncheckedIcon={<RadioButtonUnchecked />} checkedIcon={<CheckCircle color="success" />} /></td>
                                     <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" onClick={() => deleteExpense(exp.id)}><Delete /></IconButton>}</td>
                                 </tr>
                             ))}
