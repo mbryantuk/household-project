@@ -16,6 +16,7 @@ import CalculatorWidget from '../components/widgets/CalculatorWidget';
 import FinancialWidget from '../components/widgets/FinancialWidget';
 import TaxWidget from '../components/widgets/TaxWidget';
 import CalendarWidget from '../components/widgets/CalendarWidget';
+import SavingsWidget from '../components/widgets/SavingsWidget';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -29,6 +30,7 @@ const WIDGET_TYPES = {
   finance: { component: FinancialWidget, label: 'Finance Tools', defaultH: 6, defaultW: 5 },
   tax: { component: TaxWidget, label: 'Tax Tools', defaultH: 6, defaultW: 5 },
   calendar: { component: CalendarWidget, label: 'Calendar', defaultH: 6, defaultW: 4 },
+  savings: { component: SavingsWidget, label: 'Savings Tracker', defaultH: 4, defaultW: 4 },
 };
 
 const DEFAULT_LAYOUT = [
