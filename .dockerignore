@@ -1,7 +1,9 @@
 node_modules
-web/node_modules
-server/node_modules
-web/dist
-server/data/*.db-journal
 .git
 .env
+npm-debug.log
+Dockerfile
+.dockerignore
+web/node_modules
+web/dist
+server/node_modules

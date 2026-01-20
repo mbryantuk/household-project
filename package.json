@@ -1,6 +1,6 @@
 {
   "name": "totem-monorepo",
-  "version": "2.6.140",
+  "version": "2.6.141",
   "private": true,
   "scripts": {
     "test": "cd server && npm test",

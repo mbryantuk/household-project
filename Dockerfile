@@ -1,32 +1,42 @@
 # Stage 1: Build the frontend (Node image)
 FROM node:20-slim AS frontend-builder
 WORKDIR /app
+
+# Copy root package for versioning context
 COPY package*.json ./
+
+# Setup Frontend Context
 WORKDIR /app/web
 COPY web/package*.json ./
-RUN npm install
+
+# Install dependencies (use ci for deterministic builds)
+RUN npm ci
+
+# Copy frontend source and build
 COPY web/ ./
-# We need the root package.json for versioning in vite.config.js
 RUN npm run build
 
 # Stage 2: Final Image (Playwright for tests + Server)
 FROM mcr.microsoft.com/playwright:v1.49.1-jammy
+ENV NODE_ENV=production
 WORKDIR /app
 
-# Copy server package files and install dependencies
+# 1. Install Server Dependencies (Cached Layer)
+# We copy only the server package files first to cache npm install
 COPY server/package*.json ./server/
-RUN cd server && npm install
+WORKDIR /app/server
+RUN npm ci --omit=dev
 
-# Copy all source code (respects .dockerignore)
-COPY . .
+# 2. Copy Server Source Code
+# We strictly copy only the server folder, ignoring root files or web source
+COPY server/ ./
 
-# Copy the built frontend from Stage 1 and purge heavy node_modules
-COPY --from=frontend-builder /app/web/dist ./web/dist
-RUN rm -rf web/node_modules
+# 3. Copy Built Frontend Assets
+# We pull the artifacts from Stage 1 into the correct location
+COPY --from=frontend-builder /app/web/dist ../web/dist
 
 # Expose unified port
 EXPOSE 4001
 
 # Start the server
-WORKDIR /app/server
 CMD ["node", "server.js"]

@@ -18,17 +18,15 @@ function cleanup() {
         const userIds = users.map(u => u.id);
         
         // 2. Find households created by these users or named "Test Household"
-        // Join with user_households to find households linked to these test users
-        // OR select households with test names.
-        
         const userIdsClause = userIds.length > 0 ? `id IN (SELECT household_id FROM user_households WHERE user_id IN (${userIds.join(',')})) OR` : '';
-        
         const query = `SELECT id FROM households WHERE ${userIdsClause} name LIKE '%Test Household%' OR name LIKE 'Test Family' OR name LIKE 'Test Manor'`;
 
         db.all(query, [], (err, households) => {
             if (err) console.error('Error finding test households:', err);
             
-            const householdIds = households ? households.map(h => h.id) : [];
+            // CRITICAL: Filter out household 19 to preserve it
+            let householdIds = households ? households.map(h => h.id) : [];
+            householdIds = householdIds.filter(id => id !== 19 && id !== '19');
             
             if (userIds.length === 0 && householdIds.length === 0) {
                 console.log('✨ No test data found.');
@@ -36,17 +34,22 @@ function cleanup() {
                 return;
             }
 
-            console.log(`Found ${userIds.length} test users and ${householdIds.length} test households.`);
+            console.log(`Found ${userIds.length} test users and ${householdIds.length} test households (excluding protected IDs).`);
 
             // 3. Delete household data (all tenant tables)
-            // Note: Since everything is in the global DB file now (implied by schema.js usage in main app), we delete from tables there.
             if (householdIds.length > 0) {
                 const hhPlaceholders = householdIds.map(() => '?').join(',');
-                const tables = ['members', 'assets', 'vehicles', 'recurring_costs', 'dates', 'meals', 'meal_plans', 'house_details', 'water_info', 'council_info', 'waste_collections', 'energy_accounts', 'vehicle_services', 'vehicle_finance', 'vehicle_insurance'];
+                const tables = [
+                    'members', 'assets', 'vehicles', 'recurring_costs', 'dates', 
+                    'meals', 'meal_plans', 'house_details', 'water_info', 
+                    'council_info', 'waste_collections', 'energy_accounts', 
+                    'vehicle_services', 'vehicle_finance', 'vehicle_insurance',
+                    'finance_income', 'finance_current_accounts', 'finance_budget_cycles', 'finance_budget_progress'
+                ];
                 
                 tables.forEach(table => {
                     db.run(`DELETE FROM ${table} WHERE household_id IN (${hhPlaceholders})`, householdIds, (err) => {
-                       // Ignore if table doesn't exist or other minor errors
+                       // Ignore if table doesn't exist
                     });
                 });
 
@@ -63,9 +66,7 @@ function cleanup() {
             // 4. Delete users
             if (userIds.length > 0) {
                 const userPlaceholders = userIds.map(() => '?').join(',');
-                // Also remove their links (if any remained)
                 db.run(`DELETE FROM user_households WHERE user_id IN (${userPlaceholders})`, userIds);
-                
                 db.run(`DELETE FROM users WHERE id IN (${userPlaceholders})`, userIds, function(err) {
                     if (err) console.error('Error deleting users:', err);
                     else console.log(`✅ Deleted ${this.changes} users.`);
