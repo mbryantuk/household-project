@@ -483,6 +483,52 @@ export default function BudgetView() {
             </Box>
         </Box>
 
+        <Box sx={{ mb: 4 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
+                <Typography level="body-xs" fontWeight="bold" sx={{ textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                    Cycle Progress
+                </Typography>
+                <Typography level="body-xs" fontWeight="bold">
+                    {Math.round(cycleData.progressPct)}% of cycle elapsed
+                </Typography>
+            </Box>
+            <LinearProgress 
+                determinate 
+                value={cycleData.progressPct} 
+                thickness={12}
+                variant="soft"
+                color="primary"
+                sx={{ 
+                    borderRadius: 'sm',
+                    '--LinearProgress-radius': '4px',
+                    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)'
+                }} 
+            />
+        </Box>
+
+        <Box sx={{ mb: 4 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
+                <Typography level="body-xs" fontWeight="bold" sx={{ textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                    Cycle Progress
+                </Typography>
+                <Typography level="body-xs" fontWeight="bold">
+                    {Math.round(cycleData.progressPct)}% of cycle elapsed
+                </Typography>
+            </Box>
+            <LinearProgress 
+                determinate 
+                value={cycleData.progressPct} 
+                thickness={12}
+                variant="soft"
+                color="primary"
+                sx={{ 
+                    borderRadius: 'sm',
+                    '--LinearProgress-radius': '4px',
+                    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)'
+                }} 
+            />
+        </Box>
+
         <Grid container spacing={3}>
             <Grid xs={12} md={3}>
                 <Stack spacing={3}>
