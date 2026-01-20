@@ -55,7 +55,7 @@ export default function BudgetView() {
   const [liabilities, setLiabilities] = useState({
       mortgages: [], loans: [], agreements: [], vehicle_finance: [], 
       recurring_costs: [], credit_cards: [], water: null, council: null, energy: [],
-      pensions: []
+      pensions: [], vehicles: []
   });
   const [savingsPots, setSavingsPots] = useState([]);
 
@@ -77,7 +77,7 @@ export default function BudgetView() {
     setLoading(true);
     try {
       const [
-          incRes, progRes, cycleRes, mortRes, loanRes, agreeRes, carRes, costRes, ccRes, waterRes, councilRes, energyRes, pensionRes, potRes, holidayRes
+          incRes, progRes, cycleRes, mortRes, loanRes, agreeRes, carRes, costRes, ccRes, waterRes, councilRes, energyRes, pensionRes, potRes, holidayRes, vehRes
       ] = await Promise.all([
           api.get(`/households/${householdId}/finance/income`),
           api.get(`/households/${householdId}/finance/budget-progress`),
@@ -93,7 +93,8 @@ export default function BudgetView() {
           api.get(`/households/${householdId}/energy`),
           api.get(`/households/${householdId}/finance/pensions`),
           api.get(`/households/${householdId}/finance/savings/pots`),
-          api.get(`/system/holidays`) 
+          api.get(`/system/holidays`),
+          api.get(`/households/${householdId}/vehicles`)
       ]);
 
       setIncomes(incRes.data || []);
@@ -109,7 +110,8 @@ export default function BudgetView() {
           water: waterRes.data,
           council: councilRes.data,
           energy: energyRes.data || [],
-          pensions: pensionRes.data || []
+          pensions: pensionRes.data || [],
+          vehicles: vehRes.data || []
       });
       setSavingsPots(potRes.data || []);
       setBankHolidays(holidayRes.data || []);
@@ -131,6 +133,17 @@ export default function BudgetView() {
       
       while (isWeekend(d) || isHoliday(d)) {
           d.setDate(d.getDate() - 1);
+      }
+      return d;
+  };
+
+  const getNextWorkingDay = (date) => {
+      let d = new Date(date);
+      const isWeekend = (day) => day.getDay() === 0 || day.getDay() === 6;
+      const isHoliday = (day) => bankHolidays.includes(format(day, 'yyyy-MM-dd'));
+      
+      while (isWeekend(d) || isHoliday(d)) {
+          d.setDate(d.getDate() + 1);
       }
       return d;
   };
@@ -166,12 +179,28 @@ export default function BudgetView() {
 
       const expenses = [];
 
-      const addExpense = (item, type, label, amount, day, icon, category) => {
+      const addExpense = (item, type, label, amount, day, icon, category, object = null) => {
           const key = `${type}_${item.id || 'fixed'}`;
           const progressItem = progress.find(p => p.item_key === key && p.cycle_start === cycleKey);
           
           // Filter one-off costs to ONLY show in their assigned cycle
           if (item.frequency === 'one-off' && item.next_due !== cycleKey) return;
+
+          let actualDate = null;
+          if (day) {
+              const d = parseInt(day);
+              let candidate = setDate(startDate, d);
+              // if day is less than payday day, it's likely next month
+              if (d < payday) {
+                  candidate = addMonths(candidate, 1);
+              }
+              
+              // Apply NWD logic
+              // For recurring costs, respect item.nearest_working_day (Next)
+              // For others, default to true (bills)
+              const useNwd = type === 'cost' ? !!item.nearest_working_day : true;
+              actualDate = useNwd ? getNextWorkingDay(candidate) : candidate;
+          }
 
           expenses.push({
               key,
@@ -180,45 +209,56 @@ export default function BudgetView() {
               amount: progressItem?.actual_amount || parseFloat(amount) || 0,
               baseAmount: parseFloat(amount) || 0,
               day: type === 'pot' ? null : (parseInt(day) || 1),
+              actualDate,
               icon,
               category,
               isPaid: !!progressItem,
               isPot: type === 'pot',
               isDeletable: type === 'cost' && (item.frequency === 'one-off' || item.parent_type === 'general'),
-              id: item.id
+              id: item.id,
+              object // { name, emoji }
           });
       };
 
-      liabilities.mortgages.forEach(m => addExpense(m, 'mortgage', `${m.lender} (${m.mortgage_type})`, m.monthly_payment, m.payment_day, <Home />, 'Liability'));
-      liabilities.loans.forEach(l => addExpense(l, 'loan', `${l.lender} Loan`, l.monthly_payment, l.payment_day, <TrendingDown />, 'Liability'));
-      liabilities.agreements.forEach(a => addExpense(a, 'agreement', a.agreement_name, a.monthly_payment, a.payment_day, <Assignment />, 'Agreement'));
-      liabilities.vehicle_finance.forEach(v => addExpense(v, 'car_finance', `${v.provider} (Car)`, v.monthly_payment, v.payment_day, <DirectionsCar />, 'Liability'));
-      liabilities.pensions.forEach(p => addExpense(p, 'pension', `Pension: ${p.plan_name}`, p.monthly_contribution, p.payment_day, <SavingsIcon />, 'Pension'));
+      liabilities.mortgages.forEach(m => addExpense(m, 'mortgage', `${m.lender}`, m.monthly_payment, m.payment_day, <Home />, 'Liability', { name: 'House', emoji: '🏠' }));
+      liabilities.loans.forEach(l => addExpense(l, 'loan', `${l.lender} Loan`, l.monthly_payment, l.payment_day, <TrendingDown />, 'Liability', { name: 'Finance', emoji: '💰' }));
+      liabilities.agreements.forEach(a => addExpense(a, 'agreement', a.agreement_name, a.monthly_payment, a.payment_day, <Assignment />, 'Agreement', { name: a.provider, emoji: '📄' }));
+      liabilities.vehicle_finance.forEach(v => {
+          const veh = liabilities.vehicles.find(vh => vh.id === v.vehicle_id);
+          addExpense(v, 'car_finance', `Finance: ${v.provider}`, v.monthly_payment, v.payment_day, <DirectionsCar />, 'Liability', { name: veh ? `${veh.make} ${veh.model}` : 'Vehicle', emoji: veh?.emoji || '🚗' });
+      });
+      liabilities.pensions.forEach(p => addExpense(p, 'pension', p.plan_name, p.monthly_contribution, p.payment_day, <SavingsIcon />, 'Pension', { name: 'Retirement', emoji: '👴' }));
       
       liabilities.recurring_costs.forEach(c => {
           let icon = <Payments />;
-          let prefix = "";
+          let object = { name: 'General', emoji: '💸' };
+
           if (c.parent_type === 'member') {
               const m = members.find(mem => mem.id === c.parent_id);
-              prefix = m ? `${m.alias || m.name}: ` : "User: ";
+              object = { name: m ? (m.alias || m.name) : 'User', emoji: m?.emoji || '👤' };
               icon = <Person />;
           } else if (c.parent_type === 'pet') {
               const p = members.find(mem => mem.id === c.parent_id);
-              prefix = p ? `${p.alias || p.name}: ` : "Pet: ";
+              object = { name: p ? (p.alias || p.name) : 'Pet', emoji: p?.emoji || '🐾' };
               icon = <Pets />;
+          } else if (c.parent_type === 'vehicle') {
+              const v = liabilities.vehicles.find(veh => veh.id === c.parent_id);
+              object = { name: v ? `${v.make}` : 'Vehicle', emoji: v?.emoji || '🚗' };
+              icon = <DirectionsCar />;
           }
+
           if (c.category === 'insurance') icon = <Shield />;
           if (c.category === 'subscription') icon = <ShoppingBag />;
           if (c.category === 'service') icon = <HistoryEdu />;
           if (c.category === 'saving') icon = <SavingsIcon />;
 
-          addExpense(c, 'cost', `${prefix}${c.name}`, c.amount, c.payment_day, icon, c.category || 'Cost');
+          addExpense(c, 'cost', c.name, c.amount, c.payment_day, icon, c.category || 'Cost', object);
       });
 
-      liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit', `${cc.card_name}`, 0, cc.payment_day, <CreditCard />, 'Credit Card'));
-      if (liabilities.water) addExpense(liabilities.water, 'water', 'Water Bill', liabilities.water.monthly_amount, liabilities.water.payment_day, <WaterDrop />, 'Utility');
-      if (liabilities.council) addExpense(liabilities.council, 'council', 'Council Tax', liabilities.council.monthly_amount, liabilities.council.payment_day, <AccountBalance />, 'Utility');
-      liabilities.energy.forEach(e => addExpense(e, 'energy', `${e.provider} (${e.type})`, e.monthly_amount, e.payment_day, <ElectricBolt />, 'Utility'));
+      liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit', `${cc.card_name}`, 0, cc.payment_day, <CreditCard />, 'Credit Card', { name: cc.provider, emoji: cc.emoji || '💳' }));
+      if (liabilities.water) addExpense(liabilities.water, 'water', 'Water Bill', liabilities.water.monthly_amount, liabilities.water.payment_day, <WaterDrop />, 'Utility', { name: 'House', emoji: '💧' });
+      if (liabilities.council) addExpense(liabilities.council, 'council', 'Council Tax', liabilities.council.monthly_amount, liabilities.council.payment_day, <AccountBalance />, 'Utility', { name: 'House', emoji: '🏛️' });
+      liabilities.energy.forEach(e => addExpense(e, 'energy', `${e.provider} (${e.type})`, e.monthly_amount, e.payment_day, <ElectricBolt />, 'Utility', { name: 'House', emoji: '⚡' }));
 
       return { startDate, endDate, label, cycleKey, progressPct, expenses: expenses.sort((a, b) => (a.day || 99) - (b.day || 99)) };
   }, [incomes, liabilities, progress, viewDate, members, bankHolidays]);
@@ -479,8 +519,8 @@ export default function BudgetView() {
                         <thead>
                             <tr>
                                 <th style={{ width: 48 }}>Paid</th>
-                                <th>Expense / Allocation</th>
-                                <th style={{ width: 80 }}>Day</th>
+                                <th>Expense</th>
+                                <th style={{ width: 100, textAlign: 'center' }}>Date</th>
                                 <th style={{ width: 150 }}>Amount (£)</th>
                                 <th style={{ width: 48 }}></th>
                             </tr>
@@ -512,12 +552,28 @@ export default function BudgetView() {
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                                             <Avatar size="sm" sx={{ bgcolor: isSelected ? 'primary.solidBg' : 'background.level2' }}>{exp.icon}</Avatar>
                                             <Box>
-                                                <Typography level="title-sm">{exp.label}</Typography>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <Typography level="title-sm">{exp.label}</Typography>
+                                                    {exp.object && (
+                                                        <Chip size="sm" variant="soft" color="neutral" startDecorator={exp.object.emoji}>
+                                                            {exp.object.name}
+                                                        </Chip>
+                                                    )}
+                                                </Box>
                                                 <Typography level="body-xs" color="neutral">{exp.category.toUpperCase()}</Typography>
                                             </Box>
                                         </Box>
                                     </td>
-                                    <td>{exp.day || '-'}</td>
+                                    <td>
+                                        <Box sx={{ textAlign: 'center' }}>
+                                            <Typography level="body-sm" fontWeight="lg">{exp.day || '-'}</Typography>
+                                            {exp.actualDate && (
+                                                <Typography level="body-xs" color="neutral">
+                                                    {format(exp.actualDate, 'EEE do')}
+                                                </Typography>
+                                            )}
+                                        </Box>
+                                    </td>
                                     <td>
                                         <Input 
                                             size="sm"

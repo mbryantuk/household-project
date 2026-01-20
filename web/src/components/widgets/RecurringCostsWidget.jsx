@@ -42,7 +42,7 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
     }
   }, [editItem]);
 
-  const getNextPaymentDate = (day, isPriorMode) => {
+  const getNextPaymentDate = (day, useNwd) => {
       if (!day) return null;
       const today = startOfDay(new Date());
       let date = setDate(today, parseInt(day));
@@ -51,12 +51,13 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
           date = addMonths(date, 1);
       }
 
-      // Adjust for weekends/holidays
-      const isNonWorking = (d) => isWeekend(d) || holidays.includes(format(d, 'yyyy-MM-dd'));
-      
-      if (isNonWorking(date)) {
-          while (isNonWorking(date)) {
-              date = isPriorMode ? subDays(date, 1) : addDays(date, 1);
+      // Adjust for weekends/holidays ONLY if flag is enabled
+      if (useNwd) {
+          const isNonWorking = (d) => isWeekend(d) || holidays.includes(format(d, 'yyyy-MM-dd'));
+          if (isNonWorking(date)) {
+              while (isNonWorking(date)) {
+                  date = addDays(date, 1); // Always shift to Next
+              }
           }
       }
       return date;
@@ -133,7 +134,7 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
                                 <Chip size="sm" variant="outlined">{row.frequency}</Chip>
                                 {row.payment_day && (
                                     <Box>
-                                        <Typography level="body-xs">Day: {row.payment_day} {row.nearest_working_day ? '(Prior)' : '(Next)'}</Typography>
+                                        <Typography level="body-xs">Day: {row.payment_day} {row.nearest_working_day ? '(Next)' : '(Exact)'}</Typography>
                                         <Typography level="body-xs" color="primary">Next: {nextDate ? format(nextDate, 'EEE do MMM') : '-'}</Typography>
                                     </Box>
                                 )}
@@ -182,7 +183,7 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
                         
                         <FormControl orientation="horizontal" sx={{ gap: 1 }}>
                             <Switch checked={isNearestWorkingDay} onChange={e => setIsNearestWorkingDay(e.target.checked)} />
-                            <FormLabel>Nearest Working Day (Prior)</FormLabel>
+                            <FormLabel>Nearest Working Day (Next)</FormLabel>
                         </FormControl>
 
                         <FormControl>

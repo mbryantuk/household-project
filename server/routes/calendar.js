@@ -118,14 +118,17 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
                     
                     let logic = workdayLogic;
                     if (workdayLogic === 'dynamic') {
-                        // If nearest_working_day is true (1), use 'prior', else default to 'next'
-                        logic = item.nearest_working_day ? 'prior' : 'next';
+                        // If nearest_working_day is true (1), use 'next' (After), else use 'exact' (No adjustment)
+                        logic = item.nearest_working_day ? 'next' : 'exact';
                     }
 
-                    // workdayLogic: 'next' for bills, 'prior' for income
-                    eventDate = logic === 'next' 
-                        ? getNextWorkingDay(eventDate, holidays)
-                        : getPriorWorkingDay(eventDate, holidays);
+                    // Apply logic
+                    if (logic === 'next') {
+                        eventDate = getNextWorkingDay(eventDate, holidays);
+                    } else if (logic === 'prior') {
+                        eventDate = getPriorWorkingDay(eventDate, holidays);
+                    }
+                    // if logic === 'exact', do nothing
                     
                     combined.push({
                         id: `${type}_${item.id || item.household_id}_${i}`,
