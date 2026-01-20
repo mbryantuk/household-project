@@ -47,6 +47,9 @@ export default function HouseholdLayout({
   const [activeHousehold, setActiveHousehold] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState('main');
+  
+  // New: Global Status Bar State
+  const [statusBarData, setStatusBarData] = useState(null);
 
   const fetchVehicles = useCallback(async () => {
     try {
@@ -71,12 +74,9 @@ export default function HouseholdLayout({
 
   const isTabActive = (path) => location.pathname.includes(path);
 
-  // Dynamic Title Logic - Improved to ignore /household/ prefix
   const pageTitle = useMemo(() => {
     const path = location.pathname;
     const parts = path.split('/');
-    // Expected structure: /household/:id/:section/...
-    // section is at index 3
     const section = parts[3];
 
     switch(section) {
@@ -102,7 +102,6 @@ export default function HouseholdLayout({
         bgcolor: 'background.body'
     }}>
       
-      {/* Desktop Sidebar */}
       <Box sx={{ display: { xs: 'none', md: 'block' }, height: '100%', minWidth: 64, flexShrink: 0 }}>
         <NavSidebar 
             members={members} 
@@ -124,10 +123,8 @@ export default function HouseholdLayout({
         />
       </Box>
 
-      {/* Main Content Area */}
       <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0, height: '100%', position: 'relative' }}>
         
-        {/* Mobile Header (Dynamic) */}
         <Sheet
           sx={{
             display: { xs: 'flex', md: 'none' },
@@ -177,11 +174,11 @@ export default function HouseholdLayout({
                 isDark,
                 showNotification,
                 confirmAction,
-                onUpdateProfile
+                onUpdateProfile,
+                setStatusBarData // Passed to children like BudgetView
             }} />
         </Box>
 
-        {/* Persistent Bottom Utility Bar - Desktop Only */}
         <Box sx={{ display: { xs: 'none', md: 'block' } }}>
             <UtilityBar 
                 user={user}
@@ -197,10 +194,10 @@ export default function HouseholdLayout({
                 onInstall={onInstall}
                 confirmAction={confirmAction}
                 activeHouseholdId={id}
+                statusBarData={statusBarData} // Passed summary data
             />
         </Box>
 
-        {/* Mobile Bottom Navigation */}
         <Sheet
             sx={{
                 display: { xs: 'flex', md: 'none' },
@@ -251,7 +248,6 @@ export default function HouseholdLayout({
         </Sheet>
       </Box>
 
-      {/* Mobile Draggable Menu Sheet */}
       <Drawer
         anchor="bottom"
         open={drawerOpen}

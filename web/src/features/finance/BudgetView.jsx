@@ -4,14 +4,13 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  Sheet, Table, Checkbox, Tooltip, LinearProgress, List, ListItem, ListItemDecorator, ListItemContent, Select, Option
+  Sheet, Table, Checkbox, Tooltip, LinearProgress, Select, Option
 } from '@mui/joy';
 import { 
-  PieChart, 
   AccountBalanceWallet, 
   CheckCircle, 
   RadioButtonUnchecked, 
-  TrendingUp, 
+  TrendingDown, 
   Event, 
   Payments,
   Savings as SavingsIcon,
@@ -30,9 +29,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Person,
-  Pets
+  Pets,
+  Delete
 } from '@mui/icons-material';
-import { format, addMonths, startOfMonth, endOfMonth, setDate, parseISO } from 'date-fns';
+import { format, addMonths, startOfMonth, endOfMonth, setDate, differenceInDays, isSameDay } from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
 
@@ -42,10 +42,11 @@ const formatCurrency = (val) => {
 };
 
 export default function BudgetView() {
-  const { api, id: householdId, user: currentUser, isDark, showNotification, members } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, showNotification, members, setStatusBarData } = useOutletContext();
   const [loading, setLoading] = useState(true);
   const [savingProgress, setSavingProgress] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
+  const [bankHolidays, setBankHolidays] = useState([]);
   
   // Data State
   const [incomes, setIncomes] = useState([]);
@@ -56,6 +57,10 @@ export default function BudgetView() {
       recurring_costs: [], credit_cards: [], water: null, council: null, energy: []
   });
   const [savingsPots, setSavingsPots] = useState([]);
+
+  // Selection State
+  const [selectedKeys, setSelectedKeys] = useState([]);
+  const [lastSelectedIndex, setLastSelectedIndex] = useState(null);
 
   // User Inputs
   const [actualPay, setActualPay] = useState('');
@@ -71,7 +76,7 @@ export default function BudgetView() {
     setLoading(true);
     try {
       const [
-          incRes, progRes, cycleRes, mortRes, loanRes, agreeRes, carRes, costRes, ccRes, waterRes, councilRes, energyRes, potRes
+          incRes, progRes, cycleRes, mortRes, loanRes, agreeRes, carRes, costRes, ccRes, waterRes, councilRes, energyRes, potRes, holidayRes
       ] = await Promise.all([
           api.get(`/households/${householdId}/finance/income`),
           api.get(`/households/${householdId}/finance/budget-progress`),
@@ -85,7 +90,8 @@ export default function BudgetView() {
           api.get(`/households/${householdId}/water`),
           api.get(`/households/${householdId}/council`),
           api.get(`/households/${householdId}/energy`),
-          api.get(`/households/${householdId}/finance/savings/pots`)
+          api.get(`/households/${householdId}/finance/savings/pots`),
+          api.get(`/system/holidays`) 
       ]);
 
       setIncomes(incRes.data || []);
@@ -103,6 +109,7 @@ export default function BudgetView() {
           energy: energyRes.data || []
       });
       setSavingsPots(potRes.data || []);
+      setBankHolidays(holidayRes.data || []);
 
     } catch (err) {
       console.error(err);
@@ -113,55 +120,77 @@ export default function BudgetView() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  // --- LOGIC: WORKING DAYS ---
+  const getPriorWorkingDay = (date) => {
+      let d = new Date(date);
+      const isWeekend = (day) => day.getDay() === 0 || day.getDay() === 6;
+      const isHoliday = (day) => bankHolidays.includes(format(day, 'yyyy-MM-dd'));
+      
+      while (isWeekend(d) || isHoliday(d)) {
+          d.setDate(d.getDate() - 1);
+      }
+      return d;
+  };
+
   // --- LOGIC: PAYCHECK TO PAYCHECK ---
   const cycleData = useMemo(() => {
       const primaryIncome = incomes.find(i => i.is_primary === 1) || incomes.find(i => i.payment_day > 0);
       if (!primaryIncome || !primaryIncome.payment_day) return null;
 
       const payday = parseInt(primaryIncome.payment_day);
-      let startDate;
+      let rawStartDate;
       
       if (viewDate.getDate() >= payday) {
-          startDate = setDate(startOfMonth(viewDate), payday);
+          rawStartDate = setDate(startOfMonth(viewDate), payday);
       } else {
-          startDate = setDate(startOfMonth(addMonths(viewDate, -1)), payday);
+          rawStartDate = setDate(startOfMonth(addMonths(viewDate, -1)), payday);
       }
 
+      // Apply Working Day Logic to Income/Cycle Start
+      const startDate = getPriorWorkingDay(rawStartDate);
       const endDate = addMonths(startDate, 1);
       const cycleKey = format(startDate, 'yyyy-MM-dd');
       const label = format(startDate, 'MMM yyyy') + " Cycle";
 
+      // Progress through cycle
+      const now = new Date();
+      let progressPct = 0;
+      if (isSameDay(now, startDate) || isAfter(now, startDate)) {
+          const totalDays = differenceInDays(endDate, startDate);
+          const daysPassed = differenceInDays(now, startDate);
+          progressPct = Math.min((daysPassed / totalDays) * 100, 100);
+      }
+
       const expenses = [];
 
       const addExpense = (item, type, label, amount, day, icon, category) => {
-          if (!day && type !== 'pot') return;
-          const expenseDay = parseInt(day) || 1;
           const key = `${type}_${item.id || 'fixed'}`;
           const progressItem = progress.find(p => p.item_key === key && p.cycle_start === cycleKey);
           
+          // Filter one-off costs to ONLY show in their assigned cycle
+          if (item.frequency === 'one-off' && item.next_due !== cycleKey) return;
+
           expenses.push({
               key,
               type,
               label,
               amount: progressItem?.actual_amount || parseFloat(amount) || 0,
               baseAmount: parseFloat(amount) || 0,
-              day: type === 'pot' ? null : expenseDay,
+              day: type === 'pot' ? null : (parseInt(day) || 1),
               icon,
               category,
               isPaid: !!progressItem,
-              isPot: type === 'pot'
+              isPot: type === 'pot',
+              isDeletable: type === 'cost' && (item.frequency === 'one-off' || item.parent_type === 'general'),
+              id: item.id
           });
       };
 
-      // 1. Mortgages
       liabilities.mortgages.forEach(m => addExpense(m, 'mortgage', `${m.lender} (${m.mortgage_type})`, m.monthly_payment, m.payment_day, <Home />, 'Liability'));
-      // 2. Loans
       liabilities.loans.forEach(l => addExpense(l, 'loan', `${l.lender} Loan`, l.monthly_payment, l.payment_day, <TrendingDown />, 'Liability'));
-      // 3. Agreements
       liabilities.agreements.forEach(a => addExpense(a, 'agreement', a.agreement_name, a.monthly_payment, a.payment_day, <Assignment />, 'Agreement'));
-      // 4. Vehicle Finance
       liabilities.vehicle_finance.forEach(v => addExpense(v, 'car_finance', `${v.provider} (Car)`, v.monthly_payment, v.payment_day, <DirectionsCar />, 'Liability'));
-      // 5. Recurring Costs (Includes People and Pets)
+      
       liabilities.recurring_costs.forEach(c => {
           let icon = <Payments />;
           let prefix = "";
@@ -174,7 +203,6 @@ export default function BudgetView() {
               prefix = p ? `${p.alias || p.name}: ` : "Pet: ";
               icon = <Pets />;
           }
-
           if (c.category === 'insurance') icon = <Shield />;
           if (c.category === 'subscription') icon = <ShoppingBag />;
           if (c.category === 'service') icon = <HistoryEdu />;
@@ -182,15 +210,53 @@ export default function BudgetView() {
 
           addExpense(c, 'cost', `${prefix}${c.name}`, c.amount, c.payment_day, icon, c.category || 'Cost');
       });
-      // 6. Credit Cards
+
       liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit', `${cc.card_name}`, 0, cc.payment_day, <CreditCard />, 'Credit Card'));
-      // 7. Utilities
       if (liabilities.water) addExpense(liabilities.water, 'water', 'Water Bill', liabilities.water.monthly_amount, liabilities.water.payment_day, <WaterDrop />, 'Utility');
       if (liabilities.council) addExpense(liabilities.council, 'council', 'Council Tax', liabilities.council.monthly_amount, liabilities.council.payment_day, <AccountBalance />, 'Utility');
       liabilities.energy.forEach(e => addExpense(e, 'energy', `${e.provider} (${e.type})`, e.monthly_amount, e.payment_day, <ElectricBolt />, 'Utility'));
 
-      return { startDate, endDate, label, cycleKey, expenses };
-  }, [incomes, liabilities, progress, viewDate, members]);
+      return { startDate, endDate, label, cycleKey, progressPct, expenses: expenses.sort((a, b) => (a.day || 99) - (b.day || 99)) };
+  }, [incomes, liabilities, progress, viewDate, members, bankHolidays]);
+
+  // --- SELECTION ENGINE ---
+  const handleRowClick = (e, index, key) => {
+      const isShift = e.shiftKey;
+      const isCtrl = e.metaKey || e.ctrlKey;
+
+      if (isShift && lastSelectedIndex !== null) {
+          const start = Math.min(lastSelectedIndex, index);
+          const end = Math.max(lastSelectedIndex, index);
+          const keysInRange = cycleData.expenses.slice(start, end + 1).map(exp => exp.key);
+          setSelectedKeys(prev => Array.from(new Set([...prev, ...keysInRange])));
+      } else if (isCtrl) {
+          setSelectedKeys(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
+          setLastSelectedIndex(index);
+      } else {
+          setSelectedKeys([key]);
+          setLastSelectedIndex(index);
+      }
+  };
+
+  // Sync Status Bar Summary
+  useEffect(() => {
+      if (selectedKeys.length > 0 && cycleData) {
+          const selectedItems = cycleData.expenses.filter(e => selectedKeys.includes(e.key));
+          const totalSelected = selectedItems.reduce((sum, e) => sum + e.amount, 0);
+          const paidSelected = selectedItems.filter(e => e.isPaid).reduce((sum, e) => sum + e.amount, 0);
+          const unpaidSelected = totalSelected - paidSelected;
+
+          setStatusBarData({
+              count: selectedKeys.length,
+              total: totalSelected,
+              paid: paidSelected,
+              unpaid: unpaidSelected
+          });
+      } else {
+          setStatusBarData(null);
+      }
+      return () => setStatusBarData(null);
+  }, [selectedKeys, cycleData, setStatusBarData]);
 
   // Sync cycle inputs
   useEffect(() => {
@@ -261,11 +327,12 @@ export default function BudgetView() {
       const data = Object.fromEntries(formData.entries());
       data.parent_type = 'general';
       data.parent_id = 1;
-      data.frequency = 'monthly';
+      data.frequency = 'one-off'; 
+      data.next_due = cycleData.cycleKey;
 
       try {
           await api.post(`/households/${householdId}/costs`, data);
-          showNotification("Expense added.", "success");
+          showNotification("One-off expense added.", "success");
           fetchData();
           setQuickAddOpen(false);
       } catch (err) { alert("Failed to add"); }
@@ -275,7 +342,6 @@ export default function BudgetView() {
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
       const data = Object.fromEntries(formData.entries());
-      // Logic: Adding a pot allocation creates a recurring cost with category 'saving'
       data.parent_type = 'general';
       data.parent_id = 1;
       data.frequency = 'monthly';
@@ -287,6 +353,14 @@ export default function BudgetView() {
           fetchData();
           setPotAllocationOpen(false);
       } catch (err) { alert("Failed to add"); }
+  };
+
+  const deleteExpense = async (id) => {
+      if (!window.confirm("Remove this expense from recurring costs?")) return;
+      try {
+          await api.delete(`/households/${householdId}/costs/${id}`);
+          fetchData();
+      } catch (err) { console.error(err); }
   };
 
   const totals = useMemo(() => {
@@ -312,7 +386,7 @@ export default function BudgetView() {
   }
 
   return (
-    <Box>
+    <Box sx={{ userSelect: 'none' }}>
         <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, -1))}><ChevronLeft /></IconButton>
@@ -325,8 +399,9 @@ export default function BudgetView() {
                 <IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, 1))}><ChevronRight /></IconButton>
             </Box>
             <Box sx={{ display: 'flex', gap: 1 }}>
+                <Button variant="outlined" color="neutral" size="sm" onClick={() => setSelectedKeys([])}>Clear Selection</Button>
                 <Button variant="outlined" startDecorator={<SavingsIcon />} onClick={() => setPotAllocationOpen(true)}>Allocate Pot</Button>
-                <Button startDecorator={<Add />} onClick={() => setQuickAddOpen(true)}>Add Expense</Button>
+                <Button startDecorator={<Add />} onClick={() => setQuickAddOpen(true)}>Add One-off Expense</Button>
             </Box>
         </Box>
 
@@ -368,11 +443,20 @@ export default function BudgetView() {
                         <Typography level="body-xs" sx={{ opacity: 0.8 }}>
                             Balance minus remaining bills (£{totals.unpaid.toFixed(2)})
                         </Typography>
-                        <LinearProgress 
-                            determinate 
-                            value={Math.min((totals.paid / totals.total) * 100, 100)} 
-                            sx={{ mt: 2, height: 8, borderRadius: 4 }}
-                        />
+                        <Box sx={{ mt: 2 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                <Typography level="body-xs">Bill Progress</Typography>
+                                <Typography level="body-xs">{((totals.paid / totals.total) * 100).toFixed(0)}%</Typography>
+                            </Box>
+                            <LinearProgress determinate value={Math.min((totals.paid / totals.total) * 100, 100)} sx={{ height: 8, borderRadius: 4 }} />
+                        </Box>
+                        <Box sx={{ mt: 2 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                <Typography level="body-xs">Month Progress</Typography>
+                                <Typography level="body-xs">{cycleData.progressPct.toFixed(0)}%</Typography>
+                            </Box>
+                            <LinearProgress color="neutral" determinate value={cycleData.progressPct} sx={{ height: 8, borderRadius: 4, opacity: 0.5 }} />
+                        </Box>
                     </Card>
 
                     <Card variant="outlined" sx={{ p: 2 }}>
@@ -394,18 +478,27 @@ export default function BudgetView() {
                                 <th>Expense / Allocation</th>
                                 <th style={{ width: 80 }}>Day</th>
                                 <th style={{ width: 150 }}>Amount (£)</th>
+                                <th style={{ width: 48 }}></th>
                             </tr>
                         </thead>
                         <tbody>
-                            {cycleData.expenses
-                                .sort((a, b) => (a.day || 99) - (b.day || 99))
-                                .map((exp) => (
-                                <tr key={exp.key} style={exp.isPaid ? { opacity: 0.6, backgroundColor: 'var(--joy-palette-background-level1)' } : {}}>
+                            {cycleData.expenses.map((exp, index) => {
+                                const isSelected = selectedKeys.includes(exp.key);
+                                return (
+                                <tr 
+                                    key={exp.key} 
+                                    onClick={(e) => handleRowClick(e, index, exp.key)}
+                                    style={{ 
+                                        cursor: 'pointer',
+                                        backgroundColor: isSelected ? 'var(--joy-palette-primary-softBg)' : (exp.isPaid ? 'var(--joy-palette-background-level1)' : 'transparent'),
+                                        opacity: exp.isPaid && !isSelected ? 0.6 : 1
+                                    }}
+                                >
                                     <td>
                                         <Checkbox 
                                             size="lg"
                                             checked={exp.isPaid}
-                                            onChange={() => togglePaid(exp.key, exp.amount)}
+                                            onChange={(e) => { e.stopPropagation(); togglePaid(exp.key, exp.amount); }}
                                             disabled={savingProgress}
                                             uncheckedIcon={<RadioButtonUnchecked />}
                                             checkedIcon={<CheckCircle color="success" />}
@@ -413,7 +506,7 @@ export default function BudgetView() {
                                     </td>
                                     <td>
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                            <Avatar size="sm" sx={{ bgcolor: 'background.level2' }}>{exp.icon}</Avatar>
+                                            <Avatar size="sm" sx={{ bgcolor: isSelected ? 'primary.solidBg' : 'background.level2' }}>{exp.icon}</Avatar>
                                             <Box>
                                                 <Typography level="title-sm">{exp.label}</Typography>
                                                 <Typography level="body-xs" color="neutral">{exp.category.toUpperCase()}</Typography>
@@ -427,14 +520,22 @@ export default function BudgetView() {
                                             type="number"
                                             variant="soft"
                                             defaultValue={exp.amount}
+                                            onClick={(e) => e.stopPropagation()}
                                             onBlur={(e) => updateActualAmount(exp.key, e.target.value)}
                                             slotProps={{ input: { step: 'any' } }}
                                             sx={{ maxWidth: 100, ml: 'auto' }}
                                             endDecorator={exp.isPaid && <PriceCheck color="success" sx={{ fontSize: '1rem' }}/>}
                                         />
                                     </td>
+                                    <td>
+                                        {exp.isDeletable && (
+                                            <IconButton size="sm" color="danger" variant="plain" onClick={(e) => { e.stopPropagation(); deleteExpense(exp.id); }}>
+                                                <Delete fontSize="small" />
+                                            </IconButton>
+                                        )}
+                                    </td>
                                 </tr>
-                            ))}
+                            );})}
                         </tbody>
                     </Table>
                 </Sheet>
@@ -444,26 +545,15 @@ export default function BudgetView() {
         {/* MODALS */}
         <Modal open={quickAddOpen} onClose={() => setQuickAddOpen(false)}>
             <ModalDialog sx={{ maxWidth: 400, width: '100%' }}>
-                <DialogTitle>Quick Add Expense</DialogTitle>
+                <DialogTitle>Add One-off Expense</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleQuickAdd}>
                         <Stack spacing={2}>
                             <FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus /></FormControl>
                             <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: 'any' } }} /></FormControl>
-                            <FormControl required><FormLabel>Payment Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={new Date().getDate()} /></FormControl>
-                            <AppSelect 
-                                label="Category"
-                                name="category"
-                                defaultValue="other"
-                                options={[
-                                    { value: 'subscription', label: 'Subscription' },
-                                    { value: 'utility', label: 'Utility' },
-                                    { value: 'insurance', label: 'Insurance' },
-                                    { value: 'service', label: 'Warranty/Service' },
-                                    { value: 'other', label: 'Other' }
-                                ]}
-                            />
-                            <Button type="submit">Add to Budget</Button>
+                            <FormControl required><FormLabel>Due Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={new Date().getDate()} /></FormControl>
+                            <AppSelect label="Category" name="category" defaultValue="other" options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Warranty/Service' }, { value: 'other', label: 'Other' }]} />
+                            <Button type="submit">Add to Cycle</Button>
                         </Stack>
                     </form>
                 </DialogContent>

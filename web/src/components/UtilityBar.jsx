@@ -65,11 +65,18 @@ const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, showLabe
     );
 };
 
-export default function UtilityBar({ 
+export default function UtilityBar({
     user, api, dates, onDateAdded, onUpdateProfile, isDark, onLogout,
-    households = [], onSelectHousehold, onInstall, canInstall, confirmAction, activeHouseholdId
+    households = [], onSelectHousehold, onInstall, canInstall, confirmAction, activeHouseholdId,
+    statusBarData
 }) {
   const navigate = useNavigate();
+
+  const formatCurrency = (val) => {
+    const num = parseFloat(val) || 0;
+    return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
   const [activeWidget, setActiveWidget] = useState(null); 
   const [poppedOut, setPoppedOut] = useState({});
   const popoutRefs = useRef({});
@@ -96,11 +103,13 @@ export default function UtilityBar({
       if (poppedOut[widget]) {
           if (popoutRefs.current[widget] && !popoutRefs.current[widget].closed) {
               popoutRefs.current[widget].focus();
-          } else {
+          }
+          else {
               setPoppedOut(prev => ({ ...prev, [widget]: false }));
               setActiveWidget(widget);
           }
-      } else {
+      }
+      else {
           setActiveWidget(activeWidget === widget ? null : widget);
       }
   };
@@ -170,10 +179,31 @@ export default function UtilityBar({
         {/* Right Side: System Utilities */}
         <Box sx={{ flex: '0 0 auto', height: '100%', borderLeft: '1px solid', borderColor: 'divider', bgcolor: 'background.level1', display: 'flex', alignItems: 'center', px: 0 }}>
             
-            <Box sx={{ display: { xs: 'none', lg: 'flex' }, alignItems: 'center', gap: 0.5, opacity: 0.7, px: 1.5 }}>
-                <Wifi fontSize="small" color="success" />
-                <Typography level="body-xs">Online</Typography>
-            </Box>
+                        {statusBarData && (
+            
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 2, borderRight: '1px solid', borderColor: 'divider' }}>
+            
+                                <Typography level="body-xs" fontWeight="bold">Selected: {statusBarData.count}</Typography>
+            
+                                <Typography level="body-xs">Total: <b>{formatCurrency(statusBarData.total)}</b></Typography>
+            
+                                <Typography level="body-xs" color="success">Paid: <b>{formatCurrency(statusBarData.paid)}</b></Typography>
+            
+                                <Typography level="body-xs" color="danger">Unpaid: <b>{formatCurrency(statusBarData.unpaid)}</b></Typography>
+            
+                            </Box>
+            
+                        )}
+            
+            
+            
+                        <Box sx={{ display: { xs: 'none', lg: 'flex' }, alignItems: 'center', gap: 0.5, opacity: 0.7, px: 1.5 }}>
+            
+                            <Wifi fontSize="small" color="success" />
+            
+                            <Typography level="body-xs">Online</Typography>
+            
+                        </Box>
             
             {canInstall && (
                 <Tooltip title="Install App" variant="soft">
