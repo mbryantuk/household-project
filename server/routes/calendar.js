@@ -115,8 +115,15 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
 
                 for (let i = -1; i < 12; i++) {
                     let eventDate = new Date(now.getFullYear(), now.getMonth() + i, day);
+                    
+                    let logic = workdayLogic;
+                    if (workdayLogic === 'dynamic') {
+                        // If nearest_working_day is true (1), use 'prior', else default to 'next'
+                        logic = item.nearest_working_day ? 'prior' : 'next';
+                    }
+
                     // workdayLogic: 'next' for bills, 'prior' for income
-                    eventDate = workdayLogic === 'next' 
+                    eventDate = logic === 'next' 
                         ? getNextWorkingDay(eventDate, holidays)
                         : getPriorWorkingDay(eventDate, holidays);
                     
@@ -140,7 +147,7 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             'cost', 
             c => '💸', 
             c => `Recurring cost: £${c.amount}`,
-            'next'
+            'dynamic'
         );
 
         // 2. Income (Paydays)

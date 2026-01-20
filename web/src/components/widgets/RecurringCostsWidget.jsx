@@ -5,20 +5,26 @@ import {
   Select, Option, Stack, Table, Sheet, Chip, CircularProgress, Switch, Textarea
 } from '@mui/joy';
 import { Add, Edit, Delete, ReceiptLong } from '@mui/icons-material';
+import { format, addMonths, setDate, isWeekend, startOfDay, isBefore, subDays, addDays, isSameDay } from 'date-fns';
 
 export default function RecurringCostsWidget({ api, householdId, parentType, parentId, showNotification, isAdmin }) {
   const [costs, setCosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editItem, setEditItem] = useState(null);
   const [isNearestWorkingDay, setIsNearestWorkingDay] = useState(false);
+  const [holidays, setHolidays] = useState([]);
 
   const fetchCosts = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.get(`/households/${householdId}/costs`);
+      const [res, holRes] = await Promise.all([
+          api.get(`/households/${householdId}/costs`),
+          api.get('/system/holidays')
+      ]);
       // Filter for this specific parent
       const filtered = (res.data || []).filter(c => c.parent_type === parentType && c.parent_id === parseInt(parentId));
       setCosts(filtered);
+      setHolidays(holRes.data || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -35,6 +41,26 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
       setIsNearestWorkingDay(Boolean(editItem.nearest_working_day));
     }
   }, [editItem]);
+
+  const getNextPaymentDate = (day, isPriorMode) => {
+      if (!day) return null;
+      const today = startOfDay(new Date());
+      let date = setDate(today, parseInt(day));
+
+      if (isBefore(date, today)) {
+          date = addMonths(date, 1);
+      }
+
+      // Adjust for weekends/holidays
+      const isNonWorking = (d) => isWeekend(d) || holidays.includes(format(d, 'yyyy-MM-dd'));
+      
+      if (isNonWorking(date)) {
+          while (isNonWorking(date)) {
+              date = isPriorMode ? subDays(date, 1) : addDays(date, 1);
+          }
+      }
+      return date;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -97,13 +123,20 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
                     </tr>
                 </thead>
                 <tbody>
-                    {costs.map((row) => (
+                    {costs.map((row) => {
+                        const nextDate = getNextPaymentDate(row.payment_day, row.nearest_working_day);
+                        return (
                         <tr key={row.id}>
                             <td>{row.name}</td>
-                            <td>£{row.amount}</td>
+                            <td>£{parseFloat(row.amount).toFixed(2)}</td>
                             <td>
                                 <Chip size="sm" variant="outlined">{row.frequency}</Chip>
-                                {row.payment_day && <Typography level="body-xs" display="block">Day: {row.payment_day} {row.nearest_working_day ? '(NWD)' : ''}</Typography>}
+                                {row.payment_day && (
+                                    <Box>
+                                        <Typography level="body-xs">Day: {row.payment_day} {row.nearest_working_day ? '(Prior)' : '(Next)'}</Typography>
+                                        <Typography level="body-xs" color="primary">Next: {nextDate ? format(nextDate, 'EEE do MMM') : '-'}</Typography>
+                                    </Box>
+                                )}
                             </td>
                             {isAdmin && (
                                 <td style={{ textAlign: 'right' }}>
@@ -112,7 +145,7 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
                                 </td>
                             )}
                         </tr>
-                    ))}
+                    );})}
                 </tbody>
             </Table>
         </Sheet>
@@ -130,7 +163,7 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
                         </FormControl>
                         <FormControl required>
                             <FormLabel>Amount (£)</FormLabel>
-                            <Input name="amount" type="number" defaultValue={editItem?.amount} />
+                            <Input name="amount" type="number" step="0.01" defaultValue={editItem?.amount} />
                         </FormControl>
                         <FormControl>
                             <FormLabel>Frequency</FormLabel>
