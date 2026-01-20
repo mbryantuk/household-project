@@ -78,9 +78,9 @@ You must structure your response in exactly **4 PHASES**.
 * Output Markdown blocks for `README.md` or API updates.
 
 ### Phase 4: Deployment & Verification
-* **Mandatory Action:** Execute the standard deployment script.
+* **Mandatory Action:** Execute the standard deployment script with a descriptive commit message.
     ```bash
-    ./scripts/deploy/deploy_verify.sh
+    ./scripts/deploy/deploy_verify.sh "Descriptive message about the changes"
     ```
 * **Constraint:** Do NOT run individual docker/git commands manually. Use the script.
 
