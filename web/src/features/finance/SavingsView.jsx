@@ -26,14 +26,23 @@ export default function SavingsView() {
   const [assignItem, setAssignItem] = useState(null);
   const [emojiPicker, setEmojiPicker] = useState({ open: false, type: null }); // type: 'account' | 'pot'
   const [selectedEmoji, setSelectedEmoji] = useState(null);
+  const [selectedMembers, setSelectedMembers] = useState([]);
 
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'member';
 
-  // Update selected emoji when opening modals
+  // Update selected emoji and members when opening modals
   useEffect(() => {
-      if (editAccount) setSelectedEmoji(editAccount.emoji || '💰');
-      else if (editPot) setSelectedEmoji(editPot.pot?.emoji || '🎯');
-  }, [editAccount, editPot]);
+      if (editAccount) {
+          setSelectedEmoji(editAccount.emoji || '💰');
+          const currentAssignees = getAssignees(editAccount.id).map(m => m.id);
+          setSelectedMembers(currentAssignees);
+      } else if (editPot) {
+          setSelectedEmoji(editPot.pot?.emoji || '🎯');
+      } else if (isNewAccount) {
+          setSelectedEmoji('💰');
+          setSelectedMembers([currentUser?.id].filter(Boolean));
+      }
+  }, [editAccount, editPot, isNewAccount]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -76,14 +85,29 @@ export default function SavingsView() {
     const data = Object.fromEntries(formData.entries());
     
     try {
+      let accountId = editAccount?.id;
       if (isNewAccount) {
-        await api.post(`/households/${householdId}/finance/savings`, data);
+        const res = await api.post(`/households/${householdId}/finance/savings`, data);
+        accountId = res.data.id;
       } else {
-        await api.put(`/households/${householdId}/finance/savings/${editAccount.id}`, data);
+        await api.put(`/households/${householdId}/finance/savings/${accountId}`, data);
       }
+
+      // Handle Assignments
+      const currentIds = isNewAccount ? [] : getAssignees(accountId).map(m => m.id);
+      const toAdd = selectedMembers.filter(id => !currentIds.includes(id));
+      await Promise.all(toAdd.map(mid => api.post(`/households/${householdId}/finance/assignments`, {
+          entity_type: 'finance_savings', entity_id: accountId, member_id: mid
+      })));
+
+      const toRemove = currentIds.filter(id => !selectedMembers.includes(id));
+      await Promise.all(toRemove.map(mid => api.delete(`/households/${householdId}/finance/assignments/finance_savings/${accountId}/${mid}`)));
+
       fetchData();
       setEditAccount(null);
-    } catch (err) { alert("Failed to save account"); }
+    } catch (err) { 
+        alert("Failed to save account: " + err.message); 
+    }
   };
 
   const handleAccountDelete = async (id) => {
