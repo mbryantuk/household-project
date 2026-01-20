@@ -375,7 +375,21 @@ export default function MortgagesView() {
                                         <Grid xs={12} sm={6} md={4}><FormControl required><FormLabel>Interest Rate (%)</FormLabel><Input name="interest_rate" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.interest_rate} /></FormControl></Grid>
                                         <Grid xs={12} sm={6} md={4}><FormControl required><FormLabel>Monthly Payment (£)</FormLabel><Input name="monthly_payment" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.monthly_payment} /></FormControl></Grid>
                                         <Grid xs={12} sm={6} md={4}><FormControl><FormLabel>Fixed Rate Expiry</FormLabel><Input name="fixed_rate_expiry" type="date" defaultValue={editItem?.fixed_rate_expiry} /></FormControl></Grid>
-                                        <Grid xs={12} sm={6} md={4}><FormControl><FormLabel>Payment Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} placeholder="e.g. 1" /></FormControl></Grid>
+                                                                <Grid xs={6}>
+                                                                    <FormControl required>
+                                                                        <FormLabel>Payment Day</FormLabel>
+                                                                        <Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} />
+                                                                    </FormControl>
+                                                                </Grid>
+                                                                <Grid xs={6} sx={{ display: 'flex', alignItems: 'center' }}>
+                                                                    <Checkbox 
+                                                                        label="Nearest Working Day (Next)" 
+                                                                        name="nearest_working_day"
+                                                                        defaultChecked={editItem?.nearest_working_day !== 0}
+                                                                        value="1"
+                                                                        sx={{ mt: 3 }}
+                                                                    />
+                                                                </Grid>
                                     </Grid>
                                     <Divider><Chip variant="soft" size="sm">REMAINING TERM</Chip></Divider>
                                     <Grid container spacing={2}>

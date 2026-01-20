@@ -236,6 +236,14 @@ export default function PensionsView() {
                                         <Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} placeholder="e.g. 1" />
                                     </FormControl>
                                 </Grid>
+                                <Grid xs={12}>
+                                    <Checkbox 
+                                        label="Nearest Working Day (Next)" 
+                                        name="nearest_working_day"
+                                        defaultChecked={editItem?.nearest_working_day !== 0}
+                                        value="1"
+                                    />
+                                </Grid>
                             </Grid>
                             <FormControl>
                                 <FormLabel>Emoji</FormLabel>

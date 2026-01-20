@@ -230,9 +230,21 @@ export default function AgreementsView({ isSubscriptions = false }) {
                                         <Input name="monthly_payment" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.monthly_payment} />
                                     </FormControl>
                                 </Grid>
-                                <Grid xs={6}>
-                                    <FormControl required><FormLabel>Payment Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} /></FormControl>
-                                </Grid>
+                        <Grid xs={6}>
+                            <FormControl>
+                                <FormLabel>Payment Day</FormLabel>
+                                <Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={6} sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Checkbox 
+                                label="Nearest Working Day (Next)" 
+                                name="nearest_working_day"
+                                defaultChecked={editItem?.nearest_working_day !== 0}
+                                value="1"
+                                sx={{ mt: 3 }}
+                            />
+                        </Grid>
                             </Grid>
 
                             {!isSubscriptions && (

@@ -8,6 +8,7 @@ export default function CouncilView() {
     { name: 'payment_method', label: 'Payment Method', half: true },
     { name: 'monthly_amount', label: 'Monthly Amount', type: 'number', half: true },
     { name: 'payment_day', label: 'Payment Day of Month', type: 'number', half: true },
+    { name: 'nearest_working_day', label: 'Nearest Working Day (Next)', type: 'checkbox', half: true },
     { name: 'color', label: 'Display Color (Hex)', half: true },
     { name: 'notes', label: 'Notes', multiline: true, rows: 3 }
   ];

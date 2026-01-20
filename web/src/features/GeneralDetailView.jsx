@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Grid, Input, Button, CircularProgress, 
-  Divider, Tooltip, IconButton, FormControl, FormLabel, Textarea
+  Divider, Tooltip, IconButton, FormControl, FormLabel, Textarea, Checkbox
 } from '@mui/joy';
 import { Save } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
@@ -78,6 +78,16 @@ export default function GeneralDetailView({ title, icon: defaultIcon, endpoint, 
           <Grid container spacing={3}>
             {fields.map(field => (
               <Grid xs={12} md={field.half ? 6 : 12} key={field.name}>
+                {field.type === 'checkbox' ? (
+                    <Checkbox 
+                        label={field.label} 
+                        name={field.name}
+                        defaultChecked={data[field.name] !== 0}
+                        value="1"
+                        disabled={!isAdmin || saving}
+                        sx={{ mt: 3 }}
+                    />
+                ) : (
                 <FormControl>
                     <FormLabel>{field.label}</FormLabel>
                     {field.multiline ? (
@@ -97,6 +107,7 @@ export default function GeneralDetailView({ title, icon: defaultIcon, endpoint, 
                         />
                     )}
                 </FormControl>
+                )}
               </Grid>
             ))}
             

@@ -213,9 +213,21 @@ export default function CreditCardsView() {
                                         <Input name="apr" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.apr} />
                                     </FormControl>
                                 </Grid>
-                                <Grid xs={6}>
-                                    <FormControl><FormLabel>Payment Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} /></FormControl>
-                                </Grid>
+                        <Grid xs={12} sm={6} md={3}>
+                            <FormControl required>
+                                <FormLabel>Payment Day</FormLabel>
+                                <Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} placeholder="e.g. 25" />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} sm={6} md={3}>
+                            <Checkbox 
+                                label="Nearest Working Day (Next)" 
+                                name="nearest_working_day"
+                                defaultChecked={editItem?.nearest_working_day !== 0}
+                                value="1"
+                                sx={{ mt: 4 }}
+                            />
+                        </Grid>
                             </Grid>
                             <FormControl><FormLabel>Emoji</FormLabel>
                                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>

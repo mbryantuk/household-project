@@ -177,6 +177,26 @@ export default function EnergyView() {
                                 <Input name="payment_method" defaultValue={editAccount?.payment_method} />
                             </FormControl>
                         </Grid>
+                        <Grid xs={12} md={3}>
+                            <FormControl>
+                                <FormLabel>Monthly Amount (£)</FormLabel>
+                                <Input name="monthly_amount" type="number" step="0.01" defaultValue={editAccount?.monthly_amount} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} md={3}>
+                            <FormControl>
+                                <FormLabel>Payment Day</FormLabel>
+                                <Input name="payment_day" type="number" min="1" max="31" defaultValue={editAccount?.payment_day} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12}>
+                            <Checkbox 
+                                label="Nearest Working Day (Next)" 
+                                name="nearest_working_day"
+                                defaultChecked={editAccount?.nearest_working_day !== 0}
+                                value="1"
+                            />
+                        </Grid>
                         
                         <Grid xs={12}><Divider>Electric Meter Info</Divider></Grid>
                         <Grid xs={12} md={6}>
