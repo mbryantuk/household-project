@@ -487,30 +487,26 @@ export default function BudgetView() {
                         </Stack>
                     </Card>
 
-                    <Card variant="outlined" sx={{ p: 3 }}>
-                        <Typography level="title-lg" sx={{ mb: 2 }} startDecorator={<PieChart />}>Summary</Typography>
-                        <Stack spacing={1}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <Typography level="body-sm">Cycle Total</Typography>
-                                <Typography level="body-sm" fontWeight="bold">{formatCurrency(totals.total)}</Typography>
-                            </Box>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <Typography level="body-sm" color="success">Paid</Typography>
-                                <Typography level="body-sm" fontWeight="bold" color="success">{formatCurrency(totals.paid)}</Typography>
-                            </Box>
-                             <Divider />
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <Typography level="body-md">Remaining</Typography>
-                                <Typography level="title-md" color={totals.unpaid > 0 ? "warning" : "neutral"}>{formatCurrency(totals.unpaid)}</Typography>
-                            </Box>
-                        </Stack>
-                    </Card>
-
                     <Card variant="solid" color={trueDisposable < 0 ? 'danger' : 'primary'} invertedColors sx={{ p: 3 }}>
                         <Typography level="title-md">True Disposable</Typography>
                         <Typography level="h1">{formatCurrency(trueDisposable)}</Typography>
-                        <Typography level="body-xs">Balance minus remaining bills</Typography>
-                        <LinearProgress determinate value={Math.min((cycleData.expenses.filter(e => e.isPaid).length / cycleData.expenses.length) * 100, 100)} sx={{ mt: 2, height: 8, borderRadius: 4 }} />
+                        <Typography level="body-xs">Balance ({formatCurrency(parseFloat(currentBalance) || 0)}) - Unpaid Bills ({formatCurrency(totals.unpaid)})</Typography>
+                        
+                        <Box sx={{ mt: 3 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                <Typography level="body-xs">Cycle Progress</Typography>
+                                <Typography level="body-xs">{Math.round((totals.paid / (totals.total || 1)) * 100)}%</Typography>
+                            </Box>
+                            <LinearProgress 
+                                determinate 
+                                value={(totals.paid / (totals.total || 1)) * 100} 
+                                thickness={8}
+                                sx={{ borderRadius: 4, bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }} 
+                            />
+                            <Typography level="body-xs" sx={{ mt: 1, textAlign: 'right' }}>
+                                <b>{formatCurrency(totals.unpaid)}</b> left to pay
+                            </Typography>
+                        </Box>
                     </Card>
                 </Stack>
             </Grid>
