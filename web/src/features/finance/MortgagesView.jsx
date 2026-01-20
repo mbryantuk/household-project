@@ -6,7 +6,7 @@ import {
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
   AvatarGroup, LinearProgress, Table, Sheet, Dropdown, Menu, MenuButton, MenuItem
 } from '@mui/joy';
-import { Edit, Delete, Add, GroupAdd, Home, InfoOutlined, ArrowDropDown, LocationOn, TrendingUp, Sell } from '@mui/icons-material';
+import { Edit, Delete, Add, GroupAdd, Home, InfoOutlined, ArrowDropDown, LocationOn, TrendingUp, Sell, AccountBalanceWallet } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import AppSelect from '../../components/ui/AppSelect';
@@ -133,9 +133,8 @@ export default function MortgagesView() {
       const start = new Date(startDate);
       const baseYear = start.getFullYear();
       const now = new Date();
-      // A HtB year runs April to April. Check if we are past April this year.
       const currentYear = now.getFullYear();
-      const currentMonth = now.getMonth(); // 0-indexed, so 3 is April
+      const currentMonth = now.getMonth();
       const taxYearStart = currentMonth >= 3 ? currentYear : currentYear - 1;
 
       const projections = [];
@@ -143,6 +142,8 @@ export default function MortgagesView() {
       const rpiPlusOne = (parseFloat(rpiRate) || 4.0) + 1.0;
 
       let runningRate = 1.75;
+      let totalPaidSoFar = 0;
+      let totalProjectedLife = 0;
 
       for (let yearNum = 1; yearNum <= 25; yearNum++) {
           const periodStart = baseYear + yearNum - 1;
@@ -167,6 +168,11 @@ export default function MortgagesView() {
               status = periodStart < taxYearStart ? "Paid" : (periodStart === taxYearStart ? "Active" : "Forecast");
           }
 
+          if (periodStart < taxYearStart || periodStart === taxYearStart) {
+              totalPaidSoFar += annualCost;
+          }
+          totalProjectedLife += annualCost;
+
           if (periodStart === taxYearStart) status = "YOU ARE HERE";
           if (yearNum === 25) status = "Final Year";
 
@@ -179,7 +185,7 @@ export default function MortgagesView() {
               isCurrent: periodStart === taxYearStart
           });
       }
-      return projections;
+      return { projections, totalPaidSoFar, totalProjectedLife };
   };
 
   const properties = [
@@ -255,7 +261,7 @@ export default function MortgagesView() {
                                 const currentRedemption = (prop.valuation * (sharePercent / 100));
                                 
                                 const progress = !isEquityType && (parseFloat(mort.total_amount) || 0) > 0 ? ((parseFloat(mort.total_amount) - main) / parseFloat(mort.total_amount)) * 100 : 0;
-                                const h2bProjections = isEquityType ? calculateH2BProjections(mort.equity_loan_amount, mort.equity_loan_start_date, mort.equity_loan_cpi_rate) : null;
+                                const h2bData = isEquityType ? calculateH2BProjections(mort.equity_loan_amount, mort.equity_loan_start_date, mort.equity_loan_cpi_rate) : null;
 
                                 return (
                                     <Grid xs={12} lg={isEquityType ? 12 : 6} key={mort.id}>
@@ -285,21 +291,28 @@ export default function MortgagesView() {
                                                     </Grid>
 
                                                     {isEquityType && (
-                                                        <Sheet variant="soft" color="warning" sx={{ mt: 2, p: 1.5, borderRadius: 'sm' }}>
-                                                            <Typography level="title-sm" startDecorator={<Sell />}>Redemption Scenario</Typography>
-                                                            <Typography level="body-xs">Based on {formatCurrency(prop.valuation)} valuation, the government's share is <b>{formatCurrency(currentRedemption)}</b>.</Typography>
-                                                        </Sheet>
+                                                        <Stack spacing={1} mt={2}>
+                                                            <Sheet variant="soft" color="warning" sx={{ p: 1.5, borderRadius: 'sm' }}>
+                                                                <Typography level="title-sm" startDecorator={<Sell />}>Redemption Scenario</Typography>
+                                                                <Typography level="body-xs">Based on {formatCurrency(prop.valuation)} valuation, the government's share is <b>{formatCurrency(currentRedemption)}</b>.</Typography>
+                                                            </Sheet>
+                                                            <Sheet variant="soft" color="neutral" sx={{ p: 1.5, borderRadius: 'sm' }}>
+                                                                <Typography level="title-sm" startDecorator={<AccountBalanceWallet />}>Interest Paid</Typography>
+                                                                <Typography level="body-xs">To date (approx): <b>{formatCurrency(h2bData?.totalPaidSoFar)}</b></Typography>
+                                                                <Typography level="body-xs" color="neutral">Projected 25y total: {formatCurrency(h2bData?.totalProjectedLife)}</Typography>
+                                                            </Sheet>
+                                                        </Stack>
                                                     )}
                                                 </Grid>
 
-                                                {isEquityType && h2bProjections && (
+                                                {isEquityType && h2bData && (
                                                     <Grid xs={12} md={8}>
                                                         <Sheet variant="outlined" sx={{ p: 1, borderRadius: 'sm', height: '100%', maxHeight: 350, overflowY: 'auto' }}>
                                                             <Typography level="title-sm" sx={{ mb: 1, position: 'sticky', top: 0, bgcolor: 'background.surface', zIndex: 1 }} startDecorator={<TrendingUp />}>25-Year Interest Breakdown (RPI + 1%)</Typography>
                                                             <Table size="sm" stickyHeader sx={{ '--TableCell-paddingX': '8px' }}>
                                                                 <thead><tr><th>Year</th><th>Period</th><th>Rate</th><th>Monthly</th><th>Annual</th><th>Status</th></tr></thead>
                                                                 <tbody>
-                                                                    {h2bProjections.map((p, idx) => (
+                                                                    {h2bData.projections.map((p, idx) => (
                                                                         <tr key={idx} style={p.isCurrent ? { backgroundColor: 'var(--joy-palette-warning-softBg)' } : {}}>
                                                                             <td>{p.year}</td><td style={{ whiteSpace: 'nowrap' }}>{p.period}</td><td>{p.rate}</td><td>{formatCurrency(p.fee/12)}</td><td>{formatCurrency(p.fee)}</td>
                                                                             <td>
