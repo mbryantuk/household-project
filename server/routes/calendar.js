@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getHouseholdDb } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
-const { getBankHolidays, getPriorWorkingDay } = require('../services/bankHolidays');
+const { getBankHolidays, getPriorWorkingDay, getNextWorkingDay } = require('../services/bankHolidays');
 
 // Middleware to init DB and Table
 const useTenantDb = (req, res, next) => {
@@ -66,7 +66,7 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
         const combined = [...dates];
 
         // Helper to generate 12 months of events
-        const generateMonthlyEvents = (items, dayField, titleFn, type, emojiFn, descFn) => {
+        const generateMonthlyEvents = (items, dayField, titleFn, type, emojiFn, descFn, workdayLogic = 'next') => {
             items.forEach(item => {
                 if (!item[dayField]) return;
                 const day = parseInt(item[dayField]);
@@ -74,8 +74,10 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
 
                 for (let i = -1; i < 12; i++) {
                     let eventDate = new Date(now.getFullYear(), now.getMonth() + i, day);
-                    // Shift to previous working day if weekend/holiday
-                    eventDate = getPriorWorkingDay(eventDate, holidays);
+                    // workdayLogic: 'next' for bills, 'prior' for income
+                    eventDate = workdayLogic === 'next' 
+                        ? getNextWorkingDay(eventDate, holidays)
+                        : getPriorWorkingDay(eventDate, holidays);
                     
                     combined.push({
                         id: `${type}_${item.id || item.household_id}_${i}`,
@@ -96,7 +98,8 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             c => `💸 ${c.name}`, 
             'cost', 
             c => '💸', 
-            c => `Recurring cost: £${c.amount}`
+            c => `Recurring cost: £${c.amount}`,
+            'next'
         );
 
         // 2. Income (Paydays)
@@ -104,7 +107,8 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             inc => `💰 Payday: ${inc.employer}`, 
             'income', 
             inc => inc.emoji || '💰', 
-            inc => `Net Pay: £${inc.amount}`
+            inc => `Net Pay: £${inc.amount}`,
+            'prior'
         );
 
         // 3. Credit Cards
@@ -112,7 +116,8 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             cc => `💳 ${cc.card_name} Bill`, 
             'bill', 
             cc => cc.emoji || '💳', 
-            cc => `${cc.provider} Credit Card Bill`
+            cc => `${cc.provider} Credit Card Bill`,
+            'next'
         );
 
         // 4. Utilities (Water, Council, Energy)
@@ -142,44 +147,52 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             m => `🏠 ${m.lender} Payment`, 
             'bill', 
             m => m.emoji || '🏠', 
-            m => `${m.mortgage_type === 'equity' ? 'Equity Loan' : 'Mortgage'} Payment: £${m.monthly_payment}`
+            m => `${m.mortgage_type === 'equity' ? 'Equity Loan' : 'Mortgage'} Payment: £${m.monthly_payment}`,
+            'next'
         );
 
         generateMonthlyEvents(loans, 'payment_day', 
             l => `💰 ${l.lender} Loan Payment`, 
             'bill', 
             l => l.emoji || '💰', 
-            l => `Loan Payment: £${l.monthly_payment}`
+            l => `Loan Payment: £${l.monthly_payment}`,
+            'next'
         );
 
         generateMonthlyEvents(agreements, 'payment_day', 
             a => `📄 ${a.agreement_name} Payment`, 
             'bill', 
             a => a.emoji || '📄', 
-            a => `Agreement Payment (${a.provider}): £${a.monthly_payment}`
+            a => `Agreement Payment (${a.provider}): £${a.monthly_payment}`,
+            'next'
         );
 
         generateMonthlyEvents(vehicleFinance, 'payment_day', 
             v => `🚗 Vehicle Finance: ${v.provider}`, 
             'bill', 
             v => v.emoji || '🚗', 
-            v => `Vehicle Finance Payment: £${v.monthly_payment}`
+            v => `Vehicle Finance Payment: £${v.monthly_payment}`,
+            'next'
         );
 
         // 7. Savings & Investments (Recurring Deposits)
+        // These are effectively "bills" from the current account perspective (outgoing)
         generateMonthlyEvents(savings, 'deposit_day', 
             s => `🎯 Saving: ${s.institution}`, 
             'saving', 
             s => s.emoji || '🎯', 
-            s => `Monthly Deposit: £${s.deposit_amount}`
+            s => `Monthly Deposit: £${s.deposit_amount}`,
+            'next'
         );
 
         generateMonthlyEvents(investments, 'deposit_day', 
             i => `📈 Investment: ${i.name}`, 
             'saving', 
             i => i.emoji || '📈', 
-            i => `Monthly Deposit: £${i.deposit_amount}`
+            i => `Monthly Deposit: £${i.deposit_amount}`,
+            'next'
         );
+
 
         // 5. Bank Holidays
         holidays.forEach(hDate => {
