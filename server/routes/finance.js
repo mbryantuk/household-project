@@ -308,6 +308,7 @@ const handleUnassignMember = (req, res) => {
         function(err) {
             closeDb(req);
             if (err) return res.status(500).json({ error: err.message });
+            if (this.changes === 0) return res.status(404).json({ error: "Assignment not found" });
             res.json({ message: "Unassigned" });
         }
     );
@@ -317,10 +318,15 @@ const handleGetAssignments = (req, res) => {
     let sql = "SELECT * FROM finance_assignments WHERE household_id = ?";
     let params = [req.hhId];
     
-    if (req.query.entity_type && req.query.entity_id) {
-        sql += " AND entity_type = ? AND entity_id = ?";
-        params.push(req.query.entity_type, req.query.entity_id);
-    } else if (req.query.member_id) {
+    if (req.query.entity_type) {
+        sql += " AND entity_type = ?";
+        params.push(req.query.entity_type);
+    }
+    if (req.query.entity_id) {
+        sql += " AND entity_id = ?";
+        params.push(req.query.entity_id);
+    }
+    if (req.query.member_id) {
         sql += " AND member_id = ?";
         params.push(req.query.member_id);
     }

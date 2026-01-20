@@ -231,6 +231,25 @@ describe('Feature: Expanded Financial Management', () => {
              expect(res.body[0].member_id).toBe(memberId);
         });
 
+        it('should list assignments filtering only by entity_type', async () => {
+             // Create another assignment of a different type to ensure filtering works
+             // reusing memberId
+             const sRes = await request(app).post(`/households/${householdId}/finance/savings`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({ institution: 'TestBank', account_name: 'TestSavings', current_balance: 0 });
+             const savingsId = sRes.body.id;
+
+             await request(app).post(`/households/${householdId}/finance/assignments`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({ entity_type: 'finance_savings', entity_id: savingsId, member_id: memberId });
+
+             const res = await request(app).get(`/households/${householdId}/finance/assignments?entity_type=finance_savings`)
+                .set('Authorization', `Bearer ${token}`);
+             
+             expect(res.body.length).toBeGreaterThanOrEqual(1);
+             expect(res.body.every(a => a.entity_type === 'finance_savings')).toBe(true);
+        });
+
         it('should unassign member', async () => {
              const res = await request(app).delete(`/households/${householdId}/finance/assignments/current_account/${accountId}/${memberId}`)
                 .set('Authorization', `Bearer ${token}`);
