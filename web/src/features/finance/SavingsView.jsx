@@ -316,9 +316,23 @@ export default function SavingsView() {
                                 <Input name="emoji" defaultValue={editAccount?.emoji} placeholder="💰" />
                             </FormControl>
                         </Stack>
-                        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                            <Button variant="plain" color="neutral" onClick={() => setEditAccount(null)}>Cancel</Button>
-                            <Button type="submit">Save</Button>
+                        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            {!isNewAccount && (
+                                <Button 
+                                    color="danger" 
+                                    variant="soft" 
+                                    onClick={() => {
+                                        handleAccountDelete(editAccount.id);
+                                        setEditAccount(null);
+                                    }}
+                                >
+                                    Delete
+                                </Button>
+                            )}
+                            <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
+                                <Button variant="plain" color="neutral" onClick={() => setEditAccount(null)}>Cancel</Button>
+                                <Button type="submit">Save</Button>
+                            </Box>
                         </Box>
                     </form>
                 </DialogContent>
