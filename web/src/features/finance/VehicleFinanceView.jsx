@@ -212,16 +212,24 @@ export default function VehicleFinanceView() {
                             <FormControl><FormLabel>Account Number</FormLabel><Input name="account_number" defaultValue={editItem?.account_number} /></FormControl>
                             <Grid container spacing={2}>
                                 <Grid xs={6}>
-                                    <FormControl required><FormLabel>Total Amount (£)</FormLabel><Input name="total_amount" type="number" step="any" defaultValue={editItem?.total_amount} /></FormControl>
+                                    <FormControl required><FormLabel>Total Amount (£)</FormLabel>
+                                        <Input name="total_amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.total_amount} />
+                                    </FormControl>
                                 </Grid>
                                 <Grid xs={6}>
-                                    <FormControl required><FormLabel>Remaining Balance (£)</FormLabel><Input name="remaining_balance" type="number" step="any" defaultValue={editItem?.remaining_balance} /></FormControl>
+                                    <FormControl required><FormLabel>Remaining Balance (£)</FormLabel>
+                                        <Input name="remaining_balance" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.remaining_balance} />
+                                    </FormControl>
                                 </Grid>
                                 <Grid xs={6}>
-                                    <FormControl><FormLabel>Interest Rate (%)</FormLabel><Input name="interest_rate" type="number" step="any" defaultValue={editItem?.interest_rate} /></FormControl>
+                                    <FormControl><FormLabel>Interest Rate (%)</FormLabel>
+                                        <Input name="interest_rate" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.interest_rate} />
+                                    </FormControl>
                                 </Grid>
                                 <Grid xs={6}>
-                                    <FormControl><FormLabel>Monthly Payment (£)</FormLabel><Input name="monthly_payment" type="number" step="any" defaultValue={editItem?.monthly_payment} /></FormControl>
+                                    <FormControl><FormLabel>Monthly Payment (£)</FormLabel>
+                                        <Input name="monthly_payment" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.monthly_payment} />
+                                    </FormControl>
                                 </Grid>
                                 <Grid xs={6}>
                                     <FormControl><FormLabel>Start Date</FormLabel><Input name="start_date" type="date" defaultValue={editItem?.start_date} /></FormControl>

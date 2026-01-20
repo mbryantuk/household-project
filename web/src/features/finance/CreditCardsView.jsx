@@ -199,13 +199,19 @@ export default function CreditCardsView() {
                             <FormControl><FormLabel>Account Number</FormLabel><Input name="account_number" defaultValue={editItem?.account_number} /></FormControl>
                             <Grid container spacing={2}>
                                 <Grid xs={6}>
-                                    <FormControl required><FormLabel>Credit Limit (£)</FormLabel><Input name="credit_limit" type="number" step="0.01" defaultValue={editItem?.credit_limit} /></FormControl>
+                                    <FormControl required><FormLabel>Credit Limit (£)</FormLabel>
+                                        <Input name="credit_limit" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.credit_limit} />
+                                    </FormControl>
                                 </Grid>
                                 <Grid xs={6}>
-                                    <FormControl required><FormLabel>Current Balance (£)</FormLabel><Input name="current_balance" type="number" step="0.01" defaultValue={editItem?.current_balance} /></FormControl>
+                                    <FormControl required><FormLabel>Current Balance (£)</FormLabel>
+                                        <Input name="current_balance" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.current_balance} />
+                                    </FormControl>
                                 </Grid>
                                 <Grid xs={6}>
-                                    <FormControl><FormLabel>APR (%)</FormLabel><Input name="apr" type="number" step="0.01" defaultValue={editItem?.apr} /></FormControl>
+                                    <FormControl><FormLabel>APR (%)</FormLabel>
+                                        <Input name="apr" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.apr} />
+                                    </FormControl>
                                 </Grid>
                                 <Grid xs={6}>
                                     <FormControl><FormLabel>Payment Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} /></FormControl>
