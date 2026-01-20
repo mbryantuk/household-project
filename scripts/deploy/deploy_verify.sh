@@ -6,17 +6,12 @@ set -e
 
 # 0. Prepare Commit Message
 if [ -z "$1" ]; then
-  # Check if running interactively
-  if [ -t 0 ]; then
-    echo "📝 No commit message provided."
-    read -p "   Enter description (default: 'Deployment'): " USER_MSG
-    COMMIT_SUFFIX="${USER_MSG:-Deployment}"
-  else
-    COMMIT_SUFFIX="Deployment"
-  fi
-else
-  COMMIT_SUFFIX="$1"
+  echo "❌ Error: No commit message provided."
+  echo "Usage: ./deploy_verify.sh \"your commit message\""
+  exit 1
 fi
+
+COMMIT_SUFFIX="$1"
 
 echo "📋 Commit Message will be: v[VERSION] - $COMMIT_SUFFIX"
 
