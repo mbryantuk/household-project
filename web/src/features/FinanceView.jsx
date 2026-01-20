@@ -18,6 +18,7 @@ import {
 
 import IncomeView from './finance/IncomeView';
 import BankingView from './finance/BankingView';
+import SavingsView from './finance/SavingsView';
 import { getEmojiColor } from '../theme';
 
 const ComingSoonPlaceholder = ({ title, icon: Icon }) => (
@@ -93,6 +94,7 @@ export default function FinanceView() {
   const renderContent = () => {
       if (activeTabKey === 'income') return <IncomeView />;
       if (activeTabKey === 'banking') return <BankingView />;
+      if (activeTabKey === 'savings') return <SavingsView />;
       
       // Default placeholder logic
       return (
@@ -110,14 +112,10 @@ export default function FinanceView() {
                 bgcolor: 'background.surface'
                 }}
             >
-                {activeTabKey === 'savings' ? (
-                <WipPlaceholder title={activeView.label} />
-                ) : (
                 <ComingSoonPlaceholder 
                     title={activeView.label} 
                     icon={activeView.icon} 
                 />
-                )}
             </Sheet>
         </Box>
       );
@@ -184,51 +182,9 @@ export default function FinanceView() {
     );
   }
 
-  // DESKTOP: Tabs + Content
+  // DESKTOP: Content Only (Navigation via Left Sidebar)
   return (
     <Box sx={{ width: '100%' }}>
-      <Tabs
-        value={activeTabKey}
-        onChange={handleTabChange}
-        variant="scrollable"
-        scrollButtons="auto"
-        sx={{
-            bgcolor: 'transparent',
-            mb: 3,
-            [`& .${tabClasses.root}`]: {
-                bgcolor: 'transparent',
-                flexGrow: 0,
-                minWidth: 'auto',
-                '&:hover': { bgcolor: 'transparent' },
-                '&[aria-selected="true"]': {
-                    bgcolor: 'transparent',
-                    color: 'primary.plainColor',
-                    '&::after': {
-                        height: 3,
-                        borderTopLeftRadius: 3,
-                        borderTopRightRadius: 3,
-                        bgcolor: 'primary.500',
-                    },
-                },
-            },
-            [`& .${tabClasses.tabList}`]: {
-                bgcolor: 'transparent',
-                borderBottom: '1px solid',
-                borderColor: 'divider',
-                gap: 0,
-            }
-        }}
-      >
-        <TabList disableUnderline>
-            {Object.entries(viewMap).map(([key, config]) => (
-                <Tab key={key} value={key} sx={{ px: 2, gap: 1 }}>
-                    <config.icon fontSize="small" />
-                    {config.label}
-                </Tab>
-            ))}
-        </TabList>
-      </Tabs>
-
       {renderContent()}
     </Box>
   );
