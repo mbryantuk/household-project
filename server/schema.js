@@ -342,6 +342,9 @@ const TENANT_SCHEMA = [
         equity_loan_start_date DATE,
         equity_loan_interest_rate REAL DEFAULT 1.75,
         equity_loan_cpi_rate REAL DEFAULT 2.0,
+        estimated_value REAL DEFAULT 0,
+        other_secured_debt REAL DEFAULT 0,
+        mortgage_type TEXT DEFAULT 'mortgage', -- mortgage, equity
         emoji TEXT,
         notes TEXT
     )`,
@@ -450,7 +453,10 @@ function initializeHouseholdSchema(db) {
             ['equity_loan_amount', 'REAL'],
             ['equity_loan_start_date', 'DATE'],
             ['equity_loan_interest_rate', 'REAL'],
-            ['equity_loan_cpi_rate', 'REAL']
+            ['equity_loan_cpi_rate', 'REAL'],
+            ['estimated_value', 'REAL'],
+            ['other_secured_debt', 'REAL'],
+            ['mortgage_type', "TEXT DEFAULT 'mortgage'"]
         ];
 
         mortgageCols.forEach(([col, type]) => {

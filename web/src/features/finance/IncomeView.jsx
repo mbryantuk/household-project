@@ -81,7 +81,7 @@ export default function IncomeView() {
   };
 
   const SortableHeader = ({ label, field, width }) => (
-      <th style={{ width, cursor: 'pointer', userSelect: 'none' }} onClick={() => handleSort(field)}>
+      <th style={{ width, cursor: 'pointer', userSelect: 'none', height: '44px' }} onClick={() => handleSort(field)}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               {label}
               {sortConfig.key === field && (
@@ -149,7 +149,7 @@ export default function IncomeView() {
           
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
               {isAdmin && (
-                  <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditItem({}); setIsNew(true); }}>
+                  <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditItem({}); setIsNew(true); }} sx={{ height: '44px' }}>
                       Add Income
                   </Button>
               )}
@@ -161,7 +161,7 @@ export default function IncomeView() {
             <Table hoverRow stickyHeader>
                 <thead>
                     <tr>
-                        <th style={{ width: 50 }}></th>
+                        <th style={{ width: 50, height: '44px' }}></th>
                         <SortableHeader label="Employer / Source" field="employer" />
                         <SortableHeader label="Role" field="role" />
                         <SortableHeader label="Type" field="employment_type" width={120} />
@@ -178,7 +178,7 @@ export default function IncomeView() {
                         const nextPayDate = getNextPayday(row.payment_day);
                         return (
                         <tr key={row.id}>
-                            <td>
+                            <td style={{ height: '56px' }}>
                                 <Avatar size="sm" sx={{ bgcolor: getEmojiColor(row.emoji || (row.employer||'?')[0], isDark) }}>
                                     {row.emoji || (row.employer||'?')[0]}
                                 </Avatar>
@@ -214,8 +214,8 @@ export default function IncomeView() {
                             <td>{getMemberName(row.member_id)}</td>
                             {isAdmin && (
                                 <td style={{ textAlign: 'right' }}>
-                                    <IconButton size="sm" variant="plain" onClick={() => { setEditItem(row); setIsNew(false); }}><Edit /></IconButton>
-                                    <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(row.id)}><Delete /></IconButton>
+                                    <IconButton size="sm" variant="plain" onClick={() => { setEditItem(row); setIsNew(false); }} sx={{ minHeight: '44px', minWidth: '44px' }}><Edit /></IconButton>
+                                    <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(row.id)} sx={{ minHeight: '44px', minWidth: '44px' }}><Delete /></IconButton>
                                 </td>
                             )}
                         </tr>
@@ -230,7 +230,7 @@ export default function IncomeView() {
                 const nextPayDate = getNextPayday(a.payment_day);
                 return (
                 <Grid xs={12} key={a.id}>
-                    <Card variant="outlined" sx={{ flexDirection: 'row', gap: 2 }}>
+                    <Card variant="outlined" sx={{ flexDirection: 'row', gap: 2, p: 2, minHeight: '80px' }}>
                         <Avatar size="lg" sx={{ bgcolor: getEmojiColor(a.emoji || (a.employer||'?')[0], isDark) }}>
                             {a.emoji || (a.employer||'?')[0]}
                         </Avatar>
@@ -248,7 +248,7 @@ export default function IncomeView() {
                                 <Chip size="sm" variant="soft">{getMemberName(a.member_id)}</Chip>
                             </Box>
                         </Box>
-                        <IconButton variant="plain" onClick={() => { setEditItem(a); setIsNew(false); }}>
+                        <IconButton variant="plain" onClick={() => { setEditItem(a); setIsNew(false); }} sx={{ minHeight: '44px', minWidth: '44px' }}>
                             <Edit />
                         </IconButton>
                     </Card>
@@ -260,7 +260,7 @@ export default function IncomeView() {
 
       {/* EDIT MODAL */}
       <Modal open={Boolean(editItem)} onClose={() => setEditItem(null)}>
-        <ModalDialog sx={{ maxWidth: 800, width: '100%', overflowY: 'auto' }}>
+        <ModalDialog sx={{ maxWidth: 800, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>
             <DialogTitle>{isNew ? 'Add Income Source' : `Edit ${editItem?.employer}`}</DialogTitle>
             <DialogContent>
                 <form onSubmit={handleSubmit}>
@@ -305,43 +305,39 @@ export default function IncomeView() {
                         </Grid>
 
                         <Grid xs={12} md={6}>
-                            <FormControl>
-                                <FormLabel>Assigned Person</FormLabel>
-                                <AppSelect 
-                                    name="member_id"
-                                    defaultValue={editItem?.member_id}
-                                    options={members.filter(m => m.type !== 'pet').map(m => ({ value: m.id, label: m.alias || m.name }))}
-                                    placeholder="Select Person..."
-                                />
-                            </FormControl>
+                            <AppSelect 
+                                label="Assigned Person"
+                                name="member_id"
+                                defaultValue={String(editItem?.member_id || '')}
+                                options={members.filter(m => m.type !== 'pet').map(m => ({ value: String(m.id), label: m.alias || m.name }))}
+                                placeholder="Select Person..."
+                            />
                         </Grid>
                         <Grid xs={12} md={6}>
-                            <FormControl>
-                                <FormLabel>Deposit to Account</FormLabel>
-                                <AppSelect 
-                                    name="bank_account_id"
-                                    defaultValue={editItem?.bank_account_id}
-                                    options={bankAccounts.map(b => ({ value: b.id, label: `${b.bank_name} - ${b.account_name}` }))}
-                                    placeholder="Select Bank Account..."
-                                />
-                            </FormControl>
+                            <AppSelect 
+                                label="Deposit to Account"
+                                name="bank_account_id"
+                                defaultValue={String(editItem?.bank_account_id || '')}
+                                options={bankAccounts.map(b => ({ value: String(b.id), label: `${b.bank_name} - ${b.account_name}` }))}
+                                placeholder="Select Bank Account..."
+                            />
                         </Grid>
 
                         <Grid xs={12}><Divider>Financial Details</Divider></Grid>
                         
-                        <Grid xs={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <FormControl>
                                 <FormLabel>Gross Annual (£)</FormLabel>
                                 <Input name="gross_annual_salary" type="number" step="0.01" defaultValue={editItem?.gross_annual_salary} />
                             </FormControl>
                         </Grid>
-                        <Grid xs={6} md={3}>
-                            <FormControl>
+                        <Grid xs={12} sm={6} md={3}>
+                            <FormControl required>
                                 <FormLabel>Net Pay (per freq)</FormLabel>
-                                <Input name="amount" type="number" step="0.01" defaultValue={editItem?.amount} required />
+                                <Input name="amount" type="number" step="0.01" defaultValue={editItem?.amount} />
                             </FormControl>
                         </Grid>
-                        <Grid xs={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                              <AppSelect 
                                 label="Frequency"
                                 name="frequency"
@@ -354,7 +350,7 @@ export default function IncomeView() {
                                 ]}
                             />
                         </Grid>
-                        <Grid xs={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <FormControl>
                                 <FormLabel>Payment Day</FormLabel>
                                 <Input name="payment_day" type="number" defaultValue={editItem?.payment_day} placeholder="e.g. 25" />
@@ -382,9 +378,9 @@ export default function IncomeView() {
                         </Grid>
 
                     </Grid>
-                    <DialogActions>
-                        <Button variant="plain" color="neutral" onClick={() => setEditItem(null)}>Cancel</Button>
-                        <Button type="submit" variant="solid">Save Income</Button>
+                    <DialogActions sx={{ mt: 2 }}>
+                        <Button variant="plain" color="neutral" onClick={() => setEditItem(null)} sx={{ height: '44px' }}>Cancel</Button>
+                        <Button type="submit" variant="solid" sx={{ height: '44px' }}>Save Income</Button>
                     </DialogActions>
                 </form>
             </DialogContent>

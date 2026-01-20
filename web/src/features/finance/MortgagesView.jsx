@@ -4,11 +4,12 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup, LinearProgress, Table, Sheet
+  AvatarGroup, LinearProgress, Table, Sheet, Dropdown, Menu, MenuButton, MenuItem
 } from '@mui/joy';
-import { Edit, Delete, Add, GroupAdd, Home, InfoOutlined } from '@mui/icons-material';
+import { Edit, Delete, Add, GroupAdd, Home, InfoOutlined, ArrowDropDown } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
+import AppSelect from '../../components/ui/AppSelect';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -28,6 +29,7 @@ export default function MortgagesView() {
   
   const [editItem, setEditItem] = useState(null);
   const [isNew, setIsNew] = useState(false);
+  const [activeType, setActiveType] = useState('mortgage'); // 'mortgage' | 'equity'
   const [assignItem, setAssignItem] = useState(null);
   const [emojiPicker, setEmojiPicker] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('🏠');
@@ -37,13 +39,14 @@ export default function MortgagesView() {
 
   useEffect(() => {
       if (editItem) {
-          setSelectedEmoji(editItem.emoji || '🏠');
+          setSelectedEmoji(editItem.emoji || (editItem.mortgage_type === 'equity' ? '💰' : '🏠'));
           setSelectedMembers(getAssignees(editItem.id).map(m => m.id));
+          setActiveType(editItem.mortgage_type || 'mortgage');
       } else if (isNew) {
-          setSelectedEmoji('🏠');
+          setSelectedEmoji(activeType === 'equity' ? '💰' : '🏠');
           setSelectedMembers([currentUser?.id].filter(Boolean));
       }
-  }, [editItem, isNew]);
+  }, [editItem, isNew, activeType]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -63,14 +66,22 @@ export default function MortgagesView() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
+    
+    // Ensure numeric fields are numbers or zero
+    const numericFields = ['estimated_value', 'other_secured_debt', 'total_amount', 'remaining_balance', 'interest_rate', 'monthly_payment', 'term_years', 'equity_loan_amount', 'equity_loan_interest_rate', 'equity_loan_cpi_rate'];
+    numericFields.forEach(field => {
+        if (data[field] === '') data[field] = 0;
+    });
+
     try {
       let itemId = editItem?.id;
       if (isNew) {
-        const res = await api.post(`/households/${householdId}/finance/mortgages`, data);
+        const res = await api.post(`/households/${householdId}/finance/mortgages`, { ...data, mortgage_type: activeType });
         itemId = res.data.id;
       } else {
         await api.put(`/households/${householdId}/finance/mortgages/${itemId}`, data);
       }
+      
       const currentIds = isNew ? [] : getAssignees(itemId).map(m => m.id);
       const toAdd = selectedMembers.filter(id => !currentIds.includes(id));
       await Promise.all(toAdd.map(mid => api.post(`/households/${householdId}/finance/assignments`, {
@@ -78,6 +89,7 @@ export default function MortgagesView() {
       })));
       const toRemove = currentIds.filter(id => !selectedMembers.includes(id));
       await Promise.all(toRemove.map(mid => api.delete(`/households/${householdId}/finance/assignments/finance_mortgages/${itemId}/${mid}`)));
+      
       fetchData();
       setEditItem(null);
       setIsNew(false);
@@ -85,7 +97,7 @@ export default function MortgagesView() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this mortgage?")) return;
+    if (!window.confirm("Delete this item?")) return;
     try { await api.delete(`/households/${householdId}/finance/mortgages/${id}`); fetchData(); } catch (err) { alert("Failed to delete"); }
   };
 
@@ -113,47 +125,29 @@ export default function MortgagesView() {
       if (!amount || !startDate) return null;
       const start = new Date(startDate);
       const now = new Date();
-      const yearsDiff = now.getFullYear() - start.getFullYear();
-      
       const projections = [];
       const baseAmount = parseFloat(amount);
-      let currentRate = parseFloat(initialRate) || 1.75;
+      const initialFeeRate = parseFloat(initialRate) || 1.75;
       const cpiPlusTwo = (parseFloat(cpiRate) || 2.0) + 2.0;
 
       for (let i = 1; i <= 5; i++) {
           const year = now.getFullYear() + i - 1;
           const ageOfLoan = year - start.getFullYear();
-          
           let annualFee = 0;
           let rateDisplay = "0.00%";
-          
-          if (ageOfLoan >= 5) { // Year 6 onwards
-              // Calculate rate for this specific year
-              // If it's the first year of interest (age 5, which is year 6)
+          if (ageOfLoan >= 5) { 
               if (ageOfLoan === 5) {
-                  annualFee = baseAmount * (currentRate / 100);
-                  rateDisplay = currentRate.toFixed(2) + "%";
+                  annualFee = baseAmount * (initialFeeRate / 100);
+                  rateDisplay = initialFeeRate.toFixed(2) + "%";
               } else {
-                  // Escalate rate from previous year
-                  // This is a simplified escalation: Rate = PrevRate * (1 + (CPI+2)/100)
                   const escalationFactor = 1 + (cpiPlusTwo / 100);
-                  // We need to calculate the rate for Year 6 first, then escalate it for each year after
-                  let year6Rate = currentRate;
-                  let escalatedRate = year6Rate;
-                  for (let y = 6; y <= ageOfLoan; y++) {
-                      escalatedRate *= escalationFactor;
-                  }
+                  let escalatedRate = initialFeeRate;
+                  for (let y = 6; y <= ageOfLoan; y++) escalatedRate *= escalationFactor;
                   annualFee = baseAmount * (escalatedRate / 100);
                   rateDisplay = escalatedRate.toFixed(2) + "%";
               }
           }
-
-          projections.push({
-              year,
-              age: ageOfLoan + 1,
-              fee: annualFee,
-              rate: rateDisplay
-          });
+          projections.push({ year, age: ageOfLoan + 1, fee: annualFee, rate: rateDisplay });
       }
       return projections;
   };
@@ -164,128 +158,183 @@ export default function MortgagesView() {
     <Box>
         <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
             <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Mortgages</Typography>
-                <Typography level="body-md" color="neutral">Track property loans and home equity.</Typography>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Mortgages & Equity</Typography>
+                <Typography level="body-md" color="neutral">Track property loans and home equity loans separately.</Typography>
             </Box>
             {isAdmin && (
-                <Button startDecorator={<Add />} onClick={() => { setEditItem({}); setIsNew(true); }}>
-                    Add Mortgage
-                </Button>
+                <Dropdown>
+                    <MenuButton 
+                        variant="solid" 
+                        color="primary" 
+                        startDecorator={<Add />} 
+                        endDecorator={<ArrowDropDown />}
+                    >
+                        Add New
+                    </MenuButton>
+                    <Menu placement="bottom-end">
+                        <MenuItem onClick={() => { setEditItem({}); setIsNew(true); setActiveType('mortgage'); }}>Add Mortgage</MenuItem>
+                        <MenuItem onClick={() => { setEditItem({}); setIsNew(true); setActiveType('equity'); }}>Add Equity Loan</MenuItem>
+                    </Menu>
+                </Dropdown>
             )}
         </Box>
 
         <Grid container spacing={3}>
             {mortgages.map(mort => {
-                const total = parseFloat(mort.total_amount) || 0;
-                const remaining = parseFloat(mort.remaining_balance) || 0;
-                const equity = total - remaining;
-                const progress = total > 0 ? (equity / total) * 100 : 0;
+                const isEquityType = mort.mortgage_type === 'equity';
+                const main = parseFloat(mort.remaining_balance) || 0;
+                const extra = parseFloat(mort.other_secured_debt) || 0;
+                const h2bPayback = parseFloat(mort.equity_loan_amount) || 0;
                 
-                const h2bAmount = parseFloat(mort.equity_loan_amount) || 0;
-                const h2bProjections = h2bAmount > 0 ? calculateH2BProjections(
-                    mort.equity_loan_amount, 
-                    mort.equity_loan_start_date, 
-                    mort.equity_loan_interest_rate, 
-                    mort.equity_loan_cpi_rate
+                const totalDue = isEquityType ? h2bPayback : (main + extra);
+                const soldPrice = parseFloat(mort.estimated_value) || 0;
+                const equityValue = soldPrice - totalDue;
+                
+                const progress = !isEquityType && (parseFloat(mort.total_amount) || 0) > 0 ? ((parseFloat(mort.total_amount) - main) / parseFloat(mort.total_amount)) * 100 : 0;
+                
+                const h2bProjections = isEquityType && h2bPayback > 0 ? calculateH2BProjections(
+                    mort.equity_loan_amount, mort.equity_loan_start_date, mort.equity_loan_interest_rate, mort.equity_loan_cpi_rate
                 ) : null;
 
                 return (
                     <Grid xs={12} key={mort.id}>
-                        <Card variant="outlined" sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, p: 3 }}>
-                            <Box sx={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, minWidth: 200 }}>
-                                <Avatar size="xl" sx={{ '--Avatar-size': '80px', bgcolor: getEmojiColor(mort.emoji || '🏠', isDark), fontSize: '2.5rem' }}>
-                                    {mort.emoji || '🏠'}
-                                </Avatar>
-                                <Box sx={{ textAlign: 'center' }}>
-                                    <Typography level="title-lg">{mort.lender}</Typography>
-                                    <Typography level="body-sm" color="neutral">{mort.property_address}</Typography>
-                                </Box>
-                                <Box sx={{ mt: 'auto', display: 'flex', gap: 1 }}>
-                                    <IconButton variant="soft" color="neutral" size="sm" onClick={() => { setEditItem(mort); setIsNew(false); }}><Edit /></IconButton>
-                                    <IconButton variant="soft" color="neutral" size="sm" onClick={() => setAssignItem(mort)}><GroupAdd /></IconButton>
-                                </Box>
-                            </Box>
-
-                            <Divider orientation="vertical" sx={{ display: { xs: 'none', md: 'block' } }} />
-
-                            <Box sx={{ flexGrow: 1 }}>
-                                <Grid container spacing={2}>
-                                    <Grid xs={12} md={6}>
-                                        <Typography level="body-xs" color="neutral" textTransform="uppercase" fontWeight="bold">Main Mortgage Balance</Typography>
-                                        <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, mb: 1 }}>
-                                            <Typography level="h2" color="danger">{formatCurrency(remaining)}</Typography>
-                                            <Typography level="body-sm" color="neutral">of {formatCurrency(total)}</Typography>
+                        <Card variant="outlined" sx={{ p: { xs: 2, md: 3 } }}>
+                            <Grid container spacing={3}>
+                                <Grid xs={12} md={4}>
+                                    <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                                        <Avatar size="xl" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(mort.emoji || (isEquityType ? '💰' : '🏠'), isDark), fontSize: '2rem' }}>
+                                            {mort.emoji || (isEquityType ? '💰' : '🏠')}
+                                        </Avatar>
+                                        <Box sx={{ flexGrow: 1 }}>
+                                            <Typography level="title-lg">{mort.lender}</Typography>
+                                            <Typography level="body-sm" color="neutral">{mort.property_address}</Typography>
+                                            <Chip size="sm" variant="soft" color={isEquityType ? 'warning' : 'primary'} sx={{ mt: 0.5 }}>
+                                                {isEquityType ? 'Equity Loan' : 'Mortgage'}
+                                            </Chip>
                                         </Box>
-                                        <Box sx={{ mb: 2 }}>
+                                    </Box>
+                                    <Sheet variant="soft" sx={{ p: 2, borderRadius: 'md', bgcolor: 'background.level1' }}>
+                                        <Typography level="title-sm" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            {isEquityType ? <InfoOutlined fontSize="small" /> : <Home fontSize="small" />} 
+                                            {isEquityType ? 'Loan Summary' : 'Mortgage Summary'}
+                                        </Typography>
+                                        <Stack spacing={1}>
+                                            {!isEquityType ? (
+                                                <>
+                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                        <Typography level="body-xs">Main Balance</Typography>
+                                                        <Typography level="body-sm" fontWeight="bold">{formatCurrency(main)}</Typography>
+                                                    </Box>
+                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                        <Typography level="body-xs">Extra Secured</Typography>
+                                                        <Typography level="body-sm" fontWeight="bold">{formatCurrency(extra)}</Typography>
+                                                    </Box>
+                                                </>
+                                            ) : (
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                    <Typography level="body-xs">Equity Loan</Typography>
+                                                    <Typography level="body-sm" fontWeight="bold">{formatCurrency(h2bPayback)}</Typography>
+                                                </Box>
+                                            )}
+                                            <Divider />
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                <Typography level="body-xs">Total Debt</Typography>
+                                                <Typography level="body-sm" fontWeight="bold" color="danger">{formatCurrency(totalDue)}</Typography>
+                                            </Box>
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                <Typography level="body-xs">Property Value</Typography>
+                                                <Typography level="body-sm" fontWeight="bold">{formatCurrency(soldPrice)}</Typography>
+                                            </Box>
+                                            <Divider />
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.5 }}>
+                                                <Typography level="title-md">Net Equity</Typography>
+                                                <Typography level="title-lg" color="success">{formatCurrency(equityValue)}</Typography>
+                                            </Box>
+                                        </Stack>
+                                    </Sheet>
+                                    <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                                        <Button size="sm" variant="plain" startDecorator={<Edit />} onClick={() => { setEditItem(mort); setIsNew(false); }}>Edit</Button>
+                                        <IconButton size="sm" variant="plain" onClick={() => setAssignItem(mort)}><GroupAdd /></IconButton>
+                                    </Box>
+                                </Grid>
+
+                                <Grid xs={12} md={8}>
+                                    {!isEquityType && (
+                                        <Box sx={{ mb: 3 }}>
                                             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                                <Typography level="body-xs">Principal Paid / Equity</Typography>
+                                                <Typography level="body-xs" fontWeight="bold">PRINCIPAL REPAYMENT PROGRESS</Typography>
                                                 <Typography level="body-xs" fontWeight="bold">{progress.toFixed(2)}%</Typography>
                                             </Box>
-                                            <LinearProgress determinate value={Math.min(progress, 100)} color="success" sx={{ height: 8, borderRadius: 4 }} />
+                                            <LinearProgress determinate value={Math.min(progress, 100)} color="success" sx={{ height: 10, borderRadius: 5 }} />
                                         </Box>
-                                        
-                                        <Grid container spacing={2}>
-                                            <Grid xs={6}>
-                                                <Typography level="body-xs" color="neutral">Monthly Payment</Typography>
-                                                <Typography level="body-md" fontWeight="bold">{formatCurrency(mort.monthly_payment)}</Typography>
-                                            </Grid>
-                                            <Grid xs={6}>
-                                                <Typography level="body-xs" color="neutral">Interest Rate</Typography>
-                                                <Typography level="body-md" fontWeight="bold">{formatPercent(mort.interest_rate)}</Typography>
-                                            </Grid>
-                                            <Grid xs={6}>
-                                                <Typography level="body-xs" color="neutral">Term Remaining</Typography>
-                                                <Typography level="body-md" fontWeight="bold">{mort.term_years} Years</Typography>
-                                            </Grid>
-                                            <Grid xs={6}>
-                                                <Typography level="body-xs" color="neutral">Fixed Expiry</Typography>
-                                                <Typography level="body-md" fontWeight="bold" color={mort.fixed_rate_expiry ? 'primary' : 'neutral'}>{mort.fixed_rate_expiry || 'N/A'}</Typography>
-                                            </Grid>
+                                    )}
+
+                                    <Grid container spacing={2}>
+                                        <Grid xs={6} sm={3}>
+                                            <Typography level="body-xs" color="neutral">Monthly Pay</Typography>
+                                            <Typography level="body-md" fontWeight="bold">{formatCurrency(mort.monthly_payment)}</Typography>
                                         </Grid>
+                                        <Grid xs={6} sm={3}>
+                                            <Typography level="body-xs" color="neutral">Rate</Typography>
+                                            <Typography level="body-md" fontWeight="bold">
+                                                {formatPercent(isEquityType ? mort.equity_loan_interest_rate : mort.interest_rate)}
+                                            </Typography>
+                                        </Grid>
+                                        {!isEquityType ? (
+                                            <>
+                                                <Grid xs={6} sm={3}>
+                                                    <Typography level="body-xs" color="neutral">Term</Typography>
+                                                    <Typography level="body-md" fontWeight="bold">{mort.term_years} Yrs</Typography>
+                                                </Grid>
+                                                <Grid xs={6} sm={3}>
+                                                    <Typography level="body-xs" color="neutral">Fixed Ends</Typography>
+                                                    <Typography level="body-md" fontWeight="bold">{mort.fixed_rate_expiry || 'N/A'}</Typography>
+                                                </Grid>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Grid xs={6} sm={3}>
+                                                    <Typography level="body-xs" color="neutral">Start Date</Typography>
+                                                    <Typography level="body-md" fontWeight="bold">{mort.equity_loan_start_date || 'N/A'}</Typography>
+                                                </Grid>
+                                                <Grid xs={6} sm={3}>
+                                                    <Typography level="body-xs" color="neutral">CPI Rate</Typography>
+                                                    <Typography level="body-md" fontWeight="bold">{formatPercent(mort.equity_loan_cpi_rate)}</Typography>
+                                                </Grid>
+                                            </>
+                                        )}
                                     </Grid>
 
-                                    {h2bAmount > 0 && (
-                                        <Grid xs={12} md={6}>
-                                            <Sheet variant="soft" color="warning" sx={{ p: 2, borderRadius: 'md', height: '100%' }}>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                                                    <InfoOutlined color="warning" />
-                                                    <Typography level="title-md">Help to Buy Equity Loan</Typography>
-                                                </Box>
-                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', mb: 2 }}>
-                                                    <Typography level="h3">{formatCurrency(h2bAmount)}</Typography>
-                                                    <Typography level="body-xs" color="neutral">Started: {mort.equity_loan_start_date}</Typography>
-                                                </Box>
-
-                                                <Typography level="body-xs" fontWeight="bold" sx={{ mb: 1 }}>5-YEAR INTEREST PROJECTION (ESTIMATED)</Typography>
-                                                <Table size="sm" sx={{ '--TableCell-paddingX': '4px' }}>
-                                                    <thead>
-                                                        <tr>
-                                                            <th style={{ width: '25%' }}>Year</th>
-                                                            <th style={{ width: '25%' }}>Loan Age</th>
-                                                            <th style={{ width: '25%' }}>Est. Rate</th>
-                                                            <th style={{ textAlign: 'right' }}>Annual Fee</th>
+                                    {isEquityType && h2bProjections && (
+                                        <Sheet variant="outlined" sx={{ mt: 3, p: 2, borderRadius: 'md', borderLeft: '4px solid', borderColor: 'warning.solidBg', overflowX: 'auto' }}>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                                                <InfoOutlined color="warning" />
+                                                <Typography level="title-sm">Interest Projection (Post 5-Year Interest Free)</Typography>
+                                            </Box>
+                                            <Table size="sm" sx={{ '--TableCell-paddingX': '8px', minWidth: 400 }}>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Year</th>
+                                                        <th>Loan Age</th>
+                                                        <th>Est. Rate</th>
+                                                        <th style={{ textAlign: 'right' }}>Annual Fee</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {h2bProjections.map((p, idx) => (
+                                                        <tr key={idx}>
+                                                            <td>{p.year}</td>
+                                                            <td>Yr {p.age}</td>
+                                                            <td>{p.rate}</td>
+                                                            <td style={{ textAlign: 'right' }}>{p.fee > 0 ? formatCurrency(p.fee) : '£0.00'}</td>
                                                         </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {h2bProjections.map((p, idx) => (
-                                                            <tr key={idx}>
-                                                                <td>{p.year}</td>
-                                                                <td>Yr {p.age}</td>
-                                                                <td>{p.rate}</td>
-                                                                <td style={{ textAlign: 'right' }}>{p.fee > 0 ? formatCurrency(p.fee) : '£0.00'}</td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </Table>
-                                                <Typography level="body-xs" sx={{ mt: 1, fontStyle: 'italic', opacity: 0.8 }}>
-                                                    * Projection based on {formatPercent(mort.equity_loan_cpi_rate)} CPI. 
-                                                    Fees typically start in Year 6.
-                                                </Typography>
-                                            </Sheet>
-                                        </Grid>
+                                                    ))}
+                                                </tbody>
+                                            </Table>
+                                        </Sheet>
                                     )}
                                 </Grid>
-                            </Box>
+                            </Grid>
                         </Card>
                     </Grid>
                 );
@@ -293,57 +342,123 @@ export default function MortgagesView() {
         </Grid>
 
         <Modal open={Boolean(editItem)} onClose={() => { setEditItem(null); setIsNew(false); }}>
-            <ModalDialog sx={{ width: '100%', maxWidth: 600 }}>
-                <DialogTitle>{isNew ? 'Add Mortgage' : 'Edit Mortgage'}</DialogTitle>
+            <ModalDialog sx={{ width: '100%', maxWidth: 650, maxHeight: '90vh', overflowY: 'auto' }}>
+                <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
+                    <Box sx={{ position: 'relative' }}>
+                        <Avatar 
+                            size="lg" 
+                            sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(selectedEmoji, isDark), fontSize: '2rem', cursor: 'pointer' }}
+                            onClick={() => setEmojiPicker(true)}
+                        >
+                            {selectedEmoji}
+                        </Avatar>
+                        <IconButton 
+                            size="sm" variant="solid" color="primary" 
+                            sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }}
+                            onClick={() => setEmojiPicker(true)}
+                        ><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
+                    </Box>
+                    <Box sx={{ flexGrow: 1 }}>
+                        <DialogTitle>{isNew ? (activeType === 'equity' ? 'Add Equity Loan' : 'Add Mortgage') : 'Edit Details'}</DialogTitle>
+                        <Typography level="body-sm" color="neutral">Provide details for this property-secured debt.</Typography>
+                    </Box>
+                </Box>
+                
                 <DialogContent>
                     <form onSubmit={handleSubmit}>
-                        <Stack spacing={2} sx={{ mt: 1 }}>
-                            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                                <FormControl required><FormLabel>Lender</FormLabel><Input name="lender" defaultValue={editItem?.lender} /></FormControl>
-                                <FormControl required><FormLabel>Property Address</FormLabel><Input name="property_address" defaultValue={editItem?.property_address} /></FormControl>
-                            </Box>
-                            
-                            <Divider sx={{ my: 1 }}><Chip variant="soft" size="sm">MORTGAGE DETAILS</Chip></Divider>
-                            
-                            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 2 }}>
-                                <FormControl required><FormLabel>Total Loan (£)</FormLabel><Input name="total_amount" type="number" step="0.01" defaultValue={editItem?.total_amount} /></FormControl>
-                                <FormControl required><FormLabel>Remaining (£)</FormLabel><Input name="remaining_balance" type="number" step="0.01" defaultValue={editItem?.remaining_balance} /></FormControl>
-                                <FormControl required><FormLabel>Rate (%)</FormLabel><Input name="interest_rate" type="number" step="0.01" defaultValue={editItem?.interest_rate} /></FormControl>
-                                <FormControl required><FormLabel>Monthly (£)</FormLabel><Input name="monthly_payment" type="number" step="0.01" defaultValue={editItem?.monthly_payment} /></FormControl>
-                                <FormControl><FormLabel>Term (Yrs)</FormLabel><Input name="term_years" type="number" defaultValue={editItem?.term_years} /></FormControl>
-                                <FormControl><FormLabel>Fixed Expiry</FormLabel><Input name="fixed_rate_expiry" type="date" defaultValue={editItem?.fixed_rate_expiry} /></FormControl>
-                            </Box>
+                        <input type="hidden" name="emoji" value={selectedEmoji} />
+                        <Stack spacing={2}>
+                            <Grid container spacing={2}>
+                                <Grid xs={12} md={6}>
+                                    <FormControl required><FormLabel>Lender</FormLabel><Input name="lender" defaultValue={editItem?.lender} /></FormControl>
+                                </Grid>
+                                <Grid xs={12} md={6}>
+                                    <FormControl required><FormLabel>Property Address</FormLabel><Input name="property_address" defaultValue={editItem?.property_address} /></FormControl>
+                                </Grid>
+                                <Grid xs={12} md={6}>
+                                    <FormControl required><FormLabel>Estimated Property Value (£)</FormLabel><Input name="estimated_value" type="number" step="0.01" defaultValue={editItem?.estimated_value} /></FormControl>
+                                </Grid>
+                                {activeType === 'mortgage' && (
+                                    <Grid xs={12} md={6}>
+                                        <FormControl><FormLabel>Other Secured Debt (£)</FormLabel><Input name="other_secured_debt" type="number" step="0.01" defaultValue={editItem?.other_secured_debt} /></FormControl>
+                                    </Grid>
+                                )}
+                            </Grid>
 
-                            <Divider sx={{ my: 1 }}><Chip variant="soft" color="warning" size="sm">EQUITY LOAN (H2B)</Chip></Divider>
-                            
-                            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                                <FormControl><FormLabel>Equity Loan Amount (£)</FormLabel><Input name="equity_loan_amount" type="number" step="0.01" defaultValue={editItem?.equity_loan_amount} placeholder="0.00" /></FormControl>
-                                <FormControl><FormLabel>Start Date</FormLabel><Input name="equity_loan_start_date" type="date" defaultValue={editItem?.equity_loan_start_date} /></FormControl>
-                                <FormControl><FormLabel>Initial Fee Rate (%)</FormLabel><Input name="equity_loan_interest_rate" type="number" step="0.01" defaultValue={editItem?.equity_loan_interest_rate || 1.75} /></FormControl>
-                                <FormControl><FormLabel>Est. CPI Rate (%)</FormLabel><Input name="equity_loan_cpi_rate" type="number" step="0.01" defaultValue={editItem?.equity_loan_cpi_rate || 2.0} /></FormControl>
-                            </Box>
+                            {activeType === 'mortgage' ? (
+                                <>
+                                    <Divider><Chip variant="soft" size="sm">MORTGAGE DETAILS</Chip></Divider>
+                                    <Grid container spacing={2}>
+                                        <Grid xs={12} md={4}>
+                                            <FormControl required><FormLabel>Total Loan (£)</FormLabel><Input name="total_amount" type="number" step="0.01" defaultValue={editItem?.total_amount} /></FormControl>
+                                        </Grid>
+                                        <Grid xs={12} md={4}>
+                                            <FormControl required><FormLabel>Remaining Balance (£)</FormLabel><Input name="remaining_balance" type="number" step="0.01" defaultValue={editItem?.remaining_balance} /></FormControl>
+                                        </Grid>
+                                        <Grid xs={12} md={4}>
+                                            <FormControl required><FormLabel>Interest Rate (%)</FormLabel><Input name="interest_rate" type="number" step="0.01" defaultValue={editItem?.interest_rate} /></FormControl>
+                                        </Grid>
+                                        <Grid xs={12} md={4}>
+                                            <FormControl><FormLabel>Monthly Payment (£)</FormLabel><Input name="monthly_payment" type="number" step="0.01" defaultValue={editItem?.monthly_payment} /></FormControl>
+                                        </Grid>
+                                        <Grid xs={12} md={4}>
+                                            <FormControl><FormLabel>Term (Years)</FormLabel><Input name="term_years" type="number" defaultValue={editItem?.term_years} /></FormControl>
+                                        </Grid>
+                                        <Grid xs={12} md={4}>
+                                            <FormControl><FormLabel>Fixed Ends</FormLabel><Input name="fixed_rate_expiry" type="date" defaultValue={editItem?.fixed_rate_expiry} /></FormControl>
+                                        </Grid>
+                                        <Grid xs={12}>
+                                            <AppSelect 
+                                                label="Repayment Type"
+                                                name="repayment_type"
+                                                defaultValue={editItem?.repayment_type || 'Repayment'}
+                                                options={[
+                                                    { value: 'Repayment', label: 'Capital & Interest (Repayment)' },
+                                                    { value: 'Interest Only', label: 'Interest Only' }
+                                                ]}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </>
+                            ) : (
+                                <>
+                                    <Divider><Chip variant="soft" color="warning" size="sm">EQUITY LOAN DETAILS</Chip></Divider>
+                                    <Grid container spacing={2}>
+                                        <Grid xs={12} md={6}>
+                                            <FormControl required><FormLabel>Loan Amount (£)</FormLabel><Input name="equity_loan_amount" type="number" step="0.01" defaultValue={editItem?.equity_loan_amount} /></FormControl>
+                                        </Grid>
+                                        <Grid xs={12} md={6}>
+                                            <FormControl required><FormLabel>Start Date</FormLabel><Input name="equity_loan_start_date" type="date" defaultValue={editItem?.equity_loan_start_date} /></FormControl>
+                                        </Grid>
+                                        <Grid xs={12} md={6}>
+                                            <FormControl><FormLabel>Fee Rate After 5yr (%)</FormLabel><Input name="equity_loan_interest_rate" type="number" step="0.01" defaultValue={editItem?.equity_loan_interest_rate || 1.75} /></FormControl>
+                                        </Grid>
+                                        <Grid xs={12} md={6}>
+                                            <FormControl><FormLabel>Estimated CPI (%)</FormLabel><Input name="equity_loan_cpi_rate" type="number" step="0.01" defaultValue={editItem?.equity_loan_cpi_rate || 2.0} /></FormControl>
+                                        </Grid>
+                                        <Grid xs={12} md={6}>
+                                            <FormControl><FormLabel>Monthly Payment (£)</FormLabel><Input name="monthly_payment" type="number" step="0.01" defaultValue={editItem?.monthly_payment} /></FormControl>
+                                        </Grid>
+                                    </Grid>
+                                </>
+                            )}
 
-                            <FormControl><FormLabel>Emoji</FormLabel>
-                                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                    <Button variant="outlined" color="neutral" onClick={() => setEmojiPicker(true)} sx={{ minWidth: 48 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(selectedEmoji, isDark) }}>{selectedEmoji}</Avatar></Button>
-                                    <Input type="hidden" name="emoji" value={selectedEmoji} />
-                                </Box>
-                            </FormControl>
-                            
-                            <FormControl><FormLabel>Assign Members</FormLabel>
-                                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                                    {members.filter(m => m.type !== 'pet').map(m => {
-                                        const isSelected = selectedMembers.includes(m.id);
-                                        return <Chip key={m.id} variant={isSelected ? 'solid' : 'outlined'} color={isSelected ? 'primary' : 'neutral'} onClick={() => setSelectedMembers(prev => prev.includes(m.id) ? prev.filter(id => id !== m.id) : [...prev, m.id])} startDecorator={<Avatar size="sm">{m.emoji}</Avatar>}>{m.name}</Chip>
-                                    })}
-                                </Box>
+                            <FormControl><FormLabel>Assign Borrowers / Owners</FormLabel>
+                                <AppSelect 
+                                    name="selected_members_dummy"
+                                    multiple
+                                    value={selectedMembers}
+                                    onChange={(val) => setSelectedMembers(val)}
+                                    options={members.filter(m => m.type !== 'pet').map(m => ({ value: m.id, label: `${m.emoji} ${m.name}` }))}
+                                    placeholder="Select members..."
+                                />
                             </FormControl>
                         </Stack>
                         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
                             {!isNew && <Button color="danger" variant="soft" onClick={() => { handleDelete(editItem.id); setEditItem(null); }}>Delete</Button>}
                             <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
                                 <Button variant="plain" color="neutral" onClick={() => { setEditItem(null); setIsNew(false); }}>Cancel</Button>
-                                <Button type="submit" color="primary">Save Mortgage</Button>
+                                <Button type="submit" color="primary">Save {activeType === 'equity' ? 'Equity Loan' : 'Mortgage'}</Button>
                             </Box>
                         </Box>
                     </form>

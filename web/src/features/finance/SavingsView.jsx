@@ -4,7 +4,7 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup, LinearProgress, Accordion, AccordionSummary, AccordionDetails, Table
+  AvatarGroup, LinearProgress, Accordion, AccordionSummary, AccordionDetails, Table, Sheet
 } from '@mui/joy';
 import { Edit, Delete, Add, GroupAdd, ExpandMore, Savings, TrendingUp, Remove } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
@@ -332,8 +332,8 @@ export default function SavingsView() {
                                 <AccordionSummary expandIcon={<ExpandMore />}>
                                     <Typography level="title-sm" startDecorator={<TrendingUp />}>Forecast (3 Years)</Typography>
                                 </AccordionSummary>
-                                <AccordionDetails>
-                                    <Table size="sm">
+                                <AccordionDetails sx={{ overflowX: 'auto' }}>
+                                    <Table size="sm" sx={{ minWidth: 250 }}>
                                         <thead><tr><th>Year</th><th style={{ textAlign: 'right' }}>Projected</th><th style={{ textAlign: 'right' }}>Growth</th></tr></thead>
                                         <tbody>
                                             {forecast.map(f => (
@@ -378,27 +378,27 @@ export default function SavingsView() {
 
         {/* ACCOUNT MODAL */}
         <Modal open={Boolean(editAccount)} onClose={() => setEditAccount(null)}>
-            <ModalDialog>
+            <ModalDialog sx={{ width: '100%', maxWidth: 500, maxHeight: '95vh', overflowY: 'auto' }}>
                 <DialogTitle>{isNewAccount ? 'Add Savings Account' : 'Edit Account'}</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleAccountSubmit}>
                         <Stack spacing={2} sx={{ mt: 1 }}>
-                            <FormControl>
+                            <FormControl required>
                                 <FormLabel>Institution</FormLabel>
-                                <Input name="institution" required defaultValue={editAccount?.institution} placeholder="e.g. Chase" />
+                                <Input name="institution" defaultValue={editAccount?.institution} placeholder="e.g. Chase" />
                             </FormControl>
-                            <FormControl>
+                            <FormControl required>
                                 <FormLabel>Account Name</FormLabel>
-                                <Input name="account_name" required defaultValue={editAccount?.account_name} placeholder="e.g. Saver" />
+                                <Input name="account_name" defaultValue={editAccount?.account_name} placeholder="e.g. Saver" />
                             </FormControl>
                             <Grid container spacing={2}>
-                                <Grid xs={6}>
-                                    <FormControl>
-                                        <FormLabel>Balance (£)</FormLabel>
+                                <Grid xs={12} sm={6}>
+                                    <FormControl required>
+                                        <FormLabel>Current Balance (£)</FormLabel>
                                         <Input name="current_balance" type="number" step="0.01" defaultValue={editAccount?.current_balance} />
                                     </FormControl>
                                 </Grid>
-                                <Grid xs={6}>
+                                <Grid xs={12} sm={6}>
                                     <FormControl>
                                         <FormLabel>Interest Rate (%)</FormLabel>
                                         <Input name="interest_rate" type="number" step="0.01" defaultValue={editAccount?.interest_rate} />
@@ -421,31 +421,19 @@ export default function SavingsView() {
                                         <Avatar size="sm" sx={{ bgcolor: getEmojiColor(selectedEmoji, isDark) }}>{selectedEmoji}</Avatar>
                                     </Button>
                                     <Input type="hidden" name="emoji" value={selectedEmoji || ''} />
-                                    <Typography level="body-xs" color="neutral">Click to change icon</Typography>
+                                    <Typography level="body-xs" color="neutral">Click icon to change</Typography>
                                 </Box>
                             </FormControl>
                             <FormControl>
-                                <FormLabel>Assign Members</FormLabel>
-                                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                                    {members.filter(m => m.type !== 'pet').map(m => {
-                                        const isSelected = selectedMembers.includes(m.id);
-                                        return (
-                                            <Chip
-                                                key={m.id}
-                                                variant={isSelected ? 'solid' : 'outlined'}
-                                                color={isSelected ? 'primary' : 'neutral'}
-                                                onClick={() => {
-                                                    setSelectedMembers(prev => 
-                                                        prev.includes(m.id) ? prev.filter(id => id !== m.id) : [...prev, m.id]
-                                                    );
-                                                }}
-                                                startDecorator={<Avatar size="sm" src={m.avatar}>{m.emoji}</Avatar>}
-                                            >
-                                                {m.name}
-                                            </Chip>
-                                        );
-                                    })}
-                                </Box>
+                                <FormLabel>Assign Owners</FormLabel>
+                                <AppSelect 
+                                    name="members_dummy"
+                                    multiple
+                                    value={selectedMembers}
+                                    onChange={(val) => setSelectedMembers(val)}
+                                    options={members.filter(m => m.type !== 'pet').map(m => ({ value: m.id, label: `${m.emoji} ${m.name}` }))}
+                                    placeholder="Select owners..."
+                                />
                             </FormControl>
                         </Stack>
                         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -463,7 +451,7 @@ export default function SavingsView() {
                             )}
                             <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
                                 <Button variant="plain" color="neutral" onClick={() => setEditAccount(null)}>Cancel</Button>
-                                <Button type="submit">Save</Button>
+                                <Button type="submit" color="primary">Save Account</Button>
                             </Box>
                         </Box>
                     </form>
@@ -473,23 +461,23 @@ export default function SavingsView() {
 
         {/* POT MODAL */}
         <Modal open={Boolean(editPot)} onClose={() => setEditPot(null)}>
-            <ModalDialog>
+            <ModalDialog sx={{ width: '100%', maxWidth: 400 }}>
                 <DialogTitle>{editPot?.pot?.id ? 'Edit Pot' : 'Create Pot'}</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handlePotSubmit}>
                         <Stack spacing={2} sx={{ mt: 1 }}>
-                            <FormControl>
+                            <FormControl required>
                                 <FormLabel>Pot Name</FormLabel>
-                                <Input name="name" required defaultValue={editPot?.pot?.name} placeholder="e.g. Holiday Fund" />
+                                <Input name="name" defaultValue={editPot?.pot?.name} placeholder="e.g. Holiday Fund" />
                             </FormControl>
                             <Grid container spacing={2}>
-                                <Grid xs={6}>
-                                    <FormControl>
+                                <Grid xs={12} sm={6}>
+                                    <FormControl required>
                                         <FormLabel>Current Amount (£)</FormLabel>
                                         <Input name="current_amount" type="number" step="0.01" defaultValue={editPot?.pot?.current_amount} />
                                     </FormControl>
                                 </Grid>
-                                <Grid xs={6}>
+                                <Grid xs={12} sm={6}>
                                     <FormControl>
                                         <FormLabel>Target Amount (£)</FormLabel>
                                         <Input name="target_amount" type="number" step="0.01" defaultValue={editPot?.pot?.target_amount} />
@@ -508,13 +496,12 @@ export default function SavingsView() {
                                         <Avatar size="sm" sx={{ bgcolor: getEmojiColor(selectedEmoji, isDark) }}>{selectedEmoji}</Avatar>
                                     </Button>
                                     <Input type="hidden" name="emoji" value={selectedEmoji || ''} />
-                                    <Typography level="body-xs" color="neutral">Click to change icon</Typography>
                                 </Box>
                             </FormControl>
                         </Stack>
                         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
                             <Button variant="plain" color="neutral" onClick={() => setEditPot(null)}>Cancel</Button>
-                            <Button type="submit">Save Pot</Button>
+                            <Button type="submit" color="primary">Save Pot</Button>
                         </Box>
                     </form>
                 </DialogContent>
@@ -524,7 +511,7 @@ export default function SavingsView() {
         {/* ASSIGNMENT MODAL */}
         <Modal open={Boolean(assignItem)} onClose={() => setAssignItem(null)}>
             <ModalDialog size="sm">
-                <DialogTitle>Assign Savers</DialogTitle>
+                <DialogTitle>Assign Owners</DialogTitle>
                 <DialogContent>
                     <Stack spacing={1}>
                         {members.filter(m => m.type !== 'pet').map(m => {

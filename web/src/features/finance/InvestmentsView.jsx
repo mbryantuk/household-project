@@ -9,6 +9,7 @@ import {
 import { Edit, Delete, Add, GroupAdd, TrendingUp, ShowChart } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
+import AppSelect from '../../components/ui/AppSelect';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -213,7 +214,7 @@ export default function InvestmentsView() {
 
         {/* MODAL: EDIT/ADD */}
         <Modal open={Boolean(editItem)} onClose={() => { setEditItem(null); setIsNew(false); }}>
-            <ModalDialog sx={{ width: '100%', maxWidth: 500 }}>
+            <ModalDialog sx={{ width: '100%', maxWidth: 500, maxHeight: '95vh', overflowY: 'auto' }}>
                 <DialogTitle>{isNew ? 'Add Investment' : 'Edit Investment'}</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleSubmit}>
@@ -223,37 +224,45 @@ export default function InvestmentsView() {
                                 <Input name="name" defaultValue={editItem?.name} placeholder="e.g. S&P 500 ETF" />
                             </FormControl>
                             <Grid container spacing={2}>
-                                <Grid xs={6}>
+                                <Grid xs={12} sm={6}>
                                     <FormControl>
                                         <FormLabel>Ticker Symbol</FormLabel>
                                         <Input name="symbol" defaultValue={editItem?.symbol} placeholder="e.g. VUSA" />
                                     </FormControl>
                                 </Grid>
-                                <Grid xs={6}>
+                                <Grid xs={12} sm={6}>
                                     <FormControl required>
                                         <FormLabel>Platform</FormLabel>
                                         <Input name="platform" defaultValue={editItem?.platform} placeholder="e.g. Vanguard" />
                                     </FormControl>
                                 </Grid>
                             </Grid>
-                            <FormControl required>
-                                <FormLabel>Asset Type</FormLabel>
-                                <Input name="asset_type" defaultValue={editItem?.asset_type} placeholder="e.g. Stocks, Crypto, Bonds" />
-                            </FormControl>
+                            <AppSelect 
+                                label="Asset Type"
+                                name="asset_type"
+                                defaultValue={editItem?.asset_type || 'Stocks'}
+                                options={[
+                                    { value: 'Stocks', label: 'Stocks & Shares' },
+                                    { value: 'Crypto', label: 'Cryptocurrency' },
+                                    { value: 'Bonds', label: 'Bonds' },
+                                    { value: 'ETF', label: 'ETF / Fund' },
+                                    { value: 'Other', label: 'Other' },
+                                ]}
+                            />
                             <Grid container spacing={2}>
-                                <Grid xs={4}>
+                                <Grid xs={12} sm={4}>
                                     <FormControl>
                                         <FormLabel>Units</FormLabel>
                                         <Input name="units" type="number" step="0.000001" defaultValue={editItem?.units} />
                                     </FormControl>
                                 </Grid>
-                                <Grid xs={4}>
+                                <Grid xs={12} sm={4}>
                                     <FormControl required>
                                         <FormLabel>Current Value (£)</FormLabel>
                                         <Input name="current_value" type="number" step="0.01" defaultValue={editItem?.current_value} />
                                     </FormControl>
                                 </Grid>
-                                <Grid xs={4}>
+                                <Grid xs={12} sm={4}>
                                     <FormControl required>
                                         <FormLabel>Total Invested (£)</FormLabel>
                                         <Input name="total_invested" type="number" step="0.01" defaultValue={editItem?.total_invested} />
@@ -270,23 +279,15 @@ export default function InvestmentsView() {
                                 </Box>
                             </FormControl>
                             <FormControl>
-                                <FormLabel>Assign Members</FormLabel>
-                                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                                    {members.filter(m => m.type !== 'pet').map(m => {
-                                        const isSelected = selectedMembers.includes(m.id);
-                                        return (
-                                            <Chip
-                                                key={m.id}
-                                                variant={isSelected ? 'solid' : 'outlined'}
-                                                color={isSelected ? 'primary' : 'neutral'}
-                                                onClick={() => setSelectedMembers(prev => prev.includes(m.id) ? prev.filter(id => id !== m.id) : [...prev, m.id])}
-                                                startDecorator={<Avatar size="sm">{m.emoji}</Avatar>}
-                                            >
-                                                {m.name}
-                                            </Chip>
-                                        );
-                                    })}
-                                </Box>
+                                <FormLabel>Assign Owners</FormLabel>
+                                <AppSelect 
+                                    name="members_dummy"
+                                    multiple
+                                    value={selectedMembers}
+                                    onChange={(val) => setSelectedMembers(val)}
+                                    options={members.filter(m => m.type !== 'pet').map(m => ({ value: m.id, label: `${m.emoji} ${m.name}` }))}
+                                    placeholder="Select owners..."
+                                />
                             </FormControl>
                         </Stack>
                         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
