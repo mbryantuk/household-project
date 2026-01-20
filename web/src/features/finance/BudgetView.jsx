@@ -47,6 +47,7 @@ export default function BudgetView() {
   const [savingProgress, setSavingProgress] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
   const [bankHolidays, setBankHolidays] = useState([]);
+  const [hidePaid, setHidePaid] = useState(false);
   
   // Data State
   const [incomes, setIncomes] = useState([]);
@@ -553,7 +554,15 @@ export default function BudgetView() {
                                             <Avatar size="sm" sx={{ bgcolor: isSelected ? 'primary.solidBg' : 'background.level2' }}>{exp.icon}</Avatar>
                                             <Box>
                                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                    <Typography level="title-sm">{exp.label}</Typography>
+                                                    {exp.link ? (
+                                                        <Link to={exp.link} style={{ textDecoration: 'none' }}>
+                                                            <Typography level="title-sm" sx={{ '&:hover': { textDecoration: 'underline', color: 'primary.plainColor' } }}>
+                                                                {exp.label}
+                                                            </Typography>
+                                                        </Link>
+                                                    ) : (
+                                                        <Typography level="title-sm">{exp.label}</Typography>
+                                                    )}
                                                     {exp.object && (
                                                         <Chip size="sm" variant="soft" color="neutral" startDecorator={exp.object.emoji}>
                                                             {exp.object.name}
