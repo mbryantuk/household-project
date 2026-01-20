@@ -28,6 +28,7 @@ import LoansView from './finance/LoansView';
 import MortgagesView from './finance/MortgagesView';
 import VehicleFinanceView from './finance/VehicleFinanceView';
 import AgreementsView from './finance/AgreementsView';
+import BudgetView from './finance/BudgetView';
 import { getEmojiColor } from '../theme';
 
 const ComingSoonPlaceholder = ({ title, icon: Icon }) => (
@@ -79,6 +80,7 @@ export default function FinanceView() {
   const activeView = activeTabKey ? viewMap[activeTabKey] : null;
 
   const renderContent = () => {
+      if (activeTabKey === 'budget') return <BudgetView />;
       if (activeTabKey === 'income') return <IncomeView />;
       if (activeTabKey === 'banking') return <BankingView />;
       if (activeTabKey === 'savings') return <SavingsView />;

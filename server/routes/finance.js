@@ -282,6 +282,41 @@ router.get('/households/:id/finance/categories', authenticateToken, requireHouse
 router.post('/households/:id/finance/categories', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('finance_budget_categories'));
 router.delete('/households/:id/finance/categories/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('finance_budget_categories'));
 
+// --- BUDGET PROGRESS ---
+router.get('/households/:id/finance/budget-progress', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
+    req.tenantDb.all(`SELECT * FROM finance_budget_progress WHERE household_id = ?`, [req.hhId], (err, rows) => {
+        closeDb(req);
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows || []);
+    });
+});
+
+router.post('/households/:id/finance/budget-progress', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
+    const { cycle_start, item_key, is_paid } = req.body;
+    req.tenantDb.run(
+        `INSERT INTO finance_budget_progress (household_id, cycle_start, item_key, is_paid) VALUES (?, ?, ?, ?)
+         ON CONFLICT(household_id, cycle_start, item_key) DO UPDATE SET is_paid = excluded.is_paid`,
+        [req.hhId, cycle_start, item_key, is_paid],
+        function(err) {
+            closeDb(req);
+            if (err) return res.status(500).json({ error: err.message });
+            res.status(201).json({ message: "Progress saved" });
+        }
+    );
+});
+
+router.delete('/households/:id/finance/budget-progress/:cycleStart/:itemKey', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
+    req.tenantDb.run(
+        `DELETE FROM finance_budget_progress WHERE household_id = ? AND cycle_start = ? AND item_key = ?`,
+        [req.hhId, req.params.cycleStart, req.params.itemKey],
+        function(err) {
+            closeDb(req);
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: "Progress removed" });
+        }
+    );
+});
+
 // --- CURRENT ACCOUNTS ---
 router.get('/households/:id/finance/current-accounts', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('finance_current_accounts'));
 router.post('/households/:id/finance/current-accounts', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('finance_current_accounts'));

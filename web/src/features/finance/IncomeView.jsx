@@ -4,7 +4,7 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  Sheet, Table
+  Sheet, Table, Checkbox
 } from '@mui/joy';
 import { Edit, Delete, Add } from '@mui/icons-material';
 import { format } from 'date-fns';
@@ -375,6 +375,15 @@ export default function IncomeView() {
                                 <FormLabel>Emoji</FormLabel>
                                 <Input name="emoji" defaultValue={editItem?.emoji} />
                             </FormControl>
+                        </Grid>
+
+                        <Grid xs={12}>
+                            <Checkbox 
+                                label="Primary Paycheck (Drivers Budget Cycle)" 
+                                name="is_primary"
+                                defaultChecked={editItem?.is_primary === 1}
+                                value="1"
+                            />
                         </Grid>
 
                     </Grid>

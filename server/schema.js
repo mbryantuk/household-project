@@ -412,6 +412,13 @@ const TENANT_SCHEMA = [
         monthly_limit REAL,
         emoji TEXT
     )`,
+    `CREATE TABLE IF NOT EXISTS finance_budget_progress (
+        household_id INTEGER,
+        cycle_start DATE, -- The payday date starting this cycle
+        item_key TEXT,    -- Format: 'type_id' e.g. 'mortgage_5'
+        is_paid INTEGER DEFAULT 0,
+        PRIMARY KEY (household_id, cycle_start, item_key)
+    )`,
     `CREATE TABLE IF NOT EXISTS finance_assignments (
         household_id INTEGER,
         entity_type TEXT, -- income, savings, credit_card, loan, mortgage, pension, investment, current_account, agreement, vehicle_finance
@@ -452,7 +459,8 @@ function initializeHouseholdSchema(db) {
             ['employment_type', 'TEXT'],
             ['work_type', 'TEXT'], 
             ['gross_annual_salary', 'REAL'], 
-            ['addons', 'TEXT']
+            ['addons', 'TEXT'],
+            ['is_primary', 'INTEGER DEFAULT 0']
         ];
         
         financeIncomeCols.forEach(([col, type]) => {
