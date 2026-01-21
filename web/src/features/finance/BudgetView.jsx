@@ -429,6 +429,7 @@ export default function BudgetView() {
                 name: pot.account_name,
                 institution: pot.institution,
                 emoji: pot.account_emoji || '💰',
+                balance: pot.current_balance || 0,
                 pots: []
             };
         }
@@ -835,9 +836,12 @@ export default function BudgetView() {
                                                         <Typography level="body-xs" color="neutral">{group.institution}</Typography>
                                                     </Box>
                                                 </Box>
-                                                <Typography level="title-sm" color="success">
-                                                    {formatCurrency(groupPlannedTotal)}
-                                                </Typography>
+                                                <Box sx={{ textAlign: 'right' }}>
+                                                    <Typography level="title-sm" color="success">
+                                                        {formatCurrency(group.balance)}
+                                                    </Typography>
+                                                    <Typography level="body-xs">Balance</Typography>
+                                                </Box>
                                             </Box>
                                             <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
                                                 <Table hoverRow size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}>
