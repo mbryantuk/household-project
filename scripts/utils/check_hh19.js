@@ -1,21 +1,21 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-const dbPath = path.join(__dirname, '../../server/data/household_19.db');
-const db = new sqlite3.Database(dbPath);
+const globalDbPath = path.join(__dirname, '../../server/data/totem.db');
+const globalDb = new sqlite3.Database(globalDbPath);
 
-db.serialize(() => {
-    console.log("--- RECURRING COSTS SCHEMA ---");
-    db.all("PRAGMA table_info(recurring_costs)", [], (err, rows) => {
+globalDb.serialize(() => {
+    console.log("--- USER HOUSEHOLDS FOR HH 19 ---");
+    globalDb.all("SELECT * FROM user_households WHERE household_id = 19", [], (err, rows) => {
         if (err) console.error(err);
         else console.table(rows);
     });
 
-    console.log("--- RECURRING COSTS DATA ---");
-    db.all("SELECT * FROM recurring_costs", [], (err, rows) => {
+    console.log("--- USERS ---");
+    globalDb.all("SELECT id, email, username, system_role, is_active FROM users", [], (err, rows) => {
         if (err) console.error(err);
         else console.table(rows);
     });
 });
 
-db.close();
+globalDb.close();
