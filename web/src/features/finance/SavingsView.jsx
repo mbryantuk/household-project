@@ -33,6 +33,7 @@ export default function SavingsView() {
   const [isNewAccount, setIsNewAccount] = useState(false);
   const [editPot, setEditPot] = useState(null); // { savingsId, pot: {} }
   const [adjustPot, setAdjustPot] = useState(null); // { savingsId, pot, type: 'add'|'remove' }
+  const [adjustAccount, setAdjustAccount] = useState(null); // { account, type: 'add'|'remove' }
   const [assignItem, setAssignItem] = useState(null);
   const [emojiPicker, setEmojiPicker] = useState({ open: false, type: null }); // type: 'account' | 'pot'
   const [selectedEmoji, setSelectedEmoji] = useState(null);
@@ -184,6 +185,26 @@ export default function SavingsView() {
       } catch { alert("Failed to update balance"); }
   };
 
+  const handleAdjustAccountSubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.currentTarget);
+      const amount = parseFloat(formData.get('amount'));
+      if (!amount || amount <= 0) return;
+
+      const { account, type } = adjustAccount;
+      const newAmount = type === 'add' 
+          ? (parseFloat(account.current_balance) || 0) + amount 
+          : (parseFloat(account.current_balance) || 0) - amount;
+
+      try {
+          await api.put(`/households/${householdId}/finance/savings/${account.id}`, {
+              current_balance: newAmount
+          });
+          fetchData();
+          setAdjustAccount(null);
+      } catch { alert("Failed to update account balance"); }
+  };
+
 
   // --- ASSIGNMENT HANDLERS ---
   const handleAssignMember = async (memberId) => {
@@ -265,6 +286,14 @@ export default function SavingsView() {
                                 </Box>
                                 <Box sx={{ textAlign: 'right' }}>
                                     <Typography level="h3" color="success">{formatCurrency(acc.current_balance)}</Typography>
+                                    <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end', mb: 0.5 }}>
+                                        <IconButton size="sm" variant="soft" color="danger" onClick={() => setAdjustAccount({ account: acc, type: 'remove' })}>
+                                            <Remove fontSize="small" />
+                                        </IconButton>
+                                        <IconButton size="sm" variant="soft" color="success" onClick={() => setAdjustAccount({ account: acc, type: 'add' })}>
+                                            <Add fontSize="small" />
+                                        </IconButton>
+                                    </Box>
                                     <Typography level="body-xs" color="neutral">{formatPercent(acc.interest_rate)} AER</Typography>
                                 </Box>
                             </Box>
@@ -355,10 +384,10 @@ export default function SavingsView() {
 
         {/* --- MODALS --- */}
 
-        {/* ADJUST MODAL */}
+        {/* ADJUST POT MODAL */}
         <Modal open={Boolean(adjustPot)} onClose={() => setAdjustPot(null)}>
             <ModalDialog size="sm">
-                <DialogTitle>{adjustPot?.type === 'add' ? 'Add Funds' : 'Remove Funds'}</DialogTitle>
+                <DialogTitle>{adjustPot?.type === 'add' ? 'Add Funds to Pot' : 'Remove Funds from Pot'}</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleAdjustSubmit}>
                         <FormControl required>
@@ -369,6 +398,27 @@ export default function SavingsView() {
                             <Button variant="plain" color="neutral" onClick={() => setAdjustPot(null)}>Cancel</Button>
                             <Button type="submit" color={adjustPot?.type === 'add' ? 'success' : 'danger'}>
                                 {adjustPot?.type === 'add' ? 'Add' : 'Remove'}
+                            </Button>
+                        </Box>
+                    </form>
+                </DialogContent>
+            </ModalDialog>
+        </Modal>
+
+        {/* ADJUST ACCOUNT MODAL */}
+        <Modal open={Boolean(adjustAccount)} onClose={() => setAdjustAccount(null)}>
+            <ModalDialog size="sm">
+                <DialogTitle>{adjustAccount?.type === 'add' ? 'Add Funds to Account' : 'Remove Funds from Account'}</DialogTitle>
+                <DialogContent>
+                    <form onSubmit={handleAdjustAccountSubmit}>
+                        <FormControl required>
+                            <FormLabel>Amount (£)</FormLabel>
+                            <Input name="amount" type="number" step="0.01" autoFocus />
+                        </FormControl>
+                        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                            <Button variant="plain" color="neutral" onClick={() => setAdjustAccount(null)}>Cancel</Button>
+                            <Button type="submit" color={adjustAccount?.type === 'add' ? 'success' : 'danger'}>
+                                {adjustAccount?.type === 'add' ? 'Add' : 'Remove'}
                             </Button>
                         </Box>
                     </form>

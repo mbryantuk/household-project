@@ -217,8 +217,12 @@ export default function BudgetView() {
       if (liabilities.council) addExpense(liabilities.council, 'council', 'Council Tax', liabilities.council.monthly_amount, liabilities.council.payment_day, <AccountBalance />, 'Utility', { name: 'House', emoji: '🏛️' });
       if (liabilities.energy) liabilities.energy.forEach(e => addExpense(e, 'energy', `${e.provider} (${e.type})`, e.monthly_amount, e.payment_day, <ElectricBolt />, 'Utility', { name: 'House', emoji: '⚡' }));
 
+      savingsPots.forEach(pot => {
+          addExpense(pot, 'pot', pot.name, 0, pot.deposit_day || 1, <SavingsIcon />, 'Saving', { name: pot.account_name, emoji: pot.account_emoji || '💰' });
+      });
+
       return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, expenses: expenses.sort((a, b) => (a.computedDate || 0) - (b.computedDate || 0)) };
-  }, [incomes, liabilities, progress, viewDate, members, getPriorWorkingDay, getAdjustedDate]);
+  }, [incomes, liabilities, progress, viewDate, members, getPriorWorkingDay, getAdjustedDate, savingsPots]);
 
   const currentCycleRecord = useMemo(() => {
     return cycles.find(c => c.cycle_start === cycleData?.cycleKey);
@@ -415,7 +419,7 @@ export default function BudgetView() {
 
   const groupedRecurring = useMemo(() => {
     if (!cycleData) return {};
-    const recurring = cycleData.expenses.filter(exp => exp.frequency !== 'one-off');
+    const recurring = cycleData.expenses.filter(exp => exp.frequency !== 'one-off' && exp.type !== 'pot');
     const groups = {};
     recurring.forEach(exp => {
         const freq = exp.frequency || 'monthly';
@@ -625,11 +629,11 @@ export default function BudgetView() {
                                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                                             <Box>
                                                 <Typography level="title-sm" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                    {pot.emoji} {pot.institution}
+                                                    {pot.emoji} {pot.name}
                                                 </Typography>
-                                                <Chip size="sm" variant="soft" color="primary">{pot.name}</Chip>
+                                                <Chip size="sm" variant="soft" color="primary">{pot.account_name}</Chip>
                                                 <Typography level="body-xs" sx={{ mt: 0.5, opacity: 0.7 }}>
-                                                    Current: {formatCurrency(pot.current_amount)}
+                                                    Current Balance: {formatCurrency(pot.current_amount)}
                                                 </Typography>
                                             </Box>
                                             <Checkbox 
