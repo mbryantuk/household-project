@@ -99,3 +99,26 @@ export const getEmojiColor = (emoji, isDark = true) => {
   return `hsl(${hue}, ${isDark ? 50 : 70}%, ${isDark ? 25 : 90}%)`;
 };
 ```
+
+---
+
+## 4. TESTING PLAN
+
+Every feature or maintenance pass MUST satisfy the following gates before deployment:
+
+1.  **Lint Verification:**
+    * **Command:** `cd web && npm run lint`
+    * **Requirement:** Zero errors. Warnings should be addressed or explicitly justified.
+    * **Scope:** All frontend `JSX` and `JS` files.
+
+2.  **Security & Tenancy Stress:**
+    * **Command:** `cd server && npm test tests/security/`
+    * **Requirement:** 100% pass on RBAC and `household_id` isolation tests.
+
+3.  **Integration Pass:**
+    * **Command:** `cd server && npm test`
+    * **Requirement:** All 200+ test cases across Finance, Assets, Members, and Meals must pass.
+
+4.  **Deployment Smoke Test:**
+    * **Script:** `./scripts/deploy/deploy_verify.sh`
+    * **Requirement:** Containers must start, migrations must run, and core API health-checks must return 200 OK.
