@@ -4,7 +4,8 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  Sheet, Table, Checkbox, LinearProgress, Select, Option, Switch
+  Sheet, Table, Checkbox, LinearProgress, Select, Option, Switch,
+  Dropdown, Menu, MenuButton, MenuItem
 } from '@mui/joy';
 import { 
   AccountBalanceWallet, 
@@ -29,7 +30,10 @@ import {
   ChevronRight,
   Person,
   Pets,
-  Delete
+  Delete,
+  Lock,
+  LockOpen,
+  ArrowDropDown
 } from '@mui/icons-material';
 import { format, addMonths, startOfMonth, setDate, differenceInDays, isSameDay, isAfter } from 'date-fns';
 import { getEmojiColor } from '../../theme';
@@ -67,6 +71,7 @@ export default function BudgetView() {
 
   const [actualPay, setActualPay] = useState('');
   const [currentBalance, setCurrentBalance] = useState('');
+  const [isPayLocked, setIsPayLocked] = useState(true);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -186,7 +191,7 @@ export default function BudgetView() {
       liabilities.loans.forEach(l => addExpense(l, 'loan', `${l.lender} Loan`, l.monthly_payment, l.payment_day, <TrendingDown />, 'Liability', { name: 'Finance', emoji: '💰' }));
       liabilities.agreements.forEach(a => addExpense(a, 'agreement', a.agreement_name, a.monthly_payment, a.payment_day, <Assignment />, 'Agreement', { name: a.provider, emoji: '📄' }));
       liabilities.vehicle_finance.forEach(v => {
-          const veh = liabilities.vehicles.find(vh => vh.id === v.vehicle_id);
+          const veh = liabilities.vehicles.find(v_item => v_item.id === v.vehicle_id);
           addExpense(v, 'car_finance', `Finance: ${v.provider}`, v.monthly_payment, v.payment_day, <DirectionsCar />, 'Liability', { name: veh ? `${veh.make} ${veh.model}` : 'Vehicle', emoji: veh?.emoji || '🚗' });
       });
       liabilities.pensions.forEach(p => addExpense(p, 'pension', p.plan_name, p.monthly_contribution, p.payment_day, <SavingsIcon />, 'Pension', { name: 'Retirement', emoji: '👴' }));
@@ -199,7 +204,7 @@ export default function BudgetView() {
               const p = members.find(mem => mem.id === c.parent_id);
               object = { name: p ? (p.alias || p.name) : 'Pet', emoji: p?.emoji || '🐾' }; icon = <Pets />;
           } else if (c.parent_type === 'vehicle') {
-              const v = liabilities.vehicles.find(veh => veh.id === c.parent_id);
+              const v = liabilities.vehicles.find(v_item => v_item.id === c.parent_id);
               object = { name: v ? `${v.make}` : 'Vehicle', emoji: v?.emoji || '🚗' }; icon = <DirectionsCar />;
           }
           if (c.category === 'insurance') icon = <Shield />;
@@ -469,10 +474,20 @@ export default function BudgetView() {
                     <FormLabel sx={{ mr: 1 }}>Hide Paid</FormLabel>
                     <Switch checked={hidePaid} onChange={(e) => setHidePaid(e.target.checked)} size="sm" />
                 </FormControl>
-                <Button variant="outlined" color="neutral" size="sm" onClick={() => setSelectedKeys([])}>Clear</Button>
-                <Button variant="outlined" size="sm" startDecorator={<SavingsIcon />} onClick={() => setPotAllocationOpen(true)}>Pot</Button>
-                <Button size="sm" startDecorator={<Add />} onClick={() => setRecurringAddOpen(true)}>Add Recurring</Button>
-                <Button size="sm" startDecorator={<Add />} onClick={() => setQuickAddOpen(true)}>Add One-off</Button>
+                {selectedKeys.length > 0 && (
+                    <Button variant="outlined" color="neutral" size="sm" onClick={() => setSelectedKeys([])}>Clear</Button>
+                )}
+                
+                <Dropdown>
+                    <MenuButton variant="solid" color="primary" size="sm" startDecorator={<Add />} endDecorator={<ArrowDropDown />}>
+                        Add
+                    </MenuButton>
+                    <Menu placement="bottom-end" size="sm">
+                        <MenuItem onClick={() => setQuickAddOpen(true)}>Add One-off</MenuItem>
+                        <MenuItem onClick={() => setRecurringAddOpen(true)}>Add Recurring</MenuItem>
+                        <MenuItem onClick={() => setPotAllocationOpen(true)}>Add to Pot</MenuItem>
+                    </Menu>
+                </Dropdown>
             </Box>
         </Box>
 
@@ -503,10 +518,35 @@ export default function BudgetView() {
             <Grid xs={12} md={3}>
                 <Stack spacing={3}>
                     <Card variant="outlined" sx={{ p: 3 }}>
-                        <Typography level="title-lg" sx={{ mb: 2 }} startDecorator={<AccountBalanceWallet />}>Budget Entry</Typography>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                            <Typography level="title-lg" startDecorator={<AccountBalanceWallet />}>Budget Entry</Typography>
+                            <IconButton size="sm" variant={isPayLocked ? "plain" : "soft"} color={isPayLocked ? "neutral" : "warning"} onClick={() => setIsPayLocked(!isPayLocked)}>
+                                {isPayLocked ? <Lock fontSize="small" /> : <LockOpen fontSize="small" />}
+                            </IconButton>
+                        </Box>
                         <Stack spacing={2}>
-                            <FormControl><FormLabel>Pay (£)</FormLabel><Input type="number" value={actualPay} onChange={(e) => setActualPay(e.target.value)} onBlur={(e) => saveCycleData(e.target.value, currentBalance)} slotProps={{ input: { step: '0.01' } }} /></FormControl>
-                            <FormControl><FormLabel>Balance (£)</FormLabel><Input type="number" value={currentBalance} onChange={(e) => setCurrentBalance(e.target.value)} onBlur={(e) => saveCycleData(actualPay, e.target.value)} autoFocus slotProps={{ input: { step: '0.01' } }} /></FormControl>
+                            <FormControl>
+                                <FormLabel>Pay (£)</FormLabel>
+                                <Input 
+                                    type="number" 
+                                    value={actualPay} 
+                                    disabled={isPayLocked}
+                                    onChange={(e) => setActualPay(e.target.value)} 
+                                    onBlur={(e) => saveCycleData(e.target.value, currentBalance)} 
+                                    slotProps={{ input: { step: '0.01' } }} 
+                                />
+                            </FormControl>
+                            <FormControl>
+                                <FormLabel>Balance (£)</FormLabel>
+                                <Input 
+                                    type="number" 
+                                    value={currentBalance} 
+                                    onChange={(e) => setCurrentBalance(e.target.value)} 
+                                    onBlur={(e) => saveCycleData(actualPay, e.target.value)} 
+                                    autoFocus 
+                                    slotProps={{ input: { step: '0.01' } }} 
+                                />
+                            </FormControl>
                         </Stack>
                     </Card>
 
@@ -627,7 +667,7 @@ export default function BudgetView() {
                                     <Divider>Pets</Divider>
                                     {members.filter(m => m.type === 'pet').map(p => <Option key={p.id} value={`pet_${p.id}`}>{p.emoji} {p.name}</Option>)}
                                     <Divider>Vehicles</Divider>
-                                    {liabilities.vehicles.map(v => <Option key={v.id} value={`vehicle_${v.id}`}>{v.emoji || '🚗'} {v.make}</Option>)}
+                                    {liabilities.vehicles.map(v_item => <Option key={v_item.id} value={`vehicle_${v_item.id}`}>{v_item.emoji || '🚗'} {v_item.make}</Option>)}
                                 </Select>
                             </FormControl>
                             <AppSelect label="Category" name="category" defaultValue="other" options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'other', label: 'Other' }]} />
