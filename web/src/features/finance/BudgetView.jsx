@@ -439,7 +439,7 @@ export default function BudgetView() {
 
   const groupedRecurring = useMemo(() => {
     if (!cycleData) return {};
-    const recurring = cycleData.expenses.filter(exp => exp.frequency !== 'one-off' && exp.type !== 'pot');
+    const recurring = cycleData.expenses.filter(exp => exp.frequency !== 'one-off' && exp.type !== 'pot' && exp.type !== 'pension' && exp.type !== 'investment');
     const groups = {};
     recurring.forEach(exp => {
         const freq = exp.frequency || 'monthly';
@@ -447,6 +447,16 @@ export default function BudgetView() {
         groups[freq].push(exp);
     });
     return groups;
+  }, [cycleData]);
+
+  const pensionExpenses = useMemo(() => {
+      if (!cycleData) return [];
+      return cycleData.expenses.filter(exp => exp.type === 'pension');
+  }, [cycleData]);
+
+  const investmentExpenses = useMemo(() => {
+      if (!cycleData) return [];
+      return cycleData.expenses.filter(exp => exp.type === 'investment');
   }, [cycleData]);
 
   const frequencyOrder = ['weekly', 'fortnightly', 'four-weekly', 'monthly', 'quarterly', 'annual'];
@@ -589,6 +599,50 @@ export default function BudgetView() {
                                 />
                             </FormControl>
                         </Stack>
+                    </Card>
+
+                    <Card variant="outlined" sx={{ p: 3, boxShadow: 'sm' }}>
+                        <Typography level="title-lg" startDecorator={<AccountBalanceWallet />} sx={{ mb: 2 }}>Budget Overview</Typography>
+                        
+                        <Stack spacing={1} sx={{ mb: 3 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Typography level="body-md" color="neutral">Current Balance</Typography>
+                                <Typography level="body-md" fontWeight="lg">{formatCurrency(parseFloat(currentBalance) || 0)}</Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Typography level="body-md" color="danger">Left to Pay</Typography>
+                                <Typography level="body-md" fontWeight="lg" color="danger">- {formatCurrency(cycleTotals.unpaid)}</Typography>
+                            </Box>
+                            <Divider />
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 1 }}>
+                                <Typography level="title-md">Safe to Spend</Typography>
+                                <Typography level="h2" color={trueDisposable >= 0 ? 'success' : 'danger'}>
+                                    {formatCurrency(trueDisposable)}
+                                </Typography>
+                            </Box>
+                            <Divider sx={{ my: 1 }} />
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Typography level="body-sm" color="neutral">Total Savings</Typography>
+                                <Typography level="title-md" color="success">{formatCurrency(savingsTotal)}</Typography>
+                            </Box>
+                        </Stack>
+
+                        <Box sx={{ bgcolor: 'background.level1', p: 2, borderRadius: 'md' }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                <Typography level="body-xs" fontWeight="bold">Bills Paid</Typography>
+                                <Typography level="body-xs">{Math.round((cycleTotals.paid / (cycleTotals.total || 1)) * 100)}%</Typography>
+                            </Box>
+                            <LinearProgress 
+                                determinate 
+                                value={(cycleTotals.paid / (cycleTotals.total || 1)) * 100} 
+                                thickness={6}
+                                color="success"
+                                sx={{ bgcolor: 'background.level2' }} 
+                            />
+                            <Typography level="body-xs" sx={{ mt: 1, textAlign: 'center', color: 'neutral.500' }}>
+                                {formatCurrency(cycleTotals.paid)} paid of {formatCurrency(cycleTotals.total)} total
+                            </Typography>
+                        </Box>
                     </Card>
                 </Stack>
             </Grid>
@@ -755,119 +809,196 @@ export default function BudgetView() {
                     </Box>
 
                     {/* Savings & Goals Contributions */}
-                    <Box>
-                        <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <SavingsIcon fontSize="small" /> Savings & Goals
-                        </Typography>
-                        
-                        <Stack spacing={3}>
-                            {Object.entries(groupedPots).map(([accId, group]) => {
-                                const potKeys = group.pots.map(p => `pot_${p.id}`);
-                                const allPotsPaid = potKeys.length > 0 && potKeys.every(k => progress.some(p => p.item_key === k && p.cycle_start === cycleData.cycleKey));
+                    {Object.keys(groupedPots).length > 0 && (
+                        <Box>
+                            <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <SavingsIcon fontSize="small" /> Savings & Goals
+                            </Typography>
+                            
+                            <Stack spacing={3}>
+                                {Object.entries(groupedPots).map(([accId, group]) => {
+                                    const potKeys = group.pots.map(p => `pot_${p.id}`);
+                                    const allPotsPaid = potKeys.length > 0 && potKeys.every(k => progress.some(p => p.item_key === k && p.cycle_start === cycleData.cycleKey));
+                                    
+                                    const groupPlannedTotal = group.pots.reduce((sum, pot) => {
+                                        const progressItem = progress.find(p => p.item_key === `pot_${pot.id}` && p.cycle_start === cycleData.cycleKey);
+                                        return sum + (progressItem?.actual_amount || 0);
+                                    }, 0);
 
-                                return (
-                                    <Box key={accId}>
-                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                <Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar>
-                                                <Box>
-                                                    <Typography level="title-sm">{group.name}</Typography>
-                                                    <Typography level="body-xs" color="neutral">{group.institution}</Typography>
+                                    return (
+                                        <Box key={accId}>
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar>
+                                                    <Box>
+                                                        <Typography level="title-sm">{group.name}</Typography>
+                                                        <Typography level="body-xs" color="neutral">{group.institution}</Typography>
+                                                    </Box>
                                                 </Box>
+                                                <Typography level="title-sm" color="success">
+                                                    {formatCurrency(groupPlannedTotal)}
+                                                </Typography>
                                             </Box>
-                                        </Box>
-                                        <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
-                                            <Table hoverRow size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}>
-                                                <thead>
-                                                    <tr>
-                                                        <th style={{ width: 40, textAlign: 'center' }}>
-                                                            <Checkbox 
-                                                                size="sm" 
-                                                                checked={allPotsPaid}
-                                                                indeterminate={!allPotsPaid && potKeys.some(k => progress.some(p => p.item_key === k && p.cycle_start === cycleData.cycleKey))}
-                                                                onChange={async (e) => {
-                                                                    const checked = e.target.checked;
-                                                                    for (const pot of group.pots) {
-                                                                        const key = `pot_${pot.id}`;
-                                                                        const isCurrentlyPaid = progress.some(p => p.item_key === key && p.cycle_start === cycleData.cycleKey);
-                                                                        if (checked !== isCurrentlyPaid) {
-                                                                            await togglePaid(key, 0); // Toggle based on checked
+                                            <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
+                                                <Table hoverRow size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}>
+                                                    <thead>
+                                                        <tr>
+                                                            <th style={{ width: 40, textAlign: 'center' }}>
+                                                                <Checkbox 
+                                                                    size="sm" 
+                                                                    checked={allPotsPaid}
+                                                                    indeterminate={!allPotsPaid && potKeys.some(k => progress.some(p => p.item_key === k && p.cycle_start === cycleData.cycleKey))}
+                                                                    onChange={async (e) => {
+                                                                        const checked = e.target.checked;
+                                                                        for (const pot of group.pots) {
+                                                                            const key = `pot_${pot.id}`;
+                                                                            const isCurrentlyPaid = progress.some(p => p.item_key === key && p.cycle_start === cycleData.cycleKey);
+                                                                            if (checked !== isCurrentlyPaid) {
+                                                                                const progressItem = progress.find(p => p.item_key === key && p.cycle_start === cycleData.cycleKey);
+                                                                                const currentAmount = progressItem?.actual_amount || 0;
+                                                                                await togglePaid(key, currentAmount); 
+                                                                            }
                                                                         }
-                                                                    }
-                                                                }}
-                                                            />
-                                                        </th>
-                                                        <th>Goal / Pot</th>
-                                                        <th style={{ width: 100 }}>Amount</th>
-                                                        <th style={{ width: 40, textAlign: 'center' }}>Paid</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {group.pots.map(pot => {
-                                                        const expenseKey = `pot_${pot.id}`;
-                                                        const progressItem = progress.find(p => p.item_key === expenseKey && p.cycle_start === cycleData.cycleKey);
-                                                        const isPaid = !!progressItem;
-                                                        const amount = progressItem?.actual_amount || 0;
+                                                                    }}
+                                                                />
+                                                            </th>
+                                                            <th>Goal / Pot</th>
+                                                            <th style={{ width: 100 }}>Amount</th>
+                                                            <th style={{ width: 40, textAlign: 'center' }}>Paid</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {group.pots.map(pot => {
+                                                            const expenseKey = `pot_${pot.id}`;
+                                                            const progressItem = progress.find(p => p.item_key === expenseKey && p.cycle_start === cycleData.cycleKey);
+                                                            const isPaid = !!progressItem;
+                                                            const amount = progressItem?.actual_amount || 0;
 
-                                                        return (
-                                                            <tr key={pot.id} style={{ opacity: isPaid ? 0.6 : 1 }}>
-                                                                <td style={{ textAlign: 'center' }}>
-                                                                    <Checkbox 
-                                                                        size="sm" 
-                                                                        checked={isPaid} 
-                                                                        onChange={() => togglePaid(expenseKey, amount)}
-                                                                    />
-                                                                </td>
-                                                                <td>
-                                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                                        <Typography sx={{ fontSize: '1.2rem' }}>{pot.emoji}</Typography>
-                                                                        <Box>
-                                                                            <Typography level="body-xs" fontWeight="bold">{pot.name}</Typography>
-                                                                            <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>CURRENT: {formatCurrency(pot.current_amount)}</Typography>
+                                                            return (
+                                                                <tr key={pot.id} style={{ opacity: isPaid ? 0.6 : 1 }}>
+                                                                    <td style={{ textAlign: 'center' }}>
+                                                                        <Checkbox 
+                                                                            size="sm" 
+                                                                            checked={isPaid} 
+                                                                            onChange={() => togglePaid(expenseKey, amount)}
+                                                                        />
+                                                                    </td>
+                                                                    <td>
+                                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                                            <Typography sx={{ fontSize: '1.2rem' }}>{pot.emoji}</Typography>
+                                                                            <Box>
+                                                                                <Typography level="body-xs" fontWeight="bold">{pot.name}</Typography>
+                                                                                <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>CURRENT: {formatCurrency(pot.current_amount)}</Typography>
+                                                                            </Box>
                                                                         </Box>
-                                                                    </Box>
-                                                                </td>
-                                                                <td>
-                                                                    <Input 
-                                                                        size="sm" 
-                                                                        type="number" 
-                                                                        variant="soft" 
-                                                                        sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px' }} 
-                                                                        defaultValue={amount.toFixed(2)} 
-                                                                        onBlur={(e) => updateActualAmount(expenseKey, e.target.value)} 
-                                                                        slotProps={{ input: { step: '0.01' } }} 
-                                                                    />
-                                                                </td>
-                                                                <td style={{ textAlign: 'center' }}>
-                                                                    <Checkbox 
-                                                                        size="sm"
-                                                                        variant="plain" 
-                                                                        checked={isPaid} 
-                                                                        onChange={() => togglePaid(expenseKey, amount)} 
-                                                                        disabled={savingProgress} 
-                                                                        uncheckedIcon={<RadioButtonUnchecked sx={{ fontSize: '1.2rem' }} />} 
-                                                                        checkedIcon={<CheckCircle color="success" sx={{ fontSize: '1.2rem' }} />} 
-                                                                        sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} 
-                                                                    />
-                                                                </td>
-                                                            </tr>
-                                                        );
-                                                    })}
-                                                </tbody>
-                                            </Table>
-                                        </Sheet>
-                                    </Box>
-                                );
-                            })}
-                            {savingsPots.length === 0 && (
-                                <Sheet variant="soft" sx={{ p: 2, textAlign: 'center', borderRadius: 'md' }}>
-                                    <Typography level="body-xs" color="neutral" sx={{ fontStyle: 'italic' }}>
-                                        No savings pots found. Configure them in the Savings view.
-                                    </Typography>
-                                </Sheet>
-                            )}
-                        </Stack>
-                    </Box>
+                                                                    </td>
+                                                                    <td>
+                                                                        <Input 
+                                                                            size="sm" 
+                                                                            type="number" 
+                                                                            variant="soft" 
+                                                                            sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px' }} 
+                                                                            defaultValue={amount.toFixed(2)} 
+                                                                            onBlur={(e) => updateActualAmount(expenseKey, e.target.value)} 
+                                                                            slotProps={{ input: { step: '0.01' } }} 
+                                                                        />
+                                                                    </td>
+                                                                    <td style={{ textAlign: 'center' }}>
+                                                                        <Checkbox 
+                                                                            size="sm"
+                                                                            variant="plain" 
+                                                                            checked={isPaid} 
+                                                                            onChange={() => togglePaid(expenseKey, amount)} 
+                                                                            disabled={savingProgress} 
+                                                                            uncheckedIcon={<RadioButtonUnchecked sx={{ fontSize: '1.2rem' }} />} 
+                                                                            checkedIcon={<CheckCircle color="success" sx={{ fontSize: '1.2rem' }} />} 
+                                                                            sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} 
+                                                                        />
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        })}
+                                                    </tbody>
+                                                </Table>
+                                            </Sheet>
+                                        </Box>
+                                    );
+                                })}
+                            </Stack>
+                        </Box>
+                    )}
+
+                    {/* Pensions */}
+                    {pensionExpenses.length > 0 && (
+                        <Box>
+                            <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <SavingsIcon fontSize="small" /> Pensions
+                            </Typography>
+                            <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
+                                <Table hoverRow size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}>
+                                    <thead>
+                                        <tr>
+                                            <th style={{ width: 40, textAlign: 'center' }}><Checkbox size="sm" /></th>
+                                            <th>Plan</th>
+                                            <th style={{ width: 100 }}>Contribution</th>
+                                            <th style={{ width: 40, textAlign: 'center' }}>Paid</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {pensionExpenses.map(exp => (
+                                            <tr key={exp.key} style={{ opacity: exp.isPaid ? 0.6 : 1 }}>
+                                                <td style={{ textAlign: 'center' }}><Checkbox size="sm" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} /></td>
+                                                <td>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        <Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label, isDark) }}>{exp.icon}</Avatar>
+                                                        <Typography level="body-xs" fontWeight="bold">{exp.label}</Typography>
+                                                    </Box>
+                                                </td>
+                                                <td><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px' }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} slotProps={{ input: { step: '0.01' } }} /></td>
+                                                <td style={{ textAlign: 'center' }}><Checkbox size="sm" variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} /></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                            </Sheet>
+                        </Box>
+                    )}
+
+                    {/* Investments */}
+                    {investmentExpenses.length > 0 && (
+                        <Box>
+                            <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <TrendingDown fontSize="small" /> Investments
+                            </Typography>
+                            <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
+                                <Table hoverRow size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}>
+                                    <thead>
+                                        <tr>
+                                            <th style={{ width: 40, textAlign: 'center' }}><Checkbox size="sm" /></th>
+                                            <th>Investment</th>
+                                            <th style={{ width: 100 }}>Amount</th>
+                                            <th style={{ width: 40, textAlign: 'center' }}>Paid</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {investmentExpenses.map(exp => (
+                                            <tr key={exp.key} style={{ opacity: exp.isPaid ? 0.6 : 1 }}>
+                                                <td style={{ textAlign: 'center' }}><Checkbox size="sm" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} /></td>
+                                                <td>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        <Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label, isDark) }}>{exp.icon}</Avatar>
+                                                        <Typography level="body-xs" fontWeight="bold">{exp.label}</Typography>
+                                                    </Box>
+                                                </td>
+                                                <td><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px' }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} slotProps={{ input: { step: '0.01' } }} /></td>
+                                                <td style={{ textAlign: 'center' }}><Checkbox size="sm" variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} /></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                            </Sheet>
+                        </Box>
+                    )}
                 </Stack>
             </Grid>
         </Grid>
