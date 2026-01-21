@@ -68,7 +68,6 @@ export default function BudgetView() {
   const [familyExpenseOpen, setFamilyExpenseOpen] = useState(false);
 
   const [selectedKeys, setSelectedKeys] = useState([]);
-  const [lastSelectedIndex, setLastSelectedIndex] = useState(null);
 
   const [actualPay, setActualPay] = useState('');
   const [currentBalance, setCurrentBalance] = useState('');
@@ -322,7 +321,7 @@ export default function BudgetView() {
         };
 
         const handleRowClick = (e, index, key) => {
-            // Row click now always toggles to support better multi-section selection
+            // Standardizing selection logic to allow cross-table sum totals
             handleSelectToggle(key);
             setLastSelectedIndex(index);
         };
@@ -523,7 +522,7 @@ export default function BudgetView() {
 
         const memberExpenses = useMemo(() => {
             if (!cycleData) return [];
-            // Robust member grouping for one-offs
+            // Group all one-offs that have a memberId assigned
             const memExps = cycleData.expenses.filter(exp => 
                 exp.memberId !== null && 
                 exp.frequency === 'one-off'
@@ -841,7 +840,7 @@ export default function BudgetView() {
                                             <Checkbox 
                                                 size="sm" 
                                                 onChange={(e) => {
-                                                    const filteredOneOffs = cycleData.expenses.filter(exp => exp.frequency === 'one-off' && !exp.memberId);
+                                                    const filteredOneOffs = cycleData.expenses.filter(exp => exp.frequency === 'one-off' && exp.memberId == null);
                                                     const oneOffKeys = filteredOneOffs.map(e => e.key);
                                                     if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...oneOffKeys])));
                                                     else setSelectedKeys(prev => prev.filter(k => !oneOffKeys.includes(k)));
@@ -856,7 +855,7 @@ export default function BudgetView() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {cycleData.expenses.filter(exp => exp.frequency === 'one-off' && !exp.memberId).filter(exp => !hidePaid || !exp.isPaid).map((exp, index) => (
+                                    {cycleData.expenses.filter(exp => exp.frequency === 'one-off' && exp.memberId == null).filter(exp => !hidePaid || !exp.isPaid).map((exp, index) => (
                                         <tr key={exp.key} onClick={(e) => handleRowClick(e, index, exp.key)} style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}>
                                             <td style={{ textAlign: 'center' }}>
                                                 <Checkbox 
@@ -896,7 +895,7 @@ export default function BudgetView() {
                                             <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" sx={{ '--IconButton-size': '24px' }} onClick={(e) => { e.stopPropagation(); deleteExpense(exp); }}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}</td>
                                         </tr>
                                     ))}
-                                    {cycleData.expenses.filter(exp => exp.frequency === 'one-off' && !exp.memberId).length === 0 && (
+                                    {cycleData.expenses.filter(exp => exp.frequency === 'one-off' && exp.memberId == null).length === 0 && (
                                         <tr>
                                             <td colSpan={6} style={{ textAlign: 'center', padding: '10px', color: 'neutral.500', fontStyle: 'italic', fontSize: '0.75rem' }}>No one-off expenses this month.</td>
                                         </tr>
@@ -909,7 +908,7 @@ export default function BudgetView() {
                     {/* Member-Specific Expenses (One-off/Transfers) */}
                     {memberExpenses.map(group => {
                         const visibleExpenses = group.expenses.filter(exp => !hidePaid || !exp.isPaid);
-                        if (visibleExpenses.length === 0) return null;
+                        if (visibleExpenses.length === 0 && hidePaid) return null;
 
                         return (
                             <Box key={group.id}>
@@ -1037,19 +1036,24 @@ export default function BudgetView() {
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        {group.pots.map(pot => {
+                                                        {group.pots.map((pot, idx) => {
                                                             const expenseKey = `pot_${pot.id}`;
                                                             const progressItem = progress.find(p => p.item_key === expenseKey && p.cycle_start === cycleData.cycleKey);
                                                             const isPaid = !!progressItem;
                                                             const amount = progressItem?.actual_amount || 0;
 
                                                             return (
-                                                                <tr key={pot.id} style={{ opacity: isPaid ? 0.6 : 1 }}>
+                                                                <tr 
+                                                                    key={pot.id} 
+                                                                    style={{ opacity: isPaid ? 0.6 : 1, cursor: 'pointer', backgroundColor: selectedKeys.includes(expenseKey) ? 'var(--joy-palette-primary-softBg)' : 'transparent' }}
+                                                                    onClick={(e) => handleRowClick(e, idx, expenseKey)}
+                                                                >
                                                                     <td style={{ textAlign: 'center' }}>
                                                                         <Checkbox 
                                                                             size="sm" 
-                                                                            checked={isPaid} 
-                                                                            onChange={() => togglePaid(expenseKey, amount)}
+                                                                            checked={selectedKeys.includes(expenseKey)} 
+                                                                            onChange={() => handleSelectToggle(expenseKey)}
+                                                                            onClick={(e) => e.stopPropagation()}
                                                                         />
                                                                     </td>
                                                                     <td>
@@ -1069,6 +1073,7 @@ export default function BudgetView() {
                                                                             sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px' }} 
                                                                             defaultValue={amount.toFixed(2)} 
                                                                             onBlur={(e) => updateActualAmount(expenseKey, e.target.value)} 
+                                                                            onClick={(e) => e.stopPropagation()}
                                                                             slotProps={{ input: { step: '0.01' } }} 
                                                                         />
                                                                     </td>
@@ -1081,6 +1086,7 @@ export default function BudgetView() {
                                                                             disabled={savingProgress} 
                                                                             uncheckedIcon={<RadioButtonUnchecked sx={{ fontSize: '1.2rem' }} />} 
                                                                             checkedIcon={<CheckCircle color="success" sx={{ fontSize: '1.2rem' }} />} 
+                                                                            onClick={(e) => e.stopPropagation()}
                                                                             sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} 
                                                                         />
                                                                     </td>
@@ -1114,17 +1120,17 @@ export default function BudgetView() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {pensionExpenses.map(exp => (
-                                            <tr key={exp.key} style={{ opacity: exp.isPaid ? 0.6 : 1 }}>
-                                                <td style={{ textAlign: 'center' }}><Checkbox size="sm" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} /></td>
+                                        {pensionExpenses.map((exp, idx) => (
+                                            <tr key={exp.key} style={{ opacity: exp.isPaid ? 0.6 : 1, cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent' }} onClick={(e) => handleRowClick(e, idx, exp.key)}>
+                                                <td style={{ textAlign: 'center' }}><Checkbox size="sm" checked={selectedKeys.includes(exp.key)} onChange={() => handleSelectToggle(exp.key)} onClick={(e) => e.stopPropagation()} /></td>
                                                 <td>
                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                         <Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label, isDark) }}>{exp.icon}</Avatar>
                                                         <Typography level="body-xs" fontWeight="bold">{exp.label}</Typography>
                                                     </Box>
                                                 </td>
-                                                <td><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px' }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} slotProps={{ input: { step: '0.01' } }} /></td>
-                                                <td style={{ textAlign: 'center' }}><Checkbox size="sm" variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} /></td>
+                                                <td><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px' }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} slotProps={{ input: { step: '0.01' } }} /></td>
+                                                <td style={{ textAlign: 'center' }}><Checkbox size="sm" variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} onClick={(e) => e.stopPropagation()} /></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -1150,17 +1156,17 @@ export default function BudgetView() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {investmentExpenses.map(exp => (
-                                            <tr key={exp.key} style={{ opacity: exp.isPaid ? 0.6 : 1 }}>
-                                                <td style={{ textAlign: 'center' }}><Checkbox size="sm" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} /></td>
+                                        {investmentExpenses.map((exp, idx) => (
+                                            <tr key={exp.key} style={{ opacity: exp.isPaid ? 0.6 : 1, cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent' }} onClick={(e) => handleRowClick(e, idx, exp.key)}>
+                                                <td style={{ textAlign: 'center' }}><Checkbox size="sm" checked={selectedKeys.includes(exp.key)} onChange={() => handleSelectToggle(exp.key)} onClick={(e) => e.stopPropagation()} /></td>
                                                 <td>
                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                         <Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label, isDark) }}>{exp.icon}</Avatar>
                                                         <Typography level="body-xs" fontWeight="bold">{exp.label}</Typography>
                                                     </Box>
                                                 </td>
-                                                <td><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px' }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} slotProps={{ input: { step: '0.01' } }} /></td>
-                                                <td style={{ textAlign: 'center' }}><Checkbox size="sm" variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} /></td>
+                                                <td><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px' }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} slotProps={{ input: { step: '0.01' } }} /></td>
+                                                <td style={{ textAlign: 'center' }}><Checkbox size="sm" variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} onClick={(e) => e.stopPropagation()} /></td>
                                             </tr>
                                         ))}
                                     </tbody>
