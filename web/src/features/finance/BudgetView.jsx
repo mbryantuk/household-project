@@ -36,7 +36,7 @@ import {
   LockOpen,
   ArrowDropDown
 } from '@mui/icons-material';
-import { format, addMonths, startOfMonth, setDate, differenceInDays, isSameDay, isAfter } from 'date-fns';
+import { format, addMonths, startOfMonth, setDate, differenceInDays, isSameDay, isAfter, startOfDay } from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
 
@@ -183,7 +183,7 @@ export default function BudgetView() {
       const startDate = getPriorWorkingDay(rawStartDate);
       const endDate = getPriorWorkingDay(addMonths(rawStartDate, 1));
       
-      const cycleKey = format(startDate, 'yyyy-MM-dd');
+      const cycleKey = format(startOfDay(startDate), 'yyyy-MM-dd');
       const label = format(startDate, 'MMM yyyy') + " Budget";
       const cycleDuration = differenceInDays(endDate, startDate);
 
@@ -201,7 +201,8 @@ export default function BudgetView() {
                 const key = `${type}_${item.id || 'fixed'}`;
                 const progressItem = progress.find(p => p.item_key === key && p.cycle_start === cycleKey);
                 
-                if (item.frequency === 'one-off' && item.next_due !== cycleKey) return;
+                // Flexible date matching for one-offs
+                if (item.frequency === 'one-off' && !String(item.next_due).startsWith(cycleKey)) return;
                 
                 // If marked as excluded (-1), don't show in budget
                 if (progressItem?.is_paid === -1) return;
@@ -215,7 +216,7 @@ export default function BudgetView() {
                     isPaid: progressItem?.is_paid === 1, 
                     isDeletable: !['pot', 'pension', 'investment'].includes(type),
                     id: item.id, object, frequency: item.frequency || 'monthly', 
-                    memberId: memberId !== null ? String(memberId) : null
+                    memberId: memberId != null ? String(memberId) : null
                 });
             };
 
@@ -255,11 +256,7 @@ export default function BudgetView() {
                 if (c.category === 'subscription') icon = <ShoppingBag />;
                 if (c.category === 'service') icon = <HistoryEdu />;
                 if (c.category === 'saving') icon = <SavingsIcon />;
-                
-                if (c.category === 'transfer') {
-                    icon = <AccountBalanceWallet />;
-                    if (c.frequency === 'one-off' && c.next_due !== cycleKey) return;
-                }
+                if (c.category === 'transfer') icon = <AccountBalanceWallet />;
 
                 addExpense(c, 'cost', c.name, c.amount, c.payment_day, icon, c.category || 'Cost', object, memberId);
             });
@@ -320,10 +317,8 @@ export default function BudgetView() {
             setSelectedKeys(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
         };
 
-        const handleRowClick = (e, index, key) => {
-            // Standardizing selection logic to allow cross-table sum totals
+        const handleRowClick = (key) => {
             handleSelectToggle(key);
-            setLastSelectedIndex(index);
         };
 
         const saveCycleData = async (pay, balance) => {
@@ -524,7 +519,7 @@ export default function BudgetView() {
             if (!cycleData) return [];
             // Group all one-offs that have a memberId assigned
             const memExps = cycleData.expenses.filter(exp => 
-                exp.memberId !== null && 
+                exp.memberId != null && 
                 exp.frequency === 'one-off'
             );
             const groups = {};
@@ -765,7 +760,8 @@ export default function BudgetView() {
                                                         <Checkbox 
                                                             size="sm" 
                                                             onChange={(e) => {
-                                                                const freqKeys = groupedRecurring[freq].map(e => e.key);
+                                                                const visibleItems = groupedRecurring[freq].filter(exp => !hidePaid || !exp.isPaid);
+                                                                const freqKeys = visibleItems.map(e => e.key);
                                                                 if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...freqKeys])));
                                                                 else setSelectedKeys(prev => prev.filter(k => !freqKeys.includes(k)));
                                                             }} 
@@ -779,8 +775,8 @@ export default function BudgetView() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {groupedRecurring[freq].filter(exp => !hidePaid || !exp.isPaid).map((exp, index) => (
-                                                    <tr key={exp.key} onClick={(e) => handleRowClick(e, index, exp.key)} style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}>
+                                                {groupedRecurring[freq].filter(exp => !hidePaid || !exp.isPaid).map((exp) => (
+                                                    <tr key={exp.key} onClick={() => handleRowClick(exp.key)} style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}>
                                                         <td style={{ textAlign: 'center' }}>
                                                             <Checkbox 
                                                                 size="sm" 
@@ -840,7 +836,7 @@ export default function BudgetView() {
                                             <Checkbox 
                                                 size="sm" 
                                                 onChange={(e) => {
-                                                    const filteredOneOffs = cycleData.expenses.filter(exp => exp.frequency === 'one-off' && exp.memberId == null);
+                                                    const filteredOneOffs = cycleData.expenses.filter(exp => exp.frequency === 'one-off' && exp.memberId == null && (!hidePaid || !exp.isPaid));
                                                     const oneOffKeys = filteredOneOffs.map(e => e.key);
                                                     if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...oneOffKeys])));
                                                     else setSelectedKeys(prev => prev.filter(k => !oneOffKeys.includes(k)));
@@ -855,8 +851,8 @@ export default function BudgetView() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {cycleData.expenses.filter(exp => exp.frequency === 'one-off' && exp.memberId == null).filter(exp => !hidePaid || !exp.isPaid).map((exp, index) => (
-                                        <tr key={exp.key} onClick={(e) => handleRowClick(e, index, exp.key)} style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}>
+                                    {cycleData.expenses.filter(exp => exp.frequency === 'one-off' && exp.memberId == null).filter(exp => !hidePaid || !exp.isPaid).map((exp) => (
+                                        <tr key={exp.key} onClick={() => handleRowClick(exp.key)} style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}>
                                             <td style={{ textAlign: 'center' }}>
                                                 <Checkbox 
                                                     size="sm" 
@@ -908,7 +904,7 @@ export default function BudgetView() {
                     {/* Member-Specific Expenses (One-off/Transfers) */}
                     {memberExpenses.map(group => {
                         const visibleExpenses = group.expenses.filter(exp => !hidePaid || !exp.isPaid);
-                        if (visibleExpenses.length === 0 && hidePaid) return null;
+                        if (visibleExpenses.length === 0) return null;
 
                         return (
                             <Box key={group.id}>
@@ -924,7 +920,7 @@ export default function BudgetView() {
                                                     <Checkbox 
                                                         size="sm" 
                                                         onChange={(e) => {
-                                                            const groupKeys = group.expenses.map(e => e.key);
+                                                            const groupKeys = visibleExpenses.map(e => e.key);
                                                             if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...groupKeys])));
                                                             else setSelectedKeys(prev => prev.filter(k => !groupKeys.includes(k)));
                                                         }} 
@@ -938,8 +934,8 @@ export default function BudgetView() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {visibleExpenses.map((exp, index) => (
-                                                <tr key={exp.key} onClick={(e) => handleRowClick(e, index, exp.key)} style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}>
+                                            {visibleExpenses.map((exp) => (
+                                                <tr key={exp.key} onClick={() => handleRowClick(exp.key)} style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}>
                                                     <td style={{ textAlign: 'center' }}>
                                                         <Checkbox 
                                                             size="sm" 
@@ -1036,7 +1032,7 @@ export default function BudgetView() {
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        {group.pots.map((pot, idx) => {
+                                                        {group.pots.map((pot) => {
                                                             const expenseKey = `pot_${pot.id}`;
                                                             const progressItem = progress.find(p => p.item_key === expenseKey && p.cycle_start === cycleData.cycleKey);
                                                             const isPaid = !!progressItem;
@@ -1046,7 +1042,7 @@ export default function BudgetView() {
                                                                 <tr 
                                                                     key={pot.id} 
                                                                     style={{ opacity: isPaid ? 0.6 : 1, cursor: 'pointer', backgroundColor: selectedKeys.includes(expenseKey) ? 'var(--joy-palette-primary-softBg)' : 'transparent' }}
-                                                                    onClick={(e) => handleRowClick(e, idx, expenseKey)}
+                                                                    onClick={() => handleRowClick(expenseKey)}
                                                                 >
                                                                     <td style={{ textAlign: 'center' }}>
                                                                         <Checkbox 
@@ -1120,8 +1116,8 @@ export default function BudgetView() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {pensionExpenses.map((exp, idx) => (
-                                            <tr key={exp.key} style={{ opacity: exp.isPaid ? 0.6 : 1, cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent' }} onClick={(e) => handleRowClick(e, idx, exp.key)}>
+                                        {pensionExpenses.map((exp) => (
+                                            <tr key={exp.key} style={{ opacity: exp.isPaid ? 0.6 : 1, cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent' }} onClick={() => handleRowClick(exp.key)}>
                                                 <td style={{ textAlign: 'center' }}><Checkbox size="sm" checked={selectedKeys.includes(exp.key)} onChange={() => handleSelectToggle(exp.key)} onClick={(e) => e.stopPropagation()} /></td>
                                                 <td>
                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -1156,8 +1152,8 @@ export default function BudgetView() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {investmentExpenses.map((exp, idx) => (
-                                            <tr key={exp.key} style={{ opacity: exp.isPaid ? 0.6 : 1, cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent' }} onClick={(e) => handleRowClick(e, idx, exp.key)}>
+                                        {investmentExpenses.map((exp) => (
+                                            <tr key={exp.key} style={{ opacity: exp.isPaid ? 0.6 : 1, cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent' }} onClick={() => handleRowClick(exp.key)}>
                                                 <td style={{ textAlign: 'center' }}><Checkbox size="sm" checked={selectedKeys.includes(exp.key)} onChange={() => handleSelectToggle(exp.key)} onClick={(e) => e.stopPropagation()} /></td>
                                                 <td>
                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
