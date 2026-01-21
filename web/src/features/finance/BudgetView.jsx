@@ -217,47 +217,47 @@ export default function BudgetView() {
 
             });
 
-            liabilities.pensions.forEach(p => addExpense(p, 'pension', p.plan_name, p.monthly_contribution, p.payment_day, <SavingsIcon />, 'Pension', { name: 'Retirement', emoji: '👴' }));
+                  liabilities.pensions.forEach(p => addExpense(p, 'pension', p.plan_name, p.monthly_contribution, p.payment_day, <SavingsIcon />, 'Pension', { name: 'Retirement', emoji: '👴' }));
 
-            liabilities.recurring_costs.forEach(c => {
+                  liabilities.recurring_costs.forEach(c => {
 
-                let icon = <Payments />; let object = { name: 'General', emoji: '💸' };
+                      let icon = <Payments />; let object = { name: 'General', emoji: '💸' };
 
-                let memberId = null;
+                      let memberId = null;
 
-                if (c.parent_type === 'member') {
+                      if (c.parent_type === 'member') {
 
-                    const m = members.find(mem => mem.id === c.parent_id);
+                          const m = members.find(mem => mem.id === parseInt(c.parent_id));
 
-                    object = { name: m ? (m.alias || m.name) : 'User', emoji: m?.emoji || '👤' }; icon = <Person />;
+                          object = { name: m ? (m.alias || m.name) : 'User', emoji: m?.emoji || '👤' }; icon = <Person />;
 
-                    memberId = c.parent_id;
+                          memberId = m ? m.id : null;
 
-                } else if (c.parent_type === 'pet') {
+                      } else if (c.parent_type === 'pet') {
 
-                    const p = members.find(mem => mem.id === c.parent_id);
+                          const p = members.find(mem => mem.id === parseInt(c.parent_id));
 
-                    object = { name: p ? (p.alias || p.name) : 'Pet', emoji: p?.emoji || '🐾' }; icon = <Pets />;
+                          object = { name: p ? (p.alias || p.name) : 'Pet', emoji: p?.emoji || '🐾' }; icon = <Pets />;
 
-                } else if (c.parent_type === 'vehicle') {
+                      } else if (c.parent_type === 'vehicle') {
 
-                    const v = liabilities.vehicles.find(v_item => v_item.id === c.parent_id);
+                          const v = liabilities.vehicles.find(v_item => v_item.id === parseInt(c.parent_id));
 
-                    object = { name: v ? `${v.make}` : 'Vehicle', emoji: v?.emoji || '🚗' }; icon = <DirectionsCar />;
+                          object = { name: v ? `${v.make}` : 'Vehicle', emoji: v?.emoji || '🚗' }; icon = <DirectionsCar />;
 
-                }
+                      }
 
-                if (c.category === 'insurance') icon = <Shield />;
+                      if (c.category === 'insurance') icon = <Shield />;
 
-                if (c.category === 'subscription') icon = <ShoppingBag />;
+                      if (c.category === 'subscription') icon = <ShoppingBag />;
 
-                if (c.category === 'service') icon = <HistoryEdu />;
+                      if (c.category === 'service') icon = <HistoryEdu />;
 
-                if (c.category === 'saving') icon = <SavingsIcon />;
+                      if (c.category === 'saving') icon = <SavingsIcon />;
 
-                addExpense(c, 'cost', c.name, c.amount, c.payment_day, icon, c.category || 'Cost', object, memberId);
+                      addExpense(c, 'cost', c.name, c.amount, c.payment_day, icon, c.category || 'Cost', object, memberId);
 
-            });
+                  });
 
             liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit', cc.card_name, 0, cc.payment_day, <CreditCard />, 'Credit Card', { name: cc.provider, emoji: cc.emoji || '💳' }));
 
