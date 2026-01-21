@@ -421,6 +421,22 @@ export default function BudgetView() {
 
   const trueDisposable = (parseFloat(currentBalance) || 0) - cycleTotals.unpaid;
 
+  const groupedPots = useMemo(() => {
+    const groups = {};
+    savingsPots.forEach(pot => {
+        if (!groups[pot.savings_id]) {
+            groups[pot.savings_id] = {
+                name: pot.account_name,
+                institution: pot.institution,
+                emoji: pot.account_emoji || '💰',
+                pots: []
+            };
+        }
+        groups[pot.savings_id].pots.push(pot);
+    });
+    return groups;
+  }, [savingsPots]);
+
   const groupedRecurring = useMemo(() => {
     if (!cycleData) return {};
     const recurring = cycleData.expenses.filter(exp => exp.frequency !== 'one-off' && exp.type !== 'pot');
@@ -620,60 +636,53 @@ export default function BudgetView() {
                     </Card>
 
                     <Card variant="outlined" sx={{ p: 3, boxShadow: 'sm' }}>
-                        <Typography level="title-lg" startDecorator={<SavingsIcon />} sx={{ mb: 2 }}>Savings Pots</Typography>
-                        <Stack spacing={2}>
-                            {savingsPots.map(pot => {
-                                const expenseKey = `pot_${pot.id}`;
-                                const progressItem = progress.find(p => p.item_key === expenseKey && p.cycle_start === cycleData.cycleKey);
-                                const isPaid = !!progressItem;
-                                const amount = progressItem?.actual_amount || 0;
-
-                                return (
-                                    <Box key={pot.id} sx={{ p: 1.5, borderRadius: 'md', bgcolor: isPaid ? 'success.softBg' : 'background.level1', border: '1px solid', borderColor: isPaid ? 'success.outlinedBorder' : 'divider' }}>
-                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-                                            <Box>
-                                                <Typography level="title-sm" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                    {pot.account_emoji || '💰'} {pot.account_name}
-                                                </Typography>
-                                                <Chip size="sm" variant="soft" color="primary">{pot.emoji} {pot.name}</Chip>
-                                                <Typography level="body-xs" sx={{ mt: 0.5, opacity: 0.7 }}>
-                                                    Current Balance: {formatCurrency(pot.current_amount)}
-                                                </Typography>
-                                            </Box>
-                                            <Checkbox 
-                                                variant="plain" 
-                                                checked={isPaid} 
-                                                onChange={() => togglePaid(expenseKey, amount)} 
-                                                disabled={savingProgress} 
-                                                uncheckedIcon={<RadioButtonUnchecked />} 
-                                                checkedIcon={<CheckCircle color="success" />} 
-                                            />
-                                        </Box>
-                                        <FormControl size="sm">
-                                            <Input 
-                                                type="number" 
-                                                placeholder="Allocate £" 
-                                                defaultValue={amount || ''} 
-                                                onBlur={(e) => updateActualAmount(expenseKey, e.target.value)}
-                                                slotProps={{ input: { step: '0.01' } }}
-                                                endDecorator={<Typography level="body-xs">GBP</Typography>}
-                                            />
-                                        </FormControl>
-                                    </Box>
-                                );
-                            })}
-                            {savingsPots.length === 0 && (
-                                <Typography level="body-xs" color="neutral" sx={{ fontStyle: 'italic', textAlign: 'center' }}>
-                                    No savings pots found.
+                        <Typography level="title-lg" startDecorator={<AccountBalanceWallet />} sx={{ mb: 2 }}>Budget Overview</Typography>
+                        
+                        <Stack spacing={1} sx={{ mb: 3 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Typography level="body-md" color="neutral">Current Balance</Typography>
+                                <Typography level="body-md" fontWeight="lg">{formatCurrency(parseFloat(currentBalance) || 0)}</Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Typography level="body-md" color="danger">Left to Pay</Typography>
+                                <Typography level="body-md" fontWeight="lg" color="danger">- {formatCurrency(cycleTotals.unpaid)}</Typography>
+                            </Box>
+                            <Divider />
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 1 }}>
+                                <Typography level="title-md">Safe to Spend</Typography>
+                                <Typography level="h2" color={trueDisposable >= 0 ? 'success' : 'danger'}>
+                                    {formatCurrency(trueDisposable)}
                                 </Typography>
-                            )}
+                            </Box>
+                            <Divider sx={{ my: 1 }} />
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Typography level="body-sm" color="neutral">Total Savings</Typography>
+                                <Typography level="title-md" color="success">{formatCurrency(savingsTotal)}</Typography>
+                            </Box>
                         </Stack>
+
+                        <Box sx={{ bgcolor: 'background.level1', p: 2, borderRadius: 'md' }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                <Typography level="body-xs" fontWeight="bold">Bills Paid</Typography>
+                                <Typography level="body-xs">{Math.round((cycleTotals.paid / (cycleTotals.total || 1)) * 100)}%</Typography>
+                            </Box>
+                            <LinearProgress 
+                                determinate 
+                                value={(cycleTotals.paid / (cycleTotals.total || 1)) * 100} 
+                                thickness={6}
+                                color="success"
+                                sx={{ bgcolor: 'background.level2' }} 
+                            />
+                            <Typography level="body-xs" sx={{ mt: 1, textAlign: 'center', color: 'neutral.500' }}>
+                                {formatCurrency(cycleTotals.paid)} paid of {formatCurrency(cycleTotals.total)} total
+                            </Typography>
+                        </Box>
                     </Card>
                 </Stack>
             </Grid>
 
             <Grid xs={12} md={9}>
-                <Stack spacing={3}>
+                <Stack spacing={4}>
                     {/* Recurring Expenses */}
                     <Box>
                         <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -831,6 +840,88 @@ export default function BudgetView() {
                                 </tbody>
                             </Table>
                         </Sheet>
+                    </Box>
+
+                    {/* Savings & Goals Contributions */}
+                    <Box>
+                        <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <SavingsIcon fontSize="small" /> Savings & Goals
+                        </Typography>
+                        
+                        <Grid container spacing={2}>
+                            {Object.entries(groupedPots).map(([accId, group]) => {
+                                const totalExpected = group.pots.reduce((sum, pot) => {
+                                    const progressItem = progress.find(p => p.item_key === `pot_${pot.id}` && p.cycle_start === cycleData.cycleKey);
+                                    return sum + (progressItem?.actual_amount || 0);
+                                }, 0);
+
+                                return (
+                                    <Grid key={accId} xs={12} lg={6}>
+                                        <Card variant="outlined" sx={{ p: 2 }}>
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar>
+                                                    <Box>
+                                                        <Typography level="title-sm">{group.name}</Typography>
+                                                        <Typography level="body-xs" color="neutral">{group.institution}</Typography>
+                                                    </Box>
+                                                </Box>
+                                                <Box sx={{ textAlign: 'right' }}>
+                                                    <Typography level="title-sm" color="success">{formatCurrency(totalExpected)}</Typography>
+                                                    <Typography level="body-xs">Cycle Target</Typography>
+                                                </Box>
+                                            </Box>
+                                            <Stack spacing={1.5}>
+                                                {group.pots.map(pot => {
+                                                    const expenseKey = `pot_${pot.id}`;
+                                                    const progressItem = progress.find(p => p.item_key === expenseKey && p.cycle_start === cycleData.cycleKey);
+                                                    const isPaid = !!progressItem;
+                                                    const amount = progressItem?.actual_amount || 0;
+
+                                                    return (
+                                                        <Box key={pot.id} sx={{ p: 1, borderRadius: 'md', bgcolor: isPaid ? 'success.softBg' : 'background.level1', border: '1px solid', borderColor: isPaid ? 'success.outlinedBorder' : 'divider' }}>
+                                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                                                                <Box>
+                                                                    <Typography level="title-xs" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>{pot.emoji} {pot.name}</Typography>
+                                                                    <Typography level="body-xs" color="neutral">Current: {formatCurrency(pot.current_amount)}</Typography>
+                                                                </Box>
+                                                                <Checkbox 
+                                                                    size="sm"
+                                                                    variant="plain" 
+                                                                    checked={isPaid} 
+                                                                    onChange={() => togglePaid(expenseKey, amount)} 
+                                                                    disabled={savingProgress} 
+                                                                    uncheckedIcon={<RadioButtonUnchecked />} 
+                                                                    checkedIcon={<CheckCircle color="success" />} 
+                                                                />
+                                                            </Box>
+                                                            <Input 
+                                                                size="sm"
+                                                                type="number" 
+                                                                placeholder="Allocate £" 
+                                                                defaultValue={amount || ''} 
+                                                                onBlur={(e) => updateActualAmount(expenseKey, e.target.value)}
+                                                                slotProps={{ input: { step: '0.01' } }}
+                                                                endDecorator={<Typography level="body-xs">GBP</Typography>}
+                                                            />
+                                                        </Box>
+                                                    );
+                                                })}
+                                            </Stack>
+                                        </Card>
+                                    </Grid>
+                                );
+                            })}
+                            {savingsPots.length === 0 && (
+                                <Grid xs={12}>
+                                    <Sheet variant="soft" sx={{ p: 2, textAlign: 'center', borderRadius: 'md' }}>
+                                        <Typography level="body-xs" color="neutral" sx={{ fontStyle: 'italic' }}>
+                                            No savings pots found. Configure them in the Savings view.
+                                        </Typography>
+                                    </Sheet>
+                                </Grid>
+                            )}
+                        </Grid>
                     </Box>
                 </Stack>
             </Grid>
