@@ -17,9 +17,10 @@ const RAIL_WIDTH = 64;
 const PANEL_WIDTH = 240;
 
 const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, activeCategory, handleNav, isMobile }) => {
+    const [isHovered, setIsHovered] = useState(false);
     const pathMatches = to && location.pathname.includes(to);
     const categoryMatches = activeCategory === category;
-    const isActive = pathMatches || categoryMatches;
+    const isActive = pathMatches || categoryMatches || isHovered;
     
     const handleClick = () => {
         if (onClick) onClick();
@@ -27,9 +28,14 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
     };
 
     const handleMouseEnter = () => {
-        if (!isMobile) {
+        setIsHovered(true);
+        if (!isMobile && hasSubItems) {
             handleNav(null, category, hasSubItems);
         }
+    };
+
+    const handleMouseLeave = () => {
+        setIsHovered(false);
     };
 
     if (isMobile) {
@@ -63,6 +69,7 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
                   selected={isActive}
                   onClick={handleClick}
                   onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
                   sx={{ 
                       borderRadius: 'md', justifyContent: 'center', px: 0, 
                       flexDirection: 'column', gap: 0.5, py: 1, width: 56, 
@@ -115,6 +122,7 @@ export default function NavSidebar({
   
   const [activeCategory, setActiveCategory] = useState(null);
   const [isPinned, setIsPinned] = useState(localStorage.getItem('nav_pinned') === 'true');
+  const [isHovered, setIsHovered] = useState(false);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [canScrollUp, setCanScrollUp] = useState(false);
   const [canScrollDown, setCanScrollDown] = useState(false);
@@ -206,7 +214,15 @@ export default function NavSidebar({
 
   const sidebarContent = (
     <Box 
-        onMouseLeave={(!isMobile && !isPinned) ? () => setActiveCategory(getCategoryFromPath(location.pathname)) : undefined}
+        onMouseEnter={() => !isMobile && setIsHovered(true)}
+        onMouseLeave={() => {
+            if (!isMobile) {
+                setIsHovered(false);
+                if (!isPinned) {
+                    setActiveCategory(getCategoryFromPath(location.pathname));
+                }
+            }
+        }}
         sx={{ 
             display: 'flex', 
             height: '100dvh',
@@ -316,17 +332,20 @@ export default function NavSidebar({
         {(showPanel || (isMobile && activeCategory)) && (
             <Sheet
                 sx={{
-                    width: isMobile ? '100%' : (showPanel ? PANEL_WIDTH : 0),
-                    position: isMobile ? 'absolute' : 'relative',
-                    left: isMobile ? 0 : 'auto', 
+                    width: isMobile ? '100%' : PANEL_WIDTH,
+                    position: (isMobile || !isPinned) ? 'absolute' : 'relative',
+                    left: (isMobile || !isPinned) ? RAIL_WIDTH : 'auto', 
                     top: 0,
-                    zIndex: isMobile ? 2600 : 2100,
-                    borderRight: (showPanel && (isPinned || isMobile)) ? '1px solid' : 'none',
+                    zIndex: (isMobile || !isPinned) ? 2600 : 2100,
+                    borderRight: '1px solid',
                     borderColor: 'divider', overflow: 'hidden',
-                    transition: isMobile ? 'none' : 'width 0.2s, left 0.2s',
+                    transition: isMobile ? 'none' : 'width 0.2s, left 0.2s, transform 0.2s, opacity 0.2s',
                     display: 'flex', flexDirection: 'column',
-                    bgcolor: 'background.level1', whiteSpace: 'nowrap', height: '100dvh',
-                    boxShadow: (!isPinned && !isMobile) ? '4px 0 12px rgba(0,0,0,0.1)' : 'none'
+                    bgcolor: 'background.surface', whiteSpace: 'nowrap', height: '100dvh',
+                    boxShadow: (!isPinned && !isMobile) ? '4px 0 12px rgba(0,0,0,0.15)' : 'none',
+                    visibility: (!isPinned && !isMobile && !showPanel) ? 'hidden' : 'visible',
+                    opacity: (!isPinned && !isMobile && !showPanel) ? 0 : 1,
+                    transform: (!isPinned && !isMobile && !showPanel) ? 'translateX(-10px)' : 'translateX(0)',
                 }}
             >
                 <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -445,9 +464,8 @@ export default function NavSidebar({
         zIndex: 2500, 
         position: 'relative', 
         overflow: 'visible',
-        width: isMobile ? '100%' : (RAIL_WIDTH + (showPanel ? PANEL_WIDTH : 0)),
-        marginRight: (!isMobile && showPanel && !isPinned) ? -PANEL_WIDTH : 0,
-        transition: 'width 0.2s, margin-right 0.2s',
+        width: isMobile ? '100%' : (isPinned && showPanel ? (RAIL_WIDTH + PANEL_WIDTH) : RAIL_WIDTH),
+        transition: 'width 0.2s',
         flexShrink: 0
     }}>
         {sidebarContent}
