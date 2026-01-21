@@ -68,10 +68,10 @@ export default function BudgetView() {
   const [familyExpenseOpen, setFamilyExpenseOpen] = useState(false);
 
   const [selectedKeys, setSelectedKeys] = useState([]);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1100);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 900);
+    const handleResize = () => setIsMobile(window.innerWidth < 1100);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -518,7 +518,6 @@ export default function BudgetView() {
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Box sx={{ display: 'flex', gap: 1 }}>
-                      {cols === 6 && exp.computedDate && <Chip size="sm" variant="soft" startDecorator={<Event sx={{ fontSize: '0.9rem' }} />}>{format(exp.computedDate, 'EEE do')}</Chip>}
                       {!hidePill && exp.object && <Chip size="sm" variant="soft" startDecorator={exp.object.emoji}>{exp.object.name}</Chip>}
                   </Box>
                   <Input size="sm" type="number" variant="soft" sx={{ maxWidth: '100px' }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} />
@@ -601,10 +600,10 @@ export default function BudgetView() {
                             const visible = getVisibleItems(items);
                             if (visible.length === 0) return null;
                             return (
-                                <>
+                                <Box sx={{ mb: 3 }}>
                                     <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><ShoppingBag fontSize="small" /> One-off Expenses</Typography>
                                     {renderSection(items)}
-                                </>
+                                </Box>
                             );
                         })()}
                     </Box>
@@ -614,7 +613,7 @@ export default function BudgetView() {
                         if (visibleExpenses.length === 0) return null;
                         const unpaidTotal = visibleExpenses.filter(e => !e.isPaid).reduce((sum, e) => sum + e.amount, 0);
                         return (
-                            <Box key={group.id}>
+                            <Box key={group.id} sx={{ mb: 3 }}>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar><Box><Typography level="title-md">{group.name}'s Expenses</Typography><Typography level="body-xs" color="neutral">One-off / Transfers</Typography></Box></Box>
                                     <Box sx={{ textAlign: 'right' }}><Typography level="title-sm" color="danger">{formatCurrency(unpaidTotal)}</Typography><Typography level="body-xs">Unpaid</Typography></Box>
@@ -626,28 +625,30 @@ export default function BudgetView() {
 
                     <Box>
                         {(() => {
-                            const hasVisibleSavings = Object.values(groupedPots).some(group => getVisibleItems(group.pots.map(p => cycleData.expenses.find(e => e.key === `pot_${p.id}`)).filter(Boolean)).length > 0);
-                            if (!hasVisibleSavings) return null;
+                            const visibleAccountGroups = Object.entries(groupedPots).map(([accId, group]) => {
+                                const potItems = group.pots.map(p => cycleData.expenses.find(e => e.key === `pot_${p.id}`)).filter(Boolean);
+                                const visiblePots = getVisibleItems(potItems);
+                                if (visiblePots.length === 0) return null;
+                                return { accId, group, visiblePots, potItems };
+                            }).filter(Boolean);
+
+                            if (visibleAccountGroups.length === 0) return null;
+
                             return (
-                                <>
+                                <Box sx={{ mb: 3 }}>
                                     <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><SavingsIcon fontSize="small" /> Savings & Goals</Typography>
                                     <Stack spacing={3}>
-                                        {Object.entries(groupedPots).map(([accId, group]) => {
-                                            const potItems = group.pots.map(p => cycleData.expenses.find(e => e.key === `pot_${p.id}`)).filter(Boolean);
-                                            const visiblePots = getVisibleItems(potItems);
-                                            if (visiblePots.length === 0) return null;
-                                            return (
-                                                <Box key={accId}>
-                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar><Box><Typography level="title-sm">{group.name}</Typography><Typography level="body-xs" color="neutral">{group.institution}</Typography></Box></Box>
-                                                        <Box sx={{ textAlign: 'right' }}><Typography level="title-sm" color="success">{formatCurrency(group.balance)}</Typography><Typography level="body-xs">Balance</Typography></Box>
-                                                    </Box>
-                                                    {renderSection(potItems, 4, true)}
+                                        {visibleAccountGroups.map(({ accId, group, potItems }) => (
+                                            <Box key={accId}>
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar><Box><Typography level="title-sm">{group.name}</Typography><Typography level="body-xs" color="neutral">{group.institution}</Typography></Box></Box>
+                                                    <Box sx={{ textAlign: 'right' }}><Typography level="title-sm" color="success">{formatCurrency(group.balance)}</Typography><Typography level="body-xs">Balance</Typography></Box>
                                                 </Box>
-                                            );
-                                        })}
+                                                {renderSection(potItems, 4, true)}
+                                            </Box>
+                                        ))}
                                     </Stack>
-                                </>
+                                </Box>
                             );
                         })()}
                     </Box>
@@ -658,10 +659,10 @@ export default function BudgetView() {
                             const visible = getVisibleItems(items);
                             if (visible.length === 0) return null;
                             return (
-                                <>
+                                <Box sx={{ mb: 3 }}>
                                     <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><SavingsIcon fontSize="small" /> Pensions</Typography>
                                     {renderSection(items, 4, true)}
-                                </>
+                                </Box>
                             );
                         })()}
                     </Box>
