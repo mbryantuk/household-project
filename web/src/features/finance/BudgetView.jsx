@@ -278,6 +278,18 @@ export default function BudgetView() {
       }
   };
 
+  const handleSelectToggle = (key) => {
+      setSelectedKeys(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
+  };
+
+  const handleSelectAll = (checked) => {
+      if (checked) {
+          setSelectedKeys(cycleData.expenses.map(e => e.key));
+      } else {
+          setSelectedKeys([]);
+      }
+  };
+
   const saveCycleData = async (pay, balance) => {
       if (!cycleData) return;
       try {
@@ -455,6 +467,8 @@ export default function BudgetView() {
       );
   }
 
+  const allSelected = cycleData.expenses.length > 0 && selectedKeys.length === cycleData.expenses.length;
+
   return (
     <Box sx={{ userSelect: 'none' }}>
         <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
@@ -596,6 +610,14 @@ export default function BudgetView() {
                     <Table hoverRow stickyHeader>
                         <thead>
                             <tr>
+                                <th style={{ width: 48, textAlign: 'center' }}>
+                                    <Checkbox 
+                                        size="sm" 
+                                        checked={allSelected} 
+                                        indeterminate={selectedKeys.length > 0 && !allSelected}
+                                        onChange={(e) => handleSelectAll(e.target.checked)} 
+                                    />
+                                </th>
                                 <th>Expense</th>
                                 <th style={{ width: 100, textAlign: 'center' }}>Date</th>
                                 <th style={{ width: 120 }}>Amount</th>
@@ -606,6 +628,14 @@ export default function BudgetView() {
                         <tbody>
                             {cycleData.expenses.filter(exp => !hidePaid || !exp.isPaid).map((exp, index) => (
                                 <tr key={exp.key} onClick={(e) => handleRowClick(e, index, exp.key)} style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}>
+                                    <td style={{ textAlign: 'center' }}>
+                                        <Checkbox 
+                                            size="sm" 
+                                            checked={selectedKeys.includes(exp.key)} 
+                                            onChange={() => handleSelectToggle(exp.key)} 
+                                            onClick={(e) => e.stopPropagation()}
+                                        />
+                                    </td>
                                     <td>
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                                             <Avatar size="sm" sx={{ bgcolor: getEmojiColor(exp.label, isDark), color: '#fff' }}>{exp.icon}</Avatar>
@@ -619,9 +649,20 @@ export default function BudgetView() {
                                         </Box>
                                     </td>
                                     <td><Box sx={{ textAlign: 'center' }}><Typography level="body-sm" fontWeight="lg">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral">{format(exp.computedDate, 'EEE do')}</Typography>}</Box></td>
-                                    <td><Input size="sm" type="number" variant="soft" defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} slotProps={{ input: { step: '0.01' } }} /></td>
-                                    <td style={{ textAlign: 'center' }}><Checkbox variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} disabled={savingProgress} uncheckedIcon={<RadioButtonUnchecked />} checkedIcon={<CheckCircle color="success" />} sx={{ bgcolor: 'transparent' }} /></td>
-                                    <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" onClick={() => deleteExpense(exp.id)}><Delete /></IconButton>}</td>
+                                    <td><Input size="sm" type="number" variant="soft" defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} slotProps={{ input: { step: '0.01' } }} /></td>
+                                    <td style={{ textAlign: 'center' }}>
+                                        <Checkbox 
+                                            variant="plain" 
+                                            checked={exp.isPaid} 
+                                            onChange={() => togglePaid(exp.key, exp.amount)} 
+                                            disabled={savingProgress} 
+                                            uncheckedIcon={<RadioButtonUnchecked />} 
+                                            checkedIcon={<CheckCircle color="success" />} 
+                                            onClick={(e) => e.stopPropagation()}
+                                            sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} 
+                                        />
+                                    </td>
+                                    <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" onClick={(e) => { e.stopPropagation(); deleteExpense(exp.id); }}><Delete /></IconButton>}</td>
                                 </tr>
                             ))}
                         </tbody>
