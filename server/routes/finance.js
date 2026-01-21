@@ -206,6 +206,47 @@ const handleSubDelete = (childTable, parentTable, parentKey) => (req, res) => {
     });
 };
 
+const handleSubUpdate = (childTable, parentTable, parentKey) => (req, res) => {
+    const parentId = req.params[parentKey];
+    const itemId = req.params.itemId;
+    const foreignKey = parentKey.replace('Id', '_id');
+
+    // Verify parent ownership
+    req.tenantDb.get(`SELECT id FROM ${parentTable} WHERE id = ? AND household_id = ?`, [parentId, req.hhId], (err, row) => {
+        if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
+        if (!row) { closeDb(req); return res.status(404).json({ error: "Parent resource not found or access denied" }); }
+
+        // Perform update
+        req.tenantDb.all(`PRAGMA table_info(${childTable})`, [], (pErr, cols) => {
+            if (pErr) { closeDb(req); return res.status(500).json({ error: pErr.message }); }
+            
+            const validColumns = cols.map(c => c.name);
+            const data = encryptPayload(req.body);
+            
+            const updateData = {};
+            Object.keys(data).forEach(key => {
+                // Ensure we don't update ID or the foreign key link via this route
+                if (validColumns.includes(key) && key !== 'id' && key !== foreignKey) {
+                    updateData[key] = data[key];
+                }
+            });
+
+            const fields = Object.keys(updateData);
+            if (fields.length === 0) { closeDb(req); return res.status(400).json({ error: "No valid fields" }); }
+
+            const sets = fields.map(f => `${f} = ?`).join(', ');
+            const values = Object.values(updateData);
+
+            req.tenantDb.run(`UPDATE ${childTable} SET ${sets} WHERE id = ? AND ${foreignKey} = ?`, [...values, itemId, parentId], function(uErr) {
+                closeDb(req);
+                if (uErr) return res.status(500).json({ error: uErr.message });
+                if (this.changes === 0) return res.status(404).json({ error: "Item not found" });
+                res.json({ message: "Updated" });
+            });
+        });
+    });
+};
+
 
 // ==========================================
 // 🚀 ROUTES
@@ -240,7 +281,7 @@ router.get('/households/:id/finance/savings/pots', authenticateToken, requireHou
 
 router.get('/households/:id/finance/savings/:savingsId/pots', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleSubList('finance_savings_pots', 'finance_savings', 'savingsId'));
 router.post('/households/:id/finance/savings/:savingsId/pots', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleSubCreate('finance_savings_pots', 'finance_savings', 'savingsId'));
-router.put('/households/:id/finance/savings/:savingsId/pots/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('finance_savings_pots'));
+router.put('/households/:id/finance/savings/:savingsId/pots/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleSubUpdate('finance_savings_pots', 'finance_savings', 'savingsId'));
 router.delete('/households/:id/finance/savings/:savingsId/pots/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleSubDelete('finance_savings_pots', 'finance_savings', 'savingsId'));
 
 // --- CREDIT CARDS ---

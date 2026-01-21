@@ -388,8 +388,12 @@ export default function BudgetView() {
 
   const cycleTotals = useMemo(() => {
       if (!cycleData) return { total: 0, paid: 0, unpaid: 0 };
-      const total = cycleData.expenses.reduce((sum, e) => sum + e.amount, 0);
-      const paid = cycleData.expenses.filter(e => e.isPaid).reduce((sum, e) => sum + e.amount, 0);
+      
+      // Filter out items that are not paid and have 0 amount (unallocated pots)
+      const activeExpenses = cycleData.expenses.filter(e => e.isPaid || e.amount > 0);
+      
+      const total = activeExpenses.reduce((sum, e) => sum + e.amount, 0);
+      const paid = activeExpenses.filter(e => e.isPaid).reduce((sum, e) => sum + e.amount, 0);
       return { total, paid, unpaid: total - paid };
   }, [cycleData]);
 
@@ -629,9 +633,9 @@ export default function BudgetView() {
                                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                                             <Box>
                                                 <Typography level="title-sm" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                    {pot.emoji} {pot.name}
+                                                    {pot.account_emoji || '💰'} {pot.account_name}
                                                 </Typography>
-                                                <Chip size="sm" variant="soft" color="primary">{pot.account_name}</Chip>
+                                                <Chip size="sm" variant="soft" color="primary">{pot.emoji} {pot.name}</Chip>
                                                 <Typography level="body-xs" sx={{ mt: 0.5, opacity: 0.7 }}>
                                                     Current Balance: {formatCurrency(pot.current_amount)}
                                                 </Typography>
