@@ -169,298 +169,643 @@ export default function BudgetView() {
       }
       if (daysRemaining < 0) daysRemaining = 0;
 
-      const expenses = [];
-      const addExpense = (item, type, label, amount, day, icon, category, object = null) => {
-          const key = `${type}_${item.id || 'fixed'}`;
-          const progressItem = progress.find(p => p.item_key === key && p.cycle_start === cycleKey);
-          if (item.frequency === 'one-off' && item.next_due !== cycleKey) return;
+            const expenses = [];
 
-          const useNwd = item.nearest_working_day !== undefined ? !!item.nearest_working_day : true;
-          const computedDate = getAdjustedDate(day, useNwd, startDate);
+            const addExpense = (item, type, label, amount, day, icon, category, object = null, memberId = null) => {
 
-          expenses.push({
-              key, type, label, amount: progressItem?.actual_amount || parseFloat(amount) || 0,
-              day: parseInt(day) || 1, computedDate, icon, category,
-              isPaid: !!progressItem, isDeletable: type === 'cost' && (item.frequency === 'one-off' || item.parent_type === 'general'),
-              id: item.id, object, frequency: item.frequency || 'monthly'
-          });
-      };
+                const key = `${type}_${item.id || 'fixed'}`;
 
-      liabilities.mortgages.forEach(m => addExpense(m, 'mortgage', m.lender, m.monthly_payment, m.payment_day, <Home />, 'Liability', { name: 'House', emoji: '🏠' }));
-      liabilities.loans.forEach(l => addExpense(l, 'loan', `${l.lender} Loan`, l.monthly_payment, l.payment_day, <TrendingDown />, 'Liability', { name: 'Finance', emoji: '💰' }));
-      liabilities.agreements.forEach(a => addExpense(a, 'agreement', a.agreement_name, a.monthly_payment, a.payment_day, <Assignment />, 'Agreement', { name: a.provider, emoji: '📄' }));
-      liabilities.vehicle_finance.forEach(v => {
-          const veh = liabilities.vehicles.find(v_item => v_item.id === v.vehicle_id);
-          addExpense(v, 'car_finance', `Finance: ${v.provider}`, v.monthly_payment, v.payment_day, <DirectionsCar />, 'Liability', { name: veh ? `${veh.make} ${veh.model}` : 'Vehicle', emoji: veh?.emoji || '🚗' });
-      });
-      liabilities.pensions.forEach(p => addExpense(p, 'pension', p.plan_name, p.monthly_contribution, p.payment_day, <SavingsIcon />, 'Pension', { name: 'Retirement', emoji: '👴' }));
-      liabilities.recurring_costs.forEach(c => {
-          let icon = <Payments />; let object = { name: 'General', emoji: '💸' };
-          if (c.parent_type === 'member') {
-              const m = members.find(mem => mem.id === c.parent_id);
-              object = { name: m ? (m.alias || m.name) : 'User', emoji: m?.emoji || '👤' }; icon = <Person />;
-          } else if (c.parent_type === 'pet') {
-              const p = members.find(mem => mem.id === c.parent_id);
-              object = { name: p ? (p.alias || p.name) : 'Pet', emoji: p?.emoji || '🐾' }; icon = <Pets />;
-          } else if (c.parent_type === 'vehicle') {
-              const v = liabilities.vehicles.find(v_item => v_item.id === c.parent_id);
-              object = { name: v ? `${v.make}` : 'Vehicle', emoji: v?.emoji || '🚗' }; icon = <DirectionsCar />;
-          }
-          if (c.category === 'insurance') icon = <Shield />;
-          if (c.category === 'subscription') icon = <ShoppingBag />;
-          if (c.category === 'service') icon = <HistoryEdu />;
-          if (c.category === 'saving') icon = <SavingsIcon />;
-          addExpense(c, 'cost', c.name, c.amount, c.payment_day, icon, c.category || 'Cost', object);
-      });
-      liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit', cc.card_name, 0, cc.payment_day, <CreditCard />, 'Credit Card', { name: cc.provider, emoji: cc.emoji || '💳' }));
-      if (liabilities.water) addExpense(liabilities.water, 'water', 'Water Bill', liabilities.water.monthly_amount, liabilities.water.payment_day, <WaterDrop />, 'Utility', { name: 'House', emoji: '💧' });
-      if (liabilities.council) addExpense(liabilities.council, 'council', 'Council Tax', liabilities.council.monthly_amount, liabilities.council.payment_day, <AccountBalance />, 'Utility', { name: 'House', emoji: '🏛️' });
-      if (liabilities.energy) liabilities.energy.forEach(e => addExpense(e, 'energy', `${e.provider} (${e.type})`, e.monthly_amount, e.payment_day, <ElectricBolt />, 'Utility', { name: 'House', emoji: '⚡' }));
+                const progressItem = progress.find(p => p.item_key === key && p.cycle_start === cycleKey);
 
-      savingsPots.forEach(pot => {
-          addExpense(pot, 'pot', pot.name, 0, pot.deposit_day || 1, <SavingsIcon />, 'Saving', { name: pot.account_name, emoji: pot.account_emoji || '💰' });
-      });
+                if (item.frequency === 'one-off' && item.next_due !== cycleKey) return;
 
-      return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, expenses: expenses.sort((a, b) => (a.computedDate || 0) - (b.computedDate || 0)) };
-  }, [incomes, liabilities, progress, viewDate, members, getPriorWorkingDay, getAdjustedDate, savingsPots]);
-
-  const currentCycleRecord = useMemo(() => {
-    return cycles.find(c => c.cycle_start === cycleData?.cycleKey);
-  }, [cycles, cycleData]);
-
-  const cycleEvents = useMemo(() => {
-    if (!cycleData) return [];
-    const events = [];
-
-    bankHolidays.forEach(h => {
-        const date = new Date(h);
-        if (date >= cycleData.startDate && date <= cycleData.endDate) {
-            events.push({ type: 'holiday', date, label: 'Bank Holiday', emoji: '🇬🇧' });
-        }
-    });
-
-    members.forEach(m => {
-        if (!m.dob) return;
-        const dob = new Date(m.dob);
-        const currentYearBirthday = new Date(cycleData.startDate.getFullYear(), dob.getMonth(), dob.getDate());
-        const nextYearBirthday = new Date(cycleData.startDate.getFullYear() + 1, dob.getMonth(), dob.getDate());
-        
-        let targetDate = null;
-        if (currentYearBirthday >= cycleData.startDate && currentYearBirthday <= cycleData.endDate) targetDate = currentYearBirthday;
-        else if (nextYearBirthday >= cycleData.startDate && nextYearBirthday <= cycleData.endDate) targetDate = nextYearBirthday;
-
-        if (targetDate) {
-            events.push({ type: 'birthday', date: targetDate, label: `${m.name}'s Birthday`, emoji: '🎂' });
-        }
-    });
-
-    return events.sort((a, b) => a.date - b.date);
-  }, [cycleData, bankHolidays, members]);
-
-  useEffect(() => {
-      if (currentCycleRecord) {
-          setActualPay(currentCycleRecord.actual_pay);
-          setCurrentBalance(currentCycleRecord.current_balance);
-      } else {
-          setActualPay('');
-          setCurrentBalance('');
-      }
-  }, [currentCycleRecord]);
-
-  const handleRowClick = (e, index, key) => {
-      const isShift = e.shiftKey; const isCtrl = e.metaKey || e.ctrlKey;
-      if (isShift && lastSelectedIndex !== null) {
-          const start = Math.min(lastSelectedIndex, index); const end = Math.max(lastSelectedIndex, index);
-          const keysInRange = cycleData.expenses.filter((_, i) => i >= start && i <= end).map(exp => exp.key);
-          setSelectedKeys(prev => Array.from(new Set([...prev, ...keysInRange])));
-      } else if (isCtrl) {
-          setSelectedKeys(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
-          setLastSelectedIndex(index);
-      } else {
-          setSelectedKeys([key]); setLastSelectedIndex(index);
-      }
-  };
-
-  const handleSelectToggle = (key) => {
-      setSelectedKeys(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
-  };
-
-  const saveCycleData = async (pay, balance) => {
-      if (!cycleData) return;
-      try {
-          await api.post(`/households/${householdId}/finance/budget-cycles`, {
-              cycle_start: cycleData.cycleKey, actual_pay: parseFloat(pay) || 0, current_balance: parseFloat(balance) || 0
-          });
-          const res = await api.get(`/households/${householdId}/finance/budget-cycles`);
-          setCycles(res.data || []);
-      } catch (err) { console.error("Failed to save cycle data", err); }
-  };
-
-  const createCycle = async (copyPrevious = false) => {
-      let pay = 0;
-      let balance = 0;
-      if (copyPrevious) {
-          const prevDate = addMonths(cycleData.startDate, -1);
-          const prevCycle = cycles.find(c => {
-             const d = new Date(c.cycle_start);
-             return d.getMonth() === prevDate.getMonth() && d.getFullYear() === prevDate.getFullYear();
-          });
-          if (prevCycle) {
-              pay = prevCycle.actual_pay;
-              balance = prevCycle.current_balance;
-          }
-      }
-      await saveCycleData(pay, balance);
-  };
-
-  const updateActualAmount = async (itemKey, amount) => {
-      try {
-          await api.post(`/households/${householdId}/finance/budget-progress`, {
-              cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: 1, actual_amount: parseFloat(amount) || 0
-          });
-          const progRes = await api.get(`/households/${householdId}/finance/budget-progress`);
-          setProgress(progRes.data || []);
-          
-          if (itemKey.startsWith('pot_')) {
-              const potRes = await api.get(`/households/${householdId}/finance/savings/pots`);
-              setSavingsPots(potRes.data || []);
-          }
-      } catch (err) { console.error("Failed to update actual amount", err); }
-  };
-
-  const togglePaid = async (itemKey, amount = 0) => {
-      setSavingProgress(true);
-      try {
-          const isCurrentlyPaid = progress.some(p => p.item_key === itemKey && p.cycle_start === cycleData.cycleKey);
-          if (isCurrentlyPaid) {
-              await api.delete(`/households/${householdId}/finance/budget-progress/${cycleData.cycleKey}/${itemKey}`);
-          } else {
-              await api.post(`/households/${householdId}/finance/budget-progress`, {
-                  cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: 1, actual_amount: amount
-              });
-          }
-          const progRes = await api.get(`/households/${householdId}/finance/budget-progress`);
-          setProgress(progRes.data || []);
-
-          if (itemKey.startsWith('pot_')) {
-              const potRes = await api.get(`/households/${householdId}/finance/savings/pots`);
-              setSavingsPots(potRes.data || []);
-          }
-      } catch (err) { console.error("Failed to toggle paid status", err); } finally { setSavingProgress(false); }
-  };
-
-  const handleRecurringAdd = async (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.currentTarget);
-      const data = Object.fromEntries(formData.entries());
-      const [type, id] = (data.assigned_to || 'general_1').split('_');
-      data.parent_type = type; data.parent_id = id;
-      data.nearest_working_day = data.nearest_working_day === "1" ? 1 : 0;
-      delete data.assigned_to;
-      try {
-          await api.post(`/households/${householdId}/costs`, data);
-          showNotification("Recurring expense added.", "success");
-          fetchData(); setRecurringAddOpen(false);
-      } catch { alert("Failed to add recurring expense"); }
-  };
-
-  const handleQuickAdd = async (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.currentTarget);
-      const data = Object.fromEntries(formData.entries());
-      data.parent_type = 'general'; data.parent_id = 1; data.frequency = 'one-off'; 
-      data.next_due = cycleData.cycleKey;
-      data.nearest_working_day = data.nearest_working_day === "1" ? 1 : 0;
-      try {
-          await api.post(`/households/${householdId}/costs`, data);
-          showNotification("One-off expense added.", "success");
-          fetchData(); setQuickAddOpen(false);
-      } catch { alert("Failed to add one-off expense"); }
-  };
-
-  const deleteExpense = async (id) => {
-      if (!window.confirm("Remove this expense from recurring costs?")) return;
-      try {
-          await api.delete(`/households/${householdId}/costs/${id}`);
-          fetchData();
-      } catch (err) { console.error("Failed to delete expense", err); }
-  };
-
-  const cycleTotals = useMemo(() => {
-      if (!cycleData) return { total: 0, paid: 0, unpaid: 0 };
       
-      // Filter out items that are not paid and have 0 amount (unallocated pots)
-      const activeExpenses = cycleData.expenses.filter(e => e.isPaid || e.amount > 0);
+
+                const useNwd = item.nearest_working_day !== undefined ? !!item.nearest_working_day : true;
+
+                const computedDate = getAdjustedDate(day, useNwd, startDate);
+
       
-      const total = activeExpenses.reduce((sum, e) => sum + e.amount, 0);
-      const paid = activeExpenses.filter(e => e.isPaid).reduce((sum, e) => sum + e.amount, 0);
-      return { total, paid, unpaid: total - paid };
-  }, [cycleData]);
 
-  const savingsTotal = useMemo(() => {
-      return savingsPots.reduce((sum, pot) => sum + (parseFloat(pot.current_amount) || 0), 0);
-  }, [savingsPots]);
+                expenses.push({
 
-  const selectedTotals = useMemo(() => {
-      if (!selectedKeys.length || !cycleData) return null;
-      const selected = cycleData.expenses.filter(e => selectedKeys.includes(e.key));
-      const total = selected.reduce((sum, e) => sum + e.amount, 0);
-      const paid = selected.filter(e => e.isPaid).reduce((sum, e) => sum + e.amount, 0);
-      return {
-          count: selected.length,
-          total,
-          paid,
-          unpaid: total - paid
-      };
-  }, [selectedKeys, cycleData]);
-  
-  useEffect(() => {
-      setStatusBarData(selectedTotals);
-      return () => setStatusBarData(null);
-  }, [selectedTotals, setStatusBarData]);
+                    key, type, label, amount: progressItem?.actual_amount || parseFloat(amount) || 0,
 
-  const trueDisposable = (parseFloat(currentBalance) || 0) - cycleTotals.unpaid;
+                    day: parseInt(day) || 1, computedDate, icon, category,
 
-  const groupedPots = useMemo(() => {
-    const groups = {};
-    savingsPots.forEach(pot => {
-        if (!groups[pot.savings_id]) {
-            groups[pot.savings_id] = {
-                name: pot.account_name,
-                institution: pot.institution,
-                emoji: pot.account_emoji || '💰',
-                balance: pot.current_balance || 0,
-                pots: []
+                    isPaid: !!progressItem, isDeletable: type === 'cost' && (item.frequency === 'one-off' || item.parent_type === 'general'),
+
+                    id: item.id, object, frequency: item.frequency || 'monthly', memberId
+
+                });
+
             };
-        }
-        groups[pot.savings_id].pots.push(pot);
-    });
-    return groups;
-  }, [savingsPots]);
 
-  const groupedRecurring = useMemo(() => {
-    if (!cycleData) return {};
-    const recurring = cycleData.expenses.filter(exp => exp.frequency !== 'one-off' && exp.type !== 'pot' && exp.type !== 'pension' && exp.type !== 'investment');
-    const groups = {};
-    recurring.forEach(exp => {
-        const freq = exp.frequency || 'monthly';
-        if (!groups[freq]) groups[freq] = [];
-        groups[freq].push(exp);
-    });
-    return groups;
-  }, [cycleData]);
+      
 
-  const pensionExpenses = useMemo(() => {
-      if (!cycleData) return [];
-      return cycleData.expenses.filter(exp => exp.type === 'pension');
-  }, [cycleData]);
+            liabilities.mortgages.forEach(m => addExpense(m, 'mortgage', m.lender, m.monthly_payment, m.payment_day, <Home />, 'Liability', { name: 'House', emoji: '🏠' }));
 
-  const investmentExpenses = useMemo(() => {
-      if (!cycleData) return [];
-      return cycleData.expenses.filter(exp => exp.type === 'investment');
-  }, [cycleData]);
+            liabilities.loans.forEach(l => addExpense(l, 'loan', `${l.lender} Loan`, l.monthly_payment, l.payment_day, <TrendingDown />, 'Liability', { name: 'Finance', emoji: '💰' }));
 
-  const frequencyOrder = ['weekly', 'fortnightly', 'four-weekly', 'monthly', 'quarterly', 'annual'];
+            liabilities.agreements.forEach(a => addExpense(a, 'agreement', a.agreement_name, a.monthly_payment, a.payment_day, <Assignment />, 'Agreement', { name: a.provider, emoji: '📄' }));
+
+            liabilities.vehicle_finance.forEach(v => {
+
+                const veh = liabilities.vehicles.find(v_item => v_item.id === v.vehicle_id);
+
+                addExpense(v, 'car_finance', `Finance: ${v.provider}`, v.monthly_payment, v.payment_day, <DirectionsCar />, 'Liability', { name: veh ? `${veh.make} ${veh.model}` : 'Vehicle', emoji: veh?.emoji || '🚗' });
+
+            });
+
+            liabilities.pensions.forEach(p => addExpense(p, 'pension', p.plan_name, p.monthly_contribution, p.payment_day, <SavingsIcon />, 'Pension', { name: 'Retirement', emoji: '👴' }));
+
+            liabilities.recurring_costs.forEach(c => {
+
+                let icon = <Payments />; let object = { name: 'General', emoji: '💸' };
+
+                let memberId = null;
+
+                if (c.parent_type === 'member') {
+
+                    const m = members.find(mem => mem.id === c.parent_id);
+
+                    object = { name: m ? (m.alias || m.name) : 'User', emoji: m?.emoji || '👤' }; icon = <Person />;
+
+                    memberId = c.parent_id;
+
+                } else if (c.parent_type === 'pet') {
+
+                    const p = members.find(mem => mem.id === c.parent_id);
+
+                    object = { name: p ? (p.alias || p.name) : 'Pet', emoji: p?.emoji || '🐾' }; icon = <Pets />;
+
+                } else if (c.parent_type === 'vehicle') {
+
+                    const v = liabilities.vehicles.find(v_item => v_item.id === c.parent_id);
+
+                    object = { name: v ? `${v.make}` : 'Vehicle', emoji: v?.emoji || '🚗' }; icon = <DirectionsCar />;
+
+                }
+
+                if (c.category === 'insurance') icon = <Shield />;
+
+                if (c.category === 'subscription') icon = <ShoppingBag />;
+
+                if (c.category === 'service') icon = <HistoryEdu />;
+
+                if (c.category === 'saving') icon = <SavingsIcon />;
+
+                addExpense(c, 'cost', c.name, c.amount, c.payment_day, icon, c.category || 'Cost', object, memberId);
+
+            });
+
+            liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit', cc.card_name, 0, cc.payment_day, <CreditCard />, 'Credit Card', { name: cc.provider, emoji: cc.emoji || '💳' }));
+
+            if (liabilities.water) addExpense(liabilities.water, 'water', 'Water Bill', liabilities.water.monthly_amount, liabilities.water.payment_day, <WaterDrop />, 'Utility', { name: 'House', emoji: '💧' });
+
+            if (liabilities.council) addExpense(liabilities.council, 'council', 'Council Tax', liabilities.council.monthly_amount, liabilities.council.payment_day, <AccountBalance />, 'Utility', { name: 'House', emoji: '🏛️' });
+
+            if (liabilities.energy) liabilities.energy.forEach(e => addExpense(e, 'energy', `${e.provider} (${e.type})`, e.monthly_amount, e.payment_day, <ElectricBolt />, 'Utility', { name: 'House', emoji: '⚡' }));
+
+      
+
+            savingsPots.forEach(pot => {
+
+                addExpense(pot, 'pot', pot.name, 0, pot.deposit_day || 1, <SavingsIcon />, 'Saving', { name: pot.account_name, emoji: pot.account_emoji || '💰' });
+
+            });
+
+      
+
+            return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, expenses: expenses.sort((a, b) => (a.computedDate || 0) - (b.computedDate || 0)) };
+
+        }, [incomes, liabilities, progress, viewDate, members, getPriorWorkingDay, getAdjustedDate, savingsPots]);
+
+      
+
+        const currentCycleRecord = useMemo(() => {
+
+          return cycles.find(c => c.cycle_start === cycleData?.cycleKey);
+
+        }, [cycles, cycleData]);
+
+      
+
+        const cycleEvents = useMemo(() => {
+
+          if (!cycleData) return [];
+
+          const events = [];
+
+      
+
+          bankHolidays.forEach(h => {
+
+              const date = new Date(h);
+
+              if (date >= cycleData.startDate && date <= cycleData.endDate) {
+
+                  events.push({ type: 'holiday', date, label: 'Bank Holiday', emoji: '🇬🇧' });
+
+              }
+
+          });
+
+      
+
+          members.forEach(m => {
+
+              if (!m.dob) return;
+
+              const dob = new Date(m.dob);
+
+              const currentYearBirthday = new Date(cycleData.startDate.getFullYear(), dob.getMonth(), dob.getDate());
+
+              const nextYearBirthday = new Date(cycleData.startDate.getFullYear() + 1, dob.getMonth(), dob.getDate());
+
+              
+
+              let targetDate = null;
+
+              if (currentYearBirthday >= cycleData.startDate && currentYearBirthday <= cycleData.endDate) targetDate = currentYearBirthday;
+
+              else if (nextYearBirthday >= cycleData.startDate && nextYearBirthday <= cycleData.endDate) targetDate = nextYearBirthday;
+
+      
+
+              if (targetDate) {
+
+                  events.push({ type: 'birthday', date: targetDate, label: `${m.name}'s Birthday`, emoji: '🎂' });
+
+              }
+
+          });
+
+      
+
+          return events.sort((a, b) => a.date - b.date);
+
+        }, [cycleData, bankHolidays, members]);
+
+      
+
+        useEffect(() => {
+
+            if (currentCycleRecord) {
+
+                setActualPay(currentCycleRecord.actual_pay);
+
+                setCurrentBalance(currentCycleRecord.current_balance);
+
+            } else {
+
+                setActualPay('');
+
+                setCurrentBalance('');
+
+            }
+
+        }, [currentCycleRecord]);
+
+      
+
+        const handleRowClick = (e, index, key) => {
+
+            const isShift = e.shiftKey; const isCtrl = e.metaKey || e.ctrlKey;
+
+            if (isShift && lastSelectedIndex !== null) {
+
+                const start = Math.min(lastSelectedIndex, index); const end = Math.max(lastSelectedIndex, index);
+
+                const keysInRange = cycleData.expenses.filter((_, i) => i >= start && i <= end).map(exp => exp.key);
+
+                setSelectedKeys(prev => Array.from(new Set([...prev, ...keysInRange])));
+
+            } else if (isCtrl) {
+
+                setSelectedKeys(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
+
+                setLastSelectedIndex(index);
+
+            } else {
+
+                setSelectedKeys([key]); setLastSelectedIndex(index);
+
+            }
+
+        };
+
+      
+
+        const handleSelectToggle = (key) => {
+
+            setSelectedKeys(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
+
+        };
+
+      
+
+        const saveCycleData = async (pay, balance) => {
+
+            if (!cycleData) return;
+
+            try {
+
+                await api.post(`/households/${householdId}/finance/budget-cycles`, {
+
+                    cycle_start: cycleData.cycleKey, actual_pay: parseFloat(pay) || 0, current_balance: parseFloat(balance) || 0
+
+                });
+
+                const res = await api.get(`/households/${householdId}/finance/budget-cycles`);
+
+                setCycles(res.data || []);
+
+            } catch (err) { console.error("Failed to save cycle data", err); }
+
+        };
+
+      
+
+        const createCycle = async (copyPrevious = false) => {
+
+            let pay = 0;
+
+            let balance = 0;
+
+            if (copyPrevious) {
+
+                const prevDate = addMonths(cycleData.startDate, -1);
+
+                const prevCycle = cycles.find(c => {
+
+                   const d = new Date(c.cycle_start);
+
+                   return d.getMonth() === prevDate.getMonth() && d.getFullYear() === prevDate.getFullYear();
+
+                });
+
+                if (prevCycle) {
+
+                    pay = prevCycle.actual_pay;
+
+                    balance = prevCycle.current_balance;
+
+                }
+
+            }
+
+            await saveCycleData(pay, balance);
+
+        };
+
+      
+
+        const updateActualAmount = async (itemKey, amount) => {
+
+            try {
+
+                await api.post(`/households/${householdId}/finance/budget-progress`, {
+
+                    cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: 1, actual_amount: parseFloat(amount) || 0
+
+                });
+
+                const progRes = await api.get(`/households/${householdId}/finance/budget-progress`);
+
+                setProgress(progRes.data || []);
+
+                
+
+                if (itemKey.startsWith('pot_')) {
+
+                    const potRes = await api.get(`/households/${householdId}/finance/savings/pots`);
+
+                    setSavingsPots(potRes.data || []);
+
+                }
+
+            } catch (err) { console.error("Failed to update actual amount", err); }
+
+        };
+
+      
+
+        const togglePaid = async (itemKey, amount = 0) => {
+
+            setSavingProgress(true);
+
+            try {
+
+                const isCurrentlyPaid = progress.some(p => p.item_key === itemKey && p.cycle_start === cycleData.cycleKey);
+
+                if (isCurrentlyPaid) {
+
+                    await api.delete(`/households/${householdId}/finance/budget-progress/${cycleData.cycleKey}/${itemKey}`);
+
+                } else {
+
+                    await api.post(`/households/${householdId}/finance/budget-progress`, {
+
+                        cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: 1, actual_amount: amount
+
+                    });
+
+                }
+
+                const progRes = await api.get(`/households/${householdId}/finance/budget-progress`);
+
+                setProgress(progRes.data || []);
+
+      
+
+                if (itemKey.startsWith('pot_')) {
+
+                    const potRes = await api.get(`/households/${householdId}/finance/savings/pots`);
+
+                    setSavingsPots(potRes.data || []);
+
+                }
+
+            } catch (err) { console.error("Failed to toggle paid status", err); } finally { setSavingProgress(false); }
+
+        };
+
+      
+
+        const handleRecurringAdd = async (e) => {
+
+            e.preventDefault();
+
+            const formData = new FormData(e.currentTarget);
+
+            const data = Object.fromEntries(formData.entries());
+
+            const [type, id] = (data.assigned_to || 'general_1').split('_');
+
+            data.parent_type = type; data.parent_id = id;
+
+            data.nearest_working_day = data.nearest_working_day === "1" ? 1 : 0;
+
+            delete data.assigned_to;
+
+            try {
+
+                await api.post(`/households/${householdId}/costs`, data);
+
+                showNotification("Recurring expense added.", "success");
+
+                fetchData(); setRecurringAddOpen(false);
+
+            } catch { alert("Failed to add recurring expense"); }
+
+        };
+
+      
+
+        const handleQuickAdd = async (e) => {
+
+            e.preventDefault();
+
+            const formData = new FormData(e.currentTarget);
+
+            const data = Object.fromEntries(formData.entries());
+
+            data.parent_type = 'general'; data.parent_id = 1; data.frequency = 'one-off'; 
+
+            data.next_due = cycleData.cycleKey;
+
+            data.nearest_working_day = data.nearest_working_day === "1" ? 1 : 0;
+
+            try {
+
+                await api.post(`/households/${householdId}/costs`, data);
+
+                showNotification("One-off expense added.", "success");
+
+                fetchData(); setQuickAddOpen(false);
+
+            } catch { alert("Failed to add one-off expense"); }
+
+        };
+
+      
+
+        const deleteExpense = async (id) => {
+
+            if (!window.confirm("Remove this expense from recurring costs?")) return;
+
+            try {
+
+                await api.delete(`/households/${householdId}/costs/${id}`);
+
+                fetchData();
+
+            } catch (err) { console.error("Failed to delete expense", err); }
+
+        };
+
+      
+
+        const cycleTotals = useMemo(() => {
+
+            if (!cycleData) return { total: 0, paid: 0, unpaid: 0 };
+
+            
+
+            // Filter out items that are not paid and have 0 amount (unallocated pots)
+
+            const activeExpenses = cycleData.expenses.filter(e => e.isPaid || e.amount > 0);
+
+            
+
+            const total = activeExpenses.reduce((sum, e) => sum + e.amount, 0);
+
+            const paid = activeExpenses.filter(e => e.isPaid).reduce((sum, e) => sum + e.amount, 0);
+
+            return { total, paid, unpaid: total - paid };
+
+        }, [cycleData]);
+
+      
+
+        const savingsTotal = useMemo(() => {
+
+            return savingsPots.reduce((sum, pot) => sum + (parseFloat(pot.current_amount) || 0), 0);
+
+        }, [savingsPots]);
+
+      
+
+        const selectedTotals = useMemo(() => {
+
+            if (!selectedKeys.length || !cycleData) return null;
+
+            const selected = cycleData.expenses.filter(e => selectedKeys.includes(e.key));
+
+            const total = selected.reduce((sum, e) => sum + e.amount, 0);
+
+            const paid = selected.filter(e => e.isPaid).reduce((sum, e) => sum + e.amount, 0);
+
+            return {
+
+                count: selected.length,
+
+                total,
+
+                paid,
+
+                unpaid: total - paid
+
+            };
+
+        }, [selectedKeys, cycleData]);
+
+        
+
+        useEffect(() => {
+
+            setStatusBarData(selectedTotals);
+
+            return () => setStatusBarData(null);
+
+        }, [selectedTotals, setStatusBarData]);
+
+      
+
+        const trueDisposable = (parseFloat(currentBalance) || 0) - cycleTotals.unpaid;
+
+      
+
+        const groupedPots = useMemo(() => {
+
+          const groups = {};
+
+          savingsPots.forEach(pot => {
+
+              if (!groups[pot.savings_id]) {
+
+                  groups[pot.savings_id] = {
+
+                      name: pot.account_name,
+
+                      institution: pot.institution,
+
+                      emoji: pot.account_emoji || '💰',
+
+                      balance: pot.current_balance || 0,
+
+                      pots: []
+
+                  };
+
+              }
+
+              groups[pot.savings_id].pots.push(pot);
+
+          });
+
+          return groups;
+
+        }, [savingsPots]);
+
+      
+
+        const groupedRecurring = useMemo(() => {
+
+          if (!cycleData) return {};
+
+          const recurring = cycleData.expenses.filter(exp => 
+
+              exp.frequency !== 'one-off' && 
+
+              exp.type !== 'pot' && 
+
+              exp.type !== 'pension' && 
+
+              exp.type !== 'investment' &&
+
+              !exp.memberId
+
+          );
+
+          const groups = {};
+
+          recurring.forEach(exp => {
+
+              const freq = exp.frequency || 'monthly';
+
+              if (!groups[freq]) groups[freq] = [];
+
+              groups[freq].push(exp);
+
+          });
+
+          return groups;
+
+        }, [cycleData]);
+
+      
+
+        const memberExpenses = useMemo(() => {
+
+            if (!cycleData) return [];
+
+            const memExps = cycleData.expenses.filter(exp => !!exp.memberId);
+
+            const groups = {};
+
+            memExps.forEach(exp => {
+
+                if (!groups[exp.memberId]) {
+
+                    const m = members.find(mem => mem.id === exp.memberId);
+
+                    groups[exp.memberId] = {
+
+                        id: exp.memberId,
+
+                        name: m ? (m.alias || m.name) : 'User',
+
+                        emoji: m?.emoji || '👤',
+
+                        expenses: []
+
+                    };
+
+                }
+
+                groups[exp.memberId].expenses.push(exp);
+
+            });
+
+            return Object.values(groups);
+
+        }, [cycleData, members]);
+
+      
+
+        const pensionExpenses = useMemo(() => {
+
+            if (!cycleData) return [];
+
+            return cycleData.expenses.filter(exp => exp.type === 'pension');
+
+        }, [cycleData]);
+
+      
+
+        const investmentExpenses = useMemo(() => {
+
+            if (!cycleData) return [];
+
+            return cycleData.expenses.filter(exp => exp.type === 'investment');
+
+        }, [cycleData]);
+
+      
+
+        const frequencyOrder = ['weekly', 'fortnightly', 'four-weekly', 'monthly', 'quarterly', 'annual'];
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
   if (!cycleData) return <Box sx={{ p: 4, textAlign: 'center' }}><Typography level="h4">No Primary Income Set</Typography><Button sx={{ mt: 2 }} onClick={fetchData}>Refresh</Button></Box>;
@@ -809,6 +1154,50 @@ export default function BudgetView() {
                         </Sheet>
                     </Box>
 
+                    {/* Member-Specific Expenses */}
+                    {memberExpenses.map(group => (
+                        <Box key={group.id}>
+                            <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar>
+                                {group.name}'s Costs
+                            </Typography>
+                            <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
+                                <Table hoverRow size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}>
+                                    <thead>
+                                        <tr>
+                                            <th style={{ width: 40, textAlign: 'center' }}><Checkbox size="sm" /></th>
+                                            <th>Expense</th>
+                                            <th style={{ width: 80, textAlign: 'center' }}>Date</th>
+                                            <th style={{ width: 100 }}>Amount</th>
+                                            <th style={{ width: 40, textAlign: 'center' }}>Paid</th>
+                                            <th style={{ width: 40 }}></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {group.expenses.filter(exp => !hidePaid || !exp.isPaid).map(exp => (
+                                            <tr key={exp.key} style={{ opacity: exp.isPaid ? 0.6 : 1 }}>
+                                                <td style={{ textAlign: 'center' }}><Checkbox size="sm" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} /></td>
+                                                <td>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        <Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label, isDark) }}>{exp.icon}</Avatar>
+                                                        <Box>
+                                                            <Typography level="body-xs" fontWeight="bold">{exp.label}</Typography>
+                                                            <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{exp.category.toUpperCase()}</Typography>
+                                                        </Box>
+                                                    </Box>
+                                                </td>
+                                                <td><Box sx={{ textAlign: 'center' }}><Typography level="body-xs" fontWeight="bold">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{format(exp.computedDate, 'EEE do')}</Typography>}</Box></td>
+                                                <td><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px' }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} slotProps={{ input: { step: '0.01' } }} /></td>
+                                                <td style={{ textAlign: 'center' }}><Checkbox size="sm" variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} /></td>
+                                                <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" onClick={() => deleteExpense(exp.id)}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                            </Sheet>
+                        </Box>
+                    ))}
+
                     {/* Savings & Goals Contributions */}
                     {Object.keys(groupedPots).length > 0 && (
                         <Box>
@@ -821,11 +1210,6 @@ export default function BudgetView() {
                                     const potKeys = group.pots.map(p => `pot_${p.id}`);
                                     const allPotsPaid = potKeys.length > 0 && potKeys.every(k => progress.some(p => p.item_key === k && p.cycle_start === cycleData.cycleKey));
                                     
-                                    const groupPlannedTotal = group.pots.reduce((sum, pot) => {
-                                        const progressItem = progress.find(p => p.item_key === `pot_${pot.id}` && p.cycle_start === cycleData.cycleKey);
-                                        return sum + (progressItem?.actual_amount || 0);
-                                    }, 0);
-
                                     return (
                                         <Box key={accId}>
                                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
