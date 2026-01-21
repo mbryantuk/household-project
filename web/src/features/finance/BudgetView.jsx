@@ -64,7 +64,6 @@ export default function BudgetView() {
 
   const [quickAddOpen, setQuickAddOpen] = useState(false);
   const [recurringAddOpen, setRecurringAddOpen] = useState(false);
-  const [potAllocationOpen, setPotAllocationOpen] = useState(false);
 
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [lastSelectedIndex, setLastSelectedIndex] = useState(null);
@@ -183,7 +182,7 @@ export default function BudgetView() {
               key, type, label, amount: progressItem?.actual_amount || parseFloat(amount) || 0,
               day: parseInt(day) || 1, computedDate, icon, category,
               isPaid: !!progressItem, isDeletable: type === 'cost' && (item.frequency === 'one-off' || item.parent_type === 'general'),
-              id: item.id, object
+              id: item.id, object, frequency: item.frequency || 'monthly'
           });
       };
 
@@ -373,19 +372,6 @@ export default function BudgetView() {
       } catch { alert("Failed to add one-off expense"); }
   };
 
-  const handlePotAllocation = async (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.currentTarget);
-      const data = Object.fromEntries(formData.entries());
-      data.parent_type = 'general'; data.parent_id = 1; data.frequency = 'monthly'; data.category = 'saving';
-      data.nearest_working_day = data.nearest_working_day === "1" ? 1 : 0;
-      try {
-          await api.post(`/households/${householdId}/costs`, data);
-          showNotification("Savings allocation added.", "success");
-          fetchData(); setPotAllocationOpen(false);
-      } catch { alert("Failed to add savings allocation"); }
-  };
-
   const deleteExpense = async (id) => {
       if (!window.confirm("Remove this expense from recurring costs?")) return;
       try {
@@ -499,7 +485,6 @@ export default function BudgetView() {
                     <Menu placement="bottom-end" size="sm">
                         <MenuItem onClick={() => setQuickAddOpen(true)}>Add One-off</MenuItem>
                         <MenuItem onClick={() => setRecurringAddOpen(true)}>Add Recurring</MenuItem>
-                        <MenuItem onClick={() => setPotAllocationOpen(true)}>Add to Pot</MenuItem>
                     </Menu>
                 </Dropdown>
             </Box>
@@ -602,72 +587,204 @@ export default function BudgetView() {
                             </Typography>
                         </Box>
                     </Card>
+
+                    <Card variant="outlined" sx={{ p: 3, boxShadow: 'sm' }}>
+                        <Typography level="title-lg" startDecorator={<SavingsIcon />} sx={{ mb: 2 }}>Savings Pots</Typography>
+                        <Stack spacing={2}>
+                            {savingsPots.map(pot => {
+                                const expenseKey = `pot_${pot.id}`;
+                                const progressItem = progress.find(p => p.item_key === expenseKey && p.cycle_start === cycleData.cycleKey);
+                                const isPaid = !!progressItem;
+                                const amount = progressItem?.actual_amount || 0;
+
+                                return (
+                                    <Box key={pot.id} sx={{ p: 1.5, borderRadius: 'md', bgcolor: isPaid ? 'success.softBg' : 'background.level1', border: '1px solid', borderColor: isPaid ? 'success.outlinedBorder' : 'divider' }}>
+                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                                            <Box>
+                                                <Typography level="title-sm">{pot.emoji} {pot.name}</Typography>
+                                                <Chip size="sm" variant="soft" color="primary">{pot.institution}</Chip>
+                                            </Box>
+                                            <Checkbox 
+                                                variant="plain" 
+                                                checked={isPaid} 
+                                                onChange={() => togglePaid(expenseKey, amount)} 
+                                                disabled={savingProgress} 
+                                                uncheckedIcon={<RadioButtonUnchecked />} 
+                                                checkedIcon={<CheckCircle color="success" />} 
+                                            />
+                                        </Box>
+                                        <FormControl size="sm">
+                                            <Input 
+                                                type="number" 
+                                                placeholder="Allocate £" 
+                                                defaultValue={amount || ''} 
+                                                onBlur={(e) => updateActualAmount(expenseKey, e.target.value)}
+                                                slotProps={{ input: { step: '0.01' } }}
+                                                endDecorator={<Typography level="body-xs">GBP</Typography>}
+                                            />
+                                        </FormControl>
+                                    </Box>
+                                );
+                            })}
+                            {savingsPots.length === 0 && (
+                                <Typography level="body-xs" color="neutral" sx={{ fontStyle: 'italic', textAlign: 'center' }}>
+                                    No savings pots found.
+                                </Typography>
+                            )}
+                        </Stack>
+                    </Card>
                 </Stack>
             </Grid>
 
             <Grid xs={12} md={9}>
-                <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto', maxHeight: 'calc(100vh - 220px)' }}>
-                    <Table hoverRow stickyHeader>
-                        <thead>
-                            <tr>
-                                <th style={{ width: 48, textAlign: 'center' }}>
-                                    <Checkbox 
-                                        size="sm" 
-                                        checked={allSelected} 
-                                        indeterminate={selectedKeys.length > 0 && !allSelected}
-                                        onChange={(e) => handleSelectAll(e.target.checked)} 
-                                    />
-                                </th>
-                                <th>Expense</th>
-                                <th style={{ width: 100, textAlign: 'center' }}>Date</th>
-                                <th style={{ width: 120 }}>Amount</th>
-                                <th style={{ width: 48, textAlign: 'center' }}>Paid</th>
-                                <th style={{ width: 48 }}></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {cycleData.expenses.filter(exp => !hidePaid || !exp.isPaid).map((exp, index) => (
-                                <tr key={exp.key} onClick={(e) => handleRowClick(e, index, exp.key)} style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}>
-                                    <td style={{ textAlign: 'center' }}>
-                                        <Checkbox 
-                                            size="sm" 
-                                            checked={selectedKeys.includes(exp.key)} 
-                                            onChange={() => handleSelectToggle(exp.key)} 
-                                            onClick={(e) => e.stopPropagation()}
-                                        />
-                                    </td>
-                                    <td>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                            <Avatar size="sm" sx={{ bgcolor: getEmojiColor(exp.label, isDark), color: '#fff' }}>{exp.icon}</Avatar>
-                                            <Box>
+                <Stack spacing={3}>
+                    {/* Recurring Expenses */}
+                    <Box>
+                        <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Payments fontSize="small" /> Recurring Expenses
+                        </Typography>
+                        <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
+                            <Table hoverRow stickyHeader size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}>
+                                <thead>
+                                    <tr>
+                                        <th style={{ width: 40, textAlign: 'center' }}>
+                                            <Checkbox 
+                                                size="sm" 
+                                                checked={allSelected} 
+                                                indeterminate={selectedKeys.length > 0 && !allSelected}
+                                                onChange={(e) => handleSelectAll(e.target.checked)} 
+                                            />
+                                        </th>
+                                        <th>Expense</th>
+                                        <th style={{ width: 80, textAlign: 'center' }}>Date</th>
+                                        <th style={{ width: 100 }}>Amount</th>
+                                        <th style={{ width: 40, textAlign: 'center' }}>Paid</th>
+                                        <th style={{ width: 40 }}></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {cycleData.expenses.filter(exp => exp.frequency !== 'one-off').filter(exp => !hidePaid || !exp.isPaid).map((exp, index) => (
+                                        <tr key={exp.key} onClick={(e) => handleRowClick(e, index, exp.key)} style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}>
+                                            <td style={{ textAlign: 'center' }}>
+                                                <Checkbox 
+                                                    size="sm" 
+                                                    checked={selectedKeys.includes(exp.key)} 
+                                                    onChange={() => handleSelectToggle(exp.key)} 
+                                                    onClick={(e) => e.stopPropagation()}
+                                                />
+                                            </td>
+                                            <td>
                                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                    <Typography level="title-sm">{exp.label}</Typography>
-                                                    {exp.object && <Chip size="sm" variant="soft" startDecorator={exp.object.emoji}>{exp.object.name}</Chip>}
+                                                    <Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label, isDark), color: '#fff' }}>{exp.icon}</Avatar>
+                                                    <Box>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                            <Typography level="body-xs" fontWeight="bold">{exp.label}</Typography>
+                                                            {exp.object && <Chip size="sm" variant="soft" sx={{ fontSize: '0.65rem', minHeight: '16px', px: 0.5 }} startDecorator={exp.object.emoji}>{exp.object.name}</Chip>}
+                                                        </Box>
+                                                        <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{exp.category.toUpperCase()}</Typography>
+                                                    </Box>
                                                 </Box>
-                                                <Typography level="body-xs" color="neutral">{exp.category.toUpperCase()}</Typography>
-                                            </Box>
-                                        </Box>
-                                    </td>
-                                    <td><Box sx={{ textAlign: 'center' }}><Typography level="body-sm" fontWeight="lg">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral">{format(exp.computedDate, 'EEE do')}</Typography>}</Box></td>
-                                    <td><Input size="sm" type="number" variant="soft" defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} slotProps={{ input: { step: '0.01' } }} /></td>
-                                    <td style={{ textAlign: 'center' }}>
-                                        <Checkbox 
-                                            variant="plain" 
-                                            checked={exp.isPaid} 
-                                            onChange={() => togglePaid(exp.key, exp.amount)} 
-                                            disabled={savingProgress} 
-                                            uncheckedIcon={<RadioButtonUnchecked />} 
-                                            checkedIcon={<CheckCircle color="success" />} 
-                                            onClick={(e) => e.stopPropagation()}
-                                            sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} 
-                                        />
-                                    </td>
-                                    <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" onClick={(e) => { e.stopPropagation(); deleteExpense(exp.id); }}><Delete /></IconButton>}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
-                </Sheet>
+                                            </td>
+                                            <td><Box sx={{ textAlign: 'center' }}><Typography level="body-xs" fontWeight="bold">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{format(exp.computedDate, 'EEE do')}</Typography>}</Box></td>
+                                            <td><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px' }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} slotProps={{ input: { step: '0.01' } }} /></td>
+                                            <td style={{ textAlign: 'center' }}>
+                                                <Checkbox 
+                                                    size="sm"
+                                                    variant="plain" 
+                                                    checked={exp.isPaid} 
+                                                    onChange={() => togglePaid(exp.key, exp.amount)} 
+                                                    disabled={savingProgress} 
+                                                    uncheckedIcon={<RadioButtonUnchecked sx={{ fontSize: '1.2rem' }} />} 
+                                                    checkedIcon={<CheckCircle color="success" sx={{ fontSize: '1.2rem' }} />} 
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} 
+                                                />
+                                            </td>
+                                            <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" sx={{ '--IconButton-size': '24px' }} onClick={(e) => { e.stopPropagation(); deleteExpense(exp.id); }}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+                        </Sheet>
+                    </Box>
+
+                    {/* One-off Expenses */}
+                    <Box>
+                        <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <ShoppingBag fontSize="small" /> One-off Expenses
+                        </Typography>
+                        <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
+                            <Table hoverRow stickyHeader size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}>
+                                <thead>
+                                    <tr>
+                                        <th style={{ width: 40, textAlign: 'center' }}>
+                                            <Checkbox 
+                                                size="sm" 
+                                                onChange={(e) => {
+                                                    const oneOffKeys = cycleData.expenses.filter(exp => exp.frequency === 'one-off').map(e => e.key);
+                                                    if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...oneOffKeys])));
+                                                    else setSelectedKeys(prev => prev.filter(k => !oneOffKeys.includes(k)));
+                                                }} 
+                                            />
+                                        </th>
+                                        <th>Expense</th>
+                                        <th style={{ width: 80, textAlign: 'center' }}>Date</th>
+                                        <th style={{ width: 100 }}>Amount</th>
+                                        <th style={{ width: 40, textAlign: 'center' }}>Paid</th>
+                                        <th style={{ width: 40 }}></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {cycleData.expenses.filter(exp => exp.frequency === 'one-off').filter(exp => !hidePaid || !exp.isPaid).map((exp, index) => (
+                                        <tr key={exp.key} onClick={(e) => handleRowClick(e, index, exp.key)} style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}>
+                                            <td style={{ textAlign: 'center' }}>
+                                                <Checkbox 
+                                                    size="sm" 
+                                                    checked={selectedKeys.includes(exp.key)} 
+                                                    onChange={() => handleSelectToggle(exp.key)} 
+                                                    onClick={(e) => e.stopPropagation()}
+                                                />
+                                            </td>
+                                            <td>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label, isDark), color: '#fff' }}>{exp.icon}</Avatar>
+                                                    <Box>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                            <Typography level="body-xs" fontWeight="bold">{exp.label}</Typography>
+                                                            {exp.object && <Chip size="sm" variant="soft" sx={{ fontSize: '0.65rem', minHeight: '16px', px: 0.5 }} startDecorator={exp.object.emoji}>{exp.object.name}</Chip>}
+                                                        </Box>
+                                                        <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{exp.category.toUpperCase()}</Typography>
+                                                    </Box>
+                                                </Box>
+                                            </td>
+                                            <td><Box sx={{ textAlign: 'center' }}><Typography level="body-xs" fontWeight="bold">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{format(exp.computedDate, 'EEE do')}</Typography>}</Box></td>
+                                            <td><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px' }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} slotProps={{ input: { step: '0.01' } }} /></td>
+                                            <td style={{ textAlign: 'center' }}>
+                                                <Checkbox 
+                                                    size="sm"
+                                                    variant="plain" 
+                                                    checked={exp.isPaid} 
+                                                    onChange={() => togglePaid(exp.key, exp.amount)} 
+                                                    disabled={savingProgress} 
+                                                    uncheckedIcon={<RadioButtonUnchecked sx={{ fontSize: '1.2rem' }} />} 
+                                                    checkedIcon={<CheckCircle color="success" sx={{ fontSize: '1.2rem' }} />} 
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} 
+                                                />
+                                            </td>
+                                            <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" sx={{ '--IconButton-size': '24px' }} onClick={(e) => { e.stopPropagation(); deleteExpense(exp.id); }}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}</td>
+                                        </tr>
+                                    ))}
+                                    {cycleData.expenses.filter(exp => exp.frequency === 'one-off').length === 0 && (
+                                        <tr>
+                                            <td colSpan={6} style={{ textAlign: 'center', padding: '10px', color: 'neutral.500', fontStyle: 'italic', fontSize: '0.75rem' }}>No one-off expenses this month.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </Table>
+                        </Sheet>
+                    </Box>
+                </Stack>
             </Grid>
         </Grid>
 
@@ -713,30 +830,6 @@ export default function BudgetView() {
                             </FormControl>
                             <AppSelect label="Category" name="category" defaultValue="other" options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'other', label: 'Other' }]} />
                             <Button type="submit">Add Recurring</Button>
-                        </Stack>
-                    </form>
-                </DialogContent>
-            </ModalDialog>
-        </Modal>
-
-        <Modal open={potAllocationOpen} onClose={() => setPotAllocationOpen(false)}>
-            <ModalDialog sx={{ maxWidth: 400, width: '100%', overflow: 'hidden' }}>
-                <DialogTitle>Allocate to Pot</DialogTitle>
-                <DialogContent>
-                    <form onSubmit={handlePotAllocation}>
-                        <Stack spacing={2}>
-                            <FormControl required>
-                                <FormLabel>Target Pot</FormLabel>
-                                <Select name="name">
-                                    {savingsPots.map(p => (
-                                        <Option key={p.id} value={`Pot: ${p.name}`}>{p.emoji} {p.name}</Option>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                            <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: '0.01' } }} /></FormControl>
-                            <FormControl required><FormLabel>Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={new Date().getDate()} /></FormControl>
-                            <Checkbox label="Nearest Working Day (Next)" name="nearest_working_day" defaultChecked value="1" />
-                            <Button type="submit" color="success">Save Allocation</Button>
                         </Stack>
                     </form>
                 </DialogContent>
