@@ -320,6 +320,10 @@ function AppInner({ themeId, setThemeId }) {
                 <Route path="tools/calculator" element={<Box sx={{ height: '100%' }}><FloatingCalculator isPopout={true} onClose={() => navigate(-1)} isDark={isDark} /></Box>} />
                 <Route path="tools/finance" element={<Box sx={{ height: '100%' }}><FinancialCalculator isPopout={true} onClose={() => navigate(-1)} isDark={isDark} /></Box>} />
                 <Route path="tools/tax" element={<Box sx={{ height: '100%' }}><TaxCalculator isPopout={true} onClose={() => navigate(-1)} isDark={isDark} /></Box>} />
+                <Route path="tools/savings" element={<Box sx={{ height: '100%' }}><FloatingSavings isPopout={true} onClose={() => navigate(-1)} api={authAxios} householdId={household?.id} isDark={isDark} /></Box>} />
+                <Route path="tools/investments" element={<Box sx={{ height: '100%' }}><FloatingInvestments isPopout={true} onClose={() => navigate(-1)} api={authAxios} householdId={household?.id} isDark={isDark} /></Box>} />
+                <Route path="tools/pensions" element={<Box sx={{ height: '100%' }}><FloatingPensions isPopout={true} onClose={() => navigate(-1)} api={authAxios} householdId={household?.id} isDark={isDark} /></Box>} />
+                <Route path="tools/calendar" element={<Box sx={{ height: '100%' }}><FloatingCalendar isPopout={true} onClose={() => navigate(-1)} dates={hhDates} api={authAxios} householdId={household?.id} currentUser={user} onDateAdded={() => household && fetchHhDates(household.id)} isDark={isDark} /></Box>} />
           </Route>
         </Route>
       </Routes>
