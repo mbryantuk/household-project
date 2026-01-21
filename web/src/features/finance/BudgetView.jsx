@@ -68,6 +68,13 @@ export default function BudgetView() {
   const [familyExpenseOpen, setFamilyExpenseOpen] = useState(false);
 
   const [selectedKeys, setSelectedKeys] = useState([]);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 900);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const [actualPay, setActualPay] = useState('');
   const [currentBalance, setCurrentBalance] = useState('');
@@ -439,6 +446,10 @@ export default function BudgetView() {
 
   const frequencyOrder = ['weekly', 'fortnightly', 'four-weekly', 'monthly', 'quarterly', 'annual'];
 
+  const getVisibleItems = useCallback((items) => {
+      return items.filter(exp => !hidePaid || !exp.isPaid);
+  }, [hidePaid]);
+
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
   if (!cycleData) return <Box sx={{ p: 4, textAlign: 'center' }}><Typography level="h4">No Primary Income Set</Typography><Button sx={{ mt: 2 }} onClick={fetchData}>Refresh</Button></Box>;
 
@@ -477,7 +488,7 @@ export default function BudgetView() {
   }
 
   const renderTableRows = (items, cols = 6, hidePill = false) => {
-      return items.filter(exp => !hidePaid || !exp.isPaid).map((exp) => (
+      return items.map((exp) => (
           <tr key={exp.key} onClick={() => handleSelectToggle(exp.key)} style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}>
               <td style={{ textAlign: 'center' }}><Checkbox size="sm" checked={selectedKeys.includes(exp.key)} onChange={() => handleSelectToggle(exp.key)} onClick={(e) => e.stopPropagation()} /></td>
               <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label, isDark), color: '#fff' }}>{exp.icon}</Avatar><Box><Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}><Typography level="body-xs" fontWeight="bold">{exp.label}</Typography>{!hidePill && exp.object && <Chip size="sm" variant="soft" sx={{ fontSize: '0.65rem', minHeight: '16px', px: 0.5 }} startDecorator={exp.object.emoji}>{exp.object.name}</Chip>}</Box><Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{exp.category.toUpperCase()}</Typography></Box></Box></td>
@@ -489,8 +500,61 @@ export default function BudgetView() {
       ));
   };
 
+  const renderMobileCards = (items, cols = 6, hidePill = false) => {
+      return items.map((exp) => (
+          <Card key={exp.key} variant="outlined" sx={{ mb: 1, p: 1.5, position: 'relative', borderLeft: '4px solid', borderLeftColor: exp.isPaid ? 'success.softBg' : 'primary.softBg', bgcolor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'background.surface' }} onClick={() => handleSelectToggle(exp.key)}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Avatar size="sm" sx={{ bgcolor: getEmojiColor(exp.label, isDark), color: '#fff' }}>{exp.icon}</Avatar>
+                      <Box>
+                          <Typography level="title-sm">{exp.label}</Typography>
+                          <Typography level="body-xs" color="neutral">{exp.category.toUpperCase()}</Typography>
+                      </Box>
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                      <Checkbox size="sm" variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} disabled={savingProgress} uncheckedIcon={<RadioButtonUnchecked />} checkedIcon={<CheckCircle color="success" />} onClick={(e) => e.stopPropagation()} />
+                      {exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" onClick={(e) => { e.stopPropagation(); deleteExpense(exp); }}><Delete /></IconButton>}
+                  </Box>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                      {cols === 6 && exp.computedDate && <Chip size="sm" variant="soft" startDecorator={<Event sx={{ fontSize: '0.9rem' }} />}>{format(exp.computedDate, 'EEE do')}</Chip>}
+                      {!hidePill && exp.object && <Chip size="sm" variant="soft" startDecorator={exp.object.emoji}>{exp.object.name}</Chip>}
+                  </Box>
+                  <Input size="sm" type="number" variant="soft" sx={{ maxWidth: '100px' }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} />
+              </Box>
+          </Card>
+      ));
+  };
+
+  const renderSection = (items, cols = 6, hidePill = false) => {
+      const visible = getVisibleItems(items);
+      if (visible.length === 0) return null;
+      return isMobile ? renderMobileCards(visible, cols, hidePill) : (
+          <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
+              <Table hoverRow stickyHeader size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}>
+                  <thead>
+                      <tr>
+                          <th style={{ width: 40, textAlign: 'center' }}><Checkbox size="sm" onChange={(e) => {
+                              const keys = visible.map(exp => exp.key);
+                              if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...keys])));
+                              else setSelectedKeys(prev => prev.filter(k => !keys.includes(k)));
+                          }} /></th>
+                          <th>Expense</th>
+                          {cols === 6 && <th style={{ width: 80, textAlign: 'center' }}>Date</th>}
+                          <th style={{ width: 100 }}>Amount</th>
+                          <th style={{ width: 40, textAlign: 'center' }}>Paid</th>
+                          {cols === 6 && <th style={{ width: 40 }}></th>}
+                      </tr>
+                  </thead>
+                  <tbody>{renderTableRows(visible, cols, hidePill)}</tbody>
+              </Table>
+          </Sheet>
+      );
+  };
+
   return (
-    <Box sx={{ userSelect: 'none' }}>
+    <Box sx={{ userSelect: 'none', pb: 10 }}>
         <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, -1))}><ChevronLeft /></IconButton><Box><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>{cycleData.label}</Typography><Chip variant="soft" color="primary" size="sm">{cycleData.cycleDuration} Days</Chip></Box><Typography level="body-md" color="neutral">{format(cycleData.startDate, 'do MMM')} to {format(cycleData.endDate, 'do MMM')}</Typography></Box><IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, 1))}><ChevronRight /></IconButton></Box>
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}><FormControl orientation="horizontal" size="sm" sx={{ mr: 1 }}><FormLabel sx={{ mr: 1 }}>Hide Paid</FormLabel><Switch checked={hidePaid} onChange={(e) => setHidePaid(e.target.checked)} size="sm" /></FormControl>
@@ -516,62 +580,91 @@ export default function BudgetView() {
 
             <Grid xs={12} md={9}>
                 <Stack spacing={4}>
-                    <Box><Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><Payments fontSize="small" /> Recurring Expenses</Typography>
-                        <Stack spacing={2}>
-                            {frequencyOrder.map(freq => {
-                                const normalized = freq.toLowerCase();
-                                const items = groupedRecurring[normalized] || [];
-                                if (items.length === 0) return null;
-                                return (
-                                    <Box key={freq}><Typography level="body-xs" sx={{ mb: 1, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'neutral.500' }}>{freq}</Typography>
-                                        <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}><Table hoverRow stickyHeader size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}><thead><tr><th style={{ width: 40, textAlign: 'center' }}><Checkbox size="sm" onChange={(e) => { const keys = items.filter(exp => !hidePaid || !exp.isPaid).map(e => e.key); if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...keys]))); else setSelectedKeys(prev => prev.filter(k => !keys.includes(k))); }} /></th><th>Expense</th><th style={{ width: 80, textAlign: 'center' }}>Date</th><th style={{ width: 100 }}>Amount</th><th style={{ width: 40, textAlign: 'center' }}>Paid</th><th style={{ width: 40 }}></th></tr></thead><tbody>{renderTableRows(items)}</tbody></Table></Sheet>
-                                    </Box>
-                                );
-                            })}
-                        </Stack>
+                    <Box>
+                        {frequencyOrder.map(freq => {
+                            const normalized = freq.toLowerCase();
+                            const items = groupedRecurring[normalized] || [];
+                            const visible = getVisibleItems(items);
+                            if (visible.length === 0) return null;
+                            return (
+                                <Box key={freq} sx={{ mb: 3 }}>
+                                    <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1, textTransform: 'capitalize' }}><Payments fontSize="small" /> {freq} Expenses</Typography>
+                                    {renderSection(items)}
+                                </Box>
+                            );
+                        })}
                     </Box>
 
-                    <Box><Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><ShoppingBag fontSize="small" /> One-off Expenses</Typography>
-                        <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}><Table hoverRow stickyHeader size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}><thead><tr><th style={{ width: 40, textAlign: 'center' }}><Checkbox size="sm" onChange={(e) => { const keys = cycleData.expenses.filter(exp => exp.frequency === 'one-off' && exp.memberId == null && (!hidePaid || !exp.isPaid)).map(e => e.key); if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...keys]))); else setSelectedKeys(prev => prev.filter(k => !keys.includes(k))); }} /></th><th>Expense</th><th style={{ width: 80, textAlign: 'center' }}>Date</th><th style={{ width: 100 }}>Amount</th><th style={{ width: 40, textAlign: 'center' }}>Paid</th><th style={{ width: 40 }}></th></tr></thead><tbody>{renderTableRows(cycleData.expenses.filter(exp => exp.frequency === 'one-off' && exp.memberId == null))}</tbody></Table></Sheet>
+                    <Box>
+                        {(() => {
+                            const items = cycleData.expenses.filter(exp => exp.frequency === 'one-off' && exp.memberId == null);
+                            const visible = getVisibleItems(items);
+                            if (visible.length === 0) return null;
+                            return (
+                                <>
+                                    <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><ShoppingBag fontSize="small" /> One-off Expenses</Typography>
+                                    {renderSection(items)}
+                                </>
+                            );
+                        })()}
                     </Box>
 
                     {memberExpenses.map(group => {
-                        const visibleExpenses = group.expenses.filter(exp => !hidePaid || !exp.isPaid);
+                        const visibleExpenses = getVisibleItems(group.expenses);
                         if (visibleExpenses.length === 0) return null;
-                        const unpaidTotal = group.expenses.filter(e => !e.isPaid).reduce((sum, e) => sum + e.amount, 0);
+                        const unpaidTotal = visibleExpenses.filter(e => !e.isPaid).reduce((sum, e) => sum + e.amount, 0);
                         return (
                             <Box key={group.id}>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar><Box><Typography level="title-md">{group.name}'s Expenses</Typography><Typography level="body-xs" color="neutral">One-off / Transfers</Typography></Box></Box>
                                     <Box sx={{ textAlign: 'right' }}><Typography level="title-sm" color="danger">{formatCurrency(unpaidTotal)}</Typography><Typography level="body-xs">Unpaid</Typography></Box>
                                 </Box>
-                                <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}><Table hoverRow size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}><thead><tr><th style={{ width: 40, textAlign: 'center' }}><Checkbox size="sm" onChange={(e) => { const keys = visibleExpenses.map(e => e.key); if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...keys]))); else setSelectedKeys(prev => prev.filter(k => !keys.includes(k))); }} /></th><th>Expense</th><th style={{ width: 80, textAlign: 'center' }}>Date</th><th style={{ width: 100 }}>Amount</th><th style={{ width: 40, textAlign: 'center' }}>Paid</th><th style={{ width: 40 }}></th></tr></thead><tbody>{renderTableRows(group.expenses)}</tbody></Table></Sheet>
+                                {renderSection(group.expenses)}
                             </Box>
                         );
                     })}
 
-                    {Object.keys(groupedPots).length > 0 && (
-                        <Box>
-                            <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><SavingsIcon fontSize="small" /> Savings & Goals</Typography>
-                            <Stack spacing={3}>
-                                {Object.entries(groupedPots).map(([accId, group]) => {
-                                    const potItems = group.pots.map(p => cycleData.expenses.find(e => e.key === `pot_${p.id}`)).filter(Boolean);
-                                    if (potItems.length === 0) return null;
-                                    return (
-                                        <Box key={accId}>
-                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar><Box><Typography level="title-sm">{group.name}</Typography><Typography level="body-xs" color="neutral">{group.institution}</Typography></Box></Box>
-                                                <Box sx={{ textAlign: 'right' }}><Typography level="title-sm" color="success">{formatCurrency(group.balance)}</Typography><Typography level="body-xs">Balance</Typography></Box>
-                                            </Box>
-                                            <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}><Table hoverRow size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}><thead><tr><th style={{ width: 40, textAlign: 'center' }} /><th>Goal / Pot</th><th style={{ width: 100 }}>Amount</th><th style={{ width: 40, textAlign: 'center' }}>Paid</th></tr></thead><tbody>{renderTableRows(potItems, 4, true)}</tbody></Table></Sheet>
-                                        </Box>
-                                    );
-                                })}
-                            </Stack>
-                        </Box>
-                    )}
+                    <Box>
+                        {(() => {
+                            const hasVisibleSavings = Object.values(groupedPots).some(group => getVisibleItems(group.pots.map(p => cycleData.expenses.find(e => e.key === `pot_${p.id}`)).filter(Boolean)).length > 0);
+                            if (!hasVisibleSavings) return null;
+                            return (
+                                <>
+                                    <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><SavingsIcon fontSize="small" /> Savings & Goals</Typography>
+                                    <Stack spacing={3}>
+                                        {Object.entries(groupedPots).map(([accId, group]) => {
+                                            const potItems = group.pots.map(p => cycleData.expenses.find(e => e.key === `pot_${p.id}`)).filter(Boolean);
+                                            const visiblePots = getVisibleItems(potItems);
+                                            if (visiblePots.length === 0) return null;
+                                            return (
+                                                <Box key={accId}>
+                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar><Box><Typography level="title-sm">{group.name}</Typography><Typography level="body-xs" color="neutral">{group.institution}</Typography></Box></Box>
+                                                        <Box sx={{ textAlign: 'right' }}><Typography level="title-sm" color="success">{formatCurrency(group.balance)}</Typography><Typography level="body-xs">Balance</Typography></Box>
+                                                    </Box>
+                                                    {renderSection(potItems, 4, true)}
+                                                </Box>
+                                            );
+                                        })}
+                                    </Stack>
+                                </>
+                            );
+                        })()}
+                    </Box>
 
-                    {liabilities.pensions.length > 0 && (<Box><Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><SavingsIcon fontSize="small" /> Pensions</Typography><Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}><Table hoverRow size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}><thead><tr><th style={{ width: 40, textAlign: 'center' }} /><th>Plan</th><th style={{ width: 100 }}>Contribution</th><th style={{ width: 40, textAlign: 'center' }}>Paid</th></tr></thead><tbody>{renderTableRows(cycleData.expenses.filter(e => e.type === 'pension'), 4, true)}</tbody></Table></Sheet></Box>)}
+                    <Box>
+                        {(() => {
+                            const items = cycleData.expenses.filter(e => e.type === 'pension');
+                            const visible = getVisibleItems(items);
+                            if (visible.length === 0) return null;
+                            return (
+                                <>
+                                    <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><SavingsIcon fontSize="small" /> Pensions</Typography>
+                                    {renderSection(items, 4, true)}
+                                </>
+                            );
+                        })()}
+                    </Box>
                 </Stack>
             </Grid>
         </Grid>
