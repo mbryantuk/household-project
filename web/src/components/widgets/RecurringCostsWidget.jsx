@@ -21,8 +21,12 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
           api.get(`/households/${householdId}/costs`),
           api.get('/system/holidays')
       ]);
-      // Filter for this specific parent
-      const filtered = (res.data || []).filter(c => c.parent_type === parentType && c.parent_id === parseInt(parentId));
+      // Filter for this specific parent and exclude one-offs
+      const filtered = (res.data || []).filter(c => 
+        c.parent_type === parentType && 
+        c.parent_id === parseInt(parentId) &&
+        c.frequency !== 'one-off'
+      );
       setCosts(filtered);
       setHolidays(holRes.data || []);
     } catch (err) {

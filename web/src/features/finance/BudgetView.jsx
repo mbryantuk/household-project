@@ -249,7 +249,11 @@ export default function BudgetView() {
                 if (c.category === 'subscription') icon = <ShoppingBag />;
                 if (c.category === 'service') icon = <HistoryEdu />;
                 if (c.category === 'saving') icon = <SavingsIcon />;
-                if (c.category === 'transfer') icon = <AccountBalanceWallet />;
+                if (c.category === 'transfer') {
+                    icon = <AccountBalanceWallet />;
+                    // For one-off transfers, ensure they are linked to the right cycle
+                    if (c.frequency === 'one-off' && c.next_due !== cycleKey) return;
+                }
 
                 addExpense(c, 'cost', c.name, c.amount, c.payment_day, icon, c.category || 'Cost', object, memberId);
             });
