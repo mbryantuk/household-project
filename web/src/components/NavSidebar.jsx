@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, 
   IconButton, Divider, Box, Avatar, Typography, Tooltip, Menu, MenuItem
@@ -131,13 +131,13 @@ export default function NavSidebar({
       }
   }, [household]);
 
-  const checkScroll = () => {
+  const checkScroll = useCallback(() => {
     if (scrollRef.current) {
         const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
         setCanScrollUp(scrollTop > 10);
         setCanScrollDown(scrollTop + clientHeight < scrollHeight - 10);
     }
-  };
+  }, []);
 
   useEffect(() => {
     checkScroll();
