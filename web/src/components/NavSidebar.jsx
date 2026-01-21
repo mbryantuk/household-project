@@ -6,7 +6,7 @@ import {
 import {
   Event, Groups, Pets, Inventory2, DirectionsCar, RestaurantMenu, AccountBalance,
   Close, KeyboardArrowRight, ChevronLeft, KeyboardArrowUp, KeyboardArrowDown,
-  VisibilityOff, PersonAdd, ChildCare, Add
+  VisibilityOff, PersonAdd, ChildCare, Add, PushPin, PushPinOutlined
 } from '@mui/icons-material';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
@@ -56,6 +56,7 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
               <ListItemButton 
                   selected={isActive}
                   onClick={handleClick}
+                  onMouseEnter={!isMobile ? handleClick : undefined}
                   sx={{ 
                       borderRadius: 'md', justifyContent: 'center', px: 0, 
                       flexDirection: 'column', gap: 0.5, py: 1, width: 56, 
@@ -107,11 +108,19 @@ export default function NavSidebar({
   const navigate = useNavigate();
   
   const [activeCategory, setActiveCategory] = useState(null);
+  const [isPinned, setIsPinned] = useState(localStorage.getItem('nav_pinned') === 'true');
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [canScrollUp, setCanScrollUp] = useState(false);
   const [canScrollDown, setCanScrollDown] = useState(false);
   
   const scrollRef = React.useRef(null);
+
+  // Toggle Pin
+  const togglePin = () => {
+      const newVal = !isPinned;
+      setIsPinned(newVal);
+      localStorage.setItem('nav_pinned', String(newVal));
+  };
 
   // Enabled Modules
   const enabledModules = useMemo(() => {
@@ -288,21 +297,31 @@ export default function NavSidebar({
 
         {(showPanel || (isMobile && activeCategory)) && (
             <Sheet
+                onMouseLeave={(!isMobile && !isPinned) ? () => setActiveCategory(null) : undefined}
                 sx={{
                     width: isMobile ? '100%' : (showPanel ? PANEL_WIDTH : 0),
-                    position: isMobile ? 'absolute' : 'relative',
-                    left: isMobile ? 0 : 'auto', top: 0,
+                    position: (isMobile || !isPinned) ? 'absolute' : 'relative',
+                    left: isMobile ? 0 : (isPinned ? 'auto' : RAIL_WIDTH), 
+                    top: 0,
                     zIndex: isMobile ? 2600 : 2100,
-                    borderRight: (showPanel && !isMobile) ? '1px solid' : 'none',
+                    borderRight: (showPanel && (isPinned || isMobile)) ? '1px solid' : 'none',
                     borderColor: 'divider', overflow: 'hidden',
-                    transition: isMobile ? 'none' : 'width 0.2s',
+                    transition: isMobile ? 'none' : 'width 0.2s, left 0.2s',
                     display: 'flex', flexDirection: 'column',
-                    bgcolor: 'background.level1', whiteSpace: 'nowrap', height: '100dvh' 
+                    bgcolor: 'background.level1', whiteSpace: 'nowrap', height: '100dvh',
+                    boxShadow: (!isPinned && !isMobile) ? '4px 0 12px rgba(0,0,0,0.1)' : 'none'
                 }}
             >
                 <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography level="title-md" textTransform="uppercase" letterSpacing="1px">{activeCategory}</Typography>
-                    <IconButton size="sm" variant="plain" color="neutral" onClick={() => setActiveCategory(null)}><ChevronLeft /></IconButton>
+                    <IconButton 
+                        size="sm" 
+                        variant={isPinned ? "solid" : "plain"} 
+                        color={isPinned ? "primary" : "neutral"} 
+                        onClick={togglePin}
+                    >
+                        {isPinned ? <PushPin /> : <PushPinOutlined />}
+                    </IconButton>
                 </Box>
                 
                 <List sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>

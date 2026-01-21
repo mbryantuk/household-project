@@ -102,6 +102,39 @@ export default function UtilityBar({
 }) {
   const navigate = useNavigate();
   const scrollRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setCanScrollLeft(scrollLeft > 5);
+      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 5);
+    }
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) {
+      checkScroll();
+      el.addEventListener('scroll', checkScroll);
+      window.addEventListener('resize', checkScroll);
+      
+      // Also check after a short delay to ensure contents are rendered
+      const timer = setTimeout(checkScroll, 500);
+      
+      return () => {
+        el.removeEventListener('scroll', checkScroll);
+        window.removeEventListener('resize', checkScroll);
+        clearTimeout(timer);
+      };
+    }
+  }, [checkScroll]);
+
+  // Re-check scroll whenever activeWidget changes (as it might shift things) or when window size changes
+  useEffect(() => {
+      checkScroll();
+  }, [households, checkScroll]);
 
   const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -179,11 +212,17 @@ export default function UtilityBar({
         }}
     >
         <Box sx={{ flex: '1 1 auto', display: 'flex', height: '100%', minWidth: 0, alignItems: 'center', position: 'relative' }}>
-            <Box sx={{ display: { xs: 'flex', md: 'none' }, height: '100%', alignItems: 'center', borderRight: '1px solid', borderColor: 'divider' }}>
-                <IconButton onClick={() => scroll(-200)} variant="plain" size="sm" sx={{ borderRadius: 0, height: '100%' }}>
-                    <ChevronLeft />
-                </IconButton>
-            </Box>
+            {canScrollLeft && (
+                <Box sx={{ 
+                    position: 'absolute', left: 0, zIndex: 2, height: '100%', display: 'flex', alignItems: 'center',
+                    bgcolor: 'background.surface', borderRight: '1px solid', borderColor: 'divider',
+                    boxShadow: '4px 0 8px rgba(0,0,0,0.05)'
+                }}>
+                    <IconButton onClick={() => scroll(-200)} variant="plain" size="sm" sx={{ borderRadius: 0, height: '100%' }}>
+                        <ChevronLeft />
+                    </IconButton>
+                </Box>
+            )}
 
             <Box ref={scrollRef} sx={{ display: 'flex', height: '100%', overflowX: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' }, flexGrow: 1 }}>
                 <WidgetWrapper id="notes" label="Notes" icon={NoteAlt} color="warning" width={320} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
@@ -212,11 +251,17 @@ export default function UtilityBar({
                 </WidgetWrapper>
             </Box>
 
-            <Box sx={{ display: { xs: 'flex', md: 'none' }, height: '100%', alignItems: 'center', borderLeft: '1px solid', borderColor: 'divider' }}>
-                <IconButton onClick={() => scroll(200)} variant="plain" size="sm" sx={{ borderRadius: 0, height: '100%' }}>
-                    <ChevronRight />
-                </IconButton>
-            </Box>
+            {canScrollRight && (
+                <Box sx={{ 
+                    position: 'absolute', right: 0, zIndex: 2, height: '100%', display: 'flex', alignItems: 'center',
+                    bgcolor: 'background.surface', borderLeft: '1px solid', borderColor: 'divider',
+                    boxShadow: '-4px 0 8px rgba(0,0,0,0.05)'
+                }}>
+                    <IconButton onClick={() => scroll(200)} variant="plain" size="sm" sx={{ borderRadius: 0, height: '100%' }}>
+                        <ChevronRight />
+                    </IconButton>
+                </Box>
+            )}
         </Box>
 
         <Box sx={{ flex: '0 0 auto', height: '100%', borderLeft: '1px solid', borderColor: 'divider', bgcolor: 'background.level1', display: 'flex', alignItems: 'center', px: 0 }}>

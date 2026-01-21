@@ -102,7 +102,7 @@ export default function HouseholdLayout({
         bgcolor: 'background.body'
     }}>
       
-      <Box sx={{ display: { xs: 'none', md: 'block' }, height: '100%', minWidth: 64, flexShrink: 0 }}>
+      <Box sx={{ display: { xs: 'none', md: 'block' }, height: '100%', flexShrink: 0 }}>
         <NavSidebar 
             members={members} 
             vehicles={vehicles}
