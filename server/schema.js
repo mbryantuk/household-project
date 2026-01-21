@@ -514,6 +514,16 @@ function initializeHouseholdSchema(db) {
         additionalFinanceCols.forEach(([table, col, type]) => {
             db.run(`ALTER TABLE ${table} ADD COLUMN ${col} ${type}`, () => {});
         });
+
+        // 🛠️ MIGRATION: Ensure recurring_costs has all required columns
+        const recurringCostCols = [
+            ['last_paid', 'DATE'],
+            ['next_due', 'DATE'],
+            ['is_active', 'INTEGER DEFAULT 1']
+        ];
+        recurringCostCols.forEach(([col, type]) => {
+            db.run(`ALTER TABLE recurring_costs ADD COLUMN ${col} ${type}`, () => {});
+        });
     });
 }
 

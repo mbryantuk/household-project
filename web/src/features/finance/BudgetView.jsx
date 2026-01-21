@@ -201,8 +201,8 @@ export default function BudgetView() {
                 const key = `${type}_${item.id || 'fixed'}`;
                 const progressItem = progress.find(p => p.item_key === key && p.cycle_start === cycleKey);
                 
-                // Flexible date matching for one-offs
-                if (item.frequency === 'one-off' && !String(item.next_due).startsWith(cycleKey)) return;
+                // Flexible date matching for one-offs: if it has next_due, it must match cycleKey. If no next_due, we show it (basics)
+                if (item.frequency === 'one-off' && item.next_due && !String(item.next_due).startsWith(cycleKey)) return;
                 
                 // If marked as excluded (-1), don't show in budget
                 if (progressItem?.is_paid === -1) return;
@@ -216,7 +216,7 @@ export default function BudgetView() {
                     isPaid: progressItem?.is_paid === 1, 
                     isDeletable: !['pot', 'pension', 'investment'].includes(type),
                     id: item.id, object, frequency: item.frequency || 'monthly', 
-                    memberId: memberId != null ? String(memberId) : null
+                    memberId: (memberId != null && String(memberId).length > 0) ? String(memberId) : null
                 });
             };
 
@@ -228,16 +228,17 @@ export default function BudgetView() {
                 addExpense(v, 'car_finance', `Finance: ${v.provider}`, v.monthly_payment, v.payment_day, <DirectionsCar />, 'Liability', { name: veh ? `${veh.make} ${veh.model}` : 'Vehicle', emoji: veh?.emoji || '🚗' });
             });
             liabilities.pensions.forEach(p => addExpense(p, 'pension', p.plan_name, p.monthly_contribution, p.payment_day, <SavingsIcon />, 'Pension', { name: 'Retirement', emoji: '👴' }));
+            
             liabilities.recurring_costs.forEach(c => {
                 let icon = <Payments />; 
                 let object = { name: 'General', emoji: '💸' };
-                let memberId = null;
+                let targetMemberId = null;
 
                 if (c.parent_type === 'member') {
                     const m = members.find(mem => String(mem.id) === String(c.parent_id));
                     object = { name: m ? (m.alias || m.name) : 'Resident', emoji: m?.emoji || '👤' }; 
                     icon = <Person />;
-                    memberId = m ? m.id : c.parent_id;
+                    targetMemberId = c.parent_id;
                 } else if (c.parent_type === 'pet') {
                     const p = members.find(mem => String(mem.id) === String(c.parent_id));
                     object = { name: p ? (p.alias || p.name) : 'Pet', emoji: p?.emoji || '🐾' }; 
@@ -258,7 +259,7 @@ export default function BudgetView() {
                 if (c.category === 'saving') icon = <SavingsIcon />;
                 if (c.category === 'transfer') icon = <AccountBalanceWallet />;
 
-                addExpense(c, 'cost', c.name, c.amount, c.payment_day, icon, c.category || 'Cost', object, memberId);
+                addExpense(c, 'cost', c.name, c.amount, c.payment_day, icon, c.category || 'Cost', object, targetMemberId);
             });
 
             liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit', cc.card_name, 0, cc.payment_day, <CreditCard />, 'Credit Card', { name: cc.provider, emoji: cc.emoji || '💳' }));
@@ -904,7 +905,7 @@ export default function BudgetView() {
                     {/* Member-Specific Expenses (One-off/Transfers) */}
                     {memberExpenses.map(group => {
                         const visibleExpenses = group.expenses.filter(exp => !hidePaid || !exp.isPaid);
-                        if (visibleExpenses.length === 0) return null;
+                        if (visibleExpenses.length === 0 && hidePaid) return null;
 
                         return (
                             <Box key={group.id}>
