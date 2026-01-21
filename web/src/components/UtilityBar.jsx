@@ -120,21 +120,22 @@ export default function UtilityBar({
       el.addEventListener('scroll', checkScroll);
       window.addEventListener('resize', checkScroll);
       
-      // Also check after a short delay to ensure contents are rendered
-      const timer = setTimeout(checkScroll, 500);
+      const resizeObserver = new ResizeObserver(checkScroll);
+      resizeObserver.observe(el);
+
+      // Force multiple checks as items might render/re-flow
+      const timer1 = setTimeout(checkScroll, 100);
+      const timer2 = setTimeout(checkScroll, 1000);
       
       return () => {
         el.removeEventListener('scroll', checkScroll);
         window.removeEventListener('resize', checkScroll);
-        clearTimeout(timer);
+        resizeObserver.disconnect();
+        clearTimeout(timer1);
+        clearTimeout(timer2);
       };
     }
-  }, [checkScroll]);
-
-  // Re-check scroll whenever activeWidget changes (as it might shift things) or when window size changes
-  useEffect(() => {
-      checkScroll();
-  }, [households, checkScroll]);
+  }, [checkScroll, households, statusBarData]);
 
   const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -212,11 +213,20 @@ export default function UtilityBar({
         }}
     >
         <Box sx={{ flex: '1 1 auto', display: 'flex', height: '100%', minWidth: 0, alignItems: 'center', position: 'relative' }}>
+            {/* Left Hint Gradient */}
             {canScrollLeft && (
                 <Box sx={{ 
-                    position: 'absolute', left: 0, zIndex: 2, height: '100%', display: 'flex', alignItems: 'center',
+                    position: 'absolute', left: 0, zIndex: 5, height: '100%', width: 60,
+                    pointerEvents: 'none',
+                    background: 'linear-gradient(to right, var(--joy-palette-background-surface) 30%, transparent)'
+                }} />
+            )}
+            
+            {canScrollLeft && (
+                <Box sx={{ 
+                    position: 'absolute', left: 0, zIndex: 6, height: '100%', display: 'flex', alignItems: 'center',
                     bgcolor: 'background.surface', borderRight: '1px solid', borderColor: 'divider',
-                    boxShadow: '4px 0 8px rgba(0,0,0,0.05)'
+                    boxShadow: '4px 0 8px rgba(0,0,0,0.1)'
                 }}>
                     <IconButton onClick={() => scroll(-200)} variant="plain" size="sm" sx={{ borderRadius: 0, height: '100%' }}>
                         <ChevronLeft />
@@ -251,11 +261,20 @@ export default function UtilityBar({
                 </WidgetWrapper>
             </Box>
 
+            {/* Right Hint Gradient */}
             {canScrollRight && (
                 <Box sx={{ 
-                    position: 'absolute', right: 0, zIndex: 2, height: '100%', display: 'flex', alignItems: 'center',
+                    position: 'absolute', right: 0, zIndex: 5, height: '100%', width: 60,
+                    pointerEvents: 'none',
+                    background: 'linear-gradient(to left, var(--joy-palette-background-surface) 30%, transparent)'
+                }} />
+            )}
+
+            {canScrollRight && (
+                <Box sx={{ 
+                    position: 'absolute', right: 0, zIndex: 6, height: '100%', display: 'flex', alignItems: 'center',
                     bgcolor: 'background.surface', borderLeft: '1px solid', borderColor: 'divider',
-                    boxShadow: '-4px 0 8px rgba(0,0,0,0.05)'
+                    boxShadow: '-4px 0 8px rgba(0,0,0,0.1)'
                 }}>
                     <IconButton onClick={() => scroll(200)} variant="plain" size="sm" sx={{ borderRadius: 0, height: '100%' }}>
                         <ChevronRight />
