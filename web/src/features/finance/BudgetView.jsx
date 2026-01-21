@@ -26,6 +26,7 @@ import {
   Shield,
   HistoryEdu,
   ShoppingBag,
+  Inventory,
   ChevronLeft,
   ChevronRight,
   Person,
@@ -58,12 +59,13 @@ export default function BudgetView() {
   const [liabilities, setLiabilities] = useState({
       mortgages: [], loans: [], agreements: [], vehicle_finance: [], 
       recurring_costs: [], credit_cards: [], water: null, council: null, energy: [],
-      pensions: [], vehicles: []
+      pensions: [], vehicles: [], assets: []
   });
   const [savingsPots, setSavingsPots] = useState([]);
 
   const [quickAddOpen, setQuickAddOpen] = useState(false);
   const [recurringAddOpen, setRecurringAddOpen] = useState(false);
+  const [familyExpenseOpen, setFamilyExpenseOpen] = useState(false);
 
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [lastSelectedIndex, setLastSelectedIndex] = useState(null);
@@ -72,11 +74,34 @@ export default function BudgetView() {
   const [currentBalance, setCurrentBalance] = useState('');
   const [isPayLocked, setIsPayLocked] = useState(true);
 
+  const playDing = useCallback(() => {
+      try {
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const oscillator = audioCtx.createOscillator();
+          const gainNode = audioCtx.createGain();
+
+          oscillator.type = 'sine';
+          oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // A5
+          oscillator.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.1); // E6
+
+          gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+
+          oscillator.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+
+          oscillator.start();
+          oscillator.stop(audioCtx.currentTime + 0.3);
+      } catch (e) {
+          console.warn("Audio feedback failed", e);
+      }
+  }, []);
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const [
-          incRes, progRes, cycleRes, mortRes, loanRes, agreeRes, carRes, costRes, ccRes, waterRes, councilRes, energyRes, pensionRes, potRes, holidayRes, vehRes
+          incRes, progRes, cycleRes, mortRes, loanRes, agreeRes, carRes, costRes, ccRes, waterRes, councilRes, energyRes, pensionRes, potRes, holidayRes, vehRes, assetRes
       ] = await Promise.all([
           api.get(`/households/${householdId}/finance/income`),
           api.get(`/households/${householdId}/finance/budget-progress`),
@@ -93,7 +118,8 @@ export default function BudgetView() {
           api.get(`/households/${householdId}/finance/pensions`),
           api.get(`/households/${householdId}/finance/savings/pots`),
           api.get(`/system/holidays`),
-          api.get(`/households/${householdId}/vehicles`)
+          api.get(`/households/${householdId}/vehicles`),
+          api.get(`/households/${householdId}/assets`)
       ]);
 
       setIncomes(incRes.data || []);
@@ -110,7 +136,8 @@ export default function BudgetView() {
           council: councilRes.data,
           energy: energyRes.data || [],
           pensions: pensionRes.data || [],
-          vehicles: vehRes.data || []
+          vehicles: vehRes.data || [],
+          assets: assetRes.data || []
       });
       setSavingsPots(potRes.data || []);
       setBankHolidays(holidayRes.data || []);
@@ -172,638 +199,349 @@ export default function BudgetView() {
             const expenses = [];
 
             const addExpense = (item, type, label, amount, day, icon, category, object = null, memberId = null) => {
-
                 const key = `${type}_${item.id || 'fixed'}`;
-
                 const progressItem = progress.find(p => p.item_key === key && p.cycle_start === cycleKey);
-
+                
                 if (item.frequency === 'one-off' && item.next_due !== cycleKey) return;
-
-      
+                
+                // If marked as excluded (-1), don't show in budget
+                if (progressItem?.is_paid === -1) return;
 
                 const useNwd = item.nearest_working_day !== undefined ? !!item.nearest_working_day : true;
-
                 const computedDate = getAdjustedDate(day, useNwd, startDate);
 
-      
-
                 expenses.push({
-
                     key, type, label, amount: progressItem?.actual_amount || parseFloat(amount) || 0,
-
                     day: parseInt(day) || 1, computedDate, icon, category,
-
-                    isPaid: !!progressItem, isDeletable: type === 'cost' && (item.frequency === 'one-off' || item.parent_type === 'general'),
-
+                    isPaid: progressItem?.is_paid === 1, 
+                    isDeletable: !['pot', 'pension', 'investment'].includes(type),
                     id: item.id, object, frequency: item.frequency || 'monthly', memberId
-
                 });
-
             };
-
-      
 
             liabilities.mortgages.forEach(m => addExpense(m, 'mortgage', m.lender, m.monthly_payment, m.payment_day, <Home />, 'Liability', { name: 'House', emoji: '🏠' }));
-
             liabilities.loans.forEach(l => addExpense(l, 'loan', `${l.lender} Loan`, l.monthly_payment, l.payment_day, <TrendingDown />, 'Liability', { name: 'Finance', emoji: '💰' }));
-
             liabilities.agreements.forEach(a => addExpense(a, 'agreement', a.agreement_name, a.monthly_payment, a.payment_day, <Assignment />, 'Agreement', { name: a.provider, emoji: '📄' }));
-
             liabilities.vehicle_finance.forEach(v => {
-
                 const veh = liabilities.vehicles.find(v_item => v_item.id === v.vehicle_id);
-
                 addExpense(v, 'car_finance', `Finance: ${v.provider}`, v.monthly_payment, v.payment_day, <DirectionsCar />, 'Liability', { name: veh ? `${veh.make} ${veh.model}` : 'Vehicle', emoji: veh?.emoji || '🚗' });
-
             });
+            liabilities.pensions.forEach(p => addExpense(p, 'pension', p.plan_name, p.monthly_contribution, p.payment_day, <SavingsIcon />, 'Pension', { name: 'Retirement', emoji: '👴' }));
+            liabilities.recurring_costs.forEach(c => {
+                let icon = <Payments />; let object = { name: 'General', emoji: '💸' };
+                let memberId = null;
+                if (c.parent_type === 'member') {
+                    const m = members.find(mem => mem.id === parseInt(c.parent_id));
+                    object = { name: m ? (m.alias || m.name) : 'User', emoji: m?.emoji || '👤' }; icon = <Person />;
+                    memberId = m ? m.id : null;
+                } else if (c.parent_type === 'pet') {
+                    const p = members.find(mem => mem.id === parseInt(c.parent_id));
+                    object = { name: p ? (p.alias || p.name) : 'Pet', emoji: p?.emoji || '🐾' }; icon = <Pets />;
+                } else if (c.parent_type === 'vehicle') {
+                    const v = liabilities.vehicles.find(v_item => v_item.id === parseInt(c.parent_id));
+                    object = { name: v ? `${v.make}` : 'Vehicle', emoji: v?.emoji || '🚗' }; icon = <DirectionsCar />;
+                } else if (c.parent_type === 'asset') {
+                    const a = liabilities.assets.find(asset => asset.id === parseInt(c.parent_id));
+                    object = { name: a ? a.name : 'Asset', emoji: a?.emoji || '📦' }; icon = <Inventory />;
+                }
 
-                  liabilities.pensions.forEach(p => addExpense(p, 'pension', p.plan_name, p.monthly_contribution, p.payment_day, <SavingsIcon />, 'Pension', { name: 'Retirement', emoji: '👴' }));
+                if (c.category === 'insurance') icon = <Shield />;
+                if (c.category === 'subscription') icon = <ShoppingBag />;
+                if (c.category === 'service') icon = <HistoryEdu />;
+                if (c.category === 'saving') icon = <SavingsIcon />;
+                if (c.category === 'transfer') icon = <AccountBalanceWallet />;
 
-                  liabilities.recurring_costs.forEach(c => {
-
-                      let icon = <Payments />; let object = { name: 'General', emoji: '💸' };
-
-                      let memberId = null;
-
-                      if (c.parent_type === 'member') {
-
-                          const m = members.find(mem => mem.id === parseInt(c.parent_id));
-
-                          object = { name: m ? (m.alias || m.name) : 'User', emoji: m?.emoji || '👤' }; icon = <Person />;
-
-                          memberId = m ? m.id : null;
-
-                      } else if (c.parent_type === 'pet') {
-
-                          const p = members.find(mem => mem.id === parseInt(c.parent_id));
-
-                          object = { name: p ? (p.alias || p.name) : 'Pet', emoji: p?.emoji || '🐾' }; icon = <Pets />;
-
-                      } else if (c.parent_type === 'vehicle') {
-
-                          const v = liabilities.vehicles.find(v_item => v_item.id === parseInt(c.parent_id));
-
-                          object = { name: v ? `${v.make}` : 'Vehicle', emoji: v?.emoji || '🚗' }; icon = <DirectionsCar />;
-
-                      }
-
-                      if (c.category === 'insurance') icon = <Shield />;
-
-                      if (c.category === 'subscription') icon = <ShoppingBag />;
-
-                      if (c.category === 'service') icon = <HistoryEdu />;
-
-                      if (c.category === 'saving') icon = <SavingsIcon />;
-
-                      addExpense(c, 'cost', c.name, c.amount, c.payment_day, icon, c.category || 'Cost', object, memberId);
-
-                  });
+                addExpense(c, 'cost', c.name, c.amount, c.payment_day, icon, c.category || 'Cost', object, memberId);
+            });
 
             liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit', cc.card_name, 0, cc.payment_day, <CreditCard />, 'Credit Card', { name: cc.provider, emoji: cc.emoji || '💳' }));
-
             if (liabilities.water) addExpense(liabilities.water, 'water', 'Water Bill', liabilities.water.monthly_amount, liabilities.water.payment_day, <WaterDrop />, 'Utility', { name: 'House', emoji: '💧' });
-
             if (liabilities.council) addExpense(liabilities.council, 'council', 'Council Tax', liabilities.council.monthly_amount, liabilities.council.payment_day, <AccountBalance />, 'Utility', { name: 'House', emoji: '🏛️' });
-
             if (liabilities.energy) liabilities.energy.forEach(e => addExpense(e, 'energy', `${e.provider} (${e.type})`, e.monthly_amount, e.payment_day, <ElectricBolt />, 'Utility', { name: 'House', emoji: '⚡' }));
 
-      
-
             savingsPots.forEach(pot => {
-
                 addExpense(pot, 'pot', pot.name, 0, pot.deposit_day || 1, <SavingsIcon />, 'Saving', { name: pot.account_name, emoji: pot.account_emoji || '💰' });
-
             });
 
-      
-
             return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, expenses: expenses.sort((a, b) => (a.computedDate || 0) - (b.computedDate || 0)) };
-
         }, [incomes, liabilities, progress, viewDate, members, getPriorWorkingDay, getAdjustedDate, savingsPots]);
 
-      
-
         const currentCycleRecord = useMemo(() => {
-
           return cycles.find(c => c.cycle_start === cycleData?.cycleKey);
-
         }, [cycles, cycleData]);
 
-      
-
         const cycleEvents = useMemo(() => {
-
           if (!cycleData) return [];
-
           const events = [];
-
-      
-
           bankHolidays.forEach(h => {
-
               const date = new Date(h);
-
               if (date >= cycleData.startDate && date <= cycleData.endDate) {
-
                   events.push({ type: 'holiday', date, label: 'Bank Holiday', emoji: '🇬🇧' });
-
               }
-
           });
-
-      
-
           members.forEach(m => {
-
               if (!m.dob) return;
-
               const dob = new Date(m.dob);
-
               const currentYearBirthday = new Date(cycleData.startDate.getFullYear(), dob.getMonth(), dob.getDate());
-
               const nextYearBirthday = new Date(cycleData.startDate.getFullYear() + 1, dob.getMonth(), dob.getDate());
-
               
-
               let targetDate = null;
-
               if (currentYearBirthday >= cycleData.startDate && currentYearBirthday <= cycleData.endDate) targetDate = currentYearBirthday;
-
               else if (nextYearBirthday >= cycleData.startDate && nextYearBirthday <= cycleData.endDate) targetDate = nextYearBirthday;
 
-      
-
               if (targetDate) {
-
                   events.push({ type: 'birthday', date: targetDate, label: `${m.name}'s Birthday`, emoji: '🎂' });
-
               }
-
           });
-
-      
-
           return events.sort((a, b) => a.date - b.date);
-
         }, [cycleData, bankHolidays, members]);
 
-      
-
         useEffect(() => {
-
             if (currentCycleRecord) {
-
                 setActualPay(currentCycleRecord.actual_pay);
-
                 setCurrentBalance(currentCycleRecord.current_balance);
-
             } else {
-
                 setActualPay('');
-
                 setCurrentBalance('');
-
             }
-
         }, [currentCycleRecord]);
 
-      
-
         const handleRowClick = (e, index, key) => {
-
             const isShift = e.shiftKey; const isCtrl = e.metaKey || e.ctrlKey;
-
             if (isShift && lastSelectedIndex !== null) {
-
                 const start = Math.min(lastSelectedIndex, index); const end = Math.max(lastSelectedIndex, index);
-
                 const keysInRange = cycleData.expenses.filter((_, i) => i >= start && i <= end).map(exp => exp.key);
-
                 setSelectedKeys(prev => Array.from(new Set([...prev, ...keysInRange])));
-
             } else if (isCtrl) {
-
                 setSelectedKeys(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
-
                 setLastSelectedIndex(index);
-
             } else {
-
                 setSelectedKeys([key]); setLastSelectedIndex(index);
-
             }
-
         };
-
-      
 
         const handleSelectToggle = (key) => {
-
             setSelectedKeys(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
-
         };
-
-      
 
         const saveCycleData = async (pay, balance) => {
-
             if (!cycleData) return;
-
             try {
-
                 await api.post(`/households/${householdId}/finance/budget-cycles`, {
-
                     cycle_start: cycleData.cycleKey, actual_pay: parseFloat(pay) || 0, current_balance: parseFloat(balance) || 0
-
                 });
-
                 const res = await api.get(`/households/${householdId}/finance/budget-cycles`);
-
                 setCycles(res.data || []);
-
             } catch (err) { console.error("Failed to save cycle data", err); }
-
         };
-
-      
 
         const createCycle = async (copyPrevious = false) => {
-
             let pay = 0;
-
             let balance = 0;
-
             if (copyPrevious) {
-
                 const prevDate = addMonths(cycleData.startDate, -1);
-
                 const prevCycle = cycles.find(c => {
-
                    const d = new Date(c.cycle_start);
-
                    return d.getMonth() === prevDate.getMonth() && d.getFullYear() === prevDate.getFullYear();
-
                 });
-
                 if (prevCycle) {
-
                     pay = prevCycle.actual_pay;
-
                     balance = prevCycle.current_balance;
-
                 }
-
             }
-
             await saveCycleData(pay, balance);
-
         };
-
-      
 
         const updateActualAmount = async (itemKey, amount) => {
-
             try {
-
                 await api.post(`/households/${householdId}/finance/budget-progress`, {
-
                     cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: 1, actual_amount: parseFloat(amount) || 0
-
                 });
-
                 const progRes = await api.get(`/households/${householdId}/finance/budget-progress`);
-
                 setProgress(progRes.data || []);
-
                 
-
                 if (itemKey.startsWith('pot_')) {
-
                     const potRes = await api.get(`/households/${householdId}/finance/savings/pots`);
-
                     setSavingsPots(potRes.data || []);
-
                 }
-
             } catch (err) { console.error("Failed to update actual amount", err); }
-
         };
 
-      
-
-        const togglePaid = async (itemKey, amount = 0) => {
-
-            setSavingProgress(true);
-
-            try {
-
-                const isCurrentlyPaid = progress.some(p => p.item_key === itemKey && p.cycle_start === cycleData.cycleKey);
-
-                if (isCurrentlyPaid) {
-
-                    await api.delete(`/households/${householdId}/finance/budget-progress/${cycleData.cycleKey}/${itemKey}`);
-
-                } else {
-
-                    await api.post(`/households/${householdId}/finance/budget-progress`, {
-
-                        cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: 1, actual_amount: amount
-
-                    });
-
-                }
-
-                const progRes = await api.get(`/households/${householdId}/finance/budget-progress`);
-
+          const togglePaid = async (itemKey, amount = 0) => {
+              setSavingProgress(true);
+              try {
+                  const isCurrentlyPaid = progress.some(p => p.item_key === itemKey && p.cycle_start === cycleData.cycleKey);
+                  if (isCurrentlyPaid) {
+                      await api.delete(`/households/${householdId}/finance/budget-progress/${cycleData.cycleKey}/${itemKey}`);
+                  } else {
+                      playDing();
+                      await api.post(`/households/${householdId}/finance/budget-progress`, {
+                          cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: 1, actual_amount: amount
+                      });
+                  }
+                  const progRes = await api.get(`/households/${householdId}/finance/budget-progress`);
                 setProgress(progRes.data || []);
 
-      
-
                 if (itemKey.startsWith('pot_')) {
-
                     const potRes = await api.get(`/households/${householdId}/finance/savings/pots`);
-
                     setSavingsPots(potRes.data || []);
-
                 }
-
             } catch (err) { console.error("Failed to toggle paid status", err); } finally { setSavingProgress(false); }
-
         };
-
-      
 
         const handleRecurringAdd = async (e) => {
-
             e.preventDefault();
-
             const formData = new FormData(e.currentTarget);
-
             const data = Object.fromEntries(formData.entries());
-
             const [type, id] = (data.assigned_to || 'general_1').split('_');
-
             data.parent_type = type; data.parent_id = id;
-
             data.nearest_working_day = data.nearest_working_day === "1" ? 1 : 0;
-
             delete data.assigned_to;
-
             try {
-
                 await api.post(`/households/${householdId}/costs`, data);
-
                 showNotification("Recurring expense added.", "success");
-
                 fetchData(); setRecurringAddOpen(false);
-
             } catch { alert("Failed to add recurring expense"); }
-
         };
-
-      
 
         const handleQuickAdd = async (e) => {
-
             e.preventDefault();
-
             const formData = new FormData(e.currentTarget);
-
             const data = Object.fromEntries(formData.entries());
-
             data.parent_type = 'general'; data.parent_id = 1; data.frequency = 'one-off'; 
-
             data.next_due = cycleData.cycleKey;
-
             data.nearest_working_day = data.nearest_working_day === "1" ? 1 : 0;
-
             try {
-
                 await api.post(`/households/${householdId}/costs`, data);
-
                 showNotification("One-off expense added.", "success");
-
                 fetchData(); setQuickAddOpen(false);
-
             } catch { alert("Failed to add one-off expense"); }
-
         };
 
-      
+        const handleFamilyExpenseAdd = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            const data = Object.fromEntries(formData.entries());
+            data.parent_type = 'member';
+            data.parent_id = data.member_id;
+            data.frequency = 'one-off';
+            data.next_due = cycleData.cycleKey;
+            data.nearest_working_day = 1;
+            data.category = 'transfer';
+            delete data.member_id;
+            try {
+                await api.post(`/households/${householdId}/costs`, data);
+                showNotification("Family expense added.", "success");
+                fetchData(); setFamilyExpenseOpen(false);
+            } catch { alert("Failed to add family expense"); }
+        };
 
-        const deleteExpense = async (id) => {
+        const deleteExpense = async (exp) => {
+            const isOneOff = exp.frequency === 'one-off' && exp.type === 'cost';
+            
+            const msg = isOneOff 
+                ? "Permanently delete this one-off expense?" 
+                : "Remove this item from THIS budget cycle? (It will return next month)";
 
-            if (!window.confirm("Remove this expense from recurring costs?")) return;
+            if (!window.confirm(msg)) return;
 
             try {
-
-                await api.delete(`/households/${householdId}/costs/${id}`);
-
+                if (isOneOff) {
+                    await api.delete(`/households/${householdId}/costs/${exp.id}`);
+                } else {
+                    // Mark as excluded for this cycle (-1)
+                    await api.post(`/households/${householdId}/finance/budget-progress`, {
+                        cycle_start: cycleData.cycleKey,
+                        item_key: exp.key,
+                        is_paid: -1,
+                        actual_amount: 0
+                    });
+                }
                 fetchData();
-
-            } catch (err) { console.error("Failed to delete expense", err); }
-
+            } catch (err) { 
+                console.error("Failed to delete expense", err); 
+                showNotification("Failed to remove item", "danger");
+            }
         };
-
-      
 
         const cycleTotals = useMemo(() => {
-
             if (!cycleData) return { total: 0, paid: 0, unpaid: 0 };
-
-            
-
-            // Filter out items that are not paid and have 0 amount (unallocated pots)
-
             const activeExpenses = cycleData.expenses.filter(e => e.isPaid || e.amount > 0);
-
-            
-
             const total = activeExpenses.reduce((sum, e) => sum + e.amount, 0);
-
             const paid = activeExpenses.filter(e => e.isPaid).reduce((sum, e) => sum + e.amount, 0);
-
             return { total, paid, unpaid: total - paid };
-
         }, [cycleData]);
 
-      
-
         const savingsTotal = useMemo(() => {
-
             return savingsPots.reduce((sum, pot) => sum + (parseFloat(pot.current_amount) || 0), 0);
-
         }, [savingsPots]);
 
-      
-
         const selectedTotals = useMemo(() => {
-
             if (!selectedKeys.length || !cycleData) return null;
-
             const selected = cycleData.expenses.filter(e => selectedKeys.includes(e.key));
-
             const total = selected.reduce((sum, e) => sum + e.amount, 0);
-
             const paid = selected.filter(e => e.isPaid).reduce((sum, e) => sum + e.amount, 0);
-
-            return {
-
-                count: selected.length,
-
-                total,
-
-                paid,
-
-                unpaid: total - paid
-
-            };
-
+            return { count: selected.length, total, paid, unpaid: total - paid };
         }, [selectedKeys, cycleData]);
-
         
-
         useEffect(() => {
-
             setStatusBarData(selectedTotals);
-
             return () => setStatusBarData(null);
-
         }, [selectedTotals, setStatusBarData]);
-
-      
 
         const trueDisposable = (parseFloat(currentBalance) || 0) - cycleTotals.unpaid;
 
-      
-
         const groupedPots = useMemo(() => {
-
           const groups = {};
-
           savingsPots.forEach(pot => {
-
               if (!groups[pot.savings_id]) {
-
-                  groups[pot.savings_id] = {
-
-                      name: pot.account_name,
-
-                      institution: pot.institution,
-
-                      emoji: pot.account_emoji || '💰',
-
-                      balance: pot.current_balance || 0,
-
-                      pots: []
-
-                  };
-
+                  groups[pot.savings_id] = { name: pot.account_name, institution: pot.institution, emoji: pot.account_emoji || '💰', balance: pot.current_balance || 0, pots: [] };
               }
-
               groups[pot.savings_id].pots.push(pot);
-
           });
-
           return groups;
-
         }, [savingsPots]);
 
-      
-
         const groupedRecurring = useMemo(() => {
-
           if (!cycleData) return {};
-
           const recurring = cycleData.expenses.filter(exp => 
-
               exp.frequency !== 'one-off' && 
-
               exp.type !== 'pot' && 
-
               exp.type !== 'pension' && 
-
-              exp.type !== 'investment' &&
-
-              !exp.memberId
-
+              exp.type !== 'investment'
           );
-
           const groups = {};
-
           recurring.forEach(exp => {
-
               const freq = exp.frequency || 'monthly';
-
               if (!groups[freq]) groups[freq] = [];
-
               groups[freq].push(exp);
-
           });
-
           return groups;
-
         }, [cycleData]);
-
-      
 
         const memberExpenses = useMemo(() => {
-
             if (!cycleData) return [];
-
-            const memExps = cycleData.expenses.filter(exp => !!exp.memberId);
-
+            const memExps = cycleData.expenses.filter(exp => !!exp.memberId && exp.frequency === 'one-off');
             const groups = {};
-
             memExps.forEach(exp => {
-
                 if (!groups[exp.memberId]) {
-
                     const m = members.find(mem => mem.id === exp.memberId);
-
-                    groups[exp.memberId] = {
-
-                        id: exp.memberId,
-
-                        name: m ? (m.alias || m.name) : 'User',
-
-                        emoji: m?.emoji || '👤',
-
-                        expenses: []
-
-                    };
-
+                    groups[exp.memberId] = { id: exp.memberId, name: m ? (m.alias || m.name) : 'User', emoji: m?.emoji || '👤', expenses: [] };
                 }
-
                 groups[exp.memberId].expenses.push(exp);
-
             });
-
             return Object.values(groups);
-
         }, [cycleData, members]);
 
-      
-
         const pensionExpenses = useMemo(() => {
-
             if (!cycleData) return [];
-
             return cycleData.expenses.filter(exp => exp.type === 'pension');
-
         }, [cycleData]);
-
-      
 
         const investmentExpenses = useMemo(() => {
-
             if (!cycleData) return [];
-
             return cycleData.expenses.filter(exp => exp.type === 'investment');
-
         }, [cycleData]);
-
-      
 
         const frequencyOrder = ['weekly', 'fortnightly', 'four-weekly', 'monthly', 'quarterly', 'annual'];
 
@@ -883,6 +621,7 @@ export default function BudgetView() {
                     <Menu placement="bottom-end" size="sm">
                         <MenuItem onClick={() => setQuickAddOpen(true)}>Add One-off</MenuItem>
                         <MenuItem onClick={() => setRecurringAddOpen(true)}>Add Recurring</MenuItem>
+                        <MenuItem onClick={() => setFamilyExpenseOpen(true)}>Add Family Expense</MenuItem>
                     </Menu>
                 </Dropdown>
             </Box>
@@ -1066,7 +805,7 @@ export default function BudgetView() {
                                                                 sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} 
                                                             />
                                                         </td>
-                                                        <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" sx={{ '--IconButton-size': '24px' }} onClick={(e) => { e.stopPropagation(); deleteExpense(exp.id); }}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}</td>
+                                                                                                                <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" sx={{ '--IconButton-size': '24px' }} onClick={(e) => { e.stopPropagation(); deleteExpense(exp); }}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}</td>
                                                     </tr>
                                                 ))}
                                             </tbody>
@@ -1090,7 +829,7 @@ export default function BudgetView() {
                                             <Checkbox 
                                                 size="sm" 
                                                 onChange={(e) => {
-                                                    const oneOffKeys = cycleData.expenses.filter(exp => exp.frequency === 'one-off').map(e => e.key);
+                                                    const oneOffKeys = cycleData.expenses.filter(exp => exp.frequency === 'one-off' && !exp.memberId).map(e => e.key);
                                                     if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...oneOffKeys])));
                                                     else setSelectedKeys(prev => prev.filter(k => !oneOffKeys.includes(k)));
                                                 }} 
@@ -1104,7 +843,7 @@ export default function BudgetView() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {cycleData.expenses.filter(exp => exp.frequency === 'one-off').filter(exp => !hidePaid || !exp.isPaid).map((exp, index) => (
+                                    {cycleData.expenses.filter(exp => exp.frequency === 'one-off' && !exp.memberId).filter(exp => !hidePaid || !exp.isPaid).map((exp, index) => (
                                         <tr key={exp.key} onClick={(e) => handleRowClick(e, index, exp.key)} style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}>
                                             <td style={{ textAlign: 'center' }}>
                                                 <Checkbox 
@@ -1141,10 +880,10 @@ export default function BudgetView() {
                                                     sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} 
                                                 />
                                             </td>
-                                            <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" sx={{ '--IconButton-size': '24px' }} onClick={(e) => { e.stopPropagation(); deleteExpense(exp.id); }}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}</td>
+                                                                                                    <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" sx={{ '--IconButton-size': '24px' }} onClick={(e) => { e.stopPropagation(); deleteExpense(exp); }}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}</td>
                                         </tr>
                                     ))}
-                                    {cycleData.expenses.filter(exp => exp.frequency === 'one-off').length === 0 && (
+                                    {cycleData.expenses.filter(exp => exp.frequency === 'one-off' && !exp.memberId).length === 0 && (
                                         <tr>
                                             <td colSpan={6} style={{ textAlign: 'center', padding: '10px', color: 'neutral.500', fontStyle: 'italic', fontSize: '0.75rem' }}>No one-off expenses this month.</td>
                                         </tr>
@@ -1154,12 +893,12 @@ export default function BudgetView() {
                         </Sheet>
                     </Box>
 
-                    {/* Member-Specific Expenses */}
+                    {/* Member-Specific Expenses (One-off/Transfers) */}
                     {memberExpenses.map(group => (
                         <Box key={group.id}>
                             <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar>
-                                {group.name}'s Costs
+                                {group.name}'s Expenses
                             </Typography>
                             <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
                                 <Table hoverRow size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}>
@@ -1189,7 +928,7 @@ export default function BudgetView() {
                                                 <td><Box sx={{ textAlign: 'center' }}><Typography level="body-xs" fontWeight="bold">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{format(exp.computedDate, 'EEE do')}</Typography>}</Box></td>
                                                 <td><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px' }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} slotProps={{ input: { step: '0.01' } }} /></td>
                                                 <td style={{ textAlign: 'center' }}><Checkbox size="sm" variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} /></td>
-                                                <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" onClick={() => deleteExpense(exp.id)}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}</td>
+                                                <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" sx={{ '--IconButton-size': '24px' }} onClick={(e) => { e.stopPropagation(); deleteExpense(exp); }}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}</td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -1431,8 +1170,33 @@ export default function BudgetView() {
                                     {liabilities.vehicles.map(v_item => <Option key={v_item.id} value={`vehicle_${v_item.id}`}>{v_item.emoji || '🚗'} {v_item.make}</Option>)}
                                 </Select>
                             </FormControl>
-                            <AppSelect label="Category" name="category" defaultValue="other" options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'other', label: 'Other' }]} />
+                            <AppSelect label="Category" name="category" defaultValue="other" options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'saving', label: 'Saving' }, { value: 'other', label: 'Other' }]} />
                             <Button type="submit">Add Recurring</Button>
+                        </Stack>
+                    </form>
+                </DialogContent>
+            </ModalDialog>
+        </Modal>
+
+        <Modal open={familyExpenseOpen} onClose={() => setFamilyExpenseOpen(false)}>
+            <ModalDialog sx={{ maxWidth: 400, width: '100%', overflow: 'hidden' }}>
+                <DialogTitle>Add Family Expense / Transfer</DialogTitle>
+                <DialogContent>
+                    <Typography level="body-sm" sx={{ mb: 2 }}>Record one-off money transfers or specific costs for a family member.</Typography>
+                    <form onSubmit={handleFamilyExpenseAdd}>
+                        <Stack spacing={2}>
+                            <FormControl required>
+                                <FormLabel>Family Member</FormLabel>
+                                <Select name="member_id" placeholder="Select member">
+                                    {members.filter(m => m.type !== 'viewer').map(m => (
+                                        <Option key={m.id} value={m.id}>{m.emoji} {m.name}</Option>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <FormControl required><FormLabel>Description</FormLabel><Input name="name" placeholder="e.g. Pocket Money, School Trip, Transfer" autoFocus /></FormControl>
+                            <FormControl required><FormLabel>How Much (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: '0.01' } }} /></FormControl>
+                            <FormControl required><FormLabel>Due Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={new Date().getDate()} /></FormControl>
+                            <Button type="submit" startDecorator={<Payments />}>Add Family Expense</Button>
                         </Stack>
                     </form>
                 </DialogContent>

@@ -2,15 +2,20 @@ import { useState } from 'react';
 import { 
   Box, Typography, Sheet, Grid, Input, FormControl, FormLabel, 
   Select, Option, Button, Chip, IconButton, Avatar, Card, CardContent, 
-  Divider, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Stack
+  Divider, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Stack, Tabs, TabList, Tab
 } from '@mui/joy';
-import { PersonAdd, Delete, Groups, Edit, ChildCare, Face, Visibility } from '@mui/icons-material';
+import { PersonAdd, Delete, Groups, Edit, ChildCare, Face, Visibility, Payments, Info } from '@mui/icons-material';
+import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
+import { useOutletContext } from 'react-router-dom';
 
 const PET_SPECIES = ['Dog', 'Cat', 'Hamster', 'Rabbit', 'Bird', 'Fish', 'Reptile', 'Other'];
 
 export default function MembersView({ members, onAddMember, onRemoveMember, onUpdateMember }) {
+  const { api, id: householdId, showNotification } = useOutletContext();
   const [memberType, setMemberType] = useState('adult');
   const [editMember, setEditMember] = useState(null);
+  const [viewMember, setViewMember] = useState(null);
+  const [activeTab, setActiveTab] = useState(0);
 
   const getResidentAvatar = (m) => {
     const type = m?.type?.toLowerCase();
@@ -123,7 +128,7 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
       <Grid container spacing={2}>
         {members.map((m) => (
           <Grid xs={12} sm={6} md={4} key={m.id}>
-            <Card variant="outlined" sx={{ flexDirection: 'row', alignItems: 'center', p: 2 }}>
+            <Card variant="outlined" sx={{ flexDirection: 'row', alignItems: 'center', p: 2, cursor: 'pointer', '&:hover': { bgcolor: 'background.level1' } }} onClick={() => { setViewMember(m); setActiveTab(0); }}>
               <Avatar size="lg" sx={{ bgcolor: m.type === 'pet' ? 'warning.softBg' : 'primary.softBg' }}>
                 {getResidentAvatar(m)}
               </Avatar>
@@ -134,13 +139,60 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
                 </Typography>
               </CardContent>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                <IconButton size="sm" variant="plain" color="neutral" onClick={() => setEditMember(m)}><Edit /></IconButton>
-                <IconButton size="sm" variant="plain" color="danger" onClick={() => onRemoveMember(m.id)}><Delete /></IconButton>
+                <IconButton size="sm" variant="plain" color="neutral" onClick={(e) => { e.stopPropagation(); setEditMember(m); }}><Edit /></IconButton>
+                <IconButton size="sm" variant="plain" color="danger" onClick={(e) => { e.stopPropagation(); onRemoveMember(m.id); }}><Delete /></IconButton>
               </Box>
             </Card>
           </Grid>
         ))}
       </Grid>
+
+      {/* VIEW MODAL (Member Details & Costs) */}
+      <Modal open={Boolean(viewMember)} onClose={() => setViewMember(null)}>
+        <ModalDialog sx={{ maxWidth: 600, width: '100%', p: 0, overflow: 'hidden' }}>
+            {viewMember && (
+                <>
+                    <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2, bgcolor: 'background.level1' }}>
+                        <Avatar size="lg">{getResidentAvatar(viewMember)}</Avatar>
+                        <Box>
+                            <Typography level="h3">{viewMember.name}</Typography>
+                            <Typography level="body-sm" color="neutral">{viewMember.type.toUpperCase()} • {viewMember.alias || 'No Alias'}</Typography>
+                        </Box>
+                    </Box>
+                    <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)}>
+                        <TabList variant="plain" sx={{ px: 2, bgcolor: 'background.level1' }}>
+                            <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'}><Info sx={{ mr: 1 }} /> Details</Tab>
+                            <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}><Payments sx={{ mr: 1 }} /> Recurring Costs</Tab>
+                        </TabList>
+                        <Box sx={{ p: 3, minHeight: 300 }}>
+                            {activeTab === 0 && (
+                                <Grid container spacing={2}>
+                                    <Grid xs={6}><Typography level="body-xs" fontWeight="bold">TYPE</Typography><Typography level="body-sm">{viewMember.type}</Typography></Grid>
+                                    <Grid xs={6}><Typography level="body-xs" fontWeight="bold">GENDER</Typography><Typography level="body-sm">{viewMember.gender || 'Not Specified'}</Typography></Grid>
+                                    <Grid xs={6}><Typography level="body-xs" fontWeight="bold">DOB</Typography><Typography level="body-sm">{viewMember.dob || 'Not Recorded'}</Typography></Grid>
+                                    {viewMember.type === 'pet' && <Grid xs={6}><Typography level="body-xs" fontWeight="bold">SPECIES</Typography><Typography level="body-sm">{viewMember.species}</Typography></Grid>}
+                                </Grid>
+                            )}
+                            {activeTab === 1 && (
+                                <RecurringCostsWidget 
+                                    api={api} 
+                                    householdId={householdId} 
+                                    parentType={viewMember.type === 'pet' ? 'pet' : 'member'} 
+                                    parentId={viewMember.id} 
+                                    isAdmin={true} 
+                                    showNotification={showNotification} 
+                                />
+                            )}
+                        </Box>
+                    </Tabs>
+                    <Divider />
+                    <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                        <Button variant="plain" color="neutral" onClick={() => setViewMember(null)}>Close</Button>
+                    </Box>
+                </>
+            )}
+        </ModalDialog>
+      </Modal>
 
       {/* EDIT MODAL */}
       <Modal open={Boolean(editMember)} onClose={() => setEditMember(null)}>
