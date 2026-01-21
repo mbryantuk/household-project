@@ -188,10 +188,9 @@ export default function BudgetView() {
           const key = `${type}_${item.id || 'fixed'}`;
           const progressItem = progress.find(p => p.item_key === key && p.cycle_start === cycleKey);
           
-          if (item.frequency === 'one-off') {
-              if (!item.next_due) return; // Skip if no due date
+          if (item.frequency?.toLowerCase() === 'one-off') {
+              if (!item.next_due) return;
               const due = new Date(item.next_due);
-              // Show if due date is within cycle range
               if (due < startOfDay(startDate) || due > endOfDay(endDate)) return;
           }
           
@@ -202,7 +201,7 @@ export default function BudgetView() {
               day: parseInt(day) || 1, computedDate: getAdjustedDate(day, !!item.nearest_working_day, startDate),
               icon, category, isPaid: progressItem?.is_paid === 1,
               isDeletable: !['pot', 'pension', 'investment'].includes(type),
-              id: item.id, object, frequency: item.frequency || 'monthly', 
+              id: item.id, object, frequency: item.frequency?.toLowerCase() || 'monthly', 
               memberId: (memberId != null && String(memberId).length > 0) ? String(memberId) : null
           });
       };
@@ -505,11 +504,18 @@ export default function BudgetView() {
                 <Stack spacing={4}>
                     <Box><Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><Payments fontSize="small" /> Recurring Expenses</Typography>
                         <Stack spacing={2}>
-                            {frequencyOrder.filter(f => groupedRecurring[f]).map(freq => (
-                                <Box key={freq}><Typography level="body-xs" sx={{ mb: 1, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'neutral.500' }}>{freq}</Typography>
-                                    <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}><Table hoverRow stickyHeader size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}><thead><tr><th style={{ width: 40, textAlign: 'center' }}><Checkbox size="sm" onChange={(e) => { const keys = groupedRecurring[freq].filter(exp => !hidePaid || !exp.isPaid).map(e => e.key); if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...keys]))); else setSelectedKeys(prev => prev.filter(k => !keys.includes(k))); }} /></th><th>Expense</th><th style={{ width: 80, textAlign: 'center' }}>Date</th><th style={{ width: 100 }}>Amount</th><th style={{ width: 40, textAlign: 'center' }}>Paid</th><th style={{ width: 40 }}></th></tr></thead><tbody>{renderTableRows(groupedRecurring[freq])}</tbody></Table></Sheet>
-                                </Box>
-                            ))}
+                            {frequencyOrder.filter(f => {
+                                const normalized = f.toLowerCase();
+                                return Object.keys(groupedRecurring).some(k => k.toLowerCase() === normalized);
+                            }).map(freq => {
+                                const normalized = freq.toLowerCase();
+                                const items = Object.entries(groupedRecurring).find(([k]) => k.toLowerCase() === normalized)?.[1] || [];
+                                return (
+                                    <Box key={freq}><Typography level="body-xs" sx={{ mb: 1, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'neutral.500' }}>{freq}</Typography>
+                                        <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}><Table hoverRow stickyHeader size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}><thead><tr><th style={{ width: 40, textAlign: 'center' }}><Checkbox size="sm" onChange={(e) => { const keys = items.filter(exp => !hidePaid || !exp.isPaid).map(e => e.key); if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...keys]))); else setSelectedKeys(prev => prev.filter(k => !keys.includes(k))); }} /></th><th>Expense</th><th style={{ width: 80, textAlign: 'center' }}>Date</th><th style={{ width: 100 }}>Amount</th><th style={{ width: 40, textAlign: 'center' }}>Paid</th><th style={{ width: 40 }}></th></tr></thead><tbody>{renderTableRows(items)}</tbody></Table></Sheet>
+                                    </Box>
+                                );
+                            })}
                         </Stack>
                     </Box>
 
