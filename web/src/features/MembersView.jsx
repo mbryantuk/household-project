@@ -124,59 +124,32 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
         </form>
       </Sheet>
 
-            {/* LIST */}
-
-            <Grid container spacing={2}>
-
-              {members.map((m) => (
-
-                <Grid xs={12} sm={6} md={4} key={m.id}>
-
-                  <Card 
-
-                      variant="outlined" 
-
-                      sx={{ flexDirection: 'row', alignItems: 'center', p: 2, cursor: 'pointer', '&:hover': { bgcolor: 'background.level1' } }} 
-
-                      onClick={() => { setViewMember(m); setActiveTab(0); }}
-
-                  >
-
-                    <Avatar size="lg" sx={{ bgcolor: m.type === 'pet' ? 'warning.softBg' : 'primary.softBg' }}>
-
-                      {getResidentAvatar(m)}
-
-                    </Avatar>
-
-                    <CardContent>
-
-                      <Typography level="title-md">{m.name || 'Unnamed Resident'}</Typography>
-
-                      <Typography level="body-sm">
-
-                          {m.alias ? `"${m.alias}"` : (m.type ? m.type.toUpperCase() : 'RESIDENT')}
-
-                      </Typography>
-
-                    </CardContent>
-
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-
-                      <IconButton size="sm" variant="plain" color="neutral" onClick={(e) => { e.stopPropagation(); setEditMember(m); }}><Edit /></IconButton>
-
-                      <IconButton size="sm" variant="plain" color="danger" onClick={(e) => { e.stopPropagation(); onRemoveMember(m.id); }}><Delete /></IconButton>
-
-                    </Box>
-
-                  </Card>
-
-                </Grid>
-
-              ))}
-
-            </Grid>
-
-      
+      {/* LIST */}
+      <Grid container spacing={2}>
+        {members.map((m) => (
+          <Grid xs={12} sm={6} md={4} key={m.id}>
+            <Card 
+                variant="outlined" 
+                sx={{ flexDirection: 'row', alignItems: 'center', p: 2, cursor: 'pointer', '&:hover': { bgcolor: 'background.level1' } }} 
+                onClick={() => { setViewMember(m); setActiveTab(0); }}
+            >
+              <Avatar size="lg" sx={{ bgcolor: m.type === 'pet' ? 'warning.softBg' : 'primary.softBg' }}>
+                {getResidentAvatar(m)}
+              </Avatar>
+              <CardContent>
+                <Typography level="title-md">{m.name || 'Unnamed Resident'}</Typography>
+                <Typography level="body-sm">
+                    {m.alias ? `"${m.alias}"` : (m.type ? m.type.toUpperCase() : 'RESIDENT')}
+                </Typography>
+              </CardContent>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                <IconButton size="sm" variant="plain" color="neutral" onClick={(e) => { e.stopPropagation(); setEditMember(m); }}><Edit /></IconButton>
+                <IconButton size="sm" variant="plain" color="danger" onClick={(e) => { e.stopPropagation(); onRemoveMember(m.id); }}><Delete /></IconButton>
+              </Box>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
 
       {/* VIEW MODAL (Member Details & Costs) */}
       <Modal open={Boolean(viewMember)} onClose={() => setViewMember(null)}>
@@ -192,8 +165,8 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
                     </Box>
                     <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)}>
                         <TabList variant="plain" sx={{ px: 2, bgcolor: 'background.level1' }}>
-                            <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'}><Info sx={{ mr: 1 }} /> Details</Tab>
-                            <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}><Payments sx={{ mr: 1 }} /> Recurring Costs</Tab>
+                            <Tab value={0} variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'}><Info sx={{ mr: 1 }} /> Details</Tab>
+                            <Tab value={1} variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}><Payments sx={{ mr: 1 }} /> Recurring Costs</Tab>
                         </TabList>
                         <Box sx={{ p: 3, minHeight: 300 }}>
                             {activeTab === 0 && (

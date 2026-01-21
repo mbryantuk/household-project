@@ -525,14 +525,24 @@ export default function BudgetView() {
 
         const memberExpenses = useMemo(() => {
             if (!cycleData) return [];
-            const memExps = cycleData.expenses.filter(exp => !!exp.memberId && exp.frequency === 'one-off');
+            // Filter all expenses that have a memberId and are one-offs
+            const memExps = cycleData.expenses.filter(exp => 
+                exp.memberId != null && 
+                exp.frequency === 'one-off'
+            );
             const groups = {};
             memExps.forEach(exp => {
-                if (!groups[exp.memberId]) {
-                    const m = members.find(mem => mem.id === exp.memberId);
-                    groups[exp.memberId] = { id: exp.memberId, name: m ? (m.alias || m.name) : 'User', emoji: m?.emoji || '👤', expenses: [] };
+                const mId = String(exp.memberId);
+                if (!groups[mId]) {
+                    const m = members.find(mem => String(mem.id) === mId);
+                    groups[mId] = {
+                        id: mId,
+                        name: m ? (m.alias || m.name) : 'Resident',
+                        emoji: m?.emoji || '👤',
+                        expenses: []
+                    };
                 }
-                groups[exp.memberId].expenses.push(exp);
+                groups[mId].expenses.push(exp);
             });
             return Object.values(groups);
         }, [cycleData, members]);
@@ -847,7 +857,7 @@ export default function BudgetView() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {cycleData.expenses.filter(exp => exp.frequency === 'one-off' && !exp.memberId).filter(exp => !hidePaid || !exp.isPaid).map((exp, index) => (
+                                    {cycleData.expenses.filter(exp => exp.frequency === 'one-off' && exp.memberId == null).filter(exp => !hidePaid || !exp.isPaid).map((exp, index) => (
                                         <tr key={exp.key} onClick={(e) => handleRowClick(e, index, exp.key)} style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}>
                                             <td style={{ textAlign: 'center' }}>
                                                 <Checkbox 
