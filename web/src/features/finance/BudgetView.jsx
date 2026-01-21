@@ -500,7 +500,7 @@ export default function BudgetView() {
       ));
   };
 
-  const renderMobileCards = (items, _cols = 6, hidePill = false) => {
+  const renderMobileCards = (items, hidePill = false) => {
       return items.map((exp) => (
           <Card key={exp.key} variant="outlined" sx={{ mb: 1, p: 1.5, position: 'relative', borderLeft: '4px solid', borderLeftColor: exp.isPaid ? 'success.softBg' : 'primary.softBg', bgcolor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'background.surface' }} onClick={() => handleSelectToggle(exp.key)}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>

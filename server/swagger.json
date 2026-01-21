@@ -216,6 +216,46 @@
     "/households/{id}/vehicles": {
       "get": { "summary": "List vehicles", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
       "post": { "summary": "Create vehicle", "tags": ["Assets"], "description": "Admin/Member", "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    },
+    "/households/{id}/details": {
+      "get": { "summary": "Get house details", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "put": { "summary": "Update house details", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } }
+    },
+    "/households/{id}/water": {
+      "get": { "summary": "Get water info", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "put": { "summary": "Update water info", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } }
+    },
+    "/households/{id}/council": {
+      "get": { "summary": "Get council info", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "put": { "summary": "Update council info", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } }
+    },
+    "/households/{id}/waste": {
+      "get": { "summary": "List waste collections", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Create waste collection", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    },
+    "/households/{id}/waste/{itemId}": {
+      "put": { "summary": "Update waste collection", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
+      "delete": { "summary": "Delete waste collection", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
+    },
+    "/households/{id}/costs": {
+      "get": { "summary": "List recurring costs", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Create recurring cost", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    },
+    "/households/{id}/costs/{itemId}": {
+      "put": { "summary": "Update recurring cost", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
+      "delete": { "summary": "Delete recurring cost", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
+    },
+    "/admin/backups": {
+      "get": { "summary": "List backups", "tags": ["Admin"], "responses": { "200": { "description": "OK" } } }
+    },
+    "/admin/backups/trigger": {
+      "post": { "summary": "Trigger backup", "tags": ["Admin"], "responses": { "200": { "description": "Backup created" } } }
+    },
+    "/admin/users": {
+      "get": { "summary": "List users", "tags": ["Admin"], "responses": { "200": { "description": "OK" } } }
+    },
+    "/admin/create-user": {
+      "post": { "summary": "Create user (Admin)", "tags": ["Admin"], "responses": { "200": { "description": "Created" } } }
     }
   }
 }
