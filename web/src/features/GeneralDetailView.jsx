@@ -2,18 +2,17 @@ import { useState, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Grid, Input, Button, CircularProgress, 
-  Divider, Tooltip, IconButton, FormControl, FormLabel, Textarea, Checkbox
+  Divider, FormControl, FormLabel, Textarea, Checkbox
 } from '@mui/joy';
 import { Save } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
-import { getEmojiColor } from '../theme';
 
 /**
  * A generic view for tables that only have one row (id=1)
  * e.g., House Details, Water Info, Council, Waste
  */
-export default function GeneralDetailView({ title, icon: defaultIcon, endpoint, fields }) {
-  const { api, id: householdId, user: currentUser, showNotification, isDark } = useOutletContext();
+export default function GeneralDetailView({ title, endpoint, fields }) {
+  const { api, id: householdId, user: currentUser, showNotification } = useOutletContext();
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -53,7 +52,7 @@ export default function GeneralDetailView({ title, icon: defaultIcon, endpoint, 
       const res = await api.get(`/households/${householdId}/${endpoint}`);
       setData(res.data || {});
       setSelectedEmoji(res.data?.icon || null);
-    } catch (err) {
+    } catch {
       showNotification(`Failed to save ${title}.`, "danger");
     } finally {
       setSaving(false);

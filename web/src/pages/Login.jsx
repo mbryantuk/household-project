@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { 
-  Box, Sheet, Typography, Input, Button, CircularProgress, Alert, Link, Checkbox, FormControl, FormLabel 
+  Box, Sheet, Typography, Input, Button, Alert, Link, Checkbox, FormControl, FormLabel 
 } from '@mui/joy';
-import { useNavigate, Link as RouterLink, useLocation } from 'react-router-dom';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
 import TotemIcon from '../components/TotemIcon';
 
 export default function Login({ onLogin }) {
-  const navigate = useNavigate();
   const location = useLocation();
   const [email, setEmail] = useState(localStorage.getItem('rememberedEmail') || '');
   const [password, setPassword] = useState('');

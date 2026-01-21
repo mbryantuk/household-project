@@ -4,7 +4,7 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Select, Option, Stack, Chip, CircularProgress,
-  Divider, Textarea
+  Divider, Textarea, Checkbox
 } from '@mui/joy';
 import { Edit, Delete, ElectricBolt, Add, ReceiptLong } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
@@ -24,7 +24,7 @@ export default function EnergyView() {
       const res = await api.get(`/households/${householdId}/energy`);
       setAccounts(res.data || []);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch energy accounts", err);
     } finally {
       setLoading(false);
     }
@@ -50,7 +50,7 @@ export default function EnergyView() {
       fetchAccounts();
       setEditAccount(null);
       setIsNew(false);
-    } catch (err) {
+    } catch {
       showNotification("Failed to save account.", "danger");
     }
   };
@@ -61,7 +61,7 @@ export default function EnergyView() {
       await api.delete(`/households/${householdId}/energy/${id}`);
       showNotification("Energy account deleted.", "neutral");
       fetchAccounts();
-    } catch (err) {
+    } catch {
       showNotification("Failed to delete account.", "danger");
     }
   };
@@ -108,13 +108,13 @@ export default function EnergyView() {
                       <Stack spacing={1} mt={1}>
                         {a.account_number && <Typography level="body-xs">Acc: {a.account_number}</Typography>}
                         {a.tariff_name && <Typography level="body-xs" startDecorator={<ReceiptLong sx={{ fontSize: '1rem' }}/>}>{a.tariff_name}</Typography>}
-                        {a.contract_end && (
+                        {a.contractend && (
                             <Chip 
                                 size="sm" 
-                                color={new Date(a.contract_end) < new Date() ? "warning" : "neutral"}
+                                color={new Date(a.contractend) < new Date() ? "warning" : "neutral"}
                                 variant="outlined"
                             >
-                                Ends: {a.contract_end}
+                                Ends: {a.contractend}
                             </Chip>
                         )}
                       </Stack>
@@ -168,7 +168,7 @@ export default function EnergyView() {
                         <Grid xs={12} md={6}>
                             <FormControl>
                                 <FormLabel>Contract End Date</FormLabel>
-                                <Input name="contract_end" type="date" defaultValue={editAccount?.contract_end} />
+                                <Input name="contractend" type="date" defaultValue={editAccount?.contractend} />
                             </FormControl>
                         </Grid>
                         <Grid xs={12} md={6}>

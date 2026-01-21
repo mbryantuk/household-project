@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sheet, IconButton, List, ListItem, ListItemButton, Checkbox, ListItemContent, Box, Typography, Input, Divider } from '@mui/joy';
+import { Sheet, IconButton, List, ListItem, ListItemButton, Checkbox, ListItemContent, Box, Typography, Input } from '@mui/joy';
 import { NoteAlt, Add, Delete, ChevronLeft } from '@mui/icons-material';
 import WidgetWrapper from './WidgetWrapper';
 
@@ -22,10 +22,12 @@ export default function NotesWidget({ user, onUpdateProfile }) {
       try {
           const parsed = JSON.parse(user?.sticky_note);
           if (Array.isArray(parsed) && JSON.stringify(parsed) !== JSON.stringify(notes)) {
-              setNotes(parsed);
+              Promise.resolve().then(() => setNotes(parsed));
           }
-      } catch {}
-  }, [user?.sticky_note]);
+      } catch {
+          /* Ignore parse errors */
+      }
+  }, [user?.sticky_note, notes]);
 
   // Debounce save
   useEffect(() => {

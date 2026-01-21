@@ -3,14 +3,13 @@ import { useOutletContext } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Table, IconButton, Button, Modal, ModalDialog, DialogTitle, 
   DialogContent, DialogActions, Input, FormControl, FormLabel, Avatar, Select, Option,
-  Stack, Divider, Tooltip, Chip, Drawer, Checkbox, List, ListItem, Grid
+  Stack, Chip, Drawer, Checkbox, List, ListItem
 } from '@mui/joy';
 import { 
-  ArrowBack, ArrowForward, Add, Edit, Delete, Restaurant, RestaurantMenu, Kitchen,
-  Person, Close, CheckCircle
+  ArrowBack, ArrowForward, Add, Edit, Delete, Restaurant,
+  Close, CheckCircle
 } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
-import { getEmojiColor } from '../theme';
 
 // Helpers
 const getStartOfWeek = (date) => {
@@ -28,7 +27,6 @@ export default function MealPlannerView() {
   const [currentWeekStart, setCurrentWeekStart] = useState(getStartOfWeek(new Date()));
   const [meals, setMeals] = useState([]);
   const [plans, setPlans] = useState([]);
-  const [loading, setLoading] = useState(true);
   
   // Library Drawer
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
@@ -46,7 +44,7 @@ export default function MealPlannerView() {
     try {
       const res = await api.get(`/households/${householdId}/meals`);
       setMeals(res.data || []);
-    } catch (err) { console.error(err); }
+    } catch (err) { console.error("Failed to fetch meals", err); }
   }, [api, householdId]);
 
   const fetchPlans = useCallback(async () => {
@@ -55,13 +53,14 @@ export default function MealPlannerView() {
     try {
       const res = await api.get(`/households/${householdId}/meal-plans?start=${start}&end=${end}`);
       setPlans(res.data || []);
-    } catch (err) { console.error(err); }
-    finally { setLoading(false); }
+    } catch (err) { console.error("Failed to fetch meal plans", err); }
   }, [api, householdId, currentWeekStart]);
 
   useEffect(() => {
-    fetchMeals();
-    fetchPlans();
+    Promise.resolve().then(() => {
+        fetchMeals();
+        fetchPlans();
+    });
   }, [fetchMeals, fetchPlans]);
 
   const handleCreateMeal = async (e) => {
@@ -79,7 +78,7 @@ export default function MealPlannerView() {
         }
         fetchMeals();
         setEditMeal(null);
-    } catch (err) { showNotification("Failed to save meal.", "danger"); }
+    } catch { showNotification("Failed to save meal.", "danger"); }
   };
 
   const handleDeleteMeal = async (id) => {
@@ -88,7 +87,7 @@ export default function MealPlannerView() {
           await api.delete(`/households/${householdId}/meals/${id}`);
           fetchMeals();
           fetchPlans(); // Plans might be affected
-      } catch (err) { showNotification("Delete failed.", "danger"); }
+      } catch { showNotification("Delete failed.", "danger"); }
   };
 
   const handleAssign = async () => {
@@ -114,14 +113,14 @@ export default function MealPlannerView() {
           fetchPlans();
           setAssignModalOpen(false);
           setSelectedMemberIds([]);
-      } catch (err) { showNotification("Assignment failed.", "danger"); }
+      } catch { showNotification("Assignment failed.", "danger"); }
   };
 
   const handleRemovePlan = async (planId) => {
       try {
           await api.delete(`/households/${householdId}/meal-plans/${planId}`);
           fetchPlans();
-      } catch (err) { showNotification("Removal failed.", "danger"); }
+      } catch { showNotification("Removal failed.", "danger"); }
   };
 
   const handleCopyPreviousWeek = async () => {
@@ -133,7 +132,7 @@ export default function MealPlannerView() {
         showNotification(`Copied ${res.data.copiedCount} plans from previous week.`, "success");
         fetchPlans();
     } catch (err) {
-        console.error(err);
+        console.error("Failed to copy week", err);
         showNotification("Failed to copy previous week.", "danger");
     }
   };
@@ -272,7 +271,7 @@ export default function MealPlannerView() {
                                                     sx={{ p: 1, borderRadius: 'sm', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}
                                                 >
                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, overflow: 'hidden' }}>
-                                                        <span>{p.meal_emoji}</span>
+                                                        <span>{p.mealemoji}</span>
                                                         <Typography level="body-sm" noWrap>{p.meal_name}</Typography>
                                                     </Box>
                                                     <IconButton size="sm" variant="plain" color="danger" onClick={() => handleRemovePlan(p.id)} sx={{ minWidth: 0, p: 0 }}>
@@ -332,7 +331,7 @@ export default function MealPlannerView() {
                                                 {dayPlans.map(p => (
                                                     <Sheet key={p.id} variant="soft" color="primary" sx={{ p: 1, borderRadius: 'sm', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                            <span>{p.meal_emoji}</span>
+                                                            <span>{p.mealemoji}</span>
                                                             <Typography level="body-sm">{p.meal_name}</Typography>
                                                         </Box>
                                                         <IconButton size="sm" variant="plain" color="danger" onClick={() => handleRemovePlan(p.id)}>
@@ -425,12 +424,12 @@ export default function MealPlannerView() {
             <DialogContent>
                 <Stack spacing={2}>
                     <Typography level="body-sm">
-                        Select a meal for <b>{new Date(assignDate).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}</b>.
+                        Select a meal for <b>{assignDate ? new Date(assignDate).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' }) : ''}</b>.
                     </Typography>
                     
                     <FormControl>
                         <FormLabel>Meal</FormLabel>
-                        <Select placeholder="Select a meal..." onChange={(e, v) => setSelectedMealId(v)}>
+                        <Select placeholder="Select a meal..." onChange={(_e, v) => setSelectedMealId(v)}>
                             {meals.map(m => (
                                 <Option key={m.id} value={m.id}>{m.emoji} {m.name}</Option>
                             ))}
@@ -447,7 +446,6 @@ export default function MealPlannerView() {
                                             label={m.name} 
                                             checked={selectedMemberIds.includes(m.id)}
                                             onChange={() => toggleMemberSelection(m.id)}
-                                            slotProps={{ action: { className: '' } }} // Fix for Joy UI checkbox list interaction
                                             sx={{ width: '100%' }}
                                         />
                                     </ListItem>

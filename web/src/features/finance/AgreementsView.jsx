@@ -4,9 +4,9 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup, LinearProgress
+  AvatarGroup, LinearProgress, Checkbox
 } from '@mui/joy';
-import { Edit, Delete, Add, GroupAdd, Assignment, ShoppingBag } from '@mui/icons-material';
+import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import AppSelect from '../../components/ui/AppSelect';
@@ -14,11 +14,6 @@ import AppSelect from '../../components/ui/AppSelect';
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
     return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-};
-
-const formatPercent = (val) => {
-    const num = parseFloat(val) || 0;
-    return num.toFixed(2) + '%';
 };
 
 export default function AgreementsView({ isSubscriptions = false }) {
@@ -36,6 +31,8 @@ export default function AgreementsView({ isSubscriptions = false }) {
 
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'member';
 
+  const getAssignees = useCallback((itemId) => assignments.filter(a => a.entity_id === itemId).map(a => members.find(m => m.id === a.member_id)).filter(Boolean), [assignments, members]);
+
   useEffect(() => {
       if (editItem) {
           setSelectedEmoji(editItem.emoji || (isSubscriptions ? '📱' : '📄'));
@@ -44,7 +41,7 @@ export default function AgreementsView({ isSubscriptions = false }) {
           setSelectedEmoji(isSubscriptions ? '📱' : '📄');
           setSelectedMembers([currentUser?.id].filter(Boolean));
       }
-  }, [editItem, isNew, isSubscriptions]);
+  }, [editItem, isNew, isSubscriptions, getAssignees, currentUser?.id]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -53,16 +50,10 @@ export default function AgreementsView({ isSubscriptions = false }) {
           api.get(`/households/${householdId}/finance/agreements`),
           api.get(`/households/${householdId}/finance/assignments?entity_type=finance_agreements`)
       ]);
-      // Filter based on mode
-      const allData = res.data || [];
-      const filtered = isSubscriptions 
-        ? allData.filter(a => a.notes?.includes('[SUB]') || a.agreement_name.toLowerCase().includes('netflix') || a.agreement_name.toLowerCase().includes('amazon'))
-        : allData.filter(a => !a.notes?.includes('[SUB]'));
-      
-      setItems(allData); // For now showing all, but user can distinguish
+      setItems(res.data || []);
       setAssignments(assRes.data || []);
-    } catch (err) { console.error(err); } finally { setLoading(false); }
-  }, [api, householdId, isSubscriptions]);
+    } catch (err) { console.error("Failed to fetch agreements", err); } finally { setLoading(false); }
+  }, [api, householdId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -97,7 +88,7 @@ export default function AgreementsView({ isSubscriptions = false }) {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this item?")) return;
-    try { await api.delete(`/households/${householdId}/finance/agreements/${id}`); fetchData(); } catch (err) { alert("Failed to delete"); }
+    try { await api.delete(`/households/${householdId}/finance/agreements/${id}`); fetchData(); } catch { alert("Failed to delete"); }
   };
 
   const handleAssignMember = async (memberId) => {
@@ -107,7 +98,7 @@ export default function AgreementsView({ isSubscriptions = false }) {
           });
           const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=finance_agreements`);
           setAssignments(assRes.data || []);
-      } catch (err) { console.error(err); }
+      } catch (err) { console.error("Assignment failed", err); }
   };
 
   const handleUnassignMember = async (memberId) => {
@@ -115,10 +106,8 @@ export default function AgreementsView({ isSubscriptions = false }) {
           await api.delete(`/households/${householdId}/finance/assignments/finance_agreements/${assignItem.id}/${memberId}`);
           const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=finance_agreements`);
           setAssignments(assRes.data || []);
-      } catch (err) { console.error(err); }
+      } catch (err) { console.error("Removal failed", err); }
   };
-
-  const getAssignees = (itemId) => assignments.filter(a => a.entity_id === itemId).map(a => members.find(m => m.id === a.member_id)).filter(Boolean);
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 

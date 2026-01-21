@@ -23,7 +23,7 @@ export default function WasteView() {
       const res = await api.get(`/households/${householdId}/waste`);
       setCollections(res.data || []);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch collections", err);
     } finally {
       setLoading(false);
     }
@@ -49,7 +49,7 @@ export default function WasteView() {
       fetchCollections();
       setEditItem(null);
       setIsNew(false);
-    } catch (err) {
+    } catch {
       showNotification("Failed to save collection.", "danger");
     }
   };
@@ -60,7 +60,7 @@ export default function WasteView() {
       await api.delete(`/households/${householdId}/waste/${id}`);
       showNotification("Collection deleted.", "neutral");
       fetchCollections();
-    } catch (err) {
+    } catch {
       showNotification("Failed to delete collection.", "danger");
     }
   };

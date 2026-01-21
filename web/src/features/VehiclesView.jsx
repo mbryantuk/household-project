@@ -2,12 +2,12 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, Input, Button, 
-  FormControl, FormLabel, Select, Option, Stack, Divider,
+  FormControl, FormLabel, Stack, Divider,
   Tooltip, IconButton, Grid, CircularProgress, Table, Chip,
   Modal, ModalDialog, DialogTitle
 } from '@mui/joy';
 import { 
-  Edit, Delete, Add, Info, Shield, Payments, DirectionsCar, TwoWheeler, DirectionsBoat, LocalShipping, DirectionsBike
+  Edit, Delete, Add, Info, Shield, Payments
 } from '@mui/icons-material';
 import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
 import EmojiPicker from '../components/EmojiPicker';
@@ -24,7 +24,7 @@ const VEHICLE_TYPES = [
 ];
 
 export default function VehiclesView() {
-  const { api, id: householdId, user: currentUser, isDark, showNotification, confirmAction, fetchVehicles: refreshSidebar } = useOutletContext();
+  const { api, id: householdId, user: currentUser, showNotification, confirmAction, fetchVehicles: refreshSidebar } = useOutletContext();
   const { vehicleId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
@@ -47,7 +47,7 @@ export default function VehiclesView() {
       const res = await api.get(`/households/${householdId}/vehicles`);
       setVehicles(res.data || []);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch vehicles", err);
     } finally {
       setLoading(false);
     }
@@ -59,11 +59,15 @@ export default function VehiclesView() {
 
   useEffect(() => {
     if (selectedVehicle) {
-        setSelectedEmoji(selectedVehicle.emoji || '🚗');
-        setVehicleType(selectedVehicle.type || 'Car');
+        Promise.resolve().then(() => {
+            setSelectedEmoji(selectedVehicle.emoji || '🚗');
+            setVehicleType(selectedVehicle.type || 'Car');
+        });
     } else if (vehicleId === 'new') {
-        setSelectedEmoji('🚗');
-        setVehicleType('Car');
+        Promise.resolve().then(() => {
+            setSelectedEmoji('🚗');
+            setVehicleType('Car');
+        });
     }
   }, [selectedVehicle, vehicleId]);
 
@@ -80,7 +84,7 @@ export default function VehiclesView() {
       const res = await api.get(`/households/${householdId}/vehicles/${vehicleId}/${endpoint}`);
       setSubData(res.data || []);
     } catch (err) {
-      console.error(err);
+      console.error(`Failed to fetch ${endpoint}`, err);
     } finally {
       setSubLoading(false);
     }
@@ -108,7 +112,7 @@ export default function VehiclesView() {
         fetchVehiclesList();
         refreshSidebar();
       }
-    } catch (err) {
+    } catch {
       showNotification("Error saving vehicle.", "danger");
     }
   };
@@ -128,7 +132,7 @@ export default function VehiclesView() {
       showNotification("Entry saved.", "success");
       fetchSubData();
       setEditItem(null);
-    } catch (err) {
+    } catch {
       showNotification("Error saving entry.", "danger");
     }
   };
@@ -143,7 +147,7 @@ export default function VehiclesView() {
                 showNotification("Vehicle removed.", "neutral");
                 refreshSidebar();
                 navigate('..');
-            } catch (err) {
+            } catch {
                 showNotification("Failed to delete.", "danger");
             }
         }

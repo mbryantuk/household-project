@@ -2,11 +2,11 @@ import { useState, useMemo, useEffect } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, Input, Button, 
-  FormControl, FormLabel, Select, Option, Stack, Divider,
+  FormControl, FormLabel, Stack, Divider,
   Tooltip, IconButton, Grid
 } from '@mui/joy';
 import { 
-  Shield, Delete, Restaurant, MedicalServices, Payments, Info, Add
+  Delete, Restaurant, MedicalServices, Payments, Info, Add
 } from '@mui/icons-material';
 import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
 import EmojiPicker from '../components/EmojiPicker';
@@ -31,7 +31,7 @@ export default function PetsView() {
 
   useEffect(() => {
     if (selectedPet) {
-      setFormData({
+      const data = {
         name: selectedPet.name || '',
         species: selectedPet.species || '',
         breed: selectedPet.breed || '',
@@ -40,12 +40,14 @@ export default function PetsView() {
         notes: selectedPet.notes || '',
         microchip_number: selectedPet.microchip_number || '',
         gender: selectedPet.gender || ''
-      });
+      };
+      Promise.resolve().then(() => setFormData(data));
     } else if (petId === 'new') {
-      setFormData({
+      const data = {
         name: '', species: '', breed: '', dob: '', emoji: '🐾', notes: '',
         microchip_number: '', gender: ''
-      });
+      };
+      Promise.resolve().then(() => setFormData(data));
     }
   }, [selectedPet, petId]);
 
@@ -69,7 +71,7 @@ export default function PetsView() {
         showNotification("Pet updated.", "success");
         fetchHhMembers(householdId);
       }
-    } catch (err) {
+     } catch {
       showNotification("Failed to save.", "danger");
     }
   };
@@ -84,7 +86,7 @@ export default function PetsView() {
                 showNotification("Pet removed.", "neutral");
                 fetchHhMembers(householdId);
                 navigate('..');
-            } catch (err) {
+             } catch {
                 showNotification("Failed to delete.", "danger");
             }
         }

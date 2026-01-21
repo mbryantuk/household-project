@@ -2,22 +2,9 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { globalDb, getHouseholdDb } = require('../db'); 
+const { globalDb, getHouseholdDb, dbGet, dbRun, dbAll } = require('../db'); 
 const { SECRET_KEY } = require('../config');
 const { authenticateToken } = require('../middleware/auth');
-const crypto = require('crypto');
-
-// HELPER: Promisify DB get
-const dbGet = (db, sql, params) => new Promise((resolve, reject) => {
-    db.get(sql, params, (err, row) => err ? reject(err) : resolve(row));
-});
-
-// HELPER: Promisify DB run
-const dbRun = (db, sql, params) => new Promise((resolve, reject) => {
-    db.run(sql, params, function(err) {
-        err ? reject(err) : resolve({ id: this.lastID, changes: this.changes });
-    });
-});
 
 /**
  * POST /register
@@ -230,10 +217,8 @@ router.get('/my-households', authenticateToken, async (req, res) => {
             WHERE uh.user_id = ?
         `;
 
-        globalDb.all(sql, [req.user.id], (err, rows) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json(rows);
-        });
+        const rows = await dbAll(globalDb, sql, [req.user.id]);
+        res.json(rows);
 
     } catch (err) {
         res.status(500).json({ error: err.message });

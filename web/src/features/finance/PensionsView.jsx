@@ -4,9 +4,9 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup, Table, Sheet
+  AvatarGroup, Checkbox
 } from '@mui/joy';
-import { Edit, Delete, Add, GroupAdd, HourglassBottom } from '@mui/icons-material';
+import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 
@@ -31,6 +31,10 @@ export default function PensionsView() {
 
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'member';
 
+  const getAssignees = useCallback((itemId) => {
+      return assignments.filter(a => a.entity_id === itemId).map(a => members.find(m => m.id === a.member_id)).filter(Boolean);
+  }, [assignments, members]);
+
   useEffect(() => {
       if (editItem) {
           setSelectedEmoji(editItem.emoji || '⏳');
@@ -40,7 +44,7 @@ export default function PensionsView() {
           setSelectedEmoji('⏳');
           setSelectedMembers([currentUser?.id].filter(Boolean));
       }
-  }, [editItem, isNew]);
+  }, [editItem, isNew, getAssignees, currentUser?.id]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -52,7 +56,7 @@ export default function PensionsView() {
       setPensions(penRes.data || []);
       setAssignments(assRes.data || []);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch pensions", err);
     } finally {
       setLoading(false);
     }
@@ -99,7 +103,7 @@ export default function PensionsView() {
     try {
         await api.delete(`/households/${householdId}/finance/pensions/${id}`);
         fetchData();
-    } catch (err) { alert("Failed to delete"); }
+    } catch { alert("Failed to delete"); }
   };
 
   const handleAssignMember = async (memberId) => {
@@ -111,7 +115,7 @@ export default function PensionsView() {
           });
           const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=finance_pensions`);
           setAssignments(assRes.data || []);
-      } catch (err) { console.error(err); }
+      } catch (err) { console.error("Assignment failed", err); }
   };
 
   const handleUnassignMember = async (memberId) => {
@@ -119,11 +123,7 @@ export default function PensionsView() {
           await api.delete(`/households/${householdId}/finance/assignments/finance_pensions/${assignItem.id}/${memberId}`);
           const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=finance_pensions`);
           setAssignments(assRes.data || []);
-      } catch (err) { console.error(err); }
-  };
-
-  const getAssignees = (itemId) => {
-      return assignments.filter(a => a.entity_id === itemId).map(a => members.find(m => m.id === a.member_id)).filter(Boolean);
+      } catch (err) { console.error("Removal failed", err); }
   };
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
@@ -155,7 +155,7 @@ export default function PensionsView() {
                                     {pen.emoji || '⏳'}
                                 </Avatar>
                                 <Box sx={{ flexGrow: 1 }}>
-                                    <Typography level="title-lg">{pen.plan_name || 'Unnamed Plan'}</Typography>
+                                    <Typography level="title-md">{pen.plan_name || 'Unnamed Plan'}</Typography>
                                     <Typography level="body-sm" color="neutral">{pen.provider} • {pen.type || 'Other'}</Typography>
                                 </Box>
                                 <Box sx={{ textAlign: 'right' }}>

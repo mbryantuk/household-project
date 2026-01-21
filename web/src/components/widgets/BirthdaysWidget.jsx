@@ -1,28 +1,23 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { Box, Typography, Stack, Avatar, Chip } from '@mui/joy';
 import { Cake } from '@mui/icons-material';
 import WidgetWrapper from './WidgetWrapper';
 import { getEmojiColor } from '../../theme';
 
 export default function BirthdaysWidget({ dates, members }) {
-  // Theme mode is handled globally by Joy, but for getEmojiColor we assume dark if not specified or check context if strictly needed.
-  // For simplicity, we default to dark mode colors for vibrancy in avatars as before, or we could check system pref.
-  // Ideally getEmojiColor should be updated to return a stable color regardless of mode, or we accept a 'mode' prop.
-  // Let's assume standard behavior.
-  
   const today = useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
     return d;
   }, []);
 
-  const parseDate = (dateStr) => {
+  const parseDate = useCallback((dateStr) => {
     if (!dateStr) return null;
     const [y, m, d] = dateStr.split('-').map(Number);
     return new Date(y, m - 1, d);
-  };
+  }, []);
 
-  const getDaysUntilAndAge = (dateStr) => {
+  const getDaysUntilAndAge = useCallback((dateStr) => {
     const originalDate = parseDate(dateStr);
     if (!originalDate) return null;
 
@@ -35,7 +30,7 @@ export default function BirthdaysWidget({ dates, members }) {
     const age = nextAnniversary.getFullYear() - originalDate.getFullYear();
     
     return { daysUntil, nextAge: age };
-  };
+  }, [today, parseDate]);
 
   const upcomingBirthdays = useMemo(() => {
     const birthdayItems = [];
@@ -75,7 +70,7 @@ export default function BirthdaysWidget({ dates, members }) {
     return birthdayItems
       .sort((a, b) => a.daysUntil - b.daysUntil)
       .slice(0, 5);
-  }, [dates, members, today]);
+  }, [dates, members, getDaysUntilAndAge]);
 
   return (
     <WidgetWrapper title="Upcoming Birthdays" icon={<Cake />} color="primary">

@@ -11,7 +11,6 @@ import {
   TrendingUp, 
   HourglassBottom, 
   PieChart,
-  Construction,
   ArrowBack,
   ChevronRight,
   DirectionsCar,
@@ -31,7 +30,7 @@ import AgreementsView from './finance/AgreementsView';
 import BudgetView from './finance/BudgetView';
 import { getEmojiColor } from '../theme';
 
-const ComingSoonPlaceholder = ({ title, icon: Icon }) => (
+const ComingSoonPlaceholder = ({ title, icon: IconComponent }) => ( // eslint-disable-line no-unused-vars
   <Box sx={{ 
     display: 'flex', 
     flexDirection: 'column', 
@@ -41,7 +40,7 @@ const ComingSoonPlaceholder = ({ title, icon: Icon }) => (
     gap: 2,
     color: 'neutral.400'
   }}>
-    <Icon sx={{ fontSize: 64, opacity: 0.5 }} />
+    <IconComponent sx={{ fontSize: 64, opacity: 0.5 }} />
     <Typography level="h3" sx={{ color: 'inherit' }}>{title}</Typography>
     <Typography level="body-md">Coming Soon</Typography>
   </Box>

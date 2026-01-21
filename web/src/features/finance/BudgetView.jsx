@@ -29,8 +29,7 @@ import {
   ChevronRight,
   Person,
   Pets,
-  Delete,
-  PieChart
+  Delete
 } from '@mui/icons-material';
 import { format, addMonths, startOfMonth, setDate, differenceInDays, isSameDay, isAfter } from 'date-fns';
 import { getEmojiColor } from '../../theme';
@@ -42,7 +41,7 @@ const formatCurrency = (val) => {
 };
 
 export default function BudgetView() {
-  const { api, id: householdId, user: currentUser, isDark, showNotification, members, setStatusBarData } = useOutletContext();
+  const { api, id: householdId, isDark, showNotification, members, setStatusBarData } = useOutletContext();
   const [loading, setLoading] = useState(true);
   const [savingProgress, setSavingProgress] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
@@ -113,7 +112,7 @@ export default function BudgetView() {
       setBankHolidays(holidayRes.data || []);
 
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch budget data", err);
     } finally {
       setLoading(false);
     }
@@ -282,7 +281,7 @@ export default function BudgetView() {
           });
           const res = await api.get(`/households/${householdId}/finance/budget-cycles`);
           setCycles(res.data || []);
-      } catch (err) { console.error(err); }
+      } catch (err) { console.error("Failed to save cycle data", err); }
   };
 
   const createCycle = async (copyPrevious = false) => {
@@ -309,7 +308,7 @@ export default function BudgetView() {
           });
           const progRes = await api.get(`/households/${householdId}/finance/budget-progress`);
           setProgress(progRes.data || []);
-      } catch (err) { console.error(err); }
+      } catch (err) { console.error("Failed to update actual amount", err); }
   };
 
   const togglePaid = async (itemKey, amount = 0) => {
@@ -325,7 +324,7 @@ export default function BudgetView() {
           }
           const progRes = await api.get(`/households/${householdId}/finance/budget-progress`);
           setProgress(progRes.data || []);
-      } catch (err) { console.error(err); } finally { setSavingProgress(false); }
+      } catch (err) { console.error("Failed to toggle paid status", err); } finally { setSavingProgress(false); }
   };
 
   const handleRecurringAdd = async (e) => {
@@ -340,7 +339,7 @@ export default function BudgetView() {
           await api.post(`/households/${householdId}/costs`, data);
           showNotification("Recurring expense added.", "success");
           fetchData(); setRecurringAddOpen(false);
-      } catch { alert("Failed to add"); }
+      } catch { alert("Failed to add recurring expense"); }
   };
 
   const handleQuickAdd = async (e) => {
@@ -354,7 +353,7 @@ export default function BudgetView() {
           await api.post(`/households/${householdId}/costs`, data);
           showNotification("One-off expense added.", "success");
           fetchData(); setQuickAddOpen(false);
-      } catch { alert("Failed to add"); }
+      } catch { alert("Failed to add one-off expense"); }
   };
 
   const handlePotAllocation = async (e) => {
@@ -367,7 +366,7 @@ export default function BudgetView() {
           await api.post(`/households/${householdId}/costs`, data);
           showNotification("Savings allocation added.", "success");
           fetchData(); setPotAllocationOpen(false);
-      } catch { alert("Failed to add"); }
+      } catch { alert("Failed to add savings allocation"); }
   };
 
   const deleteExpense = async (id) => {
@@ -375,7 +374,7 @@ export default function BudgetView() {
       try {
           await api.delete(`/households/${householdId}/costs/${id}`);
           fetchData();
-      } catch (err) { console.error(err); }
+      } catch (err) { console.error("Failed to delete expense", err); }
   };
 
   const cycleTotals = useMemo(() => {
@@ -384,14 +383,6 @@ export default function BudgetView() {
       const paid = cycleData.expenses.filter(e => e.isPaid).reduce((sum, e) => sum + e.amount, 0);
       return { total, paid, unpaid: total - paid };
   }, [cycleData]);
-
-  const totals = useMemo(() => {
-      if (!cycleData) return { total: 0, paid: 0, unpaid: 0 };
-      const filtered = cycleData.expenses.filter(exp => !hidePaid || !exp.isPaid);
-      const total = filtered.reduce((sum, e) => sum + e.amount, 0);
-      const paid = filtered.filter(e => e.isPaid).reduce((sum, e) => sum + e.amount, 0);
-      return { total, paid, unpaid: total - paid };
-  }, [cycleData, hidePaid]);
 
   const selectedTotals = useMemo(() => {
       if (!selectedKeys.length || !cycleData) return null;

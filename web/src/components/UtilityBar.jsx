@@ -42,7 +42,7 @@ const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, showLabe
                 calcLeft = 10;
             }
 
-            setLeftPos(calcLeft);
+            Promise.resolve().then(() => setLeftPos(calcLeft));
         }
     }, [isOpen, width, alignRight]);
 
@@ -226,7 +226,7 @@ export default function UtilityBar({
                 <Box sx={{ 
                     position: 'absolute', left: 0, zIndex: 6, height: '100%', display: 'flex', alignItems: 'center',
                     bgcolor: 'background.surface', borderRight: '1px solid', borderColor: 'divider',
-                    boxShadow: '4px 0 8px rgba(0,0,0,0.1)'
+                    boxShadow: '4px 0 8px rgba(0,0,0,0.05)'
                 }}>
                     <IconButton onClick={() => scroll(-200)} variant="plain" size="sm" sx={{ borderRadius: 0, height: '100%' }}>
                         <ChevronLeft />

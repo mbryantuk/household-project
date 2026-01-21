@@ -5,7 +5,7 @@ import {
   Select, Option, Stack, Table, Sheet, Chip, CircularProgress, Switch, Textarea
 } from '@mui/joy';
 import { Add, Edit, Delete, ReceiptLong } from '@mui/icons-material';
-import { format, addMonths, setDate, isWeekend, startOfDay, isBefore, subDays, addDays, isSameDay } from 'date-fns';
+import { format, addMonths, setDate, isWeekend, startOfDay, isBefore, addDays } from 'date-fns';
 
 export default function RecurringCostsWidget({ api, householdId, parentType, parentId, showNotification, isAdmin }) {
   const [costs, setCosts] = useState([]);
@@ -26,7 +26,7 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
       setCosts(filtered);
       setHolidays(holRes.data || []);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch recurring costs", err);
     } finally {
       setLoading(false);
     }
@@ -81,7 +81,7 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
       }
       fetchCosts();
       setEditItem(null);
-    } catch (err) {
+    } catch {
       showNotification("Failed to save cost.", "danger");
     }
   };
@@ -92,8 +92,8 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
       await api.delete(`/households/${householdId}/costs/${id}`);
       showNotification("Cost deleted.", "neutral");
       fetchCosts();
-    } catch (err) {
-      showNotification("Failed to delete.", "danger");
+    } catch {
+      showNotification("Failed to delete cost.", "danger");
     }
   };
 

@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
-  Box, Typography, Card, IconButton, Stack, LinearProgress, Button, Modal, ModalDialog, DialogTitle, DialogContent, FormControl, FormLabel, Input
+  Box, Typography, Card, Stack, Button, Modal, ModalDialog, DialogTitle, DialogContent, FormControl, FormLabel, Input
 } from '@mui/joy';
-import { Edit, Add, Remove } from '@mui/icons-material';
+import { Add, Remove } from '@mui/icons-material';
 import AppSelect from '../ui/AppSelect';
 
-export default function InvestmentsContent({ api, householdId, isDark }) {
+export default function InvestmentsContent({ api, householdId }) {
   const [investments, setInvestments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [adjustItem, setAdjustItem] = useState(null); // { item, type: 'add' | 'remove' }
@@ -24,7 +24,7 @@ export default function InvestmentsContent({ api, householdId, isDark }) {
           setSelectedId(String(items[0].id));
       }
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch investments", err);
     } finally {
       setLoading(false);
     }
@@ -52,7 +52,7 @@ export default function InvestmentsContent({ api, householdId, isDark }) {
           
           fetchData();
           setAdjustItem(null);
-      } catch (err) { alert("Failed to update value"); }
+      } catch { alert("Failed to update value"); }
   };
 
   if (loading && investments.length === 0) return <Box sx={{ p: 2, textAlign: 'center' }}><Typography>Loading...</Typography></Box>;

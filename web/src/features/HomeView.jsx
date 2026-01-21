@@ -49,7 +49,6 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
   const [isSaving, setIsSaving] = useState(false);
 
   // Initialize strictly from Server Props (or Default if missing/empty)
-  // We do NOT use localStorage as source of truth to ensure cross-device consistency.
   const [layouts, setLayouts] = useState(() => {
     if (currentUser?.dashboard_layout) {
       try {
@@ -57,18 +56,15 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
           ? JSON.parse(currentUser.dashboard_layout) 
           : currentUser.dashboard_layout;
         if (cloud && Object.keys(cloud).length > 0) return cloud;
-      } catch (e) { console.error("Cloud Layout Parse Error", e); }
+      } catch (err) { console.error("Cloud Layout Parse Error", err); }
     }
     return { 1: DEFAULT_LAYOUT };
   });
 
   const [addWidgetAnchor, setAddWidgetAnchor] = useState(null);
-  const [width, setWidth] = useState(1200);
   const containerRef = useRef(null);
 
-  // Sync Layout from Server if it changes remotely (e.g. login/refresh)
-  // BUT only if we are not currently editing/saving to avoid race conditions overwriting local work.
-  // CRITICAL FIX: Only sync if the user ID matches (to avoid cross-user pollution) AND layout is different.
+  // Sync Layout from Server if it changes remotely
   useEffect(() => {
     if (isEditing || isSaving) return;
     if (currentUser?.dashboard_layout) {
@@ -76,26 +72,19 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
         const cloud = typeof currentUser.dashboard_layout === 'string' 
           ? JSON.parse(currentUser.dashboard_layout) 
           : currentUser.dashboard_layout;
-        if (cloud && JSON.stringify(cloud) !== JSON.stringify(layouts)) {
-            // Only update if significantly different structure to avoid jitter
-            setLayouts(cloud);
-        }
-      } catch(e) {}
+        // Use functional update to avoid dependency on 'layouts' and potential loops
+        Promise.resolve().then(() => {
+            setLayouts(currentLayouts => {
+                if (cloud && JSON.stringify(cloud) !== JSON.stringify(currentLayouts)) {
+                    return cloud;
+                }
+                return currentLayouts;
+            });
+        });
+      } catch { /* Ignore parse errors */ }
     }
-  }, [currentUser?.dashboard_layout, isEditing, isSaving]); // Removed 'layouts' from dependency to prevent loops
+  }, [currentUser?.dashboard_layout, isEditing, isSaving]);
 
-  // NOTE: WidthProvider handles width now, but we keep this ref for safety/fallback if needed
-  // or if we switch back. Actually, WidthProvider injects `width` prop, so we don't strictly need to measure here
-  // unless we pass it to WidthProvider (which we don't, it measures itself).
-  // However, the `width` state here is passed to `ResponsiveGridLayout` in the original code?
-  // No, `ResponsiveGridLayout` IS the `WidthProvider` wrapped component.
-  // So we DON'T pass width to it. It calculates it.
-  // But wait, the previous code had:
-  // <ResponsiveGridLayout width={width} ... />
-  // AND `const ResponsiveGridLayout = WidthProvider(Responsive);`
-  // WidthProvider *injects* width. If we pass width explicitly, it might override or be ignored.
-  // Let's remove the manual measurement to avoid conflicts, as WidthProvider does it.
-  
   const [breakpoint, setBreakpoint] = useState('lg');
 
   const currentItems = useMemo(() => {
@@ -113,13 +102,10 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
         
         Object.keys(allLayouts).forEach(bp => {
             updated[bp] = allLayouts[bp].map(l => {
-                // To prevent data loss, we must merge the new positional data (l) 
-                // with our existing item metadata (type, data fields).
                 let existing = null;
                 if (Array.isArray(pageLayouts)) {
                     existing = pageLayouts.find(i => i.i === l.i);
                 } else {
-                    // Fallback across breakpoints to find the metadata if it's missing in this specific bp
                     existing = (pageLayouts[bp] || pageLayouts.lg || pageLayouts.md || pageLayouts.sm || []).find(i => i.i === l.i);
                 }
                 
@@ -131,15 +117,14 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
     });
   };
 
-  const handleAddWidget = (type) => {
+  const handleAddWidget = useCallback((type) => {
     const config = WIDGET_TYPES[type];
     const newId = `${type}-${Date.now()}`;
     const newItem = {
         i: newId, x: (currentItems.length * 6) % 12, y: Infinity, w: config.defaultW, h: config.defaultH, type: type,
-        data: {} // For widget-specific data storage
+        data: {}
     };
     
-    // Add to all breakpoints for the current page
     setLayouts(prev => {
         const pageLayouts = prev[page] || { lg: [], md: [], sm: [] };
         const updated = {};
@@ -156,7 +141,7 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
         return { ...prev, [page]: updated };
     });
     setAddWidgetAnchor(null);
-  };
+  }, [page, currentItems.length]);
 
   const handleRemoveWidget = (id) => {
       setLayouts(prev => {
@@ -172,7 +157,6 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
       });
   };
 
-  // Updates specific widget data (e.g. Note content) without needing to be in "Edit Mode"
   const handleUpdateWidgetData = useCallback((id, newData) => {
       setLayouts(prev => {
           const pageLayouts = prev[page] || { lg: [], md: [], sm: [] };
@@ -209,12 +193,12 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
 
   // Debounce save for layout data changes
   useEffect(() => {
-      if (isEditing) return; // Don't auto-save while dragging
+      if (isEditing) return; 
       const timer = setTimeout(() => {
           if (currentUser?.dashboard_layout) {
              const currentStr = typeof currentUser.dashboard_layout === 'string' ? currentUser.dashboard_layout : JSON.stringify(currentUser.dashboard_layout);
              if (currentStr !== JSON.stringify(layouts)) {
-                 handleSave(true); // Silent save
+                 handleSave(true); 
              }
           }
       }, 2000);
@@ -311,7 +295,7 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
             isResizable={isEditing}
             onLayoutChange={handleLayoutChange}
             onBreakpointChange={(newBp) => setBreakpoint(newBp)}
-            margin={[24, 24]} // More breathing room
+            margin={[24, 24]}
         >
             {gridItems.map(item => {
                 const WidgetComponent = WIDGET_TYPES[item.type]?.component;

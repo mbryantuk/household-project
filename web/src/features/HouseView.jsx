@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext, useNavigate, useLocation } from 'react-router-dom';
 import { 
-  Box, Typography, Sheet, Tabs, TabList, Tab, CircularProgress, Divider, Grid, Input, Button, Tooltip, IconButton, FormControl, FormLabel, Stack
+  Box, Typography, Sheet, Tabs, TabList, Tab, CircularProgress, Divider, Grid, Input, Button, Tooltip, IconButton, FormControl, FormLabel
 } from '@mui/joy';
 import { 
   HomeWork, ElectricBolt, WaterDrop, DeleteSweep, 
   Inventory, AccountBalance, Payments, Info, Badge,
-  Save, ArrowBack, DirectionsCar
+  Save, ArrowBack
 } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
 import EntityGrid from '../components/ui/EntityGrid';
 
 // Feature Components
 import EnergyView from './EnergyView';
-import WaterView from './WaterView';
 import CouncilView from './CouncilView';
 import WasteView from './WasteView';
 import AssetsView from './AssetsView';
@@ -30,7 +29,7 @@ export default function HouseView() {
   const queryParams = new URLSearchParams(location.search);
   const initialTab = queryParams.get('tab') === 'assets' ? 5 : 0;
 
-  const [viewMode, setViewMode] = useState('details'); // Default to details as per desktop request
+  const [viewMode, setViewMode] = useState('details'); // Default to details
   const [activeTab, setActiveTab] = useState(initialTab);
   const [household, setHousehold] = useState(null);
   const [vehicles, setVehicles] = useState([]);
@@ -65,14 +64,15 @@ export default function HouseView() {
   const handleUpdateIdentity = async (e) => {
     e.preventDefault();
     setSavingHh(true);
-    const data = Object.fromEntries(new FormData(e.currentTarget));
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
     data.avatar = selectedEmoji;
 
     try {
       await onUpdateHousehold(data);
       showNotification("Household identity updated.", "success");
       setHousehold(prev => ({ ...prev, ...data }));
-    } catch (err) {
+    } catch {
       // Notification handled by onUpdateHousehold
     } finally {
       setSavingHh(false);
@@ -179,7 +179,7 @@ export default function HouseView() {
       <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'hidden', minHeight: 400 }}>
         <Tabs 
             value={activeTab} 
-            onChange={(e, v) => setActiveTab(v)} 
+            onChange={(_e, v) => setActiveTab(v)} 
             sx={{ bgcolor: 'transparent' }}
         >
           <TabList 
@@ -204,7 +204,6 @@ export default function HouseView() {
 
           <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
             {activeTab === 0 && (
-                loadingHh ? <CircularProgress /> : (
                 <Box>
                     <Box sx={{ mb: 4 }}>
                         <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
@@ -277,13 +276,11 @@ export default function HouseView() {
                         title="Select Household Emoji"
                     />
                 </Box>
-                )
             )}
 
             {activeTab === 1 && (
                 <GeneralDetailView 
                     title="Structural & General Info" 
-                    icon={<Info />} 
                     endpoint="details" 
                     fields={houseFields} 
                 />
@@ -293,7 +290,6 @@ export default function HouseView() {
             {activeTab === 3 && (
                 <GeneralDetailView 
                     title="Water Supply" 
-                    icon={<WaterDrop />} 
                     endpoint="water" 
                     fields={[
                         { name: 'provider', label: 'Water Provider', half: true },
@@ -312,7 +308,6 @@ export default function HouseView() {
             {activeTab === 6 && (
                 <GeneralDetailView 
                     title="Council Tax" 
-                    icon={<AccountBalance />} 
                     endpoint="council" 
                     fields={[
                         { name: 'authority_name', label: 'Local Authority Name', half: true },

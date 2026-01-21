@@ -1,46 +1,33 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
-  Box, Typography, Card, IconButton, Stack, LinearProgress, Button, Modal, ModalDialog, DialogTitle, DialogContent, FormControl, FormLabel, Input
+  Box, Typography, Card, Stack, Button, Modal, ModalDialog, DialogTitle, DialogContent, FormControl, FormLabel, Input
 } from '@mui/joy';
-import { Edit, Add, Remove } from '@mui/icons-material';
+import { Add, Remove } from '@mui/icons-material';
 import AppSelect from '../ui/AppSelect';
 
-export default function SavingsContent({ api, householdId, isDark }) {
-  const [accounts, setAccounts] = useState([]);
-  const [pots, setPots] = useState({});
+export default function SavingsContent({ api, householdId }) {
+  const [savings, setSavings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [adjustPot, setAdjustPot] = useState(null); // { savingsId, pot, type: 'add' | 'remove' }
-  const [selectedAccountId, setSelectedAccountId] = useState(null);
+  const [adjustItem, setAdjustItem] = useState(null); // { item, type: 'add' | 'remove' }
+  const [selectedId, setSelectedId] = useState(null);
 
   const fetchData = useCallback(async () => {
     if (!api || !householdId) return;
     setLoading(true);
     try {
-      const accRes = await api.get(`/households/${householdId}/finance/savings`);
-      const accs = accRes.data || [];
-      setAccounts(accs);
+      const res = await api.get(`/households/${householdId}/finance/savings`);
+      const items = res.data || [];
+      setSavings(items);
       
-      // Default to first account if none selected
-      if (!selectedAccountId && accs.length > 0) {
-          setSelectedAccountId(String(accs[0].id));
+      if (!selectedId && items.length > 0) {
+          setSelectedId(String(items[0].id));
       }
-
-      const potsMap = {};
-      await Promise.all(accs.map(async (acc) => {
-          try {
-              const potRes = await api.get(`/households/${householdId}/finance/savings/${acc.id}/pots`);
-              potsMap[acc.id] = potRes.data || [];
-          } catch (e) {
-              console.error(e);
-          }
-      }));
-      setPots(potsMap);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch savings", err);
     } finally {
       setLoading(false);
     }
-  }, [api, householdId, selectedAccountId]);
+  }, [api, householdId, selectedId]);
 
   useEffect(() => {
     fetchData();
@@ -52,53 +39,49 @@ export default function SavingsContent({ api, householdId, isDark }) {
       const amount = parseFloat(formData.get('amount'));
       if (!amount || amount <= 0) return;
 
-      const { savingsId, pot, type } = adjustPot;
-      const newAmount = type === 'add' 
-          ? (pot.current_amount || 0) + amount 
-          : (pot.current_amount || 0) - amount;
+      const { item, type } = adjustItem;
+      const currentVal = parseFloat(item.current_balance) || 0;
+      const newVal = type === 'add' ? currentVal + amount : currentVal - amount;
 
       try {
-          await api.put(`/households/${householdId}/finance/savings/${savingsId}/pots/${pot.id}`, {
-              ...pot,
-              current_amount: newAmount
+          await api.put(`/households/${householdId}/finance/savings/${item.id}`, {
+              ...item,
+              current_balance: newVal
           });
           
-          const potRes = await api.get(`/households/${householdId}/finance/savings/${savingsId}/pots`);
-          setPots(prev => ({ ...prev, [savingsId]: potRes.data }));
-          setAdjustPot(null);
-      } catch (err) { alert("Failed to update balance"); }
+          fetchData();
+          setAdjustItem(null);
+      } catch { alert("Failed to update balance"); }
   };
 
-  if (loading && accounts.length === 0) return <Box sx={{ p: 2, textAlign: 'center' }}><Typography>Loading...</Typography></Box>;
+  if (loading && savings.length === 0) return <Box sx={{ p: 2, textAlign: 'center' }}><Typography>Loading...</Typography></Box>;
 
-  const selectedAccount = accounts.find(a => String(a.id) === selectedAccountId);
-  const selectedPots = selectedAccount ? (pots[selectedAccount.id] || []) : [];
+  const selectedItem = savings.find(a => String(a.id) === selectedId);
+  const currentValue = selectedItem ? (parseFloat(selectedItem.current_balance) || 0) : 0;
 
   return (
     <Box sx={{ overflowY: 'auto', flexGrow: 1, p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
       
-      {/* 1. Account Selector */}
       <Box sx={{ mb: 2 }}>
         <AppSelect
             placeholder="Select Account"
-            value={selectedAccountId}
-            onChange={(e, val) => setSelectedAccountId(val)}
-            options={accounts.map(acc => ({ 
-                value: String(acc.id), 
-                label: `${acc.emoji || '💰'} ${acc.account_name} (${acc.institution})` 
+            value={selectedId}
+            onChange={(val) => setSelectedId(val)}
+            options={savings.map(s => ({ 
+                value: String(s.id), 
+                label: `${s.emoji || '💰'} ${s.institution} (${s.account_name})` 
             }))}
         />
       </Box>
 
-      {/* 2. Big Balance */}
-      {selectedAccount ? (
+      {selectedItem ? (
         <Box sx={{ textAlign: 'center', mb: 3 }}>
              <Typography level="body-xs" textTransform="uppercase" letterSpacing="1px" color="neutral">Current Balance</Typography>
              <Typography level="h1" color="success">
-                £{selectedAccount.current_balance?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                £{currentValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
              </Typography>
              <Typography level="body-sm" color="neutral">
-                {selectedAccount.interest_rate}% AER
+                {selectedItem.institution} • {selectedItem.account_name}
              </Typography>
         </Box>
       ) : (
@@ -107,46 +90,33 @@ export default function SavingsContent({ api, householdId, isDark }) {
          </Typography>
       )}
 
-      {/* 3. Pots List */}
-      {selectedAccount && (
+      {selectedItem && (
           <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
-            <Typography level="title-sm" sx={{ mb: 1, px: 0.5 }}>Pots Allocation</Typography>
-            {selectedPots.length === 0 ? (
-                <Typography level="body-xs" color="neutral" sx={{ fontStyle: 'italic', p: 1 }}>No pots created for this account.</Typography>
-            ) : (
+            <Card variant="soft" size="sm" sx={{ p: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography level="title-sm">Quick Adjust Balance</Typography>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Button size="sm" variant="outlined" color="danger" onClick={() => setAdjustItem({ item: selectedItem, type: 'remove' })}>
+                            <Remove />
+                        </Button>
+                        <Button size="sm" variant="outlined" color="success" onClick={() => setAdjustItem({ item: selectedItem, type: 'add' })}>
+                            <Add />
+                        </Button>
+                    </Box>
+                </Box>
                 <Stack spacing={1}>
-                    {selectedPots.map(pot => {
-                        const progress = pot.target_amount ? (pot.current_amount / pot.target_amount) * 100 : 0;
-                        return (
-                            <Card key={pot.id} variant="soft" size="sm" sx={{ p: 1.5 }}>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-                                    <Typography level="title-sm">{pot.emoji} {pot.name}</Typography>
-                                    <Box sx={{ display: 'flex', gap: 0.5 }}>
-                                        <IconButton size="sm" variant="outlined" color="danger" onClick={() => setAdjustPot({ savingsId: selectedAccount.id, pot, type: 'remove' })}>
-                                            <Remove fontSize="small" />
-                                        </IconButton>
-                                        <IconButton size="sm" variant="outlined" color="success" onClick={() => setAdjustPot({ savingsId: selectedAccount.id, pot, type: 'add' })}>
-                                            <Add fontSize="small" />
-                                        </IconButton>
-                                    </Box>
-                                </Box>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <Typography level="body-sm">£{pot.current_amount?.toLocaleString()}</Typography>
-                                    {pot.target_amount && <Typography level="body-xs" color="neutral">of £{pot.target_amount?.toLocaleString()}</Typography>}
-                                </Box>
-                                {pot.target_amount && <LinearProgress determinate value={Math.min(progress, 100)} size="sm" color={progress >= 100 ? 'success' : 'primary'} sx={{ mt: 1 }} />}
-                            </Card>
-                        );
-                    })}
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography level="body-sm" color="neutral">Interest Rate</Typography>
+                        <Typography level="body-sm">{selectedItem.interest_rate}%</Typography>
+                    </Box>
                 </Stack>
-            )}
+            </Card>
           </Box>
       )}
 
-      {/* ADJUST MODAL */}
-      <Modal open={Boolean(adjustPot)} onClose={() => setAdjustPot(null)}>
+      <Modal open={Boolean(adjustItem)} onClose={() => setAdjustItem(null)}>
         <ModalDialog size="sm">
-            <DialogTitle>{adjustPot?.type === 'add' ? 'Add Funds' : 'Remove Funds'}</DialogTitle>
+            <DialogTitle>{adjustItem?.type === 'add' ? 'Increase Balance' : 'Decrease Balance'}</DialogTitle>
             <DialogContent>
                 <form onSubmit={handleAdjustSubmit}>
                     <FormControl required>
@@ -154,9 +124,9 @@ export default function SavingsContent({ api, householdId, isDark }) {
                         <Input name="amount" type="number" step="0.01" autoFocus />
                     </FormControl>
                     <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                        <Button variant="plain" color="neutral" onClick={() => setAdjustPot(null)}>Cancel</Button>
-                        <Button type="submit" color={adjustPot?.type === 'add' ? 'success' : 'danger'}>
-                            {adjustPot?.type === 'add' ? 'Add' : 'Remove'}
+                        <Button variant="plain" color="neutral" onClick={() => setAdjustItem(null)}>Cancel</Button>
+                        <Button type="submit" color={adjustItem?.type === 'add' ? 'success' : 'danger'}>
+                            {adjustItem?.type === 'add' ? 'Increase' : 'Decrease'}
                         </Button>
                     </Box>
                 </form>

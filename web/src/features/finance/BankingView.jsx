@@ -8,7 +8,6 @@ import {
 } from '@mui/joy';
 import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
-import AppSelect from '../../components/ui/AppSelect';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -34,6 +33,12 @@ export default function BankingView() {
   
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'member';
 
+  const getAssignees = useCallback((accountId) => {
+      return assignments.filter(a => a.entity_id === accountId).map(a => {
+          return members.find(m => m.id === a.member_id);
+      }).filter(Boolean);
+  }, [assignments, members]);
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -44,7 +49,7 @@ export default function BankingView() {
       setAccounts(accRes.data || []);
       setAssignments(assRes.data || []);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch banking data", err);
     } finally {
       setLoading(false);
     }
@@ -68,8 +73,8 @@ export default function BankingView() {
       fetchData();
       setEditItem(null);
       setIsNew(false);
-    } catch (err) {
-      alert("Failed to save");
+    } catch {
+      alert("Failed to save account");
     }
   };
 
@@ -78,8 +83,8 @@ export default function BankingView() {
     try {
       await api.delete(`/households/${householdId}/finance/current-accounts/${id}`);
       fetchData();
-    } catch (err) {
-      alert("Failed to delete");
+    } catch {
+      alert("Failed to delete account");
     }
   };
 
@@ -94,7 +99,7 @@ export default function BankingView() {
           // Refresh assignments only
           const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=current_account`);
           setAssignments(assRes.data || []);
-      } catch (err) { console.error(err); }
+      } catch (err) { console.error("Assignment failed", err); }
   };
 
   const handleUnassignMember = async (memberId) => {
@@ -103,13 +108,7 @@ export default function BankingView() {
           // Refresh assignments only
           const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=current_account`);
           setAssignments(assRes.data || []);
-      } catch (err) { console.error(err); }
-  };
-
-  const getAssignees = (accountId) => {
-      return assignments.filter(a => a.entity_id === accountId).map(a => {
-          return members.find(m => m.id === a.member_id);
-      }).filter(Boolean);
+      } catch (err) { console.error("Removal failed", err); }
   };
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { 
   Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, 
-  IconButton, Divider, Box, Avatar, Typography, Tooltip, Menu, MenuItem
+  IconButton, Divider, Box, Avatar, Typography, Tooltip
 } from '@mui/joy';
 import {
-  Event, Groups, Pets, Inventory2, DirectionsCar, RestaurantMenu, AccountBalance,
-  Close, KeyboardArrowRight, ChevronLeft, KeyboardArrowUp, KeyboardArrowDown,
-  VisibilityOff, PersonAdd, ChildCare, Add, PushPin, PushPinOutlined
+  Event, Groups, Pets, Inventory2, RestaurantMenu, AccountBalance,
+  Close, KeyboardArrowRight, KeyboardArrowUp, KeyboardArrowDown,
+  PersonAdd, ChildCare, PushPin, PushPinOutlined
 } from '@mui/icons-material';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
@@ -107,9 +107,8 @@ const GroupHeader = ({ label }) => (
 );
 
 export default function NavSidebar({ 
-    members = [], vehicles = [], households = [], isDark, household, user, 
-    onLogout, onUpdateProfile, themeId, onThemeChange, onInstall, canInstall,
-    isMobile = false, onClose, confirmAction, api, showNotification, onUpdateHousehold
+    members = [], vehicles = [], isDark, household, onUpdateProfile,
+    isMobile = false, onClose
 }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -149,7 +148,7 @@ export default function NavSidebar({
   const enabledModules = useMemo(() => {
       try {
           return household?.enabled_modules ? JSON.parse(household.enabled_modules) : ['pets', 'vehicles', 'meals'];
-      } catch (e) { return ['pets', 'vehicles', 'meals']; }
+      } catch { return ['pets', 'vehicles', 'meals']; }
   }, [household]);
 
   const checkScroll = useCallback(() => {
@@ -185,7 +184,7 @@ export default function NavSidebar({
   }, []);
 
   useEffect(() => {
-      setActiveCategory(getCategoryFromPath(location.pathname));
+      Promise.resolve().then(() => setActiveCategory(getCategoryFromPath(location.pathname)));
   }, [location.pathname, getCategoryFromPath]);
 
   const handleNav = (to, category, hasSubItems) => {

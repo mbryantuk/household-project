@@ -4,9 +4,9 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  Sheet, Table, Checkbox
+  Sheet, Table, Checkbox, Tooltip
 } from '@mui/joy';
-import { Edit, Delete, Add, Star, StarBorder } from '@mui/icons-material';
+import { Edit, Delete, Add, Star, StarBorder, Search } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
@@ -49,7 +49,7 @@ export default function IncomeView() {
       setIncomeList(incRes.data || []);
       setBankAccounts(bankRes.data || []);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch income data", err);
     } finally {
       setLoading(false);
     }
@@ -124,7 +124,7 @@ export default function IncomeView() {
               is_primary: 1
           });
           fetchData();
-      } catch (err) { console.error(err); }
+      } catch (err) { console.error("Failed to set primary income", err); }
   };
 
   const handleDelete = async (id) => {
@@ -132,20 +132,20 @@ export default function IncomeView() {
     try {
       await api.delete(`/households/${householdId}/finance/income/${id}`);
       fetchData();
-    } catch (err) {
-      alert("Failed to delete");
+    } catch {
+      alert("Failed to delete income source");
     }
   };
 
-  const getMemberName = (id) => {
+  const getMemberName = useCallback((id) => {
       const m = members.find(m => m.id === parseInt(id));
       return m ? (m.alias || m.name) : 'Unassigned';
-  };
+  }, [members]);
 
-  const getBankName = (id) => {
+  const getBankName = useCallback((id) => {
       const b = bankAccounts.find(b => b.id === parseInt(id));
       return b ? (b.bank_name + ' ' + b.account_name) : '-';
-  };
+  }, [bankAccounts]);
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
@@ -165,6 +165,13 @@ export default function IncomeView() {
           </Box>
           
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+              <Input 
+                placeholder="Search income..." 
+                startDecorator={<Search />} 
+                value={filterQuery}
+                onChange={(e) => setFilterQuery(e.target.value)}
+                sx={{ width: { xs: '100%', sm: 200 }, height: '44px' }}
+              />
               {isAdmin && (
                   <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditItem({}); setIsNew(true); }} sx={{ height: '44px' }}>
                       Add Income

@@ -24,6 +24,24 @@ const globalDb = new sqlite3.Database(dbPath, (err) => {
 });
 globalDb.configure('busyTimeout', 5000);
 
+// HELPER: Promisify DB get
+const dbGet = (db, sql, params = []) => new Promise((resolve, reject) => {
+    db.get(sql, params, (err, row) => err ? reject(err) : resolve(row));
+});
+
+// HELPER: Promisify DB all
+const dbAll = (db, sql, params = []) => new Promise((resolve, reject) => {
+    db.all(sql, params, (err, rows) => err ? reject(err) : resolve(rows));
+});
+
+// HELPER: Promisify DB run
+const dbRun = (db, sql, params = []) => new Promise((resolve, reject) => {
+    db.run(sql, params, function(err) {
+        if (err) reject(err);
+        else resolve({ id: this.lastID, changes: this.changes });
+    });
+});
+
 function initGlobalDb() {
     globalDb.serialize(() => {
         // Initialize Global Schema Only
@@ -39,7 +57,7 @@ function initGlobalDb() {
         ];
         
         houseCols.forEach(([col, type]) => {
-            globalDb.run(`ALTER TABLE households ADD COLUMN ${col} ${type}`, (err) => {
+            globalDb.run(`ALTER TABLE households ADD COLUMN ${col} ${type}`, () => {
                 // Ignore "duplicate column name" errors
             });
         });
@@ -56,12 +74,12 @@ function initGlobalDb() {
         ];
 
         userCols.forEach(([col, type]) => {
-            globalDb.run(`ALTER TABLE users ADD COLUMN ${col} ${type}`, (err) => {
+            globalDb.run(`ALTER TABLE users ADD COLUMN ${col} ${type}`, () => {
                 // Ignore "duplicate column name" errors
             });
         });
 
-        globalDb.run(`ALTER TABLE user_households ADD COLUMN is_active BOOLEAN DEFAULT 1`, (err) => {
+        globalDb.run(`ALTER TABLE user_households ADD COLUMN is_active BOOLEAN DEFAULT 1`, () => {
             // Ignore "duplicate column name" errors
         });
     });
@@ -75,9 +93,6 @@ const getHouseholdDb = (householdId) => {
         throw new Error("getHouseholdDb called without householdId");
     }
     const householdDbPath = path.join(dataDir, `household_${householdId}.db`);
-    
-    // Check if we need to initialize the file (sync check for simplicity in factory)
-    const exists = fs.existsSync(householdDbPath);
     
     const db = new sqlite3.Database(householdDbPath);
     db.configure('busyTimeout', 5000);
@@ -93,7 +108,7 @@ const getHouseholdDb = (householdId) => {
             'water_info', 'council_info', 'meals', 'meal_plans'
         ];
         tables.forEach(table => {
-            db.run(`UPDATE ${table} SET household_id = ? WHERE household_id IS NULL`, [householdId], (err) => {
+            db.run(`UPDATE ${table} SET household_id = ? WHERE household_id IS NULL`, [householdId], () => {
                 // Silent fail if table/column doesn't exist
             });
         });
@@ -102,4 +117,4 @@ const getHouseholdDb = (householdId) => {
     return db;
 };
 
-module.exports = { globalDb, getHouseholdDb };
+module.exports = { globalDb, getHouseholdDb, dbGet, dbAll, dbRun };

@@ -1,35 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Box, Typography, Card, CardContent, CardActions, Button, 
-  AspectRatio, Grid, Container, IconButton, Stack, Divider, Sheet, Alert, Tooltip,
+  AspectRatio, Grid, Container, IconButton, Stack, Tooltip,
   Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, FormControl, FormLabel, Input
 } from '@mui/joy';
-import { Add, Home, ArrowForward, Logout, Settings, DeleteForever } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { Add, ArrowForward, Logout, DeleteForever } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
 
 export default function HouseholdSelector({ api, currentUser, onLogout, showNotification }) {
   const [households, setHouseholds] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newHouseholdName, setNewHouseholdName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchHouseholds();
-  }, []);
-
-  const fetchHouseholds = async () => {
+  const fetchHouseholds = useCallback(async () => {
     try {
       const res = await api.get('/auth/my-households');
       setHouseholds(res.data || []);
     } catch (err) {
+      console.error("Failed to load households", err);
       showNotification("Failed to load your households", "danger");
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [api, showNotification]);
+
+  useEffect(() => {
+    fetchHouseholds();
+  }, [fetchHouseholds]);
 
   const handleSelect = (hh) => {
     localStorage.setItem('household', JSON.stringify(hh));
@@ -47,6 +43,7 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
             showNotification(`Household "${hh.name}" deleted permanently.`, "success");
             fetchHouseholds();
         } catch (err) {
+            console.error("Failed to delete household", err);
             showNotification("Failed to delete household. Only admins can perform this action.", "danger");
         }
     }
@@ -70,6 +67,7 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
         localStorage.setItem('household', JSON.stringify(newHh));
         window.location.href = `/household/${newHh.id}/dashboard`;
     } catch (err) {
+        console.error("Failed to create household", err);
         showNotification("Failed to create household.", "danger");
     } finally {
         setIsSubmitting(false);
@@ -109,7 +107,7 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
               )}
 
               <AspectRatio ratio="1" variant="soft" sx={{ borderRadius: '50%', mb: 2, bgcolor: getEmojiColor(hh.avatar || '🏠') }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-center', fontSize: '2.5rem' }}>
                     {hh.avatar || '🏠'}
                 </Box>
               </AspectRatio>

@@ -16,7 +16,7 @@ import startOfWeek from 'date-fns/startOfWeek';
 import getDay from 'date-fns/getDay';
 import enUS from 'date-fns/locale/en-US';
 import { 
-  addDays, addWeeks, addMonths, addYears, parseISO, isBefore, isAfter, 
+  addDays, addWeeks, addMonths, addYears, parseISO, isBefore, 
   startOfDay, endOfDay, differenceInCalendarDays, isValid
 } from 'date-fns';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -122,7 +122,6 @@ export default function CalendarView({ showNotification }) {
   const [editingEvent, setEditingEvent] = useState(null);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('📅');
-  const [loading, setLoading] = useState(true);
 
   // Calendar Control State
   const [date, setDate] = useState(new Date());
@@ -133,7 +132,6 @@ export default function CalendarView({ showNotification }) {
   const [recurrence, setRecurrence] = useState('none');
 
   const fetchDates = useCallback(() => {
-    setLoading(true);
     api.get(`/households/${householdId}/dates`)
       .then(res => {
         setRawDates(res.data || []);
@@ -141,12 +139,11 @@ export default function CalendarView({ showNotification }) {
       .catch((err) => {
         console.error("Failed to fetch dates", err);
         if (showNotification) showNotification("Failed to load calendar", "error");
-      })
-      .finally(() => setLoading(false));
+      });
   }, [api, householdId, showNotification]);
 
   useEffect(() => {
-    fetchDates();
+    Promise.resolve().then(() => fetchDates());
   }, [fetchDates]);
 
   // --- EVENT EXPANSION & RECURRING COSTS ---
@@ -178,7 +175,7 @@ export default function CalendarView({ showNotification }) {
       const endDate = d.end_date ? parseISO(d.end_date) : (d.is_all_day ? startDate : addDays(startDate, 0));
       if (!isValid(endDate)) return;
 
-      const recurEnd = d.recurrence_end_date ? parseISO(d.recurrence_end_date) : limitDate;
+      const recurEnd = d.recurrenceend_date ? parseISO(d.recurrenceend_date) : limitDate;
 
       const baseEvent = {
         id: d.id,
@@ -228,13 +225,13 @@ export default function CalendarView({ showNotification }) {
       }
     });
 
-    setEvents(expandedEvents);
+    Promise.resolve().then(() => setEvents(expandedEvents));
   }, [rawDates]);
 
 
   // --- HANDLERS ---
 
-  const handleSelectSlot = ({ start, end }) => {
+  const handleSelectSlot = ({ start }) => {
     setEditingEvent(null);
     setSelectedEmoji('📅');
     setIsAllDay(true);
@@ -502,9 +499,9 @@ export default function CalendarView({ showNotification }) {
                                     <FormControl>
                                         <FormLabel>Repeat Until (Optional)</FormLabel>
                                         <Input 
-                                            name="recurrence_end_date" 
+                                            name="recurrenceend_date" 
                                             type="date" 
-                                            defaultValue={editingEvent?.recurrence_end_date || ''} 
+                                            defaultValue={editingEvent?.recurrenceend_date || ''} 
                                             placeholder="Leave blank to repeat forever"
                                         />
                                         <Typography level="body-xs" mt={0.5}>Leave blank to repeat forever</Typography>

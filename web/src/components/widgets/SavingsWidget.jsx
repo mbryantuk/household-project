@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Typography, Stack, LinearProgress, IconButton } from '@mui/joy';
-import { Savings, Add, Remove } from '@mui/icons-material';
+import { Box, Typography, Stack } from '@mui/joy';
+import { Savings } from '@mui/icons-material';
 import WidgetWrapper from './WidgetWrapper';
 import AppSelect from '../ui/AppSelect';
 
-export default function SavingsWidget({ api, household, user, data, onSaveData }) {
+export default function SavingsWidget({ api, household, data, onSaveData }) {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -17,7 +17,7 @@ export default function SavingsWidget({ api, household, user, data, onSaveData }
       const accRes = await api.get(`/households/${household.id}/finance/savings`);
       setAccounts(accRes.data || []);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch savings accounts", err);
     } finally {
       setLoading(false);
     }

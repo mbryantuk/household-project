@@ -6,7 +6,7 @@ import {
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
   Sheet, Table
 } from '@mui/joy';
-import { Edit, Delete, Add } from '@mui/icons-material';
+import { Edit, Delete, Add, Search } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
 import AppSelect from '../components/ui/AppSelect';
 
@@ -21,7 +21,7 @@ export default function AssetsView() {
   const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
   const [filterQuery, setFilterQuery] = useState('');
   
-  // Responsive Check (Simple width check or hook)
+  // Responsive Check
   const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export default function AssetsView() {
       const res = await api.get(`/households/${householdId}/assets`);
       setAssets(res.data || []);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch assets", err);
     } finally {
       setLoading(false);
     }
@@ -56,8 +56,10 @@ export default function AssetsView() {
         (a.location && a.location.toLowerCase().includes(filterQuery.toLowerCase()))
     )
     .sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
-        if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === 'asc' ? 1 : -1;
+        const valA = a[sortConfig.key] || '';
+        const valB = b[sortConfig.key] || '';
+        if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
         return 0;
     });
 
@@ -93,8 +95,8 @@ export default function AssetsView() {
       fetchAssets();
       setEditAsset(null);
       setIsNew(false);
-    } catch (err) {
-      alert("Failed to save");
+    } catch {
+      alert("Failed to save asset");
     }
   };
 
@@ -103,8 +105,8 @@ export default function AssetsView() {
     try {
       await api.delete(`/households/${householdId}/assets/${id}`);
       fetchAssets();
-    } catch (err) {
-      alert("Failed to delete");
+    } catch {
+      alert("Failed to delete asset");
     }
   };
 
@@ -126,6 +128,13 @@ export default function AssetsView() {
           </Box>
           
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+              <Input 
+                placeholder="Search assets..." 
+                startDecorator={<Search />} 
+                value={filterQuery}
+                onChange={(e) => setFilterQuery(e.target.value)}
+                sx={{ width: { xs: '100%', sm: 250 } }}
+              />
               {isAdmin && (
                   <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditAsset({}); setIsNew(true); }}>
                       Add Asset
@@ -276,13 +285,13 @@ export default function AssetsView() {
                         
                         <Grid xs={6} md={3}>
                             <FormControl>
-                                <FormLabel>Purchase Value</FormLabel>
+                                <FormLabel>Purchase Value (£)</FormLabel>
                                 <Input name="purchase_value" type="number" step="0.01" defaultValue={editAsset?.purchase_value} />
                             </FormControl>
                         </Grid>
                         <Grid xs={6} md={3}>
                             <FormControl>
-                                <FormLabel>Monthly Maintenance</FormLabel>
+                                <FormLabel>Monthly Maintenance (£)</FormLabel>
                                 <Input name="monthly_maintenance_cost" type="number" step="0.01" defaultValue={editAsset?.monthly_maintenance_cost} />
                             </FormControl>
                         </Grid>

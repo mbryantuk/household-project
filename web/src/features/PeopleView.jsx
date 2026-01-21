@@ -1,21 +1,16 @@
-// ... imports
 import { useState, useMemo, useEffect } from 'react';
 import { useOutletContext, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Button, Input, FormControl, FormLabel, 
-  Stack, Avatar, IconButton, Divider, Tooltip, 
-  Grid, Card, CardContent, Chip, Tabs, TabList, Tab, Table
+  Stack, IconButton, Divider, Tooltip, 
+  Grid, Tabs, TabList, Tab
 } from '@mui/joy';
 import { 
-  Edit, Save, Delete, PersonAdd, UploadFile, MedicalServices, 
-  Description, Euro, HealthAndSafety, Pets, History,
-  Cake, VerifiedUser, Gavel, Shield, Payments, ContactPage, Add
+  Delete, Gavel, Payments, ContactPage, Add
 } from '@mui/icons-material';
-import { getEmojiColor } from '../theme';
 import EmojiPicker from '../components/EmojiPicker';
-import AppSelect from '../components/ui/AppSelect'; // Architect's Rule: Use Shared Components
+import AppSelect from '../components/ui/AppSelect'; 
 import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
-
 import EntityGrid from '../components/ui/EntityGrid';
 
 export default function PeopleView() {
@@ -39,13 +34,13 @@ export default function PeopleView() {
   const [formData, setFormData] = useState({
     first_name: '', middle_name: '', last_name: '',
     type: initialType, alias: '', dob: '', emoji: '👨', notes: '',
-    life_insurance_provider: '', life_insurance_premium: 0, life_insurance_expiry: '',
+    life_insurance_provider: '', life_insurance_premium: 0, life_insuranceexpiry: '',
     will_details: ''
   });
 
   useEffect(() => {
     if (selectedPerson) {
-      setFormData({
+      const data = {
         first_name: selectedPerson.first_name || selectedPerson.name?.split(' ')[0] || '',
         middle_name: selectedPerson.middle_name || '',
         last_name: selectedPerson.last_name || selectedPerson.name?.split(' ').slice(1).join(' ') || '',
@@ -56,18 +51,20 @@ export default function PeopleView() {
         notes: selectedPerson.notes || '',
         life_insurance_provider: selectedPerson.life_insurance_provider || '',
         life_insurance_premium: selectedPerson.life_insurance_premium || 0,
-        life_insurance_expiry: selectedPerson.life_insurance_expiry || '',
+        life_insuranceexpiry: selectedPerson.life_insuranceexpiry || '',
         will_details: selectedPerson.will_details || ''
-      });
+      };
+      Promise.resolve().then(() => setFormData(data));
     } else if (personId === 'new') {
       // Re-read query param for fresh navigation
       const currentType = new URLSearchParams(location.search).get('type') || 'adult';
-      setFormData({
+      const data = {
         first_name: '', middle_name: '', last_name: '',
         type: currentType, alias: '', dob: '', emoji: currentType === 'child' ? '👶' : '👨', notes: '',
-        life_insurance_provider: '', life_insurance_premium: 0, life_insurance_expiry: '',
+        life_insurance_provider: '', life_insurance_premium: 0, life_insuranceexpiry: '',
         will_details: ''
-      });
+      };
+      Promise.resolve().then(() => setFormData(data));
     }
   }, [selectedPerson, personId, location.search]);
 
@@ -89,7 +86,7 @@ export default function PeopleView() {
         showNotification("Details updated.", "success");
         fetchHhMembers(householdId);
       }
-    } catch (err) {
+     } catch {
       showNotification("Failed to save.", "danger");
     }
   };
@@ -104,7 +101,7 @@ export default function PeopleView() {
                 showNotification("Person removed.", "neutral");
                 fetchHhMembers(householdId);
                 navigate('..');
-            } catch (err) {
+             } catch {
                 showNotification("Failed to delete.", "danger");
             }
         }
@@ -143,7 +140,7 @@ export default function PeopleView() {
         {
             title: 'Pets',
             items: groupedMembers.pets,
-            onAdd: isAdmin ? () => navigate('new?type=pet') : null, // Note: PetsView handles pets usually, but simple add here works if supported
+            onAdd: isAdmin ? () => navigate('new?type=pet') : null, 
             addLabel: 'Add Pet'
         }
     ];
@@ -212,7 +209,7 @@ export default function PeopleView() {
                     }}
                 >
                     <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><ContactPage sx={{ mr: 1 }}/> Identity</Tab>
-                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} disabled={formData.type === 'child'} sx={{ flex: 'none' }}><Shield sx={{ mr: 1 }}/> Protection & Legal</Tab>
+                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} disabled={formData.type === 'child'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Protection & Legal</Tab>
                     <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Misc Costs</Tab>
                 </TabList>
             </Tabs>
@@ -305,7 +302,6 @@ export default function PeopleView() {
 
           {activeTab === 1 && personId !== 'new' && (
             <Box>
-                {/* ... existing Legal content ... */}
                 <Box sx={{ mb: 4 }}>
                     <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
                         Protection & Legal
@@ -332,7 +328,7 @@ export default function PeopleView() {
                     <Grid xs={12} md={3}>
                         <FormControl>
                             <FormLabel>Policy Expiry</FormLabel>
-                            <Input name="life_insurance_expiry" type="date" value={formData.life_insurance_expiry} onChange={handleChange} />
+                            <Input name="life_insuranceexpiry" type="date" value={formData.life_insuranceexpiry} onChange={handleChange} />
                         </FormControl>
                     </Grid>
                     

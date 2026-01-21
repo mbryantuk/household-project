@@ -46,7 +46,7 @@ export default function ProfileView() {
       await onUpdateProfile(formData);
       setIsEditing(false);
       showNotification("Profile updated successfully", "success");
-    } catch (err) {
+    } catch {
       showNotification("Failed to update profile", "danger");
     }
   };

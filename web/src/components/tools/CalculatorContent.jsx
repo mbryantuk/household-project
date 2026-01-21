@@ -11,7 +11,7 @@ export default function CalculatorContent({ onClose }) {
       try {
         const res = new Function(`return ${input.replace(/[^-+*/.0-9]/g, '')}`)();
         setResult(String(res));
-      } catch (e) { setResult('Error'); }
+      } catch { setResult('Error'); }
     } else if (val === 'C') { setInput(''); setResult(''); }
     else if (val === 'DEL') { setInput(prev => prev.slice(0, -1)); }
     else { setInput(prev => prev + val); }

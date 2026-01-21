@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
-export default function WidthProvider(ComposedComponent) {
+export default function WidthProvider(WrappedComponent) { // eslint-disable-line no-unused-vars
   return function WidthProviderWrapper(props) {
     const [width, setWidth] = useState(1200);
     const elementRef = useRef(null);
@@ -27,7 +27,7 @@ export default function WidthProvider(ComposedComponent) {
 
     return (
       <div ref={elementRef} style={{ width: '100%' }}>
-        <ComposedComponent {...props} width={width} />
+        <WrappedComponent {...props} width={width} />
       </div>
     );
   };

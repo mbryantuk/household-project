@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { Box, Typography, Stack, Chip } from '@mui/joy';
 import { Event as EventIcon } from '@mui/icons-material';
 import WidgetWrapper from './WidgetWrapper';
@@ -11,13 +11,13 @@ export default function EventsWidget({ dates }) {
     return d;
   }, []);
 
-  const parseDate = (dateStr) => {
+  const parseDate = useCallback((dateStr) => {
     if (!dateStr) return null;
     const [y, m, d] = dateStr.split('-').map(Number);
     return new Date(y, m - 1, d);
-  };
+  }, []);
 
-  const getDaysUntil = (dateStr) => {
+  const getDaysUntil = useCallback((dateStr) => {
     const originalDate = parseDate(dateStr);
     if (!originalDate) return null;
 
@@ -27,7 +27,7 @@ export default function EventsWidget({ dates }) {
     }
 
     return Math.ceil((nextAnniversary - today) / (1000 * 60 * 60 * 24));
-  };
+  }, [today, parseDate]);
 
   const upcomingEvents = useMemo(() => {
     return (dates || [])
@@ -39,7 +39,7 @@ export default function EventsWidget({ dates }) {
       .filter(d => d !== null && d.daysUntil >= 0)
       .sort((a, b) => a.daysUntil - b.daysUntil)
       .slice(0, 5);
-  }, [dates, today]);
+  }, [dates, getDaysUntil]);
 
   return (
     <WidgetWrapper title="Calendar" icon={<EventIcon />} color="neutral"> 

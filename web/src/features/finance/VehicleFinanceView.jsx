@@ -4,9 +4,9 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup, LinearProgress, Select, Option
+  AvatarGroup, LinearProgress, Checkbox
 } from '@mui/joy';
-import { Edit, Delete, Add, GroupAdd, DirectionsCar } from '@mui/icons-material';
+import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import AppSelect from '../../components/ui/AppSelect';
@@ -37,6 +37,8 @@ export default function VehicleFinanceView() {
 
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'member';
 
+  const getAssignees = useCallback((itemId) => assignments.filter(a => a.entity_id === itemId).map(a => members.find(m => m.id === a.member_id)).filter(Boolean), [assignments, members]);
+
   useEffect(() => {
       if (editItem) {
           setSelectedEmoji(editItem.emoji || '🚗');
@@ -45,7 +47,7 @@ export default function VehicleFinanceView() {
           setSelectedEmoji('🚗');
           setSelectedMembers([currentUser?.id].filter(Boolean));
       }
-  }, [editItem, isNew]);
+  }, [editItem, isNew, getAssignees, currentUser?.id]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -58,7 +60,7 @@ export default function VehicleFinanceView() {
       setFinances(res.data || []);
       setVehicles(vRes.data || []);
       setAssignments(assRes.data || []);
-    } catch (err) { console.error(err); } finally { setLoading(false); }
+    } catch (err) { console.error("Failed to fetch car finance", err); } finally { setLoading(false); }
   }, [api, householdId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
@@ -90,7 +92,7 @@ export default function VehicleFinanceView() {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this finance agreement?")) return;
-    try { await api.delete(`/households/${householdId}/finance/vehicle-finance/${id}`); fetchData(); } catch (err) { alert("Failed to delete"); }
+    try { await api.delete(`/households/${householdId}/finance/vehicle-finance/${id}`); fetchData(); } catch { alert("Failed to delete"); }
   };
 
   const handleAssignMember = async (memberId) => {
@@ -100,7 +102,7 @@ export default function VehicleFinanceView() {
           });
           const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=vehicle_finance`);
           setAssignments(assRes.data || []);
-      } catch (err) { console.error(err); }
+      } catch (err) { console.error("Assignment failed", err); }
   };
 
   const handleUnassignMember = async (memberId) => {
@@ -108,10 +110,8 @@ export default function VehicleFinanceView() {
           await api.delete(`/households/${householdId}/finance/assignments/vehicle_finance/${assignItem.id}/${memberId}`);
           const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=vehicle_finance`);
           setAssignments(assRes.data || []);
-      } catch (err) { console.error(err); }
+      } catch (err) { console.error("Removal failed", err); }
   };
-
-  const getAssignees = (itemId) => assignments.filter(a => a.entity_id === itemId).map(a => members.find(m => m.id === a.member_id)).filter(Boolean);
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
@@ -144,7 +144,7 @@ export default function VehicleFinanceView() {
                                     {fin.emoji || '🚗'}
                                 </Avatar>
                                 <Box sx={{ flexGrow: 1 }}>
-                                    <Typography level="title-lg">{fin.provider}</Typography>
+                                    <Typography level="title-md">{fin.provider}</Typography>
                                     <Typography level="body-sm" color="neutral">
                                         {vehicle ? `${vehicle.make} ${vehicle.model}` : 'Unlinked Vehicle'}
                                     </Typography>

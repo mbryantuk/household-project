@@ -52,7 +52,7 @@ export default function SettingsView({
                   date_format: household.date_format || 'dd/MM/yyyy',
                   decimals: household.decimals !== undefined ? household.decimals : 2
               });
-          } catch(e) {
+           } catch {
               // Fallback
           }
       }
@@ -105,7 +105,7 @@ export default function SettingsView({
             enabled_modules: JSON.stringify(newModules) 
         });
         // Parent handles notification ("Household updated")
-    } catch (err) {
+     } catch {
         // Revert on failure
         setEnabledModules(enabledModules);
     }
@@ -116,7 +116,7 @@ export default function SettingsView({
     try {
         await onUpdateHousehold(regionalSettings);
         // Notification handled by parent
-    } catch (err) {
+     } catch {
         showNotification("Failed to save regional settings.", "danger");
     }
   };
@@ -128,7 +128,7 @@ export default function SettingsView({
       showNotification(`User ${u.is_active ? 'deactivated' : 'activated'}.`, "success");
       if (fetchHhUsers) fetchHhUsers(household.id);
       else window.location.reload(); 
-    } catch (err) {
+     } catch {
       showNotification("Failed to update user status.", "danger");
     }
   };
@@ -144,7 +144,7 @@ export default function SettingsView({
                 if (userId === currentUser.id) window.location.href = '/select-household';
                 else if (fetchHhUsers) fetchHhUsers(household.id);
                 else window.location.reload();
-            } catch (err) {
+             } catch {
                 showNotification("Failed to remove user.", "danger");
             }
         }
@@ -172,7 +172,7 @@ export default function SettingsView({
           setEditUser(null);
           if (fetchHhUsers) fetchHhUsers(household.id);
           else window.location.reload();
-      } catch (err) {
+       } catch {
           showNotification("Failed to save user.", "danger");
       } finally {
           setSavingUser(false);
@@ -193,7 +193,7 @@ export default function SettingsView({
       
       // Navigate to the new household
       window.location.href = `/household/${res.data.id}/dashboard`;
-    } catch (err) {
+     } catch {
       showNotification("Failed to create new household.", "danger");
     } finally {
       setIsCreatingHh(false);
@@ -285,7 +285,7 @@ export default function SettingsView({
       </Box>
 
       <Sheet variant="outlined" sx={{ borderRadius: 'md', minHeight: 500, overflow: 'hidden' }}>
-        <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} sx={{ bgcolor: 'transparent' }}>
+        <Tabs value={activeTab} onChange={(_e, v) => setActiveTab(v)} sx={{ bgcolor: 'transparent' }}>
           <TabList 
             variant="plain" 
             sx={{ 
@@ -620,7 +620,7 @@ export default function SettingsView({
                           <Select 
                             name="role" 
                             value={formData.role}
-                            onChange={(e, v) => setFormData({...formData, role: v})}
+                            onChange={(_e, v) => setFormData({...formData, role: v})}
                           >
                               <Option value="admin">Administrator</Option>
                               <Option value="member">Standard Member</Option>

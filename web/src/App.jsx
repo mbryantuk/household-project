@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import axios from 'axios';
 import { 
   Box, CssVarsProvider, Button, 
-  CircularProgress, Snackbar, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions,
+  Snackbar, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions,
   GlobalStyles, useColorScheme
 } from '@mui/joy';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
@@ -28,7 +28,6 @@ import HouseholdSelector from './pages/HouseholdSelector';
 
 // Features
 import HomeView from './features/HomeView';
-import MembersView from './features/MembersView';
 import SettingsView from './features/SettingsView';
 import MealPlannerView from './features/MealPlannerView';
 import CalendarView from './features/CalendarView';
@@ -108,7 +107,7 @@ function AppInner({ themeId, setThemeId }) {
         } else if (window.screen?.orientation?.unlock) {
           window.screen.orientation.unlock();
         }
-      } catch (err) {
+      } catch {
         // Ignore errors as some browsers/platforms don't support locking
       }
     };
@@ -166,7 +165,7 @@ function AppInner({ themeId, setThemeId }) {
 
   useEffect(() => {
     if (token) {
-        fetchHouseholds();
+        Promise.resolve().then(() => fetchHouseholds());
     }
   }, [token, fetchHouseholds]);
 
@@ -176,8 +175,10 @@ function AppInner({ themeId, setThemeId }) {
         const activeLink = households.find(h => h.id === household.id);
         if (activeLink && activeLink.role !== user?.role) {
             const updatedUser = { ...user, role: activeLink.role };
-            setUser(updatedUser);
-            localStorage.setItem('user', JSON.stringify(updatedUser));
+            Promise.resolve().then(() => {
+                setUser(updatedUser);
+                localStorage.setItem('user', JSON.stringify(updatedUser));
+            });
         }
     }
   }, [household, households, user]);
@@ -234,7 +235,7 @@ function AppInner({ themeId, setThemeId }) {
       setHouseholds(prev => prev.map(h => h.id === household.id ? { ...h, ...updates } : h));
 
       showNotification("Household updated.", "success");
-    } catch (err) { showNotification("Failed to update.", "danger"); }
+    } catch { showNotification("Failed to update.", "danger"); }
   }, [authAxios, household, showNotification]);
 
   const handleUpdateProfile = useCallback(async (updates) => {

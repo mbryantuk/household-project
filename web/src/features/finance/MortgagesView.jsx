@@ -2,11 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Card, Avatar, IconButton, 
-  Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
+  Button, Modal, ModalDialog, DialogTitle, DialogContent, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup, LinearProgress, Table, Sheet, Dropdown, Menu, MenuButton, MenuItem
+  AvatarGroup, LinearProgress, Table, Sheet, Dropdown, Menu, MenuButton, MenuItem, Checkbox
 } from '@mui/joy';
-import { Edit, Delete, Add, GroupAdd, Home, InfoOutlined, ArrowDropDown, LocationOn, TrendingUp, Sell, AccountBalanceWallet } from '@mui/icons-material';
+import { Edit, Delete, Add, GroupAdd, TrendingUp, Sell, AccountBalanceWallet, ArrowDropDown } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import AppSelect from '../../components/ui/AppSelect';
@@ -39,6 +39,8 @@ export default function MortgagesView() {
 
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'member';
 
+  const getAssignees = useCallback((itemId) => assignments.filter(a => a.entity_id === itemId).map(a => members.find(m => m.id === a.member_id)).filter(Boolean), [assignments, members]);
+
   useEffect(() => {
       if (editItem && editItem.id) {
           setSelectedEmoji(editItem.emoji || (editItem.mortgage_type === 'equity' ? '💰' : '🏠'));
@@ -48,7 +50,7 @@ export default function MortgagesView() {
           setSelectedEmoji(activeType === 'equity' ? '💰' : '🏠');
           setSelectedMembers([currentUser?.id].filter(Boolean));
       }
-  }, [editItem, isNew, activeType]);
+  }, [editItem, isNew, activeType, getAssignees, currentUser?.id]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -63,7 +65,11 @@ export default function MortgagesView() {
       setAssignments(assRes.data || []);
       setAssets(assetRes.data || []);
       setHouseDetails(detRes.data || null);
-    } catch (err) { console.error(err); } finally { setLoading(false); }
+    } catch (err) {
+      console.error("Failed to fetch mortgage data", err);
+    } finally {
+      setLoading(false);
+    }
   }, [api, householdId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
@@ -100,12 +106,14 @@ export default function MortgagesView() {
       fetchData();
       setEditItem(null);
       setIsNew(false);
-    } catch (err) { alert("Failed to save: " + err.message); }
+    } catch (err) {
+      alert("Failed to save: " + err.message);
+    }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this item?")) return;
-    try { await api.delete(`/households/${householdId}/finance/mortgages/${id}`); fetchData(); } catch (err) { alert("Failed to delete"); }
+    try { await api.delete(`/households/${householdId}/finance/mortgages/${id}`); fetchData(); } catch { alert("Failed to delete"); }
   };
 
   const handleAssignMember = async (memberId) => {
@@ -115,7 +123,7 @@ export default function MortgagesView() {
           });
           const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=finance_mortgages`);
           setAssignments(assRes.data || []);
-      } catch (err) { console.error(err); }
+      } catch (err) { console.error("Assignment failed", err); }
   };
 
   const handleUnassignMember = async (memberId) => {
@@ -123,10 +131,8 @@ export default function MortgagesView() {
           await api.delete(`/households/${householdId}/finance/assignments/finance_mortgages/${assignItem.id}/${memberId}`);
           const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=finance_mortgages`);
           setAssignments(assRes.data || []);
-      } catch (err) { console.error(err); }
+      } catch (err) { console.error("Removal failed", err); }
   };
-
-  const getAssignees = (itemId) => assignments.filter(a => a.entity_id === itemId).map(a => members.find(m => m.id === a.member_id)).filter(Boolean);
 
   const calculateH2BProjections = (originalLoan, startDate, rpiRate) => {
       if (!originalLoan || !startDate) return null;
@@ -416,7 +422,7 @@ export default function MortgagesView() {
                                     </Grid>
                                 </>
                             )}
-                            <FormControl><FormLabel>Assign Borrowers / Owners</FormLabel><AppSelect name="selected_members_dummy" multiple value={selectedMembers} onChange={(val) => setSelectedMembers(val)} options={members.filter(m => m.type !== 'pet').map(m => ({ value: m.id, label: `${m.emoji} ${m.name}` }))} placeholder="Select members..." /></FormControl>
+                            <FormControl><FormLabel>Assign Borrowers / Owners</FormLabel><Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>{members.filter(m => m.type !== 'pet').map(m => { const isSelected = selectedMembers.includes(m.id); return <Chip key={m.id} variant={isSelected ? 'solid' : 'outlined'} color={isSelected ? 'primary' : 'neutral'} onClick={() => setSelectedMembers(prev => prev.includes(m.id) ? prev.filter(id => id !== m.id) : [...prev, m.id])} startDecorator={<Avatar size="sm">{m.emoji}</Avatar>}>{m.name}</Chip> })}</Box></FormControl>
                         </Stack>
                         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
                             {!isNew && <Button color="danger" variant="soft" onClick={() => { handleDelete(editItem.id); setEditItem(null); }}>Delete</Button>}

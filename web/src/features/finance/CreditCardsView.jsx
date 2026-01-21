@@ -4,9 +4,9 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup, LinearProgress
+  AvatarGroup, LinearProgress, Checkbox
 } from '@mui/joy';
-import { Edit, Delete, Add, GroupAdd, CreditCard } from '@mui/icons-material';
+import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 
@@ -35,6 +35,8 @@ export default function CreditCardsView() {
 
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'member';
 
+  const getAssignees = useCallback((itemId) => assignments.filter(a => a.entity_id === itemId).map(a => members.find(m => m.id === a.member_id)).filter(Boolean), [assignments, members]);
+
   useEffect(() => {
       if (editItem) {
           setSelectedEmoji(editItem.emoji || '💳');
@@ -43,7 +45,7 @@ export default function CreditCardsView() {
           setSelectedEmoji('💳');
           setSelectedMembers([currentUser?.id].filter(Boolean));
       }
-  }, [editItem, isNew]);
+  }, [editItem, isNew, getAssignees, currentUser?.id]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -54,7 +56,7 @@ export default function CreditCardsView() {
       ]);
       setCards(res.data || []);
       setAssignments(assRes.data || []);
-    } catch (err) { console.error(err); } finally { setLoading(false); }
+    } catch (err) { console.error("Failed to fetch cards", err); } finally { setLoading(false); }
   }, [api, householdId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
@@ -86,7 +88,7 @@ export default function CreditCardsView() {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this card?")) return;
-    try { await api.delete(`/households/${householdId}/finance/credit-cards/${id}`); fetchData(); } catch (err) { alert("Failed to delete"); }
+    try { await api.delete(`/households/${householdId}/finance/credit-cards/${id}`); fetchData(); } catch { alert("Failed to delete"); }
   };
 
   const handleAssignMember = async (memberId) => {
@@ -96,7 +98,7 @@ export default function CreditCardsView() {
           });
           const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=finance_credit_cards`);
           setAssignments(assRes.data || []);
-      } catch (err) { console.error(err); }
+      } catch (err) { console.error("Assignment failed", err); }
   };
 
   const handleUnassignMember = async (memberId) => {
@@ -104,10 +106,8 @@ export default function CreditCardsView() {
           await api.delete(`/households/${householdId}/finance/assignments/finance_credit_cards/${assignItem.id}/${memberId}`);
           const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=finance_credit_cards`);
           setAssignments(assRes.data || []);
-      } catch (err) { console.error(err); }
+      } catch (err) { console.error("Removal failed", err); }
   };
-
-  const getAssignees = (itemId) => assignments.filter(a => a.entity_id === itemId).map(a => members.find(m => m.id === a.member_id)).filter(Boolean);
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 

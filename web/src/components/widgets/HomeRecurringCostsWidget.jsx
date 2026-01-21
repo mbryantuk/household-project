@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, List, ListItem, ListItemContent, Chip, CircularProgress } from '@mui/joy';
+import { Typography, List, ListItem, ListItemContent, Chip, CircularProgress } from '@mui/joy';
 import { ReceiptLong } from '@mui/icons-material';
 import WidgetWrapper from './WidgetWrapper';
 
-export default function HomeRecurringCostsWidget({ api, household, dates }) {
+export default function HomeRecurringCostsWidget({ api, household }) {
   const [costs, setCosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -12,16 +12,9 @@ export default function HomeRecurringCostsWidget({ api, household, dates }) {
     const fetchCosts = async () => {
       try {
         const res = await api.get(`/households/${household.id}/costs`);
-        // Calculate upcoming occurrences logic could be complex (recurrence expansion).
-        // For simplicity in this prototype, we list the costs and their next payment day.
-        // Ideally, the 'dates' prop already contains expanded cost events if the backend/calendar logic does it.
-        // Checking 'dates' first.
-        
-        // Strategy: Filter 'dates' for type='finance' or similar if they exist.
-        // If not, just list the raw costs.
         setCosts(res.data || []);
       } catch (err) {
-        console.error(err);
+        console.error("Failed to fetch recurring costs", err);
       } finally {
         setLoading(false);
       }

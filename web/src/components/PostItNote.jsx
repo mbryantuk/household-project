@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sheet, IconButton, Input, Typography, Box, List, ListItem, ListItemButton, Checkbox, ListItemContent, Divider } from '@mui/joy';
+import { Sheet, IconButton, Input, Typography, Box, List, ListItem, ListItemButton, Checkbox, ListItemContent } from '@mui/joy';
 import { Close, Delete, DragIndicator, OpenInNew, Add, Minimize } from '@mui/icons-material';
 
 const YELLOW = '#fff740';
@@ -32,9 +32,13 @@ export default function PostItNote({ onClose, user, onUpdateProfile, onPopout, i
   useEffect(() => {
       try {
           const parsed = JSON.parse(user?.sticky_note);
-          if (Array.isArray(parsed) && JSON.stringify(parsed) !== JSON.stringify(notes)) setNotes(parsed);
-      } catch {}
-  }, [user?.sticky_note]);
+          if (Array.isArray(parsed) && JSON.stringify(parsed) !== JSON.stringify(notes)) {
+              Promise.resolve().then(() => setNotes(parsed));
+          }
+      } catch {
+          /* Ignore parse errors */
+      }
+  }, [user?.sticky_note, notes]);
 
   const onMouseDown = (e) => {
     if (isPopout || isDocked) return;
@@ -94,7 +98,8 @@ export default function PostItNote({ onClose, user, onUpdateProfile, onPopout, i
       }}
     >
       <Box onMouseDown={onMouseDown} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, borderBottom: '1px solid rgba(0,0,0,0.1)', bgcolor: 'rgba(0,0,0,0.05)', cursor: isDocked ? 'default' : 'move' }}>
-         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+         {!isDocked && !isPopout && <DragIndicator fontSize="small" sx={{ mr: 1, color: '#000', opacity: 0.5 }} />}
+         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexGrow: 1 }}>
             <IconButton size="sm" variant="plain" onClick={handleAdd} sx={{ color: '#000' }}><Add /></IconButton>
             <Typography level="title-sm" sx={{ color: '#000' }}>{activeNoteId ? 'Editing Note' : 'Sticky Notes'}</Typography>
          </Box>

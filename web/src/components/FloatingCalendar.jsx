@@ -1,18 +1,13 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
-  Box, Sheet, Typography, IconButton, Tooltip, Divider,
-  Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
-  Select, Option, FormControl, FormLabel, Stack 
+  Box, Sheet, Typography, IconButton, Divider
 } from '@mui/joy';
 import { 
-  Close, DragIndicator, ChevronLeft, ChevronRight, Add, 
-  Event, Cake, Favorite, Star, OpenInNew 
+  Close, DragIndicator, ChevronLeft, ChevronRight, OpenInNew 
 } from '@mui/icons-material';
-import EmojiPicker from './EmojiPicker';
-import { getEmojiColor } from '../theme';
 
 export default function FloatingCalendar({ 
-  dates = [], api, householdId, onDateAdded, currentUser, onClose, isPopout = false, isDark = false, isDocked = false, onPopout
+  dates = [], onClose, isPopout = false, isDocked = false, onPopout
 }) {
   const [pos, setPos] = useState({ x: 100, y: 100 });
   const [isDragging, setIsDragging] = useState(false);
@@ -45,9 +40,6 @@ export default function FloatingCalendar({
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [openAdd, setOpenAdd] = useState(false);
-  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
-  const [selectedEmoji, setSelectedEmoji] = useState('📅');
 
   const daysInMonth = (y, m) => new Date(y, m + 1, 0).getDate();
   const firstDayOfMonth = (y, m) => new Date(y, m, 1).getDay();

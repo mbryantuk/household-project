@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
-  Box, Typography, Card, IconButton, Stack, Button, Modal, ModalDialog, DialogTitle, DialogContent, FormControl, FormLabel, Input
+  Box, Typography, Card, Stack, Button, Modal, ModalDialog, DialogTitle, DialogContent, FormControl, FormLabel, Input
 } from '@mui/joy';
 import { Add, Remove } from '@mui/icons-material';
 import AppSelect from '../ui/AppSelect';
 
-export default function PensionsContent({ api, householdId, isDark }) {
+export default function PensionsContent({ api, householdId }) {
   const [pensions, setPensions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [adjustItem, setAdjustItem] = useState(null); // { item, type: 'add' | 'remove' }
@@ -23,7 +23,7 @@ export default function PensionsContent({ api, householdId, isDark }) {
           setSelectedId(String(items[0].id));
       }
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch pensions", err);
     } finally {
       setLoading(false);
     }
@@ -51,14 +51,13 @@ export default function PensionsContent({ api, householdId, isDark }) {
           
           fetchData();
           setAdjustItem(null);
-      } catch (err) { alert("Failed to update value"); }
+      } catch { alert("Failed to update value"); }
   };
 
   if (loading && pensions.length === 0) return <Box sx={{ p: 2, textAlign: 'center' }}><Typography>Loading...</Typography></Box>;
 
   const selectedItem = pensions.find(a => String(a.id) === selectedId);
   const currentValue = selectedItem ? (parseFloat(selectedItem.current_value) || 0) : 0;
-  const monthlyContrib = selectedItem ? (parseFloat(selectedItem.monthly_contribution) || 0) : 0;
 
   return (
     <Box sx={{ overflowY: 'auto', flexGrow: 1, p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -70,19 +69,19 @@ export default function PensionsContent({ api, householdId, isDark }) {
             onChange={(val) => setSelectedId(val)}
             options={pensions.map(p => ({ 
                 value: String(p.id), 
-                label: `${p.emoji || '⏳'} ${p.plan_name} (${p.provider})` 
+                label: `👴 ${p.provider} (${p.type})` 
             }))}
         />
       </Box>
 
       {selectedItem ? (
         <Box sx={{ textAlign: 'center', mb: 3 }}>
-             <Typography level="body-xs" textTransform="uppercase" letterSpacing="1px" color="neutral">Pot Value</Typography>
+             <Typography level="body-xs" textTransform="uppercase" letterSpacing="1px" color="neutral">Current Value</Typography>
              <Typography level="h1" color="primary">
                 £{currentValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
              </Typography>
              <Typography level="body-sm" color="neutral">
-                +£{monthlyContrib.toLocaleString()}/mo contribution
+                {selectedItem.provider} • {selectedItem.type}
              </Typography>
         </Box>
       ) : (
@@ -107,12 +106,8 @@ export default function PensionsContent({ api, householdId, isDark }) {
                 </Box>
                 <Stack spacing={1}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography level="body-sm" color="neutral">Type</Typography>
-                        <Typography level="body-sm">{selectedItem.type || 'Other'}</Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography level="body-sm" color="neutral">Account</Typography>
-                        <Typography level="body-sm">{selectedItem.account_number || '••••'}</Typography>
+                        <Typography level="body-sm" color="neutral">Contribution</Typography>
+                        <Typography level="body-sm">£{selectedItem.monthly_contribution}/mo</Typography>
                     </Box>
                 </Stack>
             </Card>
@@ -130,7 +125,7 @@ export default function PensionsContent({ api, householdId, isDark }) {
                     </FormControl>
                     <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
                         <Button variant="plain" color="neutral" onClick={() => setAdjustItem(null)}>Cancel</Button>
-                        <Button type="submit" color={adjustItem?.type === 'add' ? 'primary' : 'danger'}>
+                        <Button type="submit" color={adjustItem?.type === 'add' ? 'success' : 'danger'}>
                             {adjustItem?.type === 'add' ? 'Increase' : 'Decrease'}
                         </Button>
                     </Box>

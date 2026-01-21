@@ -4,7 +4,7 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup, LinearProgress, Accordion, AccordionSummary, AccordionDetails, Table, Sheet
+  AvatarGroup, LinearProgress, Accordion, AccordionSummary, AccordionDetails, Table, Checkbox
 } from '@mui/joy';
 import { Edit, Delete, Add, GroupAdd, ExpandMore, Savings, TrendingUp, Remove } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
@@ -40,6 +40,10 @@ export default function SavingsView() {
 
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'member';
 
+  const getAssignees = useCallback((accountId) => {
+      return assignments.filter(a => a.entity_id === accountId).map(a => members.find(m => m.id === a.member_id)).filter(Boolean);
+  }, [assignments, members]);
+
   // Update selected emoji and members when opening modals
   useEffect(() => {
       if (editAccount) {
@@ -52,7 +56,7 @@ export default function SavingsView() {
           setSelectedEmoji('💰');
           setSelectedMembers([currentUser?.id].filter(Boolean));
       }
-  }, [editAccount, editPot, isNewAccount]);
+  }, [editAccount, editPot, isNewAccount, getAssignees, currentUser?.id]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -78,7 +82,7 @@ export default function SavingsView() {
       setPots(potsMap);
 
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch savings data", err);
     } finally {
       setLoading(false);
     }
@@ -125,7 +129,7 @@ export default function SavingsView() {
     try {
         await api.delete(`/households/${householdId}/finance/savings/${id}`);
         fetchData();
-    } catch (err) { alert("Failed to delete"); }
+    } catch { alert("Failed to delete account"); }
   };
 
   // --- POT HANDLERS ---
@@ -145,7 +149,7 @@ export default function SavingsView() {
           const potRes = await api.get(`/households/${householdId}/finance/savings/${savingsId}/pots`);
           setPots(prev => ({ ...prev, [savingsId]: potRes.data }));
           setEditPot(null);
-      } catch (err) { alert("Failed to save pot"); }
+      } catch { alert("Failed to save pot"); }
   };
 
   const handlePotDelete = async (savingsId, potId) => {
@@ -154,7 +158,7 @@ export default function SavingsView() {
           await api.delete(`/households/${householdId}/finance/savings/${savingsId}/pots/${potId}`);
           const potRes = await api.get(`/households/${householdId}/finance/savings/${savingsId}/pots`);
           setPots(prev => ({ ...prev, [savingsId]: potRes.data }));
-      } catch (err) { alert("Failed to delete pot"); }
+      } catch { alert("Failed to delete pot"); }
   };
 
   const handleAdjustSubmit = async (e) => {
@@ -177,7 +181,7 @@ export default function SavingsView() {
           const potRes = await api.get(`/households/${householdId}/finance/savings/${savingsId}/pots`);
           setPots(prev => ({ ...prev, [savingsId]: potRes.data }));
           setAdjustPot(null);
-      } catch (err) { alert("Failed to update balance"); }
+      } catch { alert("Failed to update balance"); }
   };
 
 
@@ -192,7 +196,7 @@ export default function SavingsView() {
           const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=finance_savings`);
           setAssignments(assRes.data || []);
       } catch (err) { 
-          console.error(err);
+          console.error("Assignment failed", err);
           alert(`Assignment failed: ${err.message}`);
       }
   };
@@ -203,13 +207,9 @@ export default function SavingsView() {
           const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=finance_savings`);
           setAssignments(assRes.data || []);
       } catch (err) { 
-          console.error(err);
+          console.error("Removal failed", err);
           alert(`Removal failed: ${err.message}`);
       }
-  };
-
-  const getAssignees = (accountId) => {
-      return assignments.filter(a => a.entity_id === accountId).map(a => members.find(m => m.id === a.member_id)).filter(Boolean);
   };
 
 
@@ -340,7 +340,7 @@ export default function SavingsView() {
                                                 <tr key={f.year}>
                                                     <td>Year {f.year}</td>
                                                     <td style={{ textAlign: 'right' }}>{formatCurrency(f.amount)}</td>
-                                                    <td style={{ textAlign: 'right' }} className="text-success">+{formatCurrency(f.amount - acc.current_balance)}</td>
+                                                    <td style={{ textAlign: 'right' }}>+{formatCurrency(f.amount - acc.current_balance)}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -438,14 +438,22 @@ export default function SavingsView() {
                             </FormControl>
                             <FormControl>
                                 <FormLabel>Assign Owners</FormLabel>
-                                <AppSelect 
-                                    name="members_dummy"
-                                    multiple
-                                    value={selectedMembers}
-                                    onChange={(val) => setSelectedMembers(val)}
-                                    options={members.filter(m => m.type !== 'pet').map(m => ({ value: m.id, label: `${m.emoji} ${m.name}` }))}
-                                    placeholder="Select owners..."
-                                />
+                                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                                    {members.filter(m => m.type !== 'pet').map(m => {
+                                        const isSelected = selectedMembers.includes(m.id);
+                                        return (
+                                            <Chip
+                                                key={m.id}
+                                                variant={isSelected ? 'solid' : 'outlined'}
+                                                color={isSelected ? 'primary' : 'neutral'}
+                                                onClick={() => setSelectedMembers(prev => prev.includes(m.id) ? prev.filter(id => id !== m.id) : [...prev, m.id])}
+                                                startDecorator={<Avatar size="sm">{m.emoji}</Avatar>}
+                                            >
+                                                {m.name}
+                                            </Chip>
+                                        );
+                                    })}
+                                </Box>
                             </FormControl>
                         </Stack>
                         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
