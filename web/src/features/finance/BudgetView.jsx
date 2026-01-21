@@ -215,7 +215,8 @@ export default function BudgetView() {
                     day: parseInt(day) || 1, computedDate, icon, category,
                     isPaid: progressItem?.is_paid === 1, 
                     isDeletable: !['pot', 'pension', 'investment'].includes(type),
-                    id: item.id, object, frequency: item.frequency || 'monthly', memberId
+                    id: item.id, object, frequency: item.frequency || 'monthly', 
+                    memberId: memberId !== null ? String(memberId) : null
                 });
             };
 
@@ -236,7 +237,7 @@ export default function BudgetView() {
                     const m = members.find(mem => String(mem.id) === String(c.parent_id));
                     object = { name: m ? (m.alias || m.name) : 'Resident', emoji: m?.emoji || '👤' }; 
                     icon = <Person />;
-                    memberId = m ? m.id : null;
+                    memberId = m ? m.id : c.parent_id;
                 } else if (c.parent_type === 'pet') {
                     const p = members.find(mem => String(mem.id) === String(c.parent_id));
                     object = { name: p ? (p.alias || p.name) : 'Pet', emoji: p?.emoji || '🐾' }; 
@@ -258,7 +259,6 @@ export default function BudgetView() {
                 
                 if (c.category === 'transfer') {
                     icon = <AccountBalanceWallet />;
-                    // Ensure one-off transfers match the current cycle
                     if (c.frequency === 'one-off' && c.next_due !== cycleKey) return;
                 }
 
@@ -317,22 +317,14 @@ export default function BudgetView() {
             }
         }, [currentCycleRecord]);
 
-        const handleRowClick = (e, index, key) => {
-            const isShift = e.shiftKey; const isCtrl = e.metaKey || e.ctrlKey;
-            if (isShift && lastSelectedIndex !== null) {
-                const start = Math.min(lastSelectedIndex, index); const end = Math.max(lastSelectedIndex, index);
-                const keysInRange = cycleData.expenses.filter((_, i) => i >= start && i <= end).map(exp => exp.key);
-                setSelectedKeys(prev => Array.from(new Set([...prev, ...keysInRange])));
-            } else if (isCtrl) {
-                setSelectedKeys(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
-                setLastSelectedIndex(index);
-            } else {
-                setSelectedKeys([key]); setLastSelectedIndex(index);
-            }
-        };
-
         const handleSelectToggle = (key) => {
             setSelectedKeys(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
+        };
+
+        const handleRowClick = (e, index, key) => {
+            // Row click now always toggles to support better multi-section selection
+            handleSelectToggle(key);
+            setLastSelectedIndex(index);
         };
 
         const saveCycleData = async (pay, balance) => {
@@ -460,7 +452,6 @@ export default function BudgetView() {
                 if (isOneOff) {
                     await api.delete(`/households/${householdId}/costs/${exp.id}`);
                 } else {
-                    // Mark as excluded for this cycle (-1)
                     await api.post(`/households/${householdId}/finance/budget-progress`, {
                         cycle_start: cycleData.cycleKey,
                         item_key: exp.key,
@@ -532,9 +523,9 @@ export default function BudgetView() {
 
         const memberExpenses = useMemo(() => {
             if (!cycleData) return [];
-            // Group all one-offs that have a memberId assigned
+            // Robust member grouping for one-offs
             const memExps = cycleData.expenses.filter(exp => 
-                exp.memberId != null && 
+                exp.memberId !== null && 
                 exp.frequency === 'one-off'
             );
             const groups = {};
@@ -826,7 +817,7 @@ export default function BudgetView() {
                                                                 sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} 
                                                             />
                                                         </td>
-                                                                                                                <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" sx={{ '--IconButton-size': '24px' }} onClick={(e) => { e.stopPropagation(); deleteExpense(exp); }}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}</td>
+                                                        <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" sx={{ '--IconButton-size': '24px' }} onClick={(e) => { e.stopPropagation(); deleteExpense(exp); }}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}</td>
                                                     </tr>
                                                 ))}
                                             </tbody>
@@ -850,7 +841,8 @@ export default function BudgetView() {
                                             <Checkbox 
                                                 size="sm" 
                                                 onChange={(e) => {
-                                                    const oneOffKeys = cycleData.expenses.filter(exp => exp.frequency === 'one-off' && exp.memberId == null).map(e => e.key);
+                                                    const filteredOneOffs = cycleData.expenses.filter(exp => exp.frequency === 'one-off' && !exp.memberId);
+                                                    const oneOffKeys = filteredOneOffs.map(e => e.key);
                                                     if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...oneOffKeys])));
                                                     else setSelectedKeys(prev => prev.filter(k => !oneOffKeys.includes(k)));
                                                 }} 
@@ -864,7 +856,7 @@ export default function BudgetView() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {cycleData.expenses.filter(exp => exp.frequency === 'one-off' && exp.memberId == null).filter(exp => !hidePaid || !exp.isPaid).map((exp, index) => (
+                                    {cycleData.expenses.filter(exp => exp.frequency === 'one-off' && !exp.memberId).filter(exp => !hidePaid || !exp.isPaid).map((exp, index) => (
                                         <tr key={exp.key} onClick={(e) => handleRowClick(e, index, exp.key)} style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}>
                                             <td style={{ textAlign: 'center' }}>
                                                 <Checkbox 
@@ -901,10 +893,10 @@ export default function BudgetView() {
                                                     sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} 
                                                 />
                                             </td>
-                                                                                                    <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" sx={{ '--IconButton-size': '24px' }} onClick={(e) => { e.stopPropagation(); deleteExpense(exp); }}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}</td>
+                                            <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" sx={{ '--IconButton-size': '24px' }} onClick={(e) => { e.stopPropagation(); deleteExpense(exp); }}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}</td>
                                         </tr>
                                     ))}
-                                    {cycleData.expenses.filter(exp => exp.frequency === 'one-off' && exp.memberId == null).length === 0 && (
+                                    {cycleData.expenses.filter(exp => exp.frequency === 'one-off' && !exp.memberId).length === 0 && (
                                         <tr>
                                             <td colSpan={6} style={{ textAlign: 'center', padding: '10px', color: 'neutral.500', fontStyle: 'italic', fontSize: '0.75rem' }}>No one-off expenses this month.</td>
                                         </tr>
@@ -915,48 +907,77 @@ export default function BudgetView() {
                     </Box>
 
                     {/* Member-Specific Expenses (One-off/Transfers) */}
-                    {memberExpenses.map(group => (
-                        <Box key={group.id}>
-                            <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar>
-                                {group.name}'s Expenses
-                            </Typography>
-                            <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
-                                <Table hoverRow size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}>
-                                    <thead>
-                                        <tr>
-                                            <th style={{ width: 40, textAlign: 'center' }}><Checkbox size="sm" /></th>
-                                            <th>Expense</th>
-                                            <th style={{ width: 80, textAlign: 'center' }}>Date</th>
-                                            <th style={{ width: 100 }}>Amount</th>
-                                            <th style={{ width: 40, textAlign: 'center' }}>Paid</th>
-                                            <th style={{ width: 40 }}></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {group.expenses.filter(exp => !hidePaid || !exp.isPaid).map(exp => (
-                                            <tr key={exp.key} style={{ opacity: exp.isPaid ? 0.6 : 1 }}>
-                                                <td style={{ textAlign: 'center' }}><Checkbox size="sm" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} /></td>
-                                                <td>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                        <Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label, isDark) }}>{exp.icon}</Avatar>
-                                                        <Box>
-                                                            <Typography level="body-xs" fontWeight="bold">{exp.label}</Typography>
-                                                            <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{exp.category.toUpperCase()}</Typography>
-                                                        </Box>
-                                                    </Box>
-                                                </td>
-                                                <td><Box sx={{ textAlign: 'center' }}><Typography level="body-xs" fontWeight="bold">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{format(exp.computedDate, 'EEE do')}</Typography>}</Box></td>
-                                                <td><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px' }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} slotProps={{ input: { step: '0.01' } }} /></td>
-                                                <td style={{ textAlign: 'center' }}><Checkbox size="sm" variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} /></td>
-                                                <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" sx={{ '--IconButton-size': '24px' }} onClick={(e) => { e.stopPropagation(); deleteExpense(exp); }}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}</td>
+                    {memberExpenses.map(group => {
+                        const visibleExpenses = group.expenses.filter(exp => !hidePaid || !exp.isPaid);
+                        if (visibleExpenses.length === 0) return null;
+
+                        return (
+                            <Box key={group.id}>
+                                <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar>
+                                    {group.name}'s Expenses
+                                </Typography>
+                                <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
+                                    <Table hoverRow size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}>
+                                        <thead>
+                                            <tr>
+                                                <th style={{ width: 40, textAlign: 'center' }}>
+                                                    <Checkbox 
+                                                        size="sm" 
+                                                        onChange={(e) => {
+                                                            const groupKeys = group.expenses.map(e => e.key);
+                                                            if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...groupKeys])));
+                                                            else setSelectedKeys(prev => prev.filter(k => !groupKeys.includes(k)));
+                                                        }} 
+                                                    />
+                                                </th>
+                                                <th>Expense</th>
+                                                <th style={{ width: 80, textAlign: 'center' }}>Date</th>
+                                                <th style={{ width: 100 }}>Amount</th>
+                                                <th style={{ width: 40, textAlign: 'center' }}>Paid</th>
+                                                <th style={{ width: 40 }}></th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </Table>
-                            </Sheet>
-                        </Box>
-                    ))}
+                                        </thead>
+                                        <tbody>
+                                            {visibleExpenses.map((exp, index) => (
+                                                <tr key={exp.key} onClick={(e) => handleRowClick(e, index, exp.key)} style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}>
+                                                    <td style={{ textAlign: 'center' }}>
+                                                        <Checkbox 
+                                                            size="sm" 
+                                                            checked={selectedKeys.includes(exp.key)} 
+                                                            onChange={() => handleSelectToggle(exp.key)} 
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                            <Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label, isDark) }}>{exp.icon}</Avatar>
+                                                            <Box>
+                                                                <Typography level="body-xs" fontWeight="bold">{exp.label}</Typography>
+                                                                <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{exp.category.toUpperCase()}</Typography>
+                                                            </Box>
+                                                        </Box>
+                                                    </td>
+                                                    <td><Box sx={{ textAlign: 'center' }}><Typography level="body-xs" fontWeight="bold">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{format(exp.computedDate, 'EEE do')}</Typography>}</Box></td>
+                                                    <td><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px' }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} slotProps={{ input: { step: '0.01' } }} /></td>
+                                                    <td style={{ textAlign: 'center' }}>
+                                                        <Checkbox 
+                                                            size="sm" 
+                                                            variant="plain" 
+                                                            checked={exp.isPaid} 
+                                                            onChange={() => togglePaid(exp.key, exp.amount)} 
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        />
+                                                    </td>
+                                                    <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" sx={{ '--IconButton-size': '24px' }} onClick={(e) => { e.stopPropagation(); deleteExpense(exp); }}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </Table>
+                                </Sheet>
+                            </Box>
+                        );
+                    })}
 
                     {/* Savings & Goals Contributions */}
                     {Object.keys(groupedPots).length > 0 && (
@@ -1184,7 +1205,7 @@ export default function BudgetView() {
                                 <Select name="assigned_to" defaultValue="general_1">
                                     <Option value="general_1">🏠 General</Option>
                                     <Divider>Members</Divider>
-                                    {members.filter(m => m.type !== 'pet').map(m => <Option key={m.id} value={`member_${m.id}`}>{m.emoji} {m.name}</Option>)}
+                                    {members.filter(m => m.type !== 'pet' && m.type !== 'viewer').map(m => <Option key={m.id} value={`member_${m.id}`}>{m.emoji} {m.name}</Option>)}
                                     <Divider>Pets</Divider>
                                     {members.filter(m => m.type === 'pet').map(p => <Option key={p.id} value={`pet_${p.id}`}>{p.emoji} {p.name}</Option>)}
                                     <Divider>Vehicles</Divider>
