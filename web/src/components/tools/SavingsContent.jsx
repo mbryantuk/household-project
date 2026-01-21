@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
-  Box, Typography, Card, Stack, Button, Modal, ModalDialog, DialogTitle, DialogContent, FormControl, FormLabel, Input
+  Box, Typography, Card, Stack, Button, Modal, ModalDialog, DialogTitle, DialogContent, FormControl, FormLabel, Input, List, ListItem, ListItemContent, ListItemDecorator, LinearProgress
 } from '@mui/joy';
 import { Add, Remove } from '@mui/icons-material';
 import AppSelect from '../ui/AppSelect';
 
 export default function SavingsContent({ api, householdId }) {
   const [savings, setSavings] = useState([]);
+  const [pots, setPots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [adjustItem, setAdjustItem] = useState(null); // { item, type: 'add' | 'remove' }
   const [selectedId, setSelectedId] = useState(null);
@@ -32,6 +33,16 @@ export default function SavingsContent({ api, householdId }) {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+      if (!selectedId || !api || !householdId) {
+          setPots([]);
+          return;
+      }
+      api.get(`/households/${householdId}/finance/savings/${selectedId}/pots`)
+         .then(res => setPots(res.data || []))
+         .catch(err => console.error("Failed to fetch pots", err));
+  }, [selectedId, api, householdId]);
 
   const handleAdjustSubmit = async (e) => {
       e.preventDefault();
@@ -92,7 +103,7 @@ export default function SavingsContent({ api, householdId }) {
 
       {selectedItem && (
           <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
-            <Card variant="soft" size="sm" sx={{ p: 2 }}>
+            <Card variant="soft" size="sm" sx={{ p: 2, mb: 2 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                     <Typography level="title-sm">Quick Adjust Balance</Typography>
                     <Box sx={{ display: 'flex', gap: 1 }}>
@@ -111,6 +122,43 @@ export default function SavingsContent({ api, householdId }) {
                     </Box>
                 </Stack>
             </Card>
+
+            {pots.length > 0 && (
+                <Box>
+                    <Typography level="title-sm" sx={{ mb: 1, px: 0.5 }}>Savings Pots</Typography>
+                    <List size="sm" variant="outlined" sx={{ borderRadius: 'sm', bgcolor: 'background.surface' }}>
+                        {pots.map(pot => {
+                             const potVal = parseFloat(pot.current_amount) || 0;
+                             const potTarget = parseFloat(pot.target_amount) || 0;
+                             const progress = potTarget > 0 ? (potVal / potTarget) * 100 : 0;
+                             
+                             return (
+                                <ListItem key={pot.id} sx={{ display: 'block', py: 1 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', mb: 0.5 }}>
+                                        <ListItemDecorator sx={{ fontSize: '1.2rem', mr: 1.5 }}>
+                                            {pot.emoji || '🍯'}
+                                        </ListItemDecorator>
+                                        <ListItemContent>
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                <Typography level="title-sm">{pot.pot_name}</Typography>
+                                                <Typography level="title-sm" color="success">£{potVal.toLocaleString()}</Typography>
+                                            </Box>
+                                        </ListItemContent>
+                                    </Box>
+                                    {potTarget > 0 && (
+                                        <Stack direction="row" spacing={1} alignItems="center">
+                                            <LinearProgress determinate value={Math.min(progress, 100)} size="sm" color={progress >= 100 ? "success" : "primary"} sx={{ flexGrow: 1 }} />
+                                            <Typography level="body-xs" color="neutral">
+                                                {Math.round(progress)}% of £{potTarget.toLocaleString()}
+                                            </Typography>
+                                        </Stack>
+                                    )}
+                                </ListItem>
+                             );
+                        })}
+                    </List>
+                </Box>
+            )}
           </Box>
       )}
 
