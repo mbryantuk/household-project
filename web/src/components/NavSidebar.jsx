@@ -26,6 +26,12 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
         else handleNav(to, category, hasSubItems);
     };
 
+    const handleMouseEnter = () => {
+        if (!isMobile) {
+            handleNav(null, category, hasSubItems);
+        }
+    };
+
     if (isMobile) {
         return (
           <ListItem sx={{ px: 0 }}>
@@ -56,7 +62,7 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
               <ListItemButton 
                   selected={isActive}
                   onClick={handleClick}
-                  onMouseEnter={!isMobile ? handleClick : undefined}
+                  onMouseEnter={handleMouseEnter}
                   sx={{ 
                       borderRadius: 'md', justifyContent: 'center', px: 0, 
                       flexDirection: 'column', gap: 0.5, py: 1, width: 56, 
@@ -147,21 +153,25 @@ export default function NavSidebar({
         clearTimeout(timer);
         window.removeEventListener('resize', checkScroll);
     };
-  }, [members, vehicles]);
+  }, [members, vehicles, checkScroll]);
+
+  const getCategoryFromPath = useCallback((path) => {
+      if (path.includes('/people')) return 'people';
+      if (path.includes('/pets')) return 'people';
+      if (path.includes('/vehicles')) return 'assets';
+      if (path.includes('/house/') || path.endsWith('/house')) return 'assets';
+      if (path.includes('/settings')) return 'assets';
+      if (path.includes('/profile')) return 'account';
+      if (path.includes('/dashboard')) return 'dashboard';
+      if (path.includes('/calendar')) return 'calendar';
+      if (path.includes('/meals')) return 'meals';
+      if (path.includes('/finance')) return 'finance';
+      return null;
+  }, []);
 
   useEffect(() => {
-      const path = location.pathname;
-      if (path.includes('/people')) setActiveCategory('people');
-      else if (path.includes('/pets')) setActiveCategory('people'); // Merge pets into people
-      else if (path.includes('/vehicles')) setActiveCategory('assets'); // Merge vehicles into assets
-      else if (path.includes('/house/') || path.endsWith('/house')) setActiveCategory('assets'); 
-      else if (path.includes('/settings')) setActiveCategory('assets');
-      else if (path.includes('/profile')) setActiveCategory('account');
-      else if (path.includes('/dashboard')) setActiveCategory('dashboard');
-      else if (path.includes('/calendar')) setActiveCategory('calendar');
-      else if (path.includes('/meals')) setActiveCategory('meals');
-      else if (path.includes('/finance')) setActiveCategory('finance');
-  }, [location.pathname]);
+      setActiveCategory(getCategoryFromPath(location.pathname));
+  }, [location.pathname, getCategoryFromPath]);
 
   const handleNav = (to, category, hasSubItems) => {
       if (to) {
@@ -195,7 +205,15 @@ export default function NavSidebar({
   }, [vehicles]);
 
   const sidebarContent = (
-    <Box sx={{ display: 'flex', height: '100dvh' }}>
+    <Box 
+        onMouseLeave={(!isMobile && !isPinned) ? () => setActiveCategory(getCategoryFromPath(location.pathname)) : undefined}
+        sx={{ 
+            display: 'flex', 
+            height: '100dvh',
+            width: '100%',
+            position: 'relative'
+        }}
+    >
         <Sheet
             sx={{
                 width: isMobile ? '100%' : RAIL_WIDTH,
@@ -204,7 +222,7 @@ export default function NavSidebar({
                 display: 'flex', flexDirection: 'column',
                 justifyContent: 'space-between',
                 alignItems: isMobile ? 'stretch' : 'center',
-                pt: 1.5, pb: 0, bgcolor: 'background.surface', zIndex: 2500, 
+                pt: 1.5, pb: 0, bgcolor: 'background.surface', zIndex: 2600, 
                 height: '100dvh', overflowY: 'hidden', position: 'relative'
             }}
         >
@@ -297,11 +315,10 @@ export default function NavSidebar({
 
         {(showPanel || (isMobile && activeCategory)) && (
             <Sheet
-                onMouseLeave={(!isMobile && !isPinned) ? () => setActiveCategory(null) : undefined}
                 sx={{
                     width: isMobile ? '100%' : (showPanel ? PANEL_WIDTH : 0),
-                    position: (isMobile || !isPinned) ? 'absolute' : 'relative',
-                    left: isMobile ? 0 : (isPinned ? 'auto' : RAIL_WIDTH), 
+                    position: isMobile ? 'absolute' : 'relative',
+                    left: isMobile ? 0 : 'auto', 
                     top: 0,
                     zIndex: isMobile ? 2600 : 2100,
                     borderRight: (showPanel && (isPinned || isMobile)) ? '1px solid' : 'none',
@@ -422,7 +439,17 @@ export default function NavSidebar({
   );
 
   return (
-    <Box sx={{ display: 'flex', height: '100dvh', zIndex: 2500, position: 'relative', overflow: 'hidden' }}>
+    <Box sx={{ 
+        display: isMobile ? 'flex' : { xs: 'none', md: 'flex' },
+        height: '100dvh', 
+        zIndex: 2500, 
+        position: 'relative', 
+        overflow: 'visible',
+        width: isMobile ? '100%' : (RAIL_WIDTH + (showPanel ? PANEL_WIDTH : 0)),
+        marginRight: (!isMobile && showPanel && !isPinned) ? -PANEL_WIDTH : 0,
+        transition: 'width 0.2s, margin-right 0.2s',
+        flexShrink: 0
+    }}>
         {sidebarContent}
         <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(emoji) => { onUpdateProfile({ avatar: emoji }); setEmojiPickerOpen(false); }} title="Select Avatar Emoji" isDark={isDark} />
     </Box>

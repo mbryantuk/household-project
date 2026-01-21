@@ -102,26 +102,24 @@ export default function HouseholdLayout({
         bgcolor: 'background.body'
     }}>
       
-      <Box sx={{ display: { xs: 'none', md: 'block' }, height: '100%', flexShrink: 0 }}>
-        <NavSidebar 
-            members={members} 
-            vehicles={vehicles}
-            households={households}
-            isDark={isDark}
-            household={activeHousehold}
-            user={user}
-            onLogout={onLogout}
-            onUpdateProfile={onUpdateProfile}
-            onThemeChange={onThemeChange}
-            themeId={themeId}
-            onInstall={onInstall}
-            canInstall={!!installPrompt}
-            confirmAction={confirmAction}
-            api={api}
-            showNotification={showNotification}
-            onUpdateHousehold={onUpdateHousehold}
-        />
-      </Box>
+      <NavSidebar 
+          members={members} 
+          vehicles={vehicles}
+          households={households}
+          isDark={isDark}
+          household={activeHousehold}
+          user={user}
+          onLogout={onLogout}
+          onUpdateProfile={onUpdateProfile}
+          onThemeChange={onThemeChange}
+          themeId={themeId}
+          onInstall={onInstall}
+          canInstall={!!installPrompt}
+          confirmAction={confirmAction}
+          api={api}
+          showNotification={showNotification}
+          onUpdateHousehold={onUpdateHousehold}
+      />
 
       <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0, height: '100%', position: 'relative' }}>
         
