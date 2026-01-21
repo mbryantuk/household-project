@@ -228,30 +228,37 @@ export default function BudgetView() {
             });
             liabilities.pensions.forEach(p => addExpense(p, 'pension', p.plan_name, p.monthly_contribution, p.payment_day, <SavingsIcon />, 'Pension', { name: 'Retirement', emoji: '👴' }));
             liabilities.recurring_costs.forEach(c => {
-                let icon = <Payments />; let object = { name: 'General', emoji: '💸' };
+                let icon = <Payments />; 
+                let object = { name: 'General', emoji: '💸' };
                 let memberId = null;
+
                 if (c.parent_type === 'member') {
-                    const m = members.find(mem => mem.id === parseInt(c.parent_id));
-                    object = { name: m ? (m.alias || m.name) : 'User', emoji: m?.emoji || '👤' }; icon = <Person />;
+                    const m = members.find(mem => String(mem.id) === String(c.parent_id));
+                    object = { name: m ? (m.alias || m.name) : 'Resident', emoji: m?.emoji || '👤' }; 
+                    icon = <Person />;
                     memberId = m ? m.id : null;
                 } else if (c.parent_type === 'pet') {
-                    const p = members.find(mem => mem.id === parseInt(c.parent_id));
-                    object = { name: p ? (p.alias || p.name) : 'Pet', emoji: p?.emoji || '🐾' }; icon = <Pets />;
+                    const p = members.find(mem => String(mem.id) === String(c.parent_id));
+                    object = { name: p ? (p.alias || p.name) : 'Pet', emoji: p?.emoji || '🐾' }; 
+                    icon = <Pets />;
                 } else if (c.parent_type === 'vehicle') {
-                    const v = liabilities.vehicles.find(v_item => v_item.id === parseInt(c.parent_id));
-                    object = { name: v ? `${v.make}` : 'Vehicle', emoji: v?.emoji || '🚗' }; icon = <DirectionsCar />;
+                    const v = liabilities.vehicles.find(v_item => String(v_item.id) === String(c.parent_id));
+                    object = { name: v ? `${v.make}` : 'Vehicle', emoji: v?.emoji || '🚗' }; 
+                    icon = <DirectionsCar />;
                 } else if (c.parent_type === 'asset') {
-                    const a = liabilities.assets.find(asset => asset.id === parseInt(c.parent_id));
-                    object = { name: a ? a.name : 'Asset', emoji: a?.emoji || '📦' }; icon = <Inventory />;
+                    const a = liabilities.assets.find(asset => String(asset.id) === String(c.parent_id));
+                    object = { name: a ? a.name : 'Asset', emoji: a?.emoji || '📦' }; 
+                    icon = <Inventory />;
                 }
 
                 if (c.category === 'insurance') icon = <Shield />;
                 if (c.category === 'subscription') icon = <ShoppingBag />;
                 if (c.category === 'service') icon = <HistoryEdu />;
                 if (c.category === 'saving') icon = <SavingsIcon />;
+                
                 if (c.category === 'transfer') {
                     icon = <AccountBalanceWallet />;
-                    // For one-off transfers, ensure they are linked to the right cycle
+                    // Ensure one-off transfers match the current cycle
                     if (c.frequency === 'one-off' && c.next_due !== cycleKey) return;
                 }
 
@@ -525,7 +532,7 @@ export default function BudgetView() {
 
         const memberExpenses = useMemo(() => {
             if (!cycleData) return [];
-            // Filter all expenses that have a memberId and are one-offs
+            // Group all one-offs that have a memberId assigned
             const memExps = cycleData.expenses.filter(exp => 
                 exp.memberId != null && 
                 exp.frequency === 'one-off'
@@ -843,7 +850,7 @@ export default function BudgetView() {
                                             <Checkbox 
                                                 size="sm" 
                                                 onChange={(e) => {
-                                                    const oneOffKeys = cycleData.expenses.filter(exp => exp.frequency === 'one-off' && !exp.memberId).map(e => e.key);
+                                                    const oneOffKeys = cycleData.expenses.filter(exp => exp.frequency === 'one-off' && exp.memberId == null).map(e => e.key);
                                                     if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...oneOffKeys])));
                                                     else setSelectedKeys(prev => prev.filter(k => !oneOffKeys.includes(k)));
                                                 }} 
@@ -897,7 +904,7 @@ export default function BudgetView() {
                                                                                                     <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" sx={{ '--IconButton-size': '24px' }} onClick={(e) => { e.stopPropagation(); deleteExpense(exp); }}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}</td>
                                         </tr>
                                     ))}
-                                    {cycleData.expenses.filter(exp => exp.frequency === 'one-off' && !exp.memberId).length === 0 && (
+                                    {cycleData.expenses.filter(exp => exp.frequency === 'one-off' && exp.memberId == null).length === 0 && (
                                         <tr>
                                             <td colSpan={6} style={{ textAlign: 'center', padding: '10px', color: 'neutral.500', fontStyle: 'italic', fontSize: '0.75rem' }}>No one-off expenses this month.</td>
                                         </tr>
