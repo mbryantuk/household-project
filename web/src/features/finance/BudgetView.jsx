@@ -295,8 +295,10 @@ export default function BudgetView() {
   };
 
   const updateActualAmount = async (itemKey, amount) => {
+      const progressItem = progress.find(p => p.item_key === itemKey && p.cycle_start === cycleData?.cycleKey);
+      const isPaid = progressItem ? (progressItem.is_paid || 0) : 0;
       try {
-          await api.post(`/households/${householdId}/finance/budget-progress`, { cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: 1, actual_amount: parseFloat(amount) || 0 });
+          await api.post(`/households/${householdId}/finance/budget-progress`, { cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: isPaid, actual_amount: parseFloat(amount) || 0 });
           const progRes = await api.get(`/households/${householdId}/finance/budget-progress`);
           setProgress(progRes.data || []);
           if (itemKey.startsWith('pot_')) {
@@ -474,15 +476,15 @@ export default function BudgetView() {
       );
   }
 
-  const renderTableRows = (items) => {
+  const renderTableRows = (items, cols = 6, hidePill = false) => {
       return items.filter(exp => !hidePaid || !exp.isPaid).map((exp) => (
           <tr key={exp.key} onClick={() => handleSelectToggle(exp.key)} style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}>
               <td style={{ textAlign: 'center' }}><Checkbox size="sm" checked={selectedKeys.includes(exp.key)} onChange={() => handleSelectToggle(exp.key)} onClick={(e) => e.stopPropagation()} /></td>
-              <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label, isDark), color: '#fff' }}>{exp.icon}</Avatar><Box><Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}><Typography level="body-xs" fontWeight="bold">{exp.label}</Typography>{exp.object && <Chip size="sm" variant="soft" sx={{ fontSize: '0.65rem', minHeight: '16px', px: 0.5 }} startDecorator={exp.object.emoji}>{exp.object.name}</Chip>}</Box><Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{exp.category.toUpperCase()}</Typography></Box></Box></td>
-              <td><Box sx={{ textAlign: 'center' }}><Typography level="body-xs" fontWeight="bold">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{format(exp.computedDate, 'EEE do')}</Typography>}</Box></td>
+              <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label, isDark), color: '#fff' }}>{exp.icon}</Avatar><Box><Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}><Typography level="body-xs" fontWeight="bold">{exp.label}</Typography>{!hidePill && exp.object && <Chip size="sm" variant="soft" sx={{ fontSize: '0.65rem', minHeight: '16px', px: 0.5 }} startDecorator={exp.object.emoji}>{exp.object.name}</Chip>}</Box><Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{exp.category.toUpperCase()}</Typography></Box></Box></td>
+              {cols === 6 && (<td><Box sx={{ textAlign: 'center' }}><Typography level="body-xs" fontWeight="bold">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{format(exp.computedDate, 'EEE do')}</Typography>}</Box></td>)}
               <td><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px' }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} slotProps={{ input: { step: '0.01' } }} /></td>
               <td style={{ textAlign: 'center' }}><Checkbox size="sm" variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} disabled={savingProgress} uncheckedIcon={<RadioButtonUnchecked sx={{ fontSize: '1.2rem' }} />} checkedIcon={<CheckCircle color="success" sx={{ fontSize: '1.2rem' }} />} onClick={(e) => e.stopPropagation()} sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} /></td>
-              <td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" sx={{ '--IconButton-size': '24px' }} onClick={(e) => { e.stopPropagation(); deleteExpense(exp); }}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}</td>
+              {cols === 6 && (<td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" sx={{ '--IconButton-size': '24px' }} onClick={(e) => { e.stopPropagation(); deleteExpense(exp); }}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}</td>)}
           </tr>
       ));
   };
@@ -536,8 +538,13 @@ export default function BudgetView() {
                     {memberExpenses.map(group => {
                         const visibleExpenses = group.expenses.filter(exp => !hidePaid || !exp.isPaid);
                         if (visibleExpenses.length === 0) return null;
+                        const unpaidTotal = group.expenses.filter(e => !e.isPaid).reduce((sum, e) => sum + e.amount, 0);
                         return (
-                            <Box key={group.id}><Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar>{group.name}'s Expenses</Typography>
+                            <Box key={group.id}>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar><Box><Typography level="title-md">{group.name}'s Expenses</Typography><Typography level="body-xs" color="neutral">One-off / Transfers</Typography></Box></Box>
+                                    <Box sx={{ textAlign: 'right' }}><Typography level="title-sm" color="danger">{formatCurrency(unpaidTotal)}</Typography><Typography level="body-xs">Unpaid</Typography></Box>
+                                </Box>
                                 <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}><Table hoverRow size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}><thead><tr><th style={{ width: 40, textAlign: 'center' }}><Checkbox size="sm" onChange={(e) => { const keys = visibleExpenses.map(e => e.key); if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...keys]))); else setSelectedKeys(prev => prev.filter(k => !keys.includes(k))); }} /></th><th>Expense</th><th style={{ width: 80, textAlign: 'center' }}>Date</th><th style={{ width: 100 }}>Amount</th><th style={{ width: 40, textAlign: 'center' }}>Paid</th><th style={{ width: 40 }}></th></tr></thead><tbody>{renderTableRows(group.expenses)}</tbody></Table></Sheet>
                             </Box>
                         );
@@ -556,7 +563,7 @@ export default function BudgetView() {
                                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar><Box><Typography level="title-sm">{group.name}</Typography><Typography level="body-xs" color="neutral">{group.institution}</Typography></Box></Box>
                                                 <Box sx={{ textAlign: 'right' }}><Typography level="title-sm" color="success">{formatCurrency(group.balance)}</Typography><Typography level="body-xs">Balance</Typography></Box>
                                             </Box>
-                                            <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}><Table hoverRow size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}><thead><tr><th style={{ width: 40, textAlign: 'center' }} /><th>Goal / Pot</th><th style={{ width: 100 }}>Amount</th><th style={{ width: 40, textAlign: 'center' }}>Paid</th></tr></thead><tbody>{renderTableRows(potItems)}</tbody></Table></Sheet>
+                                            <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}><Table hoverRow size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}><thead><tr><th style={{ width: 40, textAlign: 'center' }} /><th>Goal / Pot</th><th style={{ width: 100 }}>Amount</th><th style={{ width: 40, textAlign: 'center' }}>Paid</th></tr></thead><tbody>{renderTableRows(potItems, 4, true)}</tbody></Table></Sheet>
                                         </Box>
                                     );
                                 })}
@@ -564,7 +571,7 @@ export default function BudgetView() {
                         </Box>
                     )}
 
-                    {liabilities.pensions.length > 0 && (<Box><Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><SavingsIcon fontSize="small" /> Pensions</Typography><Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}><Table hoverRow size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}><thead><tr><th style={{ width: 40, textAlign: 'center' }} /><th>Plan</th><th style={{ width: 100 }}>Contribution</th><th style={{ width: 40, textAlign: 'center' }}>Paid</th></tr></thead><tbody>{renderTableRows(cycleData.expenses.filter(e => e.type === 'pension'))}</tbody></Table></Sheet></Box>)}
+                    {liabilities.pensions.length > 0 && (<Box><Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><SavingsIcon fontSize="small" /> Pensions</Typography><Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}><Table hoverRow size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}><thead><tr><th style={{ width: 40, textAlign: 'center' }} /><th>Plan</th><th style={{ width: 100 }}>Contribution</th><th style={{ width: 40, textAlign: 'center' }}>Paid</th></tr></thead><tbody>{renderTableRows(cycleData.expenses.filter(e => e.type === 'pension'), 4, true)}</tbody></Table></Sheet></Box>)}
                 </Stack>
             </Grid>
         </Grid>
