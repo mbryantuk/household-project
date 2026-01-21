@@ -330,14 +330,87 @@ router.post('/households/:id/finance/budget-cycles', authenticateToken, requireH
 
 router.post('/households/:id/finance/budget-progress', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     const { cycle_start, item_key, is_paid, actual_amount } = req.body;
-    req.tenantDb.run(
-        `INSERT INTO finance_budget_progress (household_id, cycle_start, item_key, is_paid, actual_amount) VALUES (?, ?, ?, ?, ?)
-         ON CONFLICT(household_id, cycle_start, item_key) DO UPDATE SET is_paid = excluded.is_paid, actual_amount = excluded.actual_amount`,
-        [req.hhId, cycle_start, item_key, is_paid, actual_amount],
-        function(err) {
-            closeDb(req);
-            if (err) return res.status(500).json({ error: err.message });
-            res.status(201).json({ message: "Progress saved" });
+    const newAmount = parseFloat(actual_amount) || 0;
+    const newPaid = parseInt(is_paid) || 0;
+
+    // 1. Get existing progress to calculate delta for savings pots
+    req.tenantDb.get(
+        `SELECT is_paid, actual_amount FROM finance_budget_progress WHERE household_id = ? AND cycle_start = ? AND item_key = ?`,
+        [req.hhId, cycle_start, item_key],
+        (err, row) => {
+            if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
+
+            const oldPaid = row ? (row.is_paid || 0) : 0;
+            const oldAmount = row ? (row.actual_amount || 0) : 0;
+
+            // Calculate delta for savings pots
+            // If it's a pot, we want to know how much to add/remove from the actual pot balance
+            let delta = 0;
+            if (item_key.startsWith('pot_')) {
+                if (newPaid && !oldPaid) {
+                    delta = newAmount; // Newly paid
+                } else if (!newPaid && oldPaid) {
+                    delta = -oldAmount; // Unpaid
+                } else if (newPaid && oldPaid) {
+                    delta = newAmount - oldAmount; // Still paid, but amount changed
+                }
+            }
+
+            req.tenantDb.serialize(() => {
+                req.tenantDb.run("BEGIN TRANSACTION");
+
+                // Update Progress
+                req.tenantDb.run(
+                    `INSERT INTO finance_budget_progress (household_id, cycle_start, item_key, is_paid, actual_amount) VALUES (?, ?, ?, ?, ?)
+                     ON CONFLICT(household_id, cycle_start, item_key) DO UPDATE SET is_paid = excluded.is_paid, actual_amount = excluded.actual_amount`,
+                    [req.hhId, cycle_start, item_key, newPaid, newAmount],
+                    (pErr) => {
+                        if (pErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: pErr.message }); }
+
+                        // Update Pot if needed
+                        if (delta !== 0 && item_key.startsWith('pot_')) {
+                            const potId = item_key.split('_')[1];
+                            
+                            // Update Pot Amount
+                            req.tenantDb.run(
+                                `UPDATE finance_savings_pots 
+                                 SET current_amount = current_amount + ? 
+                                 WHERE id = ? 
+                                 AND savings_id IN (SELECT id FROM finance_savings WHERE household_id = ?)`,
+                                [delta, potId, req.hhId],
+                                (potErr) => {
+                                    if (potErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: potErr.message }); }
+
+                                    // Update Parent Savings Balance
+                                    req.tenantDb.run(
+                                        `UPDATE finance_savings 
+                                         SET current_balance = current_balance + ? 
+                                         WHERE id = (SELECT savings_id FROM finance_savings_pots WHERE id = ?) 
+                                         AND household_id = ?`,
+                                        [delta, potId, req.hhId],
+                                        (savErr) => {
+                                            if (savErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: savErr.message }); }
+                                            
+                                            req.tenantDb.run("COMMIT", (cErr) => {
+                                                closeDb(req);
+                                                if (cErr) return res.status(500).json({ error: cErr.message });
+                                                res.status(201).json({ message: "Progress saved and savings updated", delta });
+                                            });
+                                        }
+                                    );
+                                }
+                            );
+                        } else {
+                            // No pot update needed
+                            req.tenantDb.run("COMMIT", (cErr) => {
+                                closeDb(req);
+                                if (cErr) return res.status(500).json({ error: cErr.message });
+                                res.status(201).json({ message: "Progress saved" });
+                            });
+                        }
+                    }
+                );
+            });
         }
     );
 });
