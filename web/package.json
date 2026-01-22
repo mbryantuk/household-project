@@ -1,7 +1,7 @@
 {
   "name": "household-web",
   "private": true,
-  "version": "2.6.207",
+  "version": "2.6.208",
   "type": "module",
   "scripts": {
     "dev": "vite",
