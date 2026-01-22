@@ -98,25 +98,6 @@ function AppInner({ themeId, setThemeId }) {
 
   const navigate = useNavigate();
 
-  // Handle Orientation Locking (Mobile: Portrait, Tablet: Rotate)
-  useEffect(() => {
-    const lockOrientation = async () => {
-      try {
-        if (window.innerWidth < 768 && window.screen?.orientation?.lock) {
-          await window.screen.orientation.lock('portrait');
-        } else if (window.screen?.orientation?.unlock) {
-          window.screen.orientation.unlock();
-        }
-      } catch {
-        // Ignore errors as some browsers/platforms don't support locking
-      }
-    };
-    
-    lockOrientation();
-    window.addEventListener('resize', lockOrientation);
-    return () => window.removeEventListener('resize', lockOrientation);
-  }, []);
-
   const authAxios = useMemo(() => axios.create({ 
     baseURL: API_URL, 
     headers: { Authorization: `Bearer ${token}` } 
