@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix member creation SQLITE_ERROR and calendar table names",
-  "date": "Thu 22 Jan 16:58:08 GMT 2026"
+  "commitMessage": "Final hardening of Member and Calendar routes",
+  "date": "Thu 22 Jan 17:00:47 GMT 2026"
 }
