@@ -46,6 +46,6 @@ echo "💾 Committing changes..."
 git add .
 COMMIT_MSG="v$NEW_VERSION - $COMMIT_SUFFIX"
 git commit -m "$COMMIT_MSG"
-# git push origin main
+git push origin main
 
 echo "✅ Deployment of v$NEW_VERSION Complete!"
