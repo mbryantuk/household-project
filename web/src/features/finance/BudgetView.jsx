@@ -5,7 +5,7 @@ import {
   Button, Modal, ModalDialog, DialogTitle, DialogContent, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
   Sheet, Table, Checkbox, LinearProgress, Select, Option, Switch,
-  Dropdown, Menu, MenuButton, MenuItem
+  Dropdown, Menu, MenuButton, MenuItem, DialogActions
 } from '@mui/joy';
 import { 
   AccountBalanceWallet, 
@@ -35,7 +35,8 @@ import {
   Lock,
   LockOpen,
   ArrowDropDown,
-  Edit
+  Edit,
+  RestartAlt
 } from '@mui/icons-material';
 import { format, addMonths, startOfMonth, setDate, differenceInDays, isSameDay, isAfter, startOfDay, endOfDay } from 'date-fns';
 import { getEmojiColor } from '../../theme';
@@ -47,7 +48,7 @@ const formatCurrency = (val) => {
 };
 
 export default function BudgetView() {
-  const { api, id: householdId, isDark, showNotification, members, setStatusBarData } = useOutletContext();
+  const { api, id: householdId, isDark, showNotification, members, setStatusBarData, confirmAction } = useOutletContext();
   const [loading, setLoading] = useState(true);
   const [savingProgress, setSavingProgress] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
@@ -291,6 +292,20 @@ export default function BudgetView() {
           const res = await api.get(`/households/${householdId}/finance/budget-cycles`);
           setCycles(res.data || []);
       } catch (err) { console.error("Failed to save cycle data", err); }
+  };
+
+  const handleResetCycle = () => {
+      confirmAction(
+          "Reset Month?", 
+          "Are you sure you want to reset this month's budget? This will clear all progress, payments, and actual amounts for this cycle. This cannot be undone.",
+          async () => {
+              try {
+                  await api.delete(`/households/${householdId}/finance/budget-cycles/${cycleData.cycleKey}`);
+                  showNotification("Budget cycle reset.", "success");
+                  fetchData();
+              } catch { showNotification("Failed to reset cycle.", "danger"); }
+          }
+      );
   };
 
   const createCycle = async (copyPrevious = false) => {
@@ -590,6 +605,9 @@ export default function BudgetView() {
         <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, -1))}><ChevronLeft /></IconButton><Box><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>{cycleData.label}</Typography><Chip variant="soft" color="primary" size="sm">{cycleData.cycleDuration} Days</Chip></Box><Typography level="body-md" color="neutral">{format(cycleData.startDate, 'do MMM')} to {format(cycleData.endDate, 'do MMM')}</Typography></Box><IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, 1))}><ChevronRight /></IconButton></Box>
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}><FormControl orientation="horizontal" size="sm" sx={{ mr: 1 }}><FormLabel sx={{ mr: 1 }}>Hide Paid</FormLabel><Switch checked={hidePaid} onChange={(e) => setHidePaid(e.target.checked)} size="sm" /></FormControl>
+                {currentCycleRecord && (
+                    <Button variant="outlined" color="danger" size="sm" startDecorator={<RestartAlt />} onClick={handleResetCycle}>Reset Month</Button>
+                )}
                 {selectedKeys.length > 0 && (<Button variant="outlined" color="neutral" size="sm" onClick={() => setSelectedKeys([])}>Clear</Button>)}
                 <Dropdown><MenuButton variant="solid" color="primary" size="sm" startDecorator={<Add />} endDecorator={<ArrowDropDown />}>Add</MenuButton><Menu placement="bottom-end" size="sm"><MenuItem onClick={() => setQuickAddOpen(true)}>Add One-off</MenuItem><MenuItem onClick={() => setRecurringAddOpen(true)}>Add Recurring</MenuItem><MenuItem onClick={() => setFamilyExpenseOpen(true)}>Add Family Expense</MenuItem></Menu></Dropdown>
             </Box>

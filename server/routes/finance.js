@@ -355,6 +355,25 @@ router.get('/households/:id/finance/budget-cycles', authenticateToken, requireHo
     });
 });
 
+router.delete('/households/:id/finance/budget-cycles/:cycleStart', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
+    const { cycleStart } = req.params;
+    req.tenantDb.serialize(() => {
+        req.tenantDb.run("BEGIN TRANSACTION");
+        req.tenantDb.run(`DELETE FROM finance_budget_cycles WHERE household_id = ? AND cycle_start = ?`, [req.hhId, cycleStart]);
+        req.tenantDb.run(`DELETE FROM finance_budget_progress WHERE household_id = ? AND cycle_start = ?`, [req.hhId, cycleStart], (err) => {
+            if (err) {
+                req.tenantDb.run("ROLLBACK");
+                closeDb(req);
+                return res.status(500).json({ error: err.message });
+            }
+            req.tenantDb.run("COMMIT", () => {
+                closeDb(req);
+                res.json({ message: "Cycle reset" });
+            });
+        });
+    });
+});
+
 router.post('/households/:id/finance/budget-cycles', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     const { cycle_start, actual_pay, current_balance } = req.body;
     req.tenantDb.run(
