@@ -200,6 +200,23 @@ function AppInner({ themeId, setThemeId }) {
     navigate('/login');
   }, [navigate]);
 
+  // Automatic Logout on 401/403
+  useEffect(() => {
+    const interceptor = authAxios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          // Prevent loop if already on login
+          if (window.location.pathname !== '/login') {
+            logout();
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+    return () => authAxios.interceptors.response.eject(interceptor);
+  }, [authAxios, logout]);
+
   const login = useCallback(async (email, password) => {
       const res = await axios.post(`${API_URL}/auth/login`, { email, password });
       const { token, role, context, household: hhData, user: userData, system_role } = res.data;

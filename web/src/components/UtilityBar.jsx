@@ -3,14 +3,11 @@ import {
   Box, IconButton, Tooltip, Sheet, Typography, Button, Divider, Avatar, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, Chip, Stack
 } from '@mui/joy';
 import { 
-  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Savings, Logout, Wifi, Download, Edit, Settings, TrendingUp, HourglassBottom, ChevronLeft, ChevronRight, Payments
+  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Logout, Wifi, Download, Edit, Settings, ChevronLeft, ChevronRight, Payments
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import FloatingCalculator from './FloatingCalculator';
 import FloatingCalendar from './FloatingCalendar';
-import FloatingSavings from './FloatingSavings';
-import FloatingInvestments from './FloatingInvestments';
-import FloatingPensions from './FloatingPensions';
 import FinancialCalculator from './FinancialCalculator';
 import PostItNote from './PostItNote';
 import TaxCalculator from './TaxCalculator';
@@ -240,15 +237,6 @@ export default function UtilityBar({
                 </WidgetWrapper>
                 <WidgetWrapper id="calc" label="Calc" icon={Calculate} color="primary" width={300} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <FloatingCalculator isDocked onClose={closeWidget} isDark={isDark} onPopout={() => handlePopout('calc', '/calculator')} />
-                </WidgetWrapper>
-                <WidgetWrapper id="quick_savings" label="Savings" icon={Savings} color="success" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <FloatingSavings isDocked onClose={closeWidget} api={api} householdId={activeHouseholdId || user?.default_household_id} isDark={isDark} onPopout={() => handlePopout('quick_savings', '/savings-window')} />
-                </WidgetWrapper>
-                <WidgetWrapper id="quick_invest" label="Invest" icon={TrendingUp} color="primary" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <FloatingInvestments isDocked onClose={closeWidget} api={api} householdId={activeHouseholdId || user?.default_household_id} isDark={isDark} onPopout={() => handlePopout('quick_invest', '/investments-window')} />
-                </WidgetWrapper>
-                <WidgetWrapper id="quick_pensions" label="Pensions" icon={HourglassBottom} color="primary" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <FloatingPensions isDocked onClose={closeWidget} api={api} householdId={activeHouseholdId || user?.default_household_id} isDark={isDark} onPopout={() => handlePopout('quick_pensions', '/pensions-window')} />
                 </WidgetWrapper>
                 <WidgetWrapper id="fincalc" label="Finance" icon={Payments} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <FinancialCalculator isDocked onClose={closeWidget} isDark={isDark} onPopout={() => handlePopout('fincalc', '/fin-calculator-window')} />

@@ -12,8 +12,8 @@ import {
   Settings as SettingsIcon,
   Person as ProfileIcon,
   Download,
-  Calculate, Savings, Payments, NoteAlt, SwapHoriz, ChevronLeft,
-  RestaurantMenu, Logout, AccountBalance, TrendingUp, HourglassBottom, CalendarMonth
+  Calculate, Payments, NoteAlt, SwapHoriz, ChevronLeft,
+  RestaurantMenu, Logout, AccountBalance, CalendarMonth
 } from '@mui/icons-material';
 import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
@@ -291,10 +291,7 @@ export default function HouseholdLayout({
                     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
                         <MenuTile icon={<NoteAlt />} label="Notes" to="tools/notes" onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<Calculate />} label="Calc" to="tools/calculator" onClick={() => setDrawerOpen(false)} />
-                        <MenuTile icon={<Savings />} label="Savings" to="tools/savings" onClick={() => setDrawerOpen(false)} />
-                        <MenuTile icon={<TrendingUp />} label="Invest" to="tools/investments" onClick={() => setDrawerOpen(false)} />
                         
-                        <MenuTile icon={<HourglassBottom />} label="Pensions" to="tools/pensions" onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<AccountBalance />} label="Finance" to="tools/finance" onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<Payments />} label="Tax" to="tools/tax" onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<CalendarMonth />} label="Cal" to="tools/calendar" onClick={() => setDrawerOpen(false)} />
