@@ -591,7 +591,7 @@ export default function BudgetView() {
                           {cols === 6 && <th style={{ width: 80, textAlign: 'center' }}>Date</th>}
                           <th style={{ width: 100 }}>Amount</th>
                           <th style={{ width: 40, textAlign: 'center' }}>Paid</th>
-                          {cols === 6 && <th style={{ width: 40 }}></th>}
+                          {cols === 6 && <th style={{ width: 80 }}></th>}
                       </tr>
                   </thead>
                   <tbody>{renderTableRows(visible, cols, hidePill)}</tbody>
@@ -636,10 +636,26 @@ export default function BudgetView() {
                             const items = groupedRecurring[normalized] || [];
                             const visible = getVisibleItems(items);
                             if (visible.length === 0) return null;
+
+                            // Group by Object (Asset/House/Vehicle)
+                            const byAsset = {};
+                            visible.forEach(item => {
+                                const key = item.object ? item.object.name : 'General';
+                                if (!byAsset[key]) byAsset[key] = [];
+                                byAsset[key].push(item);
+                            });
+
                             return (
                                 <Box key={freq} sx={{ mb: 3 }}>
                                     <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1, textTransform: 'capitalize' }}><Payments fontSize="small" /> {freq} Expenses</Typography>
-                                    {renderSection(items)}
+                                    <Stack spacing={2}>
+                                        {Object.entries(byAsset).sort().map(([assetName, assetItems]) => (
+                                            <Box key={assetName}>
+                                                <Typography level="title-sm" color="primary" sx={{ mb: 0.5, fontSize: 'xs', ml: 1 }}>{assetName}</Typography>
+                                                {renderSection(assetItems.sort((a,b) => a.category.localeCompare(b.category)))}
+                                            </Box>
+                                        ))}
+                                    </Stack>
                                 </Box>
                             );
                         })}
