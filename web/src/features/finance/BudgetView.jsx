@@ -527,7 +527,7 @@ export default function BudgetView() {
               <td style={{ textAlign: 'center' }}><Checkbox size="sm" checked={selectedKeys.includes(exp.key)} onChange={() => handleSelectToggle(exp.key)} onClick={(e) => e.stopPropagation()} /></td>
               <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label, isDark), color: '#fff' }}>{exp.icon}</Avatar><Box><Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}><Typography level="body-xs" fontWeight="bold">{exp.label}</Typography>{!hidePill && exp.object && <Chip size="sm" variant="soft" sx={{ fontSize: '0.65rem', minHeight: '16px', px: 0.5 }} startDecorator={exp.object.emoji}>{exp.object.name}</Chip>}</Box><Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{exp.category.toUpperCase()}</Typography></Box></Box></td>
               {cols === 6 && (<td><Box sx={{ textAlign: 'center' }}><Typography level="body-xs" fontWeight="bold">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{format(exp.computedDate, 'EEE do')}</Typography>}</Box></td>)}
-              <td><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px' }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} slotProps={{ input: { step: '0.01' } }} /></td>
+              <td style={{ textAlign: 'right' }}><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px', textAlign: 'right', '& input': { textAlign: 'right' } }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} slotProps={{ input: { step: '0.01' } }} /></td>
               <td style={{ textAlign: 'center' }}><Checkbox size="sm" variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} disabled={savingProgress} uncheckedIcon={<RadioButtonUnchecked sx={{ fontSize: '1.2rem' }} />} checkedIcon={<CheckCircle color="success" sx={{ fontSize: '1.2rem' }} />} onClick={(e) => e.stopPropagation()} sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} /></td>
               {cols === 6 && (<td>
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
@@ -589,7 +589,7 @@ export default function BudgetView() {
                           }} /></th>
                           <th>Expense</th>
                           {cols === 6 && <th style={{ width: 80, textAlign: 'center' }}>Date</th>}
-                          <th style={{ width: 100 }}>Amount</th>
+                          <th style={{ width: 100, textAlign: 'right' }}>Amount</th>
                           <th style={{ width: 40, textAlign: 'center' }}>Paid</th>
                           {cols === 6 && <th style={{ width: 80 }}></th>}
                       </tr>
@@ -652,7 +652,7 @@ export default function BudgetView() {
                                         {Object.entries(byAsset).sort().map(([assetName, assetItems]) => (
                                             <Box key={assetName}>
                                                 <Typography level="title-sm" color="primary" sx={{ mb: 0.5, fontSize: 'xs', ml: 1 }}>{assetName}</Typography>
-                                                {renderSection(assetItems.sort((a,b) => a.category.localeCompare(b.category)))}
+                                                {renderSection(assetItems.sort((a,b) => a.category.localeCompare(b.category)), 6, true)}
                                             </Box>
                                         ))}
                                     </Stack>
