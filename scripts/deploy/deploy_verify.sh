@@ -23,6 +23,15 @@ node scripts/utils/bump_version.js
 NEW_VERSION=$(node -p "require('./package.json').version")
 echo "🎉 Target Version: $NEW_VERSION"
 
+# 1.5. Update Client Git Info
+echo "📝 Updating Client Git Info..."
+cat > web/src/git-info.json <<EOF
+{
+  "commitMessage": "$COMMIT_SUFFIX",
+  "date": "$(date)"
+}
+EOF
+
 # 2. Build & Deploy (Docker)
 echo "🚀 Building and Starting Containers..."
 docker compose up -d --build

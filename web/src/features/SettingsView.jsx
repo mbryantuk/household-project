@@ -7,11 +7,13 @@ import {
 import { 
   PersonAdd, Edit, Delete, ExitToApp, ToggleOn, ToggleOff,
   OpenInNew, Info, Verified, Code, Policy, Palette, AddHome, LightMode, DarkMode,
-  ViewModule, CheckCircle, Cancel, Public, ContentCopy
+  ViewModule, CheckCircle, Cancel, Public, ContentCopy, Update
 } from '@mui/icons-material';
 import { getEmojiColor, THEMES } from '../theme';
 import EmojiPicker from '../components/EmojiPicker';
 import AppSelect from '../components/ui/AppSelect';
+import pkg from '../../package.json';
+import gitInfo from '../git-info.json';
 
 export default function SettingsView({ 
     household, users, currentUser, api, showNotification, confirmAction, fetchHhUsers,
@@ -532,6 +534,24 @@ export default function SettingsView({
                                 <Typography level="body-sm">
                                     TOTEM is a multi-tenant household management system designed for families who demand absolute data privacy and consistent utility tracking.
                                 </Typography>
+                                <Divider />
+                                <Typography level="title-md" startDecorator={<Update color="success" />}>System Status</Typography>
+                                <Sheet variant="soft" color="neutral" sx={{ p: 2, borderRadius: 'sm' }}>
+                                    <Grid container spacing={2}>
+                                        <Grid xs={4}><Typography level="body-xs" fontWeight="bold">Version</Typography></Grid>
+                                        <Grid xs={8}><Typography level="body-xs" sx={{ fontFamily: 'monospace' }}>v{pkg.version}</Typography></Grid>
+                                        
+                                        <Grid xs={4}><Typography level="body-xs" fontWeight="bold">Build</Typography></Grid>
+                                        <Grid xs={8}><Typography level="body-xs" sx={{ fontFamily: 'monospace' }}>{gitInfo.commitMessage || 'Development Build'}</Typography></Grid>
+
+                                        {gitInfo.date && (
+                                            <>
+                                                <Grid xs={4}><Typography level="body-xs" fontWeight="bold">Date</Typography></Grid>
+                                                <Grid xs={8}><Typography level="body-xs" sx={{ fontFamily: 'monospace' }}>{gitInfo.date}</Typography></Grid>
+                                            </>
+                                        )}
+                                    </Grid>
+                                </Sheet>
                                 <Divider />
                                 <Typography level="title-md" startDecorator={<Info />}>Credits</Typography>
                                 <Typography level="body-sm">

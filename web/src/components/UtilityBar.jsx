@@ -94,7 +94,7 @@ const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, showLabe
 
 export default function UtilityBar({
     user, api, dates, onDateAdded, onUpdateProfile, isDark, onLogout,
-    households = [], onSelectHousehold, onInstall, canInstall, confirmAction, activeHouseholdId,
+    households = [], onSelectHousehold, onInstall, canInstall, confirmAction,
     statusBarData
 }) {
   const navigate = useNavigate();
