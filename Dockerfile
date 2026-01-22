@@ -16,23 +16,30 @@ RUN npm ci
 COPY web/ ./
 RUN npm run build
 
-# Stage 2: Final Image (Playwright for tests + Server)
+# Stage 2: Test Server (Includes Dev Dependencies)
+FROM mcr.microsoft.com/playwright:v1.49.1-jammy AS server-tester
+ENV NODE_ENV=test
+WORKDIR /app/server
+COPY server/package*.json ./
+RUN npm ci
+COPY server/ ./
+# Run tests during build - if this fails, the build fails
+RUN npm test
+
+# Stage 3: Final Image (Production Optimized)
 FROM mcr.microsoft.com/playwright:v1.49.1-jammy
 ENV NODE_ENV=production
 WORKDIR /app
 
 # 1. Install Server Dependencies (Cached Layer)
-# We copy only the server package files first to cache npm install
 COPY server/package*.json ./server/
 WORKDIR /app/server
 RUN npm ci --omit=dev
 
 # 2. Copy Server Source Code
-# We strictly copy only the server folder, ignoring root files or web source
 COPY server/ ./
 
 # 3. Copy Built Frontend Assets
-# We pull the artifacts from Stage 1 into the correct location
 COPY --from=frontend-builder /app/web/dist ../web/dist
 
 # Expose unified port

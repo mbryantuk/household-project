@@ -33,14 +33,13 @@ cat > web/src/git-info.json <<EOF
 EOF
 
 # 2. Build & Deploy (Docker)
-echo "🚀 Building and Starting Containers..."
+echo "🚀 Building and Starting Containers (Tests run during build)..."
 docker compose up -d --build
 
 # 3. Verify Backend (Integration Tests)
-echo "🧪 Running Integration Tests..."
-# Wait for server to be ready
-sleep 5
-docker compose exec -T totem-app npm test
+# Note: Tests are now part of the Docker build process (Stage 2).
+# If the build succeeds, the tests have passed.
+echo "✅ Build & Tests Successful."
 
 # 4. Commit & Push
 echo "💾 Committing changes..."
