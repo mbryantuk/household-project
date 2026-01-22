@@ -57,23 +57,28 @@ describe('Feature: Financial Management', () => {
 
     // --- UTILITIES (Singleton) ---
     describe('Utilities (Water/Council/Energy)', () => {
-        it('should update Water info', async () => {
+        it('should create and check Water info', async () => {
             const res = await request(app)
-                .put(`/households/${householdId}/water`)
+                .post(`/households/${householdId}/water`)
                 .set('Authorization', `Bearer ${token}`)
                 .send({ provider: 'Thames Water', monthly_amount: 30 });
             expect(res.statusCode).toBe(200);
             
             const check = await request(app).get(`/households/${householdId}/water`).set('Authorization', `Bearer ${token}`);
-            expect(check.body.provider).toBe('Thames Water');
+            expect(Array.isArray(check.body)).toBe(true);
+            expect(check.body[0].provider).toBe('Thames Water');
         });
 
-        it('should update Council Tax info', async () => {
+        it('should create and check Council Tax info', async () => {
             const res = await request(app)
-                .put(`/households/${householdId}/council`)
+                .post(`/households/${householdId}/council`)
                 .set('Authorization', `Bearer ${token}`)
                 .send({ authority_name: 'Local Council', band: 'D' });
             expect(res.statusCode).toBe(200);
+
+            const check = await request(app).get(`/households/${householdId}/council`).set('Authorization', `Bearer ${token}`);
+            expect(Array.isArray(check.body)).toBe(true);
+            expect(check.body[0].authority_name).toBe('Local Council');
         });
 
         it('should CRUD Energy accounts', async () => {

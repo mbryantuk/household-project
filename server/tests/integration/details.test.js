@@ -44,20 +44,25 @@ describe('Feature: House Details & Misc', () => {
     });
 
     describe('Water Info', () => {
-        it('should update water info', async () => {
+        let waterId;
+        it('should create water info', async () => {
             const res = await request(app)
-                .put(`/households/${householdId}/water`)
+                .post(`/households/${householdId}/water`)
                 .set('Authorization', `Bearer ${token}`)
                 .send({ provider: 'Thames Water', meter_serial: '12345' });
             expect(res.statusCode).toBe(200);
+            waterId = res.body.id;
         });
 
-        it('should get water info', async () => {
+        it('should get water info list', async () => {
             const res = await request(app)
                 .get(`/households/${householdId}/water`)
                 .set('Authorization', `Bearer ${token}`);
             expect(res.statusCode).toBe(200);
-            expect(res.body.provider).toBe('Thames Water');
+            expect(Array.isArray(res.body)).toBe(true);
+            const item = res.body.find(i => i.id === waterId);
+            expect(item).toBeDefined();
+            expect(item.provider).toBe('Thames Water');
         });
     });
 

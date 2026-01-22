@@ -105,7 +105,7 @@ const getHouseholdDb = (householdId) => {
         const tables = [
             'members', 'dates', 'house_details', 'vehicles', 'assets', 
             'energy_accounts', 'recurring_costs', 'waste_collections',
-            'water_info', 'council_info', 'meals', 'meal_plans'
+            'water_accounts', 'council_accounts', 'meals', 'meal_plans'
         ];
         tables.forEach(table => {
             db.run(`UPDATE ${table} SET household_id = ? WHERE household_id IS NULL`, [householdId], () => {

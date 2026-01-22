@@ -41,8 +41,8 @@ function cleanup() {
                 const hhPlaceholders = householdIds.map(() => '?').join(',');
                 const tables = [
                     'members', 'assets', 'vehicles', 'recurring_costs', 'dates', 
-                    'meals', 'meal_plans', 'house_details', 'water_info', 
-                    'council_info', 'waste_collections', 'energy_accounts', 
+                    'meals', 'meal_plans', 'house_details', 'water_accounts', 
+                    'council_accounts', 'waste_collections', 'energy_accounts', 
                     'vehicle_services', 'vehicle_finance', 'vehicle_insurance',
                     'finance_income', 'finance_current_accounts', 'finance_budget_cycles', 'finance_budget_progress'
                 ];
