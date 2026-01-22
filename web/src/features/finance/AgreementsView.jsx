@@ -259,7 +259,7 @@ export default function AgreementsView({ isSubscriptions = false }) {
                             <FormControl><FormLabel>Emoji</FormLabel>
                                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                                     <Button variant="outlined" color="neutral" onClick={() => setEmojiPicker(true)} sx={{ minWidth: 48 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(selectedEmoji, isDark) }}>{selectedEmoji}</Avatar></Button>
-                                    <Input type="hidden" name="emoji" value={selectedEmoji} />
+                                    <input type="hidden" name="emoji" value={selectedEmoji} />
                                 </Box>
                             </FormControl>
                             

@@ -482,7 +482,7 @@ export default function SavingsView() {
                                     >
                                         <Avatar size="sm" sx={{ bgcolor: getEmojiColor(selectedEmoji, isDark) }}>{selectedEmoji}</Avatar>
                                     </Button>
-                                    <Input type="hidden" name="emoji" value={selectedEmoji || ''} />
+                                    <input type="hidden" name="emoji" value={selectedEmoji || ''} />
                                     <Typography level="body-xs" color="neutral">Click icon to change</Typography>
                                 </Box>
                             </FormControl>

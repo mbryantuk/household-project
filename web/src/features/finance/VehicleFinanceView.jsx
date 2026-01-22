@@ -255,8 +255,11 @@ export default function VehicleFinanceView() {
                             </Grid>
                             <FormControl><FormLabel>Emoji</FormLabel>
                                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                    <Button variant="outlined" color="neutral" onClick={() => setEmojiPicker(true)} sx={{ minWidth: 48 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(selectedEmoji, isDark) }}>{selectedEmoji}</Avatar></Button>
-                                    <Input type="hidden" name="emoji" value={selectedEmoji} />
+                                    <Button variant="outlined" color="neutral" onClick={() => setEmojiPicker(true)} sx={{ minWidth: 48 }}>
+                                        <Avatar size="sm" sx={{ bgcolor: getEmojiColor(selectedEmoji, isDark) }}>{selectedEmoji}</Avatar>
+                                    </Button>
+                                    <input type="hidden" name="emoji" value={selectedEmoji} />
+                                    <Typography level="body-xs" color="neutral">Click icon to change</Typography>
                                 </Box>
                             </FormControl>
                             <FormControl><FormLabel>Assign Members</FormLabel>
