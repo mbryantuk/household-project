@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix: Dockerfile now runs tests during build",
-  "date": "Thu 22 Jan 12:57:04 GMT 2026"
+  "commitMessage": "Fix: Force Docker tests to run via dependency",
+  "date": "Thu 22 Jan 12:59:21 GMT 2026"
 }
