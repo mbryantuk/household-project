@@ -3,7 +3,8 @@ import {
   Box, IconButton, Tooltip, Sheet, Typography, Button, Divider, Avatar, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, Chip, Stack
 } from '@mui/joy';
 import { 
-  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Logout, Wifi, Download, Edit, Settings, ChevronLeft, ChevronRight, Payments
+  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Logout, Wifi, Download, Edit, Settings, ChevronLeft, ChevronRight, Payments,
+  Savings, TrendingUp, HourglassBottom
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import FloatingCalculator from './FloatingCalculator';
@@ -11,6 +12,9 @@ import FloatingCalendar from './FloatingCalendar';
 import FinancialCalculator from './FinancialCalculator';
 import PostItNote from './PostItNote';
 import TaxCalculator from './TaxCalculator';
+import FloatingSavings from './FloatingSavings';
+import FloatingInvestments from './FloatingInvestments';
+import FloatingPensions from './FloatingPensions';
 import { getEmojiColor } from '../theme';
 import pkg from '../../package.json';
 import gitInfo from '../git-info.json';
@@ -260,6 +264,15 @@ export default function UtilityBar({
                 </WidgetWrapper>
                 <WidgetWrapper id="tax" label="Tax" icon={Payments} color="warning" width={450} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <TaxCalculator isDocked onClose={closeWidget} isDark={isDark} onPopout={() => handlePopout('tax', '/tax-window')} />
+                </WidgetWrapper>
+                <WidgetWrapper id="savings" label="Savings" icon={Savings} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                    <FloatingSavings isDocked onClose={closeWidget} api={api} householdId={user?.default_household_id} isDark={isDark} onPopout={() => handlePopout('savings', '/savings-window')} />
+                </WidgetWrapper>
+                <WidgetWrapper id="invest" label="Investments" icon={TrendingUp} color="primary" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                    <FloatingInvestments isDocked onClose={closeWidget} api={api} householdId={user?.default_household_id} isDark={isDark} onPopout={() => handlePopout('invest', '/investments-window')} />
+                </WidgetWrapper>
+                <WidgetWrapper id="pensions" label="Pensions" icon={HourglassBottom} color="warning" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                    <FloatingPensions isDocked onClose={closeWidget} api={api} householdId={user?.default_household_id} isDark={isDark} onPopout={() => handlePopout('pensions', '/pensions-window')} />
                 </WidgetWrapper>
                 <WidgetWrapper id="calendar" label="Calendar" icon={CalendarMonth} color="danger" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                      <FloatingCalendar isDocked onClose={closeWidget} dates={dates} api={api} householdId={user?.default_household_id} currentUser={user} onDateAdded={onDateAdded} isDark={isDark} onPopout={() => handlePopout('calendar', '/calendar-window')} />

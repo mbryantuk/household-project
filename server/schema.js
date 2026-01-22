@@ -104,6 +104,7 @@ const TENANT_SCHEMA = [
         emoji TEXT,
         notes TEXT,
         nearest_working_day INTEGER DEFAULT 1,
+        frequency TEXT DEFAULT 'monthly',
         FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
     )`,
     `CREATE TABLE IF NOT EXISTS vehicle_insurance (
@@ -115,6 +116,8 @@ const TENANT_SCHEMA = [
         renewal_date DATE,
         premium REAL,
         notes TEXT,
+        frequency TEXT DEFAULT 'annual',
+        nearest_working_day INTEGER DEFAULT 1,
         FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
     )`,
     `CREATE TABLE IF NOT EXISTS assets (
@@ -203,8 +206,9 @@ const TENANT_SCHEMA = [
         purchase_price REAL DEFAULT 0,
         current_valuation REAL DEFAULT 0
     )`,
-    `CREATE TABLE IF NOT EXISTS water_info (
-        household_id INTEGER PRIMARY KEY,
+    `CREATE TABLE IF NOT EXISTS water_accounts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
         provider TEXT,
         account_number TEXT, -- Encrypted
         supply_type TEXT,
@@ -212,10 +216,15 @@ const TENANT_SCHEMA = [
         monthly_amount REAL,
         payment_day INTEGER,
         notes TEXT,
-        nearest_working_day INTEGER DEFAULT 1
+        nearest_working_day INTEGER DEFAULT 1,
+        waste_provider TEXT,
+        waste_account_number TEXT, -- Encrypted
+        color TEXT,
+        frequency TEXT DEFAULT 'monthly'
     )`,
-    `CREATE TABLE IF NOT EXISTS council_info (
-        household_id INTEGER PRIMARY KEY,
+    `CREATE TABLE IF NOT EXISTS council_accounts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
         authority_name TEXT,
         account_number TEXT, -- Encrypted
         payment_method TEXT,
@@ -223,7 +232,9 @@ const TENANT_SCHEMA = [
         payment_day INTEGER,
         band TEXT,
         notes TEXT,
-        nearest_working_day INTEGER DEFAULT 1
+        nearest_working_day INTEGER DEFAULT 1,
+        color TEXT,
+        frequency TEXT DEFAULT 'monthly'
     )`,
     `CREATE TABLE IF NOT EXISTS energy_accounts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -236,7 +247,12 @@ const TENANT_SCHEMA = [
         monthly_amount REAL,
         payment_day INTEGER,
         notes TEXT,
-        nearest_working_day INTEGER DEFAULT 1
+        nearest_working_day INTEGER DEFAULT 1,
+        electric_meter_serial TEXT,
+        electric_mpan TEXT,
+        gas_meter_serial TEXT,
+        gas_mprn TEXT,
+        payment_method TEXT
     )`,
     `CREATE TABLE IF NOT EXISTS waste_collections (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -249,7 +265,10 @@ const TENANT_SCHEMA = [
         next_date DATE,
         color TEXT,
         emoji TEXT,
-        notes TEXT
+        notes TEXT,
+        monthly_amount REAL,
+        payment_day INTEGER,
+        nearest_working_day INTEGER DEFAULT 1
     )`,
     // FINANCE TABLES
     `CREATE TABLE IF NOT EXISTS finance_income (
@@ -520,7 +539,16 @@ function initializeHouseholdSchema(db) {
             ['water_info', 'nearest_working_day', 'INTEGER DEFAULT 1'],
             ['council_info', 'nearest_working_day', 'INTEGER DEFAULT 1'],
             ['energy_accounts', 'nearest_working_day', 'INTEGER DEFAULT 1'],
-            ['finance_pensions', 'nearest_working_day', 'INTEGER DEFAULT 1']
+            ['finance_pensions', 'nearest_working_day', 'INTEGER DEFAULT 1'],
+            ['vehicle_finance', 'frequency', "TEXT DEFAULT 'monthly'"],
+            ['vehicle_insurance', 'frequency', "TEXT DEFAULT 'annual'"],
+            ['vehicle_insurance', 'nearest_working_day', 'INTEGER DEFAULT 1'],
+            ['vehicle_insurance', 'payment_day', 'INTEGER'],
+            ['water_accounts', 'frequency', "TEXT DEFAULT 'monthly'"],
+            ['council_accounts', 'frequency', "TEXT DEFAULT 'monthly'"],
+            ['waste_collections', 'monthly_amount', 'REAL'],
+            ['waste_collections', 'payment_day', 'INTEGER'],
+            ['waste_collections', 'nearest_working_day', 'INTEGER DEFAULT 1']
         ];
 
         additionalFinanceCols.forEach(([table, col, type]) => {
@@ -535,6 +563,37 @@ function initializeHouseholdSchema(db) {
         ];
         recurringCostCols.forEach(([col, type]) => {
             db.run(`ALTER TABLE recurring_costs ADD COLUMN ${col} ${type}`, () => {});
+        });
+
+        // 🛠️ MIGRATION: Convert water_info to water_accounts if exists
+        db.get(`SELECT name FROM sqlite_master WHERE type='table' AND name='water_info'`, (err, row) => {
+            if (row) {
+                // If water_info exists, migrate data to water_accounts
+                db.all(`SELECT * FROM water_info`, (err, rows) => {
+                    if (rows && rows.length > 0) {
+                        rows.forEach(r => {
+                            db.run(`INSERT INTO water_accounts (household_id, provider, account_number, supply_type, meter_serial, monthly_amount, payment_day, notes, nearest_working_day) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
+                                [r.household_id, r.provider, r.account_number, r.supply_type, r.meter_serial, r.monthly_amount, r.payment_day, r.notes, r.nearest_working_day || 1]);
+                        });
+                    }
+                });
+                // Rename old table so we don't migrate again (or drop it)
+                // db.run(`DROP TABLE water_info`); // Safer to keep for now or just ignore
+            }
+        });
+
+        // 🛠️ MIGRATION: Convert council_info to council_accounts if exists
+        db.get(`SELECT name FROM sqlite_master WHERE type='table' AND name='council_info'`, (err, row) => {
+            if (row) {
+                 db.all(`SELECT * FROM council_info`, (err, rows) => {
+                    if (rows && rows.length > 0) {
+                        rows.forEach(r => {
+                            db.run(`INSERT INTO council_accounts (household_id, authority_name, account_number, payment_method, monthly_amount, payment_day, band, notes, nearest_working_day, color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
+                                [r.household_id, r.authority_name, r.account_number, r.payment_method, r.monthly_amount, r.payment_day, r.band, r.notes, r.nearest_working_day || 1, r.color]);
+                        });
+                    }
+                });
+            }
         });
     });
 }

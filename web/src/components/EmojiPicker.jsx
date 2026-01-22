@@ -20,7 +20,7 @@ export default function EmojiPicker({ open, onClose, onEmojiSelect, title = "Sel
               onEmojiClick={(emojiData) => onEmojiSelect(emojiData.emoji)}
               autoFocusSearch={false}
               theme={isDark ? 'dark' : 'light'}
-              emojiStyle="native"
+              emojiStyle="google"
               width="100%"
               height="100%"
               lazyLoadEmojis={true}

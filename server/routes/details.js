@@ -190,13 +190,19 @@ const handleDeleteItem = (table) => (req, res) => {
 router.get('/households/:id/details', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetSingle('house_details'));
 router.put('/households/:id/details', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateSingle('house_details'));
 
-// Water Info
-router.get('/households/:id/water', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetSingle('water_info'));
-router.put('/households/:id/water', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateSingle('water_info'));
+// Water Accounts
+router.get('/households/:id/water', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('water_accounts'));
+router.get('/households/:id/water/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetItem('water_accounts'));
+router.post('/households/:id/water', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('water_accounts'));
+router.put('/households/:id/water/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('water_accounts'));
+router.delete('/households/:id/water/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('water_accounts'));
 
-// Council Info
-router.get('/households/:id/council', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetSingle('council_info'));
-router.put('/households/:id/council', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateSingle('council_info'));
+// Council Accounts
+router.get('/households/:id/council', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('council_accounts'));
+router.get('/households/:id/council/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetItem('council_accounts'));
+router.post('/households/:id/council', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('council_accounts'));
+router.put('/households/:id/council/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('council_accounts'));
+router.delete('/households/:id/council/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('council_accounts'));
 
 // Waste Collections
 router.get('/households/:id/waste', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('waste_collections'));

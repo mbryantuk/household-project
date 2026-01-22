@@ -405,6 +405,7 @@ export default function VehiclesView() {
                                         <Typography level="body-sm">{item.description || item.policy_number || item.details}</Typography>
                                         {item.cost && <Typography level="body-xs">Cost: £{item.cost}</Typography>}
                                         {item.monthly_payment && <Typography level="body-xs">Monthly: £{item.monthly_payment}</Typography>}
+                                        {item.payment_day && <Typography level="body-xs">Day: {item.payment_day}</Typography>}
                                         {item.expiry_date && <Chip size="sm" sx={{ ml: 1 }}>Expires: {item.expiry_date}</Chip>}
                                     </td>
                                     {isAdmin && (
@@ -460,6 +461,12 @@ export default function VehiclesView() {
                         <FormControl>
                             <FormLabel>Expiry Date</FormLabel>
                             <Input name="expiry_date" type="date" defaultValue={editItem?.expiry_date} />
+                        </FormControl>
+                    )}
+                    {(activeTab === 3) && (
+                        <FormControl>
+                            <FormLabel>Payment Day</FormLabel>
+                            <Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} />
                         </FormControl>
                     )}
                     {activeTab === 1 && (

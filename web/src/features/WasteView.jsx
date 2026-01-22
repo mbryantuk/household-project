@@ -103,6 +103,11 @@ export default function WasteView() {
                   <Box sx={{ flexGrow: 1 }}>
                       <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{c.waste_type}</Typography>
                       <Typography level="body-sm" color="neutral">{c.frequency} on {c.collection_day}s</Typography>
+                      {c.monthly_amount && (
+                          <Typography level="body-xs" fontWeight="bold" color="success">
+                             £{c.monthly_amount} / {c.frequency || 'month'} (Day {c.payment_day})
+                          </Typography>
+                      )}
                       {c.notes && (
                         <Typography level="body-xs" mt={1}>{c.notes}</Typography>
                       )}
@@ -147,6 +152,25 @@ export default function WasteView() {
                                     <Option key={day} value={day}>{day}</Option>
                                 ))}
                             </Select>
+                        </FormControl>
+
+                        <FormControl>
+                            <FormLabel>Cost Amount (£)</FormLabel>
+                            <Input name="monthly_amount" type="number" step="0.01" defaultValue={editItem?.monthly_amount} />
+                        </FormControl>
+
+                        <FormControl>
+                            <FormLabel>Payment Day</FormLabel>
+                            <Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} />
+                        </FormControl>
+
+                        <FormControl orientation="horizontal" sx={{ gap: 1 }}>
+                            <Checkbox 
+                                label="Nearest Working Day (Next)" 
+                                name="nearest_working_day"
+                                defaultChecked={editItem?.nearest_working_day !== 0}
+                                value="1"
+                            />
                         </FormControl>
 
                         <FormControl>

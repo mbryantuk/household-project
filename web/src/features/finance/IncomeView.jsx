@@ -27,7 +27,6 @@ export default function IncomeView() {
   
   // Sorting & Filtering State
   const [sortConfig, setSortConfig] = useState({ key: 'employer', direction: 'asc' });
-  const [filterQuery, setFilterQuery] = useState('');
   
   const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
 
@@ -61,10 +60,6 @@ export default function IncomeView() {
 
   // Derived State
   const processedData = incomeList
-    .filter(a => 
-        (a.employer || '').toLowerCase().includes(filterQuery.toLowerCase()) || 
-        (a.role || '').toLowerCase().includes(filterQuery.toLowerCase())
-    )
     .sort((a, b) => {
         // Primary always at top
         if (a.is_primary && !b.is_primary) return -1;
@@ -165,13 +160,6 @@ export default function IncomeView() {
           </Box>
           
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-              <Input 
-                placeholder="Search income..." 
-                startDecorator={<Search />} 
-                value={filterQuery}
-                onChange={(e) => setFilterQuery(e.target.value)}
-                sx={{ width: { xs: '100%', sm: 200 }, height: '44px' }}
-              />
               {isAdmin && (
                   <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditItem({}); setIsNew(true); }} sx={{ height: '44px' }}>
                       Add Income
