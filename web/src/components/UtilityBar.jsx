@@ -77,11 +77,16 @@ const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, showLabe
               ref={buttonRef}
               variant={isOpen ? "solid" : variant} color={isOpen ? color : "neutral"} onClick={() => toggleWidget(id)}
               sx={{
-                  height: '100%', borderRadius: 0, px: showLabel ? 2 : 1.5, minWidth: showLabel ? 100 : 44, gap: 1,
-                  borderTop: isOpen ? 'none' : '3px solid transparent',
+                  height: { xs: 44, md: '100%' }, 
+                  borderRadius: { xs: 'sm', md: 0 }, 
+                  px: showLabel ? 2 : 1.5, 
+                  minWidth: showLabel ? 100 : 44, 
+                  gap: 1,
+                  borderTop: { xs: 'none', md: isOpen ? 'none' : '3px solid transparent' },
                   borderColor: isOpen ? 'transparent' : (isPopped ? `${color}.solidBg` : 'transparent'),
                   transition: 'all 0.2s',
-                  whiteSpace: 'nowrap'
+                  whiteSpace: 'nowrap',
+                  flexGrow: { xs: 1, md: 0 }
               }}
           >
               {renderIcon()}
@@ -194,24 +199,27 @@ export default function UtilityBar({
     }
   };
 
-  const scroll = (offset) => {
-    if (scrollRef.current) {
-        scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' });
-    }
-  };
+    const isMobile = window.innerWidth < 600;
 
-  return (
+    return (
     <Sheet
         variant="soft"
         sx={{
-            position: 'relative', width: '100%', height: 40, display: 'flex', alignItems: 'center',
+            position: 'relative', width: '100%', minHeight: 40, display: 'flex', alignItems: 'center',
             bgcolor: 'background.surface', borderTop: '1px solid', borderColor: 'divider', zIndex: 900, 
-            flexShrink: 0, overflow: 'visible'
+            flexShrink: 0, overflow: 'visible',
+            flexDirection: { xs: 'column', md: 'row' },
+            py: { xs: 1, md: 0 }
         }}
     >
-        <Box sx={{ flex: '1 1 auto', display: 'flex', height: '100%', minWidth: 0, alignItems: 'center', position: 'relative' }}>
-            {/* Left Hint Gradient */}
-            {canScrollLeft && (
+        <Box sx={{ 
+            flex: '1 1 auto', display: 'flex', width: '100%', alignItems: 'center', position: 'relative',
+            flexWrap: { xs: 'wrap', md: 'nowrap' },
+            justifyContent: { xs: 'center', md: 'flex-start' },
+            gap: { xs: 1, md: 0 }
+        }}>
+            {/* Left Hint Gradient - Desktop Only */}
+            {!isMobile && canScrollLeft && (
                 <Box sx={{ 
                     position: 'absolute', left: 0, zIndex: 5, height: '100%', width: 60,
                     pointerEvents: 'none',
@@ -219,7 +227,7 @@ export default function UtilityBar({
                 }} />
             )}
             
-            {canScrollLeft && (
+            {!isMobile && canScrollLeft && (
                 <Box sx={{ 
                     position: 'absolute', left: 0, zIndex: 6, height: '100%', display: 'flex', alignItems: 'center',
                     bgcolor: 'background.surface', borderRight: '1px solid', borderColor: 'divider',
@@ -231,7 +239,16 @@ export default function UtilityBar({
                 </Box>
             )}
 
-            <Box ref={scrollRef} sx={{ display: 'flex', height: '100%', overflowX: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' }, flexGrow: 1 }}>
+            <Box ref={scrollRef} sx={{ 
+                display: 'flex', 
+                height: '100%', 
+                overflowX: { xs: 'visible', md: 'auto' }, 
+                flexWrap: { xs: 'wrap', md: 'nowrap' },
+                justifyContent: { xs: 'center', md: 'flex-start' },
+                scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' }, 
+                flexGrow: 1,
+                gap: { xs: 1, md: 0 }
+            }}>
                 <WidgetWrapper id="notes" label="Notes" icon={NoteAlt} color="warning" width={320} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <PostItNote isDocked onClose={closeWidget} user={user} onUpdateProfile={onUpdateProfile} onPopout={() => handlePopout('notes', '/note-window')} />
                 </WidgetWrapper>
@@ -249,8 +266,8 @@ export default function UtilityBar({
                 </WidgetWrapper>
             </Box>
 
-            {/* Right Hint Gradient */}
-            {canScrollRight && (
+            {/* Right Hint Gradient - Desktop Only */}
+            {!isMobile && canScrollRight && (
                 <Box sx={{ 
                     position: 'absolute', right: 0, zIndex: 5, height: '100%', width: 60,
                     pointerEvents: 'none',
@@ -258,7 +275,7 @@ export default function UtilityBar({
                 }} />
             )}
 
-            {canScrollRight && (
+            {!isMobile && canScrollRight && (
                 <Box sx={{ 
                     position: 'absolute', right: 0, zIndex: 6, height: '100%', display: 'flex', alignItems: 'center',
                     bgcolor: 'background.surface', borderLeft: '1px solid', borderColor: 'divider',
@@ -271,7 +288,20 @@ export default function UtilityBar({
             )}
         </Box>
 
-        <Box sx={{ flex: '0 0 auto', height: '100%', borderLeft: '1px solid', borderColor: 'divider', bgcolor: 'background.level1', display: 'flex', alignItems: 'center', px: 0 }}>
+        <Box sx={{ 
+            flex: { xs: '1 1 100%', md: '0 0 auto' }, 
+            width: { xs: '100%', md: 'auto' },
+            height: { xs: 'auto', md: '100%' }, 
+            borderLeft: { md: '1px solid' }, 
+            borderTop: { xs: '1px solid', md: 'none' },
+            borderColor: 'divider', 
+            bgcolor: 'background.level1', 
+            display: 'flex', alignItems: 'center', 
+            justifyContent: { xs: 'space-between', md: 'flex-start' },
+            px: { xs: 2, md: 0 },
+            py: { xs: 1, md: 0 },
+            mt: { xs: 1, md: 0 }
+        }}>
             {statusBarData && (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 2, borderRight: '1px solid', borderColor: 'divider', height: '100%', bgcolor: 'primary.softBg' }}>
                     <Typography level="body-xs" fontWeight="bold">Selected: {statusBarData.count}</Typography>

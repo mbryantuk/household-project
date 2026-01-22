@@ -231,12 +231,12 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
   const totalPages = Object.keys(layouts).length;
 
   return (
-    <Box sx={{ pb: 10, px: { xs: 2, md: 4 }, pt: 2 }}>
+    <Box sx={{ pb: 10, px: { xs: 1, md: 4 }, pt: 2 }}>
       
       {/* HEADER */}
       <Box sx={{ 
           mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-          flexWrap: 'wrap', gap: 2 
+          flexWrap: 'wrap', gap: 2, px: { xs: 1, md: 0 }
       }}>
         <Box>
           <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
@@ -295,7 +295,7 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
             isResizable={isEditing}
             onLayoutChange={handleLayoutChange}
             onBreakpointChange={(newBp) => setBreakpoint(newBp)}
-            margin={[24, 24]}
+            margin={breakpoint === 'xs' || breakpoint === 'xxs' ? [10, 10] : [24, 24]}
         >
             {gridItems.map(item => {
                 const WidgetComponent = WIDGET_TYPES[item.type]?.component;
