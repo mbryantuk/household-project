@@ -103,6 +103,7 @@ const TENANT_SCHEMA = [
         payment_day INTEGER,
         emoji TEXT,
         notes TEXT,
+        nearest_working_day INTEGER DEFAULT 1,
         FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
     )`,
     `CREATE TABLE IF NOT EXISTS vehicle_insurance (
@@ -210,7 +211,8 @@ const TENANT_SCHEMA = [
         meter_serial TEXT,
         monthly_amount REAL,
         payment_day INTEGER,
-        notes TEXT
+        notes TEXT,
+        nearest_working_day INTEGER DEFAULT 1
     )`,
     `CREATE TABLE IF NOT EXISTS council_info (
         household_id INTEGER PRIMARY KEY,
@@ -220,7 +222,8 @@ const TENANT_SCHEMA = [
         monthly_amount REAL,
         payment_day INTEGER,
         band TEXT,
-        notes TEXT
+        notes TEXT,
+        nearest_working_day INTEGER DEFAULT 1
     )`,
     `CREATE TABLE IF NOT EXISTS energy_accounts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -232,7 +235,8 @@ const TENANT_SCHEMA = [
         contract_end_date DATE,
         monthly_amount REAL,
         payment_day INTEGER,
-        notes TEXT
+        notes TEXT,
+        nearest_working_day INTEGER DEFAULT 1
     )`,
     `CREATE TABLE IF NOT EXISTS waste_collections (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -265,6 +269,8 @@ const TENANT_SCHEMA = [
         emoji TEXT,
         is_active INTEGER DEFAULT 1,
         notes TEXT,
+        is_primary INTEGER DEFAULT 0,
+        nearest_working_day INTEGER DEFAULT 1,
         FOREIGN KEY(member_id) REFERENCES members(id) ON DELETE SET NULL,
         FOREIGN KEY(bank_account_id) REFERENCES finance_current_accounts(id) ON DELETE SET NULL
     )`,
@@ -312,7 +318,8 @@ const TENANT_SCHEMA = [
         apr REAL,
         payment_day INTEGER,
         emoji TEXT,
-        notes TEXT
+        notes TEXT,
+        nearest_working_day INTEGER DEFAULT 1
     )`,
     `CREATE TABLE IF NOT EXISTS finance_loans (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -327,7 +334,8 @@ const TENANT_SCHEMA = [
         start_date DATE,
         end_date DATE,
         emoji TEXT,
-        notes TEXT
+        notes TEXT,
+        nearest_working_day INTEGER DEFAULT 1
     )`,
     `CREATE TABLE IF NOT EXISTS finance_mortgages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -358,6 +366,7 @@ const TENANT_SCHEMA = [
         original_purchase_price REAL,
         emoji TEXT,
         notes TEXT,
+        nearest_working_day INTEGER DEFAULT 1,
         FOREIGN KEY(asset_id) REFERENCES assets(id) ON DELETE SET NULL
     )`,
     `CREATE TABLE IF NOT EXISTS finance_pensions (
@@ -370,7 +379,9 @@ const TENANT_SCHEMA = [
         current_value REAL,
         monthly_contribution REAL,
         emoji TEXT,
-        notes TEXT
+        notes TEXT,
+        payment_day INTEGER,
+        nearest_working_day INTEGER DEFAULT 1
     )`,
     `CREATE TABLE IF NOT EXISTS finance_pensions_history (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -405,7 +416,8 @@ const TENANT_SCHEMA = [
         start_date DATE,
         end_date DATE,
         emoji TEXT,
-        notes TEXT
+        notes TEXT,
+        nearest_working_day INTEGER DEFAULT 1
     )`,
     `CREATE TABLE IF NOT EXISTS finance_budget_categories (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
