@@ -103,19 +103,11 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
 
   if (loading && costs.length === 0) return <CircularProgress size="sm" />;
 
-  // Group costs by category
-  const groupedCosts = costs.reduce((acc, cost) => {
-      const cat = cost.category || 'Other';
-      if (!acc[cat]) acc[cat] = [];
-      acc[cat].push(cost);
-      return acc;
-  }, {});
-
   return (
     <Box sx={{ mt: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
         <Typography level="title-md" startDecorator={<ReceiptLong color="primary" />}>
-            Recurring Costs
+            Misc / Recurring Costs
         </Typography>
         {isAdmin && (
             <Button size="sm" variant="outlined" startDecorator={<Add />} onClick={() => setEditItem({})}>Add Cost</Button>
@@ -123,54 +115,45 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
       </Box>
 
       {costs.length === 0 ? (
-        <Typography level="body-sm" color="neutral" sx={{ fontStyle: 'italic' }}>No costs recorded.</Typography>
+        <Typography level="body-sm" color="neutral" sx={{ fontStyle: 'italic' }}>No misc costs recorded.</Typography>
       ) : (
-        <Stack spacing={2}>
-            {Object.entries(groupedCosts).map(([category, items]) => (
-                <Box key={category}>
-                    <Typography level="title-sm" color="primary" sx={{ mb: 1, textTransform: 'uppercase', fontSize: 'xs', fontWeight: 'bold' }}>
-                        {category}
-                    </Typography>
-                    <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto' }}>
-                        <Table hoverRow size="sm">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Amount</th>
-                                    <th>Frequency</th>
-                                    {isAdmin && <th style={{ textAlign: 'right' }}>Actions</th>}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {items.map((row) => {
-                                    const nextDate = getNextPaymentDate(row.payment_day, row.nearest_working_day);
-                                    return (
-                                    <tr key={row.id}>
-                                        <td>{row.name}</td>
-                                        <td>£{parseFloat(row.amount).toFixed(2)}</td>
-                                        <td>
-                                            <Chip size="sm" variant="outlined">{row.frequency}</Chip>
-                                            {row.payment_day && (
-                                                <Box>
-                                                    <Typography level="body-xs">Day: {row.payment_day} {row.nearest_working_day ? '(Next)' : '(Exact)'}</Typography>
-                                                    <Typography level="body-xs" color="primary">Next: {nextDate ? format(nextDate, 'EEE do MMM') : '-'}</Typography>
-                                                </Box>
-                                            )}
-                                        </td>
-                                        {isAdmin && (
-                                            <td style={{ textAlign: 'right' }}>
-                                                <IconButton size="sm" variant="plain" onClick={() => setEditItem(row)}><Edit fontSize="inherit" /></IconButton>
-                                                <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(row.id)}><Delete fontSize="inherit" /></IconButton>
-                                            </td>
-                                        )}
-                                    </tr>
-                                );})}
-                            </tbody>
-                        </Table>
-                    </Sheet>
-                </Box>
-            ))}
-        </Stack>
+        <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto' }}>
+            <Table hoverRow size="sm">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Amount</th>
+                        <th>Frequency</th>
+                        {isAdmin && <th style={{ textAlign: 'right' }}>Actions</th>}
+                    </tr>
+                </thead>
+                <tbody>
+                    {costs.map((row) => {
+                        const nextDate = getNextPaymentDate(row.payment_day, row.nearest_working_day);
+                        return (
+                        <tr key={row.id}>
+                            <td>{row.name}</td>
+                            <td>£{parseFloat(row.amount).toFixed(2)}</td>
+                            <td>
+                                <Chip size="sm" variant="outlined">{row.frequency}</Chip>
+                                {row.payment_day && (
+                                    <Box>
+                                        <Typography level="body-xs">Day: {row.payment_day} {row.nearest_working_day ? '(Next)' : '(Exact)'}</Typography>
+                                        <Typography level="body-xs" color="primary">Next: {nextDate ? format(nextDate, 'EEE do MMM') : '-'}</Typography>
+                                    </Box>
+                                )}
+                            </td>
+                            {isAdmin && (
+                                <td style={{ textAlign: 'right' }}>
+                                    <IconButton size="sm" variant="plain" onClick={() => setEditItem(row)}><Edit fontSize="inherit" /></IconButton>
+                                    <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(row.id)}><Delete fontSize="inherit" /></IconButton>
+                                </td>
+                            )}
+                        </tr>
+                    );})}
+                </tbody>
+            </Table>
+        </Sheet>
       )}
 
       <Modal open={Boolean(editItem)} onClose={() => setEditItem(null)}>
@@ -183,20 +166,6 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
                             <FormLabel>Cost Name</FormLabel>
                             <Input name="name" defaultValue={editItem?.name} />
                         </FormControl>
-                        
-                        <FormControl required>
-                            <FormLabel>Category</FormLabel>
-                            <Select name="category" defaultValue={editItem?.category || 'Other'}>
-                                <Option value="Insurance">Insurance</Option>
-                                <Option value="Tax">Tax</Option>
-                                <Option value="Service">Service / Maintenance</Option>
-                                <Option value="Warranty">Warranty</Option>
-                                <Option value="Subscription">Subscription</Option>
-                                <Option value="Utility">Utility</Option>
-                                <Option value="Other">Other</Option>
-                            </Select>
-                        </FormControl>
-
                         <FormControl required>
                             <FormLabel>Amount (£)</FormLabel>
                             <Input name="amount" type="number" step="0.01" defaultValue={editItem?.amount} />
