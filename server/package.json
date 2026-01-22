@@ -1,6 +1,6 @@
 {
   "name": "totem-server",
-  "version": "2.6.214",
+  "version": "2.6.215",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
