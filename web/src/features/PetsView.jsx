@@ -199,7 +199,7 @@ export default function PetsView() {
                     <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Info sx={{ mr: 1 }}/> General</Tab>
                     <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><MedicalServices sx={{ mr: 1 }}/> Vet & Insurance</Tab>
                     <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Restaurant sx={{ mr: 1 }}/> Food & Supplies</Tab>
-                    <Tab variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Misc Costs</Tab>
+                    <Tab variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Recurring Costs</Tab>
                 </TabList>
             </Tabs>
         )}
@@ -319,7 +319,7 @@ export default function PetsView() {
           {activeTab === 3 && petId !== 'new' && (
             <Box>
               <Box sx={{ mb: 4 }}>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Other Misc Costs</Typography>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Recurring Costs</Typography>
                 <Typography level="body-md" color="neutral">Additional costs specific to this pet.</Typography>
               </Box>
               <RecurringCostsWidget 

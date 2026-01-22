@@ -199,7 +199,7 @@ export default function HouseView() {
             <Tab variant={activeTab === 4 ? 'solid' : 'plain'} color={activeTab === 4 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><DeleteSweep sx={{ mr: 1 }}/> Waste</Tab>
             <Tab variant={activeTab === 5 ? 'solid' : 'plain'} color={activeTab === 5 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><Inventory sx={{ mr: 1 }}/> Assets</Tab>
             <Tab variant={activeTab === 6 ? 'solid' : 'plain'} color={activeTab === 6 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><AccountBalance sx={{ mr: 1 }}/> Council</Tab>
-            <Tab variant={activeTab === 7 ? 'solid' : 'plain'} color={activeTab === 7 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><Payments sx={{ mr: 1 }}/> Misc Costs</Tab>
+            <Tab variant={activeTab === 7 ? 'solid' : 'plain'} color={activeTab === 7 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><Payments sx={{ mr: 1 }}/> Recurring Costs</Tab>
           </TabList>
 
           <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
