@@ -17,35 +17,6 @@ const useTenantDb = (req, res, next) => {
 const closeDb = (req) => {
     if (req.tenantDb) req.tenantDb.close();
 };
-// GET /system/holidays - Publicly available for frontend calculation
-router.get('/system/holidays', async (req, res) => {
-    try {
-        const holidays = await getBankHolidays();
-        res.json(holidays);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// GET /system/holidays - Publicly available for frontend calculation
-router.get('/system/holidays', async (req, res) => {
-    try {
-        const holidays = await getBankHolidays();
-        res.json(holidays);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// GET /system/holidays - Publicly available for frontend calculation
-router.get('/system/holidays', async (req, res) => {
-    try {
-        const holidays = await getBankHolidays();
-        res.json(holidays);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
 
 // GET /system/holidays - Publicly available for frontend calculation
 router.get('/system/holidays', async (req, res) => {
