@@ -34,7 +34,8 @@ import {
   Delete,
   Lock,
   LockOpen,
-  ArrowDropDown
+  ArrowDropDown,
+  Edit
 } from '@mui/icons-material';
 import { format, addMonths, startOfMonth, setDate, differenceInDays, isSameDay, isAfter, startOfDay, endOfDay } from 'date-fns';
 import { getEmojiColor } from '../../theme';
@@ -66,6 +67,7 @@ export default function BudgetView() {
   const [quickAddOpen, setQuickAddOpen] = useState(false);
   const [recurringAddOpen, setRecurringAddOpen] = useState(false);
   const [familyExpenseOpen, setFamilyExpenseOpen] = useState(false);
+  const [editCostItem, setEditCostItem] = useState(null);
 
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1100);
@@ -374,6 +376,23 @@ export default function BudgetView() {
       } catch { alert("Failed to add family expense"); }
   };
 
+  const handleEditSave = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.currentTarget);
+      const data = Object.fromEntries(formData.entries());
+      data.nearest_working_day = data.nearest_working_day === "1" ? 1 : 0;
+      
+      try {
+          await api.put(`/households/${householdId}/costs/${editCostItem.id}`, data);
+          showNotification("Expense updated.", "success");
+          fetchData();
+          setEditCostItem(null);
+      } catch (err) {
+          console.error(err);
+          showNotification("Failed to update expense.", "danger");
+      }
+  };
+
   const deleteExpense = async (exp) => {
       const isOneOff = exp.frequency === 'one-off' && exp.type === 'cost';
       const msg = isOneOff ? "Permanently delete this one-off expense?" : "Remove this item from THIS budget cycle? (It will return next month)";
@@ -495,7 +514,16 @@ export default function BudgetView() {
               {cols === 6 && (<td><Box sx={{ textAlign: 'center' }}><Typography level="body-xs" fontWeight="bold">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{format(exp.computedDate, 'EEE do')}</Typography>}</Box></td>)}
               <td><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px' }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} slotProps={{ input: { step: '0.01' } }} /></td>
               <td style={{ textAlign: 'center' }}><Checkbox size="sm" variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} disabled={savingProgress} uncheckedIcon={<RadioButtonUnchecked sx={{ fontSize: '1.2rem' }} />} checkedIcon={<CheckCircle color="success" sx={{ fontSize: '1.2rem' }} />} onClick={(e) => e.stopPropagation()} sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} /></td>
-              {cols === 6 && (<td>{exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" sx={{ '--IconButton-size': '24px' }} onClick={(e) => { e.stopPropagation(); deleteExpense(exp); }}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}</td>)}
+              {cols === 6 && (<td>
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
+                      {exp.type === 'cost' && (
+                          <IconButton size="sm" variant="plain" onClick={(e) => { e.stopPropagation(); setEditCostItem(exp); }}>
+                              <Edit sx={{ fontSize: '1rem' }} />
+                          </IconButton>
+                      )}
+                      {exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" sx={{ '--IconButton-size': '24px' }} onClick={(e) => { e.stopPropagation(); deleteExpense(exp); }}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}
+                  </Box>
+              </td>)}
           </tr>
       ));
   };
@@ -513,6 +541,11 @@ export default function BudgetView() {
                   </Box>
                   <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                       <Checkbox size="sm" variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} disabled={savingProgress} uncheckedIcon={<RadioButtonUnchecked />} checkedIcon={<CheckCircle color="success" />} onClick={(e) => e.stopPropagation()} />
+                      {exp.type === 'cost' && (
+                          <IconButton size="sm" variant="plain" onClick={(e) => { e.stopPropagation(); setEditCostItem(exp); }}>
+                              <Edit />
+                          </IconButton>
+                      )}
                       {exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" onClick={(e) => { e.stopPropagation(); deleteExpense(exp); }}><Delete /></IconButton>}
                   </Box>
               </Box>
@@ -673,6 +706,38 @@ export default function BudgetView() {
         <Modal open={quickAddOpen} onClose={() => setQuickAddOpen(false)}><ModalDialog sx={{ maxWidth: 400, width: '100%' }}><DialogTitle>Add One-off Expense</DialogTitle><DialogContent><form onSubmit={handleQuickAdd}><Stack spacing={2}><FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus /></FormControl><FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: '0.01' } }} /></FormControl><FormControl required><FormLabel>Due Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={new Date().getDate()} /></FormControl><Checkbox label="Nearest Working Day (Next)" name="nearest_working_day" defaultChecked value="1" /><AppSelect label="Category" name="category" defaultValue="other" options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'other', label: 'Other' }]} /><Button type="submit">Add to Cycle</Button></Stack></form></DialogContent></ModalDialog></Modal>
         <Modal open={recurringAddOpen} onClose={() => setRecurringAddOpen(false)}><ModalDialog sx={{ maxWidth: 400, width: '100%' }}><DialogTitle>Add Recurring Expense</DialogTitle><DialogContent><form onSubmit={handleRecurringAdd}><Stack spacing={2}><FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus /></FormControl><FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" step="0.01" /></FormControl><FormControl required><FormLabel>Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={1} /></FormControl><Checkbox label="Nearest Working Day (Next)" name="nearest_working_day" defaultChecked value="1" /><FormControl><FormLabel>Assign To</FormLabel><Select name="assigned_to" defaultValue="general_1"><Option value="general_1">🏠 General</Option><Divider>Members</Divider>{members.filter(m => m.type !== 'pet' && m.type !== 'viewer').map(m => <Option key={m.id} value={`member_${m.id}`}>{m.emoji} {m.name}</Option>)}<Divider>Pets</Divider>{members.filter(m => m.type === 'pet').map(p => <Option key={p.id} value={`pet_${p.id}`}>{p.emoji} {p.name}</Option>)}<Divider>Vehicles</Divider>{liabilities.vehicles.map(v_item => <Option key={v_item.id} value={`vehicle_${v_item.id}`}>{v_item.emoji || '🚗'} {v_item.make}</Option>)}<Divider>Assets</Divider>{liabilities.assets.map(a => <Option key={a.id} value={`asset_${a.id}`}>{a.emoji || '📦'} {a.name}</Option>)}</Select></FormControl><AppSelect label="Category" name="category" defaultValue="other" options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'saving', label: 'Saving' }, { value: 'other', label: 'Other' }]} /><Button type="submit">Add Recurring</Button></Stack></form></DialogContent></ModalDialog></Modal>
         <Modal open={familyExpenseOpen} onClose={() => setFamilyExpenseOpen(false)}><ModalDialog sx={{ maxWidth: 400, width: '100%' }}><DialogTitle>Add Family Expense / Transfer</DialogTitle><DialogContent><Typography level="body-sm" sx={{ mb: 2 }}>Record one-off money transfers or specific costs for a family member.</Typography><form onSubmit={handleFamilyExpenseAdd}><Stack spacing={2}><FormControl required><FormLabel>Family Member</FormLabel><Select name="member_id" placeholder="Select member">{members.filter(m => m.type !== 'viewer').map(m => (<Option key={m.id} value={m.id}>{m.emoji} {m.name}</Option>))}</Select></FormControl><FormControl required><FormLabel>Description</FormLabel><Input name="name" placeholder="e.g. Pocket Money, School Trip, Transfer" autoFocus /></FormControl><FormControl required><FormLabel>How Much (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: '0.01' } }} /></FormControl><FormControl required><FormLabel>Due Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={new Date().getDate()} /></FormControl><Button type="submit" startDecorator={<Payments />}>Add Family Expense</Button></Stack></form></DialogContent></ModalDialog></Modal>
+        
+        <Modal open={Boolean(editCostItem)} onClose={() => setEditCostItem(null)}>
+            <ModalDialog sx={{ maxWidth: 400, width: '100%' }}>
+                <DialogTitle>Edit Expense</DialogTitle>
+                <DialogContent>
+                    <form onSubmit={handleEditSave}>
+                        <Stack spacing={2}>
+                            <FormControl required><FormLabel>Name</FormLabel><Input name="name" defaultValue={editCostItem?.label} /></FormControl>
+                            <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" step="0.01" defaultValue={editCostItem?.amount} /></FormControl>
+                            <FormControl required><FormLabel>Due Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={editCostItem?.day} /></FormControl>
+                            <FormControl>
+                                <FormLabel>Frequency</FormLabel>
+                                <Select name="frequency" defaultValue={editCostItem?.frequency || 'Monthly'}>
+                                    <Option value="one-off">One-off</Option>
+                                    <Option value="Daily">Daily</Option>
+                                    <Option value="Weekly">Weekly</Option>
+                                    <Option value="Biweekly">Biweekly</Option>
+                                    <Option value="Monthly">Monthly</Option>
+                                    <Option value="Yearly">Yearly</Option>
+                                </Select>
+                            </FormControl>
+                            <Checkbox label="Nearest Working Day (Next)" name="nearest_working_day" defaultChecked value="1" />
+                            <AppSelect label="Category" name="category" defaultValue={editCostItem?.category?.toLowerCase() || 'other'} options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'saving', label: 'Saving' }, { value: 'other', label: 'Other' }, { value: 'transfer', label: 'Transfer' }]} />
+                            <DialogActions>
+                                <Button variant="plain" color="neutral" onClick={() => setEditCostItem(null)}>Cancel</Button>
+                                <Button type="submit" variant="solid">Save Changes</Button>
+                            </DialogActions>
+                        </Stack>
+                    </form>
+                </DialogContent>
+            </ModalDialog>
+        </Modal>
     </Box>
   );
 }
