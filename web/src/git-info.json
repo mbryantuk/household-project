@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Final hardening of Member and Calendar routes",
-  "date": "Thu 22 Jan 17:00:47 GMT 2026"
+  "commitMessage": "Fix 500 error on savings pots by removing invalid column",
+  "date": "Fri 23 Jan 14:13:41 GMT 2026"
 }

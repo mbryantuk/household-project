@@ -267,7 +267,7 @@ router.delete('/households/:id/finance/savings/:itemId', authenticateToken, requ
 // --- SAVINGS POTS ---
 router.get('/households/:id/finance/savings/pots', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
     const sql = `
-        SELECT p.*, s.institution, s.account_name, s.deposit_day, s.emoji as account_emoji, s.current_balance
+        SELECT p.*, s.institution, s.account_name, s.emoji as account_emoji, s.current_balance
         FROM finance_savings_pots p
         JOIN finance_savings s ON p.savings_id = s.id
         WHERE s.household_id = ?
