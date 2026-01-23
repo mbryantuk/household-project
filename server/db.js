@@ -70,7 +70,8 @@ function initGlobalDb() {
             ['default_household_id', 'INTEGER'],
             ['sticky_note', 'TEXT'],
             ['theme', "TEXT DEFAULT 'totem'"],
-            ['is_active', 'BOOLEAN DEFAULT 1']
+            ['is_active', 'BOOLEAN DEFAULT 1'],
+            ['is_test', 'INTEGER DEFAULT 0']
         ];
 
         userCols.forEach(([col, type]) => {

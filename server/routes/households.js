@@ -139,7 +139,7 @@ router.get('/households/:id/users', authenticateToken, requireHouseholdRole('mem
 router.post('/households/:id/users', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
     const householdId = req.params.id;
     // Accept both camelCase and snake_case for names to support various frontends
-    const { email, role, firstName, lastName, first_name, last_name, avatar, password } = req.body;
+    const { email, role, firstName, lastName, first_name, last_name, avatar, password, is_test } = req.body;
     
     if (!email) return res.status(400).json({ error: "Email is required" });
     
@@ -164,8 +164,8 @@ router.post('/households/:id/users', authenticateToken, requireHouseholdRole('ad
             const hash = bcrypt.hashSync(generatedPassword, 8);
             
             const result = await dbRun(globalDb, 
-                `INSERT INTO users (email, password_hash, first_name, last_name, avatar, system_role) VALUES (?, ?, ?, ?, ?, 'user')`,
-                [email, hash, finalFirstName, finalLastName, avatar || null]
+                `INSERT INTO users (email, password_hash, first_name, last_name, avatar, system_role, is_test) VALUES (?, ?, ?, ?, ?, 'user', ?)`,
+                [email, hash, finalFirstName, finalLastName, avatar || null, is_test ? 1 : 0]
             );
             userId = result.id;
         }

@@ -12,6 +12,7 @@ const GLOBAL_SCHEMA = [
         sticky_note TEXT,
         theme TEXT DEFAULT 'totem',
         default_household_id INTEGER,
+        is_test INTEGER DEFAULT 0,
         is_active INTEGER DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,

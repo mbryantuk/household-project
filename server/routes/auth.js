@@ -11,7 +11,7 @@ const { authenticateToken } = require('../middleware/auth');
  * SaaS Signup: Create Tenant + Admin User
  */
 router.post('/register', async (req, res) => {
-    const { householdName, email, password, firstName, lastName } = req.body;
+    const { householdName, email, password, firstName, lastName, is_test } = req.body;
 
     if (!householdName || !email || !password) {
         return res.status(400).json({ error: "Missing required fields" });
@@ -34,16 +34,16 @@ router.post('/register', async (req, res) => {
 
         // 2. Create Household
         const hhResult = await dbRun(globalDb, 
-            `INSERT INTO households (name) VALUES (?)`, 
-            [householdName]
+            `INSERT INTO households (name, is_test) VALUES (?, ?)`, 
+            [householdName, is_test ? 1 : 0]
         );
         const householdId = hhResult.id;
 
         // 3. Create Admin User
         const passwordHash = bcrypt.hashSync(password, 8);
         const userResult = await dbRun(globalDb,
-            `INSERT INTO users (email, password_hash, first_name, last_name, system_role, default_household_id) VALUES (?, ?, ?, ?, 'user', ?)`,
-            [email, passwordHash, firstName || 'Admin', lastName || '', householdId]
+            `INSERT INTO users (email, password_hash, first_name, last_name, system_role, default_household_id, is_test) VALUES (?, ?, ?, ?, 'user', ?, ?)`,
+            [email, passwordHash, firstName || 'Admin', lastName || '', householdId, is_test ? 1 : 0]
         );
         const userId = userResult.id;
 
