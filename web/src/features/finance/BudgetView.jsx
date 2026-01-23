@@ -553,16 +553,18 @@ export default function BudgetView() {
                       <Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label, isDark), color: '#fff' }}>{exp.icon}</Avatar>
                       <Box>
                           <Typography level="body-xs" fontWeight="bold">{exp.label}</Typography>
-                          <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{exp.category.toUpperCase()}</Typography>
+                          {!hidePill && exp.object && (
+                              <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                  {exp.object.emoji} {exp.object.name}
+                              </Typography>
+                          )}
                       </Box>
                   </Box>
               </td>
               <td>
-                  {!hidePill && exp.object && (
-                      <Chip size="sm" variant="soft" sx={{ fontSize: '0.65rem', minHeight: '16px', px: 0.5, maxWidth: '100%' }} startDecorator={exp.object.emoji}>
-                          <Typography noWrap sx={{ maxWidth: '120px' }}>{exp.object.name}</Typography>
-                      </Chip>
-                  )}
+                  <Chip size="sm" variant="soft" color="neutral" sx={{ fontSize: '0.65rem', minHeight: '16px', px: 0.5, maxWidth: '100%' }}>
+                      <Typography noWrap sx={{ maxWidth: '120px', textTransform: 'capitalize' }}>{exp.category}</Typography>
+                  </Chip>
               </td>
               {cols >= 7 ? (<td><Box sx={{ textAlign: 'center' }}><Typography level="body-xs" fontWeight="bold">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{format(exp.computedDate, 'EEE do')}</Typography>}</Box></td>) : <td />}
               <td style={{ textAlign: 'right' }}><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px', textAlign: 'right', '& input': { textAlign: 'right' } }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} slotProps={{ input: { step: '0.01' } }} /></td>
@@ -595,7 +597,7 @@ export default function BudgetView() {
                       <Avatar size="sm" sx={{ bgcolor: getEmojiColor(exp.label, isDark), color: '#fff' }}>{exp.icon}</Avatar>
                       <Box>
                           <Typography level="title-sm">{exp.label}</Typography>
-                          <Typography level="body-xs" color="neutral">{exp.category.toUpperCase()}</Typography>
+                          {!hidePill && exp.object && <Typography level="body-xs" color="neutral">{exp.object.emoji} {exp.object.name}</Typography>}
                       </Box>
                   </Box>
                   <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
@@ -610,7 +612,7 @@ export default function BudgetView() {
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Box sx={{ display: 'flex', gap: 1 }}>
-                      {!hidePill && exp.object && <Chip size="sm" variant="soft" startDecorator={exp.object.emoji}>{exp.object.name}</Chip>}
+                      <Chip size="sm" variant="soft" color="neutral" sx={{ textTransform: 'capitalize' }}>{exp.category}</Chip>
                   </Box>
                   <Input size="sm" type="number" variant="soft" sx={{ maxWidth: '100px' }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} />
               </Box>
