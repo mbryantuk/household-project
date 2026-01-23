@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix spacing issues in BudgetView expenses list",
-  "date": "Fri 23 Jan 15:21:27 GMT 2026"
+  "commitMessage": "Fix 404 on finance assignments by moving route definition",
+  "date": "Fri 23 Jan 15:31:34 GMT 2026"
 }

@@ -252,6 +252,70 @@ const handleSubUpdate = (childTable, parentTable, parentKey) => (req, res) => {
 // 🚀 ROUTES
 // ==========================================
 
+// --- ASSIGNMENTS (Member Linking) ---
+// Moved to top to prevent 404/Shadowing issues
+const handleAssignMember = (req, res) => {
+    const { entity_type, entity_id, member_id } = req.body;
+    if (!entity_type || !entity_id || !member_id) return res.status(400).json({ error: "Missing required fields" });
+    
+    // Verify member belongs to household
+    req.tenantDb.get("SELECT id FROM members WHERE id = ? AND household_id = ?", [member_id, req.hhId], (err, row) => {
+        if (err || !row) { closeDb(req); return res.status(404).json({ error: "Member not found" }); }
+        
+        req.tenantDb.run(
+            `INSERT OR IGNORE INTO finance_assignments (household_id, entity_type, entity_id, member_id) VALUES (?, ?, ?, ?)`, 
+            [req.hhId, entity_type, entity_id, member_id], 
+            function(iErr) {
+                closeDb(req);
+                if (iErr) return res.status(500).json({ error: iErr.message });
+                res.status(201).json({ message: "Assigned" });
+            }
+        );
+    });
+};
+
+const handleUnassignMember = (req, res) => {
+    const { entity_type, entity_id, member_id } = req.params;
+    req.tenantDb.run(
+        `DELETE FROM finance_assignments WHERE household_id = ? AND entity_type = ? AND entity_id = ? AND member_id = ?`,
+        [req.hhId, entity_type, entity_id, member_id],
+        function(err) {
+            closeDb(req);
+            if (err) return res.status(500).json({ error: err.message });
+            if (this.changes === 0) return res.status(404).json({ error: "Assignment not found" });
+            res.json({ message: "Unassigned" });
+        }
+    );
+};
+
+const handleGetAssignments = (req, res) => {
+    let sql = "SELECT * FROM finance_assignments WHERE household_id = ?";
+    let params = [req.hhId];
+    
+    if (req.query.entity_type) {
+        sql += " AND entity_type = ?";
+        params.push(req.query.entity_type);
+    }
+    if (req.query.entity_id) {
+        sql += " AND entity_id = ?";
+        params.push(req.query.entity_id);
+    }
+    if (req.query.member_id) {
+        sql += " AND member_id = ?";
+        params.push(req.query.member_id);
+    }
+
+    req.tenantDb.all(sql, params, (err, rows) => {
+        closeDb(req);
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+};
+
+router.get('/households/:id/finance/assignments', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetAssignments);
+router.post('/households/:id/finance/assignments', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleAssignMember);
+router.delete('/households/:id/finance/assignments/:entity_type/:entity_id/:member_id', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUnassignMember);
+
 // --- INCOME ---
 router.get('/households/:id/finance/income', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('finance_income'));
 router.post('/households/:id/finance/income', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('finance_income'));
@@ -492,72 +556,5 @@ router.get('/households/:id/finance/current-accounts', authenticateToken, requir
 router.post('/households/:id/finance/current-accounts', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('finance_current_accounts'));
 router.put('/households/:id/finance/current-accounts/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('finance_current_accounts'));
 router.delete('/households/:id/finance/current-accounts/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('finance_current_accounts'));
-
-// ==========================================
-// 🔗 ASSIGNMENTS (Member Linking)
-// ==========================================
-
-const handleAssignMember = (req, res) => {
-    const { entity_type, entity_id, member_id } = req.body;
-    if (!entity_type || !entity_id || !member_id) return res.status(400).json({ error: "Missing required fields" });
-    
-    // Verify member belongs to household
-    req.tenantDb.get("SELECT id FROM members WHERE id = ? AND household_id = ?", [member_id, req.hhId], (err, row) => {
-        if (err || !row) { closeDb(req); return res.status(404).json({ error: "Member not found" }); }
-        
-        req.tenantDb.run(
-            `INSERT OR IGNORE INTO finance_assignments (household_id, entity_type, entity_id, member_id) VALUES (?, ?, ?, ?)`, 
-            [req.hhId, entity_type, entity_id, member_id], 
-            function(iErr) {
-                closeDb(req);
-                if (iErr) return res.status(500).json({ error: iErr.message });
-                res.status(201).json({ message: "Assigned" });
-            }
-        );
-    });
-};
-
-const handleUnassignMember = (req, res) => {
-    const { entity_type, entity_id, member_id } = req.params;
-    req.tenantDb.run(
-        `DELETE FROM finance_assignments WHERE household_id = ? AND entity_type = ? AND entity_id = ? AND member_id = ?`,
-        [req.hhId, entity_type, entity_id, member_id],
-        function(err) {
-            closeDb(req);
-            if (err) return res.status(500).json({ error: err.message });
-            if (this.changes === 0) return res.status(404).json({ error: "Assignment not found" });
-            res.json({ message: "Unassigned" });
-        }
-    );
-};
-
-const handleGetAssignments = (req, res) => {
-    let sql = "SELECT * FROM finance_assignments WHERE household_id = ?";
-    let params = [req.hhId];
-    
-    if (req.query.entity_type) {
-        sql += " AND entity_type = ?";
-        params.push(req.query.entity_type);
-    }
-    if (req.query.entity_id) {
-        sql += " AND entity_id = ?";
-        params.push(req.query.entity_id);
-    }
-    if (req.query.member_id) {
-        sql += " AND member_id = ?";
-        params.push(req.query.member_id);
-    }
-
-    req.tenantDb.all(sql, params, (err, rows) => {
-        closeDb(req);
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-};
-
-router.get('/households/:id/finance/assignments', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetAssignments);
-router.post('/households/:id/finance/assignments', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleAssignMember);
-router.delete('/households/:id/finance/assignments/:entity_type/:entity_id/:member_id', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUnassignMember);
-
 
 module.exports = router;
