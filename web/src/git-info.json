@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix invalid member ID assignment in MortgagesView",
-  "date": "Fri 23 Jan 15:40:28 GMT 2026"
+  "commitMessage": "Add warning for high equity share inputs",
+  "date": "Fri 23 Jan 15:47:04 GMT 2026"
 }
