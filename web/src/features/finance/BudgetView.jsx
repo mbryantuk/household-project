@@ -532,7 +532,7 @@ export default function BudgetView() {
       );
   }
 
-  const renderTableRows = (items, cols = 6, hidePill = false) => {
+  const renderTableRows = (items, cols = 7, hidePill = false) => {
       return items.map((exp) => (
           <tr 
             key={exp.key} 
@@ -541,11 +541,26 @@ export default function BudgetView() {
             style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}
           >
               <td style={{ textAlign: 'center' }}><Checkbox size="sm" checked={selectedKeys.includes(exp.key)} onChange={() => handleSelectToggle(exp.key)} onClick={(e) => e.stopPropagation()} /></td>
-              <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label, isDark), color: '#fff' }}>{exp.icon}</Avatar><Box><Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}><Typography level="body-xs" fontWeight="bold">{exp.label}</Typography>{!hidePill && exp.object && <Chip size="sm" variant="soft" sx={{ fontSize: '0.65rem', minHeight: '16px', px: 0.5 }} startDecorator={exp.object.emoji}>{exp.object.name}</Chip>}</Box><Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{exp.category.toUpperCase()}</Typography></Box></Box></td>
-              {cols === 6 ? (<td><Box sx={{ textAlign: 'center' }}><Typography level="body-xs" fontWeight="bold">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{format(exp.computedDate, 'EEE do')}</Typography>}</Box></td>) : <td />}
+              <td>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label, isDark), color: '#fff' }}>{exp.icon}</Avatar>
+                      <Box>
+                          <Typography level="body-xs" fontWeight="bold">{exp.label}</Typography>
+                          <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{exp.category.toUpperCase()}</Typography>
+                      </Box>
+                  </Box>
+              </td>
+              <td>
+                  {!hidePill && exp.object && (
+                      <Chip size="sm" variant="soft" sx={{ fontSize: '0.65rem', minHeight: '16px', px: 0.5, maxWidth: '100%' }} startDecorator={exp.object.emoji}>
+                          <Typography noWrap sx={{ maxWidth: '120px' }}>{exp.object.name}</Typography>
+                      </Chip>
+                  )}
+              </td>
+              {cols >= 7 ? (<td><Box sx={{ textAlign: 'center' }}><Typography level="body-xs" fontWeight="bold">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{format(exp.computedDate, 'EEE do')}</Typography>}</Box></td>) : <td />}
               <td style={{ textAlign: 'right' }}><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px', textAlign: 'right', '& input': { textAlign: 'right' } }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} slotProps={{ input: { step: '0.01' } }} /></td>
               <td style={{ textAlign: 'center' }}><Checkbox size="sm" variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} disabled={savingProgress} uncheckedIcon={<RadioButtonUnchecked sx={{ fontSize: '1.2rem' }} />} checkedIcon={<CheckCircle color="success" sx={{ fontSize: '1.2rem' }} />} onClick={(e) => e.stopPropagation()} sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} /></td>
-              {cols === 6 ? (<td>
+              {cols >= 7 ? (<td>
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
                       {exp.type === 'cost' && (
                           <IconButton size="sm" variant="plain" onClick={(e) => { e.stopPropagation(); setEditCostItem(exp); }}>
@@ -596,7 +611,7 @@ export default function BudgetView() {
       ));
   };
 
-  const renderSection = (items, cols = 6, hidePill = false) => {
+  const renderSection = (items, cols = 7, hidePill = false) => {
       const visible = getVisibleItems(items);
       if (visible.length === 0) return null;
       return isMobile ? renderMobileCards(visible, cols, hidePill) : (
@@ -610,10 +625,11 @@ export default function BudgetView() {
                               else setSelectedKeys(prev => prev.filter(k => !keys.includes(k)));
                           }} /></th>
                           <th>Expense</th>
-                          {cols === 6 ? <th style={{ width: 80, textAlign: 'center' }}>Date</th> : <th style={{ width: 80 }}></th>}
+                          <th style={{ width: 140 }}>Context</th> 
+                          {cols >= 7 ? <th style={{ width: 80, textAlign: 'center' }}>Date</th> : <th style={{ width: 80 }}></th>}
                           <th style={{ width: 100, textAlign: 'right' }}>Amount</th>
                           <th style={{ width: 40, textAlign: 'center' }}>Paid</th>
-                          {cols === 6 ? <th style={{ width: 80 }}></th> : <th style={{ width: 80 }}></th>}
+                          {cols >= 7 ? <th style={{ width: 80 }}></th> : <th style={{ width: 80 }}></th>}
                       </tr>
                   </thead>
                   <tbody>{renderTableRows(visible, cols, hidePill)}</tbody>
