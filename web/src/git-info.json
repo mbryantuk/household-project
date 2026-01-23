@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix 500 error on savings pots by removing invalid column",
-  "date": "Fri 23 Jan 14:13:41 GMT 2026"
+  "commitMessage": "Refactor house/vehicle tabs and migrate maintenance costs",
+  "date": "Fri 23 Jan 14:30:53 GMT 2026"
 }

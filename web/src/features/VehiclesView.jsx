@@ -2,12 +2,11 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, Input, Button, 
-  FormControl, FormLabel, Stack, Divider,
-  Tooltip, IconButton, Grid, CircularProgress, Table, Chip,
-  Modal, ModalDialog, DialogTitle
+  FormControl, FormLabel, Divider,
+  Tooltip, IconButton, Grid, CircularProgress
 } from '@mui/joy';
 import { 
-  Edit, Delete, Add, Info, Shield, Payments
+  Delete, Add, Info, Payments
 } from '@mui/icons-material';
 import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
 import EmojiPicker from '../components/EmojiPicker';
@@ -33,9 +32,6 @@ export default function VehiclesView() {
   
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [subData, setSubData] = useState([]);
-  const [subLoading, setSubLoading] = useState(false);
-  const [editItem, setEditItem] = useState(null);
 
   const [vehicleType, setVehicleType] = useState('Car');
 
@@ -71,27 +67,7 @@ export default function VehiclesView() {
     }
   }, [selectedVehicle, vehicleId]);
 
-  const fetchSubData = useCallback(async () => {
-    if (vehicleId === 'new' || !selectedVehicle) return;
-    
-    const endpoints = ['fleet', 'services', 'finance', 'insurance', 'service_plans'];
-    const endpoint = endpoints[activeTab];
-    
-    if (!endpoint || endpoint === 'fleet') return;
-
-    setSubLoading(true);
-    try {
-      const res = await api.get(`/households/${householdId}/vehicles/${vehicleId}/${endpoint}`);
-      setSubData(res.data || []);
-    } catch (err) {
-      console.error(`Failed to fetch ${endpoint}`, err);
-    } finally {
-      setSubLoading(false);
-    }
-  }, [api, householdId, vehicleId, activeTab, selectedVehicle]);
-
   useEffect(() => { fetchVehiclesList(); }, [fetchVehiclesList]);
-  useEffect(() => { fetchSubData(); }, [fetchSubData]);
 
   const handleSubmitVehicle = async (e) => {
     e.preventDefault();
@@ -114,26 +90,6 @@ export default function VehiclesView() {
       }
     } catch {
       showNotification("Error saving vehicle.", "danger");
-    }
-  };
-
-  const handleSubmitSubEntry = async (e) => {
-    e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.currentTarget));
-    const endpoints = ['', 'services', 'finance', 'insurance', 'service_plans'];
-    const endpoint = endpoints[activeTab];
-
-    try {
-      if (editItem.id) {
-        await api.put(`/households/${householdId}/vehicles/${vehicleId}/${endpoint}/${editItem.id}`, data);
-      } else {
-        await api.post(`/households/${householdId}/vehicles/${vehicleId}/${endpoint}`, data);
-      }
-      showNotification("Entry saved.", "success");
-      fetchSubData();
-      setEditItem(null);
-    } catch {
-      showNotification("Error saving entry.", "danger");
     }
   };
 
@@ -258,11 +214,7 @@ export default function VehiclesView() {
                     }}
                 >
                     <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Info sx={{ mr: 1 }}/> Identity</Tab>
-                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Info sx={{ mr: 1 }}/> Service History</Tab>
-                    <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Finance</Tab>
-                    <Tab variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Shield sx={{ mr: 1 }}/> Insurance</Tab>
-                    <Tab variant={activeTab === 4 ? 'solid' : 'plain'} color={activeTab === 4 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Info sx={{ mr: 1 }}/> Service Plans</Tab>
-                    <Tab variant={activeTab === 5 ? 'solid' : 'plain'} color={activeTab === 5 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Recurring Costs</Tab>
+                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Recurring Costs</Tab>
                 </TabList>
             </Tabs>
         )}
@@ -332,13 +284,7 @@ export default function VehiclesView() {
                                     <Input name="replacement_cost" type="number" defaultValue={selectedVehicle?.replacement_cost} />
                                 </FormControl>
                             </Grid>
-                            <Grid xs={6} md={3}>
-                                <FormControl>
-                                    <FormLabel>Maint. Forecast (£/mo)</FormLabel>
-                                    <Input name="monthly_maintenance_cost" type="number" defaultValue={selectedVehicle?.monthly_maintenance_cost} />
-                                </FormControl>
-                            </Grid>
-                            <Grid xs={6} md={3}>
+                            <Grid xs={6} md={4}>
                                 <FormControl>
                                     <FormLabel>Annual Depreciation %</FormLabel>
                                     <Input name="depreciation_rate" type="number" defaultValue={selectedVehicle?.depreciation_rate} />
@@ -370,63 +316,10 @@ export default function VehiclesView() {
             </Box>
           )}
 
-          {activeTab > 0 && activeTab < 5 && vehicleId !== 'new' && (
-            <Box>
-              <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Box>
-                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                        {activeTab === 1 ? 'Service History' : activeTab === 2 ? 'Finance Agreements' : activeTab === 3 ? 'Insurance Policies' : 'Service Plans'}
-                    </Typography>
-                    <Typography level="body-md" color="neutral">Historical and active records for this vehicle.</Typography>
-                </Box>
-                {isAdmin && (
-                    <Button size="sm" variant="outlined" startDecorator={<Add />} onClick={() => setEditItem({})}>Add Entry</Button>
-                )}
-              </Box>
-              
-              {subLoading ? <CircularProgress /> : (
-                <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto' }}>
-                    <Table hoverRow>
-                        <thead>
-                            <tr>
-                                <th>Date / Provider</th>
-                                <th>Details</th>
-                                {isAdmin && <th style={{ textAlign: 'right' }}>Actions</th>}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {subData.map(item => (
-                                <tr key={item.id}>
-                                    <td>
-                                        <Typography level="body-sm" fontWeight="bold">{item.date || item.start_date || item.provider}</Typography>
-                                        <Typography level="body-xs" color="neutral">{item.provider}</Typography>
-                                    </td>
-                                    <td>
-                                        <Typography level="body-sm">{item.description || item.policy_number || item.details}</Typography>
-                                        {item.cost && <Typography level="body-xs">Cost: £{item.cost}</Typography>}
-                                        {item.monthly_payment && <Typography level="body-xs">Monthly: £{item.monthly_payment}</Typography>}
-                                        {item.payment_day && <Typography level="body-xs">Day: {item.payment_day}</Typography>}
-                                        {item.expiry_date && <Chip size="sm" sx={{ ml: 1 }}>Expires: {item.expiry_date}</Chip>}
-                                    </td>
-                                    {isAdmin && (
-                                        <td style={{ textAlign: 'right' }}>
-                                            <IconButton size="sm" variant="plain" onClick={() => setEditItem(item)}><Edit /></IconButton>
-                                            <IconButton size="sm" variant="plain" color="danger" onClick={() => api.delete(`/households/${householdId}/vehicles/${vehicleId}/${['fleet', 'services', 'finance', 'insurance', 'service_plans'][activeTab]}/${item.id}`).then(fetchSubData)}><Delete /></IconButton>
-                                        </td>
-                                    )}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
-                </Sheet>
-              )}
-            </Box>
-          )}
-
-          {activeTab === 5 && vehicleId !== 'new' && (
+          {activeTab === 1 && vehicleId !== 'new' && (
             <Box>
               <Box sx={{ mb: 4 }}>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Vehicle-Specific Recurring Costs</Typography>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Vehicle Recurring Costs</Typography>
                 <Typography level="body-md" color="neutral">Ongoing costs tied specifically to this fleet asset.</Typography>
               </Box>
               <RecurringCostsWidget 
@@ -441,58 +334,6 @@ export default function VehiclesView() {
           )}
         </Box>
       </Sheet>
-
-      <Modal open={!!editItem} onClose={() => setEditItem(null)}>
-        <ModalDialog>
-            <DialogTitle>{editItem?.id ? 'Edit Entry' : 'Add Entry'}</DialogTitle>
-            <form onSubmit={handleSubmitSubEntry}>
-                <Stack spacing={2} sx={{ mt: 1 }}>
-                    <FormControl required>
-                        <FormLabel>Provider / Garage</FormLabel>
-                        <Input name="provider" defaultValue={editItem?.provider} />
-                    </FormControl>
-                    {(activeTab === 1 || activeTab === 2 || activeTab === 3) && (
-                        <FormControl>
-                            <FormLabel>Date</FormLabel>
-                            <Input name="date" type="date" defaultValue={editItem?.date || editItem?.start_date} />
-                        </FormControl>
-                    )}
-                    {(activeTab === 3 || activeTab === 4) && (
-                        <FormControl>
-                            <FormLabel>Expiry Date</FormLabel>
-                            <Input name="expiry_date" type="date" defaultValue={editItem?.expiry_date} />
-                        </FormControl>
-                    )}
-                    {(activeTab === 3) && (
-                        <FormControl>
-                            <FormLabel>Payment Day</FormLabel>
-                            <Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} />
-                        </FormControl>
-                    )}
-                    {activeTab === 1 && (
-                        <FormControl>
-                            <FormLabel>Cost (£)</FormLabel>
-                            <Input name="cost" type="number" defaultValue={editItem?.cost} />
-                        </FormControl>
-                    )}
-                    {activeTab === 2 && (
-                        <FormControl>
-                            <FormLabel>Monthly Payment (£)</FormLabel>
-                            <Input name="monthly_payment" type="number" defaultValue={editItem?.monthly_payment} />
-                        </FormControl>
-                    )}
-                    <FormControl>
-                        <FormLabel>Details / Policy #</FormLabel>
-                        <Input name="description" defaultValue={editItem?.description || editItem?.policy_number || editItem?.details} />
-                    </FormControl>
-                    <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', pt: 2 }}>
-                        <Button variant="plain" color="neutral" onClick={() => setEditItem(null)}>Cancel</Button>
-                        <Button type="submit" variant="solid">Save Entry</Button>
-                    </Box>
-                </Stack>
-            </form>
-        </ModalDialog>
-      </Modal>
 
       <EmojiPicker 
         open={emojiPickerOpen} 

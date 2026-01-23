@@ -1,21 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext, useNavigate, useLocation } from 'react-router-dom';
 import { 
-  Box, Typography, Sheet, Tabs, TabList, Tab, CircularProgress, Divider, Grid, Input, Button, Tooltip, IconButton, FormControl, FormLabel
+  Box, Typography, Sheet, Tabs, TabList, Tab, CircularProgress, Divider, Grid, Input, Button, Tooltip, IconButton, FormControl, FormLabel, Badge
 } from '@mui/joy';
 import { 
-  HomeWork, ElectricBolt, WaterDrop, DeleteSweep, 
-  Inventory, AccountBalance, Payments, Info, Badge,
-  Save, ArrowBack
+  HomeWork, Payments, Save, ArrowBack, Info
 } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
 import EntityGrid from '../components/ui/EntityGrid';
 
 // Feature Components
-import EnergyView from './EnergyView';
-import CouncilView from './CouncilView';
-import WasteView from './WasteView';
-import AssetsView from './AssetsView';
 import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
 import GeneralDetailView from './GeneralDetailView';
 
@@ -25,12 +19,8 @@ export default function HouseView() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Parse Tab from Query Param
-  const queryParams = new URLSearchParams(location.search);
-  const initialTab = queryParams.get('tab') === 'assets' ? 5 : 0;
-
   const [viewMode, setViewMode] = useState('details'); // Default to details
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const [activeTab, setActiveTab] = useState(0);
   const [household, setHousehold] = useState(null);
   const [vehicles, setVehicles] = useState([]);
   const [loadingHh, setLoadingHh] = useState(true);
@@ -54,12 +44,6 @@ export default function HouseView() {
       .catch(err => console.error("Failed to fetch vehicles", err));
 
   }, [api, householdId]);
-
-  // Sync tab if query param changes
-  useEffect(() => {
-    const tab = new URLSearchParams(location.search).get('tab');
-    if (tab === 'assets') setActiveTab(5);
-  }, [location.search]);
 
   const handleUpdateIdentity = async (e) => {
     e.preventDefault();
@@ -194,12 +178,7 @@ export default function HouseView() {
           >
             <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><Badge sx={{ mr: 1 }}/> Identity</Tab>
             <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><HomeWork sx={{ mr: 1 }}/> General</Tab>
-            <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><ElectricBolt sx={{ mr: 1 }}/> Energy</Tab>
-            <Tab variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><WaterDrop sx={{ mr: 1 }}/> Water</Tab>
-            <Tab variant={activeTab === 4 ? 'solid' : 'plain'} color={activeTab === 4 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><DeleteSweep sx={{ mr: 1 }}/> Waste</Tab>
-            <Tab variant={activeTab === 5 ? 'solid' : 'plain'} color={activeTab === 5 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><Inventory sx={{ mr: 1 }}/> Assets</Tab>
-            <Tab variant={activeTab === 6 ? 'solid' : 'plain'} color={activeTab === 6 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><AccountBalance sx={{ mr: 1 }}/> Council</Tab>
-            <Tab variant={activeTab === 7 ? 'solid' : 'plain'} color={activeTab === 7 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><Payments sx={{ mr: 1 }}/> Recurring Costs</Tab>
+            <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><Payments sx={{ mr: 1 }}/> Recurring Costs</Tab>
           </TabList>
 
           <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
@@ -286,48 +265,13 @@ export default function HouseView() {
                 />
             )}
             
-            {activeTab === 2 && <EnergyView />}
-            {activeTab === 3 && (
-                <GeneralDetailView 
-                    title="Water Supply" 
-                    endpoint="water" 
-                    fields={[
-                        { name: 'provider', label: 'Water Provider', half: true },
-                        { name: 'account_number', label: 'Account Number', half: true },
-                        { name: 'supply_type', label: 'Supply Type (e.g. Metered)', half: true },
-                        { name: 'meter_serial', label: 'Meter Serial Number', half: true },
-                        { name: 'waste_provider', label: 'Waste Water Provider', half: true },
-                        { name: 'waste_account_number', label: 'Waste Account Number', half: true },
-                        { name: 'color', label: 'Display Color (Hex)', half: true },
-                        { name: 'notes', label: 'Notes', multiline: true, rows: 3 }
-                    ]} 
-                />
-            )}
-            {activeTab === 4 && <WasteView />}
-            {activeTab === 5 && <AssetsView />}
-            {activeTab === 6 && (
-                <GeneralDetailView 
-                    title="Council Tax" 
-                    endpoint="council" 
-                    fields={[
-                        { name: 'authority_name', label: 'Local Authority Name', half: true },
-                        { name: 'account_number', label: 'Account Number', half: true },
-                        { name: 'payment_method', label: 'Payment Method', half: true },
-                        { name: 'monthly_amount', label: 'Monthly Amount', type: 'number', half: true },
-                        { name: 'payment_day', label: 'Payment Day of Month', type: 'number', half: true },
-                        { name: 'color', label: 'Display Color (Hex)', half: true },
-                        { name: 'notes', label: 'Notes', multiline: true, rows: 3 }
-                    ]} 
-                />
-            )}
-            
-            {activeTab === 7 && (
+            {activeTab === 2 && (
                 <Box>
                     <Box sx={{ mb: 4 }}>
                         <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                            Miscellaneous Costs
+                            Recurring Costs
                         </Typography>
-                        <Typography level="body-md" color="neutral">Track extra expenses not covered in other categories.</Typography>
+                        <Typography level="body-md" color="neutral">Track expenses related to the property.</Typography>
                     </Box>
                     <RecurringCostsWidget 
                         api={api} 

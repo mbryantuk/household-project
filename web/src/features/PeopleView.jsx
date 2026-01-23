@@ -2,11 +2,11 @@ import { useState, useMemo, useEffect } from 'react';
 import { useOutletContext, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Button, Input, FormControl, FormLabel, 
-  Stack, IconButton, Divider, Tooltip, 
+  IconButton, Tooltip, 
   Grid, Tabs, TabList, Tab
 } from '@mui/joy';
 import { 
-  Delete, Gavel, Payments, ContactPage, Add
+  Delete, Payments, ContactPage
 } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
 import AppSelect from '../components/ui/AppSelect'; 
@@ -34,8 +34,6 @@ export default function PeopleView() {
   const [formData, setFormData] = useState({
     first_name: '', middle_name: '', last_name: '',
     type: initialType, alias: '', dob: '', emoji: '👨', notes: '',
-    life_insurance_provider: '', life_insurance_premium: 0, life_insuranceexpiry: '',
-    will_details: ''
   });
 
   useEffect(() => {
@@ -49,10 +47,6 @@ export default function PeopleView() {
         dob: selectedPerson.dob || '',
         emoji: selectedPerson.emoji || '👨',
         notes: selectedPerson.notes || '',
-        life_insurance_provider: selectedPerson.life_insurance_provider || '',
-        life_insurance_premium: selectedPerson.life_insurance_premium || 0,
-        life_insuranceexpiry: selectedPerson.life_insuranceexpiry || '',
-        will_details: selectedPerson.will_details || ''
       };
       Promise.resolve().then(() => setFormData(data));
     } else if (personId === 'new') {
@@ -61,8 +55,6 @@ export default function PeopleView() {
       const data = {
         first_name: '', middle_name: '', last_name: '',
         type: currentType, alias: '', dob: '', emoji: currentType === 'child' ? '👶' : '👨', notes: '',
-        life_insurance_provider: '', life_insurance_premium: 0, life_insuranceexpiry: '',
-        will_details: ''
       };
       Promise.resolve().then(() => setFormData(data));
     }
@@ -94,7 +86,7 @@ export default function PeopleView() {
   const handleDelete = () => {
     confirmAction(
         "Remove Person",
-        `Are you sure you want to remove ${selectedPerson.name}? This will also delete their recurring costs and birthdays.`,
+        `Are you sure you want to remove ${selectedPerson.name}? This will also delete their recurring costs.`,
         async () => {
             try {
                 await api.delete(`/households/${householdId}/members/${personId}`);
@@ -209,8 +201,7 @@ export default function PeopleView() {
                     }}
                 >
                     <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><ContactPage sx={{ mr: 1 }}/> Identity</Tab>
-                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} disabled={formData.type === 'child'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Protection & Legal</Tab>
-                    <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Recurring Costs</Tab>
+                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Recurring Costs</Tab>
                 </TabList>
             </Tabs>
         )}
@@ -302,58 +293,8 @@ export default function PeopleView() {
 
           {activeTab === 1 && personId !== 'new' && (
             <Box>
-                <Box sx={{ mb: 4 }}>
-                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                        Protection & Legal
-                    </Typography>
-                    <Typography level="body-md" color="neutral">Insurance, Wills, and Legal documentation.</Typography>
-                </Box>
-                <form onSubmit={handleSubmit}>
-                <Grid container spacing={3}>
-                    <Grid xs={12}>
-                    <Typography level="title-lg" sx={{ fontWeight: 'lg' }}>Life Insurance</Typography>
-                    </Grid>
-                    <Grid xs={12} md={6}>
-                        <FormControl>
-                            <FormLabel>Provider</FormLabel>
-                            <Input name="life_insurance_provider" value={formData.life_insurance_provider} onChange={handleChange} />
-                        </FormControl>
-                    </Grid>
-                    <Grid xs={12} md={3}>
-                        <FormControl>
-                            <FormLabel>Monthly Premium (£)</FormLabel>
-                            <Input name="life_insurance_premium" type="number" value={formData.life_insurance_premium} onChange={handleChange} />
-                        </FormControl>
-                    </Grid>
-                    <Grid xs={12} md={3}>
-                        <FormControl>
-                            <FormLabel>Policy Expiry</FormLabel>
-                            <Input name="life_insuranceexpiry" type="date" value={formData.life_insuranceexpiry} onChange={handleChange} />
-                        </FormControl>
-                    </Grid>
-                    
-                    <Grid xs={12}>
-                    <Divider sx={{ my: 2 }} />
-                    <Typography level="title-lg" sx={{ fontWeight: 'lg' }} startDecorator={<Gavel />}>
-                        Wills & Estate
-                    </Typography>
-                    <FormControl sx={{ mt: 2 }}>
-                        <FormLabel>Will / Estate Details</FormLabel>
-                        <Input name="will_details" value={formData.will_details} onChange={handleChange} placeholder="Location of original document, executors, key instructions..." />
-                    </FormControl>
-                    </Grid>
-                    <Grid xs={12}>
-                    <Button type="submit" variant="solid" size="lg">Save Legal Info</Button>
-                    </Grid>
-                </Grid>
-                </form>
-            </Box>
-          )}
-
-          {activeTab === 2 && personId !== 'new' && (
-            <Box>
               <Box sx={{ mb: 4 }}>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Recurring Miscellaneous Costs</Typography>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Recurring Costs</Typography>
                 <Typography level="body-md" color="neutral">Costs specific to this resident.</Typography>
               </Box>
               <RecurringCostsWidget 
