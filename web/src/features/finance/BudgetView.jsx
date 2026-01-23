@@ -652,57 +652,53 @@ export default function BudgetView() {
 
             <Grid xs={12} md={9}>
                 <Stack spacing={4}>
-                    <Box>
-                        {frequencyOrder.map(freq => {
-                            const normalized = freq.toLowerCase();
-                            const items = groupedRecurring[normalized] || [];
-                            const visible = getVisibleItems(items);
-                            if (visible.length === 0) return null;
+                    {frequencyOrder.map(freq => {
+                        const normalized = freq.toLowerCase();
+                        const items = groupedRecurring[normalized] || [];
+                        const visible = getVisibleItems(items);
+                        if (visible.length === 0) return null;
 
-                            // Group by Object (Asset/House/Vehicle)
-                            const byAsset = {};
-                            visible.forEach(item => {
-                                const key = item.object ? item.object.name : 'General';
-                                if (!byAsset[key]) byAsset[key] = [];
-                                byAsset[key].push(item);
-                            });
+                        // Group by Object (Asset/House/Vehicle)
+                        const byAsset = {};
+                        visible.forEach(item => {
+                            const key = item.object ? item.object.name : 'General';
+                            if (!byAsset[key]) byAsset[key] = [];
+                            byAsset[key].push(item);
+                        });
 
-                            return (
-                                <Box key={freq} sx={{ mb: 3 }}>
-                                    <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1, textTransform: 'capitalize' }}><Payments fontSize="small" /> {freq} Expenses</Typography>
-                                    <Stack spacing={2}>
-                                        {Object.entries(byAsset).sort().map(([assetName, assetItems]) => (
-                                            <Box key={assetName}>
-                                                <Typography level="title-sm" color="primary" sx={{ mb: 0.5, fontSize: 'xs', ml: 1 }}>{assetName}</Typography>
-                                                {renderSection(assetItems.sort((a,b) => a.category.localeCompare(b.category)), 6, true)}
-                                            </Box>
-                                        ))}
-                                    </Stack>
-                                </Box>
-                            );
-                        })}
-                    </Box>
+                        return (
+                            <Box key={freq}>
+                                <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1, textTransform: 'capitalize' }}><Payments fontSize="small" /> {freq} Expenses</Typography>
+                                <Stack spacing={2}>
+                                    {Object.entries(byAsset).sort().map(([assetName, assetItems]) => (
+                                        <Box key={assetName}>
+                                            <Typography level="title-sm" color="primary" sx={{ mb: 0.5, fontSize: 'xs', ml: 1 }}>{assetName}</Typography>
+                                            {renderSection(assetItems.sort((a,b) => a.category.localeCompare(b.category)), 6, true)}
+                                        </Box>
+                                    ))}
+                                </Stack>
+                            </Box>
+                        );
+                    })}
 
-                    <Box>
-                        {(() => {
-                            const items = cycleData.expenses.filter(exp => exp.frequency === 'one-off' && exp.memberId == null);
-                            const visible = getVisibleItems(items);
-                            if (visible.length === 0) return null;
-                            return (
-                                <Box sx={{ mb: 3 }}>
-                                    <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><ShoppingBag fontSize="small" /> One-off Expenses</Typography>
-                                    {renderSection(items)}
-                                </Box>
-                            );
-                        })()}
-                    </Box>
+                    {(() => {
+                        const items = cycleData.expenses.filter(exp => exp.frequency === 'one-off' && exp.memberId == null);
+                        const visible = getVisibleItems(items);
+                        if (visible.length === 0) return null;
+                        return (
+                            <Box>
+                                <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><ShoppingBag fontSize="small" /> One-off Expenses</Typography>
+                                {renderSection(items)}
+                            </Box>
+                        );
+                    })()}
 
                     {memberExpenses.map(group => {
                         const visibleExpenses = getVisibleItems(group.expenses);
                         if (visibleExpenses.length === 0) return null;
                         const unpaidTotal = visibleExpenses.filter(e => !e.isPaid).reduce((sum, e) => sum + e.amount, 0);
                         return (
-                            <Box key={group.id} sx={{ mb: 3 }}>
+                            <Box key={group.id}>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar><Box><Typography level="title-md">{group.name}'s Expenses</Typography><Typography level="body-xs" color="neutral">One-off / Transfers</Typography></Box></Box>
                                     <Box sx={{ textAlign: 'right' }}><Typography level="title-sm" color="danger">{formatCurrency(unpaidTotal)}</Typography><Typography level="body-xs">Unpaid</Typography></Box>
@@ -712,49 +708,45 @@ export default function BudgetView() {
                         );
                     })}
 
-                    <Box>
-                        {(() => {
-                            const visibleAccountGroups = Object.entries(groupedPots).map(([accId, group]) => {
-                                const potItems = group.pots.map(p => cycleData.expenses.find(e => e.key === `pot_${p.id}`)).filter(Boolean);
-                                const visiblePots = getVisibleItems(potItems);
-                                if (visiblePots.length === 0) return null;
-                                return { accId, group, visiblePots, potItems };
-                            }).filter(Boolean);
+                    {(() => {
+                        const visibleAccountGroups = Object.entries(groupedPots).map(([accId, group]) => {
+                            const potItems = group.pots.map(p => cycleData.expenses.find(e => e.key === `pot_${p.id}`)).filter(Boolean);
+                            const visiblePots = getVisibleItems(potItems);
+                            if (visiblePots.length === 0) return null;
+                            return { accId, group, visiblePots, potItems };
+                        }).filter(Boolean);
 
-                            if (visibleAccountGroups.length === 0) return null;
+                        if (visibleAccountGroups.length === 0) return null;
 
-                            return (
-                                <Box sx={{ mb: 3 }}>
-                                    <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><SavingsIcon fontSize="small" /> Savings & Goals</Typography>
-                                    <Stack spacing={3}>
-                                        {visibleAccountGroups.map(({ accId, group, potItems }) => (
-                                            <Box key={accId}>
-                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar><Box><Typography level="title-sm">{group.name}</Typography><Typography level="body-xs" color="neutral">{group.institution}</Typography></Box></Box>
-                                                    <Box sx={{ textAlign: 'right' }}><Typography level="title-sm" color="success">{formatCurrency(group.balance)}</Typography><Typography level="body-xs">Balance</Typography></Box>
-                                                </Box>
-                                                {renderSection(potItems, 4, true)}
+                        return (
+                            <Box>
+                                <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><SavingsIcon fontSize="small" /> Savings & Goals</Typography>
+                                <Stack spacing={3}>
+                                    {visibleAccountGroups.map(({ accId, group, potItems }) => (
+                                        <Box key={accId}>
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar><Box><Typography level="title-sm">{group.name}</Typography><Typography level="body-xs" color="neutral">{group.institution}</Typography></Box></Box>
+                                                <Box sx={{ textAlign: 'right' }}><Typography level="title-sm" color="success">{formatCurrency(group.balance)}</Typography><Typography level="body-xs">Balance</Typography></Box>
                                             </Box>
-                                        ))}
-                                    </Stack>
-                                </Box>
-                            );
-                        })()}
-                    </Box>
+                                            {renderSection(potItems, 4, true)}
+                                        </Box>
+                                    ))}
+                                </Stack>
+                            </Box>
+                        );
+                    })()}
 
-                    <Box>
-                        {(() => {
-                            const items = cycleData.expenses.filter(e => e.type === 'pension');
-                            const visible = getVisibleItems(items);
-                            if (visible.length === 0) return null;
-                            return (
-                                <Box sx={{ mb: 3 }}>
-                                    <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><SavingsIcon fontSize="small" /> Pensions</Typography>
-                                    {renderSection(items, 4, true)}
-                                </Box>
-                            );
-                        })()}
-                    </Box>
+                    {(() => {
+                        const items = cycleData.expenses.filter(e => e.type === 'pension');
+                        const visible = getVisibleItems(items);
+                        if (visible.length === 0) return null;
+                        return (
+                            <Box>
+                                <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><SavingsIcon fontSize="small" /> Pensions</Typography>
+                                {renderSection(items, 4, true)}
+                            </Box>
+                        );
+                    })()}
                 </Stack>
             </Grid>
         </Grid>
