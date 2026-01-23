@@ -53,7 +53,7 @@ function initGlobalDb() {
             ['date_format', "TEXT DEFAULT 'DD/MM/YYYY'"], ['currency', "TEXT DEFAULT 'GBP'"],
             ['decimals', 'INTEGER DEFAULT 2'], ['avatar', 'TEXT'],
             ['auto_backup', 'BOOLEAN DEFAULT 1'], ['backup_retention', 'INTEGER DEFAULT 7'],
-            ['enabled_modules', 'TEXT']
+            ['enabled_modules', 'TEXT'], ['is_test', 'INTEGER DEFAULT 0']
         ];
         
         houseCols.forEach(([col, type]) => {

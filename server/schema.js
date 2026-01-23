@@ -28,6 +28,7 @@ const GLOBAL_SCHEMA = [
         enabled_modules TEXT DEFAULT '["pets", "vehicles", "meals"]',
         auto_backup INTEGER DEFAULT 1,
         backup_retention INTEGER DEFAULT 7,
+        is_test INTEGER DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
     `CREATE TABLE IF NOT EXISTS user_households (

@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Refactor house/vehicle tabs and migrate maintenance costs",
-  "date": "Fri 23 Jan 14:30:53 GMT 2026"
+  "commitMessage": "Add is_test flag and cleanup logic",
+  "date": "Fri 23 Jan 14:36:50 GMT 2026"
 }

@@ -29,14 +29,14 @@ const dbRun = (db, sql, params) => new Promise((resolve, reject) => {
  * Create a new household. Only allowed for users.
  */
 router.post('/households', authenticateToken, async (req, res) => {
-    const { name } = req.body;
+    const { name, is_test } = req.body;
     if (!name) return res.status(400).json({ error: "Household name is required" });
 
     try {
         // 1. Create Household record in Global DB
         const hhResult = await dbRun(globalDb, 
-            `INSERT INTO households (name) VALUES (?)`, 
-            [name]
+            `INSERT INTO households (name, is_test) VALUES (?, ?)`, 
+            [name, is_test ? 1 : 0]
         );
         const householdId = hhResult.id;
 
