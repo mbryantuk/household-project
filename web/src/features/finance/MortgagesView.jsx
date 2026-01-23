@@ -22,7 +22,7 @@ const formatPercent = (val) => {
 };
 
 export default function MortgagesView() {
-  const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, members, household } = useOutletContext();
   const [mortgages, setMortgages] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [assets, setAssets] = useState([]);
@@ -197,7 +197,7 @@ export default function MortgagesView() {
   };
 
   const properties = [
-      { id: 'primary', name: 'Primary Residence', valuation: houseDetails?.current_valuation || 0, emoji: '🏠' },
+      { id: 'primary', name: household?.name || 'Primary Residence', valuation: houseDetails?.current_valuation || 0, emoji: '🏠' },
       ...assets.filter(a => a.category?.toLowerCase() === 'property').map(a => ({
           id: a.id, name: a.name, valuation: a.purchase_value || 0, emoji: a.emoji || '🏘️'
       }))

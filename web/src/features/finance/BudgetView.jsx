@@ -473,7 +473,7 @@ export default function BudgetView() {
   const groupedRecurring = useMemo(() => {
       if (!cycleData) return {};
       const groups = {};
-      cycleData.expenses.filter(exp => exp.frequency !== 'one-off' && exp.type !== 'pot' && exp.type !== 'pension' && exp.type !== 'investment').forEach(exp => {
+      cycleData.expenses.filter(exp => exp.frequency !== 'one-off' && exp.memberId == null && exp.type !== 'pot' && exp.type !== 'pension' && exp.type !== 'investment').forEach(exp => {
           const freq = exp.frequency || 'monthly';
           const normalized = freq.toLowerCase();
           if (!groups[normalized]) groups[normalized] = [];
@@ -485,7 +485,7 @@ export default function BudgetView() {
   const memberExpenses = useMemo(() => {
       if (!cycleData) return [];
       const groups = {};
-      cycleData.expenses.filter(exp => exp.memberId != null && exp.frequency === 'one-off').forEach(exp => {
+      cycleData.expenses.filter(exp => exp.memberId != null).forEach(exp => {
           const mId = String(exp.memberId);
           if (!groups[mId]) {
               const m = members.find(mem => String(mem.id) === mId);
@@ -725,7 +725,7 @@ export default function BudgetView() {
                         return (
                             <Box key={group.id}>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar><Box><Typography level="title-md">{group.name}'s Expenses</Typography><Typography level="body-xs" color="neutral">One-off / Transfers</Typography></Box></Box>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar><Box><Typography level="title-md">{group.name}'s Expenses</Typography><Typography level="body-xs" color="neutral">Personal Expenses</Typography></Box></Box>
                                     <Box sx={{ textAlign: 'right' }}><Typography level="title-sm" color="danger">{formatCurrency(unpaidTotal)}</Typography><Typography level="body-xs">Unpaid</Typography></Box>
                                 </Box>
                                 {renderSection(group.expenses)}
