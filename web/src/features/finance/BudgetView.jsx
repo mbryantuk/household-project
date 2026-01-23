@@ -407,17 +407,33 @@ export default function BudgetView() {
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
       const data = Object.fromEntries(formData.entries());
-      data.nearest_working_day = data.nearest_working_day === "1" ? 1 : 0;
-      
-      if (data.assigned_to) {
-          const [type, id] = data.assigned_to.split('_');
-          data.parent_type = type; data.parent_id = id;
-          delete data.assigned_to;
-      }
+      const updateFuture = data.update_future === '1';
       
       try {
-          await api.put(`/households/${householdId}/costs/${editCostItem.id}`, data);
-          showNotification("Expense updated.", "success");
+          // Case 1: Update ONLY this month's amount
+          if (!updateFuture && editCostItem.type === 'cost') {
+              if (data.amount !== editCostItem.amount) {
+                  await updateActualAmount(editCostItem.key, data.amount);
+                  showNotification("Updated amount for this month.", "success");
+              }
+              // Note: We ignore name/date/category changes for single-month edits as schema doesn't support divergence
+          } 
+          // Case 2: Update Recurring Cost (Future)
+          else {
+              data.nearest_working_day = data.nearest_working_day === "1" ? 1 : 0;
+              if (data.assigned_to) {
+                  const [type, id] = data.assigned_to.split('_');
+                  data.parent_type = type; data.parent_id = id;
+                  delete data.assigned_to;
+              }
+              delete data.update_future;
+
+              await api.put(`/households/${householdId}/costs/${editCostItem.id}`, data);
+              // Also update current month's amount to match the new default
+              await updateActualAmount(editCostItem.key, data.amount); 
+              showNotification("Recurring cost updated.", "success");
+          }
+          
           fetchData();
           setEditCostItem(null);
       } catch (err) {
@@ -803,6 +819,19 @@ export default function BudgetView() {
                             <Checkbox label="Nearest Working Day (Next)" name="nearest_working_day" defaultChecked value="1" />
                             <FormControl><FormLabel>Assign To</FormLabel><Select name="assigned_to" defaultValue={`${editCostItem?.parent_type}_${editCostItem?.parent_id}`}><Option value="general_1">🏠 {household?.name || 'Household'}</Option><Divider>Members</Divider>{members.filter(m => m.type !== 'pet' && m.type !== 'viewer').map(m => <Option key={m.id} value={`member_${m.id}`}>{m.emoji} {m.alias || m.name}</Option>)}<Divider>Pets</Divider>{members.filter(m => m.type === 'pet').map(p => <Option key={p.id} value={`pet_${p.id}`}>{p.emoji} {p.alias || p.name}</Option>)}<Divider>Vehicles</Divider>{liabilities.vehicles.map(v_item => <Option key={v_item.id} value={`vehicle_${v_item.id}`}>{v_item.emoji || '🚗'} {v_item.make} {v_item.model}</Option>)}<Divider>Assets</Divider>{liabilities.assets.map(a => <Option key={a.id} value={`asset_${a.id}`}>{a.emoji || '📦'} {a.name}</Option>)}</Select></FormControl>
                             <AppSelect label="Category" name="category" defaultValue={editCostItem?.category?.toLowerCase() || 'other'} options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'saving', label: 'Saving' }, { value: 'other', label: 'Other' }, { value: 'transfer', label: 'Transfer' }]} />
+                            
+                            {editCostItem?.type === 'cost' && (
+                                <Sheet variant="soft" color="warning" sx={{ p: 1, borderRadius: 'sm' }}>
+                                    <Checkbox 
+                                        label="Update future months too?" 
+                                        name="update_future" 
+                                        value="1" 
+                                        sx={{ fontWeight: 'bold' }}
+                                    />
+                                    <Typography level="body-xs" sx={{ mt: 0.5 }}>Unchecked: Updates amount for THIS month only.</Typography>
+                                </Sheet>
+                            )}
+
                             <DialogActions>
                                 <Button variant="plain" color="neutral" onClick={() => setEditCostItem(null)}>Cancel</Button>
                                 <Button type="submit" variant="solid">Save Changes</Button>
