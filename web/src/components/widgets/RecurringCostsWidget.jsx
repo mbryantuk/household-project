@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   Box, Typography, IconButton, Button, Modal, ModalDialog, DialogTitle, 
   DialogContent, DialogActions, Input, FormControl, FormLabel, 
-  Select, Option, Stack, Table, Sheet, Chip, CircularProgress, Switch, Textarea
+  Select, Option, Stack, Table, Sheet, Chip, CircularProgress, Switch, Textarea, Divider
 } from '@mui/joy';
 import { Add, Edit, Delete, ReceiptLong } from '@mui/icons-material';
 import { format, addMonths, setDate, isWeekend, startOfDay, isBefore, addDays } from 'date-fns';
@@ -45,6 +45,16 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
       setIsNearestWorkingDay(Boolean(editItem.nearest_working_day));
     }
   }, [editItem]);
+
+  const groupedCosts = useMemo(() => {
+      const groups = {};
+      costs.forEach(c => {
+          const cat = (c.category || 'Other').charAt(0).toUpperCase() + (c.category || 'Other').slice(1);
+          if (!groups[cat]) groups[cat] = [];
+          groups[cat].push(c);
+      });
+      return groups;
+  }, [costs]);
 
   const getNextPaymentDate = (day, useNwd) => {
       if (!day) return null;
@@ -107,7 +117,7 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
     <Box sx={{ mt: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
         <Typography level="title-md" startDecorator={<ReceiptLong color="primary" />}>
-            Misc / Recurring Costs
+            Recurring Costs
         </Typography>
         {isAdmin && (
             <Button size="sm" variant="outlined" startDecorator={<Add />} onClick={() => setEditItem({})}>Add Cost</Button>
@@ -115,45 +125,55 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
       </Box>
 
       {costs.length === 0 ? (
-        <Typography level="body-sm" color="neutral" sx={{ fontStyle: 'italic' }}>No misc costs recorded.</Typography>
+        <Typography level="body-sm" color="neutral" sx={{ fontStyle: 'italic' }}>No recurring costs recorded.</Typography>
       ) : (
-        <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto' }}>
-            <Table hoverRow size="sm">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Amount</th>
-                        <th>Frequency</th>
-                        {isAdmin && <th style={{ textAlign: 'right' }}>Actions</th>}
-                    </tr>
-                </thead>
-                <tbody>
-                    {costs.map((row) => {
-                        const nextDate = getNextPaymentDate(row.payment_day, row.nearest_working_day);
-                        return (
-                        <tr key={row.id}>
-                            <td>{row.name}</td>
-                            <td>£{parseFloat(row.amount).toFixed(2)}</td>
-                            <td>
-                                <Chip size="sm" variant="outlined">{row.frequency}</Chip>
-                                {row.payment_day && (
-                                    <Box>
-                                        <Typography level="body-xs">Day: {row.payment_day} {row.nearest_working_day ? '(Next)' : '(Exact)'}</Typography>
-                                        <Typography level="body-xs" color="primary">Next: {nextDate ? format(nextDate, 'EEE do MMM') : '-'}</Typography>
-                                    </Box>
-                                )}
-                            </td>
-                            {isAdmin && (
-                                <td style={{ textAlign: 'right' }}>
-                                    <IconButton size="sm" variant="plain" onClick={() => setEditItem(row)}><Edit fontSize="inherit" /></IconButton>
-                                    <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(row.id)}><Delete fontSize="inherit" /></IconButton>
-                                </td>
-                            )}
-                        </tr>
-                    );})}
-                </tbody>
-            </Table>
-        </Sheet>
+        <Stack spacing={3}>
+            {Object.entries(groupedCosts).sort().map(([category, items]) => (
+                <Box key={category}>
+                    <Typography level="title-sm" color="primary" sx={{ mb: 1, ml: 0.5 }}>{category}</Typography>
+                    <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto' }}>
+                        <Table hoverRow size="sm">
+                            <thead>
+                                <tr>
+                                    <th style={{ width: '40%' }}>Name</th>
+                                    <th>Amount</th>
+                                    <th>Frequency</th>
+                                    {isAdmin && <th style={{ textAlign: 'right' }}>Actions</th>}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {items.map((row) => {
+                                    const nextDate = getNextPaymentDate(row.payment_day, row.nearest_working_day);
+                                    return (
+                                    <tr key={row.id}>
+                                        <td>
+                                            <Typography level="body-sm" fontWeight="bold">{row.name}</Typography>
+                                            {row.notes && <Typography level="body-xs" color="neutral">{row.notes}</Typography>}
+                                        </td>
+                                        <td>£{parseFloat(row.amount).toFixed(2)}</td>
+                                        <td>
+                                            <Chip size="sm" variant="outlined">{row.frequency}</Chip>
+                                            {row.payment_day && (
+                                                <Box>
+                                                    <Typography level="body-xs">Day: {row.payment_day} {row.nearest_working_day ? '(Next)' : '(Exact)'}</Typography>
+                                                    <Typography level="body-xs" color="primary">Next: {nextDate ? format(nextDate, 'EEE do MMM') : '-'}</Typography>
+                                                </Box>
+                                            )}
+                                        </td>
+                                        {isAdmin && (
+                                            <td style={{ textAlign: 'right' }}>
+                                                <IconButton size="sm" variant="plain" onClick={() => setEditItem(row)}><Edit fontSize="inherit" /></IconButton>
+                                                <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(row.id)}><Delete fontSize="inherit" /></IconButton>
+                                            </td>
+                                        )}
+                                    </tr>
+                                );})}
+                            </tbody>
+                        </Table>
+                    </Sheet>
+                </Box>
+            ))}
+        </Stack>
       )}
 
       <Modal open={Boolean(editItem)} onClose={() => setEditItem(null)}>
@@ -169,6 +189,17 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
                         <FormControl required>
                             <FormLabel>Amount (£)</FormLabel>
                             <Input name="amount" type="number" step="0.01" defaultValue={editItem?.amount} />
+                        </FormControl>
+                        <FormControl>
+                            <FormLabel>Category</FormLabel>
+                            <Select name="category" defaultValue={editItem?.category || 'other'}>
+                                <Option value="subscription">Subscription</Option>
+                                <Option value="utility">Utility</Option>
+                                <Option value="insurance">Insurance</Option>
+                                <Option value="service">Service</Option>
+                                <Option value="saving">Saving</Option>
+                                <Option value="other">Other</Option>
+                            </Select>
                         </FormControl>
                         <FormControl>
                             <FormLabel>Frequency</FormLabel>
