@@ -250,8 +250,19 @@ export default function BudgetView() {
       });
 
       liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit', cc.card_name, 0, cc.payment_day, <CreditCard />, 'Credit Card', { name: cc.provider, emoji: cc.emoji || '💳' }));
-      if (liabilities.water) addExpense(liabilities.water, 'water', 'Water Bill', liabilities.water.monthly_amount, liabilities.water.payment_day, <WaterDrop />, 'Utility', { name: 'House', emoji: '💧' });
-      if (liabilities.council) addExpense(liabilities.council, 'council', 'Council Tax', liabilities.council.monthly_amount, liabilities.council.payment_day, <AccountBalance />, 'Utility', { name: 'House', emoji: '🏛️' });
+      
+      if (Array.isArray(liabilities.water)) {
+          liabilities.water.forEach(w => {
+              if (w.monthly_amount > 0) addExpense(w, 'water', 'Water Bill', w.monthly_amount, w.payment_day, <WaterDrop />, 'Utility', { name: 'House', emoji: '💧' });
+          });
+      }
+      
+      if (Array.isArray(liabilities.council)) {
+          liabilities.council.forEach(c => {
+              if (c.monthly_amount > 0) addExpense(c, 'council', 'Council Tax', c.monthly_amount, c.payment_day, <AccountBalance />, 'Utility', { name: 'House', emoji: '🏛️' });
+          });
+      }
+
       if (liabilities.energy) liabilities.energy.forEach(e => addExpense(e, 'energy', `${e.provider} (${e.type})`, e.monthly_amount, e.payment_day, <ElectricBolt />, 'Utility', { name: 'House', emoji: '⚡' }));
       savingsPots.forEach(pot => addExpense(pot, 'pot', pot.name, 0, pot.deposit_day || 1, <SavingsIcon />, 'Saving', { name: pot.account_name, emoji: pot.account_emoji || '💰' }));
 
