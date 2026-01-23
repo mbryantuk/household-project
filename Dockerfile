@@ -30,6 +30,9 @@ RUN npm ci
 
 COPY server/ ./
 
+# Copy built frontend for smoke tests
+COPY --from=frontend-builder /app/web/dist ../web/dist
+
 # Run tests during build - if this fails, the build fails
 
 RUN npm test

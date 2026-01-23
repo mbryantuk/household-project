@@ -64,4 +64,12 @@ async function cleanupTestData() {
     }
 }
 
-cleanupTestData();
+// Only run if called directly from CLI
+if (require.main === module) {
+    cleanupTestData().then(() => {
+        // Force exit to close DB connections if needed, though db.js keeps them open
+        process.exit(0); 
+    });
+}
+
+module.exports = cleanupTestData;

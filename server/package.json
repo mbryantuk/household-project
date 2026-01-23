@@ -1,10 +1,10 @@
 {
   "name": "totem-server",
-  "version": "2.6.222",
+  "version": "2.6.224",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "NODE_ENV=test jest; npm run test:tidy",
+    "test": "NODE_ENV=test jest",
     "test:tidy": "node scripts/cleanup_test_data.js",
     "test:full": "NODE_ENV=test jest --config jest.config.js --verbose",
     "test:perf": "NODE_ENV=test jest tests/performance"

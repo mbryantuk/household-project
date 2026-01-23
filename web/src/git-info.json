@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Add is_test flag to users and update cleanup logic",
-  "date": "Fri 23 Jan 14:57:53 GMT 2026"
+  "commitMessage": "Fix Dockerfile to include frontend assets for smoke tests",
+  "date": "Fri 23 Jan 15:09:29 GMT 2026"
 }
