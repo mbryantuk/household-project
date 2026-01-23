@@ -212,7 +212,8 @@ export default function BudgetView() {
               icon, category, isPaid: progressItem?.is_paid === 1,
               isDeletable: !['pot', 'pension', 'investment'].includes(type),
               id: item.id, object, frequency: item.frequency?.toLowerCase() || 'monthly', 
-              memberId: (memberId != null && String(memberId).length > 0) ? String(memberId) : null
+              memberId: (memberId != null && String(memberId).length > 0) ? String(memberId) : null,
+              parent_type: item.parent_type, parent_id: item.parent_id
           });
       };
 
@@ -407,6 +408,12 @@ export default function BudgetView() {
       const formData = new FormData(e.currentTarget);
       const data = Object.fromEntries(formData.entries());
       data.nearest_working_day = data.nearest_working_day === "1" ? 1 : 0;
+      
+      if (data.assigned_to) {
+          const [type, id] = data.assigned_to.split('_');
+          data.parent_type = type; data.parent_id = id;
+          delete data.assigned_to;
+      }
       
       try {
           await api.put(`/households/${householdId}/costs/${editCostItem.id}`, data);
@@ -792,6 +799,7 @@ export default function BudgetView() {
                                 </Select>
                             </FormControl>
                             <Checkbox label="Nearest Working Day (Next)" name="nearest_working_day" defaultChecked value="1" />
+                            <FormControl><FormLabel>Assign To</FormLabel><Select name="assigned_to" defaultValue={`${editCostItem?.parent_type}_${editCostItem?.parent_id}`}><Option value="general_1">🏠 {household?.name || 'Household'}</Option><Divider>Members</Divider>{members.filter(m => m.type !== 'pet' && m.type !== 'viewer').map(m => <Option key={m.id} value={`member_${m.id}`}>{m.emoji} {m.alias || m.name}</Option>)}<Divider>Pets</Divider>{members.filter(m => m.type === 'pet').map(p => <Option key={p.id} value={`pet_${p.id}`}>{p.emoji} {p.alias || p.name}</Option>)}<Divider>Vehicles</Divider>{liabilities.vehicles.map(v_item => <Option key={v_item.id} value={`vehicle_${v_item.id}`}>{v_item.emoji || '🚗'} {v_item.make} {v_item.model}</Option>)}<Divider>Assets</Divider>{liabilities.assets.map(a => <Option key={a.id} value={`asset_${a.id}`}>{a.emoji || '📦'} {a.name}</Option>)}</Select></FormControl>
                             <AppSelect label="Category" name="category" defaultValue={editCostItem?.category?.toLowerCase() || 'other'} options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'saving', label: 'Saving' }, { value: 'other', label: 'Other' }, { value: 'transfer', label: 'Transfer' }]} />
                             <DialogActions>
                                 <Button variant="plain" color="neutral" onClick={() => setEditCostItem(null)}>Cancel</Button>
