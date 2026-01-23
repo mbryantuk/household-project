@@ -540,13 +540,82 @@ router.post('/households/:id/finance/budget-progress', authenticateToken, requir
 });
 
 router.delete('/households/:id/finance/budget-progress/:cycleStart/:itemKey', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-    req.tenantDb.run(
-        `DELETE FROM finance_budget_progress WHERE household_id = ? AND cycle_start = ? AND item_key = ?`,
-        [req.hhId, req.params.cycleStart, req.params.itemKey],
-        function(err) {
-            closeDb(req);
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "Progress removed" });
+    const { cycleStart, itemKey } = req.params;
+
+    // 1. Check if we need to update a savings pot
+    req.tenantDb.get(
+        `SELECT is_paid, actual_amount FROM finance_budget_progress WHERE household_id = ? AND cycle_start = ? AND item_key = ?`,
+        [req.hhId, cycleStart, itemKey],
+        (err, row) => {
+            if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
+            
+            const oldPaid = row ? (row.is_paid || 0) : 0;
+            const oldAmount = row ? (row.actual_amount || 0) : 0;
+            let delta = 0;
+
+            if (itemKey.startsWith('pot_') && oldPaid) {
+                delta = -oldAmount; // We are removing a paid item, so subtract
+            }
+
+            req.tenantDb.serialize(() => {
+                req.tenantDb.run("BEGIN TRANSACTION");
+
+                // Update Pot if needed
+                const updatePotPromise = new Promise((resolve, reject) => {
+                    if (delta !== 0) {
+                        const potId = itemKey.split('_')[1];
+                        req.tenantDb.run(
+                            `UPDATE finance_savings_pots 
+                             SET current_amount = current_amount + ? 
+                             WHERE id = ? 
+                             AND savings_id IN (SELECT id FROM finance_savings WHERE household_id = ?)`,
+                            [delta, potId, req.hhId],
+                            (potErr) => {
+                                if (potErr) return reject(potErr);
+                                // Update Parent Savings Balance
+                                req.tenantDb.run(
+                                    `UPDATE finance_savings 
+                                     SET current_balance = current_balance + ? 
+                                     WHERE id = (SELECT savings_id FROM finance_savings_pots WHERE id = ?) 
+                                     AND household_id = ?`,
+                                    [delta, potId, req.hhId],
+                                    (savErr) => {
+                                        if (savErr) return reject(savErr);
+                                        resolve();
+                                    }
+                                );
+                            }
+                        );
+                    } else {
+                        resolve();
+                    }
+                });
+
+                updatePotPromise
+                    .then(() => {
+                        req.tenantDb.run(
+                            `DELETE FROM finance_budget_progress WHERE household_id = ? AND cycle_start = ? AND item_key = ?`,
+                            [req.hhId, cycleStart, itemKey],
+                            (delErr) => {
+                                if (delErr) {
+                                    req.tenantDb.run("ROLLBACK");
+                                    closeDb(req);
+                                    return res.status(500).json({ error: delErr.message });
+                                }
+                                req.tenantDb.run("COMMIT", (cErr) => {
+                                    closeDb(req);
+                                    if (cErr) return res.status(500).json({ error: cErr.message });
+                                    res.json({ message: "Progress removed and savings updated", delta });
+                                });
+                            }
+                        );
+                    })
+                    .catch(err => {
+                        req.tenantDb.run("ROLLBACK");
+                        closeDb(req);
+                        res.status(500).json({ error: err.message });
+                    });
+            });
         }
     );
 });
