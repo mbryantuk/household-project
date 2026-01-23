@@ -173,7 +173,8 @@ export default function HouseholdLayout({
                 showNotification,
                 confirmAction,
                 onUpdateProfile,
-                setStatusBarData // Passed to children like BudgetView
+                setStatusBarData, // Passed to children like BudgetView
+                household: activeHousehold
             }} />
         </Box>
 
