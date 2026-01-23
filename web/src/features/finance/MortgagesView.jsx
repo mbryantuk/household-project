@@ -48,9 +48,11 @@ export default function MortgagesView() {
           if (editItem.mortgage_type) setActiveType(editItem.mortgage_type);
       } else if (isNew) {
           setSelectedEmoji(activeType === 'equity' ? '💰' : '🏠');
-          setSelectedMembers([currentUser?.id].filter(Boolean));
+          // Default to the first adult member, not the system user ID (which mismatches)
+          const defaultMember = members.find(m => m.type !== 'pet');
+          setSelectedMembers(defaultMember ? [defaultMember.id] : []);
       }
-  }, [editItem, isNew, activeType, getAssignees, currentUser?.id]);
+  }, [editItem, isNew, activeType, getAssignees, members]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
