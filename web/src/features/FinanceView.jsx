@@ -14,7 +14,8 @@ import {
   ArrowBack,
   ChevronRight,
   DirectionsCar,
-  Assignment
+  Assignment,
+  Receipt
 } from '@mui/icons-material';
 
 import IncomeView from './finance/IncomeView';
@@ -28,6 +29,7 @@ import MortgagesView from './finance/MortgagesView';
 import VehicleFinanceView from './finance/VehicleFinanceView';
 import AgreementsView from './finance/AgreementsView';
 import BudgetView from './finance/BudgetView';
+import ChargesView from './finance/ChargesView';
 import { getEmojiColor } from '../theme';
 
 const ComingSoonPlaceholder = ({ title, icon: IconComponent }) => ( // eslint-disable-line no-unused-vars
@@ -71,7 +73,7 @@ export default function FinanceView() {
     credit: { label: 'Credit Cards', icon: CreditCard, desc: 'Track credit utilization and repayments.' },
     loans: { label: 'Loans', icon: RequestQuote, desc: 'Manage unsecured debts and repayment schedules.' },
     mortgage: { label: 'Mortgage', icon: Home, desc: 'Track property loans and home equity.' },
-    subscriptions: { label: 'Subscriptions', icon: Assignment, desc: 'Manage Netflix, Amazon, and other recurring services.' },
+    charges: { label: 'Charges', icon: Receipt, desc: 'Manage household bills, utilities, and subscriptions.' },
     car: { label: 'Car Finance', icon: DirectionsCar, desc: 'Track loans and leases for your fleet.' },
     agreements: { label: 'Agreements', icon: Assignment, desc: 'Track mobile contracts and other obligations.' },
   }), []);
@@ -89,7 +91,7 @@ export default function FinanceView() {
       if (activeTabKey === 'credit') return <CreditCardsView />;
       if (activeTabKey === 'loans') return <LoansView />;
       if (activeTabKey === 'mortgage') return <MortgagesView />;
-      if (activeTabKey === 'subscriptions') return <AgreementsView isSubscriptions />;
+      if (activeTabKey === 'charges') return <ChargesView />;
       if (activeTabKey === 'car') return <VehicleFinanceView />;
       if (activeTabKey === 'agreements') return <AgreementsView />;
       

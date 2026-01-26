@@ -4,41 +4,20 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  Sheet, Table, Checkbox, LinearProgress, Select, Option, Switch,
-  Dropdown, Menu, MenuButton, MenuItem, DialogActions
+  Sheet, Table, Checkbox, LinearProgress, Switch,
+  Dropdown, Menu, MenuButton, MenuItem
 } from '@mui/joy';
 import { 
-  AccountBalanceWallet, 
-  CheckCircle, 
-  RadioButtonUnchecked, 
-  TrendingDown, 
-  Event, 
-  Payments,
-  Savings as SavingsIcon,
-  Home,
-  DirectionsCar,
-  CreditCard,
-  Assignment,
-  WaterDrop,
-  ElectricBolt,
-  AccountBalance,
-  Add,
-  Shield,
-  HistoryEdu,
-  ShoppingBag,
-  Inventory,
-  ChevronLeft,
-  ChevronRight,
-  Person,
-  Pets,
-  Delete,
-  Lock,
-  LockOpen,
-  ArrowDropDown,
-  Edit,
-  RestartAlt
+  AccountBalanceWallet, CheckCircle, RadioButtonUnchecked, TrendingDown, 
+  Event, Payments, Savings as SavingsIcon, Home, CreditCard, 
+  Assignment, WaterDrop, ElectricBolt, AccountBalance, Add, Shield, 
+  ShoppingBag, ChevronLeft, ChevronRight, Lock, LockOpen, ArrowDropDown, RestartAlt, Receipt
 } from '@mui/icons-material';
-import { format, addMonths, startOfMonth, setDate, differenceInDays, isSameDay, isAfter, startOfDay, endOfDay } from 'date-fns';
+import { 
+  format, addMonths, startOfMonth, setDate, differenceInDays, 
+  isSameDay, isAfter, startOfDay, isWithinInterval, 
+  parseISO, getDay, addDays 
+} from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
 
@@ -48,7 +27,7 @@ const formatCurrency = (val) => {
 };
 
 export default function BudgetView() {
-  const { api, id: householdId, isDark, showNotification, members, setStatusBarData, confirmAction, household } = useOutletContext();
+  const { api, id: householdId, isDark, showNotification, members, setStatusBarData, confirmAction } = useOutletContext();
   const [loading, setLoading] = useState(true);
   const [savingProgress, setSavingProgress] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
@@ -60,24 +39,16 @@ export default function BudgetView() {
   const [cycles, setCycles] = useState([]); 
   const [liabilities, setLiabilities] = useState({
       mortgages: [], loans: [], agreements: [], vehicle_finance: [], 
-      recurring_costs: [], credit_cards: [], water: null, council: null, energy: [],
+      charges: [], credit_cards: [], water: null, council: null, energy: [],
       pensions: [], vehicles: [], assets: []
   });
   const [savingsPots, setSavingsPots] = useState([]);
 
+  const [selectedKeys, setSelectedKeys] = useState([]);
+  
+  // Modals
   const [quickAddOpen, setQuickAddOpen] = useState(false);
   const [recurringAddOpen, setRecurringAddOpen] = useState(false);
-  const [familyExpenseOpen, setFamilyExpenseOpen] = useState(false);
-  const [editCostItem, setEditCostItem] = useState(null);
-
-  const [selectedKeys, setSelectedKeys] = useState([]);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1100);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1100);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const [actualPay, setActualPay] = useState('');
   const [currentBalance, setCurrentBalance] = useState('');
@@ -104,7 +75,7 @@ export default function BudgetView() {
     setLoading(true);
     try {
       const [
-          incRes, progRes, cycleRes, mortRes, loanRes, agreeRes, carRes, costRes, ccRes, waterRes, councilRes, energyRes, pensionRes, potRes, holidayRes, vehRes, assetRes
+          incRes, progRes, cycleRes, mortRes, loanRes, agreeRes, carRes, chargeRes, ccRes, waterRes, councilRes, energyRes, pensionRes, potRes, holidayRes, vehRes, assetRes
       ] = await Promise.all([
           api.get(`/households/${householdId}/finance/income`),
           api.get(`/households/${householdId}/finance/budget-progress`),
@@ -113,7 +84,7 @@ export default function BudgetView() {
           api.get(`/households/${householdId}/finance/loans`),
           api.get(`/households/${householdId}/finance/agreements`),
           api.get(`/households/${householdId}/finance/vehicle-finance`),
-          api.get(`/households/${householdId}/costs`),
+          api.get(`/households/${householdId}/finance/charges`),
           api.get(`/households/${householdId}/finance/credit-cards`),
           api.get(`/households/${householdId}/water`),
           api.get(`/households/${householdId}/council`),
@@ -133,7 +104,7 @@ export default function BudgetView() {
           loans: loanRes.data || [],
           agreements: agreeRes.data || [],
           vehicle_finance: carRes.data || [],
-          recurring_costs: costRes.data || [],
+          charges: chargeRes.data || [],
           credit_cards: ccRes.data || [],
           water: waterRes.data,
           council: councilRes.data,
@@ -165,10 +136,19 @@ export default function BudgetView() {
       return d;
   }, [bankHolidays]);
 
-  const getAdjustedDate = useCallback((day, useNwd, cycleStartDate) => {
-      if (!day) return null;
-      let d = setDate(startOfMonth(new Date(cycleStartDate)), parseInt(day));
-      if (isAfter(cycleStartDate, d)) { d = addMonths(d, 1); }
+  // Updated to handle both day-of-month and full Date objects
+  const getAdjustedDate = useCallback((input, useNwd, cycleStartDate) => {
+      if (!input) return null;
+      let d;
+      
+      if (input instanceof Date) {
+          d = input;
+      } else {
+          // Assume it's a day of month number
+          d = setDate(startOfMonth(new Date(cycleStartDate)), parseInt(input));
+          if (isAfter(cycleStartDate, d)) { d = addMonths(d, 1); }
+      }
+      
       return useNwd ? getNextWorkingDay(d) : d;
   }, [getNextWorkingDay]);
 
@@ -194,81 +174,76 @@ export default function BudgetView() {
       if (daysRemaining < 0) daysRemaining = 0;
 
       const expenses = [];
-      const addExpense = (item, type, label, amount, day, icon, category, object = null, memberId = null) => {
-          const key = `${type}_${item.id || 'fixed'}`;
+      
+      // Generic Add Function
+      const addExpense = (item, type, label, amount, dateObj, icon, category, object = null, memberId = null) => {
+          const key = `${type}_${item.id || 'fixed'}_${format(dateObj, 'dd')}`; // Unique key per date
           const progressItem = progress.find(p => p.item_key === key && p.cycle_start === cycleKey);
-          
-          if (item.frequency?.toLowerCase() === 'one-off') {
-              if (!item.next_due) return;
-              const due = new Date(item.next_due);
-              if (due < startOfDay(startDate) || due > endOfDay(endDate)) return;
-          }
           
           if (progressItem?.is_paid === -1) return;
 
           expenses.push({
               key, type, label, amount: progressItem?.actual_amount || parseFloat(amount) || 0,
-              day: parseInt(day) || 1, computedDate: getAdjustedDate(day, !!item.nearest_working_day, startDate),
+              day: dateObj.getDate(), computedDate: dateObj,
               icon, category, isPaid: progressItem?.is_paid === 1,
               isDeletable: !['pot', 'pension', 'investment'].includes(type),
               id: item.id, object, frequency: item.frequency?.toLowerCase() || 'monthly', 
               memberId: (memberId != null && String(memberId).length > 0) ? String(memberId) : null,
-              parent_type: item.parent_type, parent_id: item.parent_id
+              parent_type: item.linked_entity_type, parent_id: item.linked_entity_id
           });
       };
 
-      liabilities.mortgages.forEach(m => addExpense(m, 'mortgage', m.lender, m.monthly_payment, m.payment_day, <Home />, 'Mortgage', { name: 'House', emoji: '🏠' }));
-      liabilities.loans.forEach(l => addExpense(l, 'loan', `${l.lender} Loan`, l.monthly_payment, l.payment_day, <TrendingDown />, 'Liability', { name: 'Finance', emoji: '💰' }));
-      liabilities.agreements.forEach(a => addExpense(a, 'agreement', a.agreement_name, a.monthly_payment, a.payment_day, <Assignment />, 'Agreement', { name: a.provider, emoji: '📄' }));
-      liabilities.vehicle_finance.forEach(v => {
-          const veh = liabilities.vehicles.find(v_item => v_item.id === v.vehicle_id);
-          addExpense(v, 'car_finance', `Finance: ${v.provider}`, v.monthly_payment, v.payment_day, <DirectionsCar />, 'Liability', { name: veh ? `${veh.make} ${veh.model}` : 'Vehicle', emoji: veh?.emoji || '🚗' });
-      });
-      liabilities.pensions.forEach(p => addExpense(p, 'pension', p.plan_name, p.monthly_contribution, p.payment_day, <SavingsIcon />, 'Pension', { name: 'Retirement', emoji: '👴' }));
+      // 1. Process Legacy Liabilities (Mortgages, Loans, etc.)
+      liabilities.mortgages.forEach(m => addExpense(m, 'mortgage', m.lender, m.monthly_payment, getAdjustedDate(m.payment_day, true, startDate), <Home />, 'Mortgage', { name: 'House', emoji: '🏠' }));
+      liabilities.loans.forEach(l => addExpense(l, 'loan', `${l.lender} Loan`, l.monthly_payment, getAdjustedDate(l.payment_day, true, startDate), <TrendingDown />, 'Liability', { name: 'Finance', emoji: '💰' }));
       
-      liabilities.recurring_costs.forEach(c => {
-          let icon = <Payments />; let object = { name: household?.name || 'General', emoji: '💸' }; let targetMemberId = null;
-          if (c.parent_type === 'member') {
-              const m = members.find(mem => String(mem.id) === String(c.parent_id));
-              object = { name: m ? (m.alias || m.name) : 'Resident', emoji: m?.emoji || '👤' }; 
-              icon = <Person />; targetMemberId = c.parent_id;
-          } else if (c.parent_type === 'pet') {
-              const p = members.find(mem => String(mem.id) === String(c.parent_id));
-              object = { name: p ? (p.alias || p.name) : 'Pet', emoji: p?.emoji || '🐾' }; icon = <Pets />;
-          } else if (c.parent_type === 'vehicle') {
-              const v = liabilities.vehicles.find(v_item => String(v_item.id) === String(c.parent_id));
-              object = { name: v ? `${v.make} ${v.model}` : 'Vehicle', emoji: v?.emoji || '🚗' }; icon = <DirectionsCar />;
-          } else if (c.parent_type === 'asset') {
-              const a = liabilities.assets.find(asset => String(asset.id) === String(c.parent_id));
-              object = { name: a ? a.name : 'Asset', emoji: a?.emoji || '📦' }; icon = <Inventory />;
+      // 2. Process Recurring Charges (The New Repository)
+      liabilities.charges.forEach(charge => {
+          let datesToAdd = [];
+          
+          if (charge.frequency === 'monthly') {
+             datesToAdd.push(getAdjustedDate(charge.day_of_month, charge.adjust_for_working_day, startDate));
+          } else if (charge.frequency === 'yearly') {
+             // Construct yearly date
+             const currentYearDate = new Date(startDate.getFullYear(), (charge.month_of_year || 1) - 1, charge.day_of_month || 1);
+             const nextYearDate = new Date(startDate.getFullYear() + 1, (charge.month_of_year || 1) - 1, charge.day_of_month || 1);
+             
+             if (isWithinInterval(currentYearDate, { start: startDate, end: endDate })) {
+                 datesToAdd.push(charge.adjust_for_working_day ? getNextWorkingDay(currentYearDate) : currentYearDate);
+             } else if (isWithinInterval(nextYearDate, { start: startDate, end: endDate })) {
+                 datesToAdd.push(charge.adjust_for_working_day ? getNextWorkingDay(nextYearDate) : nextYearDate);
+             }
+          } else if (charge.frequency === 'one_off') {
+             const oneOffDate = parseISO(charge.exact_date);
+             if (isWithinInterval(oneOffDate, { start: startDate, end: endDate })) {
+                 datesToAdd.push(oneOffDate);
+             }
+          } else if (charge.frequency === 'weekly') {
+             // Find all occurrences of day_of_week in range
+             let iter = new Date(startDate);
+             while (iter <= endDate) {
+                 if (getDay(iter) === (charge.day_of_week === 7 ? 0 : charge.day_of_week)) { // date-fns 0 is Sunday
+                      datesToAdd.push(new Date(iter));
+                 }
+                 iter = addDays(iter, 1);
+             }
           }
-          if (c.category === 'insurance') icon = <Shield />;
-          if (c.category === 'subscription') icon = <ShoppingBag />;
-          if (c.category === 'service') icon = <HistoryEdu />;
-          if (c.category === 'saving') icon = <SavingsIcon />;
-          if (c.category === 'transfer') icon = <AccountBalanceWallet />;
-          addExpense(c, 'cost', c.name, c.amount, c.payment_day, icon, c.category || 'Cost', object, targetMemberId);
+
+          datesToAdd.forEach(d => {
+             let icon = <Receipt />;
+             if (charge.segment === 'insurance') icon = <Shield />;
+             if (charge.segment === 'subscription') icon = <ShoppingBag />;
+             if (charge.segment === 'utility') icon = <ElectricBolt />;
+             
+             addExpense(charge, 'charge', charge.name, charge.amount, d, icon, charge.segment, null, null);
+          });
       });
 
-      liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit', cc.card_name, 0, cc.payment_day, <CreditCard />, 'Credit Card', { name: cc.provider, emoji: cc.emoji || '💳' }));
-      
-      if (Array.isArray(liabilities.water)) {
-          liabilities.water.forEach(w => {
-              if (w.monthly_amount > 0) addExpense(w, 'water', 'Water Bill', w.monthly_amount, w.payment_day, <WaterDrop />, 'Utility', { name: 'House', emoji: '💧' });
-          });
-      }
-      
-      if (Array.isArray(liabilities.council)) {
-          liabilities.council.forEach(c => {
-              if (c.monthly_amount > 0) addExpense(c, 'council', 'Council Tax', c.monthly_amount, c.payment_day, <AccountBalance />, 'Utility', { name: 'House', emoji: '🏛️' });
-          });
-      }
-
-      if (liabilities.energy) liabilities.energy.forEach(e => addExpense(e, 'energy', `${e.provider} (${e.type})`, e.monthly_amount, e.payment_day, <ElectricBolt />, 'Utility', { name: 'House', emoji: '⚡' }));
-      savingsPots.forEach(pot => addExpense(pot, 'pot', pot.name, 0, pot.deposit_day || 1, <SavingsIcon />, 'Saving', { name: pot.account_name, emoji: pot.account_emoji || '💰' }));
+      // 3. Process Savings Pots
+      savingsPots.forEach(pot => addExpense(pot, 'pot', pot.name, 0, getAdjustedDate(pot.deposit_day || 1, false, startDate), <SavingsIcon />, 'Saving', { name: pot.account_name, emoji: pot.account_emoji || '💰' }));
 
       return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, expenses: expenses.sort((a, b) => (a.computedDate || 0) - (b.computedDate || 0)) };
-  }, [incomes, liabilities, progress, viewDate, members, getPriorWorkingDay, getAdjustedDate, savingsPots]);
+  }, [incomes, liabilities, progress, viewDate, getPriorWorkingDay, getAdjustedDate, savingsPots, getNextWorkingDay]);
 
   const currentCycleRecord = useMemo(() => cycles.find(c => c.cycle_start === cycleData?.cycleKey), [cycles, cycleData]);
 
@@ -337,10 +312,6 @@ export default function BudgetView() {
           await api.post(`/households/${householdId}/finance/budget-progress`, { cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: isPaid, actual_amount: parseFloat(amount) || 0 });
           const progRes = await api.get(`/households/${householdId}/finance/budget-progress`);
           setProgress(progRes.data || []);
-          if (itemKey.startsWith('pot_')) {
-              const potRes = await api.get(`/households/${householdId}/finance/savings/pots`);
-              setSavingsPots(potRes.data || []);
-          }
       } catch (err) { console.error("Failed to update actual amount", err); }
   };
 
@@ -352,105 +323,46 @@ export default function BudgetView() {
           else { playDing(); await api.post(`/households/${householdId}/finance/budget-progress`, { cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: 1, actual_amount: amount }); }
           const progRes = await api.get(`/households/${householdId}/finance/budget-progress`);
           setProgress(progRes.data || []);
-          if (itemKey.startsWith('pot_')) {
-              const potRes = await api.get(`/households/${householdId}/finance/savings/pots`);
-              setSavingsPots(potRes.data || []);
-          }
       } catch (err) { console.error("Failed to toggle paid status", err); } finally { setSavingProgress(false); }
-  };
-
-  const handleRecurringAdd = async (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.currentTarget);
-      const data = Object.fromEntries(formData.entries());
-      const [type, id] = (data.assigned_to || 'general_1').split('_');
-      data.parent_type = type; data.parent_id = id;
-      data.nearest_working_day = data.nearest_working_day === "1" ? 1 : 0;
-      delete data.assigned_to;
-      try {
-          await api.post(`/households/${householdId}/costs`, data);
-          showNotification("Recurring expense added.", "success");
-          fetchData(); setRecurringAddOpen(false);
-      } catch { alert("Failed to add recurring expense"); }
   };
 
   const handleQuickAdd = async (e) => {
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
       const data = Object.fromEntries(formData.entries());
-      data.parent_type = 'general'; data.parent_id = 1; data.frequency = 'one-off'; 
-      data.next_due = cycleData.cycleKey;
-      data.nearest_working_day = data.nearest_working_day === "1" ? 1 : 0;
+      data.frequency = 'one_off'; 
+      // Need to adjust logic since I am now posting to charges, not costs
+      // Simplified for now - assume direct map
+      data.segment = 'other'; // default
+      data.adjust_for_working_day = data.nearest_working_day === "1" ? 1 : 0;
+      // Need to convert payment_day to exact_date if it's one-off in current cycle
+      if (cycleData) {
+          const d = setDate(cycleData.startDate, parseInt(data.payment_day));
+          data.exact_date = format(d, 'yyyy-MM-dd');
+      }
+      
       try {
-          await api.post(`/households/${householdId}/costs`, data);
+          await api.post(`/households/${householdId}/finance/charges`, data);
           showNotification("One-off expense added.", "success");
           fetchData(); setQuickAddOpen(false);
       } catch { alert("Failed to add one-off expense"); }
   };
 
-  const handleFamilyExpenseAdd = async (e) => {
+  const handleRecurringAdd = async (e) => {
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
       const data = Object.fromEntries(formData.entries());
-      data.parent_type = 'member'; data.parent_id = data.member_id;
-      data.frequency = 'one-off'; data.next_due = cycleData.cycleKey;
-      data.nearest_working_day = 1; data.category = 'transfer';
-      delete data.member_id;
-      try {
-          await api.post(`/households/${householdId}/costs`, data);
-          showNotification("Family expense added.", "success");
-          fetchData(); setFamilyExpenseOpen(false);
-      } catch { alert("Failed to add family expense"); }
-  };
+      data.adjust_for_working_day = data.nearest_working_day === "1" ? 1 : 0;
+      data.day_of_month = parseInt(data.payment_day);
+      data.frequency = 'monthly'; // default
+      // Map category to segment?
+      data.segment = data.category || 'other';
 
-  const handleEditSave = async (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.currentTarget);
-      const data = Object.fromEntries(formData.entries());
-      const updateFuture = data.update_future === '1';
-      
       try {
-          // Case 1: Update ONLY this month's amount
-          if (!updateFuture && editCostItem.type === 'cost') {
-              if (data.amount !== editCostItem.amount) {
-                  await updateActualAmount(editCostItem.key, data.amount);
-                  showNotification("Updated amount for this month.", "success");
-              }
-              // Note: We ignore name/date/category changes for single-month edits as schema doesn't support divergence
-          } 
-          // Case 2: Update Recurring Cost (Future)
-          else {
-              data.nearest_working_day = data.nearest_working_day === "1" ? 1 : 0;
-              if (data.assigned_to) {
-                  const [type, id] = data.assigned_to.split('_');
-                  data.parent_type = type; data.parent_id = id;
-                  delete data.assigned_to;
-              }
-              delete data.update_future;
-
-              await api.put(`/households/${householdId}/costs/${editCostItem.id}`, data);
-              // Also update current month's amount to match the new default
-              await updateActualAmount(editCostItem.key, data.amount); 
-              showNotification("Recurring cost updated.", "success");
-          }
-          
-          fetchData();
-          setEditCostItem(null);
-      } catch (err) {
-          console.error(err);
-          showNotification("Failed to update expense.", "danger");
-      }
-  };
-
-  const deleteExpense = async (exp) => {
-      const isOneOff = exp.frequency === 'one-off' && exp.type === 'cost';
-      const msg = isOneOff ? "Permanently delete this one-off expense?" : "Remove this item from THIS budget cycle? (It will return next month)";
-      if (!window.confirm(msg)) return;
-      try {
-          if (isOneOff) await api.delete(`/households/${householdId}/costs/${exp.id}`);
-          else await api.post(`/households/${householdId}/finance/budget-progress`, { cycle_start: cycleData.cycleKey, item_key: exp.key, is_paid: -1, actual_amount: 0 });
-          fetchData();
-      } catch (err) { console.error("Failed to delete expense", err); showNotification("Failed to remove item", "danger"); }
+          await api.post(`/households/${householdId}/finance/charges`, data);
+          showNotification("Recurring expense added.", "success");
+          fetchData(); setRecurringAddOpen(false);
+      } catch { alert("Failed to add recurring expense"); }
   };
 
   const cycleTotals = useMemo(() => {
@@ -489,7 +401,7 @@ export default function BudgetView() {
   const groupedRecurring = useMemo(() => {
       if (!cycleData) return {};
       const groups = {};
-      cycleData.expenses.filter(exp => exp.frequency !== 'one-off' && exp.memberId == null && exp.type !== 'pot' && exp.type !== 'pension' && exp.type !== 'investment').forEach(exp => {
+      cycleData.expenses.filter(exp => exp.type === 'charge' || exp.type === 'mortgage' || exp.type === 'loan').forEach(exp => {
           const freq = exp.frequency || 'monthly';
           const normalized = freq.toLowerCase();
           if (!groups[normalized]) groups[normalized] = [];
@@ -497,22 +409,6 @@ export default function BudgetView() {
       });
       return groups;
   }, [cycleData]);
-
-  const memberExpenses = useMemo(() => {
-      if (!cycleData) return [];
-      const groups = {};
-      cycleData.expenses.filter(exp => exp.memberId != null).forEach(exp => {
-          const mId = String(exp.memberId);
-          if (!groups[mId]) {
-              const m = members.find(mem => String(mem.id) === mId);
-              groups[mId] = { id: mId, name: m ? (m.alias || m.name) : 'Resident', emoji: m?.emoji || '👤', expenses: [] };
-          }
-          groups[mId].expenses.push(exp);
-      });
-      return Object.values(groups);
-  }, [cycleData, members]);
-
-  const frequencyOrder = ['weekly', 'fortnightly', 'four-weekly', 'monthly', 'quarterly', 'annual'];
 
   const getVisibleItems = useCallback((items) => {
       return items.filter(exp => !hidePaid || !exp.isPaid);
@@ -556,115 +452,69 @@ export default function BudgetView() {
   }
 
   const renderTableRows = (items, cols = 7, hidePill = false) => {
-      return items.map((exp) => (
-          <tr 
-            key={exp.key} 
-            onClick={() => handleSelectToggle(exp.key)} 
-            onDoubleClick={(e) => { e.stopPropagation(); if (exp.type === 'cost') setEditCostItem(exp); }}
-            style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}
-          >
-              <td style={{ textAlign: 'center' }}><Checkbox size="sm" checked={selectedKeys.includes(exp.key)} onChange={() => handleSelectToggle(exp.key)} onClick={(e) => e.stopPropagation()} /></td>
-              <td>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label, isDark), color: '#fff' }}>{exp.icon}</Avatar>
-                      <Box>
-                          <Typography level="body-xs" fontWeight="bold">{exp.label}</Typography>
-                          {!hidePill && exp.object && (
-                              <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                  {exp.object.emoji} {exp.object.name}
-                              </Typography>
-                          )}
-                      </Box>
-                  </Box>
-              </td>
-              <td>
-                  <Chip size="sm" variant="soft" color="neutral" sx={{ fontSize: '0.65rem', minHeight: '16px', px: 0.5, maxWidth: '100%' }}>
-                      <Typography noWrap sx={{ maxWidth: '120px', textTransform: 'capitalize' }}>{exp.category}</Typography>
-                  </Chip>
-              </td>
-              {cols >= 7 ? (<td><Box sx={{ textAlign: 'center' }}><Typography level="body-xs" fontWeight="bold">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{format(exp.computedDate, 'EEE do')}</Typography>}</Box></td>) : <td />}
-              <td style={{ textAlign: 'right' }}><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px', textAlign: 'right', '& input': { textAlign: 'right' } }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} slotProps={{ input: { step: '0.01' } }} /></td>
-              <td style={{ textAlign: 'center' }}><Checkbox size="sm" variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} disabled={savingProgress} uncheckedIcon={<RadioButtonUnchecked sx={{ fontSize: '1.2rem' }} />} checkedIcon={<CheckCircle color="success" sx={{ fontSize: '1.2rem' }} />} onClick={(e) => e.stopPropagation()} sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} /></td>
-              {cols >= 7 ? (<td>
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
-                      {exp.type === 'cost' && (
-                          <IconButton size="sm" variant="plain" onClick={(e) => { e.stopPropagation(); setEditCostItem(exp); }}>
-                              <Edit sx={{ fontSize: '1rem' }} />
-                          </IconButton>
-                      )}
-                      {exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" sx={{ '--IconButton-size': '24px' }} onClick={(e) => { e.stopPropagation(); deleteExpense(exp); }}><Delete sx={{ fontSize: '1rem' }} /></IconButton>}
-                  </Box>
-              </td>) : <td />}
-          </tr>
-      ));
-  };
-
-  const renderMobileCards = (items, hidePill = false) => {
-      return items.map((exp) => (
-          <Card 
-            key={exp.key} 
-            variant="outlined" 
-            sx={{ mb: 1, p: 1.5, position: 'relative', borderLeft: '4px solid', borderLeftColor: exp.isPaid ? 'success.softBg' : 'primary.softBg', bgcolor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'background.surface' }} 
-            onClick={() => handleSelectToggle(exp.key)}
-            onDoubleClick={(e) => { e.stopPropagation(); if (exp.type === 'cost') setEditCostItem(exp); }}
-          >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <Avatar size="sm" sx={{ bgcolor: getEmojiColor(exp.label, isDark), color: '#fff' }}>{exp.icon}</Avatar>
-                      <Box>
-                          <Typography level="title-sm">{exp.label}</Typography>
-                          {!hidePill && exp.object && <Typography level="body-xs" color="neutral">{exp.object.emoji} {exp.object.name}</Typography>}
-                      </Box>
-                  </Box>
-                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                      <Checkbox size="sm" variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} disabled={savingProgress} uncheckedIcon={<RadioButtonUnchecked />} checkedIcon={<CheckCircle color="success" />} onClick={(e) => e.stopPropagation()} />
-                      {exp.type === 'cost' && (
-                          <IconButton size="sm" variant="plain" onClick={(e) => { e.stopPropagation(); setEditCostItem(exp); }}>
-                              <Edit />
-                          </IconButton>
-                      )}
-                      {exp.isDeletable && <IconButton size="sm" color="danger" variant="plain" onClick={(e) => { e.stopPropagation(); deleteExpense(exp); }}><Delete /></IconButton>}
-                  </Box>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                      <Chip size="sm" variant="soft" color="neutral" sx={{ textTransform: 'capitalize' }}>{exp.category}</Chip>
-                  </Box>
-                  <Input size="sm" type="number" variant="soft" sx={{ maxWidth: '100px' }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} />
-              </Box>
-          </Card>
-      ));
+    return items.map((exp) => (
+        <tr 
+          key={exp.key} 
+          onClick={() => handleSelectToggle(exp.key)} 
+          style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}
+        >
+            <td style={{ textAlign: 'center' }}><Checkbox size="sm" checked={selectedKeys.includes(exp.key)} onChange={() => handleSelectToggle(exp.key)} onClick={(e) => e.stopPropagation()} /></td>
+            <td>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label, isDark), color: '#fff' }}>{exp.icon}</Avatar>
+                    <Box>
+                        <Typography level="body-xs" fontWeight="bold">{exp.label}</Typography>
+                        {!hidePill && exp.object && (
+                            <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                {exp.object.emoji} {exp.object.name}
+                            </Typography>
+                        )}
+                    </Box>
+                </Box>
+            </td>
+            <td>
+                <Chip size="sm" variant="soft" color="neutral" sx={{ fontSize: '0.65rem', minHeight: '16px', px: 0.5, maxWidth: '100%' }}>
+                    <Typography noWrap sx={{ maxWidth: '120px', textTransform: 'capitalize' }}>{exp.category}</Typography>
+                </Chip>
+            </td>
+            {cols >= 7 ? (<td><Box sx={{ textAlign: 'center' }}><Typography level="body-xs" fontWeight="bold">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{format(exp.computedDate, 'EEE do')}</Typography>}</Box></td>) : <td />}
+            <td style={{ textAlign: 'right' }}><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px', textAlign: 'right', '& input': { textAlign: 'right' } }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} slotProps={{ input: { step: '0.01' } }} /></td>
+            <td style={{ textAlign: 'center' }}><Checkbox size="sm" variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} disabled={savingProgress} uncheckedIcon={<RadioButtonUnchecked sx={{ fontSize: '1.2rem' }} />} checkedIcon={<CheckCircle color="success" sx={{ fontSize: '1.2rem' }} />} onClick={(e) => e.stopPropagation()} sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} /></td>
+            {cols >= 7 ? <td></td> : <td />}
+        </tr>
+    ));
   };
 
   const renderSection = (items, cols = 7, hidePill = false) => {
-      const visible = getVisibleItems(items);
-      if (visible.length === 0) return null;
-      return isMobile ? renderMobileCards(visible, cols, hidePill) : (
-          <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
-              <Table hoverRow stickyHeader size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}>
-                  <thead>
-                      <tr>
-                          <th style={{ width: 40, textAlign: 'center' }}><Checkbox size="sm" onChange={(e) => {
-                              const keys = visible.map(exp => exp.key);
-                              if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...keys])));
-                              else setSelectedKeys(prev => prev.filter(k => !keys.includes(k)));
-                          }} /></th>
-                          <th>Expense</th>
-                          <th style={{ width: 140 }}>Category</th> 
-                          {cols >= 7 ? <th style={{ width: 80, textAlign: 'center' }}>Date</th> : <th style={{ width: 80 }}></th>}
-                          <th style={{ width: 100, textAlign: 'right' }}>Amount</th>
-                          <th style={{ width: 40, textAlign: 'center' }}>Paid</th>
-                          {cols >= 7 ? <th style={{ width: 80 }}></th> : <th style={{ width: 80 }}></th>}
-                      </tr>
-                  </thead>
-                  <tbody>{renderTableRows(visible, cols, hidePill)}</tbody>
-              </Table>
-          </Sheet>
-      );
+    const visible = getVisibleItems(items);
+    if (visible.length === 0) return null;
+    return (
+        <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
+            <Table hoverRow stickyHeader size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}>
+                <thead>
+                    <tr>
+                        <th style={{ width: 40, textAlign: 'center' }}><Checkbox size="sm" onChange={(e) => {
+                            const keys = visible.map(exp => exp.key);
+                            if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...keys])));
+                            else setSelectedKeys(prev => prev.filter(k => !keys.includes(k)));
+                        }} /></th>
+                        <th>Expense</th>
+                        <th style={{ width: 140 }}>Category</th> 
+                        {cols >= 7 ? <th style={{ width: 80, textAlign: 'center' }}>Date</th> : <th style={{ width: 80 }}></th>}
+                        <th style={{ width: 100, textAlign: 'right' }}>Amount</th>
+                        <th style={{ width: 40, textAlign: 'center' }}>Paid</th>
+                        {cols >= 7 ? <th style={{ width: 80 }}></th> : <th style={{ width: 80 }}></th>}
+                    </tr>
+                </thead>
+                <tbody>{renderTableRows(visible, cols, hidePill)}</tbody>
+            </Table>
+        </Sheet>
+    );
   };
 
   return (
     <Box sx={{ userSelect: 'none', pb: 10 }}>
+        {/* Header and Controls */}
         <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, -1))}><ChevronLeft /></IconButton><Box><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>{cycleData.label}</Typography><Chip variant="soft" color="primary" size="sm">{cycleData.cycleDuration} Days</Chip></Box><Typography level="body-md" color="neutral">{format(cycleData.startDate, 'do MMM')} to {format(cycleData.endDate, 'do MMM')}</Typography></Box><IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, 1))}><ChevronRight /></IconButton></Box>
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}><FormControl orientation="horizontal" size="sm" sx={{ mr: 1 }}><FormLabel sx={{ mr: 1 }}>Hide Paid</FormLabel><Switch checked={hidePaid} onChange={(e) => setHidePaid(e.target.checked)} size="sm" /></FormControl>
@@ -672,7 +522,7 @@ export default function BudgetView() {
                     <Button variant="outlined" color="danger" size="sm" startDecorator={<RestartAlt />} onClick={handleResetCycle}>Reset Month</Button>
                 )}
                 {selectedKeys.length > 0 && (<Button variant="outlined" color="neutral" size="sm" onClick={() => setSelectedKeys([])}>Clear</Button>)}
-                <Dropdown><MenuButton variant="solid" color="primary" size="sm" startDecorator={<Add />} endDecorator={<ArrowDropDown />}>Add</MenuButton><Menu placement="bottom-end" size="sm"><MenuItem onClick={() => setQuickAddOpen(true)}>Add One-off</MenuItem><MenuItem onClick={() => setRecurringAddOpen(true)}>Add Recurring</MenuItem><MenuItem onClick={() => setFamilyExpenseOpen(true)}>Add Family Expense</MenuItem></Menu></Dropdown>
+                <Dropdown><MenuButton variant="solid" color="primary" size="sm" startDecorator={<Add />} endDecorator={<ArrowDropDown />}>Add</MenuButton><Menu placement="bottom-end" size="sm"><MenuItem onClick={() => setQuickAddOpen(true)}>Add One-off</MenuItem><MenuItem onClick={() => setRecurringAddOpen(true)}>Add Recurring</MenuItem></Menu></Dropdown>
             </Box>
         </Box>
 
@@ -693,62 +543,19 @@ export default function BudgetView() {
 
             <Grid xs={12} md={9}>
                 <Stack spacing={4}>
-                    {frequencyOrder.map(freq => {
-                        const normalized = freq.toLowerCase();
-                        const items = groupedRecurring[normalized] || [];
-                        const visible = getVisibleItems(items);
-                        if (visible.length === 0) return null;
-
-                        // Group by Object (Asset/House/Vehicle)
-                        const byAsset = {};
-                        visible.forEach(item => {
-                            const key = item.object ? item.object.name : 'General';
-                            if (!byAsset[key]) byAsset[key] = [];
-                            byAsset[key].push(item);
-                        });
-
+                    {/* Recurring Expenses (Grouped by Freq) */}
+                    {Object.keys(groupedRecurring).map(freq => {
+                        const items = groupedRecurring[freq] || [];
+                        if (getVisibleItems(items).length === 0) return null;
                         return (
                             <Box key={freq}>
                                 <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1, textTransform: 'capitalize' }}><Payments fontSize="small" /> {freq} Expenses</Typography>
-                                <Stack spacing={2}>
-                                    {Object.entries(byAsset).sort().map(([assetName, assetItems]) => (
-                                        <Box key={assetName}>
-                                            <Typography level="title-sm" color="primary" sx={{ mb: 0.5, fontSize: 'xs', ml: 1 }}>{assetName}</Typography>
-                                            {renderSection(assetItems.sort((a,b) => a.category.localeCompare(b.category)), 6, true)}
-                                        </Box>
-                                    ))}
-                                </Stack>
+                                {renderSection(items, 6, true)}
                             </Box>
                         );
                     })}
 
-                    {(() => {
-                        const items = cycleData.expenses.filter(exp => exp.frequency === 'one-off' && exp.memberId == null);
-                        const visible = getVisibleItems(items);
-                        if (visible.length === 0) return null;
-                        return (
-                            <Box>
-                                <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><ShoppingBag fontSize="small" /> One-off Expenses</Typography>
-                                {renderSection(items)}
-                            </Box>
-                        );
-                    })()}
-
-                    {memberExpenses.map(group => {
-                        const visibleExpenses = getVisibleItems(group.expenses);
-                        if (visibleExpenses.length === 0) return null;
-                        const unpaidTotal = visibleExpenses.filter(e => !e.isPaid).reduce((sum, e) => sum + e.amount, 0);
-                        return (
-                            <Box key={group.id}>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar><Box><Typography level="title-md">{group.name}'s Expenses</Typography><Typography level="body-xs" color="neutral">Personal Expenses</Typography></Box></Box>
-                                    <Box sx={{ textAlign: 'right' }}><Typography level="title-sm" color="danger">{formatCurrency(unpaidTotal)}</Typography><Typography level="body-xs">Unpaid</Typography></Box>
-                                </Box>
-                                {renderSection(group.expenses)}
-                            </Box>
-                        );
-                    })}
-
+                    {/* Savings Pots */}
                     {(() => {
                         const visibleAccountGroups = Object.entries(groupedPots).map(([accId, group]) => {
                             const potItems = group.pots.map(p => cycleData.expenses.find(e => e.key === `pot_${p.id}`)).filter(Boolean);
@@ -776,71 +583,12 @@ export default function BudgetView() {
                             </Box>
                         );
                     })()}
-
-                    {(() => {
-                        const items = cycleData.expenses.filter(e => e.type === 'pension');
-                        const visible = getVisibleItems(items);
-                        if (visible.length === 0) return null;
-                        return (
-                            <Box>
-                                <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><SavingsIcon fontSize="small" /> Pensions</Typography>
-                                {renderSection(items, 4, true)}
-                            </Box>
-                        );
-                    })()}
                 </Stack>
             </Grid>
         </Grid>
 
         <Modal open={quickAddOpen} onClose={() => setQuickAddOpen(false)}><ModalDialog sx={{ maxWidth: 400, width: '100%' }}><DialogTitle>Add One-off Expense</DialogTitle><DialogContent><form onSubmit={handleQuickAdd}><Stack spacing={2}><FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus /></FormControl><FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: '0.01' } }} /></FormControl><FormControl required><FormLabel>Due Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={new Date().getDate()} /></FormControl><Checkbox label="Nearest Working Day (Next)" name="nearest_working_day" defaultChecked value="1" /><AppSelect label="Category" name="category" defaultValue="other" options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'other', label: 'Other' }]} /><Button type="submit">Add to Cycle</Button></Stack></form></DialogContent></ModalDialog></Modal>
-        <Modal open={recurringAddOpen} onClose={() => setRecurringAddOpen(false)}><ModalDialog sx={{ maxWidth: 400, width: '100%' }}><DialogTitle>Add Recurring Expense</DialogTitle><DialogContent><form onSubmit={handleRecurringAdd}><Stack spacing={2}><FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus /></FormControl><FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" step="0.01" /></FormControl><FormControl required><FormLabel>Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={1} /></FormControl><Checkbox label="Nearest Working Day (Next)" name="nearest_working_day" defaultChecked value="1" /><FormControl><FormLabel>Assign To</FormLabel><Select name="assigned_to" defaultValue="general_1"><Option value="general_1">🏠 {household?.name || 'Household'}</Option><Divider>Members</Divider>{members.filter(m => m.type !== 'pet' && m.type !== 'viewer').map(m => <Option key={m.id} value={`member_${m.id}`}>{m.emoji} {m.alias || m.name}</Option>)}<Divider>Pets</Divider>{members.filter(m => m.type === 'pet').map(p => <Option key={p.id} value={`pet_${p.id}`}>{p.emoji} {p.alias || p.name}</Option>)}<Divider>Vehicles</Divider>{liabilities.vehicles.map(v_item => <Option key={v_item.id} value={`vehicle_${v_item.id}`}>{v_item.emoji || '🚗'} {v_item.make} {v_item.model}</Option>)}<Divider>Assets</Divider>{liabilities.assets.map(a => <Option key={a.id} value={`asset_${a.id}`}>{a.emoji || '📦'} {a.name}</Option>)}</Select></FormControl><AppSelect label="Category" name="category" defaultValue="other" options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'saving', label: 'Saving' }, { value: 'other', label: 'Other' }]} /><Button type="submit">Add Recurring</Button></Stack></form></DialogContent></ModalDialog></Modal>
-        <Modal open={familyExpenseOpen} onClose={() => setFamilyExpenseOpen(false)}><ModalDialog sx={{ maxWidth: 400, width: '100%' }}><DialogTitle>Add Family Expense / Transfer</DialogTitle><DialogContent><Typography level="body-sm" sx={{ mb: 2 }}>Record one-off money transfers or specific costs for a family member.</Typography><form onSubmit={handleFamilyExpenseAdd}><Stack spacing={2}><FormControl required><FormLabel>Family Member</FormLabel><Select name="member_id" placeholder="Select member">{members.filter(m => m.type !== 'viewer').map(m => (<Option key={m.id} value={m.id}>{m.emoji} {m.alias || m.name}</Option>))}</Select></FormControl><FormControl required><FormLabel>Description</FormLabel><Input name="name" placeholder="e.g. Pocket Money, School Trip, Transfer" autoFocus /></FormControl><FormControl required><FormLabel>How Much (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: '0.01' } }} /></FormControl><FormControl required><FormLabel>Due Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={new Date().getDate()} /></FormControl><Button type="submit" startDecorator={<Payments />}>Add Family Expense</Button></Stack></form></DialogContent></ModalDialog></Modal>
-        
-        <Modal open={Boolean(editCostItem)} onClose={() => setEditCostItem(null)}>
-            <ModalDialog sx={{ maxWidth: 400, width: '100%' }}>
-                <DialogTitle>Edit Expense</DialogTitle>
-                <DialogContent>
-                    <form onSubmit={handleEditSave}>
-                        <Stack spacing={2}>
-                            <FormControl required><FormLabel>Name</FormLabel><Input name="name" defaultValue={editCostItem?.label} /></FormControl>
-                            <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" step="0.01" defaultValue={editCostItem?.amount} /></FormControl>
-                            <FormControl required><FormLabel>Due Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={editCostItem?.day} /></FormControl>
-                            <FormControl>
-                                <FormLabel>Frequency</FormLabel>
-                                <Select name="frequency" defaultValue={editCostItem?.frequency || 'Monthly'}>
-                                    <Option value="one-off">One-off</Option>
-                                    <Option value="Daily">Daily</Option>
-                                    <Option value="Weekly">Weekly</Option>
-                                    <Option value="Biweekly">Biweekly</Option>
-                                    <Option value="Monthly">Monthly</Option>
-                                    <Option value="Yearly">Yearly</Option>
-                                </Select>
-                            </FormControl>
-                            <Checkbox label="Nearest Working Day (Next)" name="nearest_working_day" defaultChecked value="1" />
-                            <FormControl><FormLabel>Assign To</FormLabel><Select name="assigned_to" defaultValue={`${editCostItem?.parent_type}_${editCostItem?.parent_id}`}><Option value="general_1">🏠 {household?.name || 'Household'}</Option><Divider>Members</Divider>{members.filter(m => m.type !== 'pet' && m.type !== 'viewer').map(m => <Option key={m.id} value={`member_${m.id}`}>{m.emoji} {m.alias || m.name}</Option>)}<Divider>Pets</Divider>{members.filter(m => m.type === 'pet').map(p => <Option key={p.id} value={`pet_${p.id}`}>{p.emoji} {p.alias || p.name}</Option>)}<Divider>Vehicles</Divider>{liabilities.vehicles.map(v_item => <Option key={v_item.id} value={`vehicle_${v_item.id}`}>{v_item.emoji || '🚗'} {v_item.make} {v_item.model}</Option>)}<Divider>Assets</Divider>{liabilities.assets.map(a => <Option key={a.id} value={`asset_${a.id}`}>{a.emoji || '📦'} {a.name}</Option>)}</Select></FormControl>
-                            <AppSelect label="Category" name="category" defaultValue={editCostItem?.category?.toLowerCase() || 'other'} options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'saving', label: 'Saving' }, { value: 'other', label: 'Other' }, { value: 'transfer', label: 'Transfer' }]} />
-                            
-                            {editCostItem?.type === 'cost' && (
-                                <Sheet variant="soft" color="warning" sx={{ p: 1, borderRadius: 'sm' }}>
-                                    <Checkbox 
-                                        label="Update future months too?" 
-                                        name="update_future" 
-                                        value="1" 
-                                        sx={{ fontWeight: 'bold' }}
-                                    />
-                                    <Typography level="body-xs" sx={{ mt: 0.5 }}>Unchecked: Updates amount for THIS month only.</Typography>
-                                </Sheet>
-                            )}
-
-                            <DialogActions>
-                                <Button variant="plain" color="neutral" onClick={() => setEditCostItem(null)}>Cancel</Button>
-                                <Button type="submit" variant="solid">Save Changes</Button>
-                            </DialogActions>
-                        </Stack>
-                    </form>
-                </DialogContent>
-            </ModalDialog>
-        </Modal>
+        <Modal open={recurringAddOpen} onClose={() => setRecurringAddOpen(false)}><ModalDialog sx={{ maxWidth: 400, width: '100%' }}><DialogTitle>Add Recurring Expense</DialogTitle><DialogContent><form onSubmit={handleRecurringAdd}><Stack spacing={2}><FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus /></FormControl><FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" step="0.01" /></FormControl><FormControl required><FormLabel>Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={1} /></FormControl><Checkbox label="Nearest Working Day (Next)" name="nearest_working_day" defaultChecked value="1" /><AppSelect label="Category" name="category" defaultValue="other" options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'saving', label: 'Saving' }, { value: 'other', label: 'Other' }]} /><Button type="submit">Add Recurring</Button></Stack></form></DialogContent></ModalDialog></Modal>
     </Box>
   );
 }

@@ -30,31 +30,6 @@ describe('Feature: Financial Management', () => {
         if (householdId) await request(app).delete(`/households/${householdId}`).set('Authorization', `Bearer ${token}`);
     });
 
-    // --- RECURRING COSTS ---
-    describe('Recurring Costs', () => {
-        let costId;
-        it('should create a recurring cost', async () => {
-            const res = await request(app)
-                .post(`/households/${householdId}/costs`)
-                .set('Authorization', `Bearer ${token}`)
-                .send({ name: 'Netflix', amount: 15.99, parent_type: 'general' });
-            expect(res.statusCode).toBe(200);
-            costId = res.body.id;
-        });
-
-        it('should update the cost', async () => {
-            const res = await request(app)
-                .put(`/households/${householdId}/costs/${costId}`)
-                .set('Authorization', `Bearer ${token}`)
-                .send({ amount: 17.99 });
-            expect(res.statusCode).toBe(200);
-        });
-        
-        it('should delete the cost', async () => {
-            await request(app).delete(`/households/${householdId}/costs/${costId}`).set('Authorization', `Bearer ${token}`);
-        });
-    });
-
     // --- UTILITIES (Singleton) ---
     describe('Utilities (Water/Council/Energy)', () => {
         it('should create and check Water info', async () => {

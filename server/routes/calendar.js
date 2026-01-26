@@ -60,7 +60,7 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             pensions
         ] = await Promise.all([
             dbAll(`SELECT * FROM dates WHERE household_id = ? ORDER BY date ASC`, [householdId]),
-            dbAll(`SELECT * FROM recurring_costs WHERE household_id = ?`, [householdId]),
+            dbAll(`SELECT * FROM finance_recurring_charges WHERE household_id = ?`, [householdId]),
             dbAll(`SELECT * FROM finance_income WHERE household_id = ?`, [householdId]),
             dbAll(`SELECT * FROM finance_credit_cards WHERE household_id = ?`, [householdId]),
             dbAll(`SELECT * FROM water_accounts WHERE household_id = ?`, [householdId]),
@@ -89,8 +89,11 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
                     
                     let logic = workdayLogic;
                     if (workdayLogic === 'dynamic') {
-                        // If nearest_working_day is true (1), use 'next' (After), else use 'exact' (No adjustment)
+                        // Legacy: If nearest_working_day is true (1), use 'next' (After), else use 'exact' (No adjustment)
                         logic = item.nearest_working_day ? 'next' : 'exact';
+                    } else if (workdayLogic === 'dynamic_charge') {
+                        // New Schema: adjust_for_working_day
+                        logic = item.adjust_for_working_day ? 'next' : 'exact';
                     }
 
                     // Apply logic
@@ -115,13 +118,13 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             });
         };
 
-        // 1. Recurring Costs
-        generateMonthlyEvents(costs, 'payment_day', 
+        // 1. Recurring Charges (Replaces Costs)
+        generateMonthlyEvents(costs, 'day_of_month', 
             c => `💸 ${c.name}`, 
-            'cost', 
+            'charge', 
             c => '💸', 
-            c => `Recurring cost: £${c.amount}`,
-            'dynamic'
+            c => `Recurring charge: £${c.amount}`,
+            'dynamic_charge' // Special flag for new schema logic
         );
 
         // 2. Income (Paydays)

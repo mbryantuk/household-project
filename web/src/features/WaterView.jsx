@@ -11,21 +11,17 @@ import { getEmojiColor } from '../theme';
 export default function WaterView() {
   const { api, id: householdId, user: currentUser, isDark, showNotification } = useOutletContext();
   const [accounts, setAccounts] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [editAccount, setEditAccount] = useState(null);
   const [isNew, setIsNew] = useState(false);
   
   const isAdmin = currentUser?.role === 'admin';
 
   const fetchAccounts = useCallback(async () => {
-    setLoading(true);
     try {
       const res = await api.get(`/households/${householdId}/water`);
       setAccounts(res.data || []);
     } catch (err) {
       console.error("Failed to fetch water accounts", err);
-    } finally {
-      setLoading(false);
     }
   }, [api, householdId]);
 

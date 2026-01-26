@@ -218,13 +218,6 @@ router.post('/households/:id/vehicles', authenticateToken, requireHouseholdRole(
 router.put('/households/:id/vehicles/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('vehicles'));
 router.delete('/households/:id/vehicles/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('vehicles'));
 
-// Recurring Costs (Misc Costs for everything)
-router.get('/households/:id/costs', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('recurring_costs'));
-router.get('/households/:id/costs/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetItem('recurring_costs'));
-router.post('/households/:id/costs', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('recurring_costs'));
-router.put('/households/:id/costs/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('recurring_costs'));
-router.delete('/households/:id/costs/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('recurring_costs'));
-
 // Vehicle Sub-modules
 const VEHICLE_SUBS = ['services', 'finance', 'insurance', 'service_plans'];
 VEHICLE_SUBS.forEach(sub => {

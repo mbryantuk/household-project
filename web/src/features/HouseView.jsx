@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useOutletContext, useNavigate, useLocation } from 'react-router-dom';
+import { useOutletContext, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, CircularProgress, Divider, Grid, Input, Button, Tooltip, IconButton, FormControl, FormLabel, Badge
 } from '@mui/joy';
@@ -17,7 +17,6 @@ export default function HouseView() {
   const { api, id: householdId, onUpdateHousehold, user: currentUser, showNotification } = useOutletContext();
   const isAdmin = currentUser?.role === 'admin';
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [viewMode, setViewMode] = useState('details'); // Default to details
   const [activeTab, setActiveTab] = useState(0);

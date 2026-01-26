@@ -281,8 +281,8 @@ export default function MortgagesView() {
                                                         <Box sx={{ flexGrow: 1 }}>
                                                             <Typography level="title-md">{mort.lender}</Typography>
                                                             <Typography level="body-xs" color="neutral">{isEquityType ? `Equity Loan (${sharePercent.toFixed(1)}%)` : 'Mortgage Part'}</Typography>
-                                                            {isEquityType && sharePercent > 50 && (
-                                                                <Typography level="body-xs" color="danger" fontWeight="bold">⚠️ High Equity Share (>50%)</Typography>
+                                                            {isEquityType && (sharePercent > 50) && (
+                                                                <Typography level="body-xs" color="danger" fontWeight="bold">⚠️ High Equity Share (&gt;50%)</Typography>
                                                             )}
                                                         </Box>
                                                         <Box sx={{ textAlign: 'right' }}>

@@ -137,23 +137,29 @@ const TENANT_SCHEMA = [
         notes TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
-    `CREATE TABLE IF NOT EXISTS recurring_costs (
+    `CREATE TABLE IF NOT EXISTS finance_recurring_charges (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
-        parent_type TEXT, -- house, vehicle, member, general, pet, asset
-        parent_id INTEGER,
         name TEXT,
         amount REAL,
-        frequency TEXT, -- monthly, annual, weekly, one-off
-        category TEXT, -- insurance, tax, service, utility, subscription, other
-        payment_day INTEGER,
-        last_paid DATE,
-        next_due DATE,
-        is_active INTEGER DEFAULT 1,
+        segment TEXT, -- 'household_bill', 'insurance', 'warranty', 'subscription', 'utility', 'other', 'vehicle_tax', 'vehicle_mot', 'vehicle_service', 'vehicle_fuel'
+        frequency TEXT, -- 'weekly', 'monthly', 'quarterly', 'yearly', 'one_off'
+        
+        -- Scheduling Configuration
+        day_of_month INTEGER, -- 1-31 (Monthly, Quarterly, Yearly)
+        month_of_year INTEGER, -- 1-12 (Yearly)
+        day_of_week INTEGER, -- 0-6 (Weekly)
+        exact_date DATE, -- YYYY-MM-DD (One-off)
+        
+        adjust_for_working_day INTEGER DEFAULT 1, -- Boolean
+        
+        -- Linking
+        linked_entity_type TEXT, -- 'vehicle', 'asset', 'member', 'pet', 'general'
+        linked_entity_id INTEGER,
+        
         notes TEXT,
-        nearest_working_day INTEGER DEFAULT 1,
-        is_subscription INTEGER DEFAULT 0,
-        term_type TEXT DEFAULT 'rolling' -- fixed, rolling
+        is_active INTEGER DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
     `CREATE TABLE IF NOT EXISTS dates (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -340,7 +346,9 @@ const TENANT_SCHEMA = [
         payment_day INTEGER,
         emoji TEXT,
         notes TEXT,
-        nearest_working_day INTEGER DEFAULT 1
+        nearest_working_day INTEGER DEFAULT 1,
+        parent_type TEXT DEFAULT 'general',
+        parent_id INTEGER
     )`,
     `CREATE TABLE IF NOT EXISTS finance_loans (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -356,7 +364,9 @@ const TENANT_SCHEMA = [
         end_date DATE,
         emoji TEXT,
         notes TEXT,
-        nearest_working_day INTEGER DEFAULT 1
+        nearest_working_day INTEGER DEFAULT 1,
+        parent_type TEXT DEFAULT 'general',
+        parent_id INTEGER
     )`,
     `CREATE TABLE IF NOT EXISTS finance_mortgages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -438,7 +448,9 @@ const TENANT_SCHEMA = [
         end_date DATE,
         emoji TEXT,
         notes TEXT,
-        nearest_working_day INTEGER DEFAULT 1
+        nearest_working_day INTEGER DEFAULT 1,
+        parent_type TEXT DEFAULT 'general',
+        parent_id INTEGER
     )`,
     `CREATE TABLE IF NOT EXISTS finance_budget_categories (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -550,7 +562,13 @@ function initializeHouseholdSchema(db) {
             ['council_accounts', 'frequency', "TEXT DEFAULT 'monthly'"],
             ['waste_collections', 'monthly_amount', 'REAL'],
             ['waste_collections', 'payment_day', 'INTEGER'],
-            ['waste_collections', 'nearest_working_day', 'INTEGER DEFAULT 1']
+            ['waste_collections', 'nearest_working_day', 'INTEGER DEFAULT 1'],
+            ['finance_loans', 'parent_type', "TEXT DEFAULT 'general'"],
+            ['finance_loans', 'parent_id', 'INTEGER'],
+            ['finance_credit_cards', 'parent_type', "TEXT DEFAULT 'general'"],
+            ['finance_credit_cards', 'parent_id', 'INTEGER'],
+            ['finance_agreements', 'parent_type', "TEXT DEFAULT 'general'"],
+            ['finance_agreements', 'parent_id', 'INTEGER']
         ];
 
         additionalFinanceCols.forEach(([table, col, type]) => {

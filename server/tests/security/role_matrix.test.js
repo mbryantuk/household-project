@@ -30,7 +30,7 @@ describe('🛡️ Role Matrix Completion: Member Constraints', () => {
         { path: 'vehicles', method: 'post', payload: { make: 'Test' }, label: 'Vehicles' },
         { path: 'members', method: 'post', payload: { name: 'Test', type: 'adult' }, label: 'Members' },
         { path: 'energy', method: 'post', payload: { provider: 'Test' }, label: 'Energy' },
-        { path: 'costs', method: 'post', payload: { name: 'Test', amount: 10, parent_type: 'general' }, label: 'Costs' },
+        { path: 'finance/charges', method: 'post', payload: { name: 'Test', amount: 10, frequency: 'monthly', segment: 'other' }, label: 'Costs' },
         { path: 'waste', method: 'post', payload: { waste_type: 'Test', frequency: 'Weekly', collection_day: 'Monday' }, label: 'Waste' }
     ];
 
@@ -40,7 +40,8 @@ describe('🛡️ Role Matrix Completion: Member Constraints', () => {
                 [ep.method](`/households/${householdId}/${ep.path}`)
                 .set('Authorization', `Bearer ${memberToken}`)
                 .send(ep.payload);
-            expect(res.status).toBe(200);
+            expect(res.status).toBeGreaterThanOrEqual(200);
+            expect(res.status).toBeLessThan(300);
         });
     });
 

@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Totem Household SaaS API",
-    "version": "2.6.35",
+    "version": "3.0.0-alpha.1",
     "description": "Multi-tenant household management API with strict data isolation and RBAC. Admins have full rights, Members have object CRUD except for household management, and Viewers are read-only.",
     "contact": {
       "name": "SaaS Architect"
@@ -52,16 +52,23 @@
           "notes": { "type": "string" }
         }
       },
-      "RecurringCost": {
+      "RecurringCharge": {
         "type": "object",
         "properties": {
           "id": { "type": "integer" },
           "name": { "type": "string" },
           "amount": { "type": "number" },
-          "frequency": { "type": "string" },
-          "payment_day": { "type": "integer" },
-          "nearest_working_day": { "type": "boolean" },
-          "category": { "type": "string" }
+          "segment": { "type": "string", "enum": ["household_bill", "insurance", "warranty", "subscription", "utility", "other", "vehicle_tax", "vehicle_mot", "vehicle_service", "vehicle_fuel"] },
+          "frequency": { "type": "string", "enum": ["weekly", "monthly", "quarterly", "yearly", "one_off"] },
+          "day_of_month": { "type": "integer" },
+          "month_of_year": { "type": "integer" },
+          "day_of_week": { "type": "integer" },
+          "exact_date": { "type": "string", "format": "date" },
+          "adjust_for_working_day": { "type": "integer" },
+          "linked_entity_type": { "type": "string" },
+          "linked_entity_id": { "type": "integer" },
+          "notes": { "type": "string" },
+          "is_active": { "type": "integer" }
         }
       },
       "Vehicle": {
@@ -137,6 +144,14 @@
     "/households/{id}/finance/income/{itemId}": {
       "put": { "summary": "Update income source", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
       "delete": { "summary": "Delete income source", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
+    },
+    "/households/{id}/finance/charges": {
+      "get": { "summary": "List recurring charges", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/RecurringCharge" } } } } } },
+      "post": { "summary": "Create recurring charge", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RecurringCharge" } } } }, "responses": { "201": { "description": "Created" } } }
+    },
+    "/households/{id}/finance/charges/{chargeId}": {
+      "put": { "summary": "Update recurring charge", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "chargeId", "required": true, "schema": { "type": "integer" } }], "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RecurringCharge" } } } }, "responses": { "200": { "description": "Updated" } } },
+      "delete": { "summary": "Delete recurring charge", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "chargeId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
     },
     "/households/{id}/finance/savings": {
       "get": { "summary": "List savings accounts", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
@@ -237,14 +252,6 @@
       "put": { "summary": "Update waste collection", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
       "delete": { "summary": "Delete waste collection", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
     },
-    "/households/{id}/costs": {
-      "get": { "summary": "List recurring costs", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-      "post": { "summary": "Create recurring cost", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
-    },
-    "/households/{id}/costs/{itemId}": {
-      "put": { "summary": "Update recurring cost", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
-      "delete": { "summary": "Delete recurring cost", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
-    },
     "/admin/backups": {
       "get": { "summary": "List backups", "tags": ["Admin"], "responses": { "200": { "description": "OK" } } }
     },
@@ -258,4 +265,4 @@
       "post": { "summary": "Create user (Admin)", "tags": ["Admin"], "responses": { "200": { "description": "Created" } } }
     }
   }
-}
+}}

@@ -63,7 +63,7 @@ describe('🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle', () => {
         { name: 'Assets', path: 'assets', payload: { name: 'Test Asset', category: 'Tech' }, update: { name: 'Updated Asset' } },
         { name: 'Vehicles', path: 'vehicles', payload: { make: 'Tesla', model: '3' }, update: { model: 'S' } },
         { name: 'Energy', path: 'energy', payload: { provider: 'Octopus', type: 'Dual' }, update: { provider: 'Ovo' } },
-        { name: 'Costs', path: 'costs', payload: { name: 'Spotify', amount: 15, parent_type: 'general' }, update: { amount: 20 } },
+        { name: 'Charges', path: 'finance/charges', payload: { name: 'Spotify', amount: 15, frequency: 'monthly', segment: 'subscription' }, update: { amount: 20 }, status: 201 },
         { name: 'Meals', path: 'meals', payload: { name: 'Tacos', emoji: '🌮' }, update: { name: 'Super Tacos' } },
         { name: 'Waste', path: 'waste', payload: { bin_type: 'Recycling', frequency: 'Fortnightly' }, update: { day_of_week: 'Friday' } },
         

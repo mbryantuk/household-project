@@ -30,16 +30,17 @@ describe('Viewer Role Restrictions', () => {
         viewerToken = loginV.body.token;
     });
 
-    const endpoints = [
-        { path: 'assets', method: 'post', payload: { name: 'Test' }, label: 'Assets' },
-        { path: 'vehicles', method: 'post', payload: { make: 'Test' }, label: 'Vehicles' },
-        { path: 'members', method: 'post', payload: { name: 'Test', type: 'adult' }, label: 'Members' },
-        { path: 'energy', method: 'post', payload: { provider: 'Test' }, label: 'Energy' },
-        { path: 'costs', method: 'post', payload: { name: 'Test', amount: 10, parent_type: 'general' }, label: 'Costs' },
+    const RESTRICTED_POSTS = [
+        { path: 'members', method: 'post', payload: { name: 'New Member', type: 'adult' }, label: 'Member' },
+        { path: 'assets', method: 'post', payload: { name: 'New Asset' }, label: 'Asset' },
+        { path: 'vehicles', method: 'post', payload: { make: 'New Vehicle' }, label: 'Vehicle' },
+        { path: 'energy', method: 'post', payload: { provider: 'New Energy' }, label: 'Energy' },
+        { path: 'finance/charges', method: 'post', payload: { name: 'New Charge', amount: 10, frequency: 'monthly', segment: 'other' }, label: 'Charge' },
+        { path: 'finance/income', method: 'post', payload: { employer: 'New Job', amount: 1000 }, label: 'Income' },
         { path: 'waste', method: 'post', payload: { waste_type: 'Test', frequency: 'Weekly', collection_day: 'Monday' }, label: 'Waste' }
     ];
 
-    endpoints.forEach(ep => {
+    RESTRICTED_POSTS.forEach(ep => {
         it(`should block VIEWER from creating ${ep.label}`, async () => {
             const res = await request(app)
                 [ep.method](`/households/${householdId}/${ep.path}`)
