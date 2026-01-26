@@ -50,6 +50,8 @@ export default function BudgetView() {
   // Modals
   const [quickAddOpen, setQuickAddOpen] = useState(false);
   const [recurringAddOpen, setRecurringAddOpen] = useState(false);
+  const [recurringType, setRecurringType] = useState('monthly');
+  const [linkType, setLinkType] = useState('general');
 
   const [actualPay, setActualPay] = useState('');
   const [currentBalance, setCurrentBalance] = useState('');
@@ -196,9 +198,9 @@ export default function BudgetView() {
               const v = liabilities.vehicles.find(veh => String(veh.id) === String(id));
               return v ? { name: `${v.make} ${v.model}`, emoji: v.emoji || '🚗' } : null;
           }
-          if (type === 'asset') {
-              const a = liabilities.assets.find(ast => String(ast.id) === String(id));
-              return a ? { name: a.name, emoji: a.emoji || '📦' } : null;
+          if (type === 'asset' || type === 'house') {
+              // We treat 'house' as entity_type for general bills in new widget
+              return { name: 'Household', emoji: '🏠' };
           }
           return null;
       };
@@ -208,9 +210,21 @@ export default function BudgetView() {
       
       liabilities.charges.forEach(charge => {
           let datesToAdd = [];
-          if (charge.frequency === 'monthly') {
+          const freq = charge.frequency?.toLowerCase();
+          if (freq === 'monthly') {
              datesToAdd.push(getAdjustedDate(charge.day_of_month, charge.adjust_for_working_day, startDate));
-          } else if (charge.frequency === 'yearly') {
+          } else if (freq === 'quarterly') {
+             const anchor = charge.start_date ? parseISO(charge.start_date) : null;
+             if (anchor) {
+                 let current = startOfDay(anchor);
+                 // Walk forward/backward to find relevant quarters for this cycle
+                 while (current < startDate) current = addMonths(current, 3);
+                 while (isWithinInterval(current, { start: startDate, end: endDate })) {
+                     datesToAdd.push(charge.adjust_for_working_day ? getNextWorkingDay(current) : new Date(current));
+                     current = addMonths(current, 3);
+                 }
+             }
+          } else if (freq === 'yearly') {
              const currentYearDate = new Date(startDate.getFullYear(), (charge.month_of_year || 1) - 1, charge.day_of_month || 1);
              const nextYearDate = new Date(startDate.getFullYear() + 1, (charge.month_of_year || 1) - 1, charge.day_of_month || 1);
              if (isWithinInterval(currentYearDate, { start: startDate, end: endDate })) {
@@ -218,10 +232,10 @@ export default function BudgetView() {
              } else if (isWithinInterval(nextYearDate, { start: startDate, end: endDate })) {
                  datesToAdd.push(charge.adjust_for_working_day ? getNextWorkingDay(nextYearDate) : nextYearDate);
              }
-          } else if (charge.frequency === 'one_off') {
+          } else if (freq === 'one_off') {
              const oneOffDate = parseISO(charge.exact_date);
              if (isWithinInterval(oneOffDate, { start: startDate, end: endDate })) datesToAdd.push(oneOffDate);
-          } else if (charge.frequency === 'weekly') {
+          } else if (freq === 'weekly') {
              let iter = new Date(startDate);
              while (iter <= endDate) {
                  if (getDay(iter) === (charge.day_of_week === 7 ? 0 : charge.day_of_week)) { 
@@ -323,9 +337,15 @@ export default function BudgetView() {
       const formData = new FormData(e.currentTarget);
       const data = Object.fromEntries(formData.entries());
       data.adjust_for_working_day = data.nearest_working_day === "1" ? 1 : 0;
-      data.day_of_month = parseInt(data.payment_day);
-      data.frequency = 'monthly';
+      data.day_of_month = parseInt(data.day_of_month) || 1;
+      data.month_of_year = parseInt(data.month_of_year) || 1;
+      data.day_of_week = parseInt(data.day_of_week) || 0;
+      data.frequency = recurringType;
       data.segment = data.category || 'other';
+      data.linked_entity_type = linkType;
+      data.linked_entity_id = data.linked_entity_id || null;
+      data.start_date = data.start_date || null; 
+
       try {
           await api.post(`/households/${householdId}/finance/charges`, data);
           showNotification("Recurring expense added.", "success");
@@ -397,7 +417,7 @@ export default function BudgetView() {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label || '?', isDark), color: '#fff' }}>{exp.icon}</Avatar>
                     <Box>
-                        <Typography level="body-xs" fontWeight="bold">{exp.label}</Typography>
+                        <Typography level="body-sm" fontWeight="bold">{exp.label}</Typography>
                         {!hidePill && exp.object && (
                             <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                 {exp.object.emoji} {exp.object.name}
@@ -519,7 +539,77 @@ export default function BudgetView() {
         </Grid>
 
         <Modal open={quickAddOpen} onClose={() => setQuickAddOpen(false)}><ModalDialog sx={{ maxWidth: 400, width: '100%' }}><DialogTitle>Add One-off Expense</DialogTitle><DialogContent><form onSubmit={handleQuickAdd}><Stack spacing={2}><FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus /></FormControl><FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: '0.01' } }} /></FormControl><FormControl required><FormLabel>Due Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={new Date().getDate()} /></FormControl><Checkbox label="Nearest Working Day (Next)" name="nearest_working_day" defaultChecked value="1" /><AppSelect label="Category" name="category" defaultValue="other" options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'other', label: 'Other' }]} /><Button type="submit">Add to Cycle</Button></Stack></form></DialogContent></ModalDialog></Modal>
-        <Modal open={recurringAddOpen} onClose={() => setRecurringAddOpen(false)}><ModalDialog sx={{ maxWidth: 400, width: '100%' }}><DialogTitle>Add Recurring Expense</DialogTitle><DialogContent><form onSubmit={handleRecurringAdd}><Stack spacing={2}><FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus /></FormControl><FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" step="0.01" /></FormControl><FormControl required><FormLabel>Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={1} /></FormControl><Checkbox label="Nearest Working Day (Next)" name="nearest_working_day" defaultChecked value="1" /><AppSelect label="Category" name="category" defaultValue="other" options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'saving', label: 'Saving' }, { value: 'other', label: 'Other' }]} /><Button type="submit">Add Recurring</Button></Stack></form></DialogContent></ModalDialog></Modal>
+        <Modal open={recurringAddOpen} onClose={() => setRecurringAddOpen(false)}>
+            <ModalDialog sx={{ maxWidth: 450, width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
+                <DialogTitle>Add Recurring Expense</DialogTitle>
+                <DialogContent>
+                    <form onSubmit={handleRecurringAdd}>
+                        <Stack spacing={2}>
+                            <FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus placeholder="e.g. Netflix, Car Insurance" /></FormControl>
+                            <Grid container spacing={2}>
+                                <Grid xs={6}><FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" step="0.01" /></FormControl></Grid>
+                                <Grid xs={6}>
+                                    <AppSelect label="Frequency" value={recurringType} onChange={setRecurringType} options={[
+                                        { value: 'weekly', label: 'Weekly' },
+                                        { value: 'monthly', label: 'Monthly' },
+                                        { value: 'quarterly', label: 'Quarterly' },
+                                        { value: 'yearly', label: 'Yearly' }
+                                    ]} />
+                                </Grid>
+                            </Grid>
+
+                            {recurringType === 'weekly' && (
+                                <AppSelect label="Day of Week" name="day_of_week" defaultValue="1" options={[
+                                    { value: '1', label: 'Monday' }, { value: '2', label: 'Tuesday' }, { value: '3', label: 'Wednesday' },
+                                    { value: '4', label: 'Thursday' }, { value: '5', label: 'Friday' }, { value: '6', label: 'Saturday' }, { value: '0', label: 'Sunday' }
+                                ]} />
+                            )}
+
+                            {recurringType === 'monthly' && (
+                                <FormControl required><FormLabel>Day of Month</FormLabel><Input name="day_of_month" type="number" min="1" max="31" defaultValue={1} /></FormControl>
+                            )}
+                             {recurringType === 'quarterly' && (
+                                <FormControl required><FormLabel>First Charge Date</FormLabel><Input name="start_date" type="date" required defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
+                            )}
+
+                            {recurringType === 'yearly' && (
+                              <Grid container spacing={2}>
+                                <Grid xs={6}><FormControl required><FormLabel>Day of Month</FormLabel><Input name="day_of_month" type="number" min="1" max="31" defaultValue={1} /></FormControl></Grid>
+                                <Grid xs={6}><AppSelect label="Month of Year" name="month_of_year" defaultValue="1" options={[
+                                    { value: '1', label: 'January' }, { value: '2', label: 'February' }, { value: '3', label: 'March' }, { value: '4', label: 'April' },
+                                    { value: '5', label: 'May' }, { value: '6', label: 'June' }, { value: '7', label: 'July' }, { value: '8', label: 'August' },
+                                    { value: '9', label: 'September' }, { value: '10', label: 'October' }, { value: '11', label: 'November' }, { value: '12', label: 'December' }
+                                ]} /></Grid>
+                              </Grid>
+                            )}
+                            <Checkbox label="Adjust for Working Day (Next)" name="nearest_working_day" defaultChecked value="1" />
+                            
+                            <Divider />
+                            
+                            <Grid container spacing={2}>
+                                <Grid xs={6}><AppSelect label="Category" name="category" defaultValue="other" options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'saving', label: 'Saving' }, { value: 'other', label: 'Other' }]} /></Grid>
+                                <Grid xs={6}><AppSelect label="Linked To" value={linkType} onChange={setLinkType} options={[{ value: 'general', label: 'Household' }, { value: 'member', label: 'Member' }, { value: 'vehicle', label: 'Vehicle' }, { value: 'asset', label: 'Asset' }, { value: 'pet', label: 'Pet' }]} /></Grid>
+                            </Grid>
+
+                            {linkType === 'member' && (
+                                <AppSelect label="Select Member" name="linked_entity_id" options={members.map(m => ({ value: String(m.id), label: `${m.emoji || '👤'} ${m.name}` }))} />
+                            )}
+                            {linkType === 'vehicle' && (
+                                <AppSelect label="Select Vehicle" name="linked_entity_id" options={liabilities.vehicles.map(v => ({ value: String(v.id), label: `${v.emoji || '🚗'} ${v.make} ${v.model}` }))} />
+                            )}
+                            {linkType === 'asset' && (
+                                <AppSelect label="Select Asset" name="linked_entity_id" options={liabilities.assets.map(a => ({ value: String(a.id), label: `${a.emoji || '📦'} ${a.name}` }))} />
+                            )}
+                            {linkType === 'pet' && (
+                                <AppSelect label="Select Pet" name="linked_entity_id" options={members.filter(m => m.type === 'pet').map(p => ({ value: String(p.id), label: `${p.emoji || '🐾'} ${p.name}` }))} />
+                            )}
+
+                            <Button type="submit">Add Recurring Expense</Button>
+                        </Stack>
+                    </form>
+                </DialogContent>
+            </ModalDialog>
+        </Modal>
     </Box>
   );
 }

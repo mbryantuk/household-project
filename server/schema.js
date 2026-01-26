@@ -150,6 +150,7 @@ const TENANT_SCHEMA = [
         month_of_year INTEGER, -- 1-12 (Yearly)
         day_of_week INTEGER, -- 0-6 (Weekly)
         exact_date DATE, -- YYYY-MM-DD (One-off)
+        start_date DATE, -- Anchor date for recurring cycles (e.g. Quarterly)
         
         adjust_for_working_day INTEGER DEFAULT 1, -- Boolean
         
@@ -568,7 +569,8 @@ function initializeHouseholdSchema(db) {
             ['finance_credit_cards', 'parent_type', "TEXT DEFAULT 'general'"],
             ['finance_credit_cards', 'parent_id', 'INTEGER'],
             ['finance_agreements', 'parent_type', "TEXT DEFAULT 'general'"],
-            ['finance_agreements', 'parent_id', 'INTEGER']
+            ['finance_agreements', 'parent_id', 'INTEGER'],
+            ['finance_recurring_charges', 'start_date', 'DATE']
         ];
 
         additionalFinanceCols.forEach(([table, col, type]) => {

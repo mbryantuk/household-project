@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Decentralized recurring charges: moved to House, Vehicles, People, and Pets views; removed central Subscriptions view",
-  "date": "Mon 26 Jan 20:18:02 GMT 2026"
+  "commitMessage": "Feature: Enhanced recurring charges with asset linking, quarterly cycles and seeded Bryant household",
+  "date": "Mon 26 Jan 20:36:41 GMT 2026"
 }

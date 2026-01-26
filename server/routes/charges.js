@@ -44,19 +44,19 @@ router.get('/households/:id/finance/charges/:chargeId', authenticateToken, requi
 router.post('/households/:id/finance/charges', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     const { 
         name, amount, segment, frequency, 
-        day_of_month, month_of_year, day_of_week, exact_date, 
+        day_of_month, month_of_year, day_of_week, exact_date, start_date,
         adjust_for_working_day, linked_entity_type, linked_entity_id, notes 
     } = req.body;
 
     const sql = `INSERT INTO finance_recurring_charges (
         household_id, name, amount, segment, frequency, 
-        day_of_month, month_of_year, day_of_week, exact_date, 
+        day_of_month, month_of_year, day_of_week, exact_date, start_date,
         adjust_for_working_day, linked_entity_type, linked_entity_id, notes
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     const params = [
         req.hhId, name, amount, segment, frequency, 
-        day_of_month, month_of_year, day_of_week, exact_date, 
+        day_of_month, month_of_year, day_of_week, exact_date, start_date,
         adjust_for_working_day || 1, linked_entity_type, linked_entity_id, notes
     ];
 
@@ -71,20 +71,20 @@ router.post('/households/:id/finance/charges', authenticateToken, requireHouseho
 router.put('/households/:id/finance/charges/:chargeId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     const { 
         name, amount, segment, frequency, 
-        day_of_month, month_of_year, day_of_week, exact_date, 
+        day_of_month, month_of_year, day_of_week, exact_date, start_date,
         adjust_for_working_day, linked_entity_type, linked_entity_id, notes, is_active 
     } = req.body;
 
     const sql = `UPDATE finance_recurring_charges SET 
         name = ?, amount = ?, segment = ?, frequency = ?, 
-        day_of_month = ?, month_of_year = ?, day_of_week = ?, exact_date = ?, 
+        day_of_month = ?, month_of_year = ?, day_of_week = ?, exact_date = ?, start_date = ?,
         adjust_for_working_day = ?, linked_entity_type = ?, linked_entity_id = ?, 
         notes = ?, is_active = ?
         WHERE id = ? AND household_id = ?`;
 
     const params = [
         name, amount, segment, frequency, 
-        day_of_month, month_of_year, day_of_week, exact_date, 
+        day_of_month, month_of_year, day_of_week, exact_date, start_date,
         adjust_for_working_day, linked_entity_type, linked_entity_id, 
         notes, is_active,
         req.params.chargeId, req.hhId
