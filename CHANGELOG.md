@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.0-alpha.1] - 2026-01-26
+
+### Architecture
+- **MAJOR:** Initiated V3 Architecture Overhaul.
+- **Breaking:** Created `v3-architecture-overhaul` branch for significant structural refactoring.
+- **Goal:** Address critical architectural debt and tenancy patterns.
+
 ## [Unreleased]
 
 ### Added
