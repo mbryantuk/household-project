@@ -509,7 +509,7 @@ export default function BudgetView() {
 
                     {(() => {
                         const visibleAccountGroups = Object.entries(groupedPots).map(([accId, group]) => {
-                            const potItems = group.pots.map(p => cycleData.expenses.find(e => e.key === `pot_${p.id}`)).filter(Boolean);
+                            const potItems = group.pots.map(p => cycleData.expenses.find(e => e.key.startsWith(`pot_${p.id}_`))).filter(Boolean);
                             const visiblePots = getVisibleItems(potItems);
                             if (visiblePots.length === 0) return null;
                             return { accId, group, visiblePots, potItems };

@@ -1,4 +1,4 @@
 {
-  "commitMessage": "UI: Remove Subscriptions and Agreements from sidebar",
-  "date": "Mon 26 Jan 20:47:30 GMT 2026"
+  "commitMessage": "Fix: Savings pots missing from BudgetView due to key mismatch",
+  "date": "Mon 26 Jan 20:51:05 GMT 2026"
 }
