@@ -113,7 +113,7 @@ describe('Feature: Recurring Charges', () => {
         expect(updated.amount).toBe(19.99);
     });
 
-    it('should delete a charge', async () => {
+    it('should delete (archive) a charge', async () => {
         const res = await request(app)
             .delete(`/households/${householdId}/finance/charges/${weeklyId}`)
             .set('Authorization', `Bearer ${token}`);
@@ -122,6 +122,8 @@ describe('Feature: Recurring Charges', () => {
         const check = await request(app)
             .get(`/households/${householdId}/finance/charges`)
             .set('Authorization', `Bearer ${token}`);
-        expect(check.body.find(c => c.id === weeklyId)).toBeUndefined();
+        const archived = check.body.find(c => c.id === weeklyId);
+        expect(archived).toBeDefined();
+        expect(archived.is_active).toBe(0);
     });
 });

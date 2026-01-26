@@ -1,4 +1,4 @@
 {
-  "commitMessage": "UI: Add option to disable budget items for current cycle",
-  "date": "Mon 26 Jan 21:08:49 GMT 2026"
+  "commitMessage": "Fix: Update integration tests for soft-delete logic",
+  "date": "Mon 26 Jan 21:52:43 GMT 2026"
 }

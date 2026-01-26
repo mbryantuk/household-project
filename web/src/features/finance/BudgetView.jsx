@@ -12,7 +12,7 @@ import {
   Event, Payments, Savings as SavingsIcon, Home, CreditCard, 
   Assignment, WaterDrop, ElectricBolt, AccountBalance, Add, Shield, 
   ShoppingBag, ChevronLeft, ChevronRight, Lock, LockOpen, ArrowDropDown, RestartAlt, Receipt,
-  DirectionsCar, Person, DeleteOutline
+  DirectionsCar, Person, DeleteOutline, Restore
 } from '@mui/icons-material';
 import { 
   format, addMonths, startOfMonth, setDate, differenceInDays, 
@@ -213,7 +213,7 @@ export default function BudgetView() {
       liabilities.loans.forEach(l => addExpense(l, 'loan', `${l.lender} Loan`, l.monthly_payment, getAdjustedDate(l.payment_day, true, startDate), <TrendingDown />, 'Liability', { name: 'Finance', emoji: '💰' }));
       liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit_card', cc.card_name, 0, getAdjustedDate(cc.payment_day || 1, true, startDate), <CreditCard />, 'Credit Card', { name: cc.provider, emoji: cc.emoji || '💳' }));
       
-      liabilities.charges.forEach(charge => {
+      liabilities.charges.filter(c => c.is_active !== 0).forEach(charge => {
           let datesToAdd = [];
           const freq = charge.frequency?.toLowerCase();
           if (freq === 'monthly') {
@@ -335,6 +335,28 @@ export default function BudgetView() {
               } catch { showNotification("Failed to disable item.", "danger"); }
           }
       );
+  };
+
+  const handleArchiveCharge = (chargeId) => {
+      confirmAction(
+          "Archive Recurring Charge?",
+          "This will move the charge to the deleted section. It will no longer appear in future budgets unless restored.",
+          async () => {
+              try {
+                  await api.delete(`/households/${householdId}/finance/charges/${chargeId}`);
+                  showNotification("Charge archived.", "success");
+                  fetchData();
+              } catch { showNotification("Failed to archive.", "danger"); }
+          }
+      );
+  };
+
+  const handleRestoreCharge = async (chargeId) => {
+      try {
+          await api.put(`/households/${householdId}/finance/charges/${chargeId}`, { is_active: 1 });
+          showNotification("Charge restored.", "success");
+          fetchData();
+      } catch { showNotification("Failed to restore.", "danger"); }
   };
 
   const handleQuickAdd = async (e) => {
@@ -485,15 +507,28 @@ export default function BudgetView() {
                 />
             </td>
             <td style={{ textAlign: 'center' }}>
-                {exp.isDeletable && (
-                    <IconButton 
-                        size="sm" variant="plain" color="danger" 
-                        onClick={(e) => { e.stopPropagation(); handleDisableItem(exp.key); }}
-                        sx={{ '--IconButton-size': '28px' }}
-                    >
-                        <DeleteOutline fontSize="small" />
-                    </IconButton>
-                )}
+                <Stack direction="row" spacing={0.5} justifyContent="center">
+                    {exp.type === 'charge' && (
+                        <IconButton 
+                            size="sm" variant="plain" color="neutral" 
+                            onClick={(e) => { e.stopPropagation(); handleArchiveCharge(exp.id); }}
+                            sx={{ '--IconButton-size': '28px' }}
+                            title="Archive/Delete Recurring Charge"
+                        >
+                            <DeleteOutline fontSize="small" />
+                        </IconButton>
+                    )}
+                    {exp.isDeletable && (
+                        <IconButton 
+                            size="sm" variant="plain" color="danger" 
+                            onClick={(e) => { e.stopPropagation(); handleDisableItem(exp.key); }}
+                            sx={{ '--IconButton-size': '28px' }}
+                            title="Skip for this month"
+                        >
+                            <RestartAlt fontSize="small" sx={{ transform: 'rotate(-45deg)' }} />
+                        </IconButton>
+                    )}
+                </Stack>
             </td>
         </tr>
     ));
@@ -517,7 +552,7 @@ export default function BudgetView() {
                         <th style={{ width: 80, textAlign: 'center' }}>Due</th>
                         <th style={{ width: 100, textAlign: 'right' }}>Amount</th>
                         <th style={{ width: 40, textAlign: 'center' }}>Paid</th>
-                        <th style={{ width: 40, textAlign: 'center' }}></th>
+                        <th style={{ width: 80, textAlign: 'center' }}>Action</th>
                     </tr>
                 </thead>
                 <tbody>{renderTableRows(visible, cols, hidePill)}</tbody>
@@ -701,6 +736,48 @@ export default function BudgetView() {
                 </DialogContent>
             </ModalDialog>
         </Modal>
+
+        {liabilities.charges.some(c => c.is_active === 0) && (
+            <Box sx={{ mt: 8, pt: 4, borderTop: '1px solid', borderColor: 'divider' }}>
+                <Typography level="title-md" color="neutral" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <DeleteOutline fontSize="small" /> Deleted & Archived Items
+                </Typography>
+                <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto', bgcolor: 'background.level1' }}>
+                    <Table size="sm">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th style={{ width: 120 }}>Category</th>
+                                <th style={{ width: 100, textAlign: 'right' }}>Amount</th>
+                                <th style={{ width: 100, textAlign: 'center' }}>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {liabilities.charges.filter(c => c.is_active === 0).map(charge => (
+                                <tr key={charge.id} style={{ opacity: 0.6 }}>
+                                    <td>
+                                        <Typography sx={{ textDecoration: 'line-through' }}>{charge.name}</Typography>
+                                    </td>
+                                    <td>
+                                        <Chip size="sm" variant="soft" color="neutral">{charge.segment}</Chip>
+                                    </td>
+                                    <td style={{ textAlign: 'right' }}>{formatCurrency(charge.amount)}</td>
+                                    <td style={{ textAlign: 'center' }}>
+                                        <Button 
+                                            size="sm" variant="plain" color="primary" 
+                                            startDecorator={<Restore />}
+                                            onClick={() => handleRestoreCharge(charge.id)}
+                                        >
+                                            Restore
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                </Sheet>
+            </Box>
+        )}
     </Box>
   );
 }

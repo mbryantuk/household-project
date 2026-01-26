@@ -100,12 +100,12 @@ router.put('/households/:id/finance/charges/:chargeId', authenticateToken, requi
 
 // DELETE /households/:id/finance/charges/:chargeId
 router.delete('/households/:id/finance/charges/:chargeId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-    const sql = `DELETE FROM finance_recurring_charges WHERE id = ? AND household_id = ?`;
+    const sql = `UPDATE finance_recurring_charges SET is_active = 0 WHERE id = ? AND household_id = ?`;
     req.tenantDb.run(sql, [req.params.chargeId, req.hhId], function(err) {
         closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         if (this.changes === 0) return res.status(404).json({ error: 'Charge not found' });
-        res.json({ message: 'Charge deleted' });
+        res.json({ message: 'Charge archived' });
     });
 });
 
