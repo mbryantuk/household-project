@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Feature: Ad-hoc payment links, credit card budget items, and responsive mobile budget UX",
-  "date": "Mon 26 Jan 21:01:07 GMT 2026"
+  "commitMessage": "UI: Add option to disable budget items for current cycle",
+  "date": "Mon 26 Jan 21:08:49 GMT 2026"
 }

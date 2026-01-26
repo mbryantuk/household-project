@@ -12,7 +12,7 @@ import {
   Event, Payments, Savings as SavingsIcon, Home, CreditCard, 
   Assignment, WaterDrop, ElectricBolt, AccountBalance, Add, Shield, 
   ShoppingBag, ChevronLeft, ChevronRight, Lock, LockOpen, ArrowDropDown, RestartAlt, Receipt,
-  DirectionsCar, Person
+  DirectionsCar, Person, DeleteOutline
 } from '@mui/icons-material';
 import { 
   format, addMonths, startOfMonth, setDate, differenceInDays, 
@@ -318,6 +318,25 @@ export default function BudgetView() {
       } catch (err) { console.error("Failed to toggle paid status", err); } finally { setSavingProgress(false); }
   };
 
+  const handleDisableItem = (itemKey) => {
+      confirmAction(
+          "Disable for this month?",
+          "This will remove the item from this month's budget. It will reappear next month. You can reset the month to bring it back.",
+          async () => {
+              try {
+                  await api.post(`/households/${householdId}/finance/budget-progress`, { 
+                      cycle_start: cycleData.cycleKey, 
+                      item_key: itemKey, 
+                      is_paid: -1, 
+                      actual_amount: 0 
+                  });
+                  showNotification("Item disabled for this cycle.", "success");
+                  fetchData();
+              } catch { showNotification("Failed to disable item.", "danger"); }
+          }
+      );
+  };
+
   const handleQuickAdd = async (e) => {
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
@@ -465,6 +484,17 @@ export default function BudgetView() {
                     sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} 
                 />
             </td>
+            <td style={{ textAlign: 'center' }}>
+                {exp.isDeletable && (
+                    <IconButton 
+                        size="sm" variant="plain" color="danger" 
+                        onClick={(e) => { e.stopPropagation(); handleDisableItem(exp.key); }}
+                        sx={{ '--IconButton-size': '28px' }}
+                    >
+                        <DeleteOutline fontSize="small" />
+                    </IconButton>
+                )}
+            </td>
         </tr>
     ));
   };
@@ -487,6 +517,7 @@ export default function BudgetView() {
                         <th style={{ width: 80, textAlign: 'center' }}>Due</th>
                         <th style={{ width: 100, textAlign: 'right' }}>Amount</th>
                         <th style={{ width: 40, textAlign: 'center' }}>Paid</th>
+                        <th style={{ width: 40, textAlign: 'center' }}></th>
                     </tr>
                 </thead>
                 <tbody>{renderTableRows(visible, cols, hidePill)}</tbody>
