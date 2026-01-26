@@ -9,10 +9,11 @@ if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 const globalDb = new sqlite3.Database(path.join(DATA_DIR, 'global.db'), (err) => {
     if (err) console.error("Global DB connection error:", err.message);
     else {
-        globalDb.run("PRAGMA journal_mode=WAL", (err) => {
-            if (err) console.error("Failed to enable WAL mode for Global DB:", err.message);
-            else console.log("Connected to Global SQLite database (WAL mode).");
-        });
+        // Optimization for concurrent access
+        globalDb.run("PRAGMA journal_mode=WAL");
+        globalDb.run("PRAGMA synchronous=NORMAL");
+        globalDb.run("PRAGMA busy_timeout=5000"); // Wait up to 5s if locked
+        console.log("Connected to Global SQLite database (Optimized).");
         initializeGlobalSchema(globalDb);
     }
 });
@@ -21,7 +22,12 @@ const getHouseholdDb = (householdId) => {
     const dbPath = path.join(DATA_DIR, `household_${householdId}.db`);
     const dbExists = fs.existsSync(dbPath);
     const db = new sqlite3.Database(dbPath);
+    
+    // Apply optimizations to every tenant connection
     db.run("PRAGMA journal_mode=WAL");
+    db.run("PRAGMA synchronous=NORMAL");
+    db.run("PRAGMA busy_timeout=5000");
+
     if (!dbExists || true) {
         initializeHouseholdSchema(db);
     }
