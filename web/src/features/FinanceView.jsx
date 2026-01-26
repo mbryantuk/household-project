@@ -4,7 +4,7 @@ import { Box, Typography, Sheet, Grid, Card, Avatar, IconButton } from '@mui/joy
 import { 
   Payments, AccountBalance, Savings, CreditCard, RequestQuote, Home, 
   TrendingUp, HourglassBottom, PieChart, ArrowBack, ChevronRight, 
-  DirectionsCar, Assignment, Receipt
+  DirectionsCar, Receipt
 } from '@mui/icons-material';
 
 import IncomeView from './finance/IncomeView';
@@ -16,9 +16,7 @@ import CreditCardsView from './finance/CreditCardsView';
 import LoansView from './finance/LoansView';
 import MortgagesView from './finance/MortgagesView';
 import VehicleFinanceView from './finance/VehicleFinanceView';
-import AgreementsView from './finance/AgreementsView';
 import BudgetView from './finance/BudgetView';
-import ChargesView from './finance/ChargesView';
 import { getEmojiColor } from '../theme';
 
 const ComingSoonPlaceholder = ({ title, icon }) => {
@@ -56,12 +54,10 @@ export default function FinanceView() {
     credit: { label: 'Credit Cards', icon: CreditCard, desc: 'Track credit utilization and repayments.' },
     loans: { label: 'Loans', icon: RequestQuote, desc: 'Manage unsecured debts and repayment schedules.' },
     mortgage: { label: 'Mortgage', icon: Home, desc: 'Track property loans and home equity.' },
-    charges: { label: 'Charges', icon: Receipt, desc: 'Manage household bills, utilities, and subscriptions.' },
-    car: { label: 'Car Finance', icon: DirectionsCar, desc: 'Track loans and leases for your fleet.' },
-    agreements: { label: 'Agreements', icon: Assignment, desc: 'Track mobile contracts and other obligations.' },
+    car: { label: 'Car Finance', icon: DirectionsCar, desc: 'Track loans and leases for your fleet.' }
   }), []);
 
-  const activeTabKey = tabParam === 'subscriptions' ? 'charges' : (tabParam || (isMobile ? null : 'budget'));
+  const activeTabKey = tabParam || (isMobile ? null : 'budget');
   const activeView = activeTabKey ? viewMap[activeTabKey] : null;
 
   const renderContent = () => {
@@ -74,9 +70,7 @@ export default function FinanceView() {
       if (activeTabKey === 'credit') return <CreditCardsView />;
       if (activeTabKey === 'loans') return <LoansView />;
       if (activeTabKey === 'mortgage') return <MortgagesView />;
-      if (activeTabKey === 'charges') return <ChargesView initialTab={tabParam} />;
       if (activeTabKey === 'car') return <VehicleFinanceView />;
-      if (activeTabKey === 'agreements') return <AgreementsView />;
       
       if (!activeView) return null;
       

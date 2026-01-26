@@ -3,18 +3,18 @@ import { useOutletContext, useParams, useNavigate, useLocation } from 'react-rou
 import { 
   Box, Typography, Sheet, Button, Input, FormControl, FormLabel, 
   IconButton, Tooltip, 
-  Grid, Tabs, TabList, Tab
+  Grid, Tabs, TabList, Tab, Divider
 } from '@mui/joy';
 import { 
   Delete, Payments, ContactPage
 } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
 import AppSelect from '../components/ui/AppSelect'; 
-import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
+import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
 import EntityGrid from '../components/ui/EntityGrid';
 
 export default function PeopleView() {
-  const { api, id: householdId, members, fetchHhMembers, user: currentUser, showNotification, confirmAction } = useOutletContext();
+  const { api, id: householdId, household, members, fetchHhMembers, user: currentUser, showNotification, confirmAction } = useOutletContext();
   const { personId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -27,7 +27,6 @@ export default function PeopleView() {
     (members || []).find(m => m.id === parseInt(personId)), 
   [members, personId]);
 
-  // Extract query params for pre-filling type
   const queryParams = new URLSearchParams(location.search);
   const initialType = queryParams.get('type') || 'adult';
 
@@ -50,7 +49,6 @@ export default function PeopleView() {
       };
       Promise.resolve().then(() => setFormData(data));
     } else if (personId === 'new') {
-      // Re-read query param for fresh navigation
       const currentType = new URLSearchParams(location.search).get('type') || 'adult';
       const data = {
         first_name: '', middle_name: '', last_name: '',
@@ -293,17 +291,20 @@ export default function PeopleView() {
 
           {activeTab === 1 && personId !== 'new' && (
             <Box>
-              <Box sx={{ mb: 4 }}>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Recurring Costs</Typography>
-                <Typography level="body-md" color="neutral">Costs specific to this resident.</Typography>
-              </Box>
-              <RecurringCostsWidget 
+              <RecurringChargesWidget 
                 api={api} 
                 householdId={householdId} 
-                parentType="person" 
-                parentId={personId} 
-                isAdmin={isAdmin}
+                household={household}
+                entityType="member" 
+                entityId={personId} 
+                segments={[
+                    { id: 'insurance', label: 'Insurance' },
+                    { id: 'subscription', label: 'Subscriptions' },
+                    { id: 'other', label: 'Other' }
+                ]}
+                title="Personal Recurring Costs"
                 showNotification={showNotification}
+                confirmAction={confirmAction}
               />
             </Box>
           )}

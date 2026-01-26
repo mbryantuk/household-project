@@ -4,21 +4,22 @@ import {
   Box, Typography, Sheet, Tabs, TabList, Tab, CircularProgress, Divider, Grid, Input, Button, Tooltip, IconButton, FormControl, FormLabel, Badge
 } from '@mui/joy';
 import { 
-  HomeWork, Payments, Save, ArrowBack, Info
+  HomeWork, Payments, Save, ArrowBack
 } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
 import EntityGrid from '../components/ui/EntityGrid';
 
 // Feature Components
-import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
+import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
 import GeneralDetailView from './GeneralDetailView';
 
 export default function HouseView() {
-  const { api, id: householdId, onUpdateHousehold, user: currentUser, showNotification } = useOutletContext();
+  const { api, id: householdId, onUpdateHousehold, user: currentUser, showNotification, confirmAction } = useOutletContext();
+  const household_data = useOutletContext().household;
   const isAdmin = currentUser?.role === 'admin';
   const navigate = useNavigate();
 
-  const [viewMode, setViewMode] = useState('details'); // Default to details
+  const [viewMode, setViewMode] = useState('details'); 
   const [activeTab, setActiveTab] = useState(0);
   const [household, setHousehold] = useState(null);
   const [vehicles, setVehicles] = useState([]);
@@ -118,7 +119,6 @@ export default function HouseView() {
                     }
                 }}
                 renderItem={(item) => {
-                    // Distinguish between House and Vehicle based on properties (e.g. 'make')
                     const isVehicle = !!item.make;
                     return (
                         <>
@@ -137,7 +137,6 @@ export default function HouseView() {
     );
   }
 
-  // DETAIL MODE (Existing Tabs)
   return (
     <Box sx={{ pb: 10 }}>
       <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -177,7 +176,7 @@ export default function HouseView() {
           >
             <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><Badge sx={{ mr: 1 }}/> Identity</Tab>
             <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><HomeWork sx={{ mr: 1 }}/> General Details</Tab>
-            <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><Payments sx={{ mr: 1 }}/> Charges Repository</Tab>
+            <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><Payments sx={{ mr: 1 }}/> Bills & Costs</Tab>
           </TabList>
 
           <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
@@ -264,17 +263,23 @@ export default function HouseView() {
             
             {activeTab === 2 && (
                 <Box>
-                    <Box sx={{ mb: 4 }}>
-                        <Typography level="h3">Recurring Charges</Typography>
-                        <Typography level="body-md" color="neutral">Central repository for bills, utilities, and subscriptions tied to this residence.</Typography>
-                    </Box>
-                    <RecurringCostsWidget 
+                    <RecurringChargesWidget 
                         api={api} 
                         householdId={householdId} 
-                        parentType="house" 
-                        parentId={1} 
-                        isAdmin={isAdmin}
+                        household={household_data}
+                        entityType="house" 
+                        entityId={1} 
+                        segments={[
+                            { id: 'household_bill', label: 'Household Bills' },
+                            { id: 'utility', label: 'Utilities' },
+                            { id: 'subscription', label: 'Subscriptions' },
+                            { id: 'insurance', label: 'Insurance' },
+                            { id: 'warranty', label: 'Warranties' },
+                            { id: 'other', label: 'Other' }
+                        ]}
+                        title="Home Recurring Costs"
                         showNotification={showNotification}
+                        confirmAction={confirmAction}
                     />
                 </Box>
             )}

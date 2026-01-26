@@ -8,7 +8,7 @@ import {
 import { 
   Delete, Add, Info, Payments
 } from '@mui/icons-material';
-import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
+import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
 import EmojiPicker from '../components/EmojiPicker';
 import AppSelect from '../components/ui/AppSelect';
 
@@ -23,7 +23,7 @@ const VEHICLE_TYPES = [
 ];
 
 export default function VehiclesView() {
-  const { api, id: householdId, user: currentUser, showNotification, confirmAction, fetchVehicles: refreshSidebar } = useOutletContext();
+  const { api, id: householdId, household, user: currentUser, showNotification, confirmAction, fetchVehicles: refreshSidebar } = useOutletContext();
   const { vehicleId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
@@ -214,7 +214,7 @@ export default function VehiclesView() {
                     }}
                 >
                     <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Info sx={{ mr: 1 }}/> Identity</Tab>
-                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Recurring Costs</Tab>
+                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Fleet Costs</Tab>
                 </TabList>
             </Tabs>
         )}
@@ -318,17 +318,24 @@ export default function VehiclesView() {
 
           {activeTab === 1 && vehicleId !== 'new' && (
             <Box>
-              <Box sx={{ mb: 4 }}>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Vehicle Recurring Costs</Typography>
-                <Typography level="body-md" color="neutral">Ongoing costs tied specifically to this fleet asset.</Typography>
-              </Box>
-              <RecurringCostsWidget 
+              <RecurringChargesWidget 
                 api={api} 
                 householdId={householdId} 
-                parentType="vehicle" 
-                parentId={vehicleId} 
-                isAdmin={isAdmin}
+                household={household}
+                entityType="vehicle" 
+                entityId={vehicleId} 
+                segments={[
+                    { id: 'vehicle_tax', label: 'Vehicle Tax' },
+                    { id: 'vehicle_mot', label: 'Vehicle MOT' },
+                    { id: 'vehicle_service', label: 'Vehicle Service' },
+                    { id: 'vehicle_fuel', label: 'Vehicle Fuel' },
+                    { id: 'vehicle_breakdown', label: 'Breakdown Cover' },
+                    { id: 'insurance', label: 'Insurance' },
+                    { id: 'other', label: 'Other' }
+                ]}
+                title="Fleet Running Costs"
                 showNotification={showNotification}
+                confirmAction={confirmAction}
               />
             </Box>
           )}

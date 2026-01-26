@@ -2,16 +2,16 @@ import { useState, useMemo, useEffect } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, Input, Button, 
-  FormControl, FormLabel, Grid, Tooltip, IconButton
+  FormControl, FormLabel, Grid, Tooltip, IconButton, Divider
 } from '@mui/joy';
 import { 
   Delete, Payments, Info, Add
 } from '@mui/icons-material';
-import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
+import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
 import EmojiPicker from '../components/EmojiPicker';
 
 export default function PetsView() {
-  const { api, id: householdId, members, fetchHhMembers, user: currentUser, showNotification, confirmAction } = useOutletContext();
+  const { api, id: householdId, household, members, fetchHhMembers, user: currentUser, showNotification, confirmAction } = useOutletContext();
   const { petId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
@@ -196,7 +196,7 @@ export default function PetsView() {
                     }}
                 >
                     <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Info sx={{ mr: 1 }}/> General</Tab>
-                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Recurring Costs</Tab>
+                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Pet Costs</Tab>
                 </TabList>
             </Tabs>
         )}
@@ -277,17 +277,19 @@ export default function PetsView() {
 
           {activeTab === 1 && petId !== 'new' && (
             <Box>
-              <Box sx={{ mb: 4 }}>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Recurring Costs</Typography>
-                <Typography level="body-md" color="neutral">Additional costs specific to this pet.</Typography>
-              </Box>
-              <RecurringCostsWidget 
+              <RecurringChargesWidget 
                 api={api} 
                 householdId={householdId} 
-                parentType="pet" 
-                parentId={petId} 
-                isAdmin={isAdmin}
+                household={household}
+                entityType="member" 
+                entityId={petId} 
+                segments={[
+                    { id: 'insurance', label: 'Pet Insurance' },
+                    { id: 'other', label: 'Maintenance & Other' }
+                ]}
+                title="Pet Recurring Costs"
                 showNotification={showNotification}
+                confirmAction={confirmAction}
               />
             </Box>
           )}
