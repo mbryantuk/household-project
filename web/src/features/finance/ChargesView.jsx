@@ -24,6 +24,10 @@ const SEGMENTS = [
   { id: 'subscription', label: 'Subscriptions' },
   { id: 'insurance', label: 'Insurance' },
   { id: 'warranty', label: 'Warranties' },
+  { id: 'vehicle_tax', label: 'Vehicle Tax' },
+  { id: 'vehicle_mot', label: 'Vehicle MOT' },
+  { id: 'vehicle_service', label: 'Vehicle Service' },
+  { id: 'vehicle_fuel', label: 'Vehicle Fuel' },
   { id: 'other', label: 'Other' }
 ];
 
@@ -60,6 +64,11 @@ export default function ChargesView() {
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   
+  // Entity Lists for Selector
+  const [members, setMembers] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
+  const [assets, setAssets] = useState([]);
+
   // Form State
   const [formData, setFormData] = useState({
     name: '',
@@ -71,7 +80,9 @@ export default function ChargesView() {
     month_of_year: 1,
     exact_date: '',
     adjust_for_working_day: true,
-    notes: ''
+    notes: '',
+    linked_entity_type: 'general',
+    linked_entity_id: 1 // Default to Household ID
   });
 
   const fetchCharges = useCallback(async () => {
@@ -89,9 +100,24 @@ export default function ChargesView() {
     }
   }, [householdId]);
 
+  const fetchEntities = useCallback(async () => {
+      if (!householdId) return;
+      try {
+          const [mRes, vRes, aRes] = await Promise.all([
+              fetch(`/api/households/${householdId}/members`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }),
+              fetch(`/api/households/${householdId}/vehicles`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }),
+              fetch(`/api/households/${householdId}/assets`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
+          ]);
+          if (mRes.ok) setMembers(await mRes.json());
+          if (vRes.ok) setVehicles(await vRes.json());
+          if (aRes.ok) setAssets(await aRes.json());
+      } catch (err) { console.error(err); }
+  }, [householdId]);
+
   useEffect(() => {
     fetchCharges();
-  }, [fetchCharges]);
+    fetchEntities();
+  }, [fetchCharges, fetchEntities]);
 
   const handleSave = async () => {
     const url = editingId 
@@ -151,7 +177,9 @@ export default function ChargesView() {
       month_of_year: 1,
       exact_date: '',
       adjust_for_working_day: true,
-      notes: ''
+      notes: '',
+      linked_entity_type: 'general',
+      linked_entity_id: 1
     });
   };
 
@@ -167,7 +195,9 @@ export default function ChargesView() {
       month_of_year: charge.month_of_year || 1,
       exact_date: charge.exact_date || '',
       adjust_for_working_day: !!charge.adjust_for_working_day,
-      notes: charge.notes || ''
+      notes: charge.notes || '',
+      linked_entity_type: charge.linked_entity_type || 'general',
+      linked_entity_id: charge.linked_entity_id || 1
     });
     setOpen(true);
   };
@@ -179,6 +209,17 @@ export default function ChargesView() {
 
   const calculateTotal = (items) => {
     return items.reduce((sum, item) => sum + (item.amount || 0), 0);
+  };
+
+  const resolveEntityName = (type, id) => {
+      if (type === 'general' || !type) return 'Household';
+      if (type === 'member') return members.find(m => m.id === id)?.name || 'Member';
+      if (type === 'vehicle') {
+          const v = vehicles.find(i => i.id === id);
+          return v ? `${v.make} ${v.model}` : 'Vehicle';
+      }
+      if (type === 'asset') return assets.find(a => a.id === id)?.name || 'Asset';
+      return type;
   };
 
   return (
@@ -211,7 +252,8 @@ export default function ChargesView() {
         <Table hoverRow>
           <thead>
             <tr>
-              <th style={{ width: '40%' }}>Name</th>
+              <th style={{ width: '30%' }}>Name</th>
+              <th>Assigned To</th>
               <th>Frequency</th>
               <th>Schedule</th>
               <th style={{ textAlign: 'right' }}>Amount</th>
@@ -226,7 +268,12 @@ export default function ChargesView() {
                   {charge.notes && <Typography level="body-xs" color="neutral">{charge.notes}</Typography>}
                 </td>
                 <td>
-                  <Chip size="sm" variant="soft" color="neutral">
+                    <Chip size="sm" variant="soft">
+                        {resolveEntityName(charge.linked_entity_type, charge.linked_entity_id)}
+                    </Chip>
+                </td>
+                <td>
+                  <Chip size="sm" variant="plain" color="neutral">
                     {charge.frequency.replace('_', '-')}
                   </Chip>
                 </td>
@@ -260,7 +307,7 @@ export default function ChargesView() {
             ))}
             {filteredCharges.length === 0 && (
               <tr>
-                <td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>
+                <td colSpan={6} style={{ textAlign: 'center', padding: '2rem' }}>
                   <Typography color="neutral">No charges in this category.</Typography>
                 </td>
               </tr>
@@ -268,7 +315,7 @@ export default function ChargesView() {
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan={3} style={{ textAlign: 'right', fontWeight: 'bold' }}>Total:</td>
+              <td colSpan={4} style={{ textAlign: 'right', fontWeight: 'bold' }}>Total:</td>
               <td style={{ textAlign: 'right', fontWeight: 'bold', fontFamily: 'monospace' }}>
                 {formatCurrency(calculateTotal(filteredCharges), household?.currency)}
               </td>
@@ -312,6 +359,25 @@ export default function ChargesView() {
                     </Select>
                 </FormControl>
             </Box>
+
+            <FormControl>
+                <FormLabel>Assign To</FormLabel>
+                <Select 
+                    value={`${formData.linked_entity_type}_${formData.linked_entity_id}`} 
+                    onChange={(e, val) => {
+                        const [type, id] = val.split('_');
+                        setFormData({ ...formData, linked_entity_type: type, linked_entity_id: parseInt(id) });
+                    }}
+                >
+                    <Option value="general_1">🏠 Household (General)</Option>
+                    <Divider>Members</Divider>
+                    {members.map(m => <Option key={m.id} value={`member_${m.id}`}>{m.emoji} {m.name}</Option>)}
+                    <Divider>Vehicles</Divider>
+                    {vehicles.map(v => <Option key={v.id} value={`vehicle_${v.id}`}>{v.emoji || '🚗'} {v.make} {v.model}</Option>)}
+                    <Divider>Assets</Divider>
+                    {assets.map(a => <Option key={a.id} value={`asset_${a.id}`}>{a.emoji || '📦'} {a.name}</Option>)}
+                </Select>
+            </FormControl>
 
             <FormControl>
               <FormLabel>Frequency</FormLabel>
