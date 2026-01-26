@@ -393,9 +393,6 @@ export default function NavSidebar({
                             <SubItem label="Loans" to="finance?tab=loans" emoji="📝" isDark={isDark} onClick={handleSubItemClick} />
                             <SubItem label="Car Finance" to="finance?tab=car" emoji="🚗" isDark={isDark} onClick={handleSubItemClick} />
                             <SubItem label="Mortgages" to="finance?tab=mortgage" emoji="🏠" isDark={isDark} onClick={handleSubItemClick} />
-                            <Divider sx={{ my: 1 }} /><GroupHeader label="Recurring" />
-                            <SubItem label="Subscriptions" to="finance?tab=subscriptions" emoji="📅" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Agreements" to="finance?tab=agreements" emoji="📜" isDark={isDark} onClick={handleSubItemClick} />
                         </>
                     )}
                 </List>
