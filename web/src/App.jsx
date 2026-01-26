@@ -38,7 +38,8 @@ import VehiclesView from './features/VehiclesView';
 import ProfileView from './features/ProfileView';
 import FinanceView from './features/FinanceView';
 
-const API_URL = window.location.origin;
+const API_BASE = window.location.origin;
+const API_URL = `${API_BASE}/api`;
 
 // Inner App handles logic that requires useColorScheme context
 function AppInner({ themeId, setThemeId }) {
@@ -150,7 +151,7 @@ function AppInner({ themeId, setThemeId }) {
     }
   }, [token, fetchHouseholds]);
 
-  // CRITICAL FIX: Synchronize user role with active household
+  // Synchronize user role with active household
   useEffect(() => {
     if (household && households.length > 0) {
         const activeLink = households.find(h => h.id === household.id);
@@ -199,6 +200,7 @@ function AppInner({ themeId, setThemeId }) {
   }, [authAxios, logout]);
 
   const login = useCallback(async (email, password) => {
+      // Login uses API_URL which now includes /api
       const res = await axios.post(`${API_URL}/auth/login`, { email, password });
       const { token, role, context, household: hhData, user: userData, system_role } = res.data;
       const fullUser = { ...userData, role, system_role };

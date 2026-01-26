@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Refined App.js mounting and fixed SPA fallback logic",
-  "date": "Mon 26 Jan 19:50:03 GMT 2026"
+  "commitMessage": "Updated frontend to use /api prefix for all requests",
+  "date": "Mon 26 Jan 20:04:49 GMT 2026"
 }

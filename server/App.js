@@ -44,6 +44,8 @@ const authLimiter = rateLimit({
 });
 app.use('/auth/login', authLimiter);
 app.use('/auth/register', authLimiter);
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
 
 // Logging
 app.use((req, res, next) => {
@@ -53,31 +55,34 @@ app.use((req, res, next) => {
     next();
 });
 
-// Scalar API Reference
-app.use('/api-docs', apiReference({ spec: { content: swaggerDocument } }));
-
 // MOUNT API ROUTES
-// Auth and Admin
-app.use('/auth', authRoutes);      
-app.use('/admin', adminRoutes);
-
-// Shared Household routers
-const householdRouters = [
-    householdRoutes, memberRoutes, calendarRoutes, detailsRoutes,
-    mealRoutes, financeRoutes, chargeRoutes
+// We mount everything at both root and /api for maximum compatibility with various proxy setups
+const allRouters = [
+    { path: '/auth', router: authRoutes },
+    { path: '/admin', router: adminRoutes },
+    { path: '/', router: householdRoutes },
+    { path: '/', router: memberRoutes },
+    { path: '/', router: calendarRoutes },
+    { path: '/', router: detailsRoutes },
+    { path: '/', router: mealRoutes },
+    { path: '/', router: financeRoutes },
+    { path: '/', router: chargeRoutes }
 ];
 
-// Mount everything at root for direct paths (/households, etc)
-householdRouters.forEach(router => {
-    app.use('/', router);
+// 1. Mount at root
+allRouters.forEach(r => {
+    app.use(r.path, r.router);
 });
 
-// Also mount under /api for frontend consistency
+// 2. Mount under /api prefix
 const apiRouter = express.Router();
-householdRouters.forEach(router => {
-    apiRouter.use('/', router);
+allRouters.forEach(r => {
+    apiRouter.use(r.path, r.router);
 });
 app.use('/api', apiRouter);
+
+// Scalar API Reference
+app.use('/api-docs', apiReference({ spec: { content: swaggerDocument } }));
 
 app.get('/system/status', (req, res) => {
     globalDb.get("SELECT COUNT(*) as count FROM users", [], (err, row) => {
@@ -91,7 +96,7 @@ const frontendPath = path.resolve(__dirname, '../web/dist');
 if (fs.existsSync(frontendPath)) {
     // 1. Static files
     app.use('/assets', express.static(path.join(frontendPath, 'assets')));
-    app.use(express.static(frontendPath, { index: false })); // don't serve index yet
+    app.use(express.static(frontendPath, { index: false }));
 
     // 2. SPA Fallback - Only for non-API requests
     app.get('*', (req, res, next) => {
