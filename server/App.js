@@ -53,29 +53,24 @@ app.use((req, res, next) => {
     next();
 });
 
-// Scalar API Reference
-app.use('/api-docs', apiReference({ spec: { content: swaggerDocument } }));
-
 // MOUNT API ROUTES
-// Most routes are mounted at root to support /households and /auth patterns
+// We mount auth and admin first to ensure they are handled before anything else
 app.use('/auth', authRoutes);      
 app.use('/admin', adminRoutes);
-app.use('/', householdRoutes); 
-app.use('/', memberRoutes);    
-app.use('/', calendarRoutes);
-app.use('/', detailsRoutes);
-app.use('/', mealRoutes);
-app.use('/', financeRoutes);
-app.use('/', chargeRoutes);
 
-// Compatibility mount for legacy or /api prefixed calls
-app.use('/api', householdRoutes); 
-app.use('/api', memberRoutes);    
-app.use('/api', calendarRoutes);
-app.use('/api', detailsRoutes);
-app.use('/api', mealRoutes);
-app.use('/api', financeRoutes);
-app.use('/api', chargeRoutes);
+// Mounting household-related routes at both root and /api for compatibility
+const householdRouters = [
+    householdRoutes, memberRoutes, calendarRoutes, detailsRoutes,
+    mealRoutes, financeRoutes, chargeRoutes
+];
+
+householdRouters.forEach(router => {
+    app.use('/', router);
+    app.use('/api', router);
+});
+
+// Scalar API Reference
+app.use('/api-docs', apiReference({ spec: { content: swaggerDocument } }));
 
 app.get('/system/status', (req, res) => {
     globalDb.get("SELECT COUNT(*) as count FROM users", [], (err, row) => {
