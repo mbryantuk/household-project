@@ -12,7 +12,7 @@ import {
   Event, Payments, Savings as SavingsIcon, Home, CreditCard, 
   Assignment, WaterDrop, ElectricBolt, AccountBalance, Add, Shield, 
   ShoppingBag, ChevronLeft, ChevronRight, Lock, LockOpen, ArrowDropDown, RestartAlt, Receipt,
-  DirectionsCar
+  DirectionsCar, Person
 } from '@mui/icons-material';
 import { 
   format, addMonths, startOfMonth, setDate, differenceInDays, 
@@ -49,6 +49,7 @@ export default function BudgetView() {
   
   // Modals
   const [quickAddOpen, setQuickAddOpen] = useState(false);
+  const [quickLinkType, setQuickLinkType] = useState('general');
   const [recurringAddOpen, setRecurringAddOpen] = useState(false);
   const [recurringType, setRecurringType] = useState('monthly');
   const [linkType, setLinkType] = useState('general');
@@ -199,14 +200,18 @@ export default function BudgetView() {
               return v ? { name: `${v.make} ${v.model}`, emoji: v.emoji || '🚗' } : null;
           }
           if (type === 'asset' || type === 'house') {
-              // We treat 'house' as entity_type for general bills in new widget
               return { name: 'Household', emoji: '🏠' };
+          }
+          if (type === 'pet') {
+              const p = members.find(mem => String(mem.id) === String(id) && mem.type === 'pet');
+              return p ? { name: p.name, emoji: p.emoji || '🐾' } : null;
           }
           return null;
       };
 
       liabilities.mortgages.forEach(m => addExpense(m, 'mortgage', m.lender, m.monthly_payment, getAdjustedDate(m.payment_day, true, startDate), <Home />, 'Mortgage', { name: 'House', emoji: '🏠' }));
       liabilities.loans.forEach(l => addExpense(l, 'loan', `${l.lender} Loan`, l.monthly_payment, getAdjustedDate(l.payment_day, true, startDate), <TrendingDown />, 'Liability', { name: 'Finance', emoji: '💰' }));
+      liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit_card', cc.card_name, 0, getAdjustedDate(cc.payment_day || 1, true, startDate), <CreditCard />, 'Credit Card', { name: cc.provider, emoji: cc.emoji || '💳' }));
       
       liabilities.charges.forEach(charge => {
           let datesToAdd = [];
@@ -217,7 +222,6 @@ export default function BudgetView() {
              const anchor = charge.start_date ? parseISO(charge.start_date) : null;
              if (anchor) {
                  let current = startOfDay(anchor);
-                 // Walk forward/backward to find relevant quarters for this cycle
                  while (current < startDate) current = addMonths(current, 3);
                  while (isWithinInterval(current, { start: startDate, end: endDate })) {
                      datesToAdd.push(charge.adjust_for_working_day ? getNextWorkingDay(current) : new Date(current));
@@ -319,8 +323,11 @@ export default function BudgetView() {
       const formData = new FormData(e.currentTarget);
       const data = Object.fromEntries(formData.entries());
       data.frequency = 'one_off'; 
-      data.segment = 'other';
+      data.segment = data.category || 'other';
       data.adjust_for_working_day = data.nearest_working_day === "1" ? 1 : 0;
+      data.linked_entity_type = quickLinkType;
+      data.linked_entity_id = data.linked_entity_id || null;
+
       if (cycleData) {
           const d = setDate(cycleData.startDate, parseInt(data.payment_day));
           data.exact_date = format(d, 'yyyy-MM-dd');
@@ -389,7 +396,7 @@ export default function BudgetView() {
   const groupedRecurring = useMemo(() => {
       if (!cycleData) return {};
       const groups = {};
-      cycleData.expenses.filter(exp => exp.type === 'charge' || exp.type === 'mortgage' || exp.type === 'loan').forEach(exp => {
+      cycleData.expenses.filter(exp => exp.type !== 'pot').forEach(exp => {
           const freq = exp.frequency || 'monthly';
           const normalized = freq.toLowerCase();
           if (!groups[normalized]) groups[normalized] = [];
@@ -412,7 +419,7 @@ export default function BudgetView() {
           onClick={() => handleSelectToggle(exp.key)} 
           style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}
         >
-            <td style={{ textAlign: 'center' }}><Checkbox size="sm" checked={selectedKeys.includes(exp.key)} onChange={() => handleSelectToggle(exp.key)} onClick={(e) => e.stopPropagation()} /></td>
+            <td style={{ textAlign: 'center' }} className="hide-mobile"><Checkbox size="sm" checked={selectedKeys.includes(exp.key)} onChange={() => handleSelectToggle(exp.key)} onClick={(e) => e.stopPropagation()} /></td>
             <td>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label || '?', isDark), color: '#fff' }}>{exp.icon}</Avatar>
@@ -426,15 +433,38 @@ export default function BudgetView() {
                     </Box>
                 </Box>
             </td>
-            <td>
+            <td className="hide-mobile">
                 <Chip size="sm" variant="soft" color="neutral" sx={{ fontSize: '0.65rem', minHeight: '16px', px: 0.5, maxWidth: '100%' }}>
                     <Typography noWrap sx={{ maxWidth: '120px', textTransform: 'capitalize' }}>{exp.category}</Typography>
                 </Chip>
             </td>
-            {cols >= 7 ? (<td><Box sx={{ textAlign: 'center' }}><Typography level="body-xs" fontWeight="bold">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{format(exp.computedDate, 'EEE do MMM')}</Typography>}</Box></td>) : <td />}
-            <td style={{ textAlign: 'right' }}><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px', textAlign: 'right', '& input': { textAlign: 'right' } }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} slotProps={{ input: { step: '0.01' } }} /></td>
-            <td style={{ textAlign: 'center' }}><Checkbox size="sm" variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} disabled={savingProgress} uncheckedIcon={<RadioButtonUnchecked sx={{ fontSize: '1.2rem' }} />} checkedIcon={<CheckCircle color="success" sx={{ fontSize: '1.2rem' }} />} onClick={(e) => e.stopPropagation()} sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} /></td>
-            {cols >= 7 ? <td></td> : <td />}
+            <td>
+                <Box sx={{ textAlign: 'center' }}>
+                    <Typography level="body-xs" fontWeight="bold">{exp.day}</Typography>
+                    {exp.computedDate && <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{format(exp.computedDate, 'do MMM')}</Typography>}
+                </Box>
+            </td>
+            <td style={{ textAlign: 'right' }}>
+                <Input 
+                    size="sm" type="number" variant="soft" 
+                    sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px', textAlign: 'right', width: { xs: '75px', md: '100px' }, '& input': { textAlign: 'right' } }} 
+                    defaultValue={Number(exp.amount).toFixed(2)} 
+                    onBlur={(e) => updateActualAmount(exp.key, e.target.value)} 
+                    onClick={(e) => e.stopPropagation()} 
+                    slotProps={{ input: { step: '0.01' } }} 
+                />
+            </td>
+            <td style={{ textAlign: 'center' }}>
+                <Checkbox 
+                    size="sm" variant="plain" checked={exp.isPaid} 
+                    onChange={() => togglePaid(exp.key, exp.amount)} 
+                    disabled={savingProgress} 
+                    uncheckedIcon={<RadioButtonUnchecked sx={{ fontSize: '1.2rem' }} />} 
+                    checkedIcon={<CheckCircle color="success" sx={{ fontSize: '1.2rem' }} />} 
+                    onClick={(e) => e.stopPropagation()} 
+                    sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} 
+                />
+            </td>
         </tr>
     ));
   };
@@ -443,21 +473,20 @@ export default function BudgetView() {
     const visible = getVisibleItems(items);
     if (visible.length === 0) return null;
     return (
-        <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
-            <Table hoverRow stickyHeader size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '4px' }}>
+        <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto', mb: 2 }}>
+            <Table hoverRow stickyHeader size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '8px', '& .hide-mobile': { display: { xs: 'none', md: 'table-cell' } } }}>
                 <thead>
                     <tr>
-                        <th style={{ width: 40, textAlign: 'center' }}><Checkbox size="sm" onChange={(e) => {
+                        <th style={{ width: 40, textAlign: 'center' }} className="hide-mobile"><Checkbox size="sm" onChange={(e) => {
                             const keys = visible.map(exp => exp.key);
                             if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...keys])));
                             else setSelectedKeys(prev => prev.filter(k => !keys.includes(k)));
                         }} /></th>
-                        <th>Expense</th>
-                        <th style={{ width: 140 }}>Category</th> 
-                        {cols >= 7 ? <th style={{ width: 100, textAlign: 'center' }}>Date</th> : <th style={{ width: 80 }}></th>}
+                        <th>Item</th>
+                        <th style={{ width: 120 }} className="hide-mobile">Category</th> 
+                        <th style={{ width: 80, textAlign: 'center' }}>Due</th>
                         <th style={{ width: 100, textAlign: 'right' }}>Amount</th>
                         <th style={{ width: 40, textAlign: 'center' }}>Paid</th>
-                        {cols >= 7 ? <th style={{ width: 80 }}></th> : <th style={{ width: 80 }}></th>}
                     </tr>
                 </thead>
                 <tbody>{renderTableRows(visible, cols, hidePill)}</tbody>
@@ -469,10 +498,10 @@ export default function BudgetView() {
   return (
     <Box sx={{ userSelect: 'none', pb: 10 }}>
         <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, -1))}><ChevronLeft /></IconButton><Box><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>{cycleData.label}</Typography><Chip variant="soft" color="primary" size="sm">{cycleData.cycleDuration} Days</Chip></Box><Typography level="body-md" color="neutral">{format(cycleData.startDate, 'do MMM')} to {format(cycleData.endDate, 'do MMM')}</Typography></Box><IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, 1))}><ChevronRight /></IconButton></Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, -1))}><ChevronLeft /></IconButton><Box><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>{cycleData.label}</Typography><Chip variant="soft" color="primary" size="sm" className="hide-mobile">{cycleData.cycleDuration} Days</Chip></Box><Typography level="body-md" color="neutral">{format(cycleData.startDate, 'do MMM')} to {format(cycleData.endDate, 'do MMM')}</Typography></Box><IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, 1))}><ChevronRight /></IconButton></Box>
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}><FormControl orientation="horizontal" size="sm" sx={{ mr: 1 }}><FormLabel sx={{ mr: 1 }}>Hide Paid</FormLabel><Switch checked={hidePaid} onChange={(e) => setHidePaid(e.target.checked)} size="sm" /></FormControl>
                 {currentCycleRecord && (
-                    <Button variant="outlined" color="danger" size="sm" startDecorator={<RestartAlt />} onClick={handleResetCycle}>Reset Month</Button>
+                    <Button variant="outlined" color="danger" size="sm" startDecorator={<RestartAlt />} onClick={handleResetCycle} className="hide-mobile">Reset</Button>
                 )}
                 {selectedKeys.length > 0 && (<Button variant="outlined" color="neutral" size="sm" onClick={() => setSelectedKeys([])}>Clear</Button>)}
                 <Dropdown><MenuButton variant="solid" color="primary" size="sm" startDecorator={<Add />} endDecorator={<ArrowDropDown />}>Add</MenuButton><Menu placement="bottom-end" size="sm"><MenuItem onClick={() => setQuickAddOpen(true)}>Add One-off</MenuItem><MenuItem onClick={() => setRecurringAddOpen(true)}>Add Recurring</MenuItem></Menu></Dropdown>
@@ -538,7 +567,38 @@ export default function BudgetView() {
             </Grid>
         </Grid>
 
-        <Modal open={quickAddOpen} onClose={() => setQuickAddOpen(false)}><ModalDialog sx={{ maxWidth: 400, width: '100%' }}><DialogTitle>Add One-off Expense</DialogTitle><DialogContent><form onSubmit={handleQuickAdd}><Stack spacing={2}><FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus /></FormControl><FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: '0.01' } }} /></FormControl><FormControl required><FormLabel>Due Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={new Date().getDate()} /></FormControl><Checkbox label="Nearest Working Day (Next)" name="nearest_working_day" defaultChecked value="1" /><AppSelect label="Category" name="category" defaultValue="other" options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'other', label: 'Other' }]} /><Button type="submit">Add to Cycle</Button></Stack></form></DialogContent></ModalDialog></Modal>
+        <Modal open={quickAddOpen} onClose={() => setQuickAddOpen(false)}>
+            <ModalDialog sx={{ maxWidth: 400, width: '100%' }}>
+                <DialogTitle>Add One-off Expense</DialogTitle>
+                <DialogContent>
+                    <form onSubmit={handleQuickAdd}>
+                        <Stack spacing={2}>
+                            <FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus /></FormControl>
+                            <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: '0.01' } }} /></FormControl>
+                            <FormControl required><FormLabel>Due Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={new Date().getDate()} /></FormControl>
+                            <Checkbox label="Nearest Working Day (Next)" name="nearest_working_day" defaultChecked value="1" />
+                            <AppSelect label="Category" name="category" defaultValue="other" options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'other', label: 'Other' }]} />
+                            
+                            <Divider />
+                            <AppSelect label="Linked To" value={quickLinkType} onChange={setQuickLinkType} options={[{ value: 'general', label: 'Household' }, { value: 'member', label: 'Member' }, { value: 'vehicle', label: 'Vehicle' }, { value: 'asset', label: 'Asset' }]} />
+                            
+                            {quickLinkType === 'member' && (
+                                <AppSelect label="Select Member" name="linked_entity_id" options={members.map(m => ({ value: String(m.id), label: `${m.emoji || '👤'} ${m.name}` }))} />
+                            )}
+                            {quickLinkType === 'vehicle' && (
+                                <AppSelect label="Select Vehicle" name="linked_entity_id" options={liabilities.vehicles.map(v => ({ value: String(v.id), label: `${v.emoji || '🚗'} ${v.make} ${v.model}` }))} />
+                            )}
+                            {quickLinkType === 'asset' && (
+                                <AppSelect label="Select Asset" name="linked_entity_id" options={liabilities.assets.map(a => ({ value: String(a.id), label: `${a.emoji || '📦'} ${a.name}` }))} />
+                            )}
+
+                            <Button type="submit">Add to Cycle</Button>
+                        </Stack>
+                    </form>
+                </DialogContent>
+            </ModalDialog>
+        </Modal>
+
         <Modal open={recurringAddOpen} onClose={() => setRecurringAddOpen(false)}>
             <ModalDialog sx={{ maxWidth: 450, width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
                 <DialogTitle>Add Recurring Expense</DialogTitle>

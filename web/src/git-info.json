@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix: Savings pots missing from BudgetView due to key mismatch",
-  "date": "Mon 26 Jan 20:54:06 GMT 2026"
+  "commitMessage": "Feature: Ad-hoc payment links, credit card budget items, and responsive mobile budget UX",
+  "date": "Mon 26 Jan 21:01:07 GMT 2026"
 }
