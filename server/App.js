@@ -53,24 +53,31 @@ app.use((req, res, next) => {
     next();
 });
 
+// Scalar API Reference
+app.use('/api-docs', apiReference({ spec: { content: swaggerDocument } }));
+
 // MOUNT API ROUTES
-// We mount auth and admin first to ensure they are handled before anything else
+// Auth and Admin
 app.use('/auth', authRoutes);      
 app.use('/admin', adminRoutes);
 
-// Mounting household-related routes at both root and /api for compatibility
+// Shared Household routers
 const householdRouters = [
     householdRoutes, memberRoutes, calendarRoutes, detailsRoutes,
     mealRoutes, financeRoutes, chargeRoutes
 ];
 
+// Mount everything at root for direct paths (/households, etc)
 householdRouters.forEach(router => {
     app.use('/', router);
-    app.use('/api', router);
 });
 
-// Scalar API Reference
-app.use('/api-docs', apiReference({ spec: { content: swaggerDocument } }));
+// Also mount under /api for frontend consistency
+const apiRouter = express.Router();
+householdRouters.forEach(router => {
+    apiRouter.use('/', router);
+});
+app.use('/api', apiRouter);
 
 app.get('/system/status', (req, res) => {
     globalDb.get("SELECT COUNT(*) as count FROM users", [], (err, row) => {
@@ -82,18 +89,17 @@ app.get('/system/status', (req, res) => {
 // FRONTEND SERVING
 const frontendPath = path.resolve(__dirname, '../web/dist');
 if (fs.existsSync(frontendPath)) {
+    // 1. Static files
     app.use('/assets', express.static(path.join(frontendPath, 'assets')));
-    app.use(express.static(frontendPath));
-    app.use((req, res, next) => {
-        // Protect API paths from being intercepted by SPA fallback
-        const apiPaths = ['/auth', '/admin', '/api', '/system', '/households'];
+    app.use(express.static(frontendPath, { index: false })); // don't serve index yet
+
+    // 2. SPA Fallback - Only for non-API requests
+    app.get('*', (req, res, next) => {
+        const apiPaths = ['/auth', '/admin', '/api', '/system', '/households', '/api-docs'];
         if (apiPaths.some(p => req.path.startsWith(p))) {
             return res.status(404).json({ error: "Endpoint not found" });
         }
-        if (req.method === 'GET') {
-            return res.sendFile(path.join(frontendPath, 'index.html'));
-        }
-        next();
+        res.sendFile(path.join(frontendPath, 'index.html'));
     });
 }
 
