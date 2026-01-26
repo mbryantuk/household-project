@@ -11,7 +11,8 @@ import {
   AccountBalanceWallet, CheckCircle, RadioButtonUnchecked, TrendingDown, 
   Event, Payments, Savings as SavingsIcon, Home, CreditCard, 
   Assignment, WaterDrop, ElectricBolt, AccountBalance, Add, Shield, 
-  ShoppingBag, ChevronLeft, ChevronRight, Lock, LockOpen, ArrowDropDown, RestartAlt, Receipt
+  ShoppingBag, ChevronLeft, ChevronRight, Lock, LockOpen, ArrowDropDown, RestartAlt, Receipt,
+  DirectionsCar
 } from '@mui/icons-material';
 import { 
   format, addMonths, startOfMonth, setDate, differenceInDays, 
@@ -27,7 +28,7 @@ const formatCurrency = (val) => {
 };
 
 export default function BudgetView() {
-  const { api, id: householdId, isDark, showNotification, members, setStatusBarData, confirmAction } = useOutletContext();
+  const { api, id: householdId, isDark, showNotification, members = [], setStatusBarData, confirmAction } = useOutletContext();
   const [loading, setLoading] = useState(true);
   const [savingProgress, setSavingProgress] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
@@ -63,7 +64,7 @@ export default function BudgetView() {
           oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
           oscillator.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.1);
           gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+          gainNode.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
           oscillator.connect(gainNode);
           gainNode.connect(audioCtx.destination);
           oscillator.start();
@@ -136,19 +137,15 @@ export default function BudgetView() {
       return d;
   }, [bankHolidays]);
 
-  // Updated to handle both day-of-month and full Date objects
   const getAdjustedDate = useCallback((input, useNwd, cycleStartDate) => {
       if (!input) return null;
       let d;
-      
       if (input instanceof Date) {
           d = input;
       } else {
-          // Assume it's a day of month number
           d = setDate(startOfMonth(new Date(cycleStartDate)), parseInt(input));
           if (isAfter(cycleStartDate, d)) { d = addMonths(d, 1); }
       }
-      
       return useNwd ? getNextWorkingDay(d) : d;
   }, [getNextWorkingDay]);
 
@@ -175,39 +172,47 @@ export default function BudgetView() {
 
       const expenses = [];
       
-      // Generic Add Function
       const addExpense = (item, type, label, amount, dateObj, icon, category, object = null, memberId = null) => {
-          const key = `${type}_${item.id || 'fixed'}_${format(dateObj, 'dd')}`; // Unique key per date
+          const key = `${type}_${item.id || 'fixed'}_${format(dateObj, 'ddMM')}`; 
           const progressItem = progress.find(p => p.item_key === key && p.cycle_start === cycleKey);
-          
           if (progressItem?.is_paid === -1) return;
 
           expenses.push({
-              key, type, label, amount: progressItem?.actual_amount || parseFloat(amount) || 0,
+              key, type, label: label || 'Unnamed Expense', amount: progressItem?.actual_amount || parseFloat(amount) || 0,
               day: dateObj.getDate(), computedDate: dateObj,
               icon, category, isPaid: progressItem?.is_paid === 1,
               isDeletable: !['pot', 'pension', 'investment'].includes(type),
               id: item.id, object, frequency: item.frequency?.toLowerCase() || 'monthly', 
-              memberId: (memberId != null && String(memberId).length > 0) ? String(memberId) : null,
-              parent_type: item.linked_entity_type, parent_id: item.linked_entity_id
+              memberId: (memberId != null && String(memberId).length > 0) ? String(memberId) : null
           });
       };
 
-      // 1. Process Legacy Liabilities (Mortgages, Loans, etc.)
+      const getLinkedObject = (type, id) => {
+          if (type === 'member') {
+              const m = members.find(mem => String(mem.id) === String(id));
+              return m ? { name: m.alias || m.name, emoji: m.emoji || '👤' } : null;
+          }
+          if (type === 'vehicle') {
+              const v = liabilities.vehicles.find(veh => String(veh.id) === String(id));
+              return v ? { name: `${v.make} ${v.model}`, emoji: v.emoji || '🚗' } : null;
+          }
+          if (type === 'asset') {
+              const a = liabilities.assets.find(ast => String(ast.id) === String(id));
+              return a ? { name: a.name, emoji: a.emoji || '📦' } : null;
+          }
+          return null;
+      };
+
       liabilities.mortgages.forEach(m => addExpense(m, 'mortgage', m.lender, m.monthly_payment, getAdjustedDate(m.payment_day, true, startDate), <Home />, 'Mortgage', { name: 'House', emoji: '🏠' }));
       liabilities.loans.forEach(l => addExpense(l, 'loan', `${l.lender} Loan`, l.monthly_payment, getAdjustedDate(l.payment_day, true, startDate), <TrendingDown />, 'Liability', { name: 'Finance', emoji: '💰' }));
       
-      // 2. Process Recurring Charges (The New Repository)
       liabilities.charges.forEach(charge => {
           let datesToAdd = [];
-          
           if (charge.frequency === 'monthly') {
              datesToAdd.push(getAdjustedDate(charge.day_of_month, charge.adjust_for_working_day, startDate));
           } else if (charge.frequency === 'yearly') {
-             // Construct yearly date
              const currentYearDate = new Date(startDate.getFullYear(), (charge.month_of_year || 1) - 1, charge.day_of_month || 1);
              const nextYearDate = new Date(startDate.getFullYear() + 1, (charge.month_of_year || 1) - 1, charge.day_of_month || 1);
-             
              if (isWithinInterval(currentYearDate, { start: startDate, end: endDate })) {
                  datesToAdd.push(charge.adjust_for_working_day ? getNextWorkingDay(currentYearDate) : currentYearDate);
              } else if (isWithinInterval(nextYearDate, { start: startDate, end: endDate })) {
@@ -215,55 +220,34 @@ export default function BudgetView() {
              }
           } else if (charge.frequency === 'one_off') {
              const oneOffDate = parseISO(charge.exact_date);
-             if (isWithinInterval(oneOffDate, { start: startDate, end: endDate })) {
-                 datesToAdd.push(oneOffDate);
-             }
+             if (isWithinInterval(oneOffDate, { start: startDate, end: endDate })) datesToAdd.push(oneOffDate);
           } else if (charge.frequency === 'weekly') {
-             // Find all occurrences of day_of_week in range
              let iter = new Date(startDate);
              while (iter <= endDate) {
-                 if (getDay(iter) === (charge.day_of_week === 7 ? 0 : charge.day_of_week)) { // date-fns 0 is Sunday
+                 if (getDay(iter) === (charge.day_of_week === 7 ? 0 : charge.day_of_week)) { 
                       datesToAdd.push(new Date(iter));
                  }
                  iter = addDays(iter, 1);
              }
           }
 
+          const linkedObj = getLinkedObject(charge.linked_entity_type, charge.linked_entity_id);
           datesToAdd.forEach(d => {
              let icon = <Receipt />;
              if (charge.segment === 'insurance') icon = <Shield />;
-             if (charge.segment === 'subscription') icon = <ShoppingBag />;
-             if (charge.segment === 'utility') icon = <ElectricBolt />;
-             
-             addExpense(charge, 'charge', charge.name, charge.amount, d, icon, charge.segment, null, null);
+             else if (charge.segment === 'subscription') icon = <ShoppingBag />;
+             else if (charge.segment === 'utility') icon = <ElectricBolt />;
+             else if (charge.segment?.startsWith('vehicle')) icon = <DirectionsCar />;
+             addExpense(charge, 'charge', charge.name, charge.amount, d, icon, charge.segment, linkedObj, charge.linked_entity_type === 'member' ? charge.linked_entity_id : null);
           });
       });
 
-      // 3. Process Savings Pots
       savingsPots.forEach(pot => addExpense(pot, 'pot', pot.name, 0, getAdjustedDate(pot.deposit_day || 1, false, startDate), <SavingsIcon />, 'Saving', { name: pot.account_name, emoji: pot.account_emoji || '💰' }));
 
       return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, expenses: expenses.sort((a, b) => (a.computedDate || 0) - (b.computedDate || 0)) };
-  }, [incomes, liabilities, progress, viewDate, getPriorWorkingDay, getAdjustedDate, savingsPots, getNextWorkingDay]);
+  }, [incomes, liabilities, progress, viewDate, getPriorWorkingDay, getAdjustedDate, savingsPots, getNextWorkingDay, members]);
 
   const currentCycleRecord = useMemo(() => cycles.find(c => c.cycle_start === cycleData?.cycleKey), [cycles, cycleData]);
-
-  const cycleEvents = useMemo(() => {
-      if (!cycleData) return [];
-      const events = [];
-      bankHolidays.forEach(h => {
-          const date = new Date(h);
-          if (date >= cycleData.startDate && date <= cycleData.endDate) events.push({ type: 'holiday', date, label: 'Bank Holiday', emoji: '🇬🇧' });
-      });
-      members.forEach(m => {
-          if (!m.dob) return;
-          const dob = new Date(m.dob);
-          const currentYearBirthday = new Date(cycleData.startDate.getFullYear(), dob.getMonth(), dob.getDate());
-          const nextYearBirthday = new Date(cycleData.startDate.getFullYear() + 1, dob.getMonth(), dob.getDate());
-          let targetDate = (currentYearBirthday >= cycleData.startDate && currentYearBirthday <= cycleData.endDate) ? currentYearBirthday : ((nextYearBirthday >= cycleData.startDate && nextYearBirthday <= cycleData.endDate) ? nextYearBirthday : null);
-          if (targetDate) events.push({ type: 'birthday', date: targetDate, label: `${m.name}'s Birthday`, emoji: '🎂' });
-      });
-      return events.sort((a, b) => a.date - b.date);
-  }, [cycleData, bankHolidays, members]);
 
   useEffect(() => {
       if (currentCycleRecord) { setActualPay(currentCycleRecord.actual_pay); setCurrentBalance(currentCycleRecord.current_balance); }
@@ -295,16 +279,6 @@ export default function BudgetView() {
       );
   };
 
-  const createCycle = async (copyPrevious = false) => {
-      let pay = 0, balance = 0;
-      if (copyPrevious) {
-          const prevDate = addMonths(cycleData.startDate, -1);
-          const prevCycle = cycles.find(c => { const d = new Date(c.cycle_start); return d.getMonth() === prevDate.getMonth() && d.getFullYear() === prevDate.getFullYear(); });
-          if (prevCycle) { pay = prevCycle.actual_pay; balance = prevCycle.current_balance; }
-      }
-      await saveCycleData(pay, balance);
-  };
-
   const updateActualAmount = async (itemKey, amount) => {
       const progressItem = progress.find(p => p.item_key === itemKey && p.cycle_start === cycleData?.cycleKey);
       const isPaid = progressItem ? (progressItem.is_paid || 0) : 0;
@@ -331,16 +305,12 @@ export default function BudgetView() {
       const formData = new FormData(e.currentTarget);
       const data = Object.fromEntries(formData.entries());
       data.frequency = 'one_off'; 
-      // Need to adjust logic since I am now posting to charges, not costs
-      // Simplified for now - assume direct map
-      data.segment = 'other'; // default
+      data.segment = 'other';
       data.adjust_for_working_day = data.nearest_working_day === "1" ? 1 : 0;
-      // Need to convert payment_day to exact_date if it's one-off in current cycle
       if (cycleData) {
           const d = setDate(cycleData.startDate, parseInt(data.payment_day));
           data.exact_date = format(d, 'yyyy-MM-dd');
       }
-      
       try {
           await api.post(`/households/${householdId}/finance/charges`, data);
           showNotification("One-off expense added.", "success");
@@ -354,10 +324,8 @@ export default function BudgetView() {
       const data = Object.fromEntries(formData.entries());
       data.adjust_for_working_day = data.nearest_working_day === "1" ? 1 : 0;
       data.day_of_month = parseInt(data.payment_day);
-      data.frequency = 'monthly'; // default
-      // Map category to segment?
+      data.frequency = 'monthly';
       data.segment = data.category || 'other';
-
       try {
           await api.post(`/households/${householdId}/finance/charges`, data);
           showNotification("Recurring expense added.", "success");
@@ -417,40 +385,6 @@ export default function BudgetView() {
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
   if (!cycleData) return <Box sx={{ p: 4, textAlign: 'center' }}><Typography level="h4">No Primary Income Set</Typography><Button sx={{ mt: 2 }} onClick={fetchData}>Refresh</Button></Box>;
 
-  if (!currentCycleRecord) {
-      return (
-        <Box sx={{ p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 800, mx: 'auto' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
-                <IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, -1))}><ChevronLeft /></IconButton>
-                <Box sx={{ textAlign: 'center' }}>
-                    <Typography level="h2">{cycleData.label}</Typography>
-                    <Typography level="body-md" color="neutral">{format(cycleData.startDate, 'do MMM')} to {format(cycleData.endDate, 'do MMM')}</Typography>
-                </Box>
-                <IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, 1))}><ChevronRight /></IconButton>
-            </Box>
-            <Card variant="outlined" sx={{ width: '100%', maxWidth: 500, p: 3, mb: 4, alignItems: 'center', textAlign: 'center', gap: 2 }}>
-                <AccountBalanceWallet sx={{ fontSize: 48, color: 'primary.plainColor' }} />
-                <Typography level="h3">Start a New Budget</Typography>
-                <Typography level="body-md">This cycle has not been initialized yet. Choose how you want to start.</Typography>
-                <Stack direction="row" spacing={2} sx={{ mt: 2 }}><Button variant="outlined" onClick={() => createCycle(false)}>Create Blank</Button><Button variant="solid" onClick={() => createCycle(true)}>Copy Last Month</Button></Stack>
-            </Card>
-            {cycleEvents.length > 0 && (
-                <Card variant="soft" sx={{ width: '100%', maxWidth: 500, p: 2 }}>
-                    <Typography level="title-md" startDecorator={<Event />} sx={{ mb: 2 }}>Events in this Budget</Typography>
-                    <Stack spacing={1}>
-                        {cycleEvents.map((evt, i) => (
-                            <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 1, bgcolor: 'background.surface', borderRadius: 'sm', border: '1px solid', borderColor: 'divider' }}>
-                                <Avatar size="sm" sx={{ bgcolor: 'transparent' }}>{evt.emoji}</Avatar>
-                                <Box sx={{ flexGrow: 1 }}><Typography level="title-sm">{evt.label}</Typography><Typography level="body-xs">{format(evt.date, 'EEEE do MMMM')}</Typography></Box>
-                            </Box>
-                        ))}
-                    </Stack>
-                </Card>
-            )}
-        </Box>
-      );
-  }
-
   const renderTableRows = (items, cols = 7, hidePill = false) => {
     return items.map((exp) => (
         <tr 
@@ -461,7 +395,7 @@ export default function BudgetView() {
             <td style={{ textAlign: 'center' }}><Checkbox size="sm" checked={selectedKeys.includes(exp.key)} onChange={() => handleSelectToggle(exp.key)} onClick={(e) => e.stopPropagation()} /></td>
             <td>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label, isDark), color: '#fff' }}>{exp.icon}</Avatar>
+                    <Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: getEmojiColor(exp.label || '?', isDark), color: '#fff' }}>{exp.icon}</Avatar>
                     <Box>
                         <Typography level="body-xs" fontWeight="bold">{exp.label}</Typography>
                         {!hidePill && exp.object && (
@@ -477,7 +411,7 @@ export default function BudgetView() {
                     <Typography noWrap sx={{ maxWidth: '120px', textTransform: 'capitalize' }}>{exp.category}</Typography>
                 </Chip>
             </td>
-            {cols >= 7 ? (<td><Box sx={{ textAlign: 'center' }}><Typography level="body-xs" fontWeight="bold">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{format(exp.computedDate, 'EEE do')}</Typography>}</Box></td>) : <td />}
+            {cols >= 7 ? (<td><Box sx={{ textAlign: 'center' }}><Typography level="body-xs" fontWeight="bold">{exp.day}</Typography>{exp.computedDate && <Typography level="body-xs" color="neutral" sx={{ fontSize: '0.6rem' }}>{format(exp.computedDate, 'EEE do MMM')}</Typography>}</Box></td>) : <td />}
             <td style={{ textAlign: 'right' }}><Input size="sm" type="number" variant="soft" sx={{ fontSize: '0.75rem', '--Input-minHeight': '24px', textAlign: 'right', '& input': { textAlign: 'right' } }} defaultValue={Number(exp.amount).toFixed(2)} onBlur={(e) => updateActualAmount(exp.key, e.target.value)} onClick={(e) => e.stopPropagation()} slotProps={{ input: { step: '0.01' } }} /></td>
             <td style={{ textAlign: 'center' }}><Checkbox size="sm" variant="plain" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} disabled={savingProgress} uncheckedIcon={<RadioButtonUnchecked sx={{ fontSize: '1.2rem' }} />} checkedIcon={<CheckCircle color="success" sx={{ fontSize: '1.2rem' }} />} onClick={(e) => e.stopPropagation()} sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} /></td>
             {cols >= 7 ? <td></td> : <td />}
@@ -500,7 +434,7 @@ export default function BudgetView() {
                         }} /></th>
                         <th>Expense</th>
                         <th style={{ width: 140 }}>Category</th> 
-                        {cols >= 7 ? <th style={{ width: 80, textAlign: 'center' }}>Date</th> : <th style={{ width: 80 }}></th>}
+                        {cols >= 7 ? <th style={{ width: 100, textAlign: 'center' }}>Date</th> : <th style={{ width: 80 }}></th>}
                         <th style={{ width: 100, textAlign: 'right' }}>Amount</th>
                         <th style={{ width: 40, textAlign: 'center' }}>Paid</th>
                         {cols >= 7 ? <th style={{ width: 80 }}></th> : <th style={{ width: 80 }}></th>}
@@ -514,7 +448,6 @@ export default function BudgetView() {
 
   return (
     <Box sx={{ userSelect: 'none', pb: 10 }}>
-        {/* Header and Controls */}
         <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, -1))}><ChevronLeft /></IconButton><Box><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>{cycleData.label}</Typography><Chip variant="soft" color="primary" size="sm">{cycleData.cycleDuration} Days</Chip></Box><Typography level="body-md" color="neutral">{format(cycleData.startDate, 'do MMM')} to {format(cycleData.endDate, 'do MMM')}</Typography></Box><IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, 1))}><ChevronRight /></IconButton></Box>
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}><FormControl orientation="horizontal" size="sm" sx={{ mr: 1 }}><FormLabel sx={{ mr: 1 }}>Hide Paid</FormLabel><Switch checked={hidePaid} onChange={(e) => setHidePaid(e.target.checked)} size="sm" /></FormControl>
@@ -543,19 +476,17 @@ export default function BudgetView() {
 
             <Grid xs={12} md={9}>
                 <Stack spacing={4}>
-                    {/* Recurring Expenses (Grouped by Freq) */}
                     {Object.keys(groupedRecurring).map(freq => {
                         const items = groupedRecurring[freq] || [];
                         if (getVisibleItems(items).length === 0) return null;
                         return (
                             <Box key={freq}>
                                 <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1, textTransform: 'capitalize' }}><Payments fontSize="small" /> {freq} Expenses</Typography>
-                                {renderSection(items, 6, true)}
+                                {renderSection(items, 6, false)}
                             </Box>
                         );
                     })}
 
-                    {/* Savings Pots */}
                     {(() => {
                         const visibleAccountGroups = Object.entries(groupedPots).map(([accId, group]) => {
                             const potItems = group.pots.map(p => cycleData.expenses.find(e => e.key === `pot_${p.id}`)).filter(Boolean);

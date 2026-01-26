@@ -19,49 +19,6 @@ const closeDb = (req) => {
     if (req.tenantDb) req.tenantDb.close();
 };
 
-/**
- * @swagger
- * components:
- *   schemas:
- *     RecurringCharge:
- *       type: object
- *       properties:
- *         id:
- *           type: integer
- *         household_id:
- *           type: integer
- *         name:
- *           type: string
- *         amount:
- *           type: number
- *         segment:
- *           type: string
- *           enum: [household_bill, insurance, warranty, subscription, utility, other, vehicle_tax, vehicle_mot, vehicle_service, vehicle_fuel]
- *         frequency:
- *           type: string
- *           enum: [weekly, monthly, quarterly, yearly, one_off]
- *         day_of_month:
- *           type: integer
- *         month_of_year:
- *           type: integer
- *         day_of_week:
- *           type: integer
- *         exact_date:
- *           type: string
- *           format: date
- *         adjust_for_working_day:
- *           type: integer
- *           description: 1 for true, 0 for false
- *         linked_entity_type:
- *           type: string
- *         linked_entity_id:
- *           type: integer
- *         notes:
- *           type: string
- *         is_active:
- *           type: integer
- */
-
 // GET /households/:id/finance/charges
 router.get('/households/:id/finance/charges', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
     const sql = `SELECT * FROM finance_recurring_charges WHERE household_id = ? ORDER BY created_at DESC`;

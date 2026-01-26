@@ -2,20 +2,9 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useLocation, useNavigate, useOutletContext } from 'react-router-dom';
 import { Box, Typography, Sheet, Grid, Card, Avatar, IconButton } from '@mui/joy';
 import { 
-  Payments, 
-  AccountBalance, 
-  Savings, 
-  CreditCard, 
-  RequestQuote, 
-  Home, 
-  TrendingUp, 
-  HourglassBottom, 
-  PieChart,
-  ArrowBack,
-  ChevronRight,
-  DirectionsCar,
-  Assignment,
-  Receipt
+  Payments, AccountBalance, Savings, CreditCard, RequestQuote, Home, 
+  TrendingUp, HourglassBottom, PieChart, ArrowBack, ChevronRight, 
+  DirectionsCar, Assignment, Receipt
 } from '@mui/icons-material';
 
 import IncomeView from './finance/IncomeView';
@@ -32,21 +21,16 @@ import BudgetView from './finance/BudgetView';
 import ChargesView from './finance/ChargesView';
 import { getEmojiColor } from '../theme';
 
-const ComingSoonPlaceholder = ({ title, icon: IconComponent }) => ( // eslint-disable-line no-unused-vars
-  <Box sx={{ 
-    display: 'flex', 
-    flexDirection: 'column', 
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    height: '400px', 
-    gap: 2,
-    color: 'neutral.400'
-  }}>
-    <IconComponent sx={{ fontSize: 64, opacity: 0.5 }} />
-    <Typography level="h3" sx={{ color: 'inherit' }}>{title}</Typography>
-    <Typography level="body-md">Coming Soon</Typography>
-  </Box>
-);
+const ComingSoonPlaceholder = ({ title, icon }) => {
+  const IconComponent = icon;
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '400px', gap: 2, color: 'neutral.400' }}>
+      <IconComponent sx={{ fontSize: 64, opacity: 0.5 }} />
+      <Typography level="h3" sx={{ color: 'inherit' }}>{title}</Typography>
+      <Typography level="body-md">Coming Soon</Typography>
+    </Box>
+  );
+};
 
 export default function FinanceView() {
   const location = useLocation();
@@ -55,7 +39,6 @@ export default function FinanceView() {
   const queryParams = new URLSearchParams(location.search);
   const tabParam = queryParams.get('tab');
   
-  // Responsive Check
   const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 900);
@@ -78,7 +61,7 @@ export default function FinanceView() {
     agreements: { label: 'Agreements', icon: Assignment, desc: 'Track mobile contracts and other obligations.' },
   }), []);
 
-  const activeTabKey = tabParam || (isMobile ? null : 'budget');
+  const activeTabKey = tabParam === 'subscriptions' ? 'charges' : (tabParam || (isMobile ? null : 'budget'));
   const activeView = activeTabKey ? viewMap[activeTabKey] : null;
 
   const renderContent = () => {
@@ -91,30 +74,20 @@ export default function FinanceView() {
       if (activeTabKey === 'credit') return <CreditCardsView />;
       if (activeTabKey === 'loans') return <LoansView />;
       if (activeTabKey === 'mortgage') return <MortgagesView />;
-      if (activeTabKey === 'charges') return <ChargesView />;
+      if (activeTabKey === 'charges') return <ChargesView initialTab={tabParam} />;
       if (activeTabKey === 'car') return <VehicleFinanceView />;
       if (activeTabKey === 'agreements') return <AgreementsView />;
       
-      // Default placeholder logic
+      if (!activeView) return null;
+      
       return (
         <Box>
             <Box sx={{ mb: 4 }}>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>{activeView.label}</Typography>
-                <Typography level="body-md" color="neutral">{activeView.desc}</Typography>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>{activeView?.label || 'Finance'}</Typography>
+                <Typography level="body-md" color="neutral">{activeView?.desc || 'Manage your finances.'}</Typography>
             </Box>
-            <Sheet 
-                variant="outlined" 
-                sx={{ 
-                borderRadius: 'md', 
-                p: 2, 
-                minHeight: '500px',
-                bgcolor: 'background.surface'
-                }}
-            >
-                <ComingSoonPlaceholder 
-                    title={activeView.label} 
-                    icon={activeView.icon} 
-                />
+            <Sheet variant="outlined" sx={{ borderRadius: 'md', p: 2, minHeight: '500px', bgcolor: 'background.surface' }}>
+                <ComingSoonPlaceholder title={activeView?.label || 'Finance'} icon={activeView?.icon || Payments} />
             </Sheet>
         </Box>
       );
@@ -124,35 +97,17 @@ export default function FinanceView() {
     return (
       <Box>
         <Box sx={{ mb: 3 }}>
-          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-            Finance
-          </Typography>
-          <Typography level="body-md" color="neutral">
-            Manage your household wealth.
-          </Typography>
+          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Finance</Typography>
+          <Typography level="body-md" color="neutral">Manage your household wealth.</Typography>
         </Box>
         <Grid container spacing={2}>
           {Object.entries(viewMap).map(([key, config]) => (
             <Grid xs={12} key={key}>
-              <Card 
-                variant="outlined" 
-                onClick={() => navigate(`?tab=${key}`)}
-                sx={{ 
-                  flexDirection: 'row', 
-                  gap: 2, 
-                  alignItems: 'center',
-                  cursor: 'pointer',
-                  '&:active': { bgcolor: 'background.level1' } 
-                }}
-              >
-                <Avatar size="lg" sx={{ bgcolor: getEmojiColor(config.label[0], isDark) }}>
-                  <config.icon />
-                </Avatar>
+              <Card variant="outlined" onClick={() => navigate(`?tab=${key}`)} sx={{ flexDirection: 'row', gap: 2, alignItems: 'center', cursor: 'pointer', '&:active': { bgcolor: 'background.level1' } }}>
+                <Avatar size="lg" sx={{ bgcolor: getEmojiColor(config.label ? config.label[0] : '?', isDark) }}><config.icon /></Avatar>
                 <Box sx={{ flexGrow: 1 }}>
                   <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{config.label}</Typography>
-                  <Typography level="body-xs" sx={{ display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {config.desc}
-                  </Typography>
+                  <Typography level="body-xs" sx={{ display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{config.desc}</Typography>
                 </Box>
                 <ChevronRight sx={{ color: 'neutral.400' }} />
               </Card>
@@ -170,9 +125,7 @@ export default function FinanceView() {
           <IconButton variant="plain" onClick={() => navigate('.')}>
             <ArrowBack />
           </IconButton>
-          <Typography level="title-lg">
-             {activeView.label}
-          </Typography>
+          <Typography level="title-lg">{activeView?.label || 'Finance'}</Typography>
         </Box>
         {renderContent()}
       </Box>
@@ -181,6 +134,11 @@ export default function FinanceView() {
 
   return (
     <Box sx={{ width: '100%' }}>
+      {activeView && !isMobile && (
+          <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography level="h2" sx={{ fontWeight: 'lg' }}>{activeView.label}</Typography>
+          </Box>
+      )}
       {renderContent()}
     </Box>
   );

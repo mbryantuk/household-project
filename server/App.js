@@ -1,186 +1,105 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, ActivityIndicator, ScrollView, FlatList } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const fs = require('fs');
+const path = require('path');
+const cron = require('node-cron');
+const { apiReference } = require('@scalar/express-api-reference');
+const swaggerDocument = require('./swagger.json');
 
-// ⚠️ CHANGE THIS:
-// If running in Web Browser on Pi: 'http://localhost:4002'
-// If running on Phone: 'http://192.168.X.X:4002' (Your Pi's IP)
-const API_URL = 'http://10.10.2.0:4002'; 
+// Import unified database instance
+const { globalDb } = require('./db');
+const { bootstrap } = require('./bootstrap');
+require('./services/crypto'); 
 
-export default function App() {
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
+// Routes
+const authRoutes = require('./routes/auth');
+const householdRoutes = require('./routes/households');
+const memberRoutes = require('./routes/members');
+const adminRoutes = require('./routes/admin');
+const calendarRoutes = require('./routes/calendar');
+const detailsRoutes = require('./routes/details');
+const mealRoutes = require('./routes/meals');
+const financeRoutes = require('./routes/finance');
+const chargeRoutes = require('./routes/charges');
 
-  // Check for stored login on app start
-  useEffect(() => {
-    checkLogin();
-  }, []);
+const { createBackup, cleanOldBackups } = require('./services/backup');
 
-  const checkLogin = async () => {
-    const storedToken = await AsyncStorage.getItem('token');
-    if (storedToken) setToken(storedToken);
-    setLoading(false);
-  };
+const app = express();
 
-  if (loading) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#007bff" />
-      </View>
-    );
-  }
+// Security Middleware
+app.use(helmet({
+    contentSecurityPolicy: false, 
+    crossOriginEmbedderPolicy: false
+}));
+app.use(cors());
+app.use(express.json());
 
-  return (
-    <View style={styles.container}>
-      {token ? (
-        <Dashboard token={token} onLogout={() => { setToken(null); AsyncStorage.removeItem('token'); }} />
-      ) : (
-        <LoginScreen onLogin={(newToken) => { setToken(newToken); AsyncStorage.setItem('token', newToken); }} />
-      )}
-    </View>
-  );
-}
-
-// --- SCREEN 1: LOGIN ---
-function LoginScreen({ onLogin }) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handlePress = async () => {
-    setIsSubmitting(true);
-    try {
-      const res = await fetch(`${API_URL}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-      const data = await res.json();
-      
-      if (res.ok) {
-        onLogin(data.token);
-      } else {
-        Alert.alert("Login Failed", data.error || "Check credentials");
-      }
-    } catch (e) {
-      Alert.alert("Error", "Could not connect to server. Check IP address.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <View style={styles.authContainer}>
-      <Text style={styles.headerTitle}>🏠 Household Manager</Text>
-      <Text style={styles.subHeader}>Mobile App</Text>
-
-      <TextInput 
-        style={styles.input} 
-        placeholder="Username" 
-        value={username} 
-        onChangeText={setUsername} 
-        autoCapitalize="none" 
-      />
-      <TextInput 
-        style={styles.input} 
-        placeholder="Password" 
-        value={password} 
-        onChangeText={setPassword} 
-        secureTextEntry 
-      />
-
-      <TouchableOpacity style={styles.btnPrimary} onPress={handlePress} disabled={isSubmitting}>
-        {isSubmitting ? <ActivityIndicator color="#fff"/> : <Text style={styles.btnText}>Log In</Text>}
-      </TouchableOpacity>
-    </View>
-  );
-}
-
-// --- SCREEN 2: DASHBOARD ---
-function Dashboard({ token, onLogout }) {
-  const [households, setHouseholds] = useState([]);
-  const [refreshing, setRefreshing] = useState(false);
-
-  useEffect(() => {
-    fetchHouseholds();
-  }, []);
-
-  const fetchHouseholds = async () => {
-    setRefreshing(true);
-    try {
-      const res = await fetch(`${API_URL}/my-households`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if(Array.isArray(data)) setHouseholds(data);
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
-  const renderItem = ({ item }) => (
-    <View style={styles.card}>
-      <View style={styles.cardHeader}>
-        <Text style={styles.cardTitle}>{item.name}</Text>
-        <View style={[styles.badge, item.role === 'admin' ? styles.badgeAdmin : styles.badgeMember]}>
-          <Text style={styles.badgeText}>{item.role.toUpperCase()}</Text>
-        </View>
-      </View>
-      <Text style={styles.cardSub}>ID: {item.id}</Text>
-    </View>
-  );
-
-  return (
-    <View style={styles.dashboardContainer}>
-      <View style={styles.navBar}>
-        <Text style={styles.navTitle}>My Households</Text>
-        <TouchableOpacity onPress={onLogout}>
-          <Text style={styles.logoutText}>Logout</Text>
-        </TouchableOpacity>
-      </View>
-
-      <FlatList
-        data={households}
-        renderItem={renderItem}
-        keyExtractor={item => item.id.toString()}
-        refreshing={refreshing}
-        onRefresh={fetchHouseholds}
-        ListEmptyComponent={<Text style={styles.emptyText}>No households found.</Text>}
-        contentContainerStyle={{ padding: 20 }}
-      />
-    </View>
-  );
-}
-
-// --- STYLES ---
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  
-  // Auth Styles
-  authContainer: { flex: 1, justifyContent: 'center', padding: 30 },
-  headerTitle: { fontSize: 28, fontWeight: 'bold', color: '#333', textAlign: 'center' },
-  subHeader: { fontSize: 16, color: '#666', textAlign: 'center', marginBottom: 40 },
-  input: { backgroundColor: '#fff', padding: 15, borderRadius: 8, marginBottom: 15, borderWidth: 1, borderColor: '#ddd' },
-  btnPrimary: { backgroundColor: '#007bff', padding: 15, borderRadius: 8, alignItems: 'center' },
-  btnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-
-  // Dashboard Styles
-  dashboardContainer: { flex: 1, paddingTop: 50 },
-  navBar: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, marginBottom: 10, alignItems: 'center' },
-  navTitle: { fontSize: 24, fontWeight: 'bold', color: '#333' },
-  logoutText: { color: '#dc3545', fontWeight: 'bold' },
-  
-  // Card Styles
-  card: { backgroundColor: '#fff', padding: 20, borderRadius: 12, marginBottom: 15, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5, elevation: 3 },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 },
-  cardTitle: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-  cardSub: { color: '#888' },
-  badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-  badgeAdmin: { backgroundColor: '#007bff' },
-  badgeMember: { backgroundColor: '#28a745' },
-  badgeText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
-  emptyText: { textAlign: 'center', color: '#999', marginTop: 50 }
+// Rate Limiter
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, 
+    max: process.env.NODE_ENV === 'test' ? 1000 : 20,
+    message: "Too many login attempts, please try again later."
 });
+app.use('/auth/login', authLimiter);
+app.use('/auth/register', authLimiter);
+
+// Logging
+app.use((req, res, next) => {
+    if (process.env.NODE_ENV !== 'test') {
+        console.log(`📡 [${req.method}] ${req.path}`);
+    }
+    next();
+});
+
+// Scalar API Reference
+app.use('/api-docs', apiReference({ spec: { content: swaggerDocument } }));
+
+// MOUNT API ROUTES
+// Most routes are mounted at root to support /households and /auth patterns
+app.use('/auth', authRoutes);      
+app.use('/admin', adminRoutes);
+app.use('/', householdRoutes); 
+app.use('/', memberRoutes);    
+app.use('/', calendarRoutes);
+app.use('/', detailsRoutes);
+app.use('/', mealRoutes);
+app.use('/', financeRoutes);
+app.use('/', chargeRoutes);
+
+// Compatibility mount for legacy or /api prefixed calls
+app.use('/api', householdRoutes); 
+app.use('/api', memberRoutes);    
+app.use('/api', calendarRoutes);
+app.use('/api', detailsRoutes);
+app.use('/api', mealRoutes);
+app.use('/api', financeRoutes);
+app.use('/api', chargeRoutes);
+
+app.get('/system/status', (req, res) => {
+    globalDb.get("SELECT COUNT(*) as count FROM users", [], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ needsSetup: row.count === 0 });
+    });
+});
+
+// FRONTEND SERVING
+const frontendPath = path.resolve(__dirname, '../web/dist');
+if (fs.existsSync(frontendPath)) {
+    app.use('/assets', express.static(path.join(frontendPath, 'assets')));
+    app.use(express.static(frontendPath));
+    app.use((req, res, next) => {
+        // Protect API paths from being intercepted by SPA fallback
+        const apiPaths = ['/auth', '/admin', '/api', '/system', '/households'];
+        if (apiPaths.some(p => req.path.startsWith(p))) {
+            return res.status(404).json({ error: "Endpoint not found" });
+        }
+        if (req.method === 'GET') {
+            return res.sendFile(path.join(frontendPath, 'index.html'));
+        }
+        next();
+    });
+}
+
+module.exports = app;

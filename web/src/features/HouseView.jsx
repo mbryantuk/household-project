@@ -151,10 +151,10 @@ export default function HouseView() {
         </IconButton>
         <Box>
             <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                House Registry
+                Asset: {household?.name || 'Primary Residence'}
             </Typography>
             <Typography level="body-md" color="neutral">
-                Manage your home's identity, utilities, and structure.
+                Manage identity, structure, and recurring financial obligations.
             </Typography>
         </Box>
       </Box>
@@ -176,17 +176,15 @@ export default function HouseView() {
             }}
           >
             <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><Badge sx={{ mr: 1 }}/> Identity</Tab>
-            <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><HomeWork sx={{ mr: 1 }}/> General</Tab>
-            <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><Payments sx={{ mr: 1 }}/> Recurring Costs</Tab>
+            <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><HomeWork sx={{ mr: 1 }}/> General Details</Tab>
+            <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><Payments sx={{ mr: 1 }}/> Charges Repository</Tab>
           </TabList>
 
           <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
             {activeTab === 0 && (
                 <Box>
                     <Box sx={{ mb: 4 }}>
-                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                            Household Identity & Location
-                        </Typography>
+                        <Typography level="h3">Household Identity</Typography>
                         <Typography level="body-md" color="neutral">Configure your home's core details and location.</Typography>
                     </Box>
                     <form onSubmit={handleUpdateIdentity}>
@@ -267,10 +265,8 @@ export default function HouseView() {
             {activeTab === 2 && (
                 <Box>
                     <Box sx={{ mb: 4 }}>
-                        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                            Recurring Costs
-                        </Typography>
-                        <Typography level="body-md" color="neutral">Track expenses related to the property.</Typography>
+                        <Typography level="h3">Recurring Charges</Typography>
+                        <Typography level="body-md" color="neutral">Central repository for bills, utilities, and subscriptions tied to this residence.</Typography>
                     </Box>
                     <RecurringCostsWidget 
                         api={api} 

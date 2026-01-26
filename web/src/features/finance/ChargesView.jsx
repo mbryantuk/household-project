@@ -56,14 +56,20 @@ const MONTHS = [
   { id: 10, label: 'October' }, { id: 11, label: 'November' }, { id: 12, label: 'December' }
 ];
 
-export default function ChargesView() {
+export default function ChargesView({ initialTab }) {
   const { household } = useOutletContext();
   const householdId = household?.id;
   const [charges, setCharges] = useState([]);
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(() => {
+    if (initialTab === 'subscriptions') {
+      const subIdx = SEGMENTS.findIndex(s => s.id === 'subscription');
+      return subIdx !== -1 ? subIdx : 0;
+    }
+    return 0;
+  });
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  
+
   // Entity Lists for Selector
   const [members, setMembers] = useState([]);
   const [vehicles, setVehicles] = useState([]);
@@ -115,8 +121,10 @@ export default function ChargesView() {
   }, [householdId]);
 
   useEffect(() => {
-    fetchCharges();
-    fetchEntities();
+    Promise.resolve().then(() => {
+        fetchCharges();
+        fetchEntities();
+    });
   }, [fetchCharges, fetchEntities]);
 
   const handleSave = async () => {

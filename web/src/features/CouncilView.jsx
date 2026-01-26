@@ -26,7 +26,7 @@ export default function CouncilView() {
   }, [api, householdId]);
 
   useEffect(() => {
-    fetchAccounts();
+    Promise.resolve().then(() => fetchAccounts());
   }, [fetchAccounts]);
 
   const handleSubmit = async (e) => {

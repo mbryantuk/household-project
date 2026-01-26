@@ -104,6 +104,7 @@ const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, showLabe
 export default function UtilityBar({
     user, api, dates, onDateAdded, onUpdateProfile, isDark, onLogout,
     households = [], onSelectHousehold, onInstall, canInstall, confirmAction,
+    activeHouseholdId,
     statusBarData
 }) {
   const navigate = useNavigate();
@@ -266,16 +267,16 @@ export default function UtilityBar({
                     <TaxCalculator isDocked onClose={closeWidget} isDark={isDark} onPopout={() => handlePopout('tax', '/tax-window')} />
                 </WidgetWrapper>
                 <WidgetWrapper id="savings" label="Savings" icon={Savings} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <FloatingSavings isDocked onClose={closeWidget} api={api} householdId={user?.default_household_id} isDark={isDark} onPopout={() => handlePopout('savings', '/savings-window')} />
+                    <FloatingSavings isDocked onClose={closeWidget} api={api} householdId={activeHouseholdId} isDark={isDark} onPopout={() => handlePopout('savings', '/savings-window')} />
                 </WidgetWrapper>
                 <WidgetWrapper id="invest" label="Investments" icon={TrendingUp} color="primary" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <FloatingInvestments isDocked onClose={closeWidget} api={api} householdId={user?.default_household_id} isDark={isDark} onPopout={() => handlePopout('invest', '/investments-window')} />
+                    <FloatingInvestments isDocked onClose={closeWidget} api={api} householdId={activeHouseholdId} isDark={isDark} onPopout={() => handlePopout('invest', '/investments-window')} />
                 </WidgetWrapper>
                 <WidgetWrapper id="pensions" label="Pensions" icon={HourglassBottom} color="warning" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <FloatingPensions isDocked onClose={closeWidget} api={api} householdId={user?.default_household_id} isDark={isDark} onPopout={() => handlePopout('pensions', '/pensions-window')} />
+                    <FloatingPensions isDocked onClose={closeWidget} api={api} householdId={activeHouseholdId} isDark={isDark} onPopout={() => handlePopout('pensions', '/pensions-window')} />
                 </WidgetWrapper>
                 <WidgetWrapper id="calendar" label="Calendar" icon={CalendarMonth} color="danger" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                     <FloatingCalendar isDocked onClose={closeWidget} dates={dates} api={api} householdId={user?.default_household_id} currentUser={user} onDateAdded={onDateAdded} isDark={isDark} onPopout={() => handlePopout('calendar', '/calendar-window')} />
+                     <FloatingCalendar isDocked onClose={closeWidget} dates={dates} api={api} householdId={activeHouseholdId} currentUser={user} onDateAdded={onDateAdded} isDark={isDark} onPopout={() => handlePopout('calendar', '/calendar-window')} />
                 </WidgetWrapper>
             </Box>
 
