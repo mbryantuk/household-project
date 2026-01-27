@@ -6,10 +6,13 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
+  reporter: [['html', { open: 'never' }]],
   use: {
-    baseURL: 'http://localhost:5173',
+    // Target the production/container port by default, or override with BASE_URL env
+    baseURL: process.env.BASE_URL || 'http://localhost:4001',
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'on-first-retry',
   },
   projects: [
     {
@@ -17,17 +20,20 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  /* Run your local dev server before starting the tests */
-  webServer: [
+  /* 
+     We only use webServer for local dev testing. 
+     CI/Deploy scripts will target the already running containers.
+  */
+  webServer: process.env.CI_TEST ? undefined : [
     {
       command: 'npm run dev',
       url: 'http://localhost:5173',
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: true,
     },
     {
       command: 'cd ../server && node server.js',
       url: 'http://localhost:4001/api/auth/profile',
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: true,
       env: {
         NODE_ENV: 'test',
         PORT: '4001'

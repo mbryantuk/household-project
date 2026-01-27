@@ -33,19 +33,30 @@ cat > web/src/git-info.json <<EOF
 EOF
 
 # 2. Build & Deploy (Docker)
-echo "🚀 Building and Starting Containers (Tests run during build)..."
+echo "🚀 Building and Starting Containers (API Tests run during build)..."
 docker compose up -d --build
 
-# 3. Verify Backend (Integration Tests)
+# 3. Verify Frontend (Smoke Tests)
+# We run these on the host targeting the local container on port 4001
+echo "🔍 Running Frontend Smoke Tests..."
+cd web
+CI_TEST=true BASE_URL=http://localhost:4001 npx playwright test
+cd ..
+
+# 4. Verify Backend (Integration Tests)
 # Note: Tests are now part of the Docker build process (Stage 2).
 # If the build succeeds, the tests have passed.
-echo "✅ Build & Tests Successful."
+echo "✅ Build & Frontend Tests Successful."
 
-# 4. Commit & Push
+# 5. Commit & Push
 echo "💾 Committing changes..."
 git add .
 COMMIT_MSG="v$NEW_VERSION - $COMMIT_SUFFIX"
 git commit -m "$COMMIT_MSG"
 git push origin main
+
+# 6. Disk Cleanup
+echo "🧹 Purging unused Docker images and build cache..."
+docker system prune -af
 
 echo "✅ Deployment of v$NEW_VERSION Complete!"

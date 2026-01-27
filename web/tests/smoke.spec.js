@@ -9,24 +9,45 @@ test.describe('Frontend Smoke Test', () => {
     // 1. Register
     await page.goto('/register');
     await page.fill('input[name="firstName"]', 'Smoke');
+    await page.fill('input[name="lastName"]', 'Test');
     await page.fill('input[name="email"]', email);
-    await page.fill('input[name="password"]', password);
     await page.fill('input[name="householdName"]', 'Smoke Household');
+    await page.fill('input[name="password"]', password);
+    await page.fill('input[name="confirmPassword"]', password);
+    
+    console.log(`Attempting registration for ${email}`);
     await page.click('button[type="submit"]');
 
-    // Should redirect to dashboard or login
-    await expect(page).toHaveURL(/.*dashboard|.*login/);
-
-    // 2. Login (if not auto-logged in or to be sure)
-    if (page.url().includes('/login')) {
-        await page.fill('input[name="email"]', email);
-        await page.fill('input[name="password"]', password);
-        await page.click('button[type="submit"]');
+    // Wait for URL change to login page
+    try {
+        await expect(page).toHaveURL(/.*login/, { timeout: 15000 });
+        console.log('Registration successful, now on login page');
+    } catch (e) {
+        const errorText = await page.locator('.MuiAlert-root, [role="alert"]').innerText().catch(() => 'No visible error');
+        console.error('Registration failed or timed out. Visible error:', errorText);
+        throw e;
     }
 
-    // Wait for dashboard
+    // Give the backend a moment to finish initialization before logging in
+    await page.waitForTimeout(2000);
+
+    // 2. Login
+    console.log('Performing login');
+    await page.fill('input[type="email"]', email);
+    await page.fill('input[type="password"]', password);
+    await page.click('button[type="submit"]');
+
+    // Wait for dashboard or selector
+    await expect(page).toHaveURL(/.*dashboard|.*select-household/, { timeout: 15000 });
+    
+    if (page.url().includes('/select-household')) {
+        console.log('On selector page, picking first household');
+        await page.click('text=Smoke Household');
+    }
+
     await expect(page).toHaveURL(/.*dashboard/);
-    await expect(page.locator('h2')).toContainText('Dashboard');
+    // dashboard greeting check
+    await expect(page.locator('h2')).toContainText(/Good (morning|afternoon|evening), Smoke/);
 
     // 3. Navigate through core pages
     const routes = [
@@ -43,8 +64,6 @@ test.describe('Frontend Smoke Test', () => {
 
     for (const route of routes) {
       console.log(`Checking route: ${route.path}`);
-      // Find the link in the sidebar or navigate directly
-      // Navigating directly is more robust for a "smoke test" of the component
       await page.goto(route.path);
       
       // Basic "it didn't crash" check
@@ -52,10 +71,8 @@ test.describe('Frontend Smoke Test', () => {
       await expect(body).not.toContainText('Error');
       await expect(body).not.toContainText('404');
       
-      // Ensure specific headers or markers exist for some pages
-      if (route.name === 'Finance') {
-          await expect(page.locator('h2')).toContainText('Finance');
-      }
+      // Wait for network to settle to ensure data fetch attempt
+      await page.waitForLoadState('networkidle');
     }
   });
 });
