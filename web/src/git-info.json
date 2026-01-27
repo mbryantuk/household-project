@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Restored Finance Views: Added Equity Share, Income Tax Estimator, and detailed Banking fields.",
-  "date": "Tue 27 Jan 15:31:49 GMT 2026"
+  "commitMessage": "Restored complex Finance Views (Mortgages, Income, Banking) from v3.0.52 pre-simplification.",
+  "date": "Tue 27 Jan 15:41:38 GMT 2026"
 }

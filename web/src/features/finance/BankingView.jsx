@@ -1,184 +1,318 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { 
-  Box, Typography, Button, Sheet, Table, IconButton, 
-  Modal, ModalDialog, ModalClose, FormControl, FormLabel, Input, 
-  Stack, Divider, Avatar, Card, Grid, Chip
+  Box, Typography, Grid, Card, Avatar, IconButton, 
+  Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
+  FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
+  Sheet, Table, AvatarGroup
 } from '@mui/joy';
-import { Add, Edit, Delete, AccountBalance, CreditCard } from '@mui/icons-material';
+import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
-import EmojiPicker from '../../components/EmojiPicker';
 
-const formatCurrency = (val, currencyCode = 'GBP') => {
+const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
-    let code = currencyCode === '£' ? 'GBP' : (currencyCode === '$' ? 'USD' : (currencyCode || 'GBP'));
-    try {
-        return num.toLocaleString('en-GB', { style: 'currency', currency: code, minimumFractionDigits: 2 });
-    } catch { return `£${num.toFixed(2)}`; }
+    return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
 export default function BankingView() {
-  const { api, id: householdId, household, showNotification, confirmAction } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
   const [accounts, setAccounts] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [assignments, setAssignments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editItem, setEditItem] = useState(null);
+  const [assignItem, setAssignItem] = useState(null); // Item being assigned
+  const [isNew, setIsNew] = useState(false);
+  
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
 
-  const [formData, setFormData] = useState({
-    bank_name: '', 
-    account_name: '', 
-    current_balance: 0, 
-    overdraft_limit: 0,
-    account_number: '',
-    sort_code: '',
-    emoji: '🏦'
-  });
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 900);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'member';
 
-  const fetchAccounts = useCallback(async () => {
-    if (!householdId) return;
+  const getAssignees = useCallback((accountId) => {
+      return assignments.filter(a => a.entity_id === accountId).map(a => {
+          return members.find(m => m.id === a.member_id);
+      }).filter(Boolean);
+  }, [assignments, members]);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
     try {
-      const res = await api.get(`/households/${householdId}/finance/current-accounts`);
-      setAccounts(res.data || []);
-    } catch (err) { console.error(err); }
+      const [accRes, assRes] = await Promise.all([
+          api.get(`/households/${householdId}/finance/current-accounts`),
+          api.get(`/households/${householdId}/finance/assignments?entity_type=current_account`)
+      ]);
+      setAccounts(accRes.data || []);
+      setAssignments(assRes.data || []);
+    } catch (err) {
+      console.error("Failed to fetch banking data", err);
+    } finally {
+      setLoading(false);
+    }
   }, [api, householdId]);
 
-  useEffect(() => { fetchAccounts(); }, [fetchAccounts]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-  const handleEdit = (acc) => {
-    setEditingId(acc.id);
-    setFormData({
-      bank_name: acc.bank_name, 
-      account_name: acc.account_name,
-      current_balance: acc.current_balance, 
-      overdraft_limit: acc.overdraft_limit || 0,
-      account_number: acc.account_number || '',
-      sort_code: acc.sort_code || '',
-      emoji: acc.emoji || '🏦'
-    });
-    setOpen(true);
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
 
-  const handleSave = async () => {
     try {
-      const url = editingId ? `/households/${householdId}/finance/current-accounts/${editingId}` : `/households/${householdId}/finance/current-accounts`;
-      await api[editingId ? 'put' : 'post'](url, formData);
-      setOpen(false); setEditingId(null); fetchAccounts();
-      showNotification("Saved.", "success");
-    } catch { showNotification("Error.", "danger"); }
+      if (isNew) {
+        await api.post(`/households/${householdId}/finance/current-accounts`, data);
+      } else {
+        await api.put(`/households/${householdId}/finance/current-accounts/${editItem.id}`, data);
+      }
+      fetchData();
+      setEditItem(null);
+      setIsNew(false);
+    } catch {
+      alert("Failed to save account");
+    }
   };
 
-  const totals = useMemo(() => {
-      return accounts.reduce((acc, a) => {
-          acc.balance += (parseFloat(a.current_balance) || 0);
-          acc.overdraft += (parseFloat(a.overdraft_limit) || 0);
-          return acc;
-      }, { balance: 0, overdraft: 0 });
-  }, [accounts]);
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this account permanently?")) return;
+    try {
+      await api.delete(`/households/${householdId}/finance/current-accounts/${id}`);
+      fetchData();
+    } catch {
+      alert("Failed to delete account");
+    }
+  };
 
-  return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography level="h2" startDecorator={<AccountBalance />}>Current Accounts</Typography>
-        <Button startDecorator={<Add />} onClick={() => { setEditingId(null); setOpen(true); }}>Add Account</Button>
-      </Box>
+  // Assignment Logic
+  const handleAssignMember = async (memberId) => {
+      try {
+          await api.post(`/households/${householdId}/finance/assignments`, {
+              entity_type: 'current_account',
+              entity_id: assignItem.id,
+              member_id: memberId
+          });
+          // Refresh assignments only
+          const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=current_account`);
+          setAssignments(assRes.data || []);
+      } catch (err) { console.error("Assignment failed", err); }
+  };
 
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid xs={12} md={6}>
-            <Card variant="soft" color="primary">
-                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                    <Avatar><AccountBalance /></Avatar>
-                    <Box>
-                        <Typography level="body-xs">Total Balance</Typography>
-                        <Typography level="h3">{formatCurrency(totals.balance, household?.currency)}</Typography>
+  const handleUnassignMember = async (memberId) => {
+      try {
+          await api.delete(`/households/${householdId}/finance/assignments/current_account/${assignItem.id}/${memberId}`);
+          // Refresh assignments only
+          const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=current_account`);
+          setAssignments(assRes.data || []);
+      } catch (err) { console.error("Removal failed", err); }
+  };
+
+  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
+
+    return (
+      <Box>
+        <Box sx={{ 
+            mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+            flexWrap: 'wrap', gap: 2 
+        }}>
+          <Box>
+            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
+              Current Accounts
+            </Typography>
+            <Typography level="body-md" color="neutral">
+              Track balances, overdrafts, and account holders.
+            </Typography>
+          </Box>
+          
+          {isAdmin && (
+              <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditItem({}); setIsNew(true); }}>
+                  Add Account
+              </Button>
+          )}
+        </Box>
+
+      {!isMobile ? (
+        <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto', flexGrow: 1 }}>
+            <Table hoverRow stickyHeader>
+                <thead>
+                    <tr>
+                        <th style={{ width: 50 }}></th>
+                        <th>Bank / Name</th>
+                        <th>Sort Code</th>
+                        <th>Account No.</th>
+                        <th>Overdraft</th>
+                        <th>Balance</th>
+                        <th>Holders</th>
+                        {isAdmin && <th style={{ textAlign: 'right', width: 120 }}>Actions</th>}
+                    </tr>
+                </thead>
+                <tbody>
+                    {accounts.map((row) => (
+                        <tr key={row.id}>
+                            <td>
+                                <Avatar size="sm" sx={{ bgcolor: getEmojiColor(row.emoji || (row.bank_name||'?')[0], isDark) }}>
+                                    {row.emoji || (row.bank_name||'?')[0]}
+                                </Avatar>
+                            </td>
+                            <td>
+                                <Typography level="body-md" sx={{ fontWeight: 'lg' }}>{row.bank_name}</Typography>
+                                <Typography level="body-xs" color="neutral">{row.account_name}</Typography>
+                            </td>
+                            <td>{row.sort_code || '??-??-??'}</td>
+                            <td>{row.account_number ? `•••• ${row.account_number.slice(-4)}` : '••••'}</td>
+                            <td>{row.overdraft_limit ? formatCurrency(row.overdraft_limit) : '-'}</td>
+                            <td>
+                                <Typography fontWeight="bold" color={row.current_balance < 0 ? 'danger' : 'success'}>
+                                    {formatCurrency(row.current_balance)}
+                                </Typography>
+                            </td>
+                            <td>
+                                <AvatarGroup size="sm" sx={{ '--AvatarGroup-gap': '-4px' }}>
+                                    {getAssignees(row.id).map(m => (
+                                        <Avatar key={m.id} sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji || m.name[0]}</Avatar>
+                                    ))}
+                                    {isAdmin && (
+                                        <IconButton size="sm" onClick={() => setAssignItem(row)} sx={{ borderRadius: '50%' }}><GroupAdd fontSize="small" /></IconButton>
+                                    )}
+                                </AvatarGroup>
+                            </td>
+                            {isAdmin && (
+                                <td style={{ textAlign: 'right' }}>
+                                    <IconButton size="sm" variant="plain" onClick={() => { setEditItem(row); setIsNew(false); }}><Edit /></IconButton>
+                                    <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(row.id)}><Delete /></IconButton>
+                                </td>
+                            )}
+                        </tr>
+                    ))}
+                </tbody>
+            </Table>
+        </Sheet>
+      ) : (
+        <Grid container spacing={2}>
+            {accounts.map(a => (
+            <Grid xs={12} key={a.id}>
+                <Card variant="outlined" sx={{ flexDirection: 'row', gap: 2 }}>
+                    <Avatar size="lg" sx={{ bgcolor: getEmojiColor(a.emoji || (a.bank_name||'?')[0], isDark) }}>
+                        {a.emoji || (a.bank_name||'?')[0]}
+                    </Avatar>
+                    <Box sx={{ flexGrow: 1 }}>
+                        <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{a.bank_name}</Typography>
+                        <Typography level="body-sm">{a.account_name}</Typography>
+                        <Typography level="body-xs" fontWeight="bold">{formatCurrency(a.current_balance)}</Typography>
+                        <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                             {getAssignees(a.id).map(m => (
+                                <Chip key={m.id} size="sm" variant="soft">{m.alias || m.name}</Chip>
+                            ))}
+                            <IconButton size="sm" onClick={() => setAssignItem(a)}><GroupAdd /></IconButton>
+                        </Box>
                     </Box>
-                </Box>
-            </Card>
-        </Grid>
-        <Grid xs={12} md={6}>
-            <Card variant="soft" color="neutral">
-                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                    <Avatar><CreditCard /></Avatar>
-                    <Box>
-                        <Typography level="body-xs">Available Liquidity (inc. Overdrafts)</Typography>
-                        <Typography level="h3">{formatCurrency(totals.balance + totals.overdraft, household?.currency)}</Typography>
-                    </Box>
-                </Box>
-            </Card>
-        </Grid>
-      </Grid>
-
-      <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
-        <Table hoverRow>
-          <thead>
-            <tr>
-              <th style={{ width: 40 }}></th>
-              <th>Bank</th>
-              <th>Account</th>
-              <th>Details</th>
-              <th style={{ textAlign: 'right' }}>Balance</th>
-              <th style={{ width: 100 }}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {accounts.map(acc => (
-              <tr key={acc.id}>
-                <td><Avatar size="sm" sx={{ bgcolor: getEmojiColor(acc.emoji) }}>{acc.emoji}</Avatar></td>
-                <td><Typography fontWeight="lg">{acc.bank_name}</Typography></td>
-                <td>
-                    <Typography level="body-md">{acc.account_name}</Typography>
-                    <Typography level="body-xs" sx={{ fontFamily: 'monospace' }}>
-                        {acc.sort_code} {acc.account_number}
-                    </Typography>
-                </td>
-                <td>
-                    {acc.overdraft_limit > 0 && (
-                        <Chip size="sm" variant="outlined" color="warning">OD: {formatCurrency(acc.overdraft_limit, household?.currency)}</Chip>
-                    )}
-                </td>
-                <td style={{ textAlign: 'right', fontWeight: 'bold', color: acc.current_balance < 0 ? 'var(--joy-palette-danger-500)' : 'inherit' }}>
-                    {formatCurrency(acc.current_balance, household?.currency)}
-                </td>
-                <td>
-                  <Box sx={{ display: 'flex', gap: 0.5 }}>
-                    <IconButton size="sm" onClick={() => handleEdit(acc)}><Edit /></IconButton>
-                    <IconButton size="sm" color="danger" onClick={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/current-accounts/${acc.id}`).then(fetchAccounts))}><Delete /></IconButton>
-                  </Box>
-                </td>
-              </tr>
+                    <IconButton variant="plain" onClick={() => { setEditItem(a); setIsNew(false); }}>
+                        <Edit />
+                    </IconButton>
+                </Card>
+            </Grid>
             ))}
-          </tbody>
-        </Table>
-      </Sheet>
+        </Grid>
+      )}
 
-      <Modal open={open} onClose={() => setOpen(false)}>
-        <ModalDialog sx={{ maxWidth: 500, width: '100%' }}>
-          <ModalClose />
-          <Typography level="h4">{editingId ? 'Edit Account' : 'New Account'}</Typography>
-          <Divider />
-          <Stack spacing={2} sx={{ mt: 2 }}>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-                <IconButton variant="outlined" sx={{ width: 56, height: 56 }} onClick={() => setEmojiPickerOpen(true)}>
-                    <Typography level="h2">{formData.emoji}</Typography>
-                </IconButton>
-                <FormControl required sx={{ flex: 1 }}><FormLabel>Bank Name</FormLabel><Input value={formData.bank_name} onChange={e => setFormData({ ...formData, bank_name: e.target.value })} /></FormControl>
-            </Box>
-            <FormControl required><FormLabel>Account Name</FormLabel><Input value={formData.account_name} onChange={e => setFormData({ ...formData, account_name: e.target.value })} /></FormControl>
-            
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                <FormControl><FormLabel>Sort Code</FormLabel><Input placeholder="XX-XX-XX" value={formData.sort_code} onChange={e => setFormData({ ...formData, sort_code: e.target.value })} /></FormControl>
-                <FormControl><FormLabel>Account Number</FormLabel><Input placeholder="12345678" value={formData.account_number} onChange={e => setFormData({ ...formData, account_number: e.target.value })} /></FormControl>
-            </Box>
+      {/* EDIT MODAL */}
+      <Modal open={Boolean(editItem)} onClose={() => setEditItem(null)}>
+        <ModalDialog sx={{ maxWidth: 600, width: '100%', overflowY: 'auto' }}>
+            <DialogTitle>{isNew ? 'Add Bank Account' : `Edit ${editItem?.bank_name}`}</DialogTitle>
+            <DialogContent>
+                <form onSubmit={handleSubmit}>
+                    <Grid container spacing={2} sx={{ mt: 1 }}>
+                        <Grid xs={12} md={6}>
+                            <FormControl required>
+                                <FormLabel>Bank Name</FormLabel>
+                                <Input name="bank_name" defaultValue={editItem?.bank_name} placeholder="e.g. HSBC" />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={12} md={6}>
+                            <FormControl>
+                                <FormLabel>Account Name/Type</FormLabel>
+                                <Input name="account_name" defaultValue={editItem?.account_name} placeholder="e.g. Joint Current" />
+                            </FormControl>
+                        </Grid>
+                        
+                        <Grid xs={12}><Divider>Details</Divider></Grid>
 
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                <FormControl required><FormLabel>Current Balance</FormLabel><Input type="number" startDecorator="£" value={formData.current_balance} onChange={e => setFormData({ ...formData, current_balance: e.target.value })} /></FormControl>
-                <FormControl><FormLabel>Overdraft Limit</FormLabel><Input type="number" startDecorator="£" value={formData.overdraft_limit} onChange={e => setFormData({ ...formData, overdraft_limit: e.target.value })} /></FormControl>
-            </Box>
-            
-            <Button size="lg" onClick={handleSave}>Save</Button>
-          </Stack>
+                        <Grid xs={6}>
+                            <FormControl>
+                                <FormLabel>Sort Code</FormLabel>
+                                <Input name="sort_code" defaultValue={editItem?.sort_code} placeholder="00-00-00" />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={6}>
+                            <FormControl>
+                                <FormLabel>Account Number</FormLabel>
+                                <Input name="account_number" defaultValue={editItem?.account_number} placeholder="8 digits" />
+                            </FormControl>
+                        </Grid>
+
+                        <Grid xs={6}>
+                            <FormControl>
+                                <FormLabel>Current Balance (£)</FormLabel>
+                                <Input name="current_balance" type="number" step="0.01" defaultValue={editItem?.current_balance} />
+                            </FormControl>
+                        </Grid>
+                        <Grid xs={6}>
+                            <FormControl>
+                                <FormLabel>Overdraft Limit (£)</FormLabel>
+                                <Input name="overdraft_limit" type="number" step="0.01" defaultValue={editItem?.overdraft_limit} />
+                            </FormControl>
+                        </Grid>
+
+                        <Grid xs={12}>
+                            <FormControl>
+                                <FormLabel>Notes</FormLabel>
+                                <Input name="notes" defaultValue={editItem?.notes} />
+                            </FormControl>
+                        </Grid>
+                    </Grid>
+                    <DialogActions>
+                        <Button variant="plain" color="neutral" onClick={() => setEditItem(null)}>Cancel</Button>
+                        <Button type="submit" variant="solid">Save Account</Button>
+                    </DialogActions>
+                </form>
+            </DialogContent>
         </ModalDialog>
       </Modal>
-      <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(e) => { setFormData({ ...formData, emoji: e }); setEmojiPickerOpen(false); }} />
+
+      {/* ASSIGNMENT MODAL */}
+      <Modal open={Boolean(assignItem)} onClose={() => setAssignItem(null)}>
+        <ModalDialog size="sm">
+            <DialogTitle>Manage Account Holders</DialogTitle>
+            <DialogContent>
+                <Typography level="body-sm" sx={{ mb: 2 }}>Who has access to {assignItem?.bank_name}?</Typography>
+                <Stack spacing={1}>
+                    {members.filter(m => m.type !== 'pet').map(m => {
+                        const isAssigned = getAssignees(assignItem?.id).some(a => a.id === m.id);
+                        return (
+                            <Box key={m.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 'sm' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Avatar size="sm" sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji}</Avatar>
+                                    <Typography>{m.name}</Typography>
+                                </Box>
+                                {isAssigned ? (
+                                    <Button size="sm" color="danger" variant="soft" onClick={() => handleUnassignMember(m.id)}>Remove</Button>
+                                ) : (
+                                    <Button size="sm" variant="soft" onClick={() => handleAssignMember(m.id)}>Assign</Button>
+                                )}
+                            </Box>
+                        );
+                    })}
+                </Stack>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={() => setAssignItem(null)}>Done</Button>
+            </DialogActions>
+        </ModalDialog>
+      </Modal>
     </Box>
   );
 }
