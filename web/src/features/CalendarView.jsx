@@ -7,7 +7,7 @@ import {
 } from '@mui/joy';
 import { 
   Add, Delete, Event as EventIcon, Cake, Favorite, Star,
-  ChevronLeft, ChevronRight, List as ListIcon, CalendarMonth, AccessTime
+  ChevronLeft, ChevronRight, List as ListIcon, CalendarMonth
 } from '@mui/icons-material';
 import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar';
 import format from 'date-fns/format';
@@ -52,47 +52,6 @@ const RECURRENCE_OPTIONS = [
 const CUSTOM_VIEWS = {
     TIMELINE: 'timeline'
 };
-
-// --- CUSTOM AGENDA COMPONENTS (JAZZED UP) ---
-
-const CustomAgendaEvent = ({ event, isDark }) => {
-    return (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
-            <Avatar 
-                size="sm" 
-                sx={{ 
-                    bgcolor: event.color || getEmojiColor(event.resource?.emoji || '📅', isDark),
-                    fontSize: '1rem'
-                }}
-            >
-                {event.resource?.emoji || '📅'}
-            </Avatar>
-            <Box>
-                <Typography level="title-sm">{event.title.replace(/^[\uD800-\uDBFF][\uDC00-\uDFFF]\s*/, '')}</Typography>
-                {event.resource?.description && (
-                    <Typography level="body-xs" color="neutral" noWrap sx={{ maxWidth: 250 }}>
-                        {event.resource.description}
-                    </Typography>
-                )}
-            </Box>
-        </Box>
-    );
-};
-
-const CustomAgendaDate = ({ label }) => (
-    <Typography level="title-sm" sx={{ color: 'primary.plainColor', fontWeight: 'bold', py: 1 }}>
-        {label}
-    </Typography>
-);
-
-const CustomAgendaTime = ({ event }) => (
-    <Stack direction="row" spacing={0.5} alignItems="center" sx={{ color: 'neutral.500' }}>
-        <AccessTime sx={{ fontSize: '0.9rem' }} />
-        <Typography level="body-xs">
-            {event.allDay ? 'All Day' : format(event.start, 'h:mm a')}
-        </Typography>
-    </Stack>
-);
 
 function TimelineView({ events, onSelectEvent, isDark }) {
     const now = startOfDay(new Date());
@@ -147,7 +106,7 @@ function TimelineView({ events, onSelectEvent, isDark }) {
                   <Divider orientation="vertical" />
                   
                   <Box sx={{ flexGrow: 1 }}>
-                    <Typography level="title-md">{event.title.replace(/^[\uD800-\uDBFF][\uDC00-\uDFFF]\s*/, '')}</Typography>
+                    <Typography level="title-md">{event.title}</Typography>
                     <Typography level="body-xs" textColor="neutral.500">
                         {event.allDay ? 'All Day' : format(event.start, 'h:mm a')} • {format(event.start, 'EEEE, d MMMM yyyy')}
                     </Typography>
@@ -176,7 +135,7 @@ export default function CalendarView({ showNotification }) {
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('📅');
 
-  // Calendar Control State - Default to TIMELINE as requested
+  // Default to TIMELINE
   const [date, setDate] = useState(new Date());
   const [view, setView] = useState(CUSTOM_VIEWS.TIMELINE);
 
@@ -195,31 +154,21 @@ export default function CalendarView({ showNotification }) {
       });
   }, [api, householdId, showNotification]);
 
-  useEffect(() => {
-    fetchDates();
-  }, [fetchDates]);
+  useEffect(() => { fetchDates(); }, [fetchDates]);
 
-  // --- EVENT EXPANSION & RECURRING COSTS ---
   useEffect(() => {
     if (!rawDates) return;
-
     const expandedEvents = [];
-    const limitDate = addYears(new Date(), 2); // Expand up to 2 years ahead
+    const limitDate = addYears(new Date(), 2);
 
     rawDates.forEach(d => {
       if (!d.date) return;
       const startDate = parseISO(d.date);
       if (!isValid(startDate)) return;
 
-      // Logic for cost items vs regular date items
       if (d.type === 'cost' || d.type === 'holiday') {
         expandedEvents.push({
-          id: d.id,
-          title: d.title,
-          start: startDate,
-          end: startDate,
-          allDay: true,
-          resource: d,
+          id: d.id, title: d.title, start: startDate, end: startDate, allDay: true, resource: d,
           color: d.type === 'holiday' ? 'var(--joy-palette-warning-solidBg)' : 'var(--joy-palette-success-solidBg)'
         });
         return;
@@ -229,42 +178,19 @@ export default function CalendarView({ showNotification }) {
       if (!isValid(endDate)) return;
 
       const recurEnd = d.recurrenceend_date ? parseISO(d.recurrenceend_date) : limitDate;
-
-      // EMOJI FIX: The title in expanded events was doubling the emoji.
-      // We will store the title cleanly and let components handle emoji display.
-      const baseEvent = {
-        id: d.id,
-        title: d.title, // Clean title
-        allDay: Boolean(d.is_all_day),
-        resource: d, // Keep full original data (includes .emoji)
-      };
+      const baseEvent = { id: d.id, title: d.title, allDay: Boolean(d.is_all_day), resource: d };
 
       if (!d.recurrence || d.recurrence === 'none') {
-        expandedEvents.push({
-          ...baseEvent,
-          start: startDate,
-          end: endDate,
-        });
+        expandedEvents.push({ ...baseEvent, start: startDate, end: endDate });
       } else {
         let currentStart = new Date(startDate);
         let currentEnd = new Date(endDate);
         const duration = currentEnd.getTime() - currentStart.getTime();
-
         let iterations = 0;
-        const MAX_ITERATIONS = 1000;
-
-        while (isValid(currentStart) && isBefore(currentStart, recurEnd) && isBefore(currentStart, limitDate) && iterations < MAX_ITERATIONS) {
+        while (isValid(currentStart) && isBefore(currentStart, recurEnd) && isBefore(currentStart, limitDate) && iterations < 1000) {
            iterations++;
            const instanceEnd = new Date(currentStart.getTime() + (isNaN(duration) ? 0 : duration));
-
-           expandedEvents.push({
-             ...baseEvent,
-             id: `${d.id}_${currentStart.toISOString()}`,
-             start: new Date(currentStart),
-             end: instanceEnd,
-             originalId: d.id
-           });
-
+           expandedEvents.push({ ...baseEvent, id: `${d.id}_${currentStart.toISOString()}`, start: new Date(currentStart), end: instanceEnd, originalId: d.id });
            switch (d.recurrence) {
              case 'daily': currentStart = addDays(currentStart, 1); break;
              case 'weekly': currentStart = addWeeks(currentStart, 1); break;
@@ -275,22 +201,12 @@ export default function CalendarView({ showNotification }) {
         }
       }
     });
-
     setEvents(expandedEvents);
   }, [rawDates]);
 
-
-  // --- HANDLERS ---
-
   const handleSelectSlot = ({ start }) => {
-    setEditingEvent(null);
-    setSelectedEmoji('📅');
-    setIsAllDay(true);
-    setRecurrence('none');
-    setEditingEvent({ 
-        date: format(start, 'yyyy-MM-dd'),
-        end_date: format(start, 'yyyy-MM-dd') 
-    });
+    setEditingEvent(null); setSelectedEmoji('📅'); setIsAllDay(true); setRecurrence('none');
+    setEditingEvent({ date: format(start, 'yyyy-MM-dd'), end_date: format(start, 'yyyy-MM-dd') });
     setOpen(true);
   };
 
@@ -300,15 +216,8 @@ export default function CalendarView({ showNotification }) {
         if (showNotification) showNotification(`${original.title}: ${original.description || ''}`, "info");
         return;
     }
-
-    setEditingEvent({
-        ...original,
-        date: original.date ? original.date.split('T')[0] : '', 
-        end_date: original.end_date ? original.end_date.split('T')[0] : (original.date ? original.date.split('T')[0] : '')
-    });
-    setSelectedEmoji(original.emoji || '📅');
-    setIsAllDay(Boolean(original.is_all_day));
-    setRecurrence(original.recurrence || 'none');
+    setEditingEvent({ ...original, date: original.date ? original.date.split('T')[0] : '', end_date: original.end_date ? original.end_date.split('T')[0] : (original.date ? original.date.split('T')[0] : '') });
+    setSelectedEmoji(original.emoji || '📅'); setIsAllDay(Boolean(original.is_all_day)); setRecurrence(original.recurrence || 'none');
     setOpen(true);
   };
 
@@ -316,76 +225,39 @@ export default function CalendarView({ showNotification }) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
-    
-    data.emoji = selectedEmoji;
-    data.is_all_day = isAllDay ? 1 : 0;
-    data.recurrence = recurrence;
-    
+    data.emoji = selectedEmoji; data.is_all_day = isAllDay ? 1 : 0; data.recurrence = recurrence;
     const method = editingEvent?.id ? 'put' : 'post';
-    const url = editingEvent?.id 
-        ? `/households/${householdId}/dates/${editingEvent.id}` 
-        : `/households/${householdId}/dates`;
-
-    api[method](url, data)
-        .then(() => {
-            setOpen(false);
-            fetchDates();
-            showNotification(editingEvent?.id ? "Event updated" : "Event created", "success");
-        })
-        .catch(err => {
-            console.error(err);
-            showNotification("Operation failed", "error");
-        });
+    const url = editingEvent?.id ? `/households/${householdId}/dates/${editingEvent.id}` : `/households/${householdId}/dates`;
+    api[method](url, data).then(() => { setOpen(false); fetchDates(); showNotification(editingEvent?.id ? "Event updated" : "Event created", "success"); }).catch(err => { console.error(err); showNotification("Operation failed", "error"); });
   };
 
   const handleDelete = () => {
     if (!editingEvent?.id) return;
     if (window.confirm("Delete this event? If it's recurring, all future events will be removed.")) {
-      api.delete(`/households/${householdId}/dates/${editingEvent.id}`)
-        .then(() => {
-          setOpen(false);
-          fetchDates();
-          showNotification("Event deleted", "info");
-        });
+      api.delete(`/households/${householdId}/dates/${editingEvent.id}`).then(() => { setOpen(false); fetchDates(); if (showNotification) showNotification("Event deleted", "info"); });
     }
   };
 
   return (
     <Box sx={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column' }}>
       
-      <Box sx={{ 
-          mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-          flexWrap: 'wrap', gap: 2 
-      }}>
+      <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
         <Box>
             <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>Calendar</Typography>
             <Typography level="body-md" color="neutral">Track events, holidays, and recurring bills.</Typography>
         </Box>
         
         <Stack direction="row" spacing={1} alignItems="center" sx={{ flexWrap: 'wrap', justifyContent: 'flex-end', width: { xs: '100%', md: 'auto' } }}>
-            <ToggleButtonGroup 
-                value={view} 
-                onChange={(e, v) => v && setView(v)} 
-                size="sm"
-                variant="outlined"
-                sx={{ display: { xs: 'none', sm: 'flex' } }}
-            >
+            <ToggleButtonGroup value={view} onChange={(e, v) => v && setView(v)} size="sm" variant="outlined" sx={{ display: { xs: 'none', sm: 'flex' } }}>
                 <Button value={CUSTOM_VIEWS.TIMELINE} startDecorator={<ListIcon />}>Timeline</Button>
                 <Button value={Views.MONTH} startDecorator={<CalendarMonth />}>Month</Button>
                 <Button value={Views.WEEK}>Week</Button>
-                <Button value={Views.AGENDA}>Agenda</Button>
             </ToggleButtonGroup>
 
-            <Select 
-                size="sm" 
-                value={view} 
-                onChange={(e, v) => setView(v)}
-                sx={{ display: { xs: 'flex', sm: 'none' }, minWidth: 120 }}
-            >
+            <Select size="sm" value={view} onChange={(e, v) => setView(v)} sx={{ display: { xs: 'flex', sm: 'none' }, minWidth: 120 }}>
                 <Option value={CUSTOM_VIEWS.TIMELINE}>Timeline</Option>
                 <Option value={Views.MONTH}>Month</Option>
                 <Option value={Views.WEEK}>Week</Option>
-                <Option value={Views.AGENDA}>Agenda</Option>
             </Select>
 
             {view !== CUSTOM_VIEWS.TIMELINE && (
@@ -397,9 +269,7 @@ export default function CalendarView({ showNotification }) {
                         else setDate(addDays(date, -1));
                     }}><ChevronLeft /></IconButton>
                     <Typography level="title-lg" sx={{ minWidth: { xs: 120, md: 180 }, textAlign: 'center', fontSize: { xs: '0.9rem', md: '1.1rem' } }}>
-                        {view === Views.MONTH ? format(date, 'MMMM yyyy') : (
-                            view === Views.WEEK ? `Week of ${format(startOfWeek(date, { weekStartsOn: 1 }), 'MMM d')}` : format(date, 'MMM d, yyyy')
-                        )}
+                        {view === Views.MONTH ? format(date, 'MMMM yyyy') : `Week of ${format(startOfWeek(date, { weekStartsOn: 1 }), 'MMM d')}`}
                     </Typography>
                     <IconButton size="sm" variant="outlined" onClick={() => {
                         if (view === Views.MONTH) setDate(addMonths(date, 1));
@@ -416,20 +286,7 @@ export default function CalendarView({ showNotification }) {
         </Stack>
       </Box>
 
-      <Sheet variant="outlined" sx={{ 
-          flexGrow: 1, p: 2, borderRadius: 'md', overflow: 'hidden', 
-          bgcolor: 'background.surface',
-          '& .rbc-agenda-view': {
-              border: 'none',
-              '& .rbc-agenda-table': {
-                  border: 'none',
-                  '& thead': { display: 'none' },
-                  '& tbody > tr': { borderBottom: '1px solid', borderColor: 'divider' },
-                  '& .rbc-agenda-date-cell': { verticalAlign: 'top', width: '150px' },
-                  '& .rbc-agenda-time-cell': { verticalAlign: 'top', width: '120px' }
-              }
-          }
-      }}>
+      <Sheet variant="outlined" sx={{ flexGrow: 1, p: 2, borderRadius: 'md', overflow: 'hidden', bgcolor: 'background.surface' }}>
         {view === CUSTOM_VIEWS.TIMELINE ? (
             <TimelineView events={events} onSelectEvent={handleSelectEvent} isDark={isDark} />
         ) : (
@@ -439,8 +296,8 @@ export default function CalendarView({ showNotification }) {
                 startAccessor="start"
                 endAccessor="end"
                 style={{ height: '100%' }}
-                views={[Views.MONTH, Views.WEEK, Views.AGENDA]}
-                view={view === CUSTOM_VIEWS.TIMELINE ? Views.AGENDA : view} // Fallback safety
+                views={[Views.MONTH, Views.WEEK]}
+                view={view === CUSTOM_VIEWS.TIMELINE ? Views.MONTH : view}
                 onView={v => setView(v)}
                 date={date}
                 onNavigate={d => setDate(d)}
@@ -450,11 +307,6 @@ export default function CalendarView({ showNotification }) {
                 popup
                 toolbar={false}
                 components={{
-                    agenda: {
-                        event: (props) => <CustomAgendaEvent {...props} isDark={isDark} />,
-                        date: CustomAgendaDate,
-                        time: CustomAgendaTime
-                    },
                     event: ({ event }) => (
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                             <Typography level="body-xs" sx={{ color: 'inherit' }}>{event.resource?.emoji}</Typography>
@@ -484,10 +336,7 @@ export default function CalendarView({ showNotification }) {
                             <Tooltip title="Pick an emoji" variant="soft">
                                 <IconButton onClick={() => setEmojiPickerOpen(true)} variant="outlined" sx={{ width: 48, height: 48 }}><Typography level="h3">{selectedEmoji}</Typography></IconButton>
                             </Tooltip>
-                            <FormControl required sx={{ flex: 1 }}>
-                                <FormLabel>Event Title</FormLabel>
-                                <Input name="title" defaultValue={editingEvent?.title || ''} autoFocus />
-                            </FormControl>
+                            <FormControl required sx={{ flex: 1 }}><FormLabel>Event Title</FormLabel><Input name="title" defaultValue={editingEvent?.title || ''} autoFocus /></FormControl>
                         </Box>
                         <Grid container spacing={2}>
                             <Grid xs={12}><FormControl orientation="horizontal" sx={{ gap: 1 }}><Switch checked={isAllDay} onChange={e => setIsAllDay(e.target.checked)} /><FormLabel>All-day</FormLabel></FormControl></Grid>
