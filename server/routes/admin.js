@@ -6,7 +6,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { globalDb, getHouseholdDb } = require('../db');
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { listBackups, createBackup, restoreBackup, BACKUP_DIR, DATA_DIR } = require('../services/backup');
 
 // Upload middleware for full system restores
@@ -28,24 +28,20 @@ const dbRun = (db, sql, params) => new Promise((resolve, reject) => {
 // 🛡️ HOUSEHOLD BACKUP (Admin Only)
 // ==========================================
 
-router.get('/backups', authenticateToken, (req, res) => {
-    if (req.user.role !== 'admin') return res.sendStatus(403);
+router.get('/backups', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
     listBackups().then(backups => res.json(backups)).catch(err => res.status(500).json({ error: err.message }));
 });
 
-router.post('/backups/trigger', authenticateToken, (req, res) => {
-    if (req.user.role !== 'admin') return res.sendStatus(403);
+router.post('/backups/trigger', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
     createBackup().then(filename => res.json({ message: "Backup created", filename })).catch(err => res.status(500).json({ error: err.message }));
 });
 
-router.get('/backups/download/:filename', authenticateToken, (req, res) => {
-    if (req.user.role !== 'admin') return res.sendStatus(403);
+router.get('/backups/download/:filename', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
     const filePath = path.join(BACKUP_DIR, req.params.filename);
     res.download(filePath);
 });
 
-router.post('/backups/upload', authenticateToken, upload.single('backup'), async (req, res) => {
-    if (req.user.role !== 'admin') return res.sendStatus(403);
+router.post('/backups/upload', authenticateToken, requireHouseholdRole('admin'), upload.single('backup'), async (req, res) => {
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
     try {
         await restoreBackup(req.file.path);
@@ -61,8 +57,7 @@ router.post('/backups/upload', authenticateToken, upload.single('backup'), async
 // 🌍 HOUSEHOLD MANAGEMENT (Admin Only)
 // ==========================================
 
-router.get('/households', authenticateToken, (req, res) => {
-    if (req.user.role !== 'admin') return res.sendStatus(403);
+router.get('/households', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
     globalDb.all("SELECT * FROM households WHERE id = ?", [req.user.householdId], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
@@ -75,10 +70,7 @@ router.post('/households', authenticateToken, async (req, res) => {
     return res.status(403).json({ error: "Direct household creation via admin route disabled. Use registration." });
 });
 
-router.put('/households/:id', authenticateToken, (req, res) => {
-    if (req.user.role !== 'admin') return res.sendStatus(403);
-    if (parseInt(req.params.id) !== parseInt(req.user.householdId)) return res.sendStatus(403);
-
+router.put('/households/:id', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
     const { name, 
         address_street, address_city, address_zip,
         date_format, currency, decimals, avatar,
@@ -105,10 +97,7 @@ router.put('/households/:id', authenticateToken, (req, res) => {
     });
 });
 
-router.delete('/households/:id', authenticateToken, (req, res) => {
-    if (req.user.role !== 'admin') return res.sendStatus(403);
-    if (parseInt(req.params.id) !== parseInt(req.user.householdId)) return res.sendStatus(403);
-
+router.delete('/households/:id', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
     const hhId = req.params.id;
     globalDb.run("DELETE FROM households WHERE id = ?", [hhId], function(err) {
         if (err) return res.status(500).json({ error: err.message });
@@ -122,8 +111,7 @@ router.delete('/households/:id', authenticateToken, (req, res) => {
 // 👥 USER MANAGEMENT (Admin)
 // ==========================================
 
-router.get('/users', authenticateToken, (req, res) => {
-    if (req.user.role !== 'admin') return res.sendStatus(403);
+router.get('/users', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
     const sql = `
         SELECT u.id, u.email, u.first_name, u.last_name, u.avatar, uh.role 
         FROM users u
@@ -139,9 +127,7 @@ router.get('/users', authenticateToken, (req, res) => {
 /**
  * GET /admin/users/:userId
  */
-router.get('/users/:userId', authenticateToken, async (req, res) => {
-    if (req.user.role !== 'admin') return res.sendStatus(403);
-    
+router.get('/users/:userId', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
     try {
         const user = await dbGet(globalDb, `
             SELECT u.id, u.email, u.first_name, u.last_name, u.avatar, uh.role 
@@ -157,13 +143,9 @@ router.get('/users/:userId', authenticateToken, async (req, res) => {
     }
 });
 
-router.post('/create-user', authenticateToken, async (req, res) => {
-    if (req.user.role !== 'admin') return res.sendStatus(403);
-
+router.post('/create-user', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
     const { username, password, role, email, first_name, last_name, avatar, householdId } = req.body;
     const targetHhId = householdId || req.user.householdId;
-
-    if (parseInt(req.user.householdId) !== parseInt(targetHhId)) return res.sendStatus(403);
 
     const finalEmail = email || `${username}@example.com`;
 
@@ -193,13 +175,7 @@ router.post('/create-user', authenticateToken, async (req, res) => {
     }
 });
 
-router.put('/users/:userId', authenticateToken, async (req, res) => {
-    if (req.user.role !== 'admin') return res.sendStatus(403);
-
-    // Verify user is in same household
-    const link = await dbGet(globalDb, "SELECT * FROM user_households WHERE user_id = ? AND household_id = ?", [req.params.userId, req.user.householdId]);
-    if (!link) return res.sendStatus(403);
-
+router.put('/users/:userId', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
     const { username, password, email, first_name, last_name, avatar } = req.body;
     
     let fields = []; let values = [];
@@ -221,11 +197,9 @@ router.put('/users/:userId', authenticateToken, async (req, res) => {
     }
 });
 
-router.delete('/users/:id', authenticateToken, async (req, res) => {
-    if (req.user.role !== 'admin') return res.sendStatus(403);
-    
+router.delete('/users/:userId', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
     // Just remove from this household
-    globalDb.run("DELETE FROM user_households WHERE user_id = ? AND household_id = ?", [req.params.id, req.user.householdId], (err) => {
+    globalDb.run("DELETE FROM user_households WHERE user_id = ? AND household_id = ?", [req.params.userId, req.user.householdId], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "User removed from household" });
     });

@@ -2,14 +2,14 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Totem Household SaaS API",
-    "version": "3.0.0-alpha.1",
+    "version": "3.1.0",
     "description": "Multi-tenant household management API with strict data isolation and RBAC. Admins have full rights, Members have object CRUD except for household management, and Viewers are read-only.",
     "contact": {
-      "name": "SaaS Architect"
+      "name": "Lead Architect"
     }
   },
   "servers": [
-    { "url": "http://localhost:4001" }
+    { "url": "/api" }
   ],
   "components": {
     "securitySchemes": {
@@ -29,27 +29,75 @@
           "address_city": { "type": "string" },
           "address_zip": { "type": "string" },
           "currency": { "type": "string" },
-          "date_format": { "type": "string" }
+          "date_format": { "type": "string" },
+          "enabled_modules": { "type": "string", "description": "JSON string of enabled modules" }
         }
       },
-      "Meal": {
+      "Member": {
         "type": "object",
         "properties": {
           "id": { "type": "integer" },
           "name": { "type": "string" },
-          "description": { "type": "string" },
-          "emoji": { "type": "string" }
+          "type": { "type": "string", "enum": ["adult", "child", "pet"] },
+          "emoji": { "type": "string" },
+          "dob": { "type": "string", "format": "date", "description": "Encrypted in DB" }
         }
       },
-      "MealPlan": {
+      "Asset": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "category": { "type": "string" },
+          "emoji": { "type": "string" },
+          "purchase_date": { "type": "string", "format": "date" },
+          "purchase_value": { "type": "number" },
+          "replacement_cost": { "type": "number" },
+          "location": { "type": "string" },
+          "serial_number": { "type": "string", "description": "Encrypted in DB" },
+          "warranty_expiry": { "type": "string", "format": "date" },
+          "notes": { "type": "string" }
+        }
+      },
+      "Vehicle": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "make": { "type": "string" },
+          "model": { "type": "string" },
+          "registration": { "type": "string", "description": "Encrypted in DB" },
+          "type": { "type": "string" },
+          "emoji": { "type": "string" },
+          "purchase_date": { "type": "string", "format": "date" },
+          "purchase_value": { "type": "number" },
+          "monthly_maintenance_cost": { "type": "number" },
+          "mot_due": { "type": "string", "format": "date" },
+          "tax_due": { "type": "string", "format": "date" }
+        }
+      },
+      "VehicleService": {
         "type": "object",
         "properties": {
           "id": { "type": "integer" },
           "date": { "type": "string", "format": "date" },
-          "member_id": { "type": "integer" },
-          "meal_id": { "type": "integer" },
-          "type": { "type": "string", "enum": ["breakfast", "lunch", "dinner"] },
-          "notes": { "type": "string" }
+          "description": { "type": "string" },
+          "cost": { "type": "number" },
+          "mileage": { "type": "integer" }
+        }
+      },
+      "VehicleFinance": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "provider": { "type": "string" },
+          "total_amount": { "type": "number" },
+          "remaining_balance": { "type": "number" },
+          "monthly_payment": { "type": "number" },
+          "interest_rate": { "type": "number" },
+          "start_date": { "type": "string", "format": "date" },
+          "end_date": { "type": "string", "format": "date" },
+          "payment_day": { "type": "integer" },
+          "frequency": { "type": "string", "enum": ["monthly", "weekly"] }
         }
       },
       "RecurringCharge": {
@@ -64,22 +112,56 @@
           "month_of_year": { "type": "integer" },
           "day_of_week": { "type": "integer" },
           "exact_date": { "type": "string", "format": "date" },
+          "start_date": { "type": "string", "format": "date" },
           "adjust_for_working_day": { "type": "integer" },
-          "linked_entity_type": { "type": "string" },
+          "linked_entity_type": { "type": "string", "enum": ["vehicle", "asset", "member", "pet", "general"] },
           "linked_entity_id": { "type": "integer" },
           "notes": { "type": "string" },
           "is_active": { "type": "integer" }
         }
       },
-      "Vehicle": {
+      "FinanceIncome": {
         "type": "object",
         "properties": {
           "id": { "type": "integer" },
-          "make": { "type": "string" },
-          "model": { "type": "string" },
-          "registration": { "type": "string" },
-          "purchase_value": { "type": "number" },
-          "mot_due": { "type": "string", "format": "date" }
+          "member_id": { "type": "integer" },
+          "employer": { "type": "string" },
+          "role": { "type": "string" },
+          "amount": { "type": "number" },
+          "frequency": { "type": "string" },
+          "payment_day": { "type": "integer" },
+          "is_primary": { "type": "integer" }
+        }
+      },
+      "Saving": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "institution": { "type": "string" },
+          "account_name": { "type": "string" },
+          "current_balance": { "type": "number" },
+          "emoji": { "type": "string" }
+        }
+      },
+      "Pot": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "savings_id": { "type": "integer" },
+          "name": { "type": "string" },
+          "target_amount": { "type": "number" },
+          "current_amount": { "type": "number" },
+          "emoji": { "type": "string" }
+        }
+      },
+      "CurrentAccount": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "bank_name": { "type": "string" },
+          "account_name": { "type": "string" },
+          "current_balance": { "type": "number" },
+          "emoji": { "type": "string" }
         }
       }
     }
@@ -101,41 +183,96 @@
         "summary": "Login",
         "tags": ["Auth"],
         "requestBody": {
-          "content": { "application/json": { "schema": { "type": "object", "required": ["password"], "properties": { "email": { "type": "string" }, "username": { "type": "string" }, "password": { "type": "string" } } } } },
-          "responses": { "200": { "description": "OK" } }
-        }
+          "content": { "application/json": { "schema": { "type": "object", "required": ["password"], "properties": { "email": { "type": "string" }, "username": { "type": "string" }, "password": { "type": "string" } } } } }
+        },
+        "responses": { "200": { "description": "OK" } }
       }
+    },
+    "/auth/profile": {
+      "get": { "summary": "Get current user profile", "tags": ["Auth"], "responses": { "200": { "description": "OK" } } },
+      "put": { "summary": "Update current user profile", "tags": ["Auth"], "responses": { "200": { "description": "Updated" } } }
+    },
+    "/auth/my-households": {
+      "get": { "summary": "List households user belongs to", "tags": ["Auth"], "responses": { "200": { "description": "OK" } } }
     },
     "/households": {
       "post": {
         "summary": "Create a new household",
         "tags": ["Households"],
-        "description": "Any authenticated user can create a new household. They become Admin of that household.",
-        "requestBody": { "content": { "application/json": { "schema": { "type": "object", "required": ["name"], "properties": { "name": { "type": "string" } } } } } },
         "responses": { "201": { "description": "Created" } }
       }
     },
     "/households/{id}": {
-      "get": {
-        "summary": "Get household details",
-        "tags": ["Households"],
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "OK" } }
-      },
-      "put": {
-        "summary": "Update household details",
-        "tags": ["Households"],
-        "description": "Only Admin can update.",
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "Updated" } }
-      },
-      "delete": {
-        "summary": "Delete household and all its data",
-        "tags": ["Households"],
-        "description": "Only Admin can delete.",
-        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "200": { "description": "Deleted" } }
-      }
+      "get": { "summary": "Get household details", "tags": ["Households"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "put": { "summary": "Update household details (Admin Only)", "tags": ["Households"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
+      "delete": { "summary": "Delete household (Admin Only)", "tags": ["Households"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
+    },
+    "/households/{id}/users": {
+      "get": { "summary": "List household users (Member Only)", "tags": ["Households"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Add user to household (Admin Only)", "tags": ["Households"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Added" } } }
+    },
+    "/households/{id}/details": {
+      "get": { "summary": "Get house physical details", "tags": ["Households"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "put": { "summary": "Update house physical details", "tags": ["Households"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } }
+    },
+    "/households/{id}/members": {
+      "get": { "summary": "List family members", "tags": ["Members"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Create family member", "tags": ["Members"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    },
+    "/households/{id}/members/{itemId}": {
+      "get": { "summary": "Get family member", "tags": ["Members"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "put": { "summary": "Update family member", "tags": ["Members"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
+      "delete": { "summary": "Delete family member", "tags": ["Members"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
+    },
+    "/households/{id}/assets": {
+      "get": { "summary": "List general assets", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Asset" } } } } } } },
+      "post": { "summary": "Create general asset", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    },
+    "/households/{id}/assets/{itemId}": {
+      "get": { "summary": "Get asset", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "put": { "summary": "Update asset", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
+      "delete": { "summary": "Delete asset", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
+    },
+    "/households/{id}/vehicles": {
+      "get": { "summary": "List vehicles", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Vehicle" } } } } } } },
+      "post": { "summary": "Create vehicle", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    },
+    "/households/{id}/vehicles/{itemId}": {
+      "get": { "summary": "Get vehicle", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "put": { "summary": "Update vehicle", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
+      "delete": { "summary": "Delete vehicle", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
+    },
+    "/households/{id}/vehicles/{vehicleId}/services": {
+      "get": { "summary": "List vehicle services", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "vehicleId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Add service record", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "vehicleId", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    },
+    "/households/{id}/vehicles/{vehicleId}/services/{itemId}": {
+      "put": { "summary": "Update service record", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "vehicleId", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
+      "delete": { "summary": "Delete service record", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "vehicleId", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
+    },
+    "/households/{id}/vehicles/{vehicleId}/finance": {
+      "get": { "summary": "List vehicle finance records", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "vehicleId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Add finance record", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "vehicleId", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    },
+    "/households/{id}/vehicles/{vehicleId}/finance/{itemId}": {
+      "put": { "summary": "Update finance record", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "vehicleId", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
+      "delete": { "summary": "Delete finance record", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "vehicleId", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
+    },
+    "/households/{id}/vehicles/{vehicleId}/insurance": {
+      "get": { "summary": "List vehicle insurance records", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "vehicleId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Add insurance record", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "vehicleId", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    },
+    "/households/{id}/vehicles/{vehicleId}/insurance/{itemId}": {
+      "put": { "summary": "Update insurance record", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "vehicleId", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
+      "delete": { "summary": "Delete insurance record", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "vehicleId", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
+    },
+    "/households/{id}/vehicles/{vehicleId}/service_plans": {
+      "get": { "summary": "List vehicle service plans", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "vehicleId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Add service plan", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "vehicleId", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    },
+    "/households/{id}/vehicles/{vehicleId}/service_plans/{itemId}": {
+      "put": { "summary": "Update service plan", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "vehicleId", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
+      "delete": { "summary": "Delete service plan", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "vehicleId", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
     },
     "/households/{id}/finance/income": {
       "get": { "summary": "List income sources", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
@@ -146,12 +283,13 @@
       "delete": { "summary": "Delete income source", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
     },
     "/households/{id}/finance/charges": {
-      "get": { "summary": "List recurring charges", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/RecurringCharge" } } } } } },
-      "post": { "summary": "Create recurring charge", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RecurringCharge" } } } }, "responses": { "201": { "description": "Created" } } }
+      "get": { "summary": "List recurring charges", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Create recurring charge", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
     },
     "/households/{id}/finance/charges/{chargeId}": {
-      "put": { "summary": "Update recurring charge", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "chargeId", "required": true, "schema": { "type": "integer" } }], "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RecurringCharge" } } } }, "responses": { "200": { "description": "Updated" } } },
-      "delete": { "summary": "Delete recurring charge", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "chargeId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
+      "get": { "summary": "Get charge details", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "chargeId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "put": { "summary": "Update charge (use is_active=0 to archive)", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "chargeId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
+      "delete": { "summary": "Soft-delete (archive) charge", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "chargeId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Archived" } } }
     },
     "/households/{id}/finance/savings": {
       "get": { "summary": "List savings accounts", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
@@ -162,107 +300,32 @@
       "delete": { "summary": "Delete savings account", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
     },
     "/households/{id}/finance/savings/{savingsId}/pots": {
-      "get": { "summary": "List savings pots", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "savingsId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-      "post": { "summary": "Create savings pot", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "savingsId", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
-    },
-    "/households/{id}/finance/credit-cards": {
-      "get": { "summary": "List credit cards", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-      "post": { "summary": "Create credit card", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
-    },
-    "/households/{id}/finance/credit-cards/{itemId}": {
-      "put": { "summary": "Update credit card", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
-      "delete": { "summary": "Delete credit card", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
-    },
-    "/households/{id}/finance/loans": {
-      "get": { "summary": "List loans", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-      "post": { "summary": "Create loan", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
-    },
-    "/households/{id}/finance/loans/{itemId}": {
-      "put": { "summary": "Update loan", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
-      "delete": { "summary": "Delete loan", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
-    },
-    "/households/{id}/finance/mortgages": {
-      "get": { "summary": "List mortgages", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-      "post": { "summary": "Create mortgage", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
-    },
-    "/households/{id}/finance/mortgages/{itemId}": {
-      "put": { "summary": "Update mortgage", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
-      "delete": { "summary": "Delete mortgage", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
-    },
-     "/households/{id}/finance/pensions": {
-      "get": { "summary": "List pensions", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-      "post": { "summary": "Create pension", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
-    },
-    "/households/{id}/finance/pensions/{itemId}": {
-      "put": { "summary": "Update pension", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
-      "delete": { "summary": "Delete pension", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
-    },
-    "/households/{id}/finance/investments": {
-      "get": { "summary": "List investments", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-      "post": { "summary": "Create investment", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
-    },
-    "/households/{id}/finance/investments/{itemId}": {
-      "put": { "summary": "Update investment", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
-      "delete": { "summary": "Delete investment", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
+      "get": { "summary": "List pots for account", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "savingsId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Create pot", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "savingsId", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
     },
     "/households/{id}/finance/current-accounts": {
       "get": { "summary": "List current accounts", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
       "post": { "summary": "Create current account", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
     },
-    "/households/{id}/finance/current-accounts/{itemId}": {
-      "put": { "summary": "Update current account", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
-      "delete": { "summary": "Delete current account", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
-    },
     "/households/{id}/finance/assignments": {
-      "get": { "summary": "List assignments", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "query", "name": "entity_type", "schema": { "type": "string" } }, { "in": "query", "name": "entity_id", "schema": { "type": "integer" } }, { "in": "query", "name": "member_id", "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-      "post": { "summary": "Assign member to entity", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Assigned" } } }
-    },
-    "/households/{id}/finance/assignments/{entity_type}/{entity_id}/{member_id}": {
-      "delete": { "summary": "Unassign member from entity", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "entity_type", "required": true, "schema": { "type": "string" } }, { "in": "path", "name": "entity_id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "member_id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Unassigned" } } }
+      "get": { "summary": "Get member assignments", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Create assignment", "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Assigned" } } }
     },
     "/households/{id}/meals": {
-      "get": { "summary": "List meals", "tags": ["Meals"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-      "post": { "summary": "Create meal", "tags": ["Meals"], "description": "Admin/Member", "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+      "get": { "summary": "List meal recipes", "tags": ["Meals"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Create meal recipe", "tags": ["Meals"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    },
+    "/households/{id}/meals/{mealId}": {
+      "put": { "summary": "Update meal recipe", "tags": ["Meals"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "mealId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
+      "delete": { "summary": "Delete meal recipe", "tags": ["Meals"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "mealId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
     },
     "/households/{id}/meal-plans": {
-      "get": { "summary": "Get meal plans (optional range)", "tags": ["Meals"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "query", "name": "start", "schema": { "type": "string", "format": "date" } }, { "in": "query", "name": "end", "schema": { "type": "string", "format": "date" } }], "responses": { "200": { "description": "OK" } } },
-      "post": { "summary": "Assign meal to plan", "tags": ["Meals"], "description": "Admin/Member", "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Assigned" } } }
+      "get": { "summary": "Get meal plan schedule", "tags": ["Meals"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Add meal to plan", "tags": ["Meals"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
     },
-    "/households/{id}/vehicles": {
-      "get": { "summary": "List vehicles", "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-      "post": { "summary": "Create vehicle", "tags": ["Assets"], "description": "Admin/Member", "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
-    },
-    "/households/{id}/details": {
-      "get": { "summary": "Get house details", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-      "put": { "summary": "Update house details", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } }
-    },
-    "/households/{id}/water": {
-      "get": { "summary": "Get water info", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-      "put": { "summary": "Update water info", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } }
-    },
-    "/households/{id}/council": {
-      "get": { "summary": "Get council info", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-      "put": { "summary": "Update council info", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } }
-    },
-    "/households/{id}/waste": {
-      "get": { "summary": "List waste collections", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-      "post": { "summary": "Create waste collection", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
-    },
-    "/households/{id}/waste/{itemId}": {
-      "put": { "summary": "Update waste collection", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Updated" } } },
-      "delete": { "summary": "Delete waste collection", "tags": ["Details"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Deleted" } } }
-    },
-    "/admin/backups": {
-      "get": { "summary": "List backups", "tags": ["Admin"], "responses": { "200": { "description": "OK" } } }
-    },
-    "/admin/backups/trigger": {
-      "post": { "summary": "Trigger backup", "tags": ["Admin"], "responses": { "200": { "description": "Backup created" } } }
-    },
-    "/admin/users": {
-      "get": { "summary": "List users", "tags": ["Admin"], "responses": { "200": { "description": "OK" } } }
-    },
-    "/admin/create-user": {
-      "post": { "summary": "Create user (Admin)", "tags": ["Admin"], "responses": { "200": { "description": "Created" } } }
+    "/households/{id}/backups": {
+      "get": { "summary": "List household backups (Admin Only)", "tags": ["Households"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Trigger manual backup (Admin Only)", "tags": ["Households"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Created" } } }
     }
   }
-}}
+}

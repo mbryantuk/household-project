@@ -12,7 +12,7 @@ import {
   Event, Payments, Savings as SavingsIcon, Home, CreditCard, 
   Assignment, WaterDrop, ElectricBolt, AccountBalance, Add, Shield, 
   ShoppingBag, ChevronLeft, ChevronRight, Lock, LockOpen, ArrowDropDown, RestartAlt, Receipt,
-  DirectionsCar, Person, DeleteOutline, Restore
+  DirectionsCar, Person, DeleteOutline, Restore, Sort
 } from '@mui/icons-material';
 import { 
   format, addMonths, startOfMonth, setDate, differenceInDays, 
@@ -46,6 +46,7 @@ export default function BudgetView() {
   const [savingsPots, setSavingsPots] = useState([]);
 
   const [selectedKeys, setSelectedKeys] = useState([]);
+  const [sortConfig, setSortConfig] = useState({ key: 'category', direction: 'asc' });
   
   // Modals
   const [quickAddOpen, setQuickAddOpen] = useState(false);
@@ -57,6 +58,13 @@ export default function BudgetView() {
   const [actualPay, setActualPay] = useState('');
   const [currentBalance, setCurrentBalance] = useState('');
   const [isPayLocked, setIsPayLocked] = useState(true);
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 900);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const playDing = useCallback(() => {
       try {
@@ -174,20 +182,26 @@ export default function BudgetView() {
       if (daysRemaining < 0) daysRemaining = 0;
 
       const expenses = [];
+      const skipped = [];
       
       const addExpense = (item, type, label, amount, dateObj, icon, category, object = null, memberId = null) => {
           const key = `${type}_${item.id || 'fixed'}_${format(dateObj, 'ddMM')}`; 
           const progressItem = progress.find(p => p.item_key === key && p.cycle_start === cycleKey);
-          if (progressItem?.is_paid === -1) return;
-
-          expenses.push({
+          
+          const expObj = {
               key, type, label: label || 'Unnamed Expense', amount: progressItem?.actual_amount || parseFloat(amount) || 0,
               day: dateObj.getDate(), computedDate: dateObj,
-              icon, category, isPaid: progressItem?.is_paid === 1,
+              icon, category: category || 'other', isPaid: progressItem?.is_paid === 1,
               isDeletable: !['pot', 'pension', 'investment'].includes(type),
               id: item.id, object, frequency: item.frequency?.toLowerCase() || 'monthly', 
               memberId: (memberId != null && String(memberId).length > 0) ? String(memberId) : null
-          });
+          };
+
+          if (progressItem?.is_paid === -1) {
+              skipped.push(expObj);
+          } else {
+              expenses.push(expObj);
+          }
       };
 
       const getLinkedObject = (type, id) => {
@@ -262,8 +276,29 @@ export default function BudgetView() {
 
       savingsPots.forEach(pot => addExpense(pot, 'pot', pot.name, 0, getAdjustedDate(pot.deposit_day || 1, false, startDate), <SavingsIcon />, 'Saving', { name: pot.account_name, emoji: pot.account_emoji || '💰' }));
 
-      return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, expenses: expenses.sort((a, b) => (a.computedDate || 0) - (b.computedDate || 0)) };
+      return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, expenses, skipped };
   }, [incomes, liabilities, progress, viewDate, getPriorWorkingDay, getAdjustedDate, savingsPots, getNextWorkingDay, members]);
+
+  const sortedExpenses = useMemo(() => {
+    if (!cycleData) return [];
+    let sortableItems = [...cycleData.expenses];
+    if (sortConfig.key) {
+      sortableItems.sort((a, b) => {
+        let valA = a[sortConfig.key];
+        let valB = b[sortConfig.key];
+        if (sortConfig.key === 'computedDate') {
+          valA = a.computedDate?.getTime() || 0;
+          valB = b.computedDate?.getTime() || 0;
+        }
+        if (typeof valA === 'string') valA = valA.toLowerCase();
+        if (typeof valB === 'string') valB = valB.toLowerCase();
+        if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+    return sortableItems;
+  }, [cycleData, sortConfig]);
 
   const currentCycleRecord = useMemo(() => cycles.find(c => c.cycle_start === cycleData?.cycleKey), [cycles, cycleData]);
 
@@ -273,6 +308,12 @@ export default function BudgetView() {
   }, [currentCycleRecord]);
 
   const handleSelectToggle = (key) => setSelectedKeys(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
+
+  const requestSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') direction = 'desc';
+    setSortConfig({ key, direction });
+  };
 
   const saveCycleData = async (pay, balance) => {
       if (!cycleData) return;
@@ -310,7 +351,7 @@ export default function BudgetView() {
   const togglePaid = async (itemKey, amount = 0) => {
       setSavingProgress(true);
       try {
-          const isCurrentlyPaid = progress.some(p => p.item_key === itemKey && p.cycle_start === cycleData.cycleKey);
+          const isCurrentlyPaid = progress.some(p => p.item_key === itemKey && p.cycle_start === cycleData.cycleKey && p.is_paid === 1);
           if (isCurrentlyPaid) await api.delete(`/households/${householdId}/finance/budget-progress/${cycleData.cycleKey}/${itemKey}`);
           else { playDing(); await api.post(`/households/${householdId}/finance/budget-progress`, { cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: 1, actual_amount: amount }); }
           const progRes = await api.get(`/households/${householdId}/finance/budget-progress`);
@@ -321,7 +362,7 @@ export default function BudgetView() {
   const handleDisableItem = (itemKey) => {
       confirmAction(
           "Disable for this month?",
-          "This will remove the item from this month's budget. It will reappear next month. You can reset the month to bring it back.",
+          "This will remove the item from this month's budget. It will reappear next month. You can restore it from the Skipped Items section at the bottom.",
           async () => {
               try {
                   await api.post(`/households/${householdId}/finance/budget-progress`, { 
@@ -335,6 +376,14 @@ export default function BudgetView() {
               } catch { showNotification("Failed to disable item.", "danger"); }
           }
       );
+  };
+
+  const handleRestoreItem = async (itemKey) => {
+      try {
+          await api.delete(`/households/${householdId}/finance/budget-progress/${cycleData.cycleKey}/${itemKey}`);
+          showNotification("Item restored to budget.", "success");
+          fetchData();
+      } catch { showNotification("Failed to restore item.", "danger"); }
   };
 
   const handleArchiveCharge = (chargeId) => {
@@ -435,16 +484,16 @@ export default function BudgetView() {
   }, [savingsPots]);
 
   const groupedRecurring = useMemo(() => {
-      if (!cycleData) return {};
+      if (!sortedExpenses) return {};
       const groups = {};
-      cycleData.expenses.filter(exp => exp.type !== 'pot').forEach(exp => {
+      sortedExpenses.filter(exp => exp.type !== 'pot').forEach(exp => {
           const freq = exp.frequency || 'monthly';
           const normalized = freq.toLowerCase();
           if (!groups[normalized]) groups[normalized] = [];
           groups[normalized].push(exp);
       });
       return groups;
-  }, [cycleData]);
+  }, [sortedExpenses]);
 
   const getVisibleItems = useCallback((items) => {
       return items.filter(exp => !hidePaid || !exp.isPaid);
@@ -452,6 +501,48 @@ export default function BudgetView() {
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
   if (!cycleData) return <Box sx={{ p: 4, textAlign: 'center' }}><Typography level="h4">No Primary Income Set</Typography><Button sx={{ mt: 2 }} onClick={fetchData}>Refresh</Button></Box>;
+
+  const renderMobileCards = (items) => {
+    return (
+      <Stack spacing={2}>
+        {items.map(exp => (
+          <Card key={exp.key} variant="outlined" sx={{ p: 2, bgcolor: selectedKeys.includes(exp.key) ? 'primary.softBg' : 'background.surface', opacity: exp.isPaid ? 0.7 : 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Avatar size="md" sx={{ bgcolor: getEmojiColor(exp.label || '?', isDark) }}>{exp.icon}</Avatar>
+                <Box>
+                  <Typography level="title-sm">{exp.label}</Typography>
+                  <Typography level="body-xs" color="neutral" sx={{ textTransform: 'capitalize' }}>{exp.category}</Typography>
+                </Box>
+              </Box>
+              <Checkbox size="lg" checked={exp.isPaid} onChange={() => togglePaid(exp.key, exp.amount)} uncheckedIcon={<RadioButtonUnchecked />} checkedIcon={<CheckCircle color="success" />} />
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
+               <Box>
+                 <Typography level="body-xs" fontWeight="bold">Due: {format(exp.computedDate, 'do MMM')}</Typography>
+                 {exp.object && <Typography level="body-xs">{exp.object.emoji} {exp.object.name}</Typography>}
+               </Box>
+               <Input 
+                  size="sm" type="number" variant="soft" 
+                  sx={{ width: 100, fontWeight: 'bold' }} 
+                  defaultValue={Number(exp.amount).toFixed(2)} 
+                  onBlur={(e) => updateActualAmount(exp.key, e.target.value)} 
+                  slotProps={{ input: { step: '0.01', style: { textAlign: 'right' } } }} 
+              />
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 1.5 }}>
+               {exp.type === 'charge' && (
+                  <IconButton size="sm" variant="plain" color="neutral" onClick={() => handleArchiveCharge(exp.id)}><DeleteOutline /></IconButton>
+               )}
+               {exp.isDeletable && (
+                  <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDisableItem(exp.key)}><RestartAlt sx={{ transform: 'rotate(-45deg)' }} /></IconButton>
+               )}
+            </Box>
+          </Card>
+        ))}
+      </Stack>
+    );
+  };
 
   const renderTableRows = (items, cols = 7, hidePill = false) => {
     return items.map((exp) => (
@@ -537,6 +628,9 @@ export default function BudgetView() {
   const renderSection = (items, cols = 7, hidePill = false) => {
     const visible = getVisibleItems(items);
     if (visible.length === 0) return null;
+
+    if (isMobile) return renderMobileCards(visible);
+
     return (
         <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto', mb: 2 }}>
             <Table hoverRow stickyHeader size="sm" sx={{ '--TableCell-paddingX': '8px', '--TableCell-paddingY': '8px', '& .hide-mobile': { display: { xs: 'none', md: 'table-cell' } } }}>
@@ -547,9 +641,9 @@ export default function BudgetView() {
                             if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...keys])));
                             else setSelectedKeys(prev => prev.filter(k => !keys.includes(k)));
                         }} /></th>
-                        <th>Item</th>
-                        <th style={{ width: 120 }} className="hide-mobile">Category</th> 
-                        <th style={{ width: 80, textAlign: 'center' }}>Due</th>
+                        <th onClick={() => requestSort('label')} style={{ cursor: 'pointer' }}>Item <Sort sx={{ fontSize: '0.8rem', opacity: sortConfig.key === 'label' ? 1 : 0.3 }} /></th>
+                        <th onClick={() => requestSort('category')} style={{ width: 120, cursor: 'pointer' }} className="hide-mobile">Category <Sort sx={{ fontSize: '0.8rem', opacity: sortConfig.key === 'category' ? 1 : 0.3 }} /></th> 
+                        <th onClick={() => requestSort('computedDate')} style={{ width: 80, textAlign: 'center', cursor: 'pointer' }}>Due <Sort sx={{ fontSize: '0.8rem', opacity: sortConfig.key === 'computedDate' ? 1 : 0.3 }} /></th>
                         <th style={{ width: 100, textAlign: 'right' }}>Amount</th>
                         <th style={{ width: 40, textAlign: 'center' }}>Paid</th>
                         <th style={{ width: 80, textAlign: 'center' }}>Action</th>
@@ -594,9 +688,10 @@ export default function BudgetView() {
                     {Object.keys(groupedRecurring).map(freq => {
                         const items = groupedRecurring[freq] || [];
                         if (getVisibleItems(items).length === 0) return null;
+                        const label = freq === 'one_off' ? 'One-off Expenses' : `${freq.charAt(0).toUpperCase() + freq.slice(1)} Expenses`;
                         return (
                             <Box key={freq}>
-                                <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1, textTransform: 'capitalize' }}><Payments fontSize="small" /> {freq} Expenses</Typography>
+                                <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><Payments fontSize="small" /> {label}</Typography>
                                 {renderSection(items, 6, false)}
                             </Box>
                         );
@@ -604,7 +699,7 @@ export default function BudgetView() {
 
                     {(() => {
                         const visibleAccountGroups = Object.entries(groupedPots).map(([accId, group]) => {
-                            const potItems = group.pots.map(p => cycleData.expenses.find(e => e.key.startsWith(`pot_${p.id}_`))).filter(Boolean);
+                            const potItems = group.pots.map(p => sortedExpenses.find(e => e.key.startsWith(`pot_${p.id}_`))).filter(Boolean);
                             const visiblePots = getVisibleItems(potItems);
                             if (visiblePots.length === 0) return null;
                             return { accId, group, visiblePots, potItems };
@@ -629,6 +724,85 @@ export default function BudgetView() {
                             </Box>
                         );
                     })()}
+
+                    {cycleData.skipped?.length > 0 && (
+                        <Box sx={{ mt: 4, pt: 4, borderTop: '1px solid', borderColor: 'divider' }}>
+                            <Typography level="title-md" color="neutral" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <RestartAlt fontSize="small" /> Skipped for this Month
+                            </Typography>
+                            <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto', bgcolor: 'background.level1' }}>
+                                <Table size="sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th style={{ width: 120 }} className="hide-mobile">Category</th>
+                                            <th style={{ width: 100, textAlign: 'right' }}>Amount</th>
+                                            <th style={{ width: 100, textAlign: 'center' }}>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {cycleData.skipped.map(exp => (
+                                            <tr key={exp.key} style={{ opacity: 0.6 }}>
+                                                <td>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        <Avatar size="sm" sx={{ width: 20, height: 20, fontSize: '0.65rem' }}>{exp.icon}</Avatar>
+                                                        <Typography level="body-xs" sx={{ textDecoration: 'line-through' }}>{exp.label}</Typography>
+                                                    </Box>
+                                                </td>
+                                                <td className="hide-mobile"><Chip size="sm" variant="soft" sx={{ fontSize: '0.6rem' }}>{exp.category}</Chip></td>
+                                                <td style={{ textAlign: 'right' }}><Typography level="body-xs">{formatCurrency(exp.amount)}</Typography></td>
+                                                <td style={{ textAlign: 'center' }}>
+                                                    <Button size="sm" variant="plain" color="primary" startDecorator={<Restore />} onClick={() => handleRestoreItem(exp.key)}>Restore</Button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                            </Sheet>
+                        </Box>
+                    )}
+
+                    {liabilities.charges.some(c => c.is_active === 0) && (
+                        <Box sx={{ mt: 2, pt: 2 }}>
+                            <Typography level="title-md" color="neutral" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <DeleteOutline fontSize="small" /> Deleted & Archived Items
+                            </Typography>
+                            <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto', bgcolor: 'background.level1' }}>
+                                <Table size="sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th style={{ width: 120 }} className="hide-mobile">Category</th>
+                                            <th style={{ width: 100, textAlign: 'right' }}>Amount</th>
+                                            <th style={{ width: 100, textAlign: 'center' }}>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {liabilities.charges.filter(c => c.is_active === 0).map(charge => (
+                                            <tr key={charge.id} style={{ opacity: 0.6 }}>
+                                                <td>
+                                                    <Typography level="body-xs" sx={{ textDecoration: 'line-through' }}>{charge.name}</Typography>
+                                                </td>
+                                                <td className="hide-mobile">
+                                                    <Chip size="sm" variant="soft" color="neutral" sx={{ fontSize: '0.6rem' }}>{charge.segment}</Chip>
+                                                </td>
+                                                <td style={{ textAlign: 'right' }}><Typography level="body-xs">{formatCurrency(charge.amount)}</Typography></td>
+                                                <td style={{ textAlign: 'center' }}>
+                                                    <Button 
+                                                        size="sm" variant="plain" color="primary" 
+                                                        startDecorator={<Restore />}
+                                                        onClick={() => handleRestoreCharge(charge.id)}
+                                                    >
+                                                        Restore
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                            </Sheet>
+                        </Box>
+                    )}
                 </Stack>
             </Grid>
         </Grid>
@@ -736,48 +910,6 @@ export default function BudgetView() {
                 </DialogContent>
             </ModalDialog>
         </Modal>
-
-        {liabilities.charges.some(c => c.is_active === 0) && (
-            <Box sx={{ mt: 8, pt: 4, borderTop: '1px solid', borderColor: 'divider' }}>
-                <Typography level="title-md" color="neutral" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <DeleteOutline fontSize="small" /> Deleted & Archived Items
-                </Typography>
-                <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto', bgcolor: 'background.level1' }}>
-                    <Table size="sm">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th style={{ width: 120 }}>Category</th>
-                                <th style={{ width: 100, textAlign: 'right' }}>Amount</th>
-                                <th style={{ width: 100, textAlign: 'center' }}>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {liabilities.charges.filter(c => c.is_active === 0).map(charge => (
-                                <tr key={charge.id} style={{ opacity: 0.6 }}>
-                                    <td>
-                                        <Typography sx={{ textDecoration: 'line-through' }}>{charge.name}</Typography>
-                                    </td>
-                                    <td>
-                                        <Chip size="sm" variant="soft" color="neutral">{charge.segment}</Chip>
-                                    </td>
-                                    <td style={{ textAlign: 'right' }}>{formatCurrency(charge.amount)}</td>
-                                    <td style={{ textAlign: 'center' }}>
-                                        <Button 
-                                            size="sm" variant="plain" color="primary" 
-                                            startDecorator={<Restore />}
-                                            onClick={() => handleRestoreCharge(charge.id)}
-                                        >
-                                            Restore
-                                        </Button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
-                </Sheet>
-            </Box>
-        )}
     </Box>
   );
 }
