@@ -1,11 +1,12 @@
 {
   "name": "totem-monorepo",
-  "version": "3.0.26",
+  "version": "3.0.27",
   "private": true,
   "scripts": {
     "test": "cd server && npm test",
     "test:full": "cd server && npm run test:full",
     "test:perf": "cd server && npm run test:perf",
+    "test:ui": "cd web && npm run test:smoke",
     "bump": "node scripts/utils/bump_version.js"
   },
   "dependencies": {

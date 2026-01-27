@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Feature: Improved Quarterly/Yearly charge UI with Start Month selector; Enhanced Budget UI robustness.",
-  "date": "Tue 27 Jan 10:25:06 GMT 2026"
+  "commitMessage": "Feature: Integrated Playwright for automated Frontend Smoke Tests; Added test:ui script to verify core route loading.",
+  "date": "Tue 27 Jan 10:41:21 GMT 2026"
 }
