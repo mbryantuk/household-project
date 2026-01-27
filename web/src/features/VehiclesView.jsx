@@ -6,7 +6,7 @@ import {
   Tooltip, IconButton, Grid, CircularProgress
 } from '@mui/joy';
 import { 
-  Delete, Add, Info, Payments
+  Delete, Add, Info, Payments, PhotoCamera
 } from '@mui/icons-material';
 import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
 import EmojiPicker from '../components/EmojiPicker';
@@ -28,7 +28,7 @@ export default function VehiclesView() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
-  const [selectedEmoji, setSelectedEmoji] = useState(null);
+  const [selectedEmoji, setSelectedEmoji] = useState('🚗');
   
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -131,7 +131,7 @@ export default function VehiclesView() {
             }}>
               <Box>
                 <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                  Fleet Management
+                  Vehicle Management
                 </Typography>
                 <Typography level="body-md" color="neutral">
                   Track maintenance, fuel, and vehicle history.
@@ -214,7 +214,7 @@ export default function VehiclesView() {
                     }}
                 >
                     <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Info sx={{ mr: 1 }}/> Identity</Tab>
-                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Fleet Costs</Tab>
+                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Vehicle Costs</Tab>
                 </TabList>
             </Tabs>
         )}
@@ -222,24 +222,17 @@ export default function VehiclesView() {
         <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
           {(activeTab === 0 || vehicleId === 'new') && (
             <Box>
-                <Box sx={{ mb: 4 }}>
-                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                        Vehicle Identity
-                    </Typography>
-                    <Typography level="body-md" color="neutral">Primary identification and valuation data.</Typography>
-                </Box>
                 <form onSubmit={handleSubmitVehicle}>
                 <Grid container spacing={3}>
                     <Grid xs={12} md={2}>
-                        <Tooltip title="Pick an emoji" variant="soft">
-                            <IconButton 
-                                onClick={() => setEmojiPickerOpen(true)} 
-                                variant="outlined"
-                                sx={{ width: 80, height: 80 }}
-                            >
-                                <Typography level="h1">{selectedEmoji}</Typography>
-                            </IconButton>
-                        </Tooltip>
+                        <IconButton 
+                            onClick={() => setEmojiPickerOpen(true)} 
+                            variant="outlined"
+                            sx={{ width: 80, height: 80, borderRadius: 'xl', position: 'relative' }}
+                        >
+                            <Typography level="h1">{selectedEmoji}</Typography>
+                            <PhotoCamera sx={{ position: 'absolute', bottom: -5, right: -5, fontSize: '1.2rem', color: 'primary.solidBg' }} />
+                        </IconButton>
                     </Grid>
                     <Grid xs={12} md={5}>
                         <AppSelect 
@@ -325,15 +318,15 @@ export default function VehiclesView() {
                 entityType="vehicle" 
                 entityId={vehicleId} 
                 segments={[
-                    { id: 'vehicle_tax', label: 'Vehicle Tax' },
-                    { id: 'vehicle_mot', label: 'Vehicle MOT' },
-                    { id: 'vehicle_service', label: 'Vehicle Service' },
-                    { id: 'vehicle_fuel', label: 'Vehicle Fuel' },
-                    { id: 'vehicle_breakdown', label: 'Breakdown Cover' },
+                    { id: 'vehicle_tax', label: 'Tax' },
+                    { id: 'vehicle_mot', label: 'MOT' },
+                    { id: 'vehicle_service', label: 'Service' },
+                    { id: 'vehicle_fuel', label: 'Fuel' },
+                    { id: 'vehicle_breakdown', label: 'Breakdown' },
                     { id: 'insurance', label: 'Insurance' },
                     { id: 'other', label: 'Other' }
                 ]}
-                title="Fleet Running Costs"
+                title="Vehicle Costs"
                 showNotification={showNotification}
                 confirmAction={confirmAction}
               />

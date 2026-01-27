@@ -1,325 +1,171 @@
-import { useState, useMemo, useEffect } from 'react';
-import { useOutletContext, useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { 
-  Box, Typography, Sheet, Button, Input, FormControl, FormLabel, 
-  IconButton, Tooltip, 
-  Grid, Tabs, TabList, Tab, Divider
+  Box, Typography, Sheet, Tabs, TabList, Tab, Input, Button, 
+  FormControl, FormLabel, Divider,
+  Tooltip, IconButton, Grid, Avatar, CircularProgress, Card
 } from '@mui/joy';
 import { 
-  Delete, Payments, ContactPage
+  Delete, Add, Info, Payments, PhotoCamera
 } from '@mui/icons-material';
-import EmojiPicker from '../components/EmojiPicker';
-import AppSelect from '../components/ui/AppSelect'; 
 import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
-import EntityGrid from '../components/ui/EntityGrid';
+import EmojiPicker from '../components/EmojiPicker';
+import AppSelect from '../components/ui/AppSelect';
+import { getEmojiColor } from '../theme';
+
+const MEMBER_TYPES = [
+    { value: 'adult', label: 'Adult' },
+    { value: 'child', label: 'Child' }
+];
 
 export default function PeopleView() {
-  const { api, id: householdId, household, members, fetchHhMembers, user: currentUser, showNotification, confirmAction } = useOutletContext();
+  const { api, id: householdId, household, user: currentUser, showNotification, confirmAction, fetchHhMembers: refreshSidebar } = useOutletContext();
   const { personId } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
   const [activeTab, setActiveTab] = useState(0);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState('👤');
   
+  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const isAdmin = currentUser?.role === 'admin';
 
-  const selectedPerson = useMemo(() => 
-    (members || []).find(m => m.id === parseInt(personId)), 
+  const fetchMembersList = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await api.get(`/households/${householdId}/members`);
+      setMembers((res.data || []).filter(m => m.type !== 'pet'));
+    } catch (err) {
+      console.error("Failed to fetch members", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [api, householdId]);
+
+  const selectedMember = useMemo(() => 
+    members.find(m => m.id === parseInt(personId)), 
   [members, personId]);
 
-  const queryParams = new URLSearchParams(location.search);
-  const initialType = queryParams.get('type') || 'adult';
-
-  const [formData, setFormData] = useState({
-    first_name: '', middle_name: '', last_name: '',
-    type: initialType, alias: '', dob: '', emoji: '👨', notes: '',
-  });
-
   useEffect(() => {
-    if (selectedPerson) {
-      const data = {
-        first_name: selectedPerson.first_name || selectedPerson.name?.split(' ')[0] || '',
-        middle_name: selectedPerson.middle_name || '',
-        last_name: selectedPerson.last_name || selectedPerson.name?.split(' ').slice(1).join(' ') || '',
-        type: selectedPerson.type || 'adult',
-        alias: selectedPerson.alias || '',
-        dob: selectedPerson.dob || '',
-        emoji: selectedPerson.emoji || '👨',
-        notes: selectedPerson.notes || '',
-      };
-      Promise.resolve().then(() => setFormData(data));
+    if (selectedMember) {
+        setSelectedEmoji(selectedMember.emoji || '👤');
     } else if (personId === 'new') {
-      const currentType = new URLSearchParams(location.search).get('type') || 'adult';
-      const data = {
-        first_name: '', middle_name: '', last_name: '',
-        type: currentType, alias: '', dob: '', emoji: currentType === 'child' ? '👶' : '👨', notes: '',
-      };
-      Promise.resolve().then(() => setFormData(data));
+        setSelectedEmoji('👤');
     }
-  }, [selectedPerson, personId, location.search]);
+  }, [selectedMember, personId]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  useEffect(() => { fetchMembersList(); }, [fetchMembersList]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+    data.emoji = selectedEmoji;
+
     try {
       if (personId === 'new') {
-        const res = await api.post(`/households/${householdId}/members`, formData);
-        showNotification("Person added.", "success");
-        fetchHhMembers(householdId);
+        const res = await api.post(`/households/${householdId}/members`, data);
+        showNotification("Member added.", "success");
+        refreshSidebar(householdId);
         navigate(`../people/${res.data.id}`);
       } else {
-        await api.put(`/households/${householdId}/members/${personId}`, formData);
-        showNotification("Details updated.", "success");
-        fetchHhMembers(householdId);
+        await api.put(`/households/${householdId}/members/${personId}`, data);
+        showNotification("Member updated.", "success");
+        fetchMembersList();
+        refreshSidebar(householdId);
       }
-     } catch {
-      showNotification("Failed to save.", "danger");
+    } catch {
+      showNotification("Error saving member.", "danger");
     }
   };
 
-  const handleDelete = () => {
-    confirmAction(
-        "Remove Person",
-        `Are you sure you want to remove ${selectedPerson.name}? This will also delete their recurring costs.`,
-        async () => {
-            try {
-                await api.delete(`/households/${householdId}/members/${personId}`);
-                showNotification("Person removed.", "neutral");
-                fetchHhMembers(householdId);
-                navigate('..');
-             } catch {
-                showNotification("Failed to delete.", "danger");
-            }
-        }
-    );
-  };
+  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
-  const groupedMembers = useMemo(() => {
-    const groups = {
-        adults: [],
-        children: [],
-        pets: []
-    };
-    (members || []).forEach(m => {
-        if (m.type === 'pet') groups.pets.push(m);
-        else if (m.type === 'child') groups.children.push(m);
-        else groups.adults.push(m);
-    });
-    return groups;
-  }, [members]);
-
-
-  if (personId !== 'new' && !selectedPerson) {
-    const sections = [
-        {
-            title: 'Adults',
-            items: groupedMembers.adults,
-            onAdd: isAdmin ? () => navigate('new?type=adult') : null,
-            addLabel: 'Add Adult'
-        },
-        {
-            title: 'Children',
-            items: groupedMembers.children,
-            onAdd: isAdmin ? () => navigate('new?type=child') : null,
-            addLabel: 'Add Child'
-        },
-        {
-            title: 'Pets',
-            items: groupedMembers.pets,
-            onAdd: isAdmin ? () => navigate('new?type=pet') : null, 
-            addLabel: 'Add Pet'
-        }
-    ];
-
+  if (personId !== 'new' && !selectedMember) {
     return (
         <Box>
-            <Box sx={{ mb: 4 }}>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                  People & Residents
-                </Typography>
-                <Typography level="body-md" color="neutral">
-                  Select a resident to manage their details.
-                </Typography>
+            <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography level="h2">People</Typography>
+                <Typography level="body-md" color="neutral">Manage household members.</Typography>
+              </Box>
+              {isAdmin && <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>Add Person</Button>}
             </Box>
-            
-            <EntityGrid 
-                sections={sections}
-                onSelect={(person) => navigate(String(person.id))}
-                renderItem={(person) => (
-                    <>
-                        <Box sx={{ fontSize: '3rem' }}>{person.emoji || (person.type === 'pet' ? '🐾' : '👨')}</Box>
-                        <Typography level="title-md" sx={{ fontWeight: 'lg', textAlign: 'center' }}>
-                            {person.alias || (person.name || '').split(' ')[0]}
-                        </Typography>
-                        <Typography level="body-xs" color="neutral" sx={{ textTransform: 'uppercase' }}>
-                            {person.role || person.type}
-                        </Typography>
-                    </>
-                )}
-            />
+            <Grid container spacing={2}>
+                {members.map(m => (
+                    <Grid xs={12} sm={6} md={4} key={m.id}>
+                        <Card variant="outlined" sx={{ flexDirection: 'row', gap: 2, alignItems: 'center', cursor: 'pointer' }} onClick={() => navigate(String(m.id))}>
+                            <Avatar size="lg" sx={{ bgcolor: getEmojiColor(m.emoji) }}>{m.emoji}</Avatar>
+                            <Box>
+                                <Typography level="title-md">{m.name}</Typography>
+                                <Typography level="body-xs" sx={{ textTransform: 'capitalize' }}>{m.type}</Typography>
+                            </Box>
+                        </Card>
+                    </Grid>
+                ))}
+            </Grid>
         </Box>
     );
   }
 
   return (
     <Box key={personId}>
-      <Box sx={{ 
-          mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-          flexWrap: 'wrap', gap: 2 
-      }}>
-        <Box>
-            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                {personId === 'new' ? `Add New ${formData.type === 'child' ? 'Child' : 'Person'}` : selectedPerson.name}
-            </Typography>
-            <Typography level="body-md" color="neutral">
-                {personId === 'new' ? 'Enter personal details below.' : 'View and manage personal information.'}
-            </Typography>
-        </Box>
-        <Box>
-            {personId !== 'new' && isAdmin && (
-                <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={handleDelete}>Remove Person</Button>
-            )}
-        </Box>
+      <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Typography level="h2">{personId === 'new' ? 'Add New Person' : selectedMember.name}</Typography>
+        {personId !== 'new' && isAdmin && (
+            <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={() => confirmAction("Remove Person", "Are you sure?", () => api.delete(`/households/${householdId}/members/${personId}`).then(() => navigate('..')))}>Remove</Button>
+        )}
       </Box>
 
-      <Sheet variant="outlined" sx={{ borderRadius: 'md', minHeight: '600px', overflow: 'hidden' }}>
+      <Sheet variant="outlined" sx={{ borderRadius: 'md', minHeight: '500px', overflow: 'hidden' }}>
         {personId !== 'new' && (
             <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} sx={{ bgcolor: 'transparent' }}>
-                <TabList 
-                    variant="plain" 
-                    sx={{ 
-                        p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: 2, mt: 2, 
-                        overflow: 'auto',
-                        '&::-webkit-scrollbar': { display: 'none' },
-                        whiteSpace: 'nowrap'
-                    }}
-                >
-                    <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><ContactPage sx={{ mr: 1 }}/> Identity</Tab>
-                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Recurring Costs</Tab>
+                <TabList variant="plain" sx={{ p: 1, gap: 1, bgcolor: 'background.level1', mx: 2, mt: 2, borderRadius: 'md' }}>
+                    <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'}><Info /> Details</Tab>
+                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}><Payments /> Personal Costs</Tab>
                 </TabList>
             </Tabs>
         )}
 
-        <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
+        <Box sx={{ p: 4 }}>
           {(activeTab === 0 || personId === 'new') && (
-            <Box>
-                <Box sx={{ mb: 4 }}>
-                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                        Personal Identity
-                    </Typography>
-                    <Typography level="body-md" color="neutral">Core personal identification and background.</Typography>
-                </Box>
-                <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit}>
                 <Grid container spacing={3}>
                     <Grid xs={12} md={2}>
-                        <Tooltip title="Pick an emoji" variant="soft">
-                            <IconButton 
-                                onClick={() => setEmojiPickerOpen(true)} 
-                                variant="outlined"
-                                sx={{ width: 80, height: 80 }}
-                            >
-                                <Typography level="h1">{formData.emoji}</Typography>
-                            </IconButton>
-                        </Tooltip>
+                        <IconButton onClick={() => setEmojiPickerOpen(true)} variant="outlined" sx={{ width: 80, height: 80, borderRadius: 'xl' }}>
+                            <Typography level="h1">{selectedEmoji}</Typography>
+                            <PhotoCamera sx={{ position: 'absolute', bottom: -5, right: -5, fontSize: '1.2rem', color: 'primary.solidBg' }} />
+                        </IconButton>
                     </Grid>
-                    <Grid xs={12} md={10}>
-                      <Grid container spacing={2}>
-                        <Grid xs={12} md={4}>
-                            <FormControl required>
-                                <FormLabel>First Name</FormLabel>
-                                <Input name="first_name" value={formData.first_name} onChange={handleChange} />
-                            </FormControl>
-                        </Grid>
-                        <Grid xs={12} md={4}>
-                            <FormControl>
-                                <FormLabel>Middle Name</FormLabel>
-                                <Input name="middle_name" value={formData.middle_name} onChange={handleChange} />
-                            </FormControl>
-                        </Grid>
-                        <Grid xs={12} md={4}>
-                            <FormControl>
-                                <FormLabel>Last Name</FormLabel>
-                                <Input name="last_name" value={formData.last_name} onChange={handleChange} />
-                            </FormControl>
-                        </Grid>
-                      </Grid>
+                    <Grid xs={12} md={5}>
+                        <FormControl required><FormLabel>Full Name</FormLabel><Input name="name" defaultValue={selectedMember?.name} /></FormControl>
                     </Grid>
-                    
-                    <Grid xs={12} md={6}>
-                    <AppSelect 
-                        label="Role / Type"
-                        name="type"
-                        value={formData.type}
-                        onChange={(v) => setFormData(prev => ({ ...prev, type: v }))}
-                        options={[
-                            { value: 'adult', label: 'Adult' },
-                            { value: 'child', label: 'Child' }
-                        ]}
-                    />
+                    <Grid xs={12} md={5}>
+                        <AppSelect label="Role" name="type" options={MEMBER_TYPES} defaultValue={selectedMember?.type || 'adult'} required />
                     </Grid>
-                    <Grid xs={12} md={6}>
-                        <FormControl>
-                            <FormLabel>Alias</FormLabel>
-                            <Input name="alias" value={formData.alias} onChange={handleChange} />
-                        </FormControl>
-                    </Grid>
-                    <Grid xs={12} md={6}>
-                        <FormControl>
-                            <FormLabel>Date of Birth</FormLabel>
-                            <Input name="dob" type="date" value={formData.dob} onChange={handleChange} />
-                        </FormControl>
-                    </Grid>
-                    <Grid xs={12}>
-                        <FormControl>
-                            <FormLabel>Personal Notes</FormLabel>
-                            <Input name="notes" value={formData.notes} onChange={handleChange} />
-                        </FormControl>
-                    </Grid>
-                    <Grid xs={12}>
-                    <Button type="submit" variant="solid" size="lg">
-                        {personId === 'new' ? 'Create Person' : 'Update Identity'}
-                    </Button>
-                    </Grid>
+                    <Grid xs={12}><Button type="submit" size="lg">{personId === 'new' ? 'Create' : 'Update'}</Button></Grid>
                 </Grid>
-                </form>
-            </Box>
+            </form>
           )}
 
           {activeTab === 1 && personId !== 'new' && (
-            <Box>
-              <RecurringChargesWidget 
-                api={api} 
-                householdId={householdId} 
-                household={household}
-                entityType="member" 
-                entityId={personId} 
+            <RecurringChargesWidget 
+                api={api} householdId={householdId} household={household}
+                entityType="member" entityId={personId} 
                 segments={[
                     { id: 'insurance', label: 'Insurance' },
                     { id: 'subscription', label: 'Subscriptions' },
                     { id: 'other', label: 'Other' }
                 ]}
-                title="Personal Recurring Costs"
+                title="Personal Costs"
                 showNotification={showNotification}
                 confirmAction={confirmAction}
-              />
-            </Box>
+            />
           )}
         </Box>
       </Sheet>
-
-      <EmojiPicker 
-        open={emojiPickerOpen} 
-        onClose={() => setEmojiPickerOpen(false)} 
-        onEmojiSelect={(emoji) => {
-            setFormData(prev => ({ ...prev, emoji }));
-            setEmojiPickerOpen(false);
-        }}
-        title="Select Person Emoji"
-      />
+      <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(e) => { setSelectedEmoji(e); setEmojiPickerOpen(false); }} />
     </Box>
   );
 }

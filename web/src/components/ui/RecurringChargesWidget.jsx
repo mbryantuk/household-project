@@ -2,72 +2,56 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Box, Sheet, Typography, Button, Table, IconButton, 
   Modal, ModalDialog, ModalClose, FormControl, FormLabel, Input, 
-  Select, Option, Checkbox, Stack, Chip, Divider, DialogTitle, DialogContent, DialogActions
+  Select, Option, Checkbox, Stack, Chip, Divider, DialogTitle, DialogContent, DialogActions,
+  Tabs, TabList, Tab, Avatar, Tooltip
 } from '@mui/joy';
-import { Add, Edit, Delete, Receipt, Shield, ShoppingBag, ElectricBolt, DirectionsCar, Payments } from '@mui/icons-material';
+import { 
+  Add, Edit, Delete, Receipt, Shield, ShoppingBag, ElectricBolt, 
+  DirectionsCar, Payments, Build, LocalGasStation, HelpOutline,
+  Assignment, AccountBalance, Gavel, Timer
+} from '@mui/icons-material';
 import { format, parseISO } from 'date-fns';
+import { getEmojiColor } from '../../theme';
+import EmojiPicker from '../EmojiPicker';
 
 const formatCurrency = (val, currencyCode = 'GBP') => {
     const num = parseFloat(val) || 0;
-    let code = currencyCode;
-    if (code === '£') code = 'GBP';
-    if (code === '$') code = 'USD';
-    if (!code || code.length !== 3) code = 'GBP';
-
+    let code = currencyCode === '£' ? 'GBP' : (currencyCode === '$' ? 'USD' : (currencyCode || 'GBP'));
     try {
-        return num.toLocaleString('en-GB', { 
-            style: 'currency', 
-            currency: code, 
-            minimumFractionDigits: 2, 
-            maximumFractionDigits: 2 
-        });
-    } catch (e) {
-        return `£${num.toFixed(2)}`;
-    }
+        return num.toLocaleString('en-GB', { style: 'currency', currency: code, minimumFractionDigits: 2 });
+    } catch (e) { return `£${num.toFixed(2)}`; }
 };
 
-const FREQUENCIES = [
-  { id: 'monthly', label: 'Monthly' },
-  { id: 'weekly', label: 'Weekly' },
-  { id: 'quarterly', label: 'Quarterly' },
-  { id: 'yearly', label: 'Yearly' },
-  { id: 'one_off', label: 'One-off' }
-];
-
-const getSegmentIcon = (segment) => {
-    if (segment === 'insurance') return <Shield fontSize="small" />;
-    if (segment === 'subscription') return <ShoppingBag fontSize="small" />;
-    if (segment === 'utility') return <ElectricBolt fontSize="small" />;
-    if (segment?.startsWith('vehicle')) return <DirectionsCar fontSize="small" />;
-    return <Receipt fontSize="small" />;
+const SEGMENT_CONFIG = {
+    household_bill: { label: 'Bills', icon: <Assignment /> },
+    insurance: { label: 'Insurance', icon: <Shield /> },
+    utility: { label: 'Utilities', icon: <ElectricBolt /> },
+    subscription: { label: 'Subscriptions', icon: <ShoppingBag /> },
+    warranty: { label: 'Warranties', icon: <Gavel /> },
+    vehicle_tax: { label: 'Tax', icon: <Timer /> },
+    vehicle_mot: { label: 'MOT', icon: <Build /> },
+    vehicle_service: { label: 'Service', icon: <Build /> },
+    vehicle_fuel: { label: 'Fuel', icon: <LocalGasStation /> },
+    vehicle_breakdown: { label: 'Breakdown', icon: <HelpOutline /> },
+    other: { label: 'Other', icon: <Receipt /> }
 };
 
 export default function RecurringChargesWidget({ 
-    api, 
-    householdId, 
-    household,
-    entityType, 
-    entityId, 
-    segments = [],
-    title = "Expenses & Subscriptions",
-    showNotification,
-    confirmAction
+    api, householdId, household, entityType, entityId, 
+    segments = [{ id: 'other', label: 'Other' }],
+    title = "Costs & Expenses", showNotification, confirmAction
 }) {
   const [charges, setCharges] = useState([]);
+  const [activeTab, setActiveTab] = useState(0);
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [budgetImpactOpen, setBudgetImpactOpen] = useState(false);
-  const [pendingSaveData, setPendingSaveData] = useState(null);
 
   const [formData, setFormData] = useState({
-    name: '',
-    amount: '',
-    segment: segments[0]?.id || 'other',
-    frequency: 'monthly',
-    start_date: format(new Date(), 'yyyy-MM-dd'),
-    adjust_for_working_day: true,
-    notes: ''
+    name: '', amount: '', segment: segments[0]?.id || 'other',
+    frequency: 'monthly', start_date: format(new Date(), 'yyyy-MM-dd'),
+    adjust_for_working_day: true, notes: '', emoji: '💸'
   });
 
   const fetchCharges = useCallback(async () => {
@@ -75,149 +59,127 @@ export default function RecurringChargesWidget({
     setLoading(true);
     try {
       const res = await api.get(`/households/${householdId}/finance/charges`);
-      const filtered = res.data.filter(c => c.linked_entity_type === entityType && String(c.linked_entity_id) === String(entityId));
-      setCharges(filtered);
+      setCharges(res.data.filter(c => c.linked_entity_type === entityType && String(c.linked_entity_id) === String(entityId)));
     } catch (err) { console.error(err); } finally { setLoading(false); }
   }, [api, householdId, entityType, entityId]);
 
   useEffect(() => { fetchCharges(); }, [fetchCharges]);
 
+  const currentSegmentId = segments[activeTab]?.id || 'other';
+  const filteredCharges = useMemo(() => charges.filter(c => c.segment === currentSegmentId), [charges, currentSegmentId]);
+
   const resetForm = () => {
     setFormData({
-      name: '',
-      amount: '',
-      segment: segments[0]?.id || 'other',
-      frequency: 'monthly',
-      start_date: format(new Date(), 'yyyy-MM-dd'),
-      adjust_for_working_day: true,
-      notes: ''
+      name: '', amount: '', segment: currentSegmentId,
+      frequency: 'monthly', start_date: format(new Date(), 'yyyy-MM-dd'),
+      adjust_for_working_day: true, notes: '', emoji: '💸'
     });
   };
 
   const handleEdit = (charge) => {
     setEditingId(charge.id);
     setFormData({
-      name: charge.name,
-      amount: charge.amount,
-      segment: charge.segment,
-      frequency: charge.frequency,
-      start_date: charge.start_date || charge.exact_date || format(new Date(), 'yyyy-MM-dd'),
-      adjust_for_working_day: !!charge.adjust_for_working_day,
-      notes: charge.notes || ''
+      name: charge.name, amount: charge.amount, segment: charge.segment,
+      frequency: charge.frequency, start_date: charge.start_date || format(new Date(), 'yyyy-MM-dd'),
+      adjust_for_working_day: !!charge.adjust_for_working_day, notes: charge.notes || '',
+      emoji: charge.emoji || '💸'
     });
     setOpen(true);
   };
 
-  const prepareSave = () => {
-      const payload = { ...formData, linked_entity_type: entityType, linked_entity_id: entityId };
-      if (editingId) {
-          setPendingSaveData(payload);
-          setBudgetImpactOpen(true);
-      } else {
-          executeSave(payload);
-      }
-  };
-
-  const executeSave = async (payload, affectCurrentBudget = false) => {
+  const handleSave = async () => {
       try {
           const url = editingId ? `/households/${householdId}/finance/charges/${editingId}` : `/households/${householdId}/finance/charges`;
-          const method = editingId ? 'put' : 'post';
-          await api[method](url, payload);
-          showNotification(editingId ? "Charge updated." : "Charge created.", "success");
-          setOpen(false);
-          setBudgetImpactOpen(false);
-          setEditingId(null);
-          setPendingSaveData(null);
-          fetchCharges();
-          resetForm();
-      } catch (err) { showNotification("Failed to save charge.", "danger"); }
-  };
-
-  const handleDelete = async (id) => {
-    confirmAction("Delete Charge?", "Are you sure?", async () => {
-        try {
-            await api.delete(`/households/${householdId}/finance/charges/${id}`);
-            fetchCharges();
-            showNotification("Charge removed.", "neutral");
-        } catch { showNotification("Delete failed.", "danger"); }
-    });
+          const payload = { ...formData, linked_entity_type: entityType, linked_entity_id: entityId };
+          await api[editingId ? 'put' : 'post'](url, payload);
+          showNotification(editingId ? "Updated." : "Created.", "success");
+          setOpen(false); setEditingId(null); fetchCharges();
+      } catch (err) { showNotification("Error saving.", "danger"); }
   };
 
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography level="title-lg" startDecorator={<Payments />}>{title}</Typography>
-        <Button size="sm" variant="soft" startDecorator={<Add />} onClick={() => { resetForm(); setEditingId(null); setOpen(true); }}>Add</Button>
+        <Button size="sm" variant="solid" startDecorator={<Add />} onClick={() => { resetForm(); setEditingId(null); setOpen(true); }}>Add</Button>
       </Box>
 
-      <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'hidden' }}>
-        <Table size="sm" hoverRow sx={{ '--TableCell-paddingX': '12px' }}>
+      <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} sx={{ bgcolor: 'transparent' }}>
+        <TabList variant="soft" sx={{ p: 0.5, gap: 0.5, borderRadius: 'md', mb: 2 }}>
+          {segments.map((seg, idx) => (
+            <Tab key={seg.id} variant={activeTab === idx ? 'solid' : 'plain'} color={activeTab === idx ? 'primary' : 'neutral'}>
+              {SEGMENT_CONFIG[seg.id]?.icon || <Receipt />}
+              <Box component="span" sx={{ ml: 1, display: { xs: 'none', sm: 'inline' } }}>{seg.label}</Box>
+            </Tab>
+          ))}
+        </TabList>
+      </Tabs>
+
+      <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
+        <Table size="sm" hoverRow>
           <thead>
             <tr>
+              <th style={{ width: 40 }}></th>
               <th>Expense</th>
-              <th>Category</th>
               <th>Frequency</th>
               <th style={{ textAlign: 'right' }}>Amount</th>
               <th style={{ width: 80 }}></th>
             </tr>
           </thead>
           <tbody>
-            {charges.map(c => (
+            {filteredCharges.map(c => (
               <tr key={c.id}>
+                <td><Avatar size="sm" sx={{ bgcolor: getEmojiColor(c.emoji) }}>{c.emoji || '💸'}</Avatar></td>
                 <td>
                     <Typography level="body-sm" fontWeight="bold">{c.name}</Typography>
-                    <Typography level="body-xs" color="neutral">
-                        {c.start_date ? format(parseISO(c.start_date), 'do MMM') : 'No date'}
-                    </Typography>
+                    <Typography level="body-xs" color="neutral">{c.start_date ? format(parseISO(c.start_date), 'do MMM') : 'No date'}</Typography>
                 </td>
-                <td><Chip size="sm" variant="soft" startDecorator={getSegmentIcon(c.segment)}>{c.segment.replace('vehicle_', '')}</Chip></td>
                 <td><Typography level="body-xs" sx={{ textTransform: 'capitalize' }}>{c.frequency}</Typography></td>
                 <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{formatCurrency(c.amount, household?.currency)}</td>
                 <td>
                     <Box sx={{ display: 'flex', gap: 0.5 }}>
                         <IconButton size="sm" variant="plain" onClick={() => handleEdit(c)}><Edit fontSize="small" /></IconButton>
-                        <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(c.id)}><Delete fontSize="small" /></IconButton>
+                        <IconButton size="sm" variant="plain" color="danger" onClick={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/charges/${c.id}`).then(fetchCharges))}><Delete fontSize="small" /></IconButton>
                     </Box>
                 </td>
               </tr>
             ))}
+            {filteredCharges.length === 0 && (
+                <tr><td colSpan={5} style={{ textAlign: 'center', py: 4 }}><Typography level="body-xs" color="neutral">No items in this category.</Typography></td></tr>
+            )}
           </tbody>
         </Table>
       </Sheet>
 
       <Modal open={open} onClose={() => setOpen(false)}>
         <ModalDialog sx={{ maxWidth: 450, width: '100%' }}>
-          <ModalClose />
-          <Typography level="h4">{editingId ? 'Edit Charge' : 'New Charge'}</Typography>
-          <Divider sx={{ my: 2 }} />
-          <Stack spacing={2}>
-            <FormControl required><FormLabel>Name</FormLabel><Input autoFocus value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} /></FormControl>
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                <FormControl required><FormLabel>Amount</FormLabel><Input type="number" startDecorator={household?.currency === 'USD' ? '$' : '£'} value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} /></FormControl>
-                <FormControl required><FormLabel>Category</FormLabel>
-                    <Select value={formData.segment} onChange={(e, val) => setFormData({ ...formData, segment: val })}>{segments.map(s => <Option key={s.id} value={s.id}>{s.label}</Option>)}</Select>
+          <DialogTitle>{editingId ? 'Edit Item' : 'New Item'}</DialogTitle>
+          <Divider />
+          <Stack spacing={2} sx={{ mt: 2 }}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+                <IconButton variant="outlined" sx={{ width: 56, height: 56 }} onClick={() => setEmojiPickerOpen(true)}>
+                    <Typography level="h2">{formData.emoji}</Typography>
+                </IconButton>
+                <FormControl required sx={{ flex: 1 }}>
+                    <FormLabel>Name</FormLabel>
+                    <Input autoFocus value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
                 </FormControl>
             </Box>
-            <FormControl required><FormLabel>Frequency</FormLabel>
-              <Select value={formData.frequency} onChange={(e, val) => setFormData({ ...formData, frequency: val })}>{FREQUENCIES.map(f => <Option key={f.id} value={f.id}>{f.label}</Option>)}</Select>
-            </FormControl>
-            <FormControl required><FormLabel>Start / Anchor Date</FormLabel><Input type="date" value={formData.start_date} onChange={e => setFormData({ ...formData, start_date: e.target.value })} /></FormControl>
-            <Checkbox label="Adjust for working day" checked={formData.adjust_for_working_day} onChange={e => setFormData({ ...formData, adjust_for_working_day: e.target.checked })} />
-            <Button size="lg" onClick={prepareSave}>{editingId ? 'Update' : 'Create'}</Button>
+            <FormControl required><FormLabel>Amount</FormLabel><Input type="number" startDecorator={household?.currency === '$' ? '$' : '£'} value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} /></FormControl>
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                <FormControl required><FormLabel>Frequency</FormLabel>
+                    <Select value={formData.frequency} onChange={(e, v) => setFormData({ ...formData, frequency: v })}>
+                        <Option value="monthly">Monthly</Option><Option value="weekly">Weekly</Option>
+                        <Option value="quarterly">Quarterly</Option><Option value="yearly">Yearly</Option><Option value="one_off">One-off</Option>
+                    </Select>
+                </FormControl>
+                <FormControl required><FormLabel>Start Date</FormLabel><Input type="date" value={formData.start_date} onChange={e => setFormData({ ...formData, start_date: e.target.value })} /></FormControl>
+            </Box>
+            <Button size="lg" onClick={handleSave}>{editingId ? 'Update' : 'Create'}</Button>
           </Stack>
         </ModalDialog>
       </Modal>
-
-      <Modal open={budgetImpactOpen} onClose={() => setBudgetImpactOpen(false)}>
-          <ModalDialog variant="outlined" role="alertdialog">
-              <DialogTitle>Budget Impact</DialogTitle>
-              <DialogContent>Update this cycle, or only future ones?</DialogContent>
-              <DialogActions>
-                  <Button variant="solid" color="primary" onClick={() => executeSave(pendingSaveData, true)}>Current & Future</Button>
-                  <Button variant="soft" color="neutral" onClick={() => executeSave(pendingSaveData, false)}>Future Only</Button>
-              </DialogActions>
-          </ModalDialog>
-      </Modal>
+      <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(e) => { setFormData({ ...formData, emoji: e }); setEmojiPickerOpen(false); }} />
     </Box>
   );
 }

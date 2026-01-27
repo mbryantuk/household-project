@@ -1,353 +1,123 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { 
-  Box, Typography, Grid, Card, Avatar, IconButton, 
-  Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
-  FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup, Checkbox
+  Box, Typography, Button, Sheet, Table, IconButton, 
+  Modal, ModalDialog, ModalClose, FormControl, FormLabel, Input, 
+  Stack, Divider, Avatar
 } from '@mui/joy';
-import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
+import { Add, Edit, Delete, TrendingUp } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
-import AppSelect from '../../components/ui/AppSelect';
 
-const formatCurrency = (val) => {
+const formatCurrency = (val, currencyCode = 'GBP') => {
     const num = parseFloat(val) || 0;
-    return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-};
-
-const formatPercent = (val) => {
-    const num = parseFloat(val) || 0;
-    return num.toFixed(2) + '%';
+    let code = currencyCode === '£' ? 'GBP' : (currencyCode === '$' ? 'USD' : (currencyCode || 'GBP'));
+    try {
+        return num.toLocaleString('en-GB', { style: 'currency', currency: code, minimumFractionDigits: 2 });
+    } catch (e) { return `£${num.toFixed(2)}`; }
 };
 
 export default function InvestmentsView() {
-  const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
+  const { api, id: householdId, household, showNotification, confirmAction } = useOutletContext();
   const [investments, setInvestments] = useState([]);
-  const [assignments, setAssignments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  
-  // Modal States
-  const [editItem, setEditItem] = useState(null);
-  const [isNew, setIsNew] = useState(false);
-  const [assignItem, setAssignItem] = useState(null);
-  const [emojiPicker, setEmojiPicker] = useState(false);
-  const [selectedEmoji, setSelectedEmoji] = useState('📈');
-  const [selectedMembers, setSelectedMembers] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'member';
+  const [formData, setFormData] = useState({
+    name: '', platform: '', current_value: 0, total_invested: 0, emoji: '📈'
+  });
 
-  const getAssignees = useCallback((itemId) => {
-      return assignments.filter(a => a.entity_id === itemId).map(a => members.find(m => m.id === a.member_id)).filter(Boolean);
-  }, [assignments, members]);
-
-  useEffect(() => {
-      if (editItem) {
-          setSelectedEmoji(editItem.emoji || '📈');
-          const currentAssignees = getAssignees(editItem.id).map(m => m.id);
-          setSelectedMembers(currentAssignees);
-      } else if (isNew) {
-          setSelectedEmoji('📈');
-          setSelectedMembers([currentUser?.id].filter(Boolean));
-      }
-  }, [editItem, isNew, getAssignees, currentUser?.id]);
-
-  const fetchData = useCallback(async () => {
-    setLoading(true);
+  const fetchInvestments = useCallback(async () => {
+    if (!householdId) return;
     try {
-      const [invRes, assRes] = await Promise.all([
-          api.get(`/households/${householdId}/finance/investments`),
-          api.get(`/households/${householdId}/finance/assignments?entity_type=finance_investments`)
-      ]);
-      setInvestments(invRes.data || []);
-      setAssignments(assRes.data || []);
-    } catch (err) {
-      console.error("Failed to fetch investments", err);
-    } finally {
-      setLoading(false);
-    }
+      const res = await api.get(`/households/${householdId}/finance/investments`);
+      setInvestments(res.data || []);
+    } catch (err) { console.error(err); }
   }, [api, householdId]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  useEffect(() => { fetchInvestments(); }, [fetchInvestments]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
-    
+  const handleEdit = (inv) => {
+    setEditingId(inv.id);
+    setFormData({
+      name: inv.name, platform: inv.platform,
+      current_value: inv.current_value, total_invested: inv.total_invested,
+      emoji: inv.emoji || '📈'
+    });
+    setOpen(true);
+  };
+
+  const handleSave = async () => {
     try {
-      let itemId = editItem?.id;
-      if (isNew) {
-        const res = await api.post(`/households/${householdId}/finance/investments`, data);
-        itemId = res.data.id;
-      } else {
-        await api.put(`/households/${householdId}/finance/investments/${itemId}`, data);
-      }
-
-      // Handle Assignments
-      const currentIds = isNew ? [] : getAssignees(itemId).map(m => m.id);
-      const toAdd = selectedMembers.filter(id => !currentIds.includes(id));
-      await Promise.all(toAdd.map(mid => api.post(`/households/${householdId}/finance/assignments`, {
-          entity_type: 'finance_investments', entity_id: itemId, member_id: mid
-      })));
-
-      const toRemove = currentIds.filter(id => !selectedMembers.includes(id));
-      await Promise.all(toRemove.map(mid => api.delete(`/households/${householdId}/finance/assignments/finance_investments/${itemId}/${mid}`)));
-
-      fetchData();
-      setEditItem(null);
-      setIsNew(false);
-    } catch (err) { 
-        alert("Failed to save investment: " + err.message); 
-    }
+      const url = editingId ? `/households/${householdId}/finance/investments/${editingId}` : `/households/${householdId}/finance/finance/investments`;
+      // Check if standard path or sub-path
+      const realUrl = editingId ? `/households/${householdId}/finance/investments/${editingId}` : `/households/${householdId}/finance/investments`;
+      await api[editingId ? 'put' : 'post'](realUrl, formData);
+      setOpen(false); setEditingId(null); fetchInvestments();
+      showNotification("Saved.", "success");
+    } catch { showNotification("Error.", "danger"); }
   };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this investment?")) return;
-    try {
-        await api.delete(`/households/${householdId}/finance/investments/${id}`);
-        fetchData();
-    } catch { alert("Failed to delete investment"); }
-  };
-
-  const handleAssignMember = async (memberId) => {
-      try {
-          await api.post(`/households/${householdId}/finance/assignments`, {
-              entity_type: 'finance_investments',
-              entity_id: assignItem.id,
-              member_id: memberId
-          });
-          const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=finance_investments`);
-          setAssignments(assRes.data || []);
-      } catch (err) { console.error("Assignment failed", err); }
-  };
-
-  const handleUnassignMember = async (memberId) => {
-      try {
-          await api.delete(`/households/${householdId}/finance/assignments/finance_investments/${assignItem.id}/${memberId}`);
-          const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=finance_investments`);
-          setAssignments(assRes.data || []);
-      } catch (err) { console.error("Removal failed", err); }
-  };
-
-  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
   return (
     <Box>
-        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-            <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Investments</Typography>
-                <Typography level="body-md" color="neutral">Monitor stocks, bonds, and crypto assets.</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography level="h2" startDecorator={<TrendingUp />}>Investments</Typography>
+        <Button startDecorator={<Add />} onClick={() => { setEditingId(null); setOpen(true); }}>Add Investment</Button>
+      </Box>
+
+      <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
+        <Table hoverRow>
+          <thead>
+            <tr>
+              <th style={{ width: 40 }}></th>
+              <th>Name</th>
+              <th>Platform</th>
+              <th style={{ textAlign: 'right' }}>Current Value</th>
+              <th style={{ width: 100 }}></th>
+            </tr>
+          </thead>
+          <tbody>
+            {investments.map(inv => (
+              <tr key={inv.id}>
+                <td><Avatar size="sm" sx={{ bgcolor: getEmojiColor(inv.emoji) }}>{inv.emoji}</Avatar></td>
+                <td><Typography fontWeight="lg">{inv.name}</Typography></td>
+                <td>{inv.platform}</td>
+                <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{formatCurrency(inv.current_value, household?.currency)}</td>
+                <td>
+                  <Box sx={{ display: 'flex', gap: 0.5 }}>
+                    <IconButton size="sm" onClick={() => handleEdit(inv)}><Edit /></IconButton>
+                    <IconButton size="sm" color="danger" onClick={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/investments/${inv.id}`).then(fetchInvestments))}><Delete /></IconButton>
+                  </Box>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </Sheet>
+
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <ModalDialog sx={{ maxWidth: 500, width: '100%' }}>
+          <ModalClose />
+          <Typography level="h4">{editingId ? 'Edit Investment' : 'New Investment'}</Typography>
+          <Divider />
+          <Stack spacing={2} sx={{ mt: 2 }}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+                <IconButton variant="outlined" sx={{ width: 56, height: 56 }} onClick={() => setEmojiPickerOpen(true)}>
+                    <Typography level="h2">{formData.emoji}</Typography>
+                </IconButton>
+                <FormControl required sx={{ flex: 1 }}><FormLabel>Investment Name</FormLabel><Input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} /></FormControl>
             </Box>
-            {isAdmin && (
-                <Button startDecorator={<Add />} onClick={() => { setEditItem({}); setIsNew(true); }}>
-                    Add Investment
-                </Button>
-            )}
-        </Box>
-
-        <Grid container spacing={3}>
-            {investments.map(inv => {
-                const totalInvested = parseFloat(inv.total_invested) || 0;
-                const currentValue = parseFloat(inv.current_value) || 0;
-                const gainLoss = currentValue - totalInvested;
-                const gainLossPct = totalInvested > 0 ? (gainLoss / totalInvested) * 100 : 0;
-
-                return (
-                    <Grid xs={12} lg={6} xl={4} key={inv.id}>
-                        <Card variant="outlined" sx={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                <Avatar size="lg" sx={{ bgcolor: getEmojiColor(inv.emoji || '📈', isDark) }}>
-                                    {inv.emoji || '📈'}
-                                </Avatar>
-                                <Box sx={{ flexGrow: 1 }}>
-                                    <Typography level="title-lg">{inv.name || 'Unnamed Investment'}</Typography>
-                                    <Typography level="body-sm" color="neutral">{inv.symbol ? `${inv.symbol} • ` : ''}{inv.platform}</Typography>
-                                </Box>
-                                <Box sx={{ textAlign: 'right' }}>
-                                    <Typography level="h3" color="success">{formatCurrency(currentValue)}</Typography>
-                                    <Typography level="body-xs" color={gainLoss >= 0 ? 'success.500' : 'danger.500'} fontWeight="bold">
-                                        {gainLoss >= 0 ? '+' : ''}{formatCurrency(gainLoss)} ({formatPercent(gainLossPct)})
-                                    </Typography>
-                                </Box>
-                            </Box>
-
-                            <Divider />
-
-                            <Grid container spacing={2}>
-                                <Grid xs={6}>
-                                    <Typography level="body-xs" color="neutral">Asset Type</Typography>
-                                    <Typography level="body-sm">{inv.asset_type}</Typography>
-                                </Grid>
-                                <Grid xs={6}>
-                                    <Typography level="body-xs" color="neutral">Units / Quantity</Typography>
-                                    <Typography level="body-sm">{inv.units || '-'}</Typography>
-                                </Grid>
-                                <Grid xs={6}>
-                                    <Typography level="body-xs" color="neutral">Total Invested</Typography>
-                                    <Typography level="body-sm">{formatCurrency(totalInvested)}</Typography>
-                                </Grid>
-                                <Grid xs={6}>
-                                    <Typography level="body-xs" color="neutral">Avg. Price</Typography>
-                                    <Typography level="body-sm">
-                                        {inv.units > 0 ? `£${(totalInvested / inv.units).toFixed(4)}` : '-'}
-                                    </Typography>
-                                </Grid>
-                            </Grid>
-
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 'auto', pt: 2 }}>
-                                <AvatarGroup size="sm">
-                                    {getAssignees(inv.id).map(m => (
-                                        <Avatar key={m.id} sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji}</Avatar>
-                                    ))}
-                                    <IconButton size="sm" onClick={() => setAssignItem(inv)} sx={{ borderRadius: '50%' }}><GroupAdd /></IconButton>
-                                </AvatarGroup>
-                                <IconButton size="sm" onClick={() => { setEditItem(inv); setIsNew(false); }}><Edit /></IconButton>
-                            </Box>
-                        </Card>
-                    </Grid>
-                );
-            })}
-        </Grid>
-
-        {/* MODAL: EDIT/ADD */}
-        <Modal open={Boolean(editItem)} onClose={() => { setEditItem(null); setIsNew(false); }}>
-            <ModalDialog sx={{ width: '100%', maxWidth: 500, maxHeight: '95vh', overflowY: 'auto' }}>
-                <DialogTitle>{isNew ? 'Add Investment' : 'Edit Investment'}</DialogTitle>
-                <DialogContent>
-                    <form onSubmit={handleSubmit}>
-                        <Stack spacing={2} sx={{ mt: 1 }}>
-                            <FormControl required>
-                                <FormLabel>Investment Name</FormLabel>
-                                <Input name="name" defaultValue={editItem?.name} placeholder="e.g. S&P 500 ETF" />
-                            </FormControl>
-                            <Grid container spacing={2}>
-                                <Grid xs={12} sm={6}>
-                                    <FormControl>
-                                        <FormLabel>Ticker Symbol</FormLabel>
-                                        <Input name="symbol" defaultValue={editItem?.symbol} placeholder="e.g. VUSA" />
-                                    </FormControl>
-                                </Grid>
-                                <Grid xs={12} sm={6}>
-                                    <FormControl required>
-                                        <FormLabel>Platform</FormLabel>
-                                        <Input name="platform" defaultValue={editItem?.platform} placeholder="e.g. Vanguard" />
-                                    </FormControl>
-                                </Grid>
-                            </Grid>
-                            <AppSelect 
-                                label="Asset Type"
-                                name="asset_type"
-                                defaultValue={editItem?.asset_type || 'Stocks'}
-                                options={[
-                                    { value: 'Stocks', label: 'Stocks & Shares' },
-                                    { value: 'Crypto', label: 'Cryptocurrency' },
-                                    { value: 'Bonds', label: 'Bonds' },
-                                    { value: 'ETF', label: 'ETF / Fund' },
-                                    { value: 'Other', label: 'Other' },
-                                ]}
-                            />
-                            <Grid container spacing={2}>
-                                <Grid xs={12} sm={4}>
-                                    <FormControl>
-                                        <FormLabel>Units</FormLabel>
-                                        <Input name="units" type="number" step="any" defaultValue={editItem?.units} />
-                                    </FormControl>
-                                </Grid>
-                                <Grid xs={12} sm={4}>
-                                    <FormControl required>
-                                        <FormLabel>Current Value (£)</FormLabel>
-                                        <Input name="current_value" type="number" step="any" defaultValue={editItem?.current_value} />
-                                    </FormControl>
-                                </Grid>
-                                <Grid xs={12} sm={4}>
-                                    <FormControl required>
-                                        <FormLabel>Total Invested (£)</FormLabel>
-                                        <Input name="total_invested" type="number" step="any" defaultValue={editItem?.total_invested} />
-                                    </FormControl>
-                                </Grid>
-                                <Grid xs={12} sm={6}>
-                                    <FormControl>
-                                        <FormLabel>Monthly Deposit (£)</FormLabel>
-                                        <Input name="deposit_amount" type="number" step="any" defaultValue={editItem?.deposit_amount} />
-                                    </FormControl>
-                                </Grid>
-                                <Grid xs={12} sm={6}>
-                                    <FormControl>
-                                        <FormLabel>Deposit Day</FormLabel>
-                                        <Input name="deposit_day" type="number" min="1" max="31" defaultValue={editItem?.deposit_day} placeholder="e.g. 1" />
-                                    </FormControl>
-                                </Grid>
-                            </Grid>
-                            <FormControl>
-                                <FormLabel>Emoji</FormLabel>
-                                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                    <Button variant="outlined" color="neutral" onClick={() => setEmojiPicker(true)} sx={{ minWidth: 48 }}>
-                                        <Avatar size="sm" sx={{ bgcolor: getEmojiColor(selectedEmoji, isDark) }}>{selectedEmoji}</Avatar>
-                                    </Button>
-                                    <Input type="hidden" name="emoji" value={selectedEmoji} />
-                                </Box>
-                            </FormControl>
-                            <FormControl>
-                                <FormLabel>Assign Owners</FormLabel>
-                                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                                    {members.filter(m => m.type !== 'pet').map(m => {
-                                        const isSelected = selectedMembers.includes(m.id);
-                                        return <Chip key={m.id} variant={isSelected ? 'solid' : 'outlined'} color={isSelected ? 'primary' : 'neutral'} onClick={() => setSelectedMembers(prev => prev.includes(m.id) ? prev.filter(id => id !== m.id) : [...prev, m.id])} startDecorator={<Avatar size="sm">{m.emoji}</Avatar>}>{m.name}</Chip>
-                                    })}
-                                </Box>
-                            </FormControl>
-                        </Stack>
-                        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
-                            {!isNew && <Button color="danger" variant="soft" onClick={() => { handleDelete(editItem.id); setEditItem(null); }}>Delete</Button>}
-                            <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
-                                <Button variant="plain" color="neutral" onClick={() => { setEditItem(null); setIsNew(false); }}>Cancel</Button>
-                                <Button type="submit">Save</Button>
-                            </Box>
-                        </Box>
-                    </form>
-                </DialogContent>
-            </ModalDialog>
-        </Modal>
-
-        {/* MODAL: ASSIGNMENT */}
-        <Modal open={Boolean(assignItem)} onClose={() => setAssignItem(null)}>
-            <ModalDialog size="sm">
-                <DialogTitle>Assign Owners</DialogTitle>
-                <DialogContent>
-                    <Stack spacing={1}>
-                        {members.filter(m => m.type !== 'pet').map(m => {
-                            const isAssigned = getAssignees(assignItem?.id).some(a => a.id === m.id);
-                            return (
-                                <Box key={m.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 'sm' }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <Avatar size="sm" sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji}</Avatar>
-                                        <Typography>{m.name}</Typography>
-                                    </Box>
-                                    {isAssigned ? (
-                                        <Button size="sm" color="danger" variant="soft" onClick={() => handleUnassignMember(m.id)}>Remove</Button>
-                                    ) : (
-                                        <Button size="sm" variant="soft" onClick={() => handleAssignMember(m.id)}>Assign</Button>
-                                    )}
-                                </Box>
-                            );
-                        })}
-                    </Stack>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setAssignItem(null)}>Done</Button>
-                </DialogActions>
-            </ModalDialog>
-        </Modal>
-
-        <EmojiPicker 
-            open={emojiPicker} 
-            onClose={() => setEmojiPicker(false)}
-            onEmojiSelect={(emoji) => { setSelectedEmoji(emoji); setEmojiPicker(false); }}
-            isDark={isDark}
-        />
+            <FormControl required><FormLabel>Platform</FormLabel><Input value={formData.platform} onChange={e => setFormData({ ...formData, platform: e.target.value })} /></FormControl>
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                <FormControl required><FormLabel>Current Value</FormLabel><Input type="number" startDecorator="£" value={formData.current_value} onChange={e => setFormData({ ...formData, current_value: e.target.value })} /></FormControl>
+                <FormControl><FormLabel>Total Invested</FormLabel><Input type="number" startDecorator="£" value={formData.total_invested} onChange={e => setFormData({ ...formData, total_invested: e.target.value })} /></FormControl>
+            </Box>
+            <Button size="lg" onClick={handleSave}>Save</Button>
+          </Stack>
+        </ModalDialog>
+      </Modal>
+      <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(e) => { setFormData({ ...formData, emoji: e }); setEmojiPickerOpen(false); }} />
     </Box>
   );
 }

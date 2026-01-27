@@ -85,7 +85,7 @@ export default function HouseholdLayout({
         case 'people': return 'People';
         case 'pets': return 'Pets';
         case 'house': return 'Asset Registry';
-        case 'vehicles': return 'Fleet';
+        case 'vehicles': return 'Vehicles';
         case 'finance': return 'Finance';
         case 'meals': return 'Meal Planner';
         case 'settings': return 'Settings';
