@@ -31,12 +31,17 @@
     * **ALWAYS** use shared wrappers from `components/ui/` (e.g., `<AppSelect />`).
     * **BRANDING:** You MUST adhere strictly to the typography and layout standards defined in `Branding.md`.
 
+4.  **The Automated Verification Rule:**
+    * **UI INTEGRATION:** Every new core UI feature or page MUST be added to the automated smoke test suite (`web/tests/smoke.spec.js`).
+    * **NIGHTLY HEALTH:** The system depends on the Nightly Comprehensive Suite (`scripts/ops/nightly_suite.sh`) for deep verification. Never break this orchestrator.
+
 ---
 
 ## 1. TECHNICAL SPECIFICATIONS
 
 ### A. Data & Logic
 * **Asset-First Model:** Items require `purchase_value`, `monthly_maintenance_cost`, and `insurance_status`.
+* **Frequency Anchor:** All recurring costs MUST use `start_date` as the primary anchor for scheduling projections.
 * **Calendar Logic:** "Nearest Working Day" logic. If a recurring bill falls on a weekend, shift to the previous Friday.
 
 ### B. Frontend (The "Excel" Standard)
@@ -119,6 +124,10 @@ Every feature or maintenance pass MUST satisfy the following gates before deploy
     * **Command:** `cd server && npm test`
     * **Requirement:** All 200+ test cases across Finance, Assets, Members, and Meals must pass.
 
-4.  **Deployment Smoke Test:**
-    * **Script:** `./scripts/deploy/deploy_verify.sh`
-    * **Requirement:** Containers must start, migrations must run, and core API health-checks must return 200 OK.
+4.  **Frontend Smoke Test:**
+    * **Command:** `cd web && npx playwright test tests/smoke.spec.js`
+    * **Requirement:** 100% pass on core navigation and tab loading. (Offloaded to Nightly Suite by default but manually runnable).
+
+5.  **Nightly Comprehensive Suite:**
+    * **Script:** `scripts/ops/nightly_suite.sh`
+    * **Routine:** Full system rebuild, API stress, UI navigation, and Email reporting. Scheduled via crontab.

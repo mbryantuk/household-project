@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Maintenance: Deep project tidy-up; removed redundant migration and utility scripts.",
-  "date": "Tue 27 Jan 14:08:27 GMT 2026"
+  "commitMessage": "Docs: Updated GEMINI.md with automated frontend and nightly verification mandates.",
+  "date": "Tue 27 Jan 14:11:23 GMT 2026"
 }
