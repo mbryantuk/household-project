@@ -251,7 +251,7 @@ export default function BudgetView() {
               key, type, label: label || 'Unnamed Expense', amount: progressItem?.actual_amount || parseFloat(amount) || 0,
               day: dateObj.getDate(), computedDate: dateObj,
               icon, category: category || 'other', isPaid: progressItem?.is_paid === 1,
-              isDeletable: !['pot', 'pension', 'investment'].includes(type),
+              isDeletable: !['pot', 'pension', 'investment', 'credit_card'].includes(type),
               id: item.id, object, frequency: item.frequency?.toLowerCase() || 'monthly', 
               memberId: (memberId != null && String(memberId).length > 0) ? String(memberId) : null
           };
@@ -284,7 +284,12 @@ export default function BudgetView() {
 
       liabilities.mortgages.forEach(m => addExpense(m, 'mortgage', m.lender, m.monthly_payment, getAdjustedDate(m.payment_day, true, startDate), <Home />, 'Mortgage', { name: 'House', emoji: '🏠' }));
       liabilities.loans.forEach(l => addExpense(l, 'loan', `${l.lender} Loan`, l.monthly_payment, getAdjustedDate(l.payment_day, true, startDate), <TrendingDown />, 'Liability', { name: 'Finance', emoji: '💰' }));
-      liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit_card', cc.card_name, 0, getAdjustedDate(cc.payment_day || 1, true, startDate), <CreditCard />, 'Credit Card', { name: cc.provider, emoji: cc.emoji || '💳' }));
+      
+      // Credit Cards - Add Balance to label for context
+      liabilities.credit_cards.forEach(cc => {
+          const label = `${cc.card_name} (Bal: ${formatCurrency(cc.current_balance)})`;
+          addExpense(cc, 'credit_card', label, 0, getAdjustedDate(cc.payment_day || 1, true, startDate), <CreditCard />, 'Credit Card', { name: cc.provider, emoji: cc.emoji || '💳' });
+      });
       
       liabilities.charges.filter(c => c.is_active !== 0).forEach(charge => {
           let datesToAdd = [];
@@ -542,13 +547,17 @@ export default function BudgetView() {
   const groupedRecurring = useMemo(() => {
       if (!sortedExpenses) return {};
       const groups = {};
-      sortedExpenses.filter(exp => exp.type !== 'pot').forEach(exp => {
+      sortedExpenses.filter(exp => exp.type !== 'pot' && exp.type !== 'credit_card').forEach(exp => {
           const freq = exp.frequency || 'monthly';
           const normalized = freq.toLowerCase();
           if (!groups[normalized]) groups[normalized] = [];
           groups[normalized].push(exp);
       });
       return groups;
+  }, [sortedExpenses]);
+
+  const creditCardItems = useMemo(() => {
+      return sortedExpenses.filter(exp => exp.type === 'credit_card');
   }, [sortedExpenses]);
 
   const getVisibleItems = useCallback((items) => {
@@ -741,6 +750,16 @@ export default function BudgetView() {
 
             <Grid xs={12} md={9}>
                 <Stack spacing={4}>
+                    {/* CREDIT CARDS */}
+                    {creditCardItems.length > 0 && (
+                        <Box>
+                            <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <CreditCard fontSize="small" /> Credit Card Repayments
+                            </Typography>
+                            {renderSection(creditCardItems, 6, false)}
+                        </Box>
+                    )}
+
                     {Object.keys(groupedRecurring).map(freq => {
                         const items = groupedRecurring[freq] || [];
                         if (getVisibleItems(items).length === 0) return null;
