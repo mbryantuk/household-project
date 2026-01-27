@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Feature: Unified frequency logic using start_date as anchor for all recurring costs.",
-  "date": "Tue 27 Jan 13:45:59 GMT 2026"
+  "commitMessage": "Maintenance: Deep project tidy-up; removed redundant migration and utility scripts.",
+  "date": "Tue 27 Jan 14:08:27 GMT 2026"
 }
