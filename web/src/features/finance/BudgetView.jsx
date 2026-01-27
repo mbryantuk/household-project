@@ -17,7 +17,7 @@ import {
 import { 
   format, addMonths, startOfMonth, setDate, differenceInDays, 
   isSameDay, isAfter, startOfDay, isWithinInterval, 
-  parseISO, getDay, addDays 
+  parseISO, getDay, addDays, isValid
 } from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
@@ -26,6 +26,12 @@ const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
     return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
+
+const MONTHS = [
+    { value: '1', label: 'January' }, { value: '2', label: 'February' }, { value: '3', label: 'March' }, { value: '4', label: 'April' },
+    { value: '5', label: 'May' }, { value: '6', label: 'June' }, { value: '7', label: 'July' }, { value: '8', label: 'August' },
+    { value: '9', label: 'September' }, { value: '10', label: 'October' }, { value: '11', label: 'November' }, { value: '12', label: 'December' }
+];
 
 export default function BudgetView() {
   const { api, id: householdId, isDark, showNotification, members = [], setStatusBarData, confirmAction } = useOutletContext();
@@ -185,6 +191,7 @@ export default function BudgetView() {
       const skipped = [];
       
       const addExpense = (item, type, label, amount, dateObj, icon, category, object = null, memberId = null) => {
+          if (!dateObj || !isValid(dateObj)) return;
           const key = `${type}_${item.id || 'fixed'}_${format(dateObj, 'ddMM')}`; 
           const progressItem = progress.find(p => p.item_key === key && p.cycle_start === cycleKey);
           
@@ -441,7 +448,15 @@ export default function BudgetView() {
       data.segment = data.category || 'other';
       data.linked_entity_type = linkType;
       data.linked_entity_id = data.linked_entity_id || null;
-      data.start_date = data.start_date || null; 
+
+      // Handle start_date / anchor month logic
+      if (recurringType === 'quarterly' || recurringType === 'yearly') {
+          const m = parseInt(data.start_month) || 1;
+          const d = parseInt(data.day_of_month) || 1;
+          const anchor = new Date(new Date().getFullYear(), m - 1, d);
+          data.start_date = format(anchor, 'yyyy-MM-dd');
+          data.month_of_year = m;
+      }
 
       try {
           await api.post(`/households/${householdId}/finance/charges`, data);
@@ -868,20 +883,13 @@ export default function BudgetView() {
                             {recurringType === 'monthly' && (
                                 <FormControl required><FormLabel>Day of Month</FormLabel><Input name="day_of_month" type="number" min="1" max="31" defaultValue={1} /></FormControl>
                             )}
-                             {recurringType === 'quarterly' && (
-                                <FormControl required><FormLabel>First Charge Date</FormLabel><Input name="start_date" type="date" required defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
+                             {(recurringType === 'quarterly' || recurringType === 'yearly') && (
+                                <Grid container spacing={2}>
+                                    <Grid xs={6}><AppSelect label="Start Month" name="start_month" defaultValue={String(new Date().getMonth() + 1)} options={MONTHS} /></Grid>
+                                    <Grid xs={6}><FormControl required><FormLabel>Day of Month</FormLabel><Input name="day_of_month" type="number" min="1" max="31" defaultValue={1} /></FormControl></Grid>
+                                </Grid>
                             )}
 
-                            {recurringType === 'yearly' && (
-                              <Grid container spacing={2}>
-                                <Grid xs={6}><FormControl required><FormLabel>Day of Month</FormLabel><Input name="day_of_month" type="number" min="1" max="31" defaultValue={1} /></FormControl></Grid>
-                                <Grid xs={6}><AppSelect label="Month of Year" name="month_of_year" defaultValue="1" options={[
-                                    { value: '1', label: 'January' }, { value: '2', label: 'February' }, { value: '3', label: 'March' }, { value: '4', label: 'April' },
-                                    { value: '5', label: 'May' }, { value: '6', label: 'June' }, { value: '7', label: 'July' }, { value: '8', label: 'August' },
-                                    { value: '9', label: 'September' }, { value: '10', label: 'October' }, { value: '11', label: 'November' }, { value: '12', label: 'December' }
-                                ]} /></Grid>
-                              </Grid>
-                            )}
                             <Checkbox label="Adjust for Working Day (Next)" name="nearest_working_day" defaultChecked value="1" />
                             
                             <Divider />
