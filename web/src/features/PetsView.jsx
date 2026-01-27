@@ -1,164 +1,310 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, Input, Button, 
-  FormControl, FormLabel, Grid, Avatar, CircularProgress, Card, IconButton
+  FormControl, FormLabel, Grid, Tooltip, IconButton, Divider
 } from '@mui/joy';
 import { 
-  Delete, Add, Info, Payments, PhotoCamera
+  Delete, Payments, Info, Add
 } from '@mui/icons-material';
 import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
 import EmojiPicker from '../components/EmojiPicker';
-import { getEmojiColor } from '../theme';
 
 export default function PetsView() {
-  const { api, id: householdId, household, user: currentUser, showNotification, confirmAction, fetchHhMembers: refreshSidebar } = useOutletContext();
+  const { api, id: householdId, household, members, fetchHhMembers, user: currentUser, showNotification, confirmAction } = useOutletContext();
   const { petId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
-  const [selectedEmoji, setSelectedEmoji] = useState('🐾');
   
-  const [pets, setPets] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   const isAdmin = currentUser?.role === 'admin';
 
-  const fetchPetsList = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await api.get(`/households/${householdId}/members`);
-      setPets((res.data || []).filter(m => m.type === 'pet'));
-    } catch (err) {
-      console.error("Failed to fetch pets", err);
-    } finally {
-      setLoading(false);
-    }
-  }, [api, householdId]);
-
   const selectedPet = useMemo(() => 
-    pets.find(p => p.id === parseInt(petId)), 
-  [pets, petId]);
+    (members || []).find(m => m.id === parseInt(petId) && m.type === 'pet'), 
+  [members, petId]);
+
+  const [formData, setFormData] = useState({
+    name: '', species: '', breed: '', dob: '', emoji: '🐾', notes: '',
+    microchip_number: '', gender: ''
+  });
 
   useEffect(() => {
     if (selectedPet) {
-        setSelectedEmoji(selectedPet.emoji || '🐾');
+      const data = {
+        name: selectedPet.name || '',
+        species: selectedPet.species || '',
+        breed: selectedPet.breed || '',
+        dob: selectedPet.dob || '',
+        emoji: selectedPet.emoji || '🐾',
+        notes: selectedPet.notes || '',
+        microchip_number: selectedPet.microchip_number || '',
+        gender: selectedPet.gender || ''
+      };
+      Promise.resolve().then(() => setFormData(data));
     } else if (petId === 'new') {
-        setSelectedEmoji('🐾');
+      const data = {
+        name: '', species: '', breed: '', dob: '', emoji: '🐾', notes: '',
+        microchip_number: '', gender: ''
+      };
+      Promise.resolve().then(() => setFormData(data));
     }
   }, [selectedPet, petId]);
 
-  useEffect(() => { fetchPetsList(); }, [fetchPetsList]);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
-    data.emoji = selectedEmoji;
-    data.type = 'pet';
+    const data = { ...formData, type: 'pet' };
 
     try {
       if (petId === 'new') {
         const res = await api.post(`/households/${householdId}/members`, data);
         showNotification("Pet added.", "success");
-        refreshSidebar(householdId);
+        fetchHhMembers(householdId);
         navigate(`../pets/${res.data.id}`);
       } else {
         await api.put(`/households/${householdId}/members/${petId}`, data);
         showNotification("Pet updated.", "success");
-        fetchPetsList();
-        refreshSidebar(householdId);
+        fetchHhMembers(householdId);
       }
-    } catch {
-      showNotification("Error saving pet.", "danger");
+     } catch {
+      showNotification("Failed to save.", "danger");
     }
   };
 
-  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
+  const handleDelete = () => {
+    confirmAction(
+        "Remove Pet",
+        `Are you sure you want to remove ${selectedPet.name}? This will delete all their data.`,
+        async () => {
+            try {
+                await api.delete(`/households/${householdId}/members/${petId}`);
+                showNotification("Pet removed.", "neutral");
+                fetchHhMembers(householdId);
+                navigate('..');
+             } catch {
+                showNotification("Failed to delete.", "danger");
+            }
+        }
+    );
+  };
+
+  const groupedPets = useMemo(() => {
+      const pets = (members || []).filter(m => m.type === 'pet');
+      const groups = {};
+      pets.forEach(p => {
+          const species = p.species || 'Other';
+          if (!groups[species]) groups[species] = [];
+          groups[species].push(p);
+      });
+      return groups;
+  }, [members]);
 
   if (petId !== 'new' && !selectedPet) {
     return (
         <Box>
-            <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box sx={{ 
+                mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+                flexWrap: 'wrap', gap: 2 
+            }}>
               <Box>
-                <Typography level="h2">Pets</Typography>
-                <Typography level="body-md" color="neutral">Your animal companions.</Typography>
+                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
+                  Pets & Animals
+                </Typography>
+                <Typography level="body-md" color="neutral">
+                  Manage your furry family members and their needs.
+                </Typography>
               </Box>
-              {isAdmin && <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>Add Pet</Button>}
+              <Box>
+                  {isAdmin && (
+                      <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>Add Pet</Button>
+                  )}
+              </Box>
             </Box>
-            <Grid container spacing={2}>
-                {pets.map(p => (
-                    <Grid xs={12} sm={6} md={4} key={p.id}>
-                        <Card variant="outlined" sx={{ flexDirection: 'row', gap: 2, alignItems: 'center', cursor: 'pointer' }} onClick={() => navigate(String(p.id))}>
-                            <Avatar size="lg" sx={{ bgcolor: getEmojiColor(p.emoji) }}>{p.emoji}</Avatar>
-                            <Box>
-                                <Typography level="title-md">{p.name}</Typography>
-                                <Typography level="body-xs">{p.species || 'Pet'}</Typography>
-                            </Box>
-                        </Card>
+
+            {Object.keys(groupedPets).length === 0 && (
+                 <Typography level="body-lg" textAlign="center" sx={{ mt: 5, color: 'neutral.500' }}>No pets found.</Typography>
+            )}
+
+            {Object.entries(groupedPets).map(([species, pets]) => (
+                <Box key={species} sx={{ mb: 4 }}>
+                    <Typography level="h4" sx={{ mb: 2, textTransform: 'uppercase', letterSpacing: 'sm', opacity: 0.7 }}>
+                        {species}s
+                    </Typography>
+                    <Grid container spacing={2}>
+                        {pets.map(p => (
+                            <Grid xs={12} sm={6} md={4} key={p.id}>
+                                <Sheet 
+                                    variant="outlined" 
+                                    sx={{ 
+                                        p: 2, borderRadius: 'md', display: 'flex', alignItems: 'center', gap: 2,
+                                        cursor: 'pointer',
+                                        transition: 'background-color 0.2s',
+                                        '&:hover': { bgcolor: 'background.level1' }
+                                    }}
+                                    onClick={() => navigate(String(p.id))}
+                                >
+                                    <Box sx={{ fontSize: '2.5rem' }}>{p.emoji || '🐾'}</Box>
+                                    <Box>
+                                        <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{p.alias || (p.name || '').split(' ')[0]}</Typography>
+                                        <Typography level="body-sm" color="neutral">{p.species} • {p.breed}</Typography>
+                                    </Box>
+                                </Sheet>
+                            </Grid>
+                        ))}
                     </Grid>
-                ))}
-            </Grid>
+                </Box>
+            ))}
         </Box>
     );
   }
 
   return (
     <Box key={petId}>
-      <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Typography level="h2">{petId === 'new' ? 'Add New Pet' : selectedPet.name}</Typography>
-        {petId !== 'new' && isAdmin && (
-            <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={() => confirmAction("Remove Pet", "Are you sure?", () => api.delete(`/households/${householdId}/members/${petId}`).then(() => navigate('..')))}>Remove</Button>
-        )}
+      <Box sx={{ 
+          mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+          flexWrap: 'wrap', gap: 2 
+      }}>
+        <Box>
+            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
+                {petId === 'new' ? 'Add New Pet' : selectedPet.name}
+            </Typography>
+            <Typography level="body-md" color="neutral">
+                {petId === 'new' ? 'Enter pet details below.' : 'View and manage pet information.'}
+            </Typography>
+        </Box>
+        <Box>
+            {petId !== 'new' && isAdmin && (
+                <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={handleDelete}>Remove Pet</Button>
+            )}
+        </Box>
       </Box>
 
-      <Sheet variant="outlined" sx={{ borderRadius: 'md', minHeight: '500px', overflow: 'hidden' }}>
+      <Sheet variant="outlined" sx={{ borderRadius: 'md', minHeight: '600px', overflow: 'hidden' }}>
         {petId !== 'new' && (
             <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} sx={{ bgcolor: 'transparent' }}>
-                <TabList variant="plain" sx={{ p: 1, gap: 1, bgcolor: 'background.level1', mx: 2, mt: 2, borderRadius: 'md' }}>
-                    <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'}><Info /> Identity</Tab>
-                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}><Payments /> Costs</Tab>
+                <TabList 
+                    variant="plain" 
+                    sx={{ 
+                        p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: 2, mt: 2, 
+                        overflow: 'auto',
+                        '&::-webkit-scrollbar': { display: 'none' },
+                        whiteSpace: 'nowrap'
+                    }}
+                >
+                    <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Info sx={{ mr: 1 }}/> General</Tab>
+                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Pet Costs</Tab>
                 </TabList>
             </Tabs>
         )}
 
-        <Box sx={{ p: 4 }}>
+        <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
           {(activeTab === 0 || petId === 'new') && (
-            <form onSubmit={handleSubmit}>
+            <Box>
+                <Box sx={{ mb: 4 }}>
+                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
+                        Pet Identity
+                    </Typography>
+                    <Typography level="body-md" color="neutral">Core personal identification and breed background.</Typography>
+                </Box>
+                <form onSubmit={handleSubmit}>
                 <Grid container spacing={3}>
                     <Grid xs={12} md={2}>
-                        <IconButton onClick={() => setEmojiPickerOpen(true)} variant="outlined" sx={{ width: 80, height: 80, borderRadius: 'xl' }}>
-                            <Typography level="h1">{selectedEmoji}</Typography>
-                            <PhotoCamera sx={{ position: 'absolute', bottom: -5, right: -5, fontSize: '1.2rem', color: 'primary.solidBg' }} />
-                        </IconButton>
+                        <Tooltip title="Pick an emoji" variant="soft">
+                            <IconButton 
+                                onClick={() => setEmojiPickerOpen(true)} 
+                                variant="outlined"
+                                sx={{ width: 80, height: 80 }}
+                            >
+                                <Typography level="h1">{formData.emoji}</Typography>
+                            </IconButton>
+                        </Tooltip>
                     </Grid>
                     <Grid xs={12} md={5}>
-                        <FormControl required><FormLabel>Pet Name</FormLabel><Input name="name" defaultValue={selectedPet?.name} /></FormControl>
+                        <FormControl required>
+                            <FormLabel>Pet Name</FormLabel>
+                            <Input name="name" value={formData.name} onChange={handleChange} />
+                        </FormControl>
                     </Grid>
                     <Grid xs={12} md={5}>
-                        <FormControl required><FormLabel>Species</FormLabel><Input name="species" placeholder="e.g. Dog, Cat" defaultValue={selectedPet?.species} /></FormControl>
+                        <FormControl required>
+                            <FormLabel>Species (e.g. Dog, Cat)</FormLabel>
+                            <Input name="species" value={formData.species} onChange={handleChange} placeholder="Dog, Cat, Hamster..." />
+                        </FormControl>
                     </Grid>
-                    <Grid xs={12}><Button type="submit" size="lg">{petId === 'new' ? 'Create' : 'Update'}</Button></Grid>
+                    <Grid xs={12} md={4}>
+                        <FormControl>
+                            <FormLabel>Breed</FormLabel>
+                            <Input name="breed" value={formData.breed} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12} md={4}>
+                        <FormControl>
+                            <FormLabel>Date of Birth</FormLabel>
+                            <Input name="dob" type="date" value={formData.dob} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12} md={4}>
+                        <FormControl>
+                            <FormLabel>Microchip #</FormLabel>
+                            <Input name="microchip_number" value={formData.microchip_number} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12} md={6}>
+                        <FormControl>
+                            <FormLabel>Gender</FormLabel>
+                            <Input name="gender" value={formData.gender} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12}>
+                        <FormControl>
+                            <FormLabel>Notes</FormLabel>
+                            <Input name="notes" value={formData.notes} onChange={handleChange} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12}>
+                        <Button type="submit" variant="solid" size="lg">
+                            {petId === 'new' ? 'Create Pet' : 'Update General Info'}
+                        </Button>
+                    </Grid>
                 </Grid>
-            </form>
+                </form>
+            </Box>
           )}
 
           {activeTab === 1 && petId !== 'new' && (
-            <RecurringChargesWidget 
-                api={api} householdId={householdId} household={household}
-                entityType="pet" entityId={petId} 
+            <Box>
+              <RecurringChargesWidget 
+                api={api} 
+                householdId={householdId} 
+                household={household}
+                entityType="member" 
+                entityId={petId} 
                 segments={[
-                    { id: 'insurance', label: 'Insurance' },
-                    { id: 'other', label: 'Other' }
+                    { id: 'insurance', label: 'Pet Insurance' },
+                    { id: 'other', label: 'Maintenance & Other' }
                 ]}
-                title="Pet Costs"
+                title="Pet Recurring Costs"
                 showNotification={showNotification}
                 confirmAction={confirmAction}
-            />
+              />
+            </Box>
           )}
         </Box>
       </Sheet>
-      <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(e) => { setSelectedEmoji(e); setEmojiPickerOpen(false); }} />
+
+      <EmojiPicker 
+        open={emojiPickerOpen} 
+        onClose={() => setEmojiPickerOpen(false)} 
+        onEmojiSelect={(emoji) => {
+            setFormData(prev => ({ ...prev, emoji }));
+            setEmojiPickerOpen(false);
+        }}
+        title="Select Pet Emoji"
+      />
     </Box>
   );
 }
