@@ -7,14 +7,24 @@ import {
 import { Add, Edit, Delete, Receipt, Shield, ShoppingBag, ElectricBolt, DirectionsCar, Payments } from '@mui/icons-material';
 import { format } from 'date-fns';
 
-const formatCurrency = (val, currency = 'GBP') => {
+const formatCurrency = (val, currencyCode = 'GBP') => {
     const num = parseFloat(val) || 0;
-    return num.toLocaleString('en-GB', { 
-        style: 'currency', 
-        currency: currency, 
-        minimumFractionDigits: 2, 
-        maximumFractionDigits: 2 
-    });
+    // Map symbols back to ISO codes if necessary
+    let code = currencyCode;
+    if (code === '£') code = 'GBP';
+    if (code === '$') code = 'USD';
+    if (!code || code.length !== 3) code = 'GBP'; // Fallback
+
+    try {
+        return num.toLocaleString('en-GB', { 
+            style: 'currency', 
+            currency: code, 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+        });
+    } catch (e) {
+        return `£${num.toFixed(2)}`; // Last resort fallback
+    }
 };
 
 const FREQUENCIES = [
@@ -155,13 +165,6 @@ export default function RecurringChargesWidget({
           const res = await api[method](url, payload);
 
           if (affectCurrentBudget && editingId) {
-              // Logic to update current budget progress
-              // We need the current cycle start date. 
-              // For simplicity in this widget, we'll try to find active cycle via API or assume current month
-              const now = new Date();
-              // This is a naive implementation - in a full app we'd fetch the active cycle key
-              // But we can send a specialized 'sync' command if the API supported it.
-              // For now, we'll just notify the user.
               showNotification("Charge updated. Budget will reflect changes in the next refresh.", "success");
           } else {
               showNotification(editingId ? "Charge updated." : "Charge created.", "success");
@@ -225,7 +228,7 @@ export default function RecurringChargesWidget({
                         {c.segment.replace('vehicle_', '').replace('household_', '')}
                     </Chip>
                 </td>
-                <td><Typography level="body-xs">{c.frequency}</Typography></td>
+                <td><Typography level="body-xs" sx={{ textTransform: 'capitalize' }}>{c.frequency}</Typography></td>
                 <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{formatCurrency(c.amount, household?.currency)}</td>
                 <td>
                     <Box sx={{ display: 'flex', gap: 0.5 }}>

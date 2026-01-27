@@ -5,7 +5,7 @@ test.describe('Frontend Smoke Test', () => {
   const email = `smoke_${uniqueId}@test.com`;
   const password = 'Password123!';
 
-  test('should register, login and navigate all core pages', async ({ page }) => {
+  test('should register, login and navigate all core pages and tabs', async ({ page }) => {
     // 1. Register
     await page.goto('/register');
     await page.fill('input[name="firstName"]', 'Smoke');
@@ -46,10 +46,9 @@ test.describe('Frontend Smoke Test', () => {
     }
 
     await expect(page).toHaveURL(/.*dashboard/);
-    // dashboard greeting check
     await expect(page.locator('h2')).toContainText(/Good (morning|afternoon|evening), Smoke/);
 
-    // 3. Navigate through core pages
+    // 3. Navigate through core pages and their tabs
     const routes = [
       { name: 'Calendar', path: '/calendar' },
       { name: 'People', path: '/people' },
@@ -57,7 +56,11 @@ test.describe('Frontend Smoke Test', () => {
       { name: 'House', path: '/house' },
       { name: 'Vehicles', path: '/vehicles' },
       { name: 'Meals', path: '/meals' },
-      { name: 'Finance', path: '/finance' },
+      { 
+        name: 'Finance', 
+        path: '/finance',
+        tabs: ['budget', 'income', 'banking', 'savings', 'invest', 'pensions', 'credit', 'loans', 'mortgage', 'car']
+      },
       { name: 'Settings', path: '/settings' },
       { name: 'Profile', path: '/profile' }
     ];
@@ -71,8 +74,20 @@ test.describe('Frontend Smoke Test', () => {
       await expect(body).not.toContainText('Error');
       await expect(body).not.toContainText('404');
       
-      // Wait for network to settle to ensure data fetch attempt
-      await page.waitForLoadState('networkidle');
+      // If the route has sub-tabs, check each one
+      if (route.tabs) {
+          for (const tab of route.tabs) {
+              const tabUrl = `${route.path}?tab=${tab}`;
+              console.log(`  Checking sub-tab: ${tabUrl}`);
+              await page.goto(tabUrl);
+              // Wait for network to settle to catch 404s or range errors in console
+              await page.waitForLoadState('networkidle');
+              await expect(page.locator('body')).not.toContainText('Error');
+              await expect(page.locator('body')).not.toContainText('404');
+          }
+      } else {
+          await page.waitForLoadState('networkidle');
+      }
     }
   });
 });

@@ -7,14 +7,24 @@ import {
 } from '@mui/joy';
 import { Add, Edit, Delete } from '@mui/icons-material';
 
-const formatCurrency = (val, currency = 'GBP') => {
+const formatCurrency = (val, currencyCode = 'GBP') => {
     const num = parseFloat(val) || 0;
-    return num.toLocaleString('en-GB', { 
-        style: 'currency', 
-        currency: currency, 
-        minimumFractionDigits: 2, 
-        maximumFractionDigits: 2 
-    });
+    // Map symbols back to ISO codes if necessary
+    let code = currencyCode;
+    if (code === '£') code = 'GBP';
+    if (code === '$') code = 'USD';
+    if (!code || code.length !== 3) code = 'GBP'; // Fallback
+
+    try {
+        return num.toLocaleString('en-GB', { 
+            style: 'currency', 
+            currency: code, 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+        });
+    } catch (e) {
+        return `£${num.toFixed(2)}`; // Last resort fallback
+    }
 };
 
 // Segments as per user request
@@ -88,7 +98,7 @@ export default function ChargesView({ initialTab }) {
     adjust_for_working_day: true,
     notes: '',
     linked_entity_type: 'general',
-    linked_entity_id: 1 // Default to Household ID
+    linked_entity_id: householdId
   });
 
   const fetchCharges = useCallback(async () => {
@@ -187,7 +197,7 @@ export default function ChargesView({ initialTab }) {
       adjust_for_working_day: true,
       notes: '',
       linked_entity_type: 'general',
-      linked_entity_id: 1
+      linked_entity_id: householdId
     });
   };
 
@@ -205,7 +215,7 @@ export default function ChargesView({ initialTab }) {
       adjust_for_working_day: !!charge.adjust_for_working_day,
       notes: charge.notes || '',
       linked_entity_type: charge.linked_entity_type || 'general',
-      linked_entity_id: charge.linked_entity_id || 1
+      linked_entity_id: charge.linked_entity_id || householdId
     });
     setOpen(true);
   };
@@ -377,7 +387,7 @@ export default function ChargesView({ initialTab }) {
                         setFormData({ ...formData, linked_entity_type: type, linked_entity_id: parseInt(id) });
                     }}
                 >
-                    <Option value="general_1">🏠 Household (General)</Option>
+                    <Option value={`general_${householdId}`}>🏠 Household (General)</Option>
                     <Divider>Members</Divider>
                     {members.map(m => <Option key={m.id} value={`member_${m.id}`}>{m.emoji} {m.name}</Option>)}
                     <Divider>Vehicles</Divider>
