@@ -170,6 +170,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
         firstName, lastName, 
         first_name, last_name, 
         avatar, dashboard_layout, sticky_note,
+        budget_settings,
         theme, default_household_id
     } = req.body;
     
@@ -191,6 +192,10 @@ router.put('/profile', authenticateToken, async (req, res) => {
     if (dashboard_layout !== undefined) { 
         fields.push('dashboard_layout = ?'); 
         values.push(typeof dashboard_layout === 'string' ? dashboard_layout : JSON.stringify(dashboard_layout)); 
+    }
+    if (budget_settings !== undefined) {
+        fields.push('budget_settings = ?');
+        values.push(typeof budget_settings === 'string' ? budget_settings : JSON.stringify(budget_settings));
     }
 
     if (fields.length === 0) return res.status(400).json({ error: "Nothing to update" });

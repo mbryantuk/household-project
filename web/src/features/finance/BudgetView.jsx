@@ -837,23 +837,68 @@ export default function BudgetView() {
 
             <Grid xs={12} md={9}>
                 <Stack spacing={4}>
-                    {/* CREDIT CARDS */}
-                    {creditCardItems.length > 0 && (
-                        <Box>
-                            <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <CreditCard fontSize="small" /> Credit Card Repayments
-                            </Typography>
-                            {renderSection(creditCardItems, 6, false)}
-                        </Box>
-                    )}
+                    {categoryOrder.map((key, idx) => {
+                        // 1. Credit Card Section
+                        if (key === 'credit_repay') {
+                            if (creditCardItems.length === 0) return null;
+                            return (
+                                <Box key={key}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
+                                        <Typography level="title-md" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <CreditCard fontSize="small" /> Credit Card Repayments
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                            <IconButton size="sm" variant="plain" disabled={idx === 0} onClick={() => moveCategory(idx, 'up')}><ArrowUpward fontSize="small" /></IconButton>
+                                            <IconButton size="sm" variant="plain" disabled={idx === categoryOrder.length - 1} onClick={() => moveCategory(idx, 'down')}><ArrowDownward fontSize="small" /></IconButton>
+                                        </Box>
+                                    </Box>
+                                    {renderSection(creditCardItems, 6, false)}
+                                </Box>
+                            );
+                        }
 
-                    {categoryOrder.filter(k => k !== 'credit_repay' && k !== 'savings').map((freq, idx) => {
-                        const items = groupedRecurring[freq] || [];
+                        // 2. Savings Section
+                        if (key === 'savings') {
+                            const visibleAccountGroups = Object.entries(groupedPots).map(([accId, group]) => {
+                                const potItems = group.pots.map(p => sortedExpenses.find(e => e.key.startsWith(`pot_${p.id}_`))).filter(Boolean);
+                                const visiblePots = getVisibleItems(potItems);
+                                if (visiblePots.length === 0) return null;
+                                return { accId, group, visiblePots, potItems };
+                            }).filter(Boolean);
+
+                            if (visibleAccountGroups.length === 0) return null;
+
+                            return (
+                                <Box key={key}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
+                                        <Typography level="title-md" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><SavingsIcon fontSize="small" /> Savings & Goals</Typography>
+                                        <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                            <IconButton size="sm" variant="plain" disabled={idx === 0} onClick={() => moveCategory(idx, 'up')}><ArrowUpward fontSize="small" /></IconButton>
+                                            <IconButton size="sm" variant="plain" disabled={idx === categoryOrder.length - 1} onClick={() => moveCategory(idx, 'down')}><ArrowDownward fontSize="small" /></IconButton>
+                                        </Box>
+                                    </Box>
+                                    <Stack spacing={3}>
+                                        {visibleAccountGroups.map(({ accId, group, potItems }) => (
+                                            <Box key={accId}>
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar><Box><Typography level="title-sm">{group.name}</Typography><Typography level="body-xs" color="neutral">{group.institution}</Typography></Box></Box>
+                                                    <Box sx={{ textAlign: 'right' }}><Typography level="title-sm" color="success">{formatCurrency(group.balance)}</Typography><Typography level="body-xs">Balance</Typography></Box>
+                                                </Box>
+                                                {renderSection(potItems, 4, true)}
+                                            </Box>
+                                        ))}
+                                    </Stack>
+                                </Box>
+                            );
+                        }
+
+                        // 3. Generic Frequency Sections (Weekly, Monthly, etc.)
+                        const items = groupedRecurring[key] || [];
                         if (getVisibleItems(items).length === 0) return null;
-                        const label = freq === 'one_off' ? 'One-off Expenses' : `${freq.charAt(0).toUpperCase() + freq.slice(1)} Expenses`;
-                        
+                        const label = key === 'one_off' ? 'One-off Expenses' : `${key.charAt(0).toUpperCase() + key.slice(1)} Expenses`;
+
                         return (
-                            <Box key={freq}>
+                            <Box key={key}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
                                     <Typography level="title-md" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Payments fontSize="small" /> {label}</Typography>
                                     <Box sx={{ display: 'flex', gap: 0.5 }}>
@@ -865,34 +910,6 @@ export default function BudgetView() {
                             </Box>
                         );
                     })}
-
-                    {(() => {
-                        const visibleAccountGroups = Object.entries(groupedPots).map(([accId, group]) => {
-                            const potItems = group.pots.map(p => sortedExpenses.find(e => e.key.startsWith(`pot_${p.id}_`))).filter(Boolean);
-                            const visiblePots = getVisibleItems(potItems);
-                            if (visiblePots.length === 0) return null;
-                            return { accId, group, visiblePots, potItems };
-                        }).filter(Boolean);
-
-                        if (visibleAccountGroups.length === 0) return null;
-
-                        return (
-                            <Box>
-                                <Typography level="title-md" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}><SavingsIcon fontSize="small" /> Savings & Goals</Typography>
-                                <Stack spacing={3}>
-                                    {visibleAccountGroups.map(({ accId, group, potItems }) => (
-                                        <Box key={accId}>
-                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar><Box><Typography level="title-sm">{group.name}</Typography><Typography level="body-xs" color="neutral">{group.institution}</Typography></Box></Box>
-                                                <Box sx={{ textAlign: 'right' }}><Typography level="title-sm" color="success">{formatCurrency(group.balance)}</Typography><Typography level="body-xs">Balance</Typography></Box>
-                                            </Box>
-                                            {renderSection(potItems, 4, true)}
-                                        </Box>
-                                    ))}
-                                </Stack>
-                            </Box>
-                        );
-                    })()}
 
                     {cycleData.skipped?.length > 0 && (
                         <Box sx={{ mt: 4, pt: 4, borderTop: '1px solid', borderColor: 'divider' }}>

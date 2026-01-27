@@ -10,6 +10,7 @@ const GLOBAL_SCHEMA = [
         system_role TEXT DEFAULT 'user',
         dashboard_layout TEXT,
         sticky_note TEXT,
+        budget_settings TEXT,
         theme TEXT DEFAULT 'totem',
         default_household_id INTEGER,
         is_test INTEGER DEFAULT 0,
@@ -492,6 +493,19 @@ function initializeGlobalSchema(db) {
                     console.error("Global Schema Init Error:", err.message);
                 }
             });
+        });
+
+        // 🛠️ MIGRATION: Add budget_settings to users
+        db.all("PRAGMA table_info(users)", (err, rows) => {
+            if (err) return console.error("Failed to check users schema", err);
+            const hasBudgetSettings = rows.some(r => r.name === 'budget_settings');
+            if (!hasBudgetSettings) {
+                console.log("🛠️ Migrating users table: Adding budget_settings...");
+                db.run("ALTER TABLE users ADD COLUMN budget_settings TEXT", (err) => {
+                    if (err) console.error("Migration failed:", err.message);
+                    else console.log("✅ budget_settings column added.");
+                });
+            }
         });
     });
 }
