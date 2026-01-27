@@ -3,7 +3,7 @@ import {
   Box, Sheet, Typography, IconButton, Divider
 } from '@mui/joy';
 import { 
-  Close, DragIndicator, ChevronLeft, ChevronRight, OpenInNew 
+  Close, DragIndicator, ChevronLeft, ChevronRight, OpenInNew, Circle 
 } from '@mui/icons-material';
 
 export default function FloatingCalendar({ 
@@ -56,10 +56,36 @@ export default function FloatingCalendar({
   for (let i = 1; i <= numDays; i++) days.push({ date: new Date(year, month, i), isCurrentMonth: true });
   while (days.length < 42) days.push({ date: new Date(year, month + 1, days.length - numDays - firstDay + 1), isCurrentMonth: false });
 
+  // Helper to normalize dates to YYYY-MM-DD for comparison
+  const normalizeDate = (d) => {
+      if (!d) return '';
+      const dateObj = new Date(d);
+      // If it's a string, we assume it might be YYYY-MM-DD which parses to UTC midnight
+      // But we want to match it against local dates.
+      // Easiest way: if input string is YYYY-MM-DD, just use that.
+      if (typeof d === 'string' && d.match(/^\d{4}-\d{2}-\d{2}$/)) return d;
+      
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const day = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+  };
+
+  const selectedDateStr = normalizeDate(selectedDate);
+
   const eventsOnSelectedDate = useMemo(() => (dates || []).filter(d => {
-      const dDate = new Date(d.date);
-      return dDate.getDate() === selectedDate.getDate() && dDate.getMonth() === selectedDate.getMonth() && dDate.getFullYear() === selectedDate.getFullYear();
-  }), [dates, selectedDate]);
+      return normalizeDate(d.date) === selectedDateStr;
+  }), [dates, selectedDateStr]);
+
+  // Map of YYYY-MM-DD -> boolean
+  const eventMap = useMemo(() => {
+      const map = {};
+      (dates || []).forEach(d => {
+          const key = normalizeDate(d.date);
+          if (key) map[key] = true;
+      });
+      return map;
+  }, [dates]);
 
   return (
     <Sheet
@@ -98,15 +124,40 @@ export default function FloatingCalendar({
         </Box>
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '2px', mb: 1 }}>
           {days.map((d, i) => {
-            const isSelected = d.date.toDateString() === selectedDate.toDateString();
+            const dateStr = normalizeDate(d.date);
+            const isSelected = dateStr === selectedDateStr;
+            const hasEvent = eventMap[dateStr];
+
             return (
-              <IconButton key={i} size="sm" variant={isSelected ? 'solid' : 'plain'} color={isSelected ? 'primary' : 'neutral'} onClick={() => setSelectedDate(d.date)} 
-                sx={{ 
-                    opacity: d.isCurrentMonth ? 1 : 0.3,
-                    minHeight: 28, minWidth: 28, fontSize: 'xs'
-                }}>
-                {d.date.getDate()}
-              </IconButton>
+              <Box key={i} sx={{ position: 'relative' }}>
+                <IconButton 
+                  size="sm" 
+                  variant={isSelected ? 'solid' : 'plain'} 
+                  color={isSelected ? 'primary' : 'neutral'} 
+                  onClick={() => setSelectedDate(d.date)} 
+                  sx={{ 
+                      opacity: d.isCurrentMonth ? 1 : 0.3,
+                      minHeight: 28, minWidth: 28, fontSize: 'xs',
+                      width: '100%'
+                  }}
+                >
+                  {d.date.getDate()}
+                </IconButton>
+                {hasEvent && (
+                    <Box 
+                        sx={{ 
+                            position: 'absolute', 
+                            bottom: 2, 
+                            left: '50%', 
+                            transform: 'translateX(-50%)', 
+                            width: 4, 
+                            height: 4, 
+                            borderRadius: '50%', 
+                            bgcolor: isSelected ? 'common.white' : 'danger.500' 
+                        }} 
+                    />
+                )}
+              </Box>
             );
           })}
         </Box>

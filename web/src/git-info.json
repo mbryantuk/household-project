@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Restored complex Finance Views (Mortgages, Income, Banking) from v3.0.52 pre-simplification.",
-  "date": "Tue 27 Jan 15:41:38 GMT 2026"
+  "commitMessage": "Fixed Calendar Widget: Added event indicators (dots) and improved timezone-safe date matching.",
+  "date": "Tue 27 Jan 15:59:34 GMT 2026"
 }
