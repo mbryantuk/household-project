@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Security: Added secure local credentials file for nightly reports and updated gitignore.",
-  "date": "Tue 27 Jan 13:12:06 GMT 2026"
+  "commitMessage": "Ops: Added --skip-docker switch and improved mailer visibility in nightly suite.",
+  "date": "Tue 27 Jan 13:18:34 GMT 2026"
 }

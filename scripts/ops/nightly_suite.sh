@@ -4,16 +4,8 @@
 
 set -e
 
-# Load Secrets if they exist
-SECRET_FILE="$(dirname "$0")/.env.nightly"
-if [ -f "$SECRET_FILE" ]; then
-    echo "🔐 Loading credentials from .env.nightly..."
-    export $(grep -v '^#' "$SECRET_FILE" | xargs)
-else
-    echo "⚠️  Warning: .env.nightly not found. Email reporting may fail."
-fi
-
 # Flags
+SKIP_DOCKER=false
 SKIP_BACKEND=false
 SKIP_FRONTEND=false
 SKIP_PURGE=false
@@ -21,6 +13,10 @@ SKIP_PURGE=false
 # Parse arguments
 for arg in "$@"; do
   case $arg in
+    --skip-docker)
+      SKIP_DOCKER=true
+      shift
+      ;;
     --skip-backend)
       SKIP_BACKEND=true
       shift
@@ -36,6 +32,15 @@ for arg in "$@"; do
   esac
 done
 
+# Load Secrets if they exist
+SECRET_FILE="$(dirname "$0")/.env.nightly"
+if [ -f "$SECRET_FILE" ]; then
+    echo "🔐 Loading credentials from .env.nightly..."
+    export $(grep -v '^#' "$SECRET_FILE" | xargs)
+else
+    echo "⚠️  Warning: .env.nightly not found. Email reporting may fail."
+fi
+
 # Force non-interactive for any apt or npx commands
 export DEBIAN_FRONTEND=noninteractive
 
@@ -45,10 +50,14 @@ cd "$PROJECT_ROOT"
 echo "🌙 Starting Nightly Comprehensive Suite..."
 
 # 1. Refresh Containers
-echo "🚀 [1/6] Refreshing containers..."
-docker compose pull --quiet > /dev/null 2>&1 || true
-docker compose up -d --build > /dev/null 2>&1
-echo "✅ Containers ready."
+if [ "$SKIP_DOCKER" = true ]; then
+    echo "⏭️  [1/6] Skipping Container Refresh."
+else
+    echo "🚀 [1/6] Refreshing containers..."
+    docker compose pull --quiet > /dev/null 2>&1 || true
+    docker compose up -d --build > /dev/null 2>&1
+    echo "✅ Containers ready."
+fi
 
 # 2. Backend Integration & Security Tests
 if [ "$SKIP_BACKEND" = true ]; then
