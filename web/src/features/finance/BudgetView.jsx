@@ -5,7 +5,7 @@ import {
   Button, Modal, ModalDialog, DialogTitle, DialogContent, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
   Sheet, Table, Checkbox, LinearProgress, Switch,
-  Dropdown, Menu, MenuButton, MenuItem
+  Dropdown, Menu, MenuButton, MenuItem, Select, Option
 } from '@mui/joy';
 import { 
   AccountBalanceWallet, CheckCircle, RadioButtonUnchecked, TrendingDown, 
@@ -53,7 +53,9 @@ export default function BudgetView() {
   const [quickLinkType, setQuickLinkType] = useState('general');
   const [recurringAddOpen, setRecurringAddOpen] = useState(false);
   const [recurringType, setRecurringType] = useState('monthly');
-  const [linkType, setLinkType] = useState('general');
+  
+  // New State for Entity-First Flow
+  const [selectedEntity, setSelectedEntity] = useState('general:household');
 
   const [actualPay, setActualPay] = useState('');
   const [currentBalance, setCurrentBalance] = useState('');
@@ -64,6 +66,62 @@ export default function BudgetView() {
     const handleResize = () => setIsMobile(window.innerWidth < 900);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // ENTITY-FIRST HELPER LOGIC
+  const entityGroups = useMemo(() => {
+    return [
+        { label: 'General', options: [{ value: 'general:household', label: 'Household (General)', emoji: '🏠' }] },
+        { label: 'People', options: members.filter(m => m.type !== 'pet').map(m => ({ value: `member:${m.id}`, label: m.name, emoji: m.emoji || '👤' })) },
+        { label: 'Pets', options: members.filter(m => m.type === 'pet').map(p => ({ value: `pet:${p.id}`, label: p.name, emoji: p.emoji || '🐾' })) },
+        { label: 'Vehicles', options: liabilities.vehicles.map(v => ({ value: `vehicle:${v.id}`, label: `${v.make} ${v.model}`, emoji: v.emoji || '🚗' })) },
+        { label: 'Assets', options: liabilities.assets.map(a => ({ value: `asset:${a.id}`, label: a.name, emoji: a.emoji || '📦' })) }
+    ].filter(g => g.options.length > 0);
+  }, [members, liabilities]);
+
+  const getCategoryOptions = useCallback((entityString) => {
+      const [type] = (entityString || 'general:household').split(':');
+      
+      const HOUSEHOLD_CATS = [
+          { value: 'household_bill', label: 'Household Bill' },
+          { value: 'utility', label: 'Utility (Water/Gas/Elec)' },
+          { value: 'subscription', label: 'Subscription' },
+          { value: 'insurance', label: 'Insurance' },
+          { value: 'warranty', label: 'Warranty' },
+          { value: 'service', label: 'Service / Maintenance' },
+          { value: 'other', label: 'Other' }
+      ];
+
+      const VEHICLE_CATS = [
+          { value: 'vehicle_fuel', label: 'Fuel' },
+          { value: 'vehicle_tax', label: 'Tax' },
+          { value: 'vehicle_mot', label: 'MOT' },
+          { value: 'vehicle_service', label: 'Service' },
+          { value: 'insurance', label: 'Insurance' },
+          { value: 'warranty', label: 'Warranty' },
+          { value: 'finance', label: 'Finance Payment' },
+          { value: 'other', label: 'Other' }
+      ];
+
+      const MEMBER_CATS = [
+          { value: 'subscription', label: 'Subscription' },
+          { value: 'insurance', label: 'Life/Health Insurance' },
+          { value: 'education', label: 'Education' },
+          { value: 'care', label: 'Care / Childcare' },
+          { value: 'other', label: 'Other' }
+      ];
+      
+      const PET_CATS = [
+          { value: 'food', label: 'Food' },
+          { value: 'insurance', label: 'Pet Insurance' },
+          { value: 'vet', label: 'Vet Bills' },
+          { value: 'other', label: 'Other' }
+      ];
+
+      if (type === 'vehicle') return VEHICLE_CATS;
+      if (type === 'member') return MEMBER_CATS;
+      if (type === 'pet') return PET_CATS;
+      return HOUSEHOLD_CATS;
   }, []);
 
   const playDing = useCallback(() => {
@@ -430,11 +488,15 @@ export default function BudgetView() {
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
       const data = Object.fromEntries(formData.entries());
+      
+      // Parse Entity First Selection
+      const [type, id] = selectedEntity.split(':');
+      
       data.adjust_for_working_day = data.nearest_working_day === "1" ? 1 : 0;
       data.frequency = recurringType;
       data.segment = data.category || 'other';
-      data.linked_entity_type = linkType;
-      data.linked_entity_id = data.linked_entity_id || null;
+      data.linked_entity_type = type;
+      data.linked_entity_id = id === 'household' ? null : id;
       data.start_date = data.start_date; // Standard ISO date from input
 
       try {
@@ -839,9 +901,41 @@ export default function BudgetView() {
                 <DialogContent>
                     <form onSubmit={handleRecurringAdd}>
                         <Stack spacing={2}>
-                            <FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus placeholder="e.g. Netflix, Car Insurance" /></FormControl>
+                            {/* Step 1: Entity First Selection */}
+                            <FormControl>
+                                <FormLabel>Assign To</FormLabel>
+                                <Select 
+                                    value={selectedEntity} 
+                                    onChange={(e, val) => setSelectedEntity(val)}
+                                    placeholder="Select Household, Person, Vehicle..."
+                                >
+                                    {entityGroups.map((group, idx) => [
+                                        idx > 0 && <Divider key={`div-${idx}`} />,
+                                        <Typography level="body-xs" fontWeight="bold" sx={{ px: 1.5, py: 0.5, color: 'primary.500' }} key={`header-${idx}`}>
+                                            {group.label}
+                                        </Typography>,
+                                        ...group.options.map(opt => (
+                                            <Option key={opt.value} value={opt.value}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <Avatar size="sm" sx={{ width: 20, height: 20, fontSize: '12px' }}>{opt.emoji}</Avatar>
+                                                    {opt.label}
+                                                </Box>
+                                            </Option>
+                                        ))
+                                    ])}
+                                </Select>
+                            </FormControl>
+
+                            {/* Step 2: Contextual Details */}
                             <Grid container spacing={2}>
-                                <Grid xs={6}><FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" step="0.01" /></FormControl></Grid>
+                                <Grid xs={6}>
+                                    <AppSelect 
+                                        label="Category" 
+                                        name="category" 
+                                        defaultValue={getCategoryOptions(selectedEntity)[0]?.value} 
+                                        options={getCategoryOptions(selectedEntity)} 
+                                    />
+                                </Grid>
                                 <Grid xs={6}>
                                     <AppSelect label="Frequency" value={recurringType} onChange={setRecurringType} options={[
                                         { value: 'weekly', label: 'Weekly' },
@@ -852,29 +946,13 @@ export default function BudgetView() {
                                 </Grid>
                             </Grid>
 
+                            <FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus placeholder="e.g. Netflix, Car Insurance" /></FormControl>
+                            
+                            <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" step="0.01" /></FormControl>
+
                             <FormControl required><FormLabel>First Charge Date</FormLabel><Input name="start_date" type="date" required defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
                             <Checkbox label="Adjust for Working Day (Next)" name="nearest_working_day" defaultChecked value="1" />
                             
-                            <Divider />
-                            
-                            <Grid container spacing={2}>
-                                <Grid xs={6}><AppSelect label="Category" name="category" defaultValue="other" options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'saving', label: 'Saving' }, { value: 'other', label: 'Other' }]} /></Grid>
-                                <Grid xs={6}><AppSelect label="Linked To" value={linkType} onChange={setLinkType} options={[{ value: 'general', label: 'Household' }, { value: 'member', label: 'Member' }, { value: 'vehicle', label: 'Vehicle' }, { value: 'asset', label: 'Asset' }, { value: 'pet', label: 'Pet' }]} /></Grid>
-                            </Grid>
-
-                            {linkType === 'member' && (
-                                <AppSelect label="Select Member" name="linked_entity_id" options={members.map(m => ({ value: String(m.id), label: `${m.emoji || '👤'} ${m.name}` }))} />
-                            )}
-                            {linkType === 'vehicle' && (
-                                <AppSelect label="Select Vehicle" name="linked_entity_id" options={liabilities.vehicles.map(v => ({ value: String(v.id), label: `${v.emoji || '🚗'} ${v.make} ${v.model}` }))} />
-                            )}
-                            {linkType === 'asset' && (
-                                <AppSelect label="Select Asset" name="linked_entity_id" options={liabilities.assets.map(a => ({ value: String(a.id), label: `${a.emoji || '📦'} ${a.name}` }))} />
-                            )}
-                            {linkType === 'pet' && (
-                                <AppSelect label="Select Pet" name="linked_entity_id" options={members.filter(m => m.type === 'pet').map(p => ({ value: String(p.id), label: `${p.emoji || '🐾'} ${p.name}` }))} />
-                            )}
-
                             <Button type="submit">Add Recurring Expense</Button>
                         </Stack>
                     </form>

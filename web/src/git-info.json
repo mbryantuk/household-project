@@ -1,4 +1,4 @@
 {
-  "commitMessage": "UI/UX: Renamed Fleet to Vehicles; Overhauled RecurringChargesWidget with category tabs and icons; Integrated EmojiPicker into all Finance views.",
-  "date": "Tue 27 Jan 14:35:17 GMT 2026"
+  "commitMessage": "v3.0.53 - Feature: Implemented Entity-First Recurring Charge workflow in BudgetView.",
+  "date": "Tue 27 Jan 15:11:34 GMT 2026"
 }
