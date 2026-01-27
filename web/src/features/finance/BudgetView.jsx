@@ -17,7 +17,7 @@ import {
 import { 
   format, addMonths, startOfMonth, setDate, differenceInDays, 
   isSameDay, isAfter, startOfDay, isWithinInterval, 
-  parseISO, getDay, addDays, isValid
+  parseISO, getDay, addDays, isValid, addYears, addWeeks
 } from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
@@ -26,12 +26,6 @@ const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
     return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
-
-const MONTHS = [
-    { value: '1', label: 'January' }, { value: '2', label: 'February' }, { value: '3', label: 'March' }, { value: '4', label: 'April' },
-    { value: '5', label: 'May' }, { value: '6', label: 'June' }, { value: '7', label: 'July' }, { value: '8', label: 'August' },
-    { value: '9', label: 'September' }, { value: '10', label: 'October' }, { value: '11', label: 'November' }, { value: '12', label: 'December' }
-];
 
 export default function BudgetView() {
   const { api, id: householdId, isDark, showNotification, members = [], setStatusBarData, confirmAction } = useOutletContext();
@@ -237,37 +231,36 @@ export default function BudgetView() {
       liabilities.charges.filter(c => c.is_active !== 0).forEach(charge => {
           let datesToAdd = [];
           const freq = charge.frequency?.toLowerCase();
-          if (freq === 'monthly') {
-             datesToAdd.push(getAdjustedDate(charge.day_of_month, charge.adjust_for_working_day, startDate));
-          } else if (freq === 'quarterly') {
-             const anchor = charge.start_date ? parseISO(charge.start_date) : null;
-             if (anchor) {
-                 let current = startOfDay(anchor);
-                 while (current < startDate) current = addMonths(current, 3);
-                 while (isWithinInterval(current, { start: startDate, end: endDate })) {
-                     datesToAdd.push(charge.adjust_for_working_day ? getNextWorkingDay(current) : new Date(current));
-                     current = addMonths(current, 3);
-                 }
-             }
-          } else if (freq === 'yearly') {
-             const currentYearDate = new Date(startDate.getFullYear(), (charge.month_of_year || 1) - 1, charge.day_of_month || 1);
-             const nextYearDate = new Date(startDate.getFullYear() + 1, (charge.month_of_year || 1) - 1, charge.day_of_month || 1);
-             if (isWithinInterval(currentYearDate, { start: startDate, end: endDate })) {
-                 datesToAdd.push(charge.adjust_for_working_day ? getNextWorkingDay(currentYearDate) : currentYearDate);
-             } else if (isWithinInterval(nextYearDate, { start: startDate, end: endDate })) {
-                 datesToAdd.push(charge.adjust_for_working_day ? getNextWorkingDay(nextYearDate) : nextYearDate);
-             }
-          } else if (freq === 'one_off') {
-             const oneOffDate = parseISO(charge.exact_date);
+          const anchor = charge.start_date ? parseISO(charge.start_date) : null;
+
+          if (freq === 'one_off') {
+             const oneOffDate = parseISO(charge.exact_date || charge.start_date);
              if (isWithinInterval(oneOffDate, { start: startDate, end: endDate })) datesToAdd.push(oneOffDate);
-          } else if (freq === 'weekly') {
-             let iter = new Date(startDate);
-             while (iter <= endDate) {
-                 if (getDay(iter) === (charge.day_of_week === 7 ? 0 : charge.day_of_week)) { 
-                      datesToAdd.push(new Date(iter));
-                 }
-                 iter = addDays(iter, 1);
+          } else if (anchor) {
+             let current = startOfDay(anchor);
+             const increment = freq === 'weekly' ? { weeks: 1 } : (freq === 'monthly' ? { months: 1 } : (freq === 'quarterly' ? { months: 3 } : { years: 1 }));
+             
+             // Forward to start of cycle
+             while (current < startDate) {
+                 if (freq === 'weekly') current = addWeeks(current, 1);
+                 else if (freq === 'monthly') current = addMonths(current, 1);
+                 else if (freq === 'quarterly') current = addMonths(current, 3);
+                 else current = addYears(current, 1);
              }
+
+             // Add all instances in this cycle
+             while (isWithinInterval(current, { start: startDate, end: endDate })) {
+                 datesToAdd.push(charge.adjust_for_working_day ? getNextWorkingDay(current) : new Date(current));
+                 if (freq === 'weekly') current = addWeeks(current, 1);
+                 else if (freq === 'monthly') current = addMonths(current, 1);
+                 else if (freq === 'quarterly') current = addMonths(current, 3);
+                 else current = addYears(current, 1);
+             }
+          } else {
+              // Legacy Fallback for older records without start_date
+              if (freq === 'monthly') {
+                 datesToAdd.push(getAdjustedDate(charge.day_of_month, charge.adjust_for_working_day, startDate));
+              }
           }
 
           const linkedObj = getLinkedObject(charge.linked_entity_type, charge.linked_entity_id);
@@ -424,11 +417,8 @@ export default function BudgetView() {
       data.adjust_for_working_day = data.nearest_working_day === "1" ? 1 : 0;
       data.linked_entity_type = quickLinkType;
       data.linked_entity_id = data.linked_entity_id || null;
+      data.start_date = data.start_date; // Direct from date picker
 
-      if (cycleData) {
-          const d = setDate(cycleData.startDate, parseInt(data.payment_day));
-          data.exact_date = format(d, 'yyyy-MM-dd');
-      }
       try {
           await api.post(`/households/${householdId}/finance/charges`, data);
           showNotification("One-off expense added.", "success");
@@ -441,22 +431,11 @@ export default function BudgetView() {
       const formData = new FormData(e.currentTarget);
       const data = Object.fromEntries(formData.entries());
       data.adjust_for_working_day = data.nearest_working_day === "1" ? 1 : 0;
-      data.day_of_month = parseInt(data.day_of_month) || 1;
-      data.month_of_year = parseInt(data.month_of_year) || 1;
-      data.day_of_week = parseInt(data.day_of_week) || 0;
       data.frequency = recurringType;
       data.segment = data.category || 'other';
       data.linked_entity_type = linkType;
       data.linked_entity_id = data.linked_entity_id || null;
-
-      // Handle start_date / anchor month logic
-      if (recurringType === 'quarterly' || recurringType === 'yearly') {
-          const m = parseInt(data.start_month) || 1;
-          const d = parseInt(data.day_of_month) || 1;
-          const anchor = new Date(new Date().getFullYear(), m - 1, d);
-          data.start_date = format(anchor, 'yyyy-MM-dd');
-          data.month_of_year = m;
-      }
+      data.start_date = data.start_date; // Standard ISO date from input
 
       try {
           await api.post(`/households/${householdId}/finance/charges`, data);
@@ -830,7 +809,7 @@ export default function BudgetView() {
                         <Stack spacing={2}>
                             <FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus /></FormControl>
                             <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: '0.01' } }} /></FormControl>
-                            <FormControl required><FormLabel>Due Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={new Date().getDate()} /></FormControl>
+                            <FormControl required><FormLabel>Charge Date</FormLabel><Input name="start_date" type="date" defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
                             <Checkbox label="Nearest Working Day (Next)" name="nearest_working_day" defaultChecked value="1" />
                             <AppSelect label="Category" name="category" defaultValue="other" options={[{ value: 'subscription', label: 'Subscription' }, { value: 'utility', label: 'Utility' }, { value: 'insurance', label: 'Insurance' }, { value: 'service', label: 'Service' }, { value: 'other', label: 'Other' }]} />
                             
@@ -873,23 +852,7 @@ export default function BudgetView() {
                                 </Grid>
                             </Grid>
 
-                            {recurringType === 'weekly' && (
-                                <AppSelect label="Day of Week" name="day_of_week" defaultValue="1" options={[
-                                    { value: '1', label: 'Monday' }, { value: '2', label: 'Tuesday' }, { value: '3', label: 'Wednesday' },
-                                    { value: '4', label: 'Thursday' }, { value: '5', label: 'Friday' }, { value: '6', label: 'Saturday' }, { value: '0', label: 'Sunday' }
-                                ]} />
-                            )}
-
-                            {recurringType === 'monthly' && (
-                                <FormControl required><FormLabel>Day of Month</FormLabel><Input name="day_of_month" type="number" min="1" max="31" defaultValue={1} /></FormControl>
-                            )}
-                             {(recurringType === 'quarterly' || recurringType === 'yearly') && (
-                                <Grid container spacing={2}>
-                                    <Grid xs={6}><AppSelect label="Start Month" name="start_month" defaultValue={String(new Date().getMonth() + 1)} options={MONTHS} /></Grid>
-                                    <Grid xs={6}><FormControl required><FormLabel>Day of Month</FormLabel><Input name="day_of_month" type="number" min="1" max="31" defaultValue={1} /></FormControl></Grid>
-                                </Grid>
-                            )}
-
+                            <FormControl required><FormLabel>First Charge Date</FormLabel><Input name="start_date" type="date" required defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
                             <Checkbox label="Adjust for Working Day (Next)" name="nearest_working_day" defaultChecked value="1" />
                             
                             <Divider />

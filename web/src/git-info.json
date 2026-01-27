@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Ops: Improved mailer diagnostics and verbose logging for nightly suite.",
-  "date": "Tue 27 Jan 13:21:33 GMT 2026"
+  "commitMessage": "Feature: Unified frequency logic using start_date as anchor for all recurring costs.",
+  "date": "Tue 27 Jan 13:45:59 GMT 2026"
 }

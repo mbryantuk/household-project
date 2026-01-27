@@ -7,21 +7,25 @@ async function sendReport() {
     const backendLogPath = path.join(__dirname, '../../server/test-results.log');
     
     // Config
-    const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+    const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
     const port = parseInt(process.env.SMTP_PORT) || 587;
-    const user = process.env.SMTP_USER || 'mbryantuk@gmail.com';
-    const pass = process.env.SMTP_PASS;
-    const to = process.env.REPORT_EMAIL || 'mbryantuk@gmail.com';
+    const user = (process.env.SMTP_USER || 'mbryantuk@gmail.com').trim();
+    const pass = (process.env.SMTP_PASS || '').trim().replace(/["']/g, ''); // Strip quotes and spaces
+    const to = (process.env.REPORT_EMAIL || 'mbryantuk@gmail.com').trim();
 
-    console.log(`Debug: Attempting to send email via ${host}:${port} as ${user}`);
+    console.log(`Debug: Attempting to send email via ${host}:${port} (${port === 465 ? 'SSL' : 'TLS'}) as ${user}`);
+    console.log(`Debug: Password length is ${pass.length} characters.`);
 
     const smtpConfig = {
         host: host,
         port: port,
-        secure: port === 465, // true for 465, false for other ports
+        secure: port === 465, 
         auth: {
             user: user,
             pass: pass
+        },
+        tls: {
+            rejectUnauthorized: false
         }
     };
 
@@ -53,7 +57,9 @@ async function sendReport() {
     } catch (error) {
         console.error('❌ Failed to send email:', error.message);
         if (error.message.includes('EAUTH')) {
-            console.error('Tip: Check your Google App Password. Ensure 2FA is on and you generated a specifically for this App.');
+            console.error('Troubleshooting:');
+            console.error('1. Your password is currently ' + pass.length + ' characters. Google App Passwords must be exactly 16.');
+            console.error('2. Ensure 2-Step Verification is ENABLED on your Google Account.');
         }
     }
 }
