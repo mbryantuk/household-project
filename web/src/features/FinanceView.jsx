@@ -4,7 +4,7 @@ import { Box, Typography, Sheet, Grid, Card, Avatar, IconButton } from '@mui/joy
 import { 
   Payments, AccountBalance, Savings, CreditCard, RequestQuote, Home, 
   TrendingUp, HourglassBottom, PieChart, ArrowBack, ChevronRight, 
-  DirectionsCar, Receipt
+  DirectionsCar
 } from '@mui/icons-material';
 
 import IncomeView from './finance/IncomeView';
@@ -74,6 +74,7 @@ export default function FinanceView() {
       
       if (!activeView) return null;
       
+      // Placeholder view for tabs without components yet
       return (
         <Box>
             <Box sx={{ mb: 4 }}>
@@ -87,6 +88,7 @@ export default function FinanceView() {
       );
   };
 
+  // 1. Selector view for Mobile (List of Cards)
   if (isMobile && !activeTabKey) {
     return (
       <Box>
@@ -112,6 +114,7 @@ export default function FinanceView() {
     );
   }
 
+  // 2. Tab Content view for Mobile (with Back button)
   if (isMobile && activeTabKey) {
     return (
       <Box sx={{ width: '100%' }}>
@@ -119,20 +122,16 @@ export default function FinanceView() {
           <IconButton variant="plain" onClick={() => navigate('.')}>
             <ArrowBack />
           </IconButton>
-          <Typography level="title-lg">{activeView?.label || 'Finance'}</Typography>
+          {/* Note: Title is removed here to prevent double-header with child views */}
         </Box>
         {renderContent()}
       </Box>
     );
   }
 
+  // 3. Desktop View (Child views handle their own headers)
   return (
     <Box sx={{ width: '100%' }}>
-      {activeView && !isMobile && (
-          <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography level="h2" sx={{ fontWeight: 'lg' }}>{activeView.label}</Typography>
-          </Box>
-      )}
       {renderContent()}
     </Box>
   );
