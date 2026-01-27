@@ -93,9 +93,9 @@ echo "🧹 [4/6] Cleaning up test data..."
 node server/scripts/cleanup_test_data.js > /dev/null 2>&1 || true
 echo "✅ Cleanup complete."
 
-# 5. Send the report
+# 5. Send the report (Removed output suppression for debugging)
 echo "📧 [5/6] Emailing report..."
-node scripts/utils/send_report.js > /dev/null 2>&1 || true
+node scripts/utils/send_report.js || true
 echo "✅ Report task finished."
 
 # 6. Aggressive Cleanup

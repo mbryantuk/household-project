@@ -6,14 +6,22 @@ async function sendReport() {
     const reportPath = path.join(__dirname, '../../web/playwright-report/index.html');
     const backendLogPath = path.join(__dirname, '../../server/test-results.log');
     
-    // Gmail Defaults for mbryantuk@gmail.com
+    // Config
+    const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+    const port = parseInt(process.env.SMTP_PORT) || 587;
+    const user = process.env.SMTP_USER || 'mbryantuk@gmail.com';
+    const pass = process.env.SMTP_PASS;
+    const to = process.env.REPORT_EMAIL || 'mbryantuk@gmail.com';
+
+    console.log(`Debug: Attempting to send email via ${host}:${port} as ${user}`);
+
     const smtpConfig = {
-        host: process.env.SMTP_HOST || 'smtp.gmail.com',
-        port: parseInt(process.env.SMTP_PORT) || 465,
-        secure: (process.env.SMTP_PORT == 465 || !process.env.SMTP_PORT), // True for 465, false for 587
+        host: host,
+        port: port,
+        secure: port === 465, // true for 465, false for other ports
         auth: {
-            user: process.env.SMTP_USER || 'mbryantuk@gmail.com',
-            pass: process.env.SMTP_PASS // Required: Google App Password
+            user: user,
+            pass: pass
         }
     };
 
@@ -24,25 +32,29 @@ async function sendReport() {
         attachments.push({ filename: 'frontend-report.html', path: reportPath });
     }
     
-    const backendLog = fs.existsSync(backendLogPath) ? fs.readFileSync(backendLogPath, 'utf8') : '';
-    const backendPassed = backendLog.includes('PASS');
+    const backendLog = fs.existsSync(backendLogPath) ? fs.readFileSync(backendLogPath, 'utf8') : 'No backend log found.';
+    const backendPassed = backendLog.includes('SUCCESS') || backendLog.includes('PASS');
 
     const mailOptions = {
-        from: '"Totem Nightly Bot" <mbryantuk@gmail.com>',
-        to: process.env.REPORT_EMAIL || 'mbryantuk@gmail.com',
+        from: `"Totem Nightly Bot" <${user}>`,
+        to: to,
         subject: `🌙 Nightly System Health Report: ${backendPassed ? '🟢 PASS' : '🔴 FAIL'}`,
-        text: `The nightly comprehensive test suite has completed.\n\nBackend Status: ${backendPassed ? 'PASSED' : 'FAILED'}\nFrontend Status: See attached report.\n\nTime: ${new Date().toLocaleString()}\n\nNote: If tests failed, logs are preserved in server/test-results.log and web/playwright-tests.log on the server.`,        attachments
+        text: `The nightly comprehensive test suite has completed.\n\nBackend Status: ${backendPassed ? 'PASSED' : 'FAILED'}\nFrontend Status: See attached report.\n\nTime: ${new Date().toLocaleString()}\n\nNote: If tests failed, logs are preserved in server/test-results.log and web/playwright-tests.log on the server.`,
+        attachments
     };
 
     try {
-        if (!smtpConfig.auth.pass) {
-            throw new Error("SMTP_PASS (Google App Password) not set in environment.");
+        if (!pass) {
+            throw new Error("SMTP_PASS (Google App Password) not set in environment or .env.nightly");
         }
-        await transporter.sendMail(mailOptions);
-        console.log('✅ Nightly report emailed to mbryantuk@gmail.com');
+        const info = await transporter.sendMail(mailOptions);
+        console.log('✅ Nightly report emailed to:', to);
+        console.log('Message ID:', info.messageId);
     } catch (error) {
         console.error('❌ Failed to send email:', error.message);
-        console.log('Results are saved locally in web/playwright-report/');
+        if (error.message.includes('EAUTH')) {
+            console.error('Tip: Check your Google App Password. Ensure 2FA is on and you generated a specifically for this App.');
+        }
     }
 }
 
