@@ -14,7 +14,7 @@ const formatCurrency = (val, currencyCode = 'GBP') => {
     let code = currencyCode === '£' ? 'GBP' : (currencyCode === '$' ? 'USD' : (currencyCode || 'GBP'));
     try {
         return num.toLocaleString('en-GB', { style: 'currency', currency: code, minimumFractionDigits: 2 });
-    } catch (e) { return `£${num.toFixed(2)}`; }
+    } catch { return `£${num.toFixed(2)}`; }
 };
 
 export default function LoansView() {
@@ -36,7 +36,10 @@ export default function LoansView() {
     } catch (err) { console.error(err); }
   }, [api, householdId]);
 
-  useEffect(() => { fetchLoans(); }, [fetchLoans]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchLoans();
+  }, [fetchLoans]);
 
   const handleEdit = (loan) => {
     setEditingId(loan.id);

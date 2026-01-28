@@ -14,7 +14,7 @@ const formatCurrency = (val, currencyCode = 'GBP') => {
     let code = currencyCode === '£' ? 'GBP' : (currencyCode === '$' ? 'USD' : (currencyCode || 'GBP'));
     try {
         return num.toLocaleString('en-GB', { style: 'currency', currency: code, minimumFractionDigits: 2 });
-    } catch (e) { return `£${num.toFixed(2)}`; }
+    } catch { return `£${num.toFixed(2)}`; }
 };
 
 export default function InvestmentsView() {
@@ -36,7 +36,10 @@ export default function InvestmentsView() {
     } catch (err) { console.error(err); }
   }, [api, householdId]);
 
-  useEffect(() => { fetchInvestments(); }, [fetchInvestments]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchInvestments();
+  }, [fetchInvestments]);
 
   const handleEdit = (inv) => {
     setEditingId(inv.id);
@@ -50,8 +53,6 @@ export default function InvestmentsView() {
 
   const handleSave = async () => {
     try {
-      const url = editingId ? `/households/${householdId}/finance/investments/${editingId}` : `/households/${householdId}/finance/finance/investments`;
-      // Check if standard path or sub-path
       const realUrl = editingId ? `/households/${householdId}/finance/investments/${editingId}` : `/households/${householdId}/finance/investments`;
       await api[editingId ? 'put' : 'post'](realUrl, formData);
       setOpen(false); setEditingId(null); fetchInvestments();

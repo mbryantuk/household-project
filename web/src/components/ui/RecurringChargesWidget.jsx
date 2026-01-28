@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Box, Sheet, Typography, Button, Table, IconButton, 
-  Modal, ModalDialog, ModalClose, FormControl, FormLabel, Input, 
-  Select, Option, Checkbox, Stack, Chip, Divider, DialogTitle, DialogContent, DialogActions,
-  Tabs, TabList, Tab, Avatar, Tooltip
+  Modal, ModalDialog, FormControl, FormLabel, Input, 
+  Select, Option, Stack, Chip, Divider, DialogTitle,
+  Tabs, TabList, Tab, Avatar
 } from '@mui/joy';
 import { 
   Add, Edit, Delete, Receipt, Shield, ShoppingBag, ElectricBolt, 
-  DirectionsCar, Payments, Build, LocalGasStation, HelpOutline,
-  Assignment, AccountBalance, Gavel, Timer
+  Build, LocalGasStation, HelpOutline,
+  Assignment, Payments, Timer
 } from '@mui/icons-material';
 import { format, parseISO } from 'date-fns';
 import { getEmojiColor } from '../../theme';
@@ -19,7 +19,7 @@ const formatCurrency = (val, currencyCode = 'GBP') => {
     let code = currencyCode === '£' ? 'GBP' : (currencyCode === '$' ? 'USD' : (currencyCode || 'GBP'));
     try {
         return num.toLocaleString('en-GB', { style: 'currency', currency: code, minimumFractionDigits: 2 });
-    } catch (e) { return `£${num.toFixed(2)}`; }
+    } catch { return `£${num.toFixed(2)}`; }
 };
 
 const SEGMENT_CONFIG = {
@@ -27,7 +27,7 @@ const SEGMENT_CONFIG = {
     insurance: { label: 'Insurance', icon: <Shield /> },
     utility: { label: 'Utilities', icon: <ElectricBolt /> },
     subscription: { label: 'Subscriptions', icon: <ShoppingBag /> },
-    warranty: { label: 'Warranties', icon: <Gavel /> },
+    warranty: { label: 'Warranties', icon: <Assignment /> },
     vehicle_tax: { label: 'Tax', icon: <Timer /> },
     vehicle_mot: { label: 'MOT', icon: <Build /> },
     vehicle_service: { label: 'Service', icon: <Build /> },
@@ -46,7 +46,7 @@ export default function RecurringChargesWidget({
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '', amount: '', segment: segments[0]?.id || 'other',
@@ -94,7 +94,7 @@ export default function RecurringChargesWidget({
           await api[editingId ? 'put' : 'post'](url, payload);
           showNotification(editingId ? "Updated." : "Created.", "success");
           setOpen(false); setEditingId(null); fetchCharges();
-      } catch (err) { showNotification("Error saving.", "danger"); }
+      } catch { showNotification("Error saving.", "danger"); }
   };
 
   return (

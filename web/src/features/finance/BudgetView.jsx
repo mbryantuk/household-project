@@ -9,15 +9,15 @@ import {
 } from '@mui/joy';
 import { 
   AccountBalanceWallet, CheckCircle, RadioButtonUnchecked, TrendingDown, 
-  Event, Payments, Savings as SavingsIcon, Home, CreditCard, 
-  Assignment, WaterDrop, ElectricBolt, AccountBalance, Add, Shield, 
+  Home, CreditCard, 
+  Assignment, ElectricBolt, Add, Shield, 
   ShoppingBag, ChevronLeft, ChevronRight, Lock, LockOpen, ArrowDropDown, RestartAlt, Receipt,
-  DirectionsCar, Person, DeleteOutline, Restore, Sort, Search, ArrowUpward, ArrowDownward
+  DirectionsCar, DeleteOutline, Restore, Sort, Search, ArrowUpward, ArrowDownward
 } from '@mui/icons-material';
 import { 
   format, addMonths, startOfMonth, setDate, differenceInDays, 
   isSameDay, isAfter, startOfDay, isWithinInterval, 
-  parseISO, getDay, addDays, isValid, addYears, addWeeks
+  parseISO, isValid, addYears, addWeeks
 } from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
@@ -50,7 +50,7 @@ export default function BudgetView() {
   const [searchQuery, setSearchQuery] = useState('');
   
   // Category Ordering
-  const defaultOrder = ['credit_repay', 'one_off', 'weekly', 'monthly', 'quarterly', 'yearly', 'savings'];
+  const defaultOrder = useMemo(() => ['credit_repay', 'one_off', 'weekly', 'monthly', 'quarterly', 'yearly', 'savings'], []);
   const [categoryOrder, setCategoryOrder] = useState(defaultOrder);
 
   // Modals
@@ -85,7 +85,7 @@ export default function BudgetView() {
               }
           } catch (e) { console.error("Failed to parse budget settings", e); }
       }
-  }, [user]);
+  }, [user, defaultOrder]);
 
   const saveCategoryOrder = useCallback(async (newOrder) => {
       setCategoryOrder(newOrder);
@@ -339,7 +339,6 @@ export default function BudgetView() {
              if (isWithinInterval(oneOffDate, { start: startDate, end: endDate })) datesToAdd.push(oneOffDate);
           } else if (anchor) {
              let current = startOfDay(anchor);
-             const increment = freq === 'weekly' ? { weeks: 1 } : (freq === 'monthly' ? { months: 1 } : (freq === 'quarterly' ? { months: 3 } : { years: 1 }));
              
              while (current < startDate) {
                  if (freq === 'weekly') current = addWeeks(current, 1);
@@ -520,14 +519,6 @@ export default function BudgetView() {
       );
   };
 
-  const handleRestoreCharge = async (chargeId) => {
-      try {
-          await api.put(`/households/${householdId}/finance/charges/${chargeId}`, { is_active: 1 });
-          showNotification("Charge restored.", "success");
-          fetchData();
-      } catch { showNotification("Failed to restore.", "danger"); }
-  };
-
   const handleQuickAdd = async (e) => {
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
@@ -537,7 +528,6 @@ export default function BudgetView() {
       data.adjust_for_working_day = data.nearest_working_day === "1" ? 1 : 0;
       data.linked_entity_type = quickLinkType;
       data.linked_entity_id = data.linked_entity_id || null;
-      data.start_date = data.start_date; // Direct from date picker
 
       try {
           await api.post(`/households/${householdId}/finance/charges`, data);
@@ -559,7 +549,6 @@ export default function BudgetView() {
       data.segment = data.category || 'other';
       data.linked_entity_type = type;
       data.linked_entity_id = id === 'household' ? null : id;
-      data.start_date = data.start_date; // Standard ISO date from input
 
       try {
           await api.post(`/households/${householdId}/finance/charges`, data);
@@ -666,7 +655,7 @@ export default function BudgetView() {
     );
   };
 
-  const renderTableRows = (items, cols = 7, hidePill = false) => {
+  const renderTableRows = (items, hidePill = false) => {
     return items.map((exp) => (
         <tr 
           key={exp.key} 
@@ -747,7 +736,7 @@ export default function BudgetView() {
     ));
   };
 
-  const renderSection = (items, cols = 7, hidePill = false) => {
+  const renderSection = (items, hidePill = false) => {
     const visible = getVisibleItems(items);
     if (visible.length === 0) return null;
 
@@ -771,7 +760,7 @@ export default function BudgetView() {
                         <th style={{ width: 80, textAlign: 'center' }}>Action</th>
                     </tr>
                 </thead>
-                <tbody>{renderTableRows(visible, cols, hidePill)}</tbody>
+                <tbody>{renderTableRows(visible, hidePill)}</tbody>
             </Table>
         </Sheet>
     );
@@ -852,7 +841,7 @@ export default function BudgetView() {
                                             <IconButton size="sm" variant="plain" disabled={idx === categoryOrder.length - 1} onClick={() => moveCategory(idx, 'down')}><ArrowDownward fontSize="small" /></IconButton>
                                         </Box>
                                     </Box>
-                                    {renderSection(creditCardItems, 6, false)}
+                                    {renderSection(creditCardItems, false)}
                                 </Box>
                             );
                         }
@@ -884,7 +873,7 @@ export default function BudgetView() {
                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(group.emoji, isDark) }}>{group.emoji}</Avatar><Box><Typography level="title-sm">{group.name}</Typography><Typography level="body-xs" color="neutral">{group.institution}</Typography></Box></Box>
                                                     <Box sx={{ textAlign: 'right' }}><Typography level="title-sm" color="success">{formatCurrency(group.balance)}</Typography><Typography level="body-xs">Balance</Typography></Box>
                                                 </Box>
-                                                {renderSection(potItems, 4, true)}
+                                                {renderSection(potItems, true)}
                                             </Box>
                                         ))}
                                     </Stack>
@@ -906,7 +895,7 @@ export default function BudgetView() {
                                         <IconButton size="sm" variant="plain" disabled={idx === categoryOrder.length - 1} onClick={() => moveCategory(idx, 'down')}><ArrowDownward fontSize="small" /></IconButton>
                                     </Box>
                                 </Box>
-                                {renderSection(items, 6, false)}
+                                {renderSection(items, false)}
                             </Box>
                         );
                     })}

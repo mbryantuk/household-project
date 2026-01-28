@@ -129,7 +129,6 @@ export default function CalendarView({ showNotification }) {
   const { id: householdId } = useParams();
   
   const [rawDates, setRawDates] = useState([]);
-  const [events, setEvents] = useState([]);
   const [open, setOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
@@ -156,8 +155,8 @@ export default function CalendarView({ showNotification }) {
 
   useEffect(() => { fetchDates(); }, [fetchDates]);
 
-  useEffect(() => {
-    if (!rawDates) return;
+  const events = useMemo(() => {
+    if (!rawDates) return [];
     const expandedEvents = [];
     const limitDate = addYears(new Date(), 2);
 
@@ -201,7 +200,7 @@ export default function CalendarView({ showNotification }) {
         }
       }
     });
-    setEvents(expandedEvents);
+    return expandedEvents;
   }, [rawDates]);
 
   const handleSelectSlot = ({ start }) => {

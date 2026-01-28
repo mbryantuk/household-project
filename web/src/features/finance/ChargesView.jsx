@@ -22,7 +22,7 @@ const formatCurrency = (val, currencyCode = 'GBP') => {
             minimumFractionDigits: 2, 
             maximumFractionDigits: 2 
         });
-    } catch (e) {
+    } catch {
         return `£${num.toFixed(2)}`;
     }
 };
@@ -101,7 +101,9 @@ export default function ChargesView({ initialTab }) {
   }, [householdId, api]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCharges();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchEntities();
   }, [fetchCharges, fetchEntities]);
 
@@ -130,7 +132,7 @@ export default function ChargesView({ initialTab }) {
     } catch (err) { console.error(err); }
   };
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setFormData({
       name: '',
       amount: '',
@@ -142,7 +144,7 @@ export default function ChargesView({ initialTab }) {
       linked_entity_type: 'general',
       linked_entity_id: householdId
     });
-  };
+  }, [activeTab, householdId]);
 
   const handleEdit = (charge) => {
     setEditingId(charge.id);
@@ -195,7 +197,7 @@ export default function ChargesView({ initialTab }) {
       </Tabs>
 
       <Sheet variant="outlined" sx={{ borderRadius: 'md', p: 0, overflow: 'hidden' }}>
-        <Table hoverRow>
+        <Table hoverRow stickyHeader>
           <thead>
             <tr>
               <th style={{ width: '30%' }}>Name</th>
