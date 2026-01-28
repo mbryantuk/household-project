@@ -49,6 +49,12 @@ export default function SettingsView({
   const [testTab, setTestTab] = useState(0);
   const [nightlyVersionFilter, setNightlyVersionFilter] = useState('');
 
+  const availableVersions = useMemo(() => {
+    const versions = new Set(testResults.map(r => r.version).filter(Boolean));
+    versions.add(pkg.version); // Always include current version
+    return Array.from(versions).sort((a, b) => b.localeCompare(a, undefined, { numeric: true, sensitivity: 'base' }));
+  }, [testResults]);
+
   useEffect(() => {
     if (activeTab === 6 && isAdmin) {
       fetchTestResults();
@@ -347,17 +353,16 @@ export default function SettingsView({
                   <Typography level="title-md" sx={{ mb: 2 }} startDecorator={<HealthAndSafety color="primary" />}>Configuration</Typography>
                   <Grid container spacing={3} alignItems="flex-end">
                     <Grid xs={12} sm={8} md={6}>
-                      <FormControl>
-                        <FormLabel>Nightly Version Filter</FormLabel>
-                        <Input 
-                          placeholder="e.g. 3.0.88" 
-                          value={nightlyVersionFilter}
-                          onChange={(e) => setNightlyVersionFilter(e.target.value)}
-                        />
-                        <Typography level="body-xs" sx={{ mt: 1 }}>
-                          Specify the project version that the nightly suite should target.
-                        </Typography>
-                      </FormControl>
+                      <AppSelect
+                        label="Nightly Version Filter"
+                        value={nightlyVersionFilter}
+                        onChange={(v) => setNightlyVersionFilter(v)}
+                        options={[
+                          { value: '', label: 'All Versions' },
+                          ...availableVersions.map(v => ({ value: v, label: `v${v}` }))
+                        ]}
+                        helperText="Specify the project version that the nightly suite should target."
+                      />
                     </Grid>
                     <Grid xs={12} sm={4}>
                       <Button 
@@ -385,7 +390,11 @@ export default function SettingsView({
                   
                   {[0, 1].map((idx) => {
                     const type = idx === 0 ? 'backend' : 'frontend';
-                    const results = testResults.filter(r => r.test_type === type);
+                    const results = testResults.filter(r => {
+                      const typeMatch = r.test_type === type;
+                      const versionMatch = !nightlyVersionFilter || r.version === nightlyVersionFilter;
+                      return typeMatch && versionMatch;
+                    });
                     
                     return (
                       <TabPanel key={idx} value={idx}>
@@ -448,8 +457,8 @@ export default function SettingsView({
                               ))}
                               {results.length === 0 && (
                                 <tr>
-                                  <td colSpan={6} style={{ padding: '40px', textAlign: 'center' }}>
-                                    <Typography level="body-md" color="neutral">No test results recorded yet.</Typography>
+                                  <td colSpan={7} style={{ padding: '40px', textAlign: 'center' }}>
+                                    <Typography level="body-md" color="neutral">No test results recorded yet for this version.</Typography>
                                   </td>
                                 </tr>
                               )}

@@ -1,23 +1,27 @@
 const fs = require('fs');
 const path = require('path');
 
-const updateVersion = (filePath) => {
+const getVersion = (filePath) => {
   const fullPath = path.resolve(filePath);
-  if (!fs.existsSync(fullPath)) return;
-
+  if (!fs.existsSync(fullPath)) return '1.0.0';
   const pkg = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
-  const oldVersion = pkg.version || '1.0.0';
-  let [major, minor, patch] = oldVersion.split('.').map(Number);
-
-  patch++;
-  const newVersion = `${major}.${minor}.${patch}`;
-  pkg.version = newVersion;
-
-  fs.writeFileSync(fullPath, JSON.stringify(pkg, null, 2) + '\n');
-  console.log(`Updated ${filePath}: ${oldVersion} -> ${newVersion}`);
+  return pkg.version || '1.0.0';
 };
 
-updateVersion('package.json');
-updateVersion('web/package.json');
-updateVersion('server/package.json');
+const setVersion = (filePath, version) => {
+  const fullPath = path.resolve(filePath);
+  if (!fs.existsSync(fullPath)) return;
+  const pkg = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
+  pkg.version = version;
+  fs.writeFileSync(fullPath, JSON.stringify(pkg, null, 2) + '\n');
+  console.log(`Updated ${filePath} to ${version}`);
+};
 
+const oldVersion = getVersion('package.json');
+let [major, minor, patch] = oldVersion.split('.').map(Number);
+patch++;
+const newVersion = `${major}.${minor}.${patch}`;
+
+setVersion('package.json', newVersion);
+setVersion('web/package.json', newVersion);
+setVersion('server/package.json', newVersion);
