@@ -7,6 +7,15 @@ async function sendReport() {
     const jsonResultPath = path.join(__dirname, '../../web/test-results/results.json');
     const backendLogPath = path.join(__dirname, '../../server/test-results.log');
     
+    // Read Version
+    let version = "Unknown";
+    try {
+        const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8'));
+        version = pkg.version;
+    } catch (e) {
+        console.error("Warning: Could not read package version");
+    }
+
     // Config
     const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
     const port = parseInt(process.env.SMTP_PORT) || 587;
@@ -117,8 +126,9 @@ async function sendReport() {
     const mailOptions = {
         from: `"Totem Nightly Bot" <${user}>`,
         to: to,
-        subject: `🌙 Nightly System Health Report: ${backendPassed && frontendPassed ? '🟢 PASS' : '🔴 FAIL'}`,
-        text: `The nightly comprehensive test suite has completed.\n\n` +
+        subject: `🌙 Nightly System Health Report (v${version}): ${backendPassed && frontendPassed ? '🟢 PASS' : '🔴 FAIL'}`,
+        text: `The nightly comprehensive test suite has completed.\n` +
+              `System Version: v${version}\n\n` +
               `================================\n` +
               `BACKEND STATUS\n` +
               `================================\n` +

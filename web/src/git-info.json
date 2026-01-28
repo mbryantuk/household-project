@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix nightly email report success logic",
-  "date": "Wed 28 Jan 17:11:52 GMT 2026"
+  "commitMessage": "Include version number in nightly email report",
+  "date": "Wed 28 Jan 17:17:30 GMT 2026"
 }
