@@ -120,6 +120,12 @@ export default function UtilityBar({
     }
   }, []);
 
+  const scroll = (offset) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' });
+    }
+  };
+
   useEffect(() => {
     const el = scrollRef.current;
     if (el) {
