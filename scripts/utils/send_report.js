@@ -33,31 +33,38 @@ async function sendReport() {
     if (fs.existsSync(jsonResultPath)) {
         try {
             const results = JSON.parse(fs.readFileSync(jsonResultPath, 'utf8'));
-            const total = results.stats.expected;
-            const passed = results.stats.expected - results.stats.unexpected - results.stats.flaky;
-            const failed = results.stats.unexpected;
-            const duration = (results.stats.duration / 1000).toFixed(2);
+            const stats = results.stats;
+            const total = stats.expected;
+            const failed = stats.unexpected;
+            const passed = total - failed;
+            const duration = (stats.duration / 1000).toFixed(2);
             
             frontendPassed = failed === 0;
             frontendSummary = `Frontend Tests: ${frontendPassed ? 'PASSED' : 'FAILED'}\n` +
                               `Total: ${total}, Passed: ${passed}, Failed: ${failed}\n` +
                               `Duration: ${duration}s`;
             
-            // Extract details for Asset, Finance, Meal
-            frontendDetailed += "\nKey Feature Verification:\n";
+            frontendDetailed += "\nStep-by-Step Verification:\n";
             results.suites.forEach(suite => {
-                suite.specs.forEach(spec => {
-                    const title = spec.title;
-                    const status = spec.tests[0].results[0].status;
-                    const icon = status === 'passed' ? '✅' : '❌';
-                    
-                    if (title.match(/Asset|Finance|Meal/i)) {
-                        frontendDetailed += `${icon} ${title}\n`;
-                    }
-                    
-                    if (status !== 'passed') {
-                        frontendDetailed += `⚠️ FAILED: ${title}\n`;
-                    }
+                suite.suites?.forEach(subSuite => {
+                    subSuite.specs.forEach(spec => {
+                        const specTitle = spec.title;
+                        const result = spec.tests[0]?.results[0];
+                        const icon = result?.status === 'passed' ? '✅' : '❌';
+                        frontendDetailed += `${icon} ${specTitle}\n`;
+                        
+                        // Extract steps from stdout if available
+                        if (result?.stdout) {
+                            result.stdout.forEach(entry => {
+                                if (entry.text && entry.text.startsWith('Step')) {
+                                    frontendDetailed += `   - ${entry.text.trim()}\n`;
+                                }
+                                if (entry.text && (entry.text.includes('verified') || entry.text.includes('success'))) {
+                                     frontendDetailed += `   - ${entry.text.trim()}\n`;
+                                }
+                            });
+                        }
+                    });
                 });
             });
 
@@ -69,6 +76,7 @@ async function sendReport() {
     // Parse Backend JSON Results
     const backendReportPath = path.join(__dirname, '../../server/test-report.json');
     let backendSummary = "Backend Tests: No JSON report found.";
+    let backendDetailed = "";
     let backendPassed = false;
 
     if (fs.existsSync(backendReportPath)) {
@@ -77,35 +85,29 @@ async function sendReport() {
             const total = results.numTotalTests;
             const passed = results.numPassedTests;
             const failed = results.numFailedTests;
-            const pending = results.numPendingTests;
             
-            // Fix: Jest might return success: false for non-test reasons (e.g. empty suites),
-            // so we strictly check if any tests actually failed.
-            backendPassed = results.numFailedTests === 0 && results.numFailedTestSuites === 0;
-            
+            backendPassed = failed === 0 && results.numFailedTestSuites === 0;
             backendSummary = `Backend Tests: ${backendPassed ? 'PASSED' : 'FAILED'}\n` +
-                             `Total: ${total}, Passed: ${passed}, Failed: ${failed}, Pending: ${pending}`;
+                             `Total: ${total}, Passed: ${passed}, Failed: ${failed}`;
             
-            if (failed > 0) {
-                backendSummary += "\n\nFailed Backend Tests:\n";
-                results.testResults.forEach(suite => {
-                    if (suite.status === 'failed') {
-                         suite.assertionResults.forEach(test => {
-                             if (test.status === 'failed') {
-                                 backendSummary += `- ${test.ancestorTitles.join(' > ')} > ${test.title}\n`;
-                             }
-                         });
-                    }
-                });
-            }
+            backendDetailed += "\nFile-by-File Breakdown:\n";
+            results.testResults.forEach(suite => {
+                const fileName = path.basename(suite.testFilePath);
+                const suitePassed = suite.numFailingTests === 0;
+                const icon = suitePassed ? '✅' : '❌';
+                backendDetailed += `${icon} ${fileName} (${suite.numPassingTests} tests)\n`;
+                
+                if (!suitePassed) {
+                     suite.testResults.forEach(test => {
+                         if (test.status === 'failed') {
+                             backendDetailed += `   - ❌ ${test.title}\n`;
+                         }
+                     });
+                }
+            });
         } catch (e) {
              backendSummary = `Backend Tests: Error parsing JSON report (${e.message})`;
-             const backendLog = fs.existsSync(backendLogPath) ? fs.readFileSync(backendLogPath, 'utf8') : '';
-             if (backendLog.includes('SUCCESS') || backendLog.includes('PASS')) backendPassed = true;
         }
-    } else {
-        const backendLog = fs.existsSync(backendLogPath) ? fs.readFileSync(backendLogPath, 'utf8') : '';
-        backendPassed = backendLog.includes('SUCCESS') || backendLog.includes('PASS');
     }
 
     const smtpConfig = {
@@ -133,6 +135,7 @@ async function sendReport() {
               `BACKEND STATUS\n` +
               `================================\n` +
               `${backendSummary}\n` +
+              `${backendDetailed}\n` +
               `\n` +
               `================================\n` +
               `FRONTEND STATUS\n` +
