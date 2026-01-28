@@ -70,7 +70,10 @@ async function sendReport() {
             const failed = results.numFailedTests;
             const pending = results.numPendingTests;
             
-            backendPassed = results.success;
+            // Fix: Jest might return success: false for non-test reasons (e.g. empty suites),
+            // so we strictly check if any tests actually failed.
+            backendPassed = results.numFailedTests === 0 && results.numFailedTestSuites === 0;
+            
             backendSummary = `Backend Tests: ${backendPassed ? 'PASSED' : 'FAILED'}\n` +
                              `Total: ${total}, Passed: ${passed}, Failed: ${failed}, Pending: ${pending}`;
             
