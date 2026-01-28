@@ -81,7 +81,7 @@ export default function VehiclesView() {
         const res = await api.post(`/households/${householdId}/vehicles`, data);
         showNotification("Vehicle added.", "success");
         refreshSidebar();
-        navigate(`../vehicles/${res.data.id}`);
+        navigate(`../${res.data.id}`);
       } else {
         await api.put(`/households/${householdId}/vehicles/${vehicleId}`, data);
         showNotification("Vehicle updated.", "success");
