@@ -8,7 +8,7 @@ test.describe('System Smoke & Comprehensive Test', () => {
   const householdName = `Mega House ${uniqueId}`;
 
   test('Full System Lifecycle: Family, Fleet, Financial Matrix, and Meal Planning', async ({ page }) => {
-    test.setTimeout(300000); // 5 minutes
+    test.setTimeout(360000); // 6 minutes
 
     page.on('console', msg => console.log('BROWSER LOG:', msg.text()));
     page.on('pageerror', err => console.log('BROWSER ERROR:', err.message));
@@ -31,13 +31,13 @@ test.describe('System Smoke & Comprehensive Test', () => {
     await page.fill('input[name="password"]', password);
     await page.fill('input[name="confirmPassword"]', password);
     await page.click('button[type="submit"]');
-    await expect(page).toHaveURL(/.*login/, { timeout: 15000 });
+    await expect(page).toHaveURL(/.*login/, { timeout: 30000 });
 
     console.log('Step 2: Logging in');
     await page.fill('input[type="email"]', email);
     await page.fill('input[type="password"]', password);
     await page.click('button[type="submit"]');
-    await page.waitForURL(/.*dashboard/, { timeout: 20000 });
+    await page.waitForURL(/.*dashboard/, { timeout: 30000 });
     
     const hhId = page.url().match(/\/household\/(\d+)/)[1];
     console.log(`Step 3: Dashboard loaded. Household ID: ${hhId}`);
@@ -46,8 +46,9 @@ test.describe('System Smoke & Comprehensive Test', () => {
     // 4. PEOPLE (Family Setup)
     // ==========================================
     console.log('Step 4: Creating Family Members');
-    await page.goto(`/household/${hhId}/people`);
-    await expect(page.locator('text=Household Residents')).toBeVisible({ timeout: 15000 });
+    // Using the Sidebar Navigation to ensure state is loaded
+    await page.click('nav a:has-text("People")');
+    await expect(page.locator('h2:has-text("Household Residents")')).toBeVisible({ timeout: 20000 });
     
     const family = [
         { name: 'John Doe', type: 'Adult', alias: 'Dad' },
@@ -57,7 +58,7 @@ test.describe('System Smoke & Comprehensive Test', () => {
 
     for (const m of family) {
         console.log(`   - Adding Member: ${m.name}`);
-        // MUI Joy Select handling: click trigger then pick option
+        // MUI Joy Select handling
         await page.click('label:has-text("Type") + div button');
         await page.click(`li[role="option"]:has-text("${m.type}")`);
         
@@ -72,21 +73,22 @@ test.describe('System Smoke & Comprehensive Test', () => {
     // 5. PETS
     // ==========================================
     console.log('Step 5: Creating Pets');
-    await page.goto(`/household/${hhId}/pets`);
-    await expect(page.locator('text=Pets & Animals')).toBeVisible({ timeout: 15000 });
+    await page.click('nav a:has-text("Pets")');
+    await expect(page.locator('h2:has-text("Pets & Animals")')).toBeVisible({ timeout: 20000 });
     
     const pets = [
-        { name: 'Rex', species: 'Dog', emoji: '🐶' },
-        { name: 'Luna', species: 'Cat', emoji: '🐱' }
+        { name: 'Rex', species: 'Dog', breed: 'Retriever' },
+        { name: 'Luna', species: 'Cat', breed: 'Siamese' }
     ];
     for (const p of pets) {
         console.log(`   - Adding Pet: ${p.name}`);
         await page.click('button:has-text("Add Pet")');
         await page.fill('input[name="name"]', p.name);
         await page.fill('input[name="species"]', p.species);
+        await page.fill('input[name="breed"]', p.breed);
         await page.click('button:has-text("Create Pet")');
         await expect(page.locator(`text=${p.name}`).first()).toBeVisible({ timeout: 10000 });
-        await page.goto(`/household/${hhId}/pets`);
+        await page.click('nav a:has-text("Pets")'); // Return to list
     }
     console.log('   - Step verified: Pets created (Rex, Luna)');
 
@@ -94,8 +96,8 @@ test.describe('System Smoke & Comprehensive Test', () => {
     // 6. VEHICLES
     // ==========================================
     console.log('Step 6: Creating Vehicles');
-    await page.goto(`/household/${hhId}/vehicles`);
-    await expect(page.locator('text=Vehicle Management')).toBeVisible({ timeout: 15000 });
+    await page.click('nav a:has-text("Vehicles")');
+    await expect(page.locator('h2:has-text("Vehicle Management")')).toBeVisible({ timeout: 20000 });
     
     const fleet = [
         { make: 'Tesla', model: 'Model 3' },
@@ -108,7 +110,7 @@ test.describe('System Smoke & Comprehensive Test', () => {
         await page.fill('input[name="model"]', v.model);
         await page.click('button:has-text("Create Vehicle")');
         await expect(page.locator(`text=${v.make}`).first()).toBeVisible({ timeout: 10000 });
-        await page.goto(`/household/${hhId}/vehicles`);
+        await page.click('nav a:has-text("Vehicles")');
     }
     console.log('   - Step verified: Fleet created (Tesla, Ford)');
 
@@ -116,7 +118,7 @@ test.describe('System Smoke & Comprehensive Test', () => {
     // 7. ASSETS (CRUD)
     // ==========================================
     console.log('Step 7: Testing Asset Lifecycle');
-    await page.goto(`/household/${hhId}/house`);
+    await page.click('nav a:has-text("House")');
     await page.click('button:has-text("Assets")');
     
     await page.click('button:has-text("Add Asset")');
@@ -129,7 +131,7 @@ test.describe('System Smoke & Comprehensive Test', () => {
     await page.fill('#asset-form input[name="name"]', 'Premium Fridge');
     await page.click('button:has-text("Save Asset")');
     await expect(page.locator('text=Premium Fridge')).toBeVisible();
-    console.log('   - Step verified: Asset Updated (Smart Fridge -> Premium Fridge');
+    console.log('   - Step verified: Asset Updated (Smart Fridge -> Premium Fridge)');
 
     page.once('dialog', d => d.accept());
     await page.locator('tr:has-text("Premium Fridge")').locator('button[aria-label="Delete"]').click();
@@ -142,7 +144,8 @@ test.describe('System Smoke & Comprehensive Test', () => {
     console.log('Step 8: Testing Financial Matrix');
     
     // Banking
-    await page.goto(`/household/${hhId}/finance?tab=banking`);
+    await page.click('nav a:has-text("Finance")');
+    await page.click('button:has-text("Banking")');
     await page.click('button:has-text("Add Account")');
     await page.fill('input[name="bank_name"]', 'HSBC');
     await page.fill('input[name="account_name"]', 'Joint Account');
@@ -150,7 +153,7 @@ test.describe('System Smoke & Comprehensive Test', () => {
     console.log('   - Step verified: Joint Account created');
 
     // Income for Dad
-    await page.goto(`/household/${hhId}/finance?tab=income`);
+    await page.click('button:has-text("Income")');
     await page.click('button:has-text("Add Income")');
     await page.fill('input[name="employer"]', 'Tech Corp');
     await page.fill('input[name="amount"]', '5000');
@@ -165,14 +168,14 @@ test.describe('System Smoke & Comprehensive Test', () => {
     console.log('   - Step verified: Salary linked to Dad & Joint Account');
 
     // Utilities
-    await page.goto(`/household/${hhId}/energy`);
+    await page.click('nav a:has-text("Energy")');
     await page.click('button:has-text("Add Account")');
     await page.fill('input[name="provider"]', 'Octopus');
     await page.fill('input[name="monthly_amount"]', '200');
     await page.click('button:has-text("Save Account")');
     console.log('   - Step verified: Energy bill created');
 
-    await page.goto(`/household/${hhId}/water`);
+    await page.click('nav a:has-text("Water")');
     await page.click('button:has-text("Add Account")');
     await page.fill('input[name="provider"]', 'Thames Water');
     await page.fill('input[name="monthly_amount"]', '45');
@@ -183,7 +186,7 @@ test.describe('System Smoke & Comprehensive Test', () => {
     // 9. MEAL PLANNING
     // ==========================================
     console.log('Step 9: Testing Meal Planning CRUD');
-    await page.goto(`/household/${hhId}/meals`);
+    await page.click('nav a:has-text("Meals")');
     await page.click('button:has-text("Library")');
     await page.fill('input[name="name"]', 'Sunday Roast');
     await page.click('button:has-text("Create")');

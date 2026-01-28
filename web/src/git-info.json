@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Correct MUI Joy Select handling in smoke test and expand coverage",
-  "date": "Wed 28 Jan 18:13:12 GMT 2026"
+  "commitMessage": "Stabilize smoke test navigation and MUI Select interactions",
+  "date": "Wed 28 Jan 18:16:55 GMT 2026"
 }
