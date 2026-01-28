@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix navigation redirect after creating entities",
-  "date": "Wed 28 Jan 14:43:26 GMT 2026"
+  "commitMessage": "Fix syntax error in VehiclesView and correct navigation paths",
+  "date": "Wed 28 Jan 15:35:58 GMT 2026"
 }

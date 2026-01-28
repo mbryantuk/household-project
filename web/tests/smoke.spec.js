@@ -7,6 +7,10 @@ test.describe('System Smoke & Comprehensive Test', () => {
   const householdName = `Smoke House ${uniqueId}`;
 
   test('Registration, Navigation, and CRUD Lifecycle', async ({ page }) => {
+    // Enable Console Logging
+    page.on('console', msg => console.log('BROWSER LOG:', msg.text()));
+    page.on('pageerror', err => console.log('BROWSER ERROR:', err.message));
+
     // 1. REGISTRATION
     await page.goto('/register');
     await page.fill('input[name="firstName"]', 'Smoke');
@@ -86,5 +90,42 @@ test.describe('System Smoke & Comprehensive Test', () => {
       }
     }
     console.log('All core routes verified');
+
+    // 4. VEHICLE CRUD & REDIRECT TEST
+    console.log('Testing Vehicle Creation & Redirect');
+    await page.goto('/vehicles');
+    
+    // Wait for loader to disappear
+    await expect(page.locator('.MuiCircularProgress-root')).not.toBeVisible({ timeout: 20000 });
+
+    // Debug content
+    const bodyText = await page.locator('body').innerText();
+    console.log('DEBUG: Page Body Text:', bodyText);
+
+    // Wait for Add Vehicle button (implies loaded and admin)
+    // Using a more specific selector
+    await expect(page.locator('button:has-text("Add Vehicle")')).toBeVisible({ timeout: 10000 });
+    
+    // Ensure we are on the list page
+    await expect(page.locator('text=Vehicle Management')).toBeVisible();
+    
+    // Click Add
+    await page.click('button:has-text("Add Vehicle")');
+    await expect(page).toHaveURL(/.*vehicles\/new/);
+    
+    // Fill Form
+    await page.fill('input[name="make"]', 'Tesla');
+    await page.fill('input[name="model"]', 'Cybertruck');
+    await page.fill('input[name="registration"]', 'SMOKE_TEST');
+    
+    console.log('Submitting new vehicle...');
+    await page.click('button[type="submit"]');
+    
+    // VERIFY REDIRECT (The Fix)
+    // Should redirect to /vehicles/{id} NOT /vehicles/vehicles/{id}
+    await expect(page).toHaveURL(/\/vehicles\/\d+$/);
+    await expect(page.locator('h2')).toContainText('Tesla Cybertruck');
+    console.log('Vehicle creation redirect verified');
+
   });
 });
