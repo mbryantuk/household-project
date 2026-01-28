@@ -185,8 +185,8 @@ export default function AssetsView() {
                             </td>
                             {isAdmin && (
                                 <td style={{ textAlign: 'right' }}>
-                                    <IconButton size="sm" variant="plain" onClick={() => { setEditAsset(row); setIsNew(false); setActiveTab(0); }}><Edit /></IconButton>
-                                    <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(row.id)}><Delete /></IconButton>
+                                    <IconButton size="sm" variant="plain" aria-label="Edit" onClick={() => { setEditAsset(row); setIsNew(false); setActiveTab(0); }}><Edit /></IconButton>
+                                    <IconButton size="sm" variant="plain" color="danger" aria-label="Delete" onClick={() => handleDelete(row.id)}><Delete /></IconButton>
                                 </td>
                             )}
                         </tr>

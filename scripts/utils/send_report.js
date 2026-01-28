@@ -18,6 +18,7 @@ async function sendReport() {
 
     // Parse Frontend JSON Results
     let frontendSummary = "Frontend Tests: No JSON report found.";
+    let frontendDetailed = "";
     let frontendPassed = false;
     
     if (fs.existsSync(jsonResultPath)) {
@@ -33,16 +34,24 @@ async function sendReport() {
                               `Total: ${total}, Passed: ${passed}, Failed: ${failed}\n` +
                               `Duration: ${duration}s`;
             
-            if (failed > 0) {
-                frontendSummary += "\n\nFailed Frontend Tests:\n";
-                results.suites.forEach(suite => {
-                    suite.specs.forEach(spec => {
-                        if (!spec.ok) {
-                            frontendSummary += `- ${spec.title} (${spec.tests[0].results[0].status})\n`;
-                        }
-                    });
+            // Extract details for Asset, Finance, Meal
+            frontendDetailed += "\nKey Feature Verification:\n";
+            results.suites.forEach(suite => {
+                suite.specs.forEach(spec => {
+                    const title = spec.title;
+                    const status = spec.tests[0].results[0].status;
+                    const icon = status === 'passed' ? '✅' : '❌';
+                    
+                    if (title.match(/Asset|Finance|Meal/i)) {
+                        frontendDetailed += `${icon} ${title}\n`;
+                    }
+                    
+                    if (status !== 'passed') {
+                        frontendDetailed += `⚠️ FAILED: ${title}\n`;
+                    }
                 });
-            }
+            });
+
         } catch (e) {
             frontendSummary = `Frontend Tests: Error parsing JSON report (${e.message})`;
         }
@@ -60,7 +69,6 @@ async function sendReport() {
             const passed = results.numPassedTests;
             const failed = results.numFailedTests;
             const pending = results.numPendingTests;
-            const startTime = results.startTime;
             
             backendPassed = results.success;
             backendSummary = `Backend Tests: ${backendPassed ? 'PASSED' : 'FAILED'}\n` +
@@ -80,12 +88,10 @@ async function sendReport() {
             }
         } catch (e) {
              backendSummary = `Backend Tests: Error parsing JSON report (${e.message})`;
-             // Fallback to log check
              const backendLog = fs.existsSync(backendLogPath) ? fs.readFileSync(backendLogPath, 'utf8') : '';
              if (backendLog.includes('SUCCESS') || backendLog.includes('PASS')) backendPassed = true;
         }
     } else {
-        // Fallback
         const backendLog = fs.existsSync(backendLogPath) ? fs.readFileSync(backendLogPath, 'utf8') : '';
         backendPassed = backendLog.includes('SUCCESS') || backendLog.includes('PASS');
     }
@@ -118,7 +124,9 @@ async function sendReport() {
               `================================\n` +
               `FRONTEND STATUS\n` +
               `================================\n` +
-              `${frontendSummary}\n\n` +
+              `${frontendSummary}\n` +
+              `${frontendDetailed}\n` +
+              `\n` +
               `Time: ${new Date().toLocaleString()}\n`,
         attachments
     };

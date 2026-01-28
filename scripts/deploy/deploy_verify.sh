@@ -34,7 +34,8 @@ docker compose up -d --build
 echo "💾 Committing changes..."
 git add .
 git commit -m "v$NEW_VERSION - $COMMIT_SUFFIX"
-git push origin main
+CURRENT_BRANCH=$(git branch --show-current)
+git push origin "$CURRENT_BRANCH"
 
 # 4. Disk Cleanup
 echo "🧹 Reclaiming disk space..."

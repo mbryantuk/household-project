@@ -4,7 +4,7 @@ import {
   Box, Typography, Sheet, Tabs, TabList, Tab, CircularProgress, Divider, Grid, Input, Button, Tooltip, IconButton, FormControl, FormLabel, Badge
 } from '@mui/joy';
 import { 
-  HomeWork, Payments, Save, ArrowBack
+  HomeWork, Payments, Save, ArrowBack, Inventory
 } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
 import EntityGrid from '../components/ui/EntityGrid';
@@ -12,6 +12,7 @@ import EntityGrid from '../components/ui/EntityGrid';
 // Feature Components
 import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
 import GeneralDetailView from './GeneralDetailView';
+import AssetsView from './AssetsView';
 
 export default function HouseView() {
   const { api, id: householdId, onUpdateHousehold, user: currentUser, showNotification, confirmAction } = useOutletContext();
@@ -177,6 +178,7 @@ export default function HouseView() {
             <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><Badge sx={{ mr: 1 }}/> Identity</Tab>
             <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><HomeWork sx={{ mr: 1 }}/> General Details</Tab>
             <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><Payments sx={{ mr: 1 }}/> Bills & Costs</Tab>
+            <Tab variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'} sx={{ flex: 'none', scrollSnapAlign: 'start' }}><Inventory sx={{ mr: 1 }}/> Assets</Tab>
           </TabList>
 
           <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
@@ -283,6 +285,8 @@ export default function HouseView() {
                     />
                 </Box>
             )}
+
+            {activeTab === 3 && <AssetsView />}
           </Box>
         </Tabs>
       </Sheet>

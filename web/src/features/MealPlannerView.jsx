@@ -409,8 +409,8 @@ export default function MealPlannerView() {
                         </Box>
                     </Box>
                     <Box>
-                        <IconButton size="sm" onClick={() => { setEditMeal(meal); setTempMealEmoji(meal.emoji); }}><Edit /></IconButton>
-                        <IconButton size="sm" color="danger" onClick={() => handleDeleteMeal(meal.id)}><Delete /></IconButton>
+                        <IconButton size="sm" aria-label="Edit" onClick={() => { setEditMeal(meal); setTempMealEmoji(meal.emoji); }}><Edit /></IconButton>
+                        <IconButton size="sm" color="danger" aria-label="Delete" onClick={() => handleDeleteMeal(meal.id)}><Delete /></IconButton>
                     </Box>
                 </Sheet>
             ))}
