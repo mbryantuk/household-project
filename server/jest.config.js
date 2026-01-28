@@ -4,5 +4,9 @@ module.exports = {
   moduleNameMapper: {
     '@scalar/express-api-reference': '<rootDir>/tests/scalar-mock.js'
   },
-  globalTeardown: '<rootDir>/tests/teardown.js'
+  globalTeardown: '<rootDir>/tests/teardown.js',
+  reporters: [
+    'default',
+    '<rootDir>/tests/json-reporter.js'
+  ]
 };

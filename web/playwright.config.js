@@ -7,7 +7,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: [['html', { open: 'never' }]],
+  reporter: [['html', { open: 'never' }], ['json', { outputFile: 'test-results/results.json' }]],
   use: {
     // Target the production/container port by default, or override with BASE_URL env
     baseURL: process.env.BASE_URL || 'http://localhost:4001',

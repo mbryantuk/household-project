@@ -4,29 +4,98 @@ const path = require('path');
 
 async function sendReport() {
     const reportPath = path.join(__dirname, '../../web/playwright-report/index.html');
+    const jsonResultPath = path.join(__dirname, '../../web/test-results/results.json');
     const backendLogPath = path.join(__dirname, '../../server/test-results.log');
     
     // Config
     const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
     const port = parseInt(process.env.SMTP_PORT) || 587;
     const user = (process.env.SMTP_USER || 'mbryantuk@gmail.com').trim();
-    const pass = (process.env.SMTP_PASS || '').trim().replace(/["']/g, ''); // Strip quotes and spaces
+    const pass = (process.env.SMTP_PASS || '').trim().replace(/["']/g, '');
     const to = (process.env.REPORT_EMAIL || 'mbryantuk@gmail.com').trim();
 
-    console.log(`Debug: Attempting to send email via ${host}:${port} (${port === 465 ? 'SSL' : 'TLS'}) as ${user}`);
-    console.log(`Debug: Password length is ${pass.length} characters.`);
+    console.log(`Debug: Attempting to send email via ${host}:${port} as ${user}`);
+
+    // Parse Frontend JSON Results
+    let frontendSummary = "Frontend Tests: No JSON report found.";
+    let frontendPassed = false;
+    
+    if (fs.existsSync(jsonResultPath)) {
+        try {
+            const results = JSON.parse(fs.readFileSync(jsonResultPath, 'utf8'));
+            const total = results.stats.expected;
+            const passed = results.stats.expected - results.stats.unexpected - results.stats.flaky;
+            const failed = results.stats.unexpected;
+            const duration = (results.stats.duration / 1000).toFixed(2);
+            
+            frontendPassed = failed === 0;
+            frontendSummary = `Frontend Tests: ${frontendPassed ? 'PASSED' : 'FAILED'}\n` +
+                              `Total: ${total}, Passed: ${passed}, Failed: ${failed}\n` +
+                              `Duration: ${duration}s`;
+            
+            if (failed > 0) {
+                frontendSummary += "\n\nFailed Frontend Tests:\n";
+                results.suites.forEach(suite => {
+                    suite.specs.forEach(spec => {
+                        if (!spec.ok) {
+                            frontendSummary += `- ${spec.title} (${spec.tests[0].results[0].status})\n`;
+                        }
+                    });
+                });
+            }
+        } catch (e) {
+            frontendSummary = `Frontend Tests: Error parsing JSON report (${e.message})`;
+        }
+    }
+
+    // Parse Backend JSON Results
+    const backendReportPath = path.join(__dirname, '../../server/test-report.json');
+    let backendSummary = "Backend Tests: No JSON report found.";
+    let backendPassed = false;
+
+    if (fs.existsSync(backendReportPath)) {
+        try {
+            const results = JSON.parse(fs.readFileSync(backendReportPath, 'utf8'));
+            const total = results.numTotalTests;
+            const passed = results.numPassedTests;
+            const failed = results.numFailedTests;
+            const pending = results.numPendingTests;
+            const startTime = results.startTime;
+            
+            backendPassed = results.success;
+            backendSummary = `Backend Tests: ${backendPassed ? 'PASSED' : 'FAILED'}\n` +
+                             `Total: ${total}, Passed: ${passed}, Failed: ${failed}, Pending: ${pending}`;
+            
+            if (failed > 0) {
+                backendSummary += "\n\nFailed Backend Tests:\n";
+                results.testResults.forEach(suite => {
+                    if (suite.status === 'failed') {
+                         suite.assertionResults.forEach(test => {
+                             if (test.status === 'failed') {
+                                 backendSummary += `- ${test.ancestorTitles.join(' > ')} > ${test.title}\n`;
+                             }
+                         });
+                    }
+                });
+            }
+        } catch (e) {
+             backendSummary = `Backend Tests: Error parsing JSON report (${e.message})`;
+             // Fallback to log check
+             const backendLog = fs.existsSync(backendLogPath) ? fs.readFileSync(backendLogPath, 'utf8') : '';
+             if (backendLog.includes('SUCCESS') || backendLog.includes('PASS')) backendPassed = true;
+        }
+    } else {
+        // Fallback
+        const backendLog = fs.existsSync(backendLogPath) ? fs.readFileSync(backendLogPath, 'utf8') : '';
+        backendPassed = backendLog.includes('SUCCESS') || backendLog.includes('PASS');
+    }
 
     const smtpConfig = {
         host: host,
         port: port,
         secure: port === 465, 
-        auth: {
-            user: user,
-            pass: pass
-        },
-        tls: {
-            rejectUnauthorized: false
-        }
+        auth: { user: user, pass: pass },
+        tls: { rejectUnauthorized: false }
     };
 
     const transporter = nodemailer.createTransport(smtpConfig);
@@ -35,32 +104,31 @@ async function sendReport() {
     if (fs.existsSync(reportPath)) {
         attachments.push({ filename: 'frontend-report.html', path: reportPath });
     }
-    
-    const backendLog = fs.existsSync(backendLogPath) ? fs.readFileSync(backendLogPath, 'utf8') : 'No backend log found.';
-    const backendPassed = backendLog.includes('SUCCESS') || backendLog.includes('PASS');
 
     const mailOptions = {
         from: `"Totem Nightly Bot" <${user}>`,
         to: to,
-        subject: `🌙 Nightly System Health Report: ${backendPassed ? '🟢 PASS' : '🔴 FAIL'}`,
-        text: `The nightly comprehensive test suite has completed.\n\nBackend Status: ${backendPassed ? 'PASSED' : 'FAILED'}\nFrontend Status: See attached report.\n\nTime: ${new Date().toLocaleString()}\n\nNote: If tests failed, logs are preserved in server/test-results.log and web/playwright-tests.log on the server.`,
+        subject: `🌙 Nightly System Health Report: ${backendPassed && frontendPassed ? '🟢 PASS' : '🔴 FAIL'}`,
+        text: `The nightly comprehensive test suite has completed.\n\n` +
+              `================================\n` +
+              `BACKEND STATUS\n` +
+              `================================\n` +
+              `${backendSummary}\n` +
+              `\n` +
+              `================================\n` +
+              `FRONTEND STATUS\n` +
+              `================================\n` +
+              `${frontendSummary}\n\n` +
+              `Time: ${new Date().toLocaleString()}\n`,
         attachments
     };
 
     try {
-        if (!pass) {
-            throw new Error("SMTP_PASS (Google App Password) not set in environment or .env.nightly");
-        }
+        if (!pass) throw new Error("SMTP_PASS not set");
         const info = await transporter.sendMail(mailOptions);
         console.log('✅ Nightly report emailed to:', to);
-        console.log('Message ID:', info.messageId);
     } catch (error) {
         console.error('❌ Failed to send email:', error.message);
-        if (error.message.includes('EAUTH')) {
-            console.error('Troubleshooting:');
-            console.error('1. Your password is currently ' + pass.length + ' characters. Google App Passwords must be exactly 16.');
-            console.error('2. Ensure 2-Step Verification is ENABLED on your Google Account.');
-        }
     }
 }
 
