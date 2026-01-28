@@ -35,6 +35,11 @@
     * **UI INTEGRATION:** Every new core UI feature or page MUST be added to the automated smoke test suite (`web/tests/smoke.spec.js`).
     * **NIGHTLY HEALTH:** The system depends on the Nightly Comprehensive Suite (`scripts/ops/nightly_suite.sh`) for deep verification. Never break this orchestrator.
 
+5.  **The Maintenance & Access Rule:**
+    * **USER ACCESS:** \`mbryantuk@gmail.com\` MUST always have 'admin' access to Household #60 (Bryant) and the most recently created test household.
+    * **DATA HYGIENE:** Every test run or deployment MUST trigger \`server/scripts/cleanup_test_data.js\`.
+    * **PURGE SCOPE:** All test households (except the latest), all test users (except the primary), and all orphan \`.db\` files in \`server/data/\` or \`server/backups/\` MUST be deleted.
+
 ---
 
 ## 1. TECHNICAL SPECIFICATIONS
@@ -119,15 +124,23 @@ Every feature or maintenance pass MUST satisfy the following gates before deploy
 2.  **Security & Tenancy Stress:**
     * **Command:** `cd server && npm test tests/security/`
     * **Requirement:** 100% pass on RBAC and `household_id` isolation tests.
+    * **Cleanup:** Automatically triggers `test:tidy`.
 
 3.  **Integration Pass:**
     * **Command:** `cd server && npm test`
     * **Requirement:** All 200+ test cases across Finance, Assets, Members, and Meals must pass.
+    * **Cleanup:** Automatically triggers `test:tidy`.
 
 4.  **Frontend Smoke Test:**
     * **Command:** `cd web && npx playwright test tests/smoke.spec.js`
     * **Requirement:** 100% pass on core navigation and tab loading. (Offloaded to Nightly Suite by default but manually runnable).
+    * **Post-Action:** Run `npm run test:tidy` in the `server` directory manually if not using the Nightly Suite.
 
 5.  **Nightly Comprehensive Suite:**
     * **Script:** `scripts/ops/nightly_suite.sh`
-    * **Routine:** Full system rebuild, API stress, UI navigation, and Email reporting. Scheduled via crontab.
+    * **Routine:** Full system rebuild, API stress, UI navigation, and Email reporting.
+    * **HYGIENE:** Includes mandatory execution of `cleanup_test_data.js`.
+
+6.  **Database Cleardown (Manual):**
+    * **Command:** `cd server && npm run test:tidy`
+    * **Purpose:** Safely removes all test users, test households (keeping only the most recent), and orphan `.db` files while maintaining access for `mbryantuk@gmail.com`.

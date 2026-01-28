@@ -37,6 +37,10 @@ git commit -m "v$NEW_VERSION - $COMMIT_SUFFIX"
 CURRENT_BRANCH=$(git branch --show-current)
 git push origin "$CURRENT_BRANCH"
 
+# 3.5. System Hygiene
+echo "🧹 Cleaning up test data..."
+node server/scripts/cleanup_test_data.js
+
 # 4. Disk Cleanup
 echo "🧹 Reclaiming disk space..."
 docker system prune -f

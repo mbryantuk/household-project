@@ -47,12 +47,14 @@ async function cleanupTestData() {
         // ==========================================
         // 3. AGGRESSIVE FILE CLEANUP (DATA & BACKUPS)
         // ==========================================
-        const cleanupDirs = [DATA_DIR, BACKUP_DIR];
+        const cleanupDirs = [DATA_DIR, BACKUP_DIR, path.join(DATA_DIR, 'temp_uploads')];
         let deletedFiles = 0;
 
         const scanAndRemove = (dir) => {
             if (!fs.existsSync(dir)) return;
             const items = fs.readdirSync(dir);
+            const isTempDir = dir.includes('temp_uploads');
+
             for (const item of items) {
                 const fullPath = path.join(dir, item);
                 if (fs.statSync(fullPath).isDirectory()) {
@@ -60,6 +62,13 @@ async function cleanupTestData() {
                     // Optionally remove empty dir
                     try { if (fs.readdirSync(fullPath).length === 0) fs.rmdirSync(fullPath); } catch(e) {}
                 } else {
+                    if (isTempDir) {
+                        if (item !== '.gitkeep') {
+                            try { fs.unlinkSync(fullPath); deletedFiles++; } catch (err) {}
+                        }
+                        continue;
+                    }
+
                     // Match household_ID.db (and -wal, -shm)
                     const match = item.match(/^household_(\d+)\.db/);
                     if (match) {

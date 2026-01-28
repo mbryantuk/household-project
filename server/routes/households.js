@@ -17,10 +17,12 @@ router.post('/households', authenticateToken, async (req, res) => {
     const { name, is_test } = req.body;
     if (!name) return res.status(400).json({ error: "Household name is required" });
 
+    const finalIsTest = (is_test || process.env.NODE_ENV === 'test') ? 1 : 0;
+
     try {
         const hhResult = await dbRun(globalDb, 
             `INSERT INTO households (name, is_test) VALUES (?, ?)`, 
-            [name, is_test ? 1 : 0]
+            [name, finalIsTest]
         );
         const householdId = hhResult.id;
 
@@ -115,6 +117,7 @@ router.post('/households/:id/users', authenticateToken, requireHouseholdRole('ad
     
     const finalFirstName = firstName || first_name || '';
     const finalLastName = lastName || last_name || '';
+    const finalIsTest = (is_test || process.env.NODE_ENV === 'test') ? 1 : 0;
 
     try {
         let user = await dbGet(globalDb, `SELECT id FROM users WHERE email = ?`, [email]);
@@ -132,7 +135,7 @@ router.post('/households/:id/users', authenticateToken, requireHouseholdRole('ad
             const hash = bcrypt.hashSync(generatedPassword, 8);
             const result = await dbRun(globalDb, 
                 `INSERT INTO users (email, password_hash, first_name, last_name, avatar, system_role, is_test) VALUES (?, ?, ?, ?, ?, 'user', ?)`,
-                [email, hash, finalFirstName, finalLastName, avatar || null, is_test ? 1 : 0]
+                [email, hash, finalFirstName, finalLastName, avatar || null, finalIsTest]
             );
             userId = result.id;
         }
