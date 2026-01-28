@@ -47,6 +47,7 @@ export default function SettingsView({
   const [testResults, setTestResults] = useState([]);
   const [loadingTests, setLoadingTests] = useState(false);
   const [testTab, setTestTab] = useState(0);
+  const [nightlyVersionFilter, setNightlyVersionFilter] = useState('');
 
   useEffect(() => {
     if (activeTab === 6 && isAdmin) {
@@ -72,6 +73,7 @@ export default function SettingsView({
               if (household.enabled_modules) {
                   setEnabledModules(JSON.parse(household.enabled_modules));
               }
+              setNightlyVersionFilter(household.nightly_version_filter || '');
               setRegionalSettings({
                   currency: household.currency || '£',
                   date_format: household.date_format || 'dd/MM/yyyy',
@@ -341,6 +343,40 @@ export default function SettingsView({
                   <Button variant="soft" color="primary" startDecorator={<Update />} onClick={fetchTestResults} loading={loadingTests}>Refresh</Button>
                 </Box>
 
+                <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', mb: 4, bgcolor: 'background.level1' }}>
+                  <Typography level="title-md" sx={{ mb: 2 }} startDecorator={<HealthAndSafety color="primary" />}>Configuration</Typography>
+                  <Grid container spacing={3} alignItems="flex-end">
+                    <Grid xs={12} sm={8} md={6}>
+                      <FormControl>
+                        <FormLabel>Nightly Version Filter</FormLabel>
+                        <Input 
+                          placeholder="e.g. 3.0.88" 
+                          value={nightlyVersionFilter}
+                          onChange={(e) => setNightlyVersionFilter(e.target.value)}
+                        />
+                        <Typography level="body-xs" sx={{ mt: 1 }}>
+                          Specify the project version that the nightly suite should target.
+                        </Typography>
+                      </FormControl>
+                    </Grid>
+                    <Grid xs={12} sm={4}>
+                      <Button 
+                        variant="solid" 
+                        color="primary" 
+                        onClick={async () => {
+                          try {
+                            await onUpdateHousehold({ nightly_version_filter: nightlyVersionFilter });
+                          } catch {
+                            showNotification("Failed to save nightly configuration.", "danger");
+                          }
+                        }}
+                      >
+                        Save Configuration
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Sheet>
+
                 <Tabs value={testTab} onChange={(_e, v) => setTestTab(v)} sx={{ bgcolor: 'transparent' }}>
                   <TabList variant="plain" sx={{ mb: 2, gap: 1 }}>
                     <Tab value={0} variant={testTab === 0 ? 'soft' : 'plain'} color="primary">Backend API Tests</Tab>
@@ -370,6 +406,7 @@ export default function SettingsView({
                               <tr>
                                 <th style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>Date</th>
                                 <th style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>Suite</th>
+                                <th style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>Version</th>
                                 <th style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>Status</th>
                                 <th style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>Passes</th>
                                 <th style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>Fails</th>
@@ -384,6 +421,9 @@ export default function SettingsView({
                                   </td>
                                   <td style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>
                                     <Typography level="body-sm" sx={{ fontWeight: 'bold' }}>{r.suite_name}</Typography>
+                                  </td>
+                                  <td style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>
+                                    <Typography level="body-sm" sx={{ fontFamily: 'monospace' }}>v{r.version || 'N/A'}</Typography>
                                   </td>
                                   <td style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>
                                     <Chip 

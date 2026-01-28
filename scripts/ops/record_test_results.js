@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { globalDb, dbRun } = require('../../server/db');
+const pkg = require('../../package.json');
 
 const BACKEND_REPORT = path.join(__dirname, '../../server/test-report.json');
 const FRONTEND_REPORT = path.join(__dirname, '../../web/results.json');
@@ -19,8 +20,8 @@ async function recordBackendResults() {
         const duration = (Date.now() - data.startTime) / 1000; // Rough duration in seconds if not provided
 
         await dbRun(globalDb, 
-            `INSERT INTO test_results (test_type, suite_name, passes, fails, total, duration, report_json) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            ['backend', 'Jest Integration Suite', passes, fails, total, duration, JSON.stringify(data)]
+            `INSERT INTO test_results (test_type, suite_name, passes, fails, total, duration, report_json, version) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            ['backend', 'Jest Integration Suite', passes, fails, total, duration, JSON.stringify(data), pkg.version]
         );
         console.log("✅ Backend test results recorded.");
     } catch (err) {
@@ -43,8 +44,8 @@ async function recordFrontendResults() {
         const duration = stats.duration / 1000;
 
         await dbRun(globalDb, 
-            `INSERT INTO test_results (test_type, suite_name, passes, fails, total, duration, report_json) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            ['frontend', 'Playwright Smoke Suite', passes, fails, total, duration, JSON.stringify(data)]
+            `INSERT INTO test_results (test_type, suite_name, passes, fails, total, duration, report_json, version) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            ['frontend', 'Playwright Smoke Suite', passes, fails, total, duration, JSON.stringify(data), pkg.version]
         );
         console.log("✅ Frontend test results recorded.");
     } catch (err) {

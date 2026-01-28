@@ -27,6 +27,7 @@ const GLOBAL_SCHEMA = [
         total INTEGER,
         duration REAL,
         report_json TEXT,
+        version TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
     `CREATE TABLE IF NOT EXISTS households (
@@ -43,6 +44,7 @@ const GLOBAL_SCHEMA = [
         auto_backup INTEGER DEFAULT 1,
         backup_retention INTEGER DEFAULT 7,
         is_test INTEGER DEFAULT 0,
+        nightly_version_filter TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
     `CREATE TABLE IF NOT EXISTS user_households (
@@ -529,6 +531,32 @@ function initializeGlobalSchema(db) {
                 db.run("ALTER TABLE users ADD COLUMN last_household_id INTEGER", (err) => {
                     if (err) console.error("Migration failed:", err.message);
                     else console.log("✅ last_household_id column added.");
+                });
+            }
+        });
+
+        // 🛠️ MIGRATION: Add nightly_version_filter to households
+        db.all("PRAGMA table_info(households)", (err, rows) => {
+            if (err) return console.error("Failed to check households schema", err);
+            const hasNightlyVersionFilter = rows.some(r => r.name === 'nightly_version_filter');
+            if (!hasNightlyVersionFilter) {
+                console.log("🛠️ Migrating households table: Adding nightly_version_filter...");
+                db.run("ALTER TABLE households ADD COLUMN nightly_version_filter TEXT", (err) => {
+                    if (err) console.error("Migration failed:", err.message);
+                    else console.log("✅ nightly_version_filter column added.");
+                });
+            }
+        });
+
+        // 🛠️ MIGRATION: Add version to test_results
+        db.all("PRAGMA table_info(test_results)", (err, rows) => {
+            if (err) return console.error("Failed to check test_results schema", err);
+            const hasVersion = rows.some(r => r.name === 'version');
+            if (!hasVersion) {
+                console.log("🛠️ Migrating test_results table: Adding version...");
+                db.run("ALTER TABLE test_results ADD COLUMN version TEXT", (err) => {
+                    if (err) console.error("Migration failed:", err.message);
+                    else console.log("✅ version column added to test_results.");
                 });
             }
         });
