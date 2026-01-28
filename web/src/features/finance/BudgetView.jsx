@@ -9,10 +9,10 @@ import {
 } from '@mui/joy';
 import { 
   AccountBalanceWallet, CheckCircle, RadioButtonUnchecked, TrendingDown, 
-  Home, CreditCard, 
-  Assignment, ElectricBolt, Add, Shield, 
+  Event, Payments, Savings as SavingsIcon, Home, CreditCard, 
+  Assignment, WaterDrop, ElectricBolt, AccountBalance, Add, Shield, 
   ShoppingBag, ChevronLeft, ChevronRight, Lock, LockOpen, ArrowDropDown, RestartAlt, Receipt,
-  DirectionsCar, DeleteOutline, Restore, Sort, Search, ArrowUpward, ArrowDownward
+  DirectionsCar, Person, DeleteOutline, Restore, Sort, Search, ArrowUpward, ArrowDownward
 } from '@mui/icons-material';
 import { 
   format, addMonths, startOfMonth, setDate, differenceInDays, 
