@@ -11,7 +11,21 @@ SKIP_FRONTEND=false
 SKIP_PURGE=false
 VERSION_FILTER=""
 
-# Parse arguments
+# Detect Environment
+if [ -f "/.dockerenv" ]; then
+    echo "🐳 Running inside Docker container."
+    IS_CONTAINER=true
+    PROJECT_ROOT="/app"
+    # Inside container we can't refresh docker or purge cache easily
+    SKIP_DOCKER=true
+    SKIP_PURGE=true
+else
+    echo "🖥️ Running on host machine."
+    IS_CONTAINER=false
+    PROJECT_ROOT="/home/matt/household-project"
+fi
+
+# Parse arguments (overrides detection)
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     --skip-docker) SKIP_DOCKER=true ;;
@@ -24,10 +38,9 @@ while [[ "$#" -gt 0 ]]; do
   shift
 done
 
-# Force non-interactive for any apt or npx commands
+# Force non-interactive
 export DEBIAN_FRONTEND=noninteractive
 
-PROJECT_ROOT="/home/matt/household-project"
 cd "$PROJECT_ROOT"
 
 # Version Check
@@ -37,31 +50,34 @@ if [ -n "$VERSION_FILTER" ] && [ "$CURRENT_VERSION" != "$VERSION_FILTER" ]; then
     exit 0
 fi
 
-echo "🌙 Starting Nightly Comprehensive Suite (v$CURRENT_VERSION)..."
+echo "🌙 Starting Comprehensive Health Check (v$CURRENT_VERSION)..."
 
-# 1. Refresh Containers
-if [ "$SKIP_DOCKER" = true ]; then
+# 1. Refresh Containers (Host Only)
+if [ "$SKIP_DOCKER" = true ] || [ "$IS_CONTAINER" = true ]; then
     echo "⏭️  [1/6] Skipping Container Refresh."
 else
     echo "🚀 [1/6] Refreshing containers..."
-    docker compose pull --quiet > /dev/null 2>&1 || true
-    docker compose up -d --build > /dev/null 2>&1
-    echo "✅ Containers ready."
+    if command -v docker >/dev/null 2>&1; then
+        docker compose pull --quiet > /dev/null 2>&1 || true
+        docker compose up -d --build > /dev/null 2>&1
+        echo "✅ Containers ready."
+    else
+        echo "⚠️  Docker not found, skipping."
+    fi
 fi
 
 # 2. Backend Integration & Security Tests
 if [ "$SKIP_BACKEND" = true ]; then
     echo "⏭️  [2/6] Skipping Backend Tests."
 else
-    echo "🏗️  [2/6] Running 227+ Backend Tests..."
-    cd server
-    # Ensure json reporter is used to generate the report for the DB
+    echo "🏗️  [2/6] Running Backend Tests..."
+    cd "$PROJECT_ROOT/server"
     if npm test -- --json --outputFile=test-report.json > test-results.log 2>&1; then
         echo "🟢 Backend Tests: SUCCESS"
     else
         echo "🔴 Backend Tests: FAILED (Check server/test-results.log)"
     fi
-    cd ..
+    cd "$PROJECT_ROOT"
     node scripts/ops/record_test_results.js backend || true
 fi
 
@@ -69,15 +85,21 @@ fi
 if [ "$SKIP_FRONTEND" = true ]; then
     echo "⏭️  [3/6] Skipping Frontend Tests."
 else
-    echo "🌐 [3/6] Running System Smoke & Comprehensive Suite..."
-    cd web
-    # Run the comprehensive suite (runs all *.spec.js files in tests/)
-    if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results.json npx --yes playwright test --reporter=list,json > playwright-tests.log 2>&1; then
-        echo "🟢 Frontend Tests: SUCCESS"
+    echo "🌐 [3/6] Running Frontend Smoke Suite..."
+    cd "$PROJECT_ROOT/web"
+    
+    # Check if browsers are installed (Playwright requirement)
+    if [ "$IS_CONTAINER" = true ] && [ ! -d "/root/.cache/ms-playwright" ]; then
+        echo "⚠️  Browsers not found in container. Skipping UI tests."
+        echo "🔴 Frontend Tests: SKIPPED (Missing Dependencies)"
     else
-        echo "🔴 Frontend Tests: FAILED (Check web/playwright-tests.log)"
+        if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results.json npx --yes playwright test --reporter=list,json > playwright-tests.log 2>&1; then
+            echo "🟢 Frontend Tests: SUCCESS"
+        else
+            echo "🔴 Frontend Tests: FAILED (Check web/playwright-tests.log)"
+        fi
     fi
-    cd ..
+    cd "$PROJECT_ROOT"
     node scripts/ops/record_test_results.js frontend || true
 fi
 
@@ -86,18 +108,20 @@ echo "🧹 [4/6] Cleaning up test data..."
 node server/scripts/cleanup_test_data.js > /dev/null 2>&1 || true
 echo "✅ Cleanup complete."
 
-# 5. Send the report (Removed output suppression for debugging)
+# 5. Send the report
 echo "📧 [5/6] Emailing report..."
 node scripts/utils/send_report.js || true
 echo "✅ Report task finished."
 
-# 6. Aggressive Cleanup
-if [ "$SKIP_PURGE" = true ]; then
-    echo "⏭️  [6/6] Skipping Docker purge."
+# 6. Aggressive Cleanup (Host Only)
+if [ "$SKIP_PURGE" = true ] || [ "$IS_CONTAINER" = true ]; then
+    echo "⏭️  [6/6] Skipping Cleanup stage."
 else
     echo "🧹 [6/6] Purging Docker cache..."
-    docker system prune -af > /dev/null 2>&1
-    echo "✅ Docker disk space reclaimed."
+    if command -v docker >/dev/null 2>&1; then
+        docker system prune -af > /dev/null 2>&1
+        echo "✅ Docker disk space reclaimed."
+    fi
 fi
 
-echo "🏁 Nightly Suite Complete."
+echo "🏁 Health Check Complete."

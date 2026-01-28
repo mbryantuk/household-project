@@ -22,19 +22,29 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# 1. Install Server Dependencies
+# 1. Install Root Dependencies (needed for scripts)
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+# 2. Install Server Dependencies
 COPY server/package*.json ./server/
 WORKDIR /app/server
 RUN npm ci --omit=dev
 
-# 2. Copy Server Source Code
-COPY server/ ./
+# 3. Copy source code
+WORKDIR /app
+COPY server/ ./server/
+COPY scripts/ ./scripts/
+COPY web/package*.json ./web/
+COPY web/playwright.config.js ./web/
+COPY web/tests/ ./web/tests/
 
-# 3. Copy Built Frontend Assets
-COPY --from=frontend-builder /app/web/dist ../web/dist
+# 4. Copy Built Frontend Assets
+COPY --from=frontend-builder /app/web/dist ./web/dist
 
 # Expose unified port
 EXPOSE 4001
 
 # Start the server
+WORKDIR /app/server
 CMD ["node", "server.js"]
