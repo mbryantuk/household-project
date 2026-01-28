@@ -9,37 +9,20 @@ SKIP_DOCKER=false
 SKIP_BACKEND=false
 SKIP_FRONTEND=false
 SKIP_PURGE=false
+VERSION_FILTER=""
 
 # Parse arguments
-for arg in "$@"; do
-  case $arg in
-    --skip-docker)
-      SKIP_DOCKER=true
-      shift
-      ;;
-    --skip-backend)
-      SKIP_BACKEND=true
-      shift
-      ;;
-    --skip-frontend)
-      SKIP_FRONTEND=true
-      shift
-      ;;
-    --skip-purge)
-      SKIP_PURGE=true
-      shift
-      ;;
+while [[ "$#" -gt 0 ]]; do
+  case $1 in
+    --skip-docker) SKIP_DOCKER=true ;;
+    --skip-backend) SKIP_BACKEND=true ;;
+    --skip-frontend) SKIP_FRONTEND=true ;;
+    --skip-purge) SKIP_PURGE=true ;;
+    --version) VERSION_FILTER="$2"; shift ;;
+    *) echo "Unknown parameter passed: $1"; exit 1 ;;
   esac
+  shift
 done
-
-# Load Secrets if they exist
-SECRET_FILE="$(dirname "$0")/.env.nightly"
-if [ -f "$SECRET_FILE" ]; then
-    echo "🔐 Loading credentials from .env.nightly..."
-    export $(grep -v '^#' "$SECRET_FILE" | xargs)
-else
-    echo "⚠️  Warning: .env.nightly not found. Email reporting may fail."
-fi
 
 # Force non-interactive for any apt or npx commands
 export DEBIAN_FRONTEND=noninteractive
@@ -47,7 +30,14 @@ export DEBIAN_FRONTEND=noninteractive
 PROJECT_ROOT="/home/matt/household-project"
 cd "$PROJECT_ROOT"
 
-echo "🌙 Starting Nightly Comprehensive Suite..."
+# Version Check
+CURRENT_VERSION=$(grep '"version":' package.json | head -1 | awk -F: '{ print $2 }' | sed 's/[", ]//g')
+if [ -n "$VERSION_FILTER" ] && [ "$CURRENT_VERSION" != "$VERSION_FILTER" ]; then
+    echo "⏭️  Skipping Nightly Suite: Current version ($CURRENT_VERSION) does not match filter ($VERSION_FILTER)."
+    exit 0
+fi
+
+echo "🌙 Starting Nightly Comprehensive Suite (v$CURRENT_VERSION)..."
 
 # 1. Refresh Containers
 if [ "$SKIP_DOCKER" = true ]; then

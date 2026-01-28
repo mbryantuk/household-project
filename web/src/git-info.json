@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fixed household transition race condition and removed full page reloads",
-  "date": "Wed 28 Jan 19:01:59 GMT 2026"
+  "commitMessage": "Added version filter to nightly_suite.sh",
+  "date": "Wed 28 Jan 19:04:49 GMT 2026"
 }
