@@ -140,6 +140,7 @@ Every feature or maintenance pass MUST satisfy the following gates before deploy
     * **Script:** `scripts/ops/nightly_suite.sh`
     * **Routine:** Full system rebuild, API stress, UI navigation, and Email reporting.
     * **HYGIENE:** Includes mandatory execution of `cleanup_test_data.js`.
+    * **MONITORING:** Persists results to `test_results` table via `record_test_results.js` for frontend visibility in **Settings > Nightly Health**.
 
 6.  **Database Cleardown (Manual):**
     * **Command:** `cd server && npm run test:tidy`

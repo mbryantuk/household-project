@@ -1,13 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
 import { 
-  Box, Typography, Sheet, Tabs, TabList, Tab, Button, Input, 
+  Box, Typography, Sheet, Tabs, TabList, Tab, TabPanel, Button, Input, 
   FormControl, FormLabel, Stack, Avatar, IconButton, 
   Divider, Modal, ModalDialog, DialogTitle, Select, Option, Grid, Chip, DialogContent, DialogActions, Tooltip, Switch
 } from '@mui/joy';
 import { 
   PersonAdd, Edit, Delete, ExitToApp, ToggleOn, ToggleOff,
   OpenInNew, Info, Verified, Code, Policy, Palette, AddHome, LightMode, DarkMode,
-  ViewModule, CheckCircle, Cancel, Public, ContentCopy, Update
+  ViewModule, CheckCircle, Cancel, Public, ContentCopy, Update, HealthAndSafety
 } from '@mui/icons-material';
 import { getEmojiColor, THEMES } from '../theme';
 import EmojiPicker from '../components/EmojiPicker';
@@ -42,6 +42,29 @@ export default function SettingsView({
   
   // Modules State
   const [enabledModules, setEnabledModules] = useState(['pets', 'vehicles', 'meals']);
+
+  // Nightly Test Results State
+  const [testResults, setTestResults] = useState([]);
+  const [loadingTests, setLoadingTests] = useState(false);
+  const [testTab, setTestTab] = useState(0);
+
+  useEffect(() => {
+    if (activeTab === 6 && isAdmin) {
+      fetchTestResults();
+    }
+  }, [activeTab]);
+
+  const fetchTestResults = async () => {
+    setLoadingTests(true);
+    try {
+      const res = await api.get('/admin/test-results');
+      setTestResults(res.data);
+    } catch {
+      showNotification("Failed to fetch test results.", "danger");
+    } finally {
+      setLoadingTests(false);
+    }
+  };
 
   useEffect(() => {
       if (household) {
@@ -303,10 +326,103 @@ export default function SettingsView({
             <Tab value={2} variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={getTabStyle(2)}>Regional</Tab>
             <Tab value={3} variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'} sx={getTabStyle(3)}>Modules</Tab>
             <Tab value={4} variant={activeTab === 4 ? 'solid' : 'plain'} color={activeTab === 4 ? 'primary' : 'neutral'} sx={getTabStyle(4)}>Developers</Tab>
+            {isAdmin && <Tab value={6} variant={activeTab === 6 ? 'solid' : 'plain'} color={activeTab === 6 ? 'primary' : 'neutral'} sx={getTabStyle(6)}>Nightly Health</Tab>}
             <Tab value={5} variant={activeTab === 5 ? 'solid' : 'plain'} color={activeTab === 5 ? 'primary' : 'neutral'} sx={getTabStyle(5)}>About</Tab>
           </TabList>
 
           <Box sx={{ p: { xs: 2, md: 4 } }}>
+            {activeTab === 6 && isAdmin && (
+              <Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+                  <Box>
+                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Nightly Health Monitor</Typography>
+                    <Typography level="body-md" color="neutral">System-wide test results from the nightly CI suite, ordered newest to oldest.</Typography>
+                  </Box>
+                  <Button variant="soft" color="primary" startDecorator={<Update />} onClick={fetchTestResults} loading={loadingTests}>Refresh</Button>
+                </Box>
+
+                <Tabs value={testTab} onChange={(_e, v) => setTestTab(v)} sx={{ bgcolor: 'transparent' }}>
+                  <TabList variant="plain" sx={{ mb: 2, gap: 1 }}>
+                    <Tab value={0} variant={testTab === 0 ? 'soft' : 'plain'} color="primary">Backend API Tests</Tab>
+                    <Tab value={1} variant={testTab === 1 ? 'soft' : 'plain'} color="primary">Frontend E2E Tests</Tab>
+                  </TabList>
+                  
+                  {[0, 1].map((idx) => {
+                    const type = idx === 0 ? 'backend' : 'frontend';
+                    const results = testResults.filter(r => r.test_type === type);
+                    
+                    return (
+                      <TabPanel key={idx} value={idx}>
+                        <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
+                          <Box sx={{ p: 2, bgcolor: 'background.level1', borderBottom: '1px solid', borderColor: 'divider', display: 'flex', gap: 2 }}>
+                             <Chip variant="soft" color="neutral">Latest Run: {results[0] ? new Date(results[0].created_at).toLocaleString() : 'N/A'}</Chip>
+                             {results[0] && (
+                               <>
+                                 <Chip variant="soft" color={results[0].fails === 0 ? "success" : "danger"} startDecorator={results[0].fails === 0 ? <CheckCircle /> : <Cancel />}>
+                                   {results[0].fails === 0 ? "All Passed" : `${results[0].fails} Failures`}
+                                 </Chip>
+                                 <Chip variant="soft" color="neutral">{results[0].passes} Passes</Chip>
+                               </>
+                             )}
+                          </Box>
+                          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                            <thead>
+                              <tr>
+                                <th style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>Date</th>
+                                <th style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>Suite</th>
+                                <th style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>Status</th>
+                                <th style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>Passes</th>
+                                <th style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>Fails</th>
+                                <th style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>Duration</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {results.map(r => (
+                                <tr key={r.id}>
+                                  <td style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>
+                                    <Typography level="body-sm">{new Date(r.created_at).toLocaleString()}</Typography>
+                                  </td>
+                                  <td style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>
+                                    <Typography level="body-sm" sx={{ fontWeight: 'bold' }}>{r.suite_name}</Typography>
+                                  </td>
+                                  <td style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>
+                                    <Chip 
+                                      size="sm" 
+                                      variant="soft" 
+                                      color={r.fails === 0 ? "success" : "danger"}
+                                      startDecorator={r.fails === 0 ? <CheckCircle /> : <Cancel />}
+                                    >
+                                      {r.fails === 0 ? "Passed" : "Failed"}
+                                    </Chip>
+                                  </td>
+                                  <td style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>
+                                    <Typography level="body-sm" color="success">{r.passes}</Typography>
+                                  </td>
+                                  <td style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>
+                                    <Typography level="body-sm" color={r.fails > 0 ? "danger" : "neutral"}>{r.fails}</Typography>
+                                  </td>
+                                  <td style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>
+                                    <Typography level="body-xs" sx={{ fontFamily: 'monospace' }}>{r.duration?.toFixed(2)}s</Typography>
+                                  </td>
+                                </tr>
+                              ))}
+                              {results.length === 0 && (
+                                <tr>
+                                  <td colSpan={6} style={{ padding: '40px', textAlign: 'center' }}>
+                                    <Typography level="body-md" color="neutral">No test results recorded yet.</Typography>
+                                  </td>
+                                </tr>
+                              )}
+                            </tbody>
+                          </table>
+                        </Sheet>
+                      </TabPanel>
+                    );
+                  })}
+                </Tabs>
+              </Box>
+            )}
+
             {activeTab === 0 && (
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>

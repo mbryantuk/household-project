@@ -65,12 +65,14 @@ if [ "$SKIP_BACKEND" = true ]; then
 else
     echo "🏗️  [2/6] Running 227+ Backend Tests..."
     cd server
-    if npm test > test-results.log 2>&1; then
+    # Ensure json reporter is used to generate the report for the DB
+    if npm test -- --json --outputFile=test-report.json > test-results.log 2>&1; then
         echo "🟢 Backend Tests: SUCCESS"
     else
         echo "🔴 Backend Tests: FAILED (Check server/test-results.log)"
     fi
     cd ..
+    node scripts/ops/record_test_results.js backend || true
 fi
 
 # 3. Frontend Comprehensive E2E Tests
@@ -86,6 +88,7 @@ else
         echo "🔴 Frontend Tests: FAILED (Check web/playwright-tests.log)"
     fi
     cd ..
+    node scripts/ops/record_test_results.js frontend || true
 fi
 
 # 4. Clean up Test Data

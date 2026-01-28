@@ -205,4 +205,15 @@ router.delete('/users/:userId', authenticateToken, requireHouseholdRole('admin')
     });
 });
 
+// ==========================================
+// 🧪 TEST MONITORING (Admin Only)
+// ==========================================
+
+router.get('/test-results', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
+    globalDb.all("SELECT * FROM test_results ORDER BY created_at DESC LIMIT 100", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
 module.exports = router;

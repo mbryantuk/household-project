@@ -17,6 +17,17 @@ const GLOBAL_SCHEMA = [
         is_active INTEGER DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
+    `CREATE TABLE IF NOT EXISTS test_results (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        test_type TEXT, -- 'backend', 'frontend'
+        suite_name TEXT,
+        passes INTEGER,
+        fails INTEGER,
+        total INTEGER,
+        duration REAL,
+        report_json TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
     `CREATE TABLE IF NOT EXISTS households (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
