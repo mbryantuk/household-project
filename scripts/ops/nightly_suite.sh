@@ -71,8 +71,8 @@ if [ "$SKIP_FRONTEND" = true ]; then
 else
     echo "🌐 [3/6] Running System Smoke & Comprehensive Suite..."
     cd web
-    # Run the merged suite sequentially
-    if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results.json npx --yes playwright test tests/smoke.spec.js --reporter=list,json > playwright-tests.log 2>&1; then
+    # Run the comprehensive suite (runs all *.spec.js files in tests/)
+    if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results.json npx --yes playwright test --reporter=list,json > playwright-tests.log 2>&1; then
         echo "🟢 Frontend Tests: SUCCESS"
     else
         echo "🔴 Frontend Tests: FAILED (Check web/playwright-tests.log)"
