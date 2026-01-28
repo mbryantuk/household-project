@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Totem Household SaaS API",
-    "version": "3.1.0",
+    "version": "3.1.1",
     "description": "Multi-tenant household management API with strict data isolation and RBAC. Admins have full rights, Members have object CRUD except for household management, and Viewers are read-only.",
     "contact": {
       "name": "Lead Architect"
@@ -162,6 +162,29 @@
           "account_name": { "type": "string" },
           "current_balance": { "type": "number" },
           "emoji": { "type": "string" }
+        }
+      },
+      "AdminTestResult": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "test_type": { "type": "string", "enum": ["backend", "frontend"] },
+          "suite_name": { "type": "string" },
+          "passes": { "type": "integer" },
+          "fails": { "type": "integer" },
+          "total": { "type": "integer" },
+          "duration": { "type": "number" },
+          "version": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "AdminVersionHistory": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "version": { "type": "string" },
+          "comment": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" }
         }
       }
     }
@@ -326,6 +349,44 @@
     "/households/{id}/backups": {
       "get": { "summary": "List household backups (Admin Only)", "tags": ["Households"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
       "post": { "summary": "Trigger manual backup (Admin Only)", "tags": ["Households"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "Created" } } }
+    },
+    "/admin/test-results": {
+      "get": {
+        "summary": "Get system test results (Admin Only)",
+        "tags": ["Admin"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/AdminTestResult" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/version-history": {
+      "get": {
+        "summary": "Get platform version history (Admin Only)",
+        "tags": ["Admin"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/AdminVersionHistory" }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
