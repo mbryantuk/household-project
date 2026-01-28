@@ -220,6 +220,16 @@ function AppInner({ themeId, setThemeId }) {
       }
   }, [navigate, setThemeId]);
 
+  const handleSelectHousehold = useCallback(async (hh) => {
+    try {
+      await authAxios.post(`/households/${hh.id}/select`);
+    } catch (err) {
+      console.error("Failed to persist household preference", err);
+    }
+    setHousehold(hh);
+    localStorage.setItem('household', JSON.stringify(hh));
+  }, [authAxios]);
+
   const handleUpdateHouseholdSettings = useCallback(async (updates) => {
     if (!household) return;
     try {
@@ -285,11 +295,11 @@ function AppInner({ themeId, setThemeId }) {
         
         <Route element={token ? <RootLayout context={{ api: authAxios, user, showNotification, confirmAction }} /> : <Navigate to="/login" />}>
           <Route index element={household ? <Navigate to={`/household/${household.id}/dashboard`} /> : <Navigate to="/select-household" />} />
-          <Route path="select-household" element={<HouseholdSelector api={authAxios} currentUser={user} onLogout={logout} showNotification={showNotification} />} />
+          <Route path="select-household" element={<HouseholdSelector api={authAxios} currentUser={user} onLogout={logout} showNotification={showNotification} onSelectHousehold={handleSelectHousehold} />} />
 
           <Route path="household/:id" element={<HouseholdLayout 
               households={households}
-              onSelectHousehold={setHousehold}
+              onSelectHousehold={handleSelectHousehold}
               api={authAxios} onUpdateHousehold={handleUpdateHouseholdSettings}
               members={hhMembers} fetchHhMembers={fetchHhMembers} user={user} isDark={isDark}
               showNotification={showNotification} confirmAction={confirmAction}

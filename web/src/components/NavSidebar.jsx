@@ -254,10 +254,10 @@ export default function NavSidebar({
                 )}
 
                 <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'center' }}>
-                    <Tooltip title="Go to Dashboard" variant="soft" placement="right">
+                    <Tooltip title="Switch Household" variant="soft" placement="right">
                         <Avatar 
                             variant="soft" color="primary" size="lg"
-                            onClick={() => { navigate('dashboard'); setHoveredCategory(null); }}
+                            onClick={() => { navigate('/select-household'); setHoveredCategory(null); }}
                             sx={{ 
                                 bgcolor: getEmojiColor(household?.avatar || '🏠', isDark),
                                 fontSize: '1.5rem', fontWeight: 'bold', boxShadow: 'sm', cursor: 'pointer',

@@ -7,7 +7,7 @@ import {
 import { Add, ArrowForward, Logout, DeleteForever } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
 
-export default function HouseholdSelector({ api, currentUser, onLogout, showNotification }) {
+export default function HouseholdSelector({ api, currentUser, onLogout, showNotification, onSelectHousehold }) {
   const [households, setHouseholds] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newHouseholdName, setNewHouseholdName] = useState('');
@@ -28,12 +28,10 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
   }, [fetchHouseholds]);
 
   const handleSelect = async (hh) => {
-    try {
-      await api.post(`/households/${hh.id}/select`);
-    } catch (err) {
-      console.error("Failed to persist household preference", err);
+    if (onSelectHousehold) await onSelectHousehold(hh);
+    else {
+        localStorage.setItem('household', JSON.stringify(hh));
     }
-    localStorage.setItem('household', JSON.stringify(hh));
     window.location.href = `/household/${hh.id}/dashboard`;
   };
 
@@ -69,7 +67,10 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
         setNewHouseholdName('');
         
         // Success Flow: Auto-select and redirect
-        localStorage.setItem('household', JSON.stringify(newHh));
+        if (onSelectHousehold) await onSelectHousehold(newHh);
+        else {
+            localStorage.setItem('household', JSON.stringify(newHh));
+        }
         window.location.href = `/household/${newHh.id}/dashboard`;
     } catch (err) {
         console.error("Failed to create household", err);

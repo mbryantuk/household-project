@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Implement last-accessed household persistence for smart session resumption",
-  "date": "Wed 28 Jan 18:50:00 GMT 2026"
+  "commitMessage": "Fix household switching and implement session resumption persistence",
+  "date": "Wed 28 Jan 18:54:31 GMT 2026"
 }
