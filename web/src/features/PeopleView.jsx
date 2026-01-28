@@ -69,7 +69,7 @@ export default function PeopleView() {
       if (personId === 'new') {
         const res = await api.post(`/households/${householdId}/members`, formData);
         showNotification("Person added.", "success");
-        fetchHhMembers(householdId);
+        await fetchHhMembers(householdId);
         navigate(`../people/${res.data.id}`);
       } else {
         await api.put(`/households/${householdId}/members/${personId}`, formData);

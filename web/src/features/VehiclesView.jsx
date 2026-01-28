@@ -80,7 +80,16 @@ export default function VehiclesView() {
       if (vehicleId === 'new') {
         const res = await api.post(`/households/${householdId}/vehicles`, data);
         showNotification("Vehicle added.", "success");
-        refreshSidebar();
+        
+        // Manual update for immediate availability
+        setVehicles(prev => [...prev, res.data]);
+        
+        // Await synchronization
+        await Promise.all([
+            refreshSidebar(),
+            fetchVehiclesList()
+        ]);
+        
         navigate(`../vehicles/${res.data.id}`);
       } else {
         await api.put(`/households/${householdId}/vehicles/${vehicleId}`, data);

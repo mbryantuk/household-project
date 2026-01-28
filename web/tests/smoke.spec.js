@@ -39,42 +39,59 @@ test.describe('System Smoke & Comprehensive Test', () => {
     await page.fill('input[type="password"]', password);
     await page.click('button[type="submit"]');
 
-    // Wait for dashboard
-    await expect(page).toHaveURL(/.*dashboard|.*select-household/, { timeout: 15000 });
+    // Wait for dashboard or selection screen
+    await page.waitForURL(/.*dashboard|.*select-household/, { timeout: 20000 });
     
     if (page.url().includes('/select-household')) {
+        console.log('Landed on selection screen, choosing household...');
         await page.click(`text=${householdName}`);
+        await page.waitForURL(/.*dashboard/, { timeout: 15000 });
     }
 
-    await expect(page).toHaveURL(/.*dashboard/);
-    await page.waitForTimeout(5000); // Massive settle
-    console.log('Dashboard loaded');
+    // Verify Dashboard Content (More reliable than just URL)
+    await expect(page.locator('text=Here\'s what\'s happening')).toBeVisible({ timeout: 15000 });
+    
+    const currentUrl = page.url();
+    const hhMatch = currentUrl.match(/\/household\/(\d+)/);
+    const hhId = hhMatch ? hhMatch[1] : null;
+    console.log(`Dashboard loaded. Detected Household ID: ${hhId}`);
+
+    if (!hhId) {
+        throw new Error("Failed to detect household ID from URL: " + currentUrl);
+    }
 
     // 3. NAVIGATION SMOKE TEST
     const routes = [
-      { name: 'Calendar', path: '/calendar' },
-      { name: 'People', path: '/people' },
-      { name: 'Pets', path: '/pets' },
-      { name: 'House', path: '/house' },
-      { name: 'Vehicles', path: '/vehicles' },
-      { name: 'Meals', path: '/meals' },
+      { name: 'Calendar', path: `/household/${hhId}/calendar` },
+      { name: 'People', path: `/household/${hhId}/people` },
+      { name: 'Pets', path: `/household/${hhId}/pets` },
+      { name: 'House', path: `/household/${hhId}/house` },
+      { name: 'Vehicles', path: `/household/${hhId}/vehicles` },
+      { name: 'Meals', path: `/household/${hhId}/meals` },
       { 
         name: 'Finance', 
-        path: '/finance',
+        path: `/household/${hhId}/finance`,
         tabs: ['budget', 'income', 'banking', 'savings', 'invest', 'pensions', 'credit', 'loans', 'mortgage', 'car']
       },
-      { name: 'Settings', path: '/settings' },
-      { name: 'Profile', path: '/profile' }
+      { name: 'Settings', path: `/household/${hhId}/settings` },
+      { name: 'Profile', path: `/household/${hhId}/profile` }
     ];
 
     for (const route of routes) {
       console.log(`Checking route: ${route.path}`);
       await page.goto(route.path);
-      await page.waitForTimeout(2000); // Settle each page
+      await page.waitForLoadState('networkidle'); // Wait for network instead of hard timeout
       
       const body = page.locator('body');
       await expect(body).not.toContainText('Error');
       await expect(body).not.toContainText('404');
+      
+      // Basic content check to ensure we aren't on a blank page
+      if (route.name !== 'Finance') { // Finance has complex tabs, checked below
+          // Most pages have their name in the header or title
+          // We check for some non-empty content to be safe
+          await expect(page.locator('main, [role="main"]').last()).toBeVisible();
+      }
       
       if (route.tabs) {
           for (const tab of route.tabs) {
@@ -93,7 +110,7 @@ test.describe('System Smoke & Comprehensive Test', () => {
 
     // 4. VEHICLE CRUD & REDIRECT TEST
     console.log('Testing Vehicle Creation & Redirect');
-    await page.goto('/vehicles');
+    await page.goto(`/household/${hhId}/vehicles`);
     
     // Wait for loader to disappear
     await expect(page.locator('.MuiCircularProgress-root')).not.toBeVisible({ timeout: 20000 });

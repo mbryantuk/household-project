@@ -132,17 +132,17 @@ function AppInner({ themeId, setThemeId }) {
 
   const fetchHhMembers = useCallback((hhId) => {
     if (!hhId) return;
-    authAxios.get(`/households/${hhId}/members`).then(res => setHhMembers(Array.isArray(res.data) ? res.data : []));
+    return authAxios.get(`/households/${hhId}/members`).then(res => setHhMembers(Array.isArray(res.data) ? res.data : []));
   }, [authAxios]);
 
   const fetchHhUsers = useCallback((hhId) => {
     if (!hhId) return;
-    authAxios.get(`/households/${hhId}/users`).then(res => setHhUsers(Array.isArray(res.data) ? res.data : []));
+    return authAxios.get(`/households/${hhId}/users`).then(res => setHhUsers(Array.isArray(res.data) ? res.data : []));
   }, [authAxios]);
 
   const fetchHhDates = useCallback((hhId) => {
     if (!hhId) return;
-    authAxios.get(`/households/${hhId}/dates`).then(res => setHhDates(Array.isArray(res.data) ? res.data : []));
+    return authAxios.get(`/households/${hhId}/dates`).then(res => setHhDates(Array.isArray(res.data) ? res.data : []));
   }, [authAxios]);
 
   useEffect(() => {
