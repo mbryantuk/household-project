@@ -32,10 +32,13 @@ router.post('/register', async (req, res) => {
         const existingUser = await dbGet(globalDb, `SELECT id FROM users WHERE email = ?`, [email]);
         if (existingUser) return res.status(409).json({ error: "Email already registered" });
 
+        // Auto-mark as test if in test environment
+        const finalIsTest = (is_test || process.env.NODE_ENV === 'test') ? 1 : 0;
+
         // 2. Create Household
         const hhResult = await dbRun(globalDb, 
             `INSERT INTO households (name, is_test) VALUES (?, ?)`, 
-            [householdName, is_test ? 1 : 0]
+            [householdName, finalIsTest]
         );
         const householdId = hhResult.id;
 
@@ -43,7 +46,7 @@ router.post('/register', async (req, res) => {
         const passwordHash = bcrypt.hashSync(password, 8);
         const userResult = await dbRun(globalDb,
             `INSERT INTO users (email, password_hash, first_name, last_name, system_role, default_household_id, is_test) VALUES (?, ?, ?, ?, 'user', ?, ?)`,
-            [email, passwordHash, firstName || 'Admin', lastName || '', householdId, is_test ? 1 : 0]
+            [email, passwordHash, firstName || 'Admin', lastName || '', householdId, finalIsTest]
         );
         const userId = userResult.id;
 
