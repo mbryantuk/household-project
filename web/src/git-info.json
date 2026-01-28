@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Include version number in nightly email report",
-  "date": "Wed 28 Jan 17:17:30 GMT 2026"
+  "commitMessage": "Correct frontend JSON report path in send_report.js",
+  "date": "Wed 28 Jan 17:23:16 GMT 2026"
 }

@@ -4,7 +4,7 @@ const path = require('path');
 
 async function sendReport() {
     const reportPath = path.join(__dirname, '../../web/playwright-report/index.html');
-    const jsonResultPath = path.join(__dirname, '../../web/test-results/results.json');
+    const jsonResultPath = path.join(__dirname, '../../web/results.json');
     const backendLogPath = path.join(__dirname, '../../server/test-results.log');
     
     // Read Version
