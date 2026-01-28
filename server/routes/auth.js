@@ -234,4 +234,40 @@ router.get('/my-households', authenticateToken, async (req, res) => {
     }
 });
 
+/**
+ * POST /token
+ * Refresh token with new household context
+ */
+router.post('/token', authenticateToken, async (req, res) => {
+    const { householdId } = req.body;
+    
+    try {
+        const user = await dbGet(globalDb, `SELECT * FROM users WHERE id = ?`, [req.user.id]);
+        if (!user || !user.is_active) return res.status(403).json({ error: "User inactive" });
+
+        let userRole = 'member';
+        let targetHouseholdId = householdId;
+
+        if (targetHouseholdId) {
+            const link = await dbGet(globalDb, `SELECT * FROM user_households WHERE user_id = ? AND household_id = ? AND is_active = 1`, [user.id, targetHouseholdId]);
+            if (!link) return res.status(403).json({ error: "Access denied to this household" });
+            userRole = link.role;
+        }
+
+        const tokenPayload = {
+            id: user.id,
+            email: user.email,
+            system_role: user.system_role,
+            householdId: targetHouseholdId,
+            role: userRole
+        };
+
+        const token = jwt.sign(tokenPayload, SECRET_KEY, { expiresIn: '24h' });
+        res.json({ token, role: userRole });
+
+    } catch (err) {
+        res.status(500).json({ error: "Token refresh failed" });
+    }
+});
+
 module.exports = router;

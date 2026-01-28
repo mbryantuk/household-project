@@ -64,9 +64,12 @@ export default function HouseholdLayout({
     const targetHousehold = (households || []).find(h => h && h.id === parseInt(id));
     
     if (targetHousehold) {
-      onSelectHousehold(targetHousehold);
-      setActiveHousehold(targetHousehold);
-      fetchVehicles();
+      const switchHh = async () => {
+          await onSelectHousehold(targetHousehold);
+          setActiveHousehold(targetHousehold);
+          fetchVehicles();
+      };
+      switchHh();
     } else if (households && households.length > 0) {
       navigate('/');
     }
@@ -278,7 +281,7 @@ export default function HouseholdLayout({
                                 </Avatar>
                             } 
                             label={hh.name} 
-                            onClick={() => { onSelectHousehold(hh); navigate(`/household/${hh.id}`); setDrawerOpen(false); setActiveMenu('main'); }} 
+                            onClick={async () => { await onSelectHousehold(hh); navigate(`/household/${hh.id}`); setDrawerOpen(false); setActiveMenu('main'); }} 
                             sx={{ bgcolor: hh.id === activeHousehold?.id ? 'primary.softBg' : 'background.level1' }}
                         />
                     ))

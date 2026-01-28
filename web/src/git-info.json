@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix household switching and implement session resumption persistence",
-  "date": "Wed 28 Jan 18:54:31 GMT 2026"
+  "commitMessage": "Fixed household transition race condition and removed full page reloads",
+  "date": "Wed 28 Jan 19:01:59 GMT 2026"
 }

@@ -406,7 +406,7 @@ export default function UtilityBar({
                     <List size="sm" sx={{ '--ListItem-radius': '0px', p: 0 }}>
                         {households.map(hh => (
                             <ListItem key={hh.id}>
-                                <ListItemButton selected={hh.id === user?.default_household_id} onClick={() => { onSelectHousehold(hh); navigate(`/household/${hh.id}/dashboard`); closeWidget(); }}>
+                                <ListItemButton selected={hh.id === user?.default_household_id} onClick={async () => { await onSelectHousehold(hh); navigate(`/household/${hh.id}/dashboard`); closeWidget(); }}>
                                     <ListItemDecorator>
                                         <Avatar size="sm" sx={{ bgcolor: getEmojiColor(hh.avatar || '🏠', isDark) }}>{hh.avatar || '🏠'}</Avatar>
                                     </ListItemDecorator>

@@ -5,9 +5,11 @@ import {
   Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, FormControl, FormLabel, Input
 } from '@mui/joy';
 import { Add, ArrowForward, Logout, DeleteForever } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
 
 export default function HouseholdSelector({ api, currentUser, onLogout, showNotification, onSelectHousehold }) {
+  const navigate = useNavigate();
   const [households, setHouseholds] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newHouseholdName, setNewHouseholdName] = useState('');
@@ -32,7 +34,7 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
     else {
         localStorage.setItem('household', JSON.stringify(hh));
     }
-    window.location.href = `/household/${hh.id}/dashboard`;
+    navigate(`/household/${hh.id}/dashboard`);
   };
 
   const handleDeleteHousehold = async (e, hh) => {
@@ -71,7 +73,7 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
         else {
             localStorage.setItem('household', JSON.stringify(newHh));
         }
-        window.location.href = `/household/${newHh.id}/dashboard`;
+        navigate(`/household/${newHh.id}/dashboard`);
     } catch (err) {
         console.error("Failed to create household", err);
         showNotification("Failed to create household.", "danger");

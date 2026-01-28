@@ -222,13 +222,30 @@ function AppInner({ themeId, setThemeId }) {
 
   const handleSelectHousehold = useCallback(async (hh) => {
     try {
+      // 1. Persist preference
       await authAxios.post(`/households/${hh.id}/select`);
+      
+      // 2. Get new token for the new context
+      const tokenRes = await authAxios.post('/auth/token', { householdId: hh.id });
+      const newToken = tokenRes.data.token;
+      const newRole = tokenRes.data.role;
+
+      // 3. Update Auth State
+      setToken(newToken);
+      localStorage.setItem('token', newToken);
+
+      const updatedUser = { ...user, role: newRole };
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+
+      // 4. Update Household State
+      setHousehold(hh);
+      localStorage.setItem('household', JSON.stringify(hh));
     } catch (err) {
-      console.error("Failed to persist household preference", err);
+      console.error("Failed to transition to new household context", err);
+      showNotification("Failed to switch household context.", "danger");
     }
-    setHousehold(hh);
-    localStorage.setItem('household', JSON.stringify(hh));
-  }, [authAxios]);
+  }, [authAxios, user, showNotification]);
 
   const handleUpdateHouseholdSettings = useCallback(async (updates) => {
     if (!household) return;
