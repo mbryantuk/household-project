@@ -7,7 +7,7 @@ import {
 import { 
   PersonAdd, Edit, Delete, ExitToApp, ToggleOn, ToggleOff,
   OpenInNew, Info, Verified, Code, Policy, Palette, AddHome, LightMode, DarkMode,
-  ViewModule, CheckCircle, Cancel, Public, ContentCopy, Update, HealthAndSafety
+  ViewModule, CheckCircle, Cancel, Public, ContentCopy, Update, HealthAndSafety, History
 } from '@mui/icons-material';
 import { getEmojiColor, THEMES } from '../theme';
 import EmojiPicker from '../components/EmojiPicker';
@@ -49,6 +49,10 @@ export default function SettingsView({
   const [testTab, setTestTab] = useState(0);
   const [nightlyVersionFilter, setNightlyVersionFilter] = useState('');
 
+  // Version History State
+  const [versionHistory, setVersionHistory] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+
   const availableVersions = useMemo(() => {
     const versions = new Set(testResults.map(r => r.version).filter(Boolean));
     versions.add(pkg.version); // Always include current version
@@ -58,6 +62,9 @@ export default function SettingsView({
   useEffect(() => {
     if (activeTab === 6 && isAdmin) {
       fetchTestResults();
+    }
+    if (activeTab === 7 && isAdmin) {
+      fetchVersionHistory();
     }
   }, [activeTab]);
 
@@ -70,6 +77,18 @@ export default function SettingsView({
       showNotification("Failed to fetch test results.", "danger");
     } finally {
       setLoadingTests(false);
+    }
+  };
+
+  const fetchVersionHistory = async () => {
+    setLoadingHistory(true);
+    try {
+      const res = await api.get('/admin/version-history');
+      setVersionHistory(res.data);
+    } catch {
+      showNotification("Failed to fetch version history.", "danger");
+    } finally {
+      setLoadingHistory(false);
     }
   };
 
@@ -335,6 +354,7 @@ export default function SettingsView({
             <Tab value={3} variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'} sx={getTabStyle(3)}>Modules</Tab>
             <Tab value={4} variant={activeTab === 4 ? 'solid' : 'plain'} color={activeTab === 4 ? 'primary' : 'neutral'} sx={getTabStyle(4)}>Developers</Tab>
             {isAdmin && <Tab value={6} variant={activeTab === 6 ? 'solid' : 'plain'} color={activeTab === 6 ? 'primary' : 'neutral'} sx={getTabStyle(6)}>Nightly Health</Tab>}
+            {isAdmin && <Tab value={7} variant={activeTab === 7 ? 'solid' : 'plain'} color={activeTab === 7 ? 'primary' : 'neutral'} sx={getTabStyle(7)}>Version History</Tab>}
             <Tab value={5} variant={activeTab === 5 ? 'solid' : 'plain'} color={activeTab === 5 ? 'primary' : 'neutral'} sx={getTabStyle(5)}>About</Tab>
           </TabList>
 
@@ -469,6 +489,52 @@ export default function SettingsView({
                     );
                   })}
                 </Tabs>
+              </Box>
+            )}
+
+            {activeTab === 7 && isAdmin && (
+              <Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+                  <Box>
+                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Platform Release Notes</Typography>
+                    <Typography level="body-md" color="neutral">Audit log of all system deployments and feature updates.</Typography>
+                  </Box>
+                  <Button variant="soft" color="primary" startDecorator={<Update />} onClick={fetchVersionHistory} loading={loadingHistory}>Refresh</Button>
+                </Box>
+
+                <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'hidden' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr style={{ background: 'var(--joy-palette-background-level1)' }}>
+                        <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid var(--joy-palette-divider)' }}>Date</th>
+                        <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid var(--joy-palette-divider)' }}>Version</th>
+                        <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid var(--joy-palette-divider)' }}>Release Notes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {versionHistory.map(v => (
+                        <tr key={v.id}>
+                          <td style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)', width: '200px' }}>
+                            <Typography level="body-sm">{new Date(v.created_at).toLocaleString()}</Typography>
+                          </td>
+                          <td style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)', width: '120px' }}>
+                            <Chip variant="soft" color="primary" size="sm" sx={{ fontFamily: 'monospace' }}>v{v.version}</Chip>
+                          </td>
+                          <td style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>
+                            <Typography level="body-sm" sx={{ fontWeight: 'md' }}>{v.comment}</Typography>
+                          </td>
+                        </tr>
+                      ))}
+                      {versionHistory.length === 0 && (
+                        <tr>
+                          <td colSpan={3} style={{ padding: '40px', textAlign: 'center' }}>
+                            <Typography level="body-md" color="neutral">No deployment history recorded yet.</Typography>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </Sheet>
               </Box>
             )}
 

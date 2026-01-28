@@ -37,6 +37,10 @@ git commit -m "v$NEW_VERSION - $COMMIT_SUFFIX"
 CURRENT_BRANCH=$(git branch --show-current)
 git push origin "$CURRENT_BRANCH"
 
+# 3.2. Record Deployment History
+echo "📝 Recording deployment history..."
+node scripts/ops/record_deployment.js "$COMMIT_SUFFIX"
+
 # 3.5. System Hygiene
 echo "🧹 Cleaning up test data..."
 node server/scripts/cleanup_test_data.js

@@ -30,6 +30,12 @@ const GLOBAL_SCHEMA = [
         version TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
+    `CREATE TABLE IF NOT EXISTS version_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        version TEXT,
+        comment TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
     `CREATE TABLE IF NOT EXISTS households (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
@@ -558,6 +564,19 @@ function initializeGlobalSchema(db) {
                     if (err) console.error("Migration failed:", err.message);
                     else console.log("✅ version column added to test_results.");
                 });
+            }
+        });
+
+        // 🛠️ MIGRATION: Ensure version_history exists
+        db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='version_history'", (err, row) => {
+            if (!row) {
+                console.log("🛠️ Migrating global database: Adding version_history table...");
+                db.run(`CREATE TABLE version_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    version TEXT,
+                    comment TEXT,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )`);
             }
         });
     });
