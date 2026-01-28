@@ -31,6 +31,9 @@ router.post('/households', authenticateToken, async (req, res) => {
             [req.user.id, householdId]
         );
 
+        // Track as last accessed
+        await dbRun(globalDb, `UPDATE users SET last_household_id = ? WHERE id = ?`, [householdId, req.user.id]);
+
         const hhDb = getHouseholdDb(householdId);
         hhDb.close();
 
@@ -92,6 +95,24 @@ router.delete('/households/:id', authenticateToken, requireHouseholdRole('admin'
             try { fs.unlinkSync(hhDbPath); } catch (e) { console.error("File delete failed", e); }
         }
         res.json({ message: "Household deleted" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/**
+ * POST /households/:id/select
+ * Persist the last household the user accessed.
+ */
+router.post('/households/:id/select', authenticateToken, async (req, res) => {
+    const householdId = parseInt(req.params.id);
+    try {
+        // Verify user belongs to this household
+        const link = await dbGet(globalDb, `SELECT * FROM user_households WHERE user_id = ? AND household_id = ? AND is_active = 1`, [req.user.id, householdId]);
+        if (!link) return res.status(403).json({ error: "Access denied to this household" });
+
+        await dbRun(globalDb, `UPDATE users SET last_household_id = ? WHERE id = ?`, [householdId, req.user.id]);
+        res.json({ message: "Preference updated" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

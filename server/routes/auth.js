@@ -87,7 +87,8 @@ router.post('/login', async (req, res) => {
         const isValid = bcrypt.compareSync(password, user.password_hash);
         if (!isValid) return res.status(401).json({ error: "Invalid credentials" });
 
-        let householdId = user.default_household_id;
+        // Logic: Prioritize last_household_id, then default_household_id, then first active link
+        let householdId = user.last_household_id || user.default_household_id;
         let userRole = 'member';
 
         if (!householdId) {
@@ -101,7 +102,7 @@ router.post('/login', async (req, res) => {
             if (link) {
                 userRole = link.role;
             } else {
-                // Default household might be inactive or user removed
+                // Last/Default household might be inactive or user removed
                 householdId = null;
                 const altLink = await dbGet(globalDb, `SELECT * FROM user_households WHERE user_id = ? AND is_active = 1 LIMIT 1`, [user.id]);
                 if (altLink) {

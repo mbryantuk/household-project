@@ -138,8 +138,8 @@ async function cleanupTestData() {
             }
 
             const defaultHh = latestId || PERMANENT_HOUSEHOLD_ID;
-            await dbRun(globalDb, `UPDATE users SET default_household_id = ? WHERE id = ?`, [defaultHh, targetUser.id]);
-            console.log(`🎯 Set default household for ${MAINTAINED_USER_EMAIL} to #${defaultHh}.`);
+            await dbRun(globalDb, `UPDATE users SET default_household_id = ?, last_household_id = ? WHERE id = ?`, [defaultHh, defaultHh, targetUser.id]);
+            console.log(`🎯 Set default/last household for ${MAINTAINED_USER_EMAIL} to #${defaultHh}.`);
         }
 
         // Final orphan purge

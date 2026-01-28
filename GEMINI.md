@@ -37,6 +37,7 @@
 
 5.  **The Maintenance & Access Rule:**
     * **USER ACCESS:** \`mbryantuk@gmail.com\` MUST always have 'admin' access to Household #60 (Bryant) and the most recently created test household.
+    * **SESSION RESUMPTION:** The system MUST prioritize \`last_household_id\` over \`default_household_id\` when redirecting users after login to ensure they return to their last active workspace.
     * **DATA HYGIENE:** Every test run or deployment MUST trigger \`server/scripts/cleanup_test_data.js\`.
     * **PURGE SCOPE:** All test households (except the latest), all test users (except the primary), and all orphan \`.db\` files in \`server/data/\` or \`server/backups/\` MUST be deleted.
 

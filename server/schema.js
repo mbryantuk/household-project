@@ -13,6 +13,7 @@ const GLOBAL_SCHEMA = [
         budget_settings TEXT,
         theme TEXT DEFAULT 'totem',
         default_household_id INTEGER,
+        last_household_id INTEGER,
         is_test INTEGER DEFAULT 0,
         is_active INTEGER DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -515,6 +516,19 @@ function initializeGlobalSchema(db) {
                 db.run("ALTER TABLE users ADD COLUMN budget_settings TEXT", (err) => {
                     if (err) console.error("Migration failed:", err.message);
                     else console.log("✅ budget_settings column added.");
+                });
+            }
+        });
+
+        // 🛠️ MIGRATION: Add last_household_id to users
+        db.all("PRAGMA table_info(users)", (err, rows) => {
+            if (err) return console.error("Failed to check users schema", err);
+            const hasLastHh = rows.some(r => r.name === 'last_household_id');
+            if (!hasLastHh) {
+                console.log("🛠️ Migrating users table: Adding last_household_id...");
+                db.run("ALTER TABLE users ADD COLUMN last_household_id INTEGER", (err) => {
+                    if (err) console.error("Migration failed:", err.message);
+                    else console.log("✅ last_household_id column added.");
                 });
             }
         });

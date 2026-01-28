@@ -27,7 +27,12 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
     fetchHouseholds();
   }, [fetchHouseholds]);
 
-  const handleSelect = (hh) => {
+  const handleSelect = async (hh) => {
+    try {
+      await api.post(`/households/${hh.id}/select`);
+    } catch (err) {
+      console.error("Failed to persist household preference", err);
+    }
     localStorage.setItem('household', JSON.stringify(hh));
     window.location.href = `/household/${hh.id}/dashboard`;
   };
