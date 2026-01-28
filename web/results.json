@@ -65,16 +65,16 @@
         {
           "title": "System Smoke & Comprehensive Test",
           "file": "smoke.spec.js",
-          "line": 3,
+          "line": 4,
           "column": 6,
           "specs": [
             {
-              "title": "Registration, Navigation, Asset CRUD, Finance Integration, and Meal Planning",
-              "ok": true,
+              "title": "Full System Lifecycle: Family, Fleet, Financial Matrix, and Meal Planning",
+              "ok": false,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 60000,
+                  "timeout": 240000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
@@ -83,12 +83,28 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 16948,
-                      "errors": [],
+                      "status": "timedOut",
+                      "duration": 240132,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 240000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 240000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 240000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                            "column": 51,
+                            "line": 58
+                          },
+                          "message": "Error: locator.selectOption: Test timeout of 240000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('select[name=\"type\"]')\u001b[22m\n\n\n  56 |\n  57 |     for (const m of family) {\n> 58 |         await page.locator('select[name=\"type\"]').selectOption(m.type.toLowerCase());\n     |                                                   ^\n  59 |         await page.fill('input[name=\"name\"]', m.name);\n  60 |         await page.fill('input[name=\"alias\"]', m.alias);\n  61 |         await page.click('button:has-text(\"Add Resident\")');\n    at /home/matt/household-project/web/tests/smoke.spec.js:58:51"
+                        }
+                      ],
                       "stdout": [
                         {
-                          "text": "Step 1: Registering smoke_1769620929423@test.com\n"
+                          "text": "Step 1: Registering smoke_1769623723563@test.com\n"
                         },
                         {
                           "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
@@ -103,121 +119,39 @@
                           "text": "Step 2: Logging in\n"
                         },
                         {
-                          "text": "Dashboard loaded. Household ID: 788\n"
+                          "text": "Step 3: Dashboard loaded. Household ID: 808\n"
                         },
                         {
-                          "text": "Step 3: Testing Asset Management\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "  Adding asset: Test Fridge\n"
-                        },
-                        {
-                          "text": "  Adding asset: Test TV\n"
-                        },
-                        {
-                          "text": "  Adding asset: Test Sofa\n"
-                        },
-                        {
-                          "text": "  Adding asset: Test Drill\n"
-                        },
-                        {
-                          "text": "  Adding asset: Rental Property\n"
-                        },
-                        {
-                          "text": "  All assets added successfully.\n"
-                        },
-                        {
-                          "text": "  Testing Asset Update...\n"
-                        },
-                        {
-                          "text": "  Asset Update verified.\n"
-                        },
-                        {
-                          "text": "  Testing Asset Delete...\n"
-                        },
-                        {
-                          "text": "  Dialog message: Delete this asset permanently?\n"
-                        },
-                        {
-                          "text": "  Asset Delete verified.\n"
-                        },
-                        {
-                          "text": "Step 4: Verifying Financial Integration\n"
+                          "text": "Step 4: Creating Family Members & Pets\n"
                         },
                         {
                           "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "  Financial pages verified.\n"
-                        },
-                        {
-                          "text": "Step 5: Meal Planning CRUD\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "  Testing Meal Edit...\n"
-                        },
-                        {
-                          "text": "  Meal Edit verified.\n"
-                        },
-                        {
-                          "text": "  Testing Meal Delete...\n"
-                        },
-                        {
-                          "text": "  Dialog message: Delete this meal?\n"
-                        },
-                        {
-                          "text": "  Meal Delete verified.\n"
-                        },
-                        {
-                          "text": "  Meal Planning verified.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-01-28T17:22:09.438Z",
+                      "startTime": "2026-01-28T18:08:43.584Z",
                       "annotations": [],
-                      "attachments": []
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/smoke-System-Smoke-Compreh-1c3c1-al-Matrix-and-Meal-Planning-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/smoke-System-Smoke-Compreh-1c3c1-al-Matrix-and-Meal-Planning-chromium/error-context.md"
+                        }
+                      ]
                     }
                   ],
-                  "status": "expected"
+                  "status": "unexpected"
                 }
               ],
-              "id": "2c14808d47b386fba9eb-d69a429bb0f13989390e",
+              "id": "2c14808d47b386fba9eb-eb7d26d672a3fddf00c7",
               "file": "smoke.spec.js",
-              "line": 9,
+              "line": 10,
               "column": 3
             }
           ]
@@ -227,11 +161,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-01-28T17:22:07.462Z",
-    "duration": 19427.475,
-    "expected": 1,
+    "startTime": "2026-01-28T18:08:40.108Z",
+    "duration": 244065.63,
+    "expected": 0,
     "skipped": 0,
-    "unexpected": 0,
+    "unexpected": 1,
     "flaky": 0
   }
 }

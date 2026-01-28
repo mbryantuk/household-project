@@ -1,0 +1,91 @@
+# Page snapshot
+
+```yaml
+- main [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - generic "Go to Dashboard" [ref=e11] [cursor=pointer]: 🏠
+        - list [ref=e12]:
+          - listitem [ref=e13]:
+            - button "Calendar" [ref=e14] [cursor=pointer]:
+              - img [ref=e16]
+              - generic [ref=e18]: Calendar
+        - separator [ref=e19]
+      - list [ref=e22]:
+        - listitem [ref=e23]:
+          - button "People" [ref=e24] [cursor=pointer]:
+            - img [ref=e26]
+            - generic [ref=e28]: People
+        - listitem [ref=e29]:
+          - button "Assets" [ref=e30] [cursor=pointer]:
+            - img [ref=e32]
+            - generic [ref=e34]: Assets
+        - listitem [ref=e35]:
+          - button "Finance" [ref=e36] [cursor=pointer]:
+            - img [ref=e38]
+            - generic [ref=e40]: Finance
+        - listitem [ref=e41]:
+          - button "Meals" [ref=e42] [cursor=pointer]:
+            - img [ref=e44]
+            - generic [ref=e46]: Meals
+    - generic [ref=e48]:
+      - main [ref=e49]:
+        - generic [ref=e50]:
+          - generic [ref=e51]:
+            - heading "People & Residents" [level=2] [ref=e52]
+            - paragraph [ref=e53]: Select a resident to manage their details.
+          - generic [ref=e54]:
+            - generic [ref=e55]:
+              - heading "Adults" [level=4] [ref=e57]
+              - generic [ref=e63] [cursor=pointer]:
+                - button [ref=e64]:
+                  - img [ref=e65]
+                - paragraph [ref=e67]: Add Adult
+            - generic [ref=e68]:
+              - heading "Children" [level=4] [ref=e70]
+              - generic [ref=e76] [cursor=pointer]:
+                - button [ref=e77]:
+                  - img [ref=e78]
+                - paragraph [ref=e80]: Add Child
+            - generic [ref=e81]:
+              - heading "Pets" [level=4] [ref=e83]
+              - generic [ref=e89] [cursor=pointer]:
+                - button [ref=e90]:
+                  - img [ref=e91]
+                - paragraph [ref=e93]: Add Pet
+      - generic [ref=e95]:
+        - generic [ref=e97]:
+          - button "Notes" [ref=e99] [cursor=pointer]:
+            - img [ref=e100]
+            - generic [ref=e102]: Notes
+          - button "Calc" [ref=e104] [cursor=pointer]:
+            - img [ref=e105]
+            - generic [ref=e107]: Calc
+          - button "Finance" [ref=e109] [cursor=pointer]:
+            - img [ref=e110]
+            - generic [ref=e112]: Finance
+          - button "Tax" [ref=e114] [cursor=pointer]:
+            - img [ref=e115]
+            - generic [ref=e117]: Tax
+          - button "Savings" [ref=e119] [cursor=pointer]:
+            - img [ref=e120]
+            - generic [ref=e122]: Savings
+          - button "Investments" [ref=e124] [cursor=pointer]:
+            - img [ref=e125]
+            - generic [ref=e127]: Investments
+          - button "Pensions" [ref=e129] [cursor=pointer]:
+            - img [ref=e130]
+            - generic [ref=e132]: Pensions
+          - button "Calendar" [ref=e134] [cursor=pointer]:
+            - img [ref=e135]
+            - generic [ref=e137]: Calendar
+        - generic [ref=e138]:
+          - generic [ref=e139]:
+            - img [ref=e140]
+            - generic [ref=e142]: Online
+          - button "Log Out" [ref=e143] [cursor=pointer]:
+            - img [ref=e144]
+          - button "L" [ref=e147] [cursor=pointer]:
+            - generic [ref=e148]: L
+```
