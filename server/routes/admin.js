@@ -5,12 +5,17 @@ const crypto = require('crypto');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { spawn } = require('child_process');
 const { globalDb, getHouseholdDb } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { listBackups, createBackup, restoreBackup, BACKUP_DIR, DATA_DIR } = require('../services/backup');
 
 // Upload middleware for full system restores
 const upload = multer({ dest: path.join(__dirname, '../data/temp_uploads/') });
+
+// Health Check Paths
+const HEALTH_LOG = path.join(__dirname, '../data/health_check.log');
+const HEALTH_STATUS = path.join(__dirname, '../data/health_status.json');
 
 // HELPER: Promisify DB get
 const dbGet = (db, sql, params) => new Promise((resolve, reject) => {
@@ -214,6 +219,87 @@ router.get('/test-results', authenticateToken, requireHouseholdRole('admin'), (r
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
+});
+
+// ==========================================
+// 🏥 HEALTH CHECK (Admin Only)
+// ==========================================
+
+const updateHealthStatus = (status) => {
+    fs.writeFileSync(HEALTH_STATUS, JSON.stringify({ ...status, timestamp: new Date().toISOString() }));
+};
+
+const getHealthStatus = () => {
+    if (!fs.existsSync(HEALTH_STATUS)) return { state: 'idle' };
+    try {
+        return JSON.parse(fs.readFileSync(HEALTH_STATUS, 'utf8'));
+    } catch {
+        return { state: 'idle' };
+    }
+};
+
+router.post('/health-check/trigger', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
+    const status = getHealthStatus();
+    if (status.state === 'running') {
+        return res.status(409).json({ error: "A health check is already in progress." });
+    }
+
+    const { skipDocker = false, skipBackend = false, skipFrontend = false, skipPurge = false } = req.body;
+
+    // Reset log and status
+    fs.writeFileSync(HEALTH_LOG, '');
+    updateHealthStatus({ 
+        state: 'running', 
+        progress: 0, 
+        message: 'Starting comprehensive suite...',
+        options: { skipDocker, skipBackend, skipFrontend, skipPurge }
+    });
+
+    const scriptPath = path.join(__dirname, '../../scripts/ops/nightly_suite.sh');
+    const args = [];
+    if (skipDocker) args.push('--skip-docker');
+    if (skipBackend) args.push('--skip-backend');
+    if (skipFrontend) args.push('--skip-frontend');
+    if (skipPurge) args.push('--skip-purge');
+
+    const child = spawn('bash', [scriptPath, ...args], {
+        detached: true,
+        stdio: ['ignore', 'pipe', 'pipe']
+    });
+
+    const logStream = fs.createWriteStream(HEALTH_LOG, { flags: 'a' });
+    child.stdout.pipe(logStream);
+    child.stderr.pipe(logStream);
+
+    child.stdout.on('data', (data) => {
+        const line = data.toString();
+        if (line.includes('[1/6]')) updateHealthStatus({ state: 'running', progress: 15, message: 'Refreshing containers...' });
+        if (line.includes('[2/6]')) updateHealthStatus({ state: 'running', progress: 30, message: 'Running backend tests...' });
+        if (line.includes('[3/6]')) updateHealthStatus({ state: 'running', progress: 60, message: 'Running frontend smoke tests...' });
+        if (line.includes('[4/6]')) updateHealthStatus({ state: 'running', progress: 80, message: 'Cleaning up test data...' });
+        if (line.includes('[5/6]')) updateHealthStatus({ state: 'running', progress: 90, message: 'Emailing report...' });
+        if (line.includes('[6/6]')) updateHealthStatus({ state: 'running', progress: 95, message: 'Finalizing system hygiene...' });
+    });
+
+    child.on('close', (code) => {
+        if (code === 0) {
+            updateHealthStatus({ state: 'completed', progress: 100, message: 'Health check finished successfully.' });
+        } else {
+            updateHealthStatus({ state: 'failed', progress: 100, message: `Health check failed with code ${code}.` });
+        }
+    });
+
+    child.unref();
+    res.json({ message: "Health check triggered." });
+});
+
+router.get('/health-check/status', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
+    const status = getHealthStatus();
+    let logs = '';
+    if (fs.existsSync(HEALTH_LOG)) {
+        logs = fs.readFileSync(HEALTH_LOG, 'utf8');
+    }
+    res.json({ ...status, logs });
 });
 
 // ==========================================

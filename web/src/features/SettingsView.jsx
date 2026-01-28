@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, TabPanel, Button, Input, 
   FormControl, FormLabel, Stack, Avatar, IconButton, 
-  Divider, Modal, ModalDialog, DialogTitle, Select, Option, Grid, Chip, DialogContent, DialogActions, Tooltip, Switch
+  Divider, Modal, ModalDialog, DialogTitle, Select, Option, Grid, Chip, DialogContent, DialogActions, Tooltip, Switch,
+  Checkbox, LinearProgress
 } from '@mui/joy';
 import { 
   PersonAdd, Edit, Delete, ExitToApp, ToggleOn, ToggleOff,
@@ -53,6 +54,16 @@ export default function SettingsView({
   const [versionHistory, setVersionHistory] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
 
+  // Health Check State
+  const [healthStatus, setHealthStatus] = useState(null);
+  const [isHealthModalOpen, setIsHealthModalOpen] = useState(false);
+  const [healthOptions, setHealthOptions] = useState({
+    skipDocker: true,
+    skipBackend: false,
+    skipFrontend: false,
+    skipPurge: true
+  });
+
   const availableVersions = useMemo(() => {
     const versions = new Set(testResults.map(r => r.version).filter(Boolean));
     versions.add(pkg.version); // Always include current version
@@ -67,6 +78,25 @@ export default function SettingsView({
       fetchVersionHistory();
     }
   }, [activeTab]);
+
+  // Polling for health status
+  useEffect(() => {
+    let interval;
+    if (isHealthModalOpen || (healthStatus?.state === 'running')) {
+      const poll = async () => {
+        try {
+          const res = await api.get('/admin/health-check/status');
+          setHealthStatus(res.data);
+          if (res.data.state !== 'running' && res.data.state !== 'idle') {
+            fetchTestResults(); // Refresh list when done
+          }
+        } catch (e) { console.error(e); }
+      };
+      poll();
+      interval = setInterval(poll, 2000);
+    }
+    return () => clearInterval(interval);
+  }, [isHealthModalOpen, healthStatus?.state, api]);
 
   const fetchTestResults = async () => {
     setLoadingTests(true);
@@ -89,6 +119,15 @@ export default function SettingsView({
       showNotification("Failed to fetch version history.", "danger");
     } finally {
       setLoadingHistory(false);
+    }
+  };
+
+  const triggerHealthCheck = async () => {
+    try {
+      await api.post('/admin/health-check/trigger', healthOptions);
+      showNotification("Health check started.", "success");
+    } catch (err) {
+      showNotification(err.response?.data?.error || "Failed to start health check.", "danger");
     }
   };
 
@@ -366,7 +405,10 @@ export default function SettingsView({
                     <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Nightly Health Monitor</Typography>
                     <Typography level="body-md" color="neutral">System-wide test results from the nightly CI suite, ordered newest to oldest.</Typography>
                   </Box>
-                  <Button variant="soft" color="primary" startDecorator={<Update />} onClick={fetchTestResults} loading={loadingTests}>Refresh</Button>
+                  <Stack direction="row" spacing={1}>
+                    <Button variant="soft" color="success" startDecorator={<HealthAndSafety />} onClick={() => setIsHealthModalOpen(true)}>Run Health Check</Button>
+                    <Button variant="soft" color="primary" startDecorator={<Update />} onClick={fetchTestResults} loading={loadingTests}>Refresh List</Button>
+                  </Stack>
                 </Box>
 
                 <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', mb: 4, bgcolor: 'background.level1' }}>
@@ -954,6 +996,51 @@ export default function SettingsView({
               </DialogActions>
             </Stack>
           </form>
+        </ModalDialog>
+      </Modal>
+
+      {/* HEALTH CHECK MODAL */}
+      <Modal open={isHealthModalOpen} onClose={() => setIsHealthModalOpen(false)}>
+        <ModalDialog sx={{ maxWidth: 600, width: '100%' }}>
+          <DialogTitle startDecorator={<HealthAndSafety color="success" />}>System Health Diagnostics</DialogTitle>
+          <DialogContent>
+            <Typography level="body-sm" sx={{ mb: 3 }}>
+              Run the full platform verification suite. This will execute unit tests, security audits, 
+              and the 2-income family financial smoke test. An email report will be sent upon completion.
+            </Typography>
+
+            {healthStatus?.state === 'running' ? (
+              <Stack spacing={2}>
+                <Box>
+                  <Typography level="title-md" sx={{ mb: 1 }}>{healthStatus.message}</Typography>
+                  <LinearProgress determinate value={healthStatus.progress} color="primary" sx={{ height: 10, borderRadius: 'md' }} />
+                </Box>
+                <Sheet variant="soft" color="neutral" sx={{ p: 2, borderRadius: 'sm', maxHeight: 300, overflow: 'auto', bgcolor: 'common.black' }}>
+                  <Typography sx={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '12px', color: 'success.300' }}>
+                    {healthStatus.logs || 'Waiting for log output...'}
+                  </Typography>
+                </Sheet>
+              </Stack>
+            ) : (
+              <Stack spacing={3}>
+                <Box>
+                  <Typography level="title-sm" sx={{ mb: 1.5 }}>Diagnostic Options</Typography>
+                  <Grid container spacing={2}>
+                    <Grid xs={6}><Checkbox label="Refresh Containers" checked={!healthOptions.skipDocker} onChange={(e) => setHealthOptions({...healthOptions, skipDocker: !e.target.checked})} /></Grid>
+                    <Grid xs={6}><Checkbox label="Purge Build Cache" checked={!healthOptions.skipPurge} onChange={(e) => setHealthOptions({...healthOptions, skipPurge: !e.target.checked})} /></Grid>
+                    <Grid xs={6}><Checkbox label="Backend API Suite" checked={!healthOptions.skipBackend} onChange={(e) => setHealthOptions({...healthOptions, skipBackend: !e.target.checked})} /></Grid>
+                    <Grid xs={6}><Checkbox label="Frontend Smoke Test" checked={!healthOptions.skipFrontend} onChange={(e) => setHealthOptions({...healthOptions, skipFrontend: !e.target.checked})} /></Grid>
+                  </Grid>
+                </Box>
+                {healthStatus?.state === 'completed' && <Typography level="body-sm" color="success">Last check finished successfully at {new Date(healthStatus.timestamp).toLocaleTimeString()}</Typography>}
+                {healthStatus?.state === 'failed' && <Typography level="body-sm" color="danger">Last check failed: {healthStatus.message}</Typography>}
+              </Stack>
+            )}
+          </DialogContent>
+          <DialogActions>
+            {healthStatus?.state !== 'running' && <Button onClick={triggerHealthCheck} loading={healthStatus?.state === 'running'}>Start Diagnostic</Button>}
+            <Button variant="plain" color="neutral" onClick={() => setIsHealthModalOpen(false)}>Close</Button>
+          </DialogActions>
         </ModalDialog>
       </Modal>
     </Box>
