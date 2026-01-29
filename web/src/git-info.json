@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Refactor asset and member creation to support URL-based redirection and fix smoke test race conditions",
-  "date": "Thu 29 Jan 08:38:09 GMT 2026"
+  "commitMessage": "Split frontend tests into Stage 1 (Routing) and Stage 2 (Comprehensive) for faster failure detection",
+  "date": "Thu 29 Jan 09:25:23 GMT 2026"
 }

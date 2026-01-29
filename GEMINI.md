@@ -132,10 +132,14 @@ Every feature or maintenance pass MUST satisfy the following gates before deploy
     * **Requirement:** All 200+ test cases across Finance, Assets, Members, and Meals must pass.
     * **Cleanup:** Automatically triggers `test:tidy`.
 
-4.  **Frontend Smoke Test:**
-    * **Command:** `cd web && npx playwright test tests/smoke.spec.js`
-    * **Requirement:** 100% pass on core navigation and tab loading. (Offloaded to Nightly Suite by default but manually runnable).
-    * **Post-Action:** Run `npm run test:tidy` in the `server` directory manually if not using the Nightly Suite.
+4.  **Frontend Smoke Test (Two-Stage):**
+    *   **Stage 1: Routing & Availability**
+        *   **Command:** `cd web && npx playwright test tests/routing.spec.js`
+        *   **Purpose:** Rapidly verify all major modules (Finance, People, House, etc.) are reachable and rendering.
+    *   **Stage 2: Comprehensive Lifecycle**
+        *   **Command:** `cd web && npx playwright test tests/smoke.spec.js`
+        *   **Purpose:** Full end-to-end verification of data entry, financial matrix calculations, and multi-entity links.
+    *   **Cleanup:** Automatically triggers `test:tidy`.
 
 5.  **Nightly Comprehensive Suite:**
     * **Script:** `scripts/ops/nightly_suite.sh`

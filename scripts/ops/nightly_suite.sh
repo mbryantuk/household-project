@@ -81,22 +81,31 @@ else
     node scripts/ops/record_test_results.js backend || true
 fi
 
-# 3. Frontend Comprehensive E2E Tests
+# 3. Frontend Tests (Two-Stage)
 if [ "$SKIP_FRONTEND" = true ]; then
     echo "⏭️  [3/6] Skipping Frontend Tests."
 else
-    echo "🌐 [3/6] Running Frontend Smoke Suite..."
+    echo "🌐 [3/6] Running Frontend Suite..."
     cd "$PROJECT_ROOT/web"
     
     # Check if browsers are installed (Playwright requirement)
     if [ "$IS_CONTAINER" = true ] && [ ! -d "/root/.cache/ms-playwright" ]; then
-        echo "⚠️  Browsers not found in container. Skipping UI tests."
+        echo "⚠️  Browsers not found. Skipping UI tests."
         echo "🔴 Frontend Tests: SKIPPED (Missing Dependencies)"
     else
-        if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results.json npx --yes playwright test --reporter=list,json > playwright-tests.log 2>&1; then
-            echo "🟢 Frontend Tests: SUCCESS"
+        echo "   📍 Stage 1: Verification of Basic Routing..."
+        if CI_TEST=true BASE_URL=http://localhost:4001 npx --yes playwright test tests/routing.spec.js --reporter=list > playwright-routing.log 2>&1; then
+            echo "   🟢 Stage 1 (Routing): SUCCESS"
+            
+            echo "   📍 Stage 2: Comprehensive Lifecycle Suite..."
+            if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results.json npx --yes playwright test tests/smoke.spec.js --reporter=list,json > playwright-tests.log 2>&1; then
+                echo "🟢 Frontend Tests: ALL PASS"
+            else
+                echo "🔴 Stage 2 (Lifecycle): FAILED (Check web/playwright-tests.log)"
+            fi
         else
-            echo "🔴 Frontend Tests: FAILED (Check web/playwright-tests.log)"
+            echo "🔴 Stage 1 (Routing): FAILED (Check web/playwright-routing.log)"
+            echo "🔴 Frontend Tests: FAILED (Fast-fail on routing)"
         fi
     fi
     cd "$PROJECT_ROOT"
