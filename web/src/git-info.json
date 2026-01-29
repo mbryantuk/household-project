@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix Household sidebar routing to correctly land on the Hub dashboard",
-  "date": "Thu 29 Jan 11:15:00 GMT 2026"
+  "commitMessage": "Update frontend smoke and routing tests for new Household Hub architecture",
+  "date": "Thu 29 Jan 11:19:16 GMT 2026"
 }

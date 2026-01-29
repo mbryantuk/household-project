@@ -38,9 +38,8 @@ test.describe('Breadth-First Routing Smoke Test', () => {
     const checks = [
         { path: 'dashboard', text: 'today' },
         { path: 'calendar', text: 'Calendar' },
-        { path: 'people', text: 'People' },
-        { path: 'house', text: 'Asset' },
-        { path: 'finance', text: 'Budget' },
+        { path: 'house', text: 'Household Hub' },
+        { path: 'finance', text: 'Financial Matrix' },
         { path: 'settings', text: 'Settings' }
     ];
 
