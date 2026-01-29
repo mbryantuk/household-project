@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Refactor Nightly Suite to report two-stage frontend results independently",
-  "date": "Thu 29 Jan 09:32:02 GMT 2026"
+  "commitMessage": "Implement fail-fast logic in Nightly Suite: Stage 2 runs only if Stage 1 passes",
+  "date": "Thu 29 Jan 09:38:27 GMT 2026"
 }

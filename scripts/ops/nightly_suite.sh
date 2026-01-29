@@ -78,7 +78,7 @@ else
     fi
 fi
 
-# 3. Frontend Tests (Two-Stage)
+# 3. Frontend Tests (Two-Stage Fail-Fast)
 if [ "$SKIP_FRONTEND" = true ]; then
     echo "⏭️  [3/6] Skipping Frontend Tests."
 else
@@ -94,23 +94,24 @@ else
             echo "   🟢 Stage 1 (Routing): SUCCESS"
             cd "$PROJECT_ROOT"
             node scripts/ops/record_test_results.js frontend_routing "success" || true
+
+            # STAGE 2: COMPREHENSIVE (Only runs if Stage 1 passed)
+            cd "$PROJECT_ROOT/web"
+            echo "   📍 Stage 2: Comprehensive Lifecycle Suite..."
+            if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results.json npx --yes playwright test tests/smoke.spec.js --reporter=list,json > playwright-tests.log 2>&1; then
+                echo "   🟢 Stage 2 (Lifecycle): SUCCESS"
+                cd "$PROJECT_ROOT"
+                node scripts/ops/record_test_results.js frontend_lifecycle "success" || true
+            else
+                echo "   🔴 Stage 2 (Lifecycle): FAILED"
+                cd "$PROJECT_ROOT"
+                node scripts/ops/record_test_results.js frontend_lifecycle "failure" || true
+            fi
         else
             echo "   🔴 Stage 1 (Routing): FAILED"
+            echo "   ⏭️  Stage 2 (Lifecycle): SKIPPED (Fast-fail)"
             cd "$PROJECT_ROOT"
             node scripts/ops/record_test_results.js frontend_routing "failure" || true
-        fi
-
-        # STAGE 2: COMPREHENSIVE
-        cd "$PROJECT_ROOT/web"
-        echo "   📍 Stage 2: Comprehensive Lifecycle Suite..."
-        if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results.json npx --yes playwright test tests/smoke.spec.js --reporter=list,json > playwright-tests.log 2>&1; then
-            echo "   🟢 Stage 2 (Lifecycle): SUCCESS"
-            cd "$PROJECT_ROOT"
-            node scripts/ops/record_test_results.js frontend_lifecycle "success" || true
-        else
-            echo "   🔴 Stage 2 (Lifecycle): FAILED"
-            cd "$PROJECT_ROOT"
-            node scripts/ops/record_test_results.js frontend_lifecycle "failure" || true
         fi
     fi
 fi
