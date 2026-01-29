@@ -59,14 +59,14 @@ app.use((req, res, next) => {
 // We mount everything at both root and /api for maximum compatibility with various proxy setups
 const allRouters = [
     { path: '/auth', router: authRoutes },
+    { path: '/', router: financeRoutes },
+    { path: '/', router: chargeRoutes },
     { path: '/admin', router: adminRoutes },
     { path: '/', router: householdRoutes },
     { path: '/', router: memberRoutes },
     { path: '/', router: calendarRoutes },
     { path: '/', router: detailsRoutes },
-    { path: '/', router: mealRoutes },
-    { path: '/', router: financeRoutes },
-    { path: '/', router: chargeRoutes }
+    { path: '/', router: mealRoutes }
 ];
 
 // 1. Mount at root

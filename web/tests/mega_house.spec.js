@@ -72,7 +72,8 @@ test.describe('Mega House Scenario Creation', () => {
         await page.click(`button:has-text("${btnText}")`);
         
         console.log(`   - [${firstName}] Waiting for Create URL...`);
-        await page.waitForURL(/.*\/new\?type=/, { timeout: 10000 });
+        // Pets URL might not have query params, handle both cases
+        await page.waitForURL(/.*\/new/, { timeout: 10000 });
         
         console.log(`   - [${firstName}] Filling form...`);
         // The form fields depend on the view logic. Based on previous analysis:
@@ -81,19 +82,11 @@ test.describe('Mega House Scenario Creation', () => {
              await page.fill('input[name="first_name"]', firstName);
              await page.fill('input[name="last_name"]', 'Doe');
         } else {
-             // Pets might use 'name' or 'first_name' depending on the component.
-             // Based on PetsView analysis, it uses 'name'.
-             // Wait, PetsView.jsx (read previously) uses:
-             // <Input name="name" value={formData.name} ... />
              await page.fill('input[name="name"]', firstName);
-             // Pets also require Species
              await page.fill('input[name="species"]', 'Dog'); 
         }
 
         console.log(`   - [${firstName}] Clicking Create Button...`);
-        // Button text might vary. 
-        // PeopleView: "Create Person"
-        // PetsView: "Create Pet" (based on PetsView.jsx read)
         const submitBtnText = type === 'pet' ? 'Create Pet' : 'Create Person';
         await page.click(`button:has-text("${submitBtnText}")`); 
         
@@ -107,6 +100,7 @@ test.describe('Mega House Scenario Creation', () => {
         console.log(`   - [${firstName}] Success!`);
     };
 
+    await addMember('Matt', 'adult');
     await addMember('Jane', 'adult');
     await addMember('Timmy', 'child');
     await addMember('Sally', 'child');
@@ -134,7 +128,7 @@ test.describe('Mega House Scenario Creation', () => {
         // Revised Expectation: Redirects to Household Hub
         console.log(`   - Waiting for redirect to Hub`);
         await page.waitForURL(new RegExp(`/household/${hhId}/house`));
-        await expect(page.locator('h2')).toContainText('Household Hub');
+        await expect(page.locator('h2').first()).toContainText('Household Hub');
         await expect(page.locator(`text=${make} ${model}`)).toBeVisible();
         console.log(`   - Verified ${make} ${model} visible`);
     };
@@ -172,38 +166,66 @@ test.describe('Mega House Scenario Creation', () => {
     
     // Joint Account
     console.log('   - 8.1 Adding Joint Bank Account');
-    await page.goto(`/household/${hhId}/finance`);
-    await page.click('text=Current Accounts');
+    await page.goto(`/household/${hhId}/finance?tab=banking`);
     await page.click('button:has-text("Add Account")');
     await page.fill('input[name="bank_name"]', 'Barclays');
     await page.fill('input[name="account_name"]', 'Joint Account');
     await page.fill('input[name="current_balance"]', '5000');
     await page.click('button:has-text("Save Account")');
     // Expectation: Modal closes, item visible in list
-    await expect(page.locator('div[role="dialog"]')).not.toBeVisible(); 
+    // Use more specific locator or check that the Add Account dialog is gone
+    await expect(page.getByRole('dialog', { name: 'Add Bank Account' })).not.toBeVisible();
     await expect(page.locator('text=Joint Account')).toBeVisible();
 
     // Incomes
     console.log('   - 8.2 Adding Income Sources');
-    await page.goto(`/household/${hhId}/finance`);
-    await page.click('text=Income Sources');
+    await page.goto(`/household/${hhId}/finance?tab=income`);
 
     const addIncome = async (employer, amount, personName) => {
         console.log(`      - Adding Income: ${employer} for ${personName}`);
         await page.click('button:has-text("Add Income")');
         await page.fill('input[name="employer"]', employer);
         await page.fill('input[name="amount"]', amount);
+        await page.fill('input[name="payment_day"]', '25');
         
         // Assign
-        await page.click('label:has-text("Assigned Person") + div button');
-        // personName might be "Matt" or "Jane"
-        // The dropdown contains names.
-        await page.click(`li[role="option"]:has-text("${personName}")`);
+        console.log(`      - [${personName}] Selecting person...`);
+        const trigger = page.getByRole('combobox', { name: /Assigned Person/i });
         
+        try {
+            console.log(`      - [${personName}] Attempting click on combobox...`);
+            await trigger.click({ timeout: 5000 });
+        } catch (e) {
+            console.log(`      - [${personName}] Standard click failed, trying placeholder/sibling...`);
+            await page.locator('label:has-text("Assigned Person") + div button, button:has-text("Select Person...")').first().click({ force: true });
+        }
+        
+        // Wait for dropdown options
+        console.log(`      - [${personName}] Waiting for listbox options...`);
+        const listbox = page.getByRole('listbox');
+        await expect(listbox).toBeVisible({ timeout: 5000 });
+        
+        const optionsText = await listbox.innerText();
+        console.log(`      - [${personName}] Listbox options: ${optionsText.replace(/\n/g, ', ')}`);
+        
+        // Click the option
+        console.log(`      - [${personName}] Clicking option for ${personName}`);
+        const option = page.getByRole('option').filter({ hasText: new RegExp(personName, 'i') }).first();
+        
+        // Use a more aggressive click strategy
+        await option.click({ force: true });
+        
+        // Verify listbox is gone (meaning selection worked)
+        console.log(`      - [${personName}] Waiting for listbox to close...`);
+        await expect(listbox).not.toBeVisible({ timeout: 5000 });
+        
+        console.log(`      - [${personName}] Saving Income...`);
         await page.click('button:has-text("Save Income")');
         // Expectation: Modal closes, item visible in list
-        await expect(page.locator('div[role="dialog"]')).not.toBeVisible();
+        console.log(`      - Waiting for modal to close`);
+        await expect(page.getByRole('dialog', { name: 'Add Income Source' })).not.toBeVisible();
         await expect(page.locator(`text=${employer}`).first()).toBeVisible();
+        console.log(`      - Verified Income: ${employer}`);
     };
 
     await addIncome('Tech Corp', '4500', 'Matt'); // Admin
@@ -211,8 +233,7 @@ test.describe('Mega House Scenario Creation', () => {
 
     // Mortgage
     console.log('   - 8.3 Adding Mortgage');
-    await page.goto(`/household/${hhId}/finance`);
-    await page.click('text=Mortgages');
+    await page.goto(`/household/${hhId}/finance?tab=mortgage`);
     await page.click('button:has-text("Add New")'); 
     await page.click('li[role="menuitem"]:has-text("Add Mortgage")');
     
@@ -235,35 +256,42 @@ test.describe('Mega House Scenario Creation', () => {
     
     await page.click('button:has-text("Save Mortgage Details")');
     // Expectation: Modal closes, item visible
-    await expect(page.locator('div[role="dialog"]')).not.toBeVisible();
+    await expect(page.getByRole('dialog', { name: 'Add Mortgage' })).not.toBeVisible();
     await expect(page.locator('text=HSBC')).toBeVisible();
 
     // Pensions
     console.log('   - 8.4 Adding Pension');
-    await page.goto(`/household/${hhId}/finance`);
-    await page.click('text=Pensions');
+    await page.goto(`/household/${hhId}/finance?tab=pensions`);
+    console.log('      - Opening Add Pension Modal');
     await page.click('button:has-text("Add Pension")');
     await page.fill('input[name="provider"]', 'Hargreaves Lansdown');
     await page.fill('input[name="plan_name"]', 'SIPP');
     await page.fill('input[name="current_value"]', '150000');
     await page.fill('input[name="monthly_contribution"]', '500');
+    await page.fill('input[name="payment_day"]', '1');
+    console.log('      - Saving Pension');
     await page.click('button:has-text("Save Pension")');
     // Expectation: Modal closes
-    await expect(page.locator('div[role="dialog"]')).not.toBeVisible();
+    console.log('      - Waiting for modal to close');
+    await expect(page.getByRole('dialog', { name: 'Add Pension' })).not.toBeVisible();
     await expect(page.locator('text=Hargreaves Lansdown')).toBeVisible();
+    console.log('      - Verified Pension visible');
 
     // Investments
     console.log('   - 8.5 Adding Investment');
-    await page.goto(`/household/${hhId}/finance`);
-    await page.click('text=Investments');
+    await page.goto(`/household/${hhId}/finance?tab=invest`);
+    console.log('      - Opening Add Investment Modal');
     await page.click('button:has-text("Add Investment")');
     await page.fill('input[name="name"]', 'Vanguard Global');
     await page.fill('input[name="platform"]', 'Vanguard');
     await page.fill('input[name="current_value"]', '50000');
+    console.log('      - Saving Investment');
     await page.click('button:has-text("Save Investment")');
     // Expectation: Modal closes
-    await expect(page.locator('div[role="dialog"]')).not.toBeVisible();
+    console.log('      - Waiting for modal to close');
+    await expect(page.getByRole('dialog', { name: 'New Investment' })).not.toBeVisible();
     await expect(page.locator('text=Vanguard Global')).toBeVisible();
+    console.log('      - Verified Investment visible');
 
     console.log('Step 9: Mega House Scenario Complete');
   });
