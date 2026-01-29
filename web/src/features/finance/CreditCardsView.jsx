@@ -99,7 +99,7 @@ export default function CreditCardsView() {
       await Promise.all(toRemove.map(mid => api.delete(`/households/${householdId}/finance/assignments/finance_credit_cards/${itemId}/${mid}`)));
       
       await fetchData();
-      setCardId(itemId);
+      setCardId(null);
     } catch (err) { showNotification("Failed to save: " + err.message, "danger"); }
   };
 

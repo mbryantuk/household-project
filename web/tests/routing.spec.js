@@ -4,7 +4,7 @@ test.describe('Breadth-First Routing Smoke Test', () => {
   const uniqueId = Date.now();
   const email = `routing_${uniqueId}@test.com`;
   const password = 'Password123!';
-  const householdName = `Route Test House ${uniqueId}`;
+  const householdName = `Simple House ${uniqueId}`;
 
   test('Module Availability Check', async ({ page }) => {
     test.setTimeout(120000);

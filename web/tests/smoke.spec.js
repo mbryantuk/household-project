@@ -4,7 +4,7 @@ test.describe('Basic System Flow Test', () => {
   const uniqueId = Date.now();
   const email = `smoke_${uniqueId}@test.com`;
   const password = 'Password123!';
-  const householdName = `Mega House ${uniqueId}`;
+  const householdName = `Simple House ${uniqueId}`;
 
   test('Basic End-to-End Flow and Route Check', async ({ page }) => {
     test.setTimeout(480000); // 8 minutes for deep coverage
@@ -88,14 +88,30 @@ test.describe('Basic System Flow Test', () => {
     await expect(page.locator('text=Tesla Model 3')).toBeVisible();
 
     // ==========================================
-    // 5. FINANCE MATRIX ACTIONS
+    // 5. PROPERTY MANAGEMENT
     // ==========================================
-    console.log('Step 5: Finance Matrix Verification');
+    console.log('Step 5: Property Management');
+    await page.click('text=Manage Property & Assets');
+    await expect(page.locator('h2:has-text("Simple House")')).toBeVisible();
+    
+    await page.click('button[role="tab"]:has-text("Assets")');
+    await page.click('button:has-text("Add Asset")');
+    await page.fill('input[name="name"]', 'Family Home Content');
+    await page.click('label:has-text("Category") + div button');
+    await page.click('li[role="option"]:has-text("Electronics")');
+    await page.fill('input[name="purchase_value"]', '2000');
+    await page.click('button:has-text("Save Asset")');
+    await expect(page.locator('text=Family Home Content')).toBeVisible();
+
+    // ==========================================
+    // 6. FINANCE MATRIX ACTIONS
+    // ==========================================
+    console.log('Step 6: Finance Matrix Verification');
     await page.goto(`/household/${hhId}/finance`);
     console.log('   - Waiting for Financial Matrix header');
     await expect(page.locator('h2:has-text("Financial Matrix")')).toBeVisible();
 
-    // 5.1 Add Bank Account (Required for Income)
+    // 6.1 Add Bank Account (Required for Income)
     console.log('   - Adding Bank Account');
     await page.click('text=Current Accounts');
     await page.click('button:has-text("Add Account")');
@@ -105,7 +121,7 @@ test.describe('Basic System Flow Test', () => {
     console.log('   - Waiting for Joint Checking to appear');
     await expect(page.locator('text=Joint Checking')).toBeVisible();
 
-    // 5.2 Add Primary Income (Required for Budget)
+    // 6.2 Add Primary Income (Required for Budget)
     console.log('   - Adding Primary Income');
     await page.goto(`/household/${hhId}/finance`);
     await page.click('text=Income Sources');
@@ -122,7 +138,7 @@ test.describe('Basic System Flow Test', () => {
     console.log('   - Waiting for Tech Corp to appear');
     await expect(page.locator('text=Tech Corp').first()).toBeVisible();
 
-    // 5.3 Verify Monthly Budget
+    // 6.3 Verify Monthly Budget
     console.log('   - Verifying Monthly Budget');
     await page.goto(`/household/${hhId}/finance`);
     await page.click('text=Monthly Budget');
@@ -131,9 +147,10 @@ test.describe('Basic System Flow Test', () => {
     console.log('   - Waiting for Safe to Spend');
     await expect(page.locator('text=Safe to Spend')).toBeVisible();
 
-    console.log('Step 6: Final System Verification Summary');
+    console.log('Step 7: Final System Verification Summary');
     console.log('   ✅ All Primary Routes Accessible');
     console.log('   ✅ Household Hub Integration Verified');
+    console.log('   ✅ Property & Assets Verified');
     console.log('   ✅ Financial Matrix Integration Verified');
   });
 });

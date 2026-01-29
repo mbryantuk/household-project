@@ -76,7 +76,7 @@ export default function InvestmentsView() {
       
       showNotification(isNew ? "Investment added." : "Investment updated.", "success");
       await fetchInvestments();
-      setInvestmentId(isNew ? res.data.id : null);
+      setInvestmentId(null);
     } catch { showNotification("Error saving investment.", "danger"); }
   };
 

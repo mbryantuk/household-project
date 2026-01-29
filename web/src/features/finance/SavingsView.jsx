@@ -138,7 +138,7 @@ export default function SavingsView() {
       await Promise.all(toRemove.map(mid => api.delete(`/households/${householdId}/finance/assignments/finance_savings/${accountId}/${mid}`)));
 
       await fetchData();
-      setAccountId(accountId);
+      setAccountId(null);
     } catch (err) { showNotification("Failed to save account: " + err.message, "danger"); }
   };
 

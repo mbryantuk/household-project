@@ -122,7 +122,7 @@ export default function MortgagesView() {
       await Promise.all(toRemove.map(mid => api.delete(`/households/${householdId}/finance/assignments/finance_mortgages/${itemId}/${mid}`)));
       
       await fetchData();
-      setMortgageId(itemId);
+      setMortgageId(null);
     } catch (err) {
       showNotification("Failed to save: " + err.message, "danger");
     }

@@ -78,7 +78,7 @@ export default function LoansView() {
       
       showNotification(isNew ? "Loan added." : "Loan updated.", "success");
       await fetchLoans();
-      setLoanId(isNew ? res.data.id : null);
+      setLoanId(null);
     } catch { showNotification("Error saving loan.", "danger"); }
   };
 

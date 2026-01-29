@@ -86,8 +86,8 @@ export default function PeopleView() {
         // Update local person immediately to prevent fallback to list
         setLocalPerson(res.data);
         await fetchHhMembers(householdId);
-        // Correct navigation to the person's detail page
-        navigate(`../${res.data.id}`, { replace: true });
+        // Return to Household Hub
+        navigate(`/household/${householdId}/house`, { replace: true });
       } else {
         await api.put(`/households/${householdId}/members/${personId}`, formData);
         showNotification("Details updated.", "success");

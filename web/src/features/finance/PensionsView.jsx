@@ -107,7 +107,7 @@ export default function PensionsView() {
       await Promise.all(toRemove.map(mid => api.delete(`/households/${householdId}/finance/assignments/finance_pensions/${itemId}/${mid}`)));
 
       await fetchData();
-      setPensionId(itemId);
+      setPensionId(null);
     } catch (err) { 
         showNotification("Failed to save pension: " + err.message, "danger"); 
     }

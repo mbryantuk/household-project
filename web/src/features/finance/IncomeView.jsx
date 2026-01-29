@@ -110,7 +110,7 @@ export default function IncomeView() {
         const res = await api.post(`/households/${householdId}/finance/income`, data);
         showNotification("Income added.", "success");
         await fetchData();
-        setIncomeId(res.data.id);
+        setIncomeId(null);
       } else {
         await api.put(`/households/${householdId}/finance/income/${selectedIncomeId}`, data);
         showNotification("Income updated.", "success");

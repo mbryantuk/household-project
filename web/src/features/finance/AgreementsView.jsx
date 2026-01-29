@@ -99,7 +99,7 @@ export default function AgreementsView({ isSubscriptions = false }) {
       await Promise.all(toRemove.map(mid => api.delete(`/households/${householdId}/finance/assignments/finance_agreements/${itemId}/${mid}`)));
       
       await fetchData();
-      setAgreementId(itemId);
+      setAgreementId(null);
     } catch (err) { showNotification("Failed to save: " + err.message, "danger"); }
   };
 

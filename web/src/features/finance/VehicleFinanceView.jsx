@@ -103,7 +103,7 @@ export default function VehicleFinanceView() {
       await Promise.all(toRemove.map(mid => api.delete(`/households/${householdId}/finance/assignments/vehicle_finance/${itemId}/${mid}`)));
       
       await fetchData();
-      setFinanceId(itemId);
+      setFinanceId(null);
     } catch (err) { showNotification("Failed to save: " + err.message, "danger"); }
   };
 

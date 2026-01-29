@@ -79,7 +79,7 @@ export default function PetsView() {
         showNotification("Pet added.", "success");
         setLocalPet(res.data);
         await fetchHhMembers(householdId);
-        navigate(`../${res.data.id}`, { replace: true });
+        navigate(`/household/${householdId}/house`, { replace: true });
       } else {
         await api.put(`/households/${householdId}/members/${petId}`, data);
         showNotification("Pet updated.", "success");

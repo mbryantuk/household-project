@@ -97,7 +97,7 @@ export default function AssetsView() {
         const res = await api.post(`/households/${householdId}/assets`, data);
         showNotification("Asset added.", "success");
         await fetchAssets();
-        navigate(`../assets/${res.data.id}`, { replace: true });
+        navigate(`../assets`, { replace: true });
       } else {
         await api.put(`/households/${householdId}/assets/${assetId}`, data);
         showNotification("Asset updated.", "success");
