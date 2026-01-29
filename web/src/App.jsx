@@ -324,6 +324,7 @@ function AppInner({ themeId, setThemeId }) {
               onUpdateProfile={handleUpdateProfile} onLogout={logout}
               themeId={themeId} onThemeChange={(newId) => handleUpdateProfile({ theme: newId })}
               installPrompt={installPrompt} onInstall={handleInstall}
+              household={household}
             />}>
                 <Route index element={<Navigate to="dashboard" replace />} />
                 <Route path="dashboard" element={<HomeView household={household} members={hhMembers} currentUser={user} dates={hhDates} onUpdateProfile={handleUpdateProfile} api={authAxios} />} />

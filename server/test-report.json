@@ -26,1081 +26,9 @@
     "unmatched": 0,
     "updated": 0
   },
-  "startTime": 1769679386797,
+  "startTime": 1769683664862,
   "success": false,
   "testResults": [
-    {
-      "leaks": false,
-      "numFailingTests": 0,
-      "numPassingTests": 32,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1769679392996,
-        "runtime": 6099,
-        "slow": true,
-        "start": 1769679386897
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/integration/finance_expanded.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Income"
-          ],
-          "duration": 37,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Income should create income source",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should create income source"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Income"
-          ],
-          "duration": 251,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Income should list income",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should list income"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Income"
-          ],
-          "duration": 99,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Income should update income",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 0,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should update income"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Income"
-          ],
-          "duration": 281,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Income should delete income",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 0,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should delete income"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Savings & Pots"
-          ],
-          "duration": 284,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Savings & Pots should create savings account",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should create savings account"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Savings & Pots"
-          ],
-          "duration": 282,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Savings & Pots should create a savings pot",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should create a savings pot"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Savings & Pots"
-          ],
-          "duration": 198,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Savings & Pots should list pots",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should list pots"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Savings & Pots"
-          ],
-          "duration": 105,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Savings & Pots should delete pot",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 0,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should delete pot"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Savings & Pots"
-          ],
-          "duration": 286,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Savings & Pots should delete parent savings account",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 0,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should delete parent savings account"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Investments"
-          ],
-          "duration": 281,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Investments should create investment",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should create investment"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Investments"
-          ],
-          "duration": 199,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Investments should list investments",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should list investments"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Investments"
-          ],
-          "duration": 101,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Investments should delete investment",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 0,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should delete investment"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Pensions"
-          ],
-          "duration": 278,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Pensions should create pension",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should create pension"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Pensions"
-          ],
-          "duration": 200,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Pensions should list pensions",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should list pensions"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Pensions"
-          ],
-          "duration": 104,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Pensions should delete pension",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 0,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should delete pension"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Credit Cards"
-          ],
-          "duration": 363,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Credit Cards should create credit card",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should create credit card"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Credit Cards"
-          ],
-          "duration": 279,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Credit Cards should delete credit card",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 0,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should delete credit card"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Loans"
-          ],
-          "duration": 274,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Loans should create loan",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should create loan"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Loans"
-          ],
-          "duration": 295,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Loans should delete loan",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 0,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should delete loan"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Mortgages"
-          ],
-          "duration": 99,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Mortgages should create mortgage",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should create mortgage"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Mortgages"
-          ],
-          "duration": 19,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Mortgages should delete mortgage",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 0,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should delete mortgage"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Pensions"
-          ],
-          "duration": 19,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Pensions should create pension",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should create pension"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Pensions"
-          ],
-          "duration": 19,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Pensions should add pension history",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should add pension history"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Pensions"
-          ],
-          "duration": 19,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Pensions should delete pension",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 0,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should delete pension"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Current Accounts"
-          ],
-          "duration": 19,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Current Accounts should create current account",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should create current account"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Current Accounts"
-          ],
-          "duration": 18,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Current Accounts should update current account",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should update current account"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Current Accounts"
-          ],
-          "duration": 21,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Current Accounts should delete current account",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 0,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should delete current account"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Assignments"
-          ],
-          "duration": 43,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Assignments should setup member and account for assignment",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should setup member and account for assignment"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Assignments"
-          ],
-          "duration": 21,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Assignments should assign member to account",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should assign member to account"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Assignments"
-          ],
-          "duration": 19,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Assignments should list assignments",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should list assignments"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Assignments"
-          ],
-          "duration": 59,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Assignments should list assignments filtering only by entity_type",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should list assignments filtering only by entity_type"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Expanded Financial Management",
-            "Assignments"
-          ],
-          "duration": 22,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Expanded Financial Management Assignments should unassign member",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should unassign member"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
-      "numPassingTests": 30,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1769679398843,
-        "runtime": 5819,
-        "slow": true,
-        "start": 1769679393024
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/security/tenancy_stress.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/vehicles"
-          ],
-          "duration": 153,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/vehicles [ADMIN] Full CRUD on Vehicles",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 5,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[ADMIN] Full CRUD on Vehicles"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/vehicles"
-          ],
-          "duration": 21,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/vehicles [MEMBER] Standard access on Vehicles",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[MEMBER] Standard access on Vehicles"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/vehicles"
-          ],
-          "duration": 26,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/vehicles [VIEWER] Read-Only restriction on Vehicles",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[VIEWER] Read-Only restriction on Vehicles"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/vehicles"
-          ],
-          "duration": 27,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/vehicles [CROSS-TENANT] Isolation enforcement on Vehicles",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[CROSS-TENANT] Isolation enforcement on Vehicles"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/assets"
-          ],
-          "duration": 494,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/assets [ADMIN] Full CRUD on Assets",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 5,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[ADMIN] Full CRUD on Assets"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/assets"
-          ],
-          "duration": 19,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/assets [MEMBER] Standard access on Assets",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[MEMBER] Standard access on Assets"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/assets"
-          ],
-          "duration": 20,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/assets [VIEWER] Read-Only restriction on Assets",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[VIEWER] Read-Only restriction on Assets"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/assets"
-          ],
-          "duration": 30,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/assets [CROSS-TENANT] Isolation enforcement on Assets",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[CROSS-TENANT] Isolation enforcement on Assets"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/members"
-          ],
-          "duration": 159,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/members [ADMIN] Full CRUD on Residents",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 5,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[ADMIN] Full CRUD on Residents"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/members"
-          ],
-          "duration": 22,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/members [MEMBER] Standard access on Residents",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[MEMBER] Standard access on Residents"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/members"
-          ],
-          "duration": 33,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/members [VIEWER] Read-Only restriction on Residents",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[VIEWER] Read-Only restriction on Residents"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/members"
-          ],
-          "duration": 25,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/members [CROSS-TENANT] Isolation enforcement on Residents",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[CROSS-TENANT] Isolation enforcement on Residents"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/energy"
-          ],
-          "duration": 178,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/energy [ADMIN] Full CRUD on Energy",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 5,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[ADMIN] Full CRUD on Energy"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/energy"
-          ],
-          "duration": 28,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/energy [MEMBER] Standard access on Energy",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[MEMBER] Standard access on Energy"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/energy"
-          ],
-          "duration": 30,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/energy [VIEWER] Read-Only restriction on Energy",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[VIEWER] Read-Only restriction on Energy"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/energy"
-          ],
-          "duration": 25,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/energy [CROSS-TENANT] Isolation enforcement on Energy",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[CROSS-TENANT] Isolation enforcement on Energy"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/finance/charges"
-          ],
-          "duration": 186,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/finance/charges [ADMIN] Full CRUD on Recurring Charges",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 5,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[ADMIN] Full CRUD on Recurring Charges"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/finance/charges"
-          ],
-          "duration": 78,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/finance/charges [MEMBER] Standard access on Recurring Charges",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[MEMBER] Standard access on Recurring Charges"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/finance/charges"
-          ],
-          "duration": 23,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/finance/charges [VIEWER] Read-Only restriction on Recurring Charges",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[VIEWER] Read-Only restriction on Recurring Charges"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/finance/charges"
-          ],
-          "duration": 26,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/finance/charges [CROSS-TENANT] Isolation enforcement on Recurring Charges",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[CROSS-TENANT] Isolation enforcement on Recurring Charges"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/waste"
-          ],
-          "duration": 146,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/waste [ADMIN] Full CRUD on Waste",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 5,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[ADMIN] Full CRUD on Waste"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/waste"
-          ],
-          "duration": 20,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/waste [MEMBER] Standard access on Waste",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[MEMBER] Standard access on Waste"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/waste"
-          ],
-          "duration": 20,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/waste [VIEWER] Read-Only restriction on Waste",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[VIEWER] Read-Only restriction on Waste"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "⚔️ Combinatorial Role vs Table Access",
-            "Path: /households/:id/waste"
-          ],
-          "duration": 29,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/waste [CROSS-TENANT] Isolation enforcement on Waste",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[CROSS-TENANT] Isolation enforcement on Waste"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "👤 Identity & Profile Coverage"
-          ],
-          "duration": 14,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix 👤 Identity & Profile Coverage [AUTH] All roles can access /auth/profile",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 3,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "[AUTH] All roles can access /auth/profile"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "🧪 Data Fuzzing & Boundary Tests"
-          ],
-          "duration": 131,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix 🧪 Data Fuzzing & Boundary Tests Should handle massive strings and special characters",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "Should handle massive strings and special characters"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "🧪 Data Fuzzing & Boundary Tests"
-          ],
-          "duration": 52,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix 🧪 Data Fuzzing & Boundary Tests Should handle numeric boundary values",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "Should handle numeric boundary values"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "🧪 Data Fuzzing & Boundary Tests"
-          ],
-          "duration": 107,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix 🧪 Data Fuzzing & Boundary Tests Should handle null/empty payloads gracefully",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "Should handle null/empty payloads gracefully"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "🔄 Rapid Sequential Operations (Stress)"
-          ],
-          "duration": 2908,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix 🔄 Rapid Sequential Operations (Stress) Create 50 assets in rapid succession",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 50,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "Create 50 assets in rapid succession"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 Exhaustive Stress & Isolation Matrix",
-            "🌓 Edge Case: Icon & Color Persistence"
-          ],
-          "duration": 46,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 Exhaustive Stress & Isolation Matrix 🌓 Edge Case: Icon & Color Persistence should allow null icons and colors in details",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should allow null icons and colors in details"
-        }
-      ],
-      "failureMessage": null
-    },
     {
       "leaks": false,
       "numFailingTests": 0,
@@ -1109,10 +37,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1769679408627,
-        "runtime": 9769,
-        "slow": true,
-        "start": 1769679398858
+        "end": 1769683668210,
+        "runtime": 3258,
+        "slow": false,
+        "start": 1769683664952
       },
       "skipped": false,
       "snapshot": {
@@ -1132,7 +60,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Members"
           ],
-          "duration": 648,
+          "duration": 71,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Members [MEMBER] should perform CREATE and UPDATE on Members",
@@ -1149,7 +77,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Members"
           ],
-          "duration": 7,
+          "duration": 12,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Members [VIEWER] should be BLOCKED from CREATE on Members",
@@ -1166,7 +94,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Members"
           ],
-          "duration": 6,
+          "duration": 8,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Members [OUTSIDER] should be BLOCKED from READ on Members",
@@ -1183,7 +111,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Members"
           ],
-          "duration": 6,
+          "duration": 8,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Members [OUTSIDER] should be BLOCKED from UPDATE on Members",
@@ -1200,7 +128,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Members"
           ],
-          "duration": 347,
+          "duration": 27,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Members [ADMIN] should perform DELETE on Members",
@@ -1217,7 +145,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Assets"
           ],
-          "duration": 598,
+          "duration": 49,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Assets [MEMBER] should perform CREATE and UPDATE on Assets",
@@ -1234,7 +162,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Assets"
           ],
-          "duration": 6,
+          "duration": 7,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Assets [VIEWER] should be BLOCKED from CREATE on Assets",
@@ -1251,7 +179,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Assets"
           ],
-          "duration": 6,
+          "duration": 8,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Assets [OUTSIDER] should be BLOCKED from READ on Assets",
@@ -1268,7 +196,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Assets"
           ],
-          "duration": 7,
+          "duration": 12,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Assets [OUTSIDER] should be BLOCKED from UPDATE on Assets",
@@ -1285,7 +213,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Assets"
           ],
-          "duration": 329,
+          "duration": 27,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Assets [ADMIN] should perform DELETE on Assets",
@@ -1302,7 +230,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Vehicles"
           ],
-          "duration": 599,
+          "duration": 43,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Vehicles [MEMBER] should perform CREATE and UPDATE on Vehicles",
@@ -1336,7 +264,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Vehicles"
           ],
-          "duration": 7,
+          "duration": 5,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Vehicles [OUTSIDER] should be BLOCKED from READ on Vehicles",
@@ -1353,7 +281,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Vehicles"
           ],
-          "duration": 7,
+          "duration": 5,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Vehicles [OUTSIDER] should be BLOCKED from UPDATE on Vehicles",
@@ -1370,7 +298,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Vehicles"
           ],
-          "duration": 314,
+          "duration": 21,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Vehicles [ADMIN] should perform DELETE on Vehicles",
@@ -1387,7 +315,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Energy"
           ],
-          "duration": 543,
+          "duration": 47,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Energy [MEMBER] should perform CREATE and UPDATE on Energy",
@@ -1404,7 +332,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Energy"
           ],
-          "duration": 7,
+          "duration": 5,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Energy [VIEWER] should be BLOCKED from CREATE on Energy",
@@ -1421,7 +349,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Energy"
           ],
-          "duration": 6,
+          "duration": 5,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Energy [OUTSIDER] should be BLOCKED from READ on Energy",
@@ -1438,7 +366,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Energy"
           ],
-          "duration": 7,
+          "duration": 6,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Energy [OUTSIDER] should be BLOCKED from UPDATE on Energy",
@@ -1455,7 +383,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Energy"
           ],
-          "duration": 67,
+          "duration": 22,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Energy [ADMIN] should perform DELETE on Energy",
@@ -1472,7 +400,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Charges"
           ],
-          "duration": 72,
+          "duration": 53,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Charges [MEMBER] should perform CREATE and UPDATE on Charges",
@@ -1506,7 +434,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Charges"
           ],
-          "duration": 8,
+          "duration": 11,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Charges [OUTSIDER] should be BLOCKED from READ on Charges",
@@ -1523,7 +451,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Charges"
           ],
-          "duration": 8,
+          "duration": 5,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Charges [OUTSIDER] should be BLOCKED from UPDATE on Charges",
@@ -1540,7 +468,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Charges"
           ],
-          "duration": 35,
+          "duration": 30,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Charges [ADMIN] should perform DELETE on Charges",
@@ -1557,7 +485,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Meals"
           ],
-          "duration": 58,
+          "duration": 36,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Meals [MEMBER] should perform CREATE and UPDATE on Meals",
@@ -1574,7 +502,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Meals"
           ],
-          "duration": 5,
+          "duration": 7,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Meals [VIEWER] should be BLOCKED from CREATE on Meals",
@@ -1591,7 +519,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Meals"
           ],
-          "duration": 5,
+          "duration": 6,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Meals [OUTSIDER] should be BLOCKED from READ on Meals",
@@ -1608,7 +536,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Meals"
           ],
-          "duration": 5,
+          "duration": 6,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Meals [OUTSIDER] should be BLOCKED from UPDATE on Meals",
@@ -1625,7 +553,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Meals"
           ],
-          "duration": 26,
+          "duration": 18,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Meals [ADMIN] should perform DELETE on Meals",
@@ -1642,7 +570,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Waste"
           ],
-          "duration": 51,
+          "duration": 36,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Waste [MEMBER] should perform CREATE and UPDATE on Waste",
@@ -1693,7 +621,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Waste"
           ],
-          "duration": 5,
+          "duration": 6,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Waste [OUTSIDER] should be BLOCKED from UPDATE on Waste",
@@ -1710,7 +638,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Waste"
           ],
-          "duration": 267,
+          "duration": 18,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Waste [ADMIN] should perform DELETE on Waste",
@@ -1727,7 +655,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Income"
           ],
-          "duration": 574,
+          "duration": 56,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Income [MEMBER] should perform CREATE and UPDATE on Finance Income",
@@ -1761,7 +689,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Income"
           ],
-          "duration": 6,
+          "duration": 10,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Income [OUTSIDER] should be BLOCKED from READ on Finance Income",
@@ -1778,7 +706,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Income"
           ],
-          "duration": 6,
+          "duration": 9,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Income [OUTSIDER] should be BLOCKED from UPDATE on Finance Income",
@@ -1795,7 +723,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Income"
           ],
-          "duration": 236,
+          "duration": 24,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Income [ADMIN] should perform DELETE on Finance Income",
@@ -1812,7 +740,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Savings"
           ],
-          "duration": 576,
+          "duration": 48,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Savings [MEMBER] should perform CREATE and UPDATE on Finance Savings",
@@ -1829,7 +757,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Savings"
           ],
-          "duration": 6,
+          "duration": 5,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Savings [VIEWER] should be BLOCKED from CREATE on Finance Savings",
@@ -1846,7 +774,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Savings"
           ],
-          "duration": 6,
+          "duration": 5,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Savings [OUTSIDER] should be BLOCKED from READ on Finance Savings",
@@ -1880,7 +808,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Savings"
           ],
-          "duration": 237,
+          "duration": 24,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Savings [ADMIN] should perform DELETE on Finance Savings",
@@ -1897,7 +825,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Current Accounts"
           ],
-          "duration": 576,
+          "duration": 53,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Current Accounts [MEMBER] should perform CREATE and UPDATE on Finance Current Accounts",
@@ -1914,7 +842,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Current Accounts"
           ],
-          "duration": 5,
+          "duration": 6,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Current Accounts [VIEWER] should be BLOCKED from CREATE on Finance Current Accounts",
@@ -1931,7 +859,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Current Accounts"
           ],
-          "duration": 4,
+          "duration": 6,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Current Accounts [OUTSIDER] should be BLOCKED from READ on Finance Current Accounts",
@@ -1948,7 +876,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Current Accounts"
           ],
-          "duration": 7,
+          "duration": 8,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Current Accounts [OUTSIDER] should be BLOCKED from UPDATE on Finance Current Accounts",
@@ -1965,7 +893,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Current Accounts"
           ],
-          "duration": 233,
+          "duration": 20,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Current Accounts [ADMIN] should perform DELETE on Finance Current Accounts",
@@ -1982,7 +910,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Credit Cards"
           ],
-          "duration": 647,
+          "duration": 66,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Credit Cards [MEMBER] should perform CREATE and UPDATE on Finance Credit Cards",
@@ -1999,7 +927,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Credit Cards"
           ],
-          "duration": 6,
+          "duration": 8,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Credit Cards [VIEWER] should be BLOCKED from CREATE on Finance Credit Cards",
@@ -2016,7 +944,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Credit Cards"
           ],
-          "duration": 5,
+          "duration": 4,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Credit Cards [OUTSIDER] should be BLOCKED from READ on Finance Credit Cards",
@@ -2050,7 +978,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Credit Cards"
           ],
-          "duration": 232,
+          "duration": 23,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Credit Cards [ADMIN] should perform DELETE on Finance Credit Cards",
@@ -2067,7 +995,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Loans"
           ],
-          "duration": 526,
+          "duration": 53,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Loans [MEMBER] should perform CREATE and UPDATE on Finance Loans",
@@ -2118,7 +1046,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Loans"
           ],
-          "duration": 6,
+          "duration": 5,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Loans [OUTSIDER] should be BLOCKED from UPDATE on Finance Loans",
@@ -2152,7 +1080,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Mortgages"
           ],
-          "duration": 58,
+          "duration": 42,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Mortgages [MEMBER] should perform CREATE and UPDATE on Finance Mortgages",
@@ -2169,7 +1097,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Mortgages"
           ],
-          "duration": 6,
+          "duration": 5,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Mortgages [VIEWER] should be BLOCKED from CREATE on Finance Mortgages",
@@ -2203,7 +1131,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Mortgages"
           ],
-          "duration": 5,
+          "duration": 9,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Mortgages [OUTSIDER] should be BLOCKED from UPDATE on Finance Mortgages",
@@ -2220,7 +1148,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Mortgages"
           ],
-          "duration": 30,
+          "duration": 20,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Mortgages [ADMIN] should perform DELETE on Finance Mortgages",
@@ -2237,7 +1165,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Investments"
           ],
-          "duration": 59,
+          "duration": 44,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Investments [MEMBER] should perform CREATE and UPDATE on Finance Investments",
@@ -2254,7 +1182,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Investments"
           ],
-          "duration": 6,
+          "duration": 5,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Investments [VIEWER] should be BLOCKED from CREATE on Finance Investments",
@@ -2271,7 +1199,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Investments"
           ],
-          "duration": 5,
+          "duration": 7,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Investments [OUTSIDER] should be BLOCKED from READ on Finance Investments",
@@ -2288,7 +1216,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Investments"
           ],
-          "duration": 4,
+          "duration": 6,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Investments [OUTSIDER] should be BLOCKED from UPDATE on Finance Investments",
@@ -2305,7 +1233,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Investments"
           ],
-          "duration": 27,
+          "duration": 19,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Investments [ADMIN] should perform DELETE on Finance Investments",
@@ -2322,7 +1250,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Pensions"
           ],
-          "duration": 56,
+          "duration": 40,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Pensions [MEMBER] should perform CREATE and UPDATE on Finance Pensions",
@@ -2356,7 +1284,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Pensions"
           ],
-          "duration": 7,
+          "duration": 9,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Pensions [OUTSIDER] should be BLOCKED from READ on Finance Pensions",
@@ -2373,7 +1301,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Pensions"
           ],
-          "duration": 4,
+          "duration": 7,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Pensions [OUTSIDER] should be BLOCKED from UPDATE on Finance Pensions",
@@ -2390,7 +1318,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Pensions"
           ],
-          "duration": 30,
+          "duration": 21,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Pensions [ADMIN] should perform DELETE on Finance Pensions",
@@ -2407,7 +1335,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Agreements"
           ],
-          "duration": 66,
+          "duration": 37,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Agreements [MEMBER] should perform CREATE and UPDATE on Finance Agreements",
@@ -2424,7 +1352,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Agreements"
           ],
-          "duration": 6,
+          "duration": 4,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Agreements [VIEWER] should be BLOCKED from CREATE on Finance Agreements",
@@ -2441,7 +1369,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Agreements"
           ],
-          "duration": 6,
+          "duration": 10,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Agreements [OUTSIDER] should be BLOCKED from READ on Finance Agreements",
@@ -2458,7 +1386,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Agreements"
           ],
-          "duration": 6,
+          "duration": 5,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Agreements [OUTSIDER] should be BLOCKED from UPDATE on Finance Agreements",
@@ -2475,7 +1403,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Finance Agreements"
           ],
-          "duration": 28,
+          "duration": 19,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Finance Agreements [ADMIN] should perform DELETE on Finance Agreements",
@@ -2492,7 +1420,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Vehicle Finance"
           ],
-          "duration": 55,
+          "duration": 40,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Vehicle Finance [MEMBER] should perform CREATE and UPDATE on Vehicle Finance",
@@ -2509,7 +1437,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Vehicle Finance"
           ],
-          "duration": 5,
+          "duration": 11,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Vehicle Finance [VIEWER] should be BLOCKED from CREATE on Vehicle Finance",
@@ -2543,7 +1471,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Vehicle Finance"
           ],
-          "duration": 9,
+          "duration": 5,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Vehicle Finance [OUTSIDER] should be BLOCKED from UPDATE on Vehicle Finance",
@@ -2560,7 +1488,7 @@
             "🔑 Role-Based Access Control (RBAC) Integrity",
             "Entity: Vehicle Finance"
           ],
-          "duration": 40,
+          "duration": 20,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🔑 Role-Based Access Control (RBAC) Integrity Entity: Vehicle Finance [ADMIN] should perform DELETE on Vehicle Finance",
@@ -2576,7 +1504,7 @@
             "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle",
             "🏠 Household Management Restrictions"
           ],
-          "duration": 6,
+          "duration": 5,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🏠 Household Management Restrictions [MEMBER] should be BLOCKED from deleting household",
@@ -2592,7 +1520,7 @@
             "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle",
             "🏠 Household Management Restrictions"
           ],
-          "duration": 7,
+          "duration": 6,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 🏠 Household Management Restrictions [ADMIN] should update household details",
@@ -2608,7 +1536,7 @@
             "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle",
             "📅 Calendar & Meal Plans"
           ],
-          "duration": 62,
+          "duration": 40,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 📅 Calendar & Meal Plans [MEMBER] should manage meal plans",
@@ -2624,7 +1552,7 @@
             "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle",
             "📅 Calendar & Meal Plans"
           ],
-          "duration": 108,
+          "duration": 117,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive SaaS RBAC & CRUD Lifecycle 📅 Calendar & Meal Plans [VIEWER] should read calendar",
@@ -2641,15 +1569,15 @@
     {
       "leaks": false,
       "numFailingTests": 0,
-      "numPassingTests": 7,
+      "numPassingTests": 30,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1769679410909,
-        "runtime": 2278,
+        "end": 1769683671402,
+        "runtime": 3164,
         "slow": false,
-        "start": 1769679408631
+        "start": 1769683668238
       },
       "skipped": false,
       "snapshot": {
@@ -2661,680 +1589,1051 @@
         "unmatched": 0,
         "updated": 0
       },
-      "testFilePath": "/home/matt/household-project/server/tests/integration/assets.test.js",
+      "testFilePath": "/home/matt/household-project/server/tests/security/tenancy_stress.test.js",
       "testResults": [
         {
           "ancestorTitles": [
-            "Feature: Physical Assets & Vehicles",
-            "General Assets"
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/vehicles"
+          ],
+          "duration": 91,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/vehicles [ADMIN] Full CRUD on Vehicles",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 5,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[ADMIN] Full CRUD on Vehicles"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/vehicles"
+          ],
+          "duration": 19,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/vehicles [MEMBER] Standard access on Vehicles",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[MEMBER] Standard access on Vehicles"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/vehicles"
+          ],
+          "duration": 22,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/vehicles [VIEWER] Read-Only restriction on Vehicles",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[VIEWER] Read-Only restriction on Vehicles"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/vehicles"
+          ],
+          "duration": 35,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/vehicles [CROSS-TENANT] Isolation enforcement on Vehicles",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[CROSS-TENANT] Isolation enforcement on Vehicles"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/assets"
+          ],
+          "duration": 77,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/assets [ADMIN] Full CRUD on Assets",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 5,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[ADMIN] Full CRUD on Assets"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/assets"
+          ],
+          "duration": 23,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/assets [MEMBER] Standard access on Assets",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[MEMBER] Standard access on Assets"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/assets"
+          ],
+          "duration": 22,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/assets [VIEWER] Read-Only restriction on Assets",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[VIEWER] Read-Only restriction on Assets"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/assets"
+          ],
+          "duration": 27,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/assets [CROSS-TENANT] Isolation enforcement on Assets",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[CROSS-TENANT] Isolation enforcement on Assets"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/members"
+          ],
+          "duration": 76,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/members [ADMIN] Full CRUD on Residents",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 5,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[ADMIN] Full CRUD on Residents"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/members"
+          ],
+          "duration": 30,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/members [MEMBER] Standard access on Residents",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[MEMBER] Standard access on Residents"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/members"
+          ],
+          "duration": 22,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/members [VIEWER] Read-Only restriction on Residents",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[VIEWER] Read-Only restriction on Residents"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/members"
+          ],
+          "duration": 30,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/members [CROSS-TENANT] Isolation enforcement on Residents",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[CROSS-TENANT] Isolation enforcement on Residents"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/energy"
+          ],
+          "duration": 88,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/energy [ADMIN] Full CRUD on Energy",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 5,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[ADMIN] Full CRUD on Energy"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/energy"
+          ],
+          "duration": 21,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/energy [MEMBER] Standard access on Energy",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[MEMBER] Standard access on Energy"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/energy"
+          ],
+          "duration": 20,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/energy [VIEWER] Read-Only restriction on Energy",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[VIEWER] Read-Only restriction on Energy"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/energy"
+          ],
+          "duration": 29,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/energy [CROSS-TENANT] Isolation enforcement on Energy",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[CROSS-TENANT] Isolation enforcement on Energy"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/finance/charges"
+          ],
+          "duration": 86,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/finance/charges [ADMIN] Full CRUD on Recurring Charges",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 5,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[ADMIN] Full CRUD on Recurring Charges"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/finance/charges"
+          ],
+          "duration": 21,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/finance/charges [MEMBER] Standard access on Recurring Charges",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[MEMBER] Standard access on Recurring Charges"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/finance/charges"
+          ],
+          "duration": 29,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/finance/charges [VIEWER] Read-Only restriction on Recurring Charges",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[VIEWER] Read-Only restriction on Recurring Charges"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/finance/charges"
+          ],
+          "duration": 43,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/finance/charges [CROSS-TENANT] Isolation enforcement on Recurring Charges",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[CROSS-TENANT] Isolation enforcement on Recurring Charges"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/waste"
+          ],
+          "duration": 80,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/waste [ADMIN] Full CRUD on Waste",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 5,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[ADMIN] Full CRUD on Waste"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/waste"
+          ],
+          "duration": 28,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/waste [MEMBER] Standard access on Waste",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[MEMBER] Standard access on Waste"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/waste"
+          ],
+          "duration": 28,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/waste [VIEWER] Read-Only restriction on Waste",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[VIEWER] Read-Only restriction on Waste"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "⚔️ Combinatorial Role vs Table Access",
+            "Path: /households/:id/waste"
+          ],
+          "duration": 26,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix ⚔️ Combinatorial Role vs Table Access Path: /households/:id/waste [CROSS-TENANT] Isolation enforcement on Waste",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[CROSS-TENANT] Isolation enforcement on Waste"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "👤 Identity & Profile Coverage"
+          ],
+          "duration": 17,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix 👤 Identity & Profile Coverage [AUTH] All roles can access /auth/profile",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 3,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "[AUTH] All roles can access /auth/profile"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "🧪 Data Fuzzing & Boundary Tests"
+          ],
+          "duration": 53,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix 🧪 Data Fuzzing & Boundary Tests Should handle massive strings and special characters",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "Should handle massive strings and special characters"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "🧪 Data Fuzzing & Boundary Tests"
+          ],
+          "duration": 23,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix 🧪 Data Fuzzing & Boundary Tests Should handle numeric boundary values",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "Should handle numeric boundary values"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "🧪 Data Fuzzing & Boundary Tests"
+          ],
+          "duration": 24,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix 🧪 Data Fuzzing & Boundary Tests Should handle null/empty payloads gracefully",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "Should handle null/empty payloads gracefully"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "🔄 Rapid Sequential Operations (Stress)"
+          ],
+          "duration": 1384,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix 🔄 Rapid Sequential Operations (Stress) Create 50 assets in rapid succession",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 50,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "Create 50 assets in rapid succession"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 Exhaustive Stress & Isolation Matrix",
+            "🌓 Edge Case: Icon & Color Persistence"
+          ],
+          "duration": 51,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 Exhaustive Stress & Isolation Matrix 🌓 Edge Case: Icon & Color Persistence should allow null icons and colors in details",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should allow null icons and colors in details"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 32,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1769683672982,
+        "runtime": 1560,
+        "slow": false,
+        "start": 1769683671422
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/integration/finance_expanded.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Income"
+          ],
+          "duration": 46,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Income should create income source",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create income source"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Income"
+          ],
+          "duration": 31,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Income should list income",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should list income"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Income"
+          ],
+          "duration": 32,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Income should update income",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should update income"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Income"
+          ],
+          "duration": 38,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Income should delete income",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should delete income"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Savings & Pots"
+          ],
+          "duration": 30,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Savings & Pots should create savings account",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create savings account"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Savings & Pots"
+          ],
+          "duration": 31,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Savings & Pots should create a savings pot",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create a savings pot"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Savings & Pots"
+          ],
+          "duration": 40,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Savings & Pots should list pots",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should list pots"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Savings & Pots"
+          ],
+          "duration": 30,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Savings & Pots should delete pot",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should delete pot"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Savings & Pots"
+          ],
+          "duration": 36,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Savings & Pots should delete parent savings account",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should delete parent savings account"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Investments"
+          ],
+          "duration": 42,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Investments should create investment",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create investment"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Investments"
+          ],
+          "duration": 25,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Investments should list investments",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should list investments"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Investments"
+          ],
+          "duration": 35,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Investments should delete investment",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should delete investment"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Pensions"
+          ],
+          "duration": 34,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Pensions should create pension",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create pension"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Pensions"
+          ],
+          "duration": 29,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Pensions should list pensions",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should list pensions"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Pensions"
+          ],
+          "duration": 28,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Pensions should delete pension",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should delete pension"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Credit Cards"
+          ],
+          "duration": 31,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Credit Cards should create credit card",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create credit card"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Credit Cards"
+          ],
+          "duration": 29,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Credit Cards should delete credit card",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should delete credit card"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Loans"
+          ],
+          "duration": 31,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Loans should create loan",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create loan"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Loans"
+          ],
+          "duration": 35,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Loans should delete loan",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should delete loan"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Mortgages"
+          ],
+          "duration": 34,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Mortgages should create mortgage",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create mortgage"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Mortgages"
+          ],
+          "duration": 29,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Mortgages should delete mortgage",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should delete mortgage"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Pensions"
+          ],
+          "duration": 36,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Pensions should create pension",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create pension"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Pensions"
+          ],
+          "duration": 38,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Pensions should add pension history",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should add pension history"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Pensions"
+          ],
+          "duration": 32,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Pensions should delete pension",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should delete pension"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Current Accounts"
+          ],
+          "duration": 32,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Current Accounts should create current account",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create current account"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Current Accounts"
+          ],
+          "duration": 29,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Current Accounts should update current account",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should update current account"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Current Accounts"
+          ],
+          "duration": 38,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Expanded Financial Management Current Accounts should delete current account",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should delete current account"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Expanded Financial Management",
+            "Assignments"
           ],
           "duration": 72,
           "failureDetails": [],
           "failureMessages": [],
-          "fullName": "Feature: Physical Assets & Vehicles General Assets should create an asset",
+          "fullName": "Feature: Expanded Financial Management Assignments should setup member and account for assignment",
           "invocations": 1,
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
           "status": "passed",
-          "title": "should create an asset"
+          "title": "should setup member and account for assignment"
         },
         {
           "ancestorTitles": [
-            "Feature: Physical Assets & Vehicles",
-            "General Assets"
+            "Feature: Expanded Financial Management",
+            "Assignments"
           ],
-          "duration": 288,
+          "duration": 37,
           "failureDetails": [],
           "failureMessages": [],
-          "fullName": "Feature: Physical Assets & Vehicles General Assets should update the asset",
+          "fullName": "Feature: Expanded Financial Management Assignments should assign member to account",
           "invocations": 1,
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
           "status": "passed",
-          "title": "should update the asset"
+          "title": "should assign member to account"
         },
         {
           "ancestorTitles": [
-            "Feature: Physical Assets & Vehicles",
-            "General Assets"
+            "Feature: Expanded Financial Management",
+            "Assignments"
           ],
-          "duration": 290,
+          "duration": 29,
           "failureDetails": [],
           "failureMessages": [],
-          "fullName": "Feature: Physical Assets & Vehicles General Assets should delete the asset",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should delete the asset"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Physical Assets & Vehicles",
-            "Vehicles"
-          ],
-          "duration": 288,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Physical Assets & Vehicles Vehicles should create a vehicle",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should create a vehicle"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Physical Assets & Vehicles",
-            "Vehicles"
-          ],
-          "duration": 289,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Physical Assets & Vehicles Vehicles should add a service record",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should add a service record"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Physical Assets & Vehicles",
-            "Vehicles"
-          ],
-          "duration": 292,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Physical Assets & Vehicles Vehicles should add finance info",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should add finance info"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Physical Assets & Vehicles",
-            "Vehicles"
-          ],
-          "duration": 290,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Physical Assets & Vehicles Vehicles should delete the vehicle",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should delete the vehicle"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
-      "numPassingTests": 5,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1769679413065,
-        "runtime": 2150,
-        "slow": false,
-        "start": 1769679410915
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/integration/finance_repro.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "Bug Repro: HH18 Budget Loading"
-          ],
-          "duration": 122,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Bug Repro: HH18 Budget Loading should create a bank account",
+          "fullName": "Feature: Expanded Financial Management Assignments should list assignments",
           "invocations": 1,
           "location": null,
           "numPassingAsserts": 2,
           "retryReasons": [],
           "status": "passed",
-          "title": "should create a bank account"
+          "title": "should list assignments"
         },
         {
           "ancestorTitles": [
-            "Bug Repro: HH18 Budget Loading"
+            "Feature: Expanded Financial Management",
+            "Assignments"
           ],
-          "duration": 461,
+          "duration": 101,
           "failureDetails": [],
           "failureMessages": [],
-          "fullName": "Bug Repro: HH18 Budget Loading should create an income source linked to the bank account",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should create an income source linked to the bank account"
-        },
-        {
-          "ancestorTitles": [
-            "Bug Repro: HH18 Budget Loading"
-          ],
-          "duration": 164,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Bug Repro: HH18 Budget Loading should retrieve the income list and verify fields",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 8,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should retrieve the income list and verify fields"
-        },
-        {
-          "ancestorTitles": [
-            "Bug Repro: HH18 Budget Loading"
-          ],
-          "duration": 518,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Bug Repro: HH18 Budget Loading should retrieve savings pots without error (Repro 500)",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 3,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should retrieve savings pots without error (Repro 500)"
-        },
-        {
-          "ancestorTitles": [
-            "Bug Repro: HH18 Budget Loading"
-          ],
-          "duration": 321,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Bug Repro: HH18 Budget Loading should handle payment_day as string \"25\" and convert or store correctly",
+          "fullName": "Feature: Expanded Financial Management Assignments should list assignments filtering only by entity_type",
           "invocations": 1,
           "location": null,
           "numPassingAsserts": 2,
           "retryReasons": [],
           "status": "passed",
-          "title": "should handle payment_day as string \"25\" and convert or store correctly"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
-      "numPassingTests": 6,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1769679415053,
-        "runtime": 1980,
-        "slow": false,
-        "start": 1769679413073
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/integration/charges.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "Feature: Recurring Charges"
-          ],
-          "duration": 63,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Recurring Charges should create a monthly charge",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should create a monthly charge"
+          "title": "should list assignments filtering only by entity_type"
         },
         {
           "ancestorTitles": [
-            "Feature: Recurring Charges"
+            "Feature: Expanded Financial Management",
+            "Assignments"
           ],
-          "duration": 296,
+          "duration": 30,
           "failureDetails": [],
           "failureMessages": [],
-          "fullName": "Feature: Recurring Charges should create a weekly charge",
+          "fullName": "Feature: Expanded Financial Management Assignments should unassign member",
           "invocations": 1,
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
           "status": "passed",
-          "title": "should create a weekly charge"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Recurring Charges"
-          ],
-          "duration": 300,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Recurring Charges should create a yearly charge",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should create a yearly charge"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Recurring Charges"
-          ],
-          "duration": 177,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Recurring Charges should list all charges",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 4,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should list all charges"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Recurring Charges"
-          ],
-          "duration": 292,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Recurring Charges should update a charge",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 3,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should update a charge"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Recurring Charges"
-          ],
-          "duration": 344,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Recurring Charges should delete (archive) a charge",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 3,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should delete (archive) a charge"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
-      "numPassingTests": 6,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1769679416588,
-        "runtime": 1529,
-        "slow": false,
-        "start": 1769679415059
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/integration/households.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "Feature: Household Management",
-            "Details & Settings"
-          ],
-          "duration": 394,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Household Management Details & Settings should update household details",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 4,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should update household details"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Household Management",
-            "Waste Management"
-          ],
-          "duration": 132,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Household Management Waste Management should create a waste collection schedule",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should create a waste collection schedule"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Household Management",
-            "Waste Management"
-          ],
-          "duration": 255,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Household Management Waste Management should update the waste schedule",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should update the waste schedule"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Household Management",
-            "Waste Management"
-          ],
-          "duration": 257,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Household Management Waste Management should delete the waste schedule",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should delete the waste schedule"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Household Management",
-            "Household Deletion"
-          ],
-          "duration": 7,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Household Management Household Deletion should delete the entire household",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should delete the entire household"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Household Management",
-            "Household Deletion"
-          ],
-          "duration": 7,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Household Management Household Deletion should fail to access deleted household",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should fail to access deleted household"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
-      "numPassingTests": 7,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1769679418102,
-        "runtime": 1509,
-        "slow": false,
-        "start": 1769679416593
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/integration/details.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "Feature: House Details & Misc",
-            "House Details"
-          ],
-          "duration": 63,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: House Details & Misc House Details should update house details",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should update house details"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: House Details & Misc",
-            "House Details"
-          ],
-          "duration": 229,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: House Details & Misc House Details should get house details",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should get house details"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: House Details & Misc",
-            "Water Info"
-          ],
-          "duration": 131,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: House Details & Misc Water Info should create water info",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should create water info"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: House Details & Misc",
-            "Water Info"
-          ],
-          "duration": 179,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: House Details & Misc Water Info should get water info list",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 4,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should get water info list"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: House Details & Misc",
-            "Waste Collections"
-          ],
-          "duration": 198,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: House Details & Misc Waste Collections should create waste collection",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should create waste collection"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: House Details & Misc",
-            "Waste Collections"
-          ],
-          "duration": 135,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: House Details & Misc Waste Collections should list waste collections",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should list waste collections"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: House Details & Misc",
-            "Waste Collections"
-          ],
-          "duration": 52,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: House Details & Misc Waste Collections should delete waste collection",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should delete waste collection"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
-      "numPassingTests": 3,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1769679420109,
-        "runtime": 1998,
-        "slow": false,
-        "start": 1769679418111
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/integration/finance.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "Feature: Financial Management",
-            "Utilities (Water/Council/Energy)"
-          ],
-          "duration": 371,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Financial Management Utilities (Water/Council/Energy) should create and check Water info",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 3,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should create and check Water info"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Financial Management",
-            "Utilities (Water/Council/Energy)"
-          ],
-          "duration": 326,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Financial Management Utilities (Water/Council/Energy) should create and check Council Tax info",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 3,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should create and check Council Tax info"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Financial Management",
-            "Utilities (Water/Council/Energy)"
-          ],
-          "duration": 779,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Financial Management Utilities (Water/Council/Energy) should CRUD Energy accounts",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should CRUD Energy accounts"
+          "title": "should unassign member"
         }
       ],
       "failureMessage": null
@@ -3347,10 +2646,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1769679421457,
-        "runtime": 1338,
+        "end": 1769683673666,
+        "runtime": 673,
         "slow": false,
-        "start": 1769679420119
+        "start": 1769683672993
       },
       "skipped": false,
       "snapshot": {
@@ -3368,7 +2667,7 @@
           "ancestorTitles": [
             "Meal Planner API"
           ],
-          "duration": 451,
+          "duration": 113,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Meal Planner API should create, list, and delete a MEAL",
@@ -3383,7 +2682,7 @@
           "ancestorTitles": [
             "Meal Planner API"
           ],
-          "duration": 338,
+          "duration": 176,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Meal Planner API should assign a meal and verify copy logic",
@@ -3405,10 +2704,453 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1769679423050,
-        "runtime": 1588,
+        "end": 1769683674297,
+        "runtime": 623,
         "slow": false,
-        "start": 1769679421462
+        "start": 1769683673674
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/integration/details.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "Feature: House Details & Misc",
+            "House Details"
+          ],
+          "duration": 46,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: House Details & Misc House Details should update house details",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should update house details"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: House Details & Misc",
+            "House Details"
+          ],
+          "duration": 40,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: House Details & Misc House Details should get house details",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should get house details"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: House Details & Misc",
+            "Water Info"
+          ],
+          "duration": 39,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: House Details & Misc Water Info should create water info",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create water info"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: House Details & Misc",
+            "Water Info"
+          ],
+          "duration": 44,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: House Details & Misc Water Info should get water info list",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 4,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should get water info list"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: House Details & Misc",
+            "Waste Collections"
+          ],
+          "duration": 44,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: House Details & Misc Waste Collections should create waste collection",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create waste collection"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: House Details & Misc",
+            "Waste Collections"
+          ],
+          "duration": 43,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: House Details & Misc Waste Collections should list waste collections",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should list waste collections"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: House Details & Misc",
+            "Waste Collections"
+          ],
+          "duration": 39,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: House Details & Misc Waste Collections should delete waste collection",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should delete waste collection"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 3,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1769683675016,
+        "runtime": 705,
+        "slow": false,
+        "start": 1769683674311
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/integration/finance.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "Feature: Financial Management",
+            "Utilities (Water/Council/Energy)"
+          ],
+          "duration": 105,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Financial Management Utilities (Water/Council/Energy) should create and check Water info",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 3,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create and check Water info"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Financial Management",
+            "Utilities (Water/Council/Energy)"
+          ],
+          "duration": 90,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Financial Management Utilities (Water/Council/Energy) should create and check Council Tax info",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 3,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create and check Council Tax info"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Financial Management",
+            "Utilities (Water/Council/Energy)"
+          ],
+          "duration": 136,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Financial Management Utilities (Water/Council/Energy) should CRUD Energy accounts",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should CRUD Energy accounts"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 5,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1769683675936,
+        "runtime": 913,
+        "slow": false,
+        "start": 1769683675023
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/performance/load.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "Performance & Speed Tests"
+          ],
+          "duration": 51,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Performance & Speed Tests should measure login speed (Heavy Bcrypt)",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should measure login speed (Heavy Bcrypt)"
+        },
+        {
+          "ancestorTitles": [
+            "Performance & Speed Tests"
+          ],
+          "duration": 100,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Performance & Speed Tests should measure GET assets speed (Plain Read)",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should measure GET assets speed (Plain Read)"
+        },
+        {
+          "ancestorTitles": [
+            "Performance & Speed Tests"
+          ],
+          "duration": 121,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Performance & Speed Tests should measure GET finance savings speed (Decryption Overhead)",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should measure GET finance savings speed (Decryption Overhead)"
+        },
+        {
+          "ancestorTitles": [
+            "Performance & Speed Tests"
+          ],
+          "duration": 36,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Performance & Speed Tests should measure POST asset speed (Plain Write)",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should measure POST asset speed (Plain Write)"
+        },
+        {
+          "ancestorTitles": [
+            "Performance & Speed Tests"
+          ],
+          "duration": 367,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Performance & Speed Tests should handle \"Load\" (Concurrent requests)",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should handle \"Load\" (Concurrent requests)"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 6,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1769683676763,
+        "runtime": 812,
+        "slow": false,
+        "start": 1769683675951
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/integration/households.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "Feature: Household Management",
+            "Details & Settings"
+          ],
+          "duration": 146,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Household Management Details & Settings should update household details",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 4,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should update household details"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Household Management",
+            "Waste Management"
+          ],
+          "duration": 70,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Household Management Waste Management should create a waste collection schedule",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create a waste collection schedule"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Household Management",
+            "Waste Management"
+          ],
+          "duration": 63,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Household Management Waste Management should update the waste schedule",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should update the waste schedule"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Household Management",
+            "Waste Management"
+          ],
+          "duration": 73,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Household Management Waste Management should delete the waste schedule",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should delete the waste schedule"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Household Management",
+            "Household Deletion"
+          ],
+          "duration": 10,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Household Management Household Deletion should delete the entire household",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should delete the entire household"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Household Management",
+            "Household Deletion"
+          ],
+          "duration": 6,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Household Management Household Deletion should fail to access deleted household",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should fail to access deleted household"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 7,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1769683677701,
+        "runtime": 928,
+        "slow": false,
+        "start": 1769683676773
       },
       "skipped": false,
       "snapshot": {
@@ -3426,7 +3168,7 @@
           "ancestorTitles": [
             "🛡️ Role Matrix Completion: Member Constraints"
           ],
-          "duration": 81,
+          "duration": 75,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Role Matrix Completion: Member Constraints should ALLOW MEMBER to create Assets (Write Allowed per Gemini.md)",
@@ -3441,7 +3183,7 @@
           "ancestorTitles": [
             "🛡️ Role Matrix Completion: Member Constraints"
           ],
-          "duration": 282,
+          "duration": 71,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Role Matrix Completion: Member Constraints should ALLOW MEMBER to create Vehicles (Write Allowed per Gemini.md)",
@@ -3456,7 +3198,7 @@
           "ancestorTitles": [
             "🛡️ Role Matrix Completion: Member Constraints"
           ],
-          "duration": 287,
+          "duration": 63,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Role Matrix Completion: Member Constraints should ALLOW MEMBER to create Members (Write Allowed per Gemini.md)",
@@ -3471,7 +3213,7 @@
           "ancestorTitles": [
             "🛡️ Role Matrix Completion: Member Constraints"
           ],
-          "duration": 77,
+          "duration": 65,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Role Matrix Completion: Member Constraints should ALLOW MEMBER to create Energy (Write Allowed per Gemini.md)",
@@ -3486,7 +3228,7 @@
           "ancestorTitles": [
             "🛡️ Role Matrix Completion: Member Constraints"
           ],
-          "duration": 76,
+          "duration": 77,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Role Matrix Completion: Member Constraints should ALLOW MEMBER to create Costs (Write Allowed per Gemini.md)",
@@ -3501,7 +3243,7 @@
           "ancestorTitles": [
             "🛡️ Role Matrix Completion: Member Constraints"
           ],
-          "duration": 77,
+          "duration": 70,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Role Matrix Completion: Member Constraints should ALLOW MEMBER to create Waste (Write Allowed per Gemini.md)",
@@ -3516,7 +3258,7 @@
           "ancestorTitles": [
             "🛡️ Role Matrix Completion: Member Constraints"
           ],
-          "duration": 72,
+          "duration": 62,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Role Matrix Completion: Member Constraints should ALLOW MEMBER to update household details (Write Allowed per Gemini.md)",
@@ -3533,107 +3275,15 @@
     {
       "leaks": false,
       "numFailingTests": 0,
-      "numPassingTests": 4,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1769679424402,
-        "runtime": 1346,
-        "slow": false,
-        "start": 1769679423056
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/integration/calendar.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "Feature: Calendar & Events",
-            "Events"
-          ],
-          "duration": 85,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Calendar & Events Events should create an event",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should create an event"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Calendar & Events",
-            "Events"
-          ],
-          "duration": 141,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Calendar & Events Events should retrieve events",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should retrieve events"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Calendar & Events",
-            "Events"
-          ],
-          "duration": 342,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Calendar & Events Events should update the event",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should update the event"
-        },
-        {
-          "ancestorTitles": [
-            "Feature: Calendar & Events",
-            "Events"
-          ],
-          "duration": 268,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Feature: Calendar & Events Events should delete the event",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should delete the event"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
       "numPassingTests": 5,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1769679425513,
-        "runtime": 1075,
+        "end": 1769683678389,
+        "runtime": 680,
         "slow": false,
-        "start": 1769679424438
+        "start": 1769683677709
       },
       "skipped": false,
       "snapshot": {
@@ -3652,7 +3302,7 @@
             "Feature: Members & Residents",
             "User Management"
           ],
-          "duration": 39,
+          "duration": 51,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Feature: Members & Residents User Management should invite/create a new Member user",
@@ -3668,7 +3318,7 @@
             "Feature: Members & Residents",
             "User Management"
           ],
-          "duration": 8,
+          "duration": 12,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Feature: Members & Residents User Management should update the user",
@@ -3684,7 +3334,7 @@
             "Feature: Members & Residents",
             "Residents (Members List)"
           ],
-          "duration": 98,
+          "duration": 73,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Feature: Members & Residents Residents (Members List) should create a resident (non-login) with split names",
@@ -3700,7 +3350,7 @@
             "Feature: Members & Residents",
             "Residents (Members List)"
           ],
-          "duration": 219,
+          "duration": 119,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Feature: Members & Residents Residents (Members List) should verify auto-created birthday event",
@@ -3716,7 +3366,7 @@
             "Feature: Members & Residents",
             "Residents (Members List)"
           ],
-          "duration": 171,
+          "duration": 67,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Feature: Members & Residents Residents (Members List) should delete the resident",
@@ -3733,15 +3383,15 @@
     {
       "leaks": false,
       "numFailingTests": 0,
-      "numPassingTests": 5,
+      "numPassingTests": 4,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1769679426483,
-        "runtime": 966,
+        "end": 1769683679090,
+        "runtime": 696,
         "slow": false,
-        "start": 1769679425517
+        "start": 1769683678394
       },
       "skipped": false,
       "snapshot": {
@@ -3753,82 +3403,432 @@
         "unmatched": 0,
         "updated": 0
       },
-      "testFilePath": "/home/matt/household-project/server/tests/performance/load.test.js",
+      "testFilePath": "/home/matt/household-project/server/tests/integration/calendar.test.js",
       "testResults": [
         {
           "ancestorTitles": [
-            "Performance & Speed Tests"
+            "Feature: Calendar & Events",
+            "Events"
           ],
-          "duration": 249,
+          "duration": 77,
           "failureDetails": [],
           "failureMessages": [],
-          "fullName": "Performance & Speed Tests should measure login speed (Heavy Bcrypt)",
+          "fullName": "Feature: Calendar & Events Events should create an event",
           "invocations": 1,
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
           "status": "passed",
-          "title": "should measure login speed (Heavy Bcrypt)"
+          "title": "should create an event"
         },
         {
           "ancestorTitles": [
-            "Performance & Speed Tests"
+            "Feature: Calendar & Events",
+            "Events"
           ],
-          "duration": 80,
+          "duration": 93,
           "failureDetails": [],
           "failureMessages": [],
-          "fullName": "Performance & Speed Tests should measure GET assets speed (Plain Read)",
+          "fullName": "Feature: Calendar & Events Events should retrieve events",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should retrieve events"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Calendar & Events",
+            "Events"
+          ],
+          "duration": 72,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Calendar & Events Events should update the event",
           "invocations": 1,
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
           "status": "passed",
-          "title": "should measure GET assets speed (Plain Read)"
+          "title": "should update the event"
         },
         {
           "ancestorTitles": [
-            "Performance & Speed Tests"
+            "Feature: Calendar & Events",
+            "Events"
+          ],
+          "duration": 84,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Calendar & Events Events should delete the event",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should delete the event"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 6,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1769683680188,
+        "runtime": 1092,
+        "slow": false,
+        "start": 1769683679096
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/integration/charges.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "Feature: Recurring Charges"
+          ],
+          "duration": 101,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Recurring Charges should create a monthly charge",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create a monthly charge"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Recurring Charges"
+          ],
+          "duration": 94,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Recurring Charges should create a weekly charge",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create a weekly charge"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Recurring Charges"
+          ],
+          "duration": 89,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Recurring Charges should create a yearly charge",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create a yearly charge"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Recurring Charges"
+          ],
+          "duration": 82,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Recurring Charges should list all charges",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 4,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should list all charges"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Recurring Charges"
+          ],
+          "duration": 172,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Recurring Charges should update a charge",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 3,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should update a charge"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Recurring Charges"
+          ],
+          "duration": 165,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Recurring Charges should delete (archive) a charge",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 3,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should delete (archive) a charge"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 5,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1769683681319,
+        "runtime": 1126,
+        "slow": false,
+        "start": 1769683680193
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/integration/finance_repro.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "Bug Repro: HH18 Budget Loading"
+          ],
+          "duration": 100,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Bug Repro: HH18 Budget Loading should create a bank account",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create a bank account"
+        },
+        {
+          "ancestorTitles": [
+            "Bug Repro: HH18 Budget Loading"
+          ],
+          "duration": 101,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Bug Repro: HH18 Budget Loading should create an income source linked to the bank account",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create an income source linked to the bank account"
+        },
+        {
+          "ancestorTitles": [
+            "Bug Repro: HH18 Budget Loading"
           ],
           "duration": 86,
           "failureDetails": [],
           "failureMessages": [],
-          "fullName": "Performance & Speed Tests should measure GET finance savings speed (Decryption Overhead)",
+          "fullName": "Bug Repro: HH18 Budget Loading should retrieve the income list and verify fields",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 1,
+          "numPassingAsserts": 8,
           "retryReasons": [],
           "status": "passed",
-          "title": "should measure GET finance savings speed (Decryption Overhead)"
+          "title": "should retrieve the income list and verify fields"
         },
         {
           "ancestorTitles": [
-            "Performance & Speed Tests"
+            "Bug Repro: HH18 Budget Loading"
           ],
-          "duration": 34,
+          "duration": 259,
           "failureDetails": [],
           "failureMessages": [],
-          "fullName": "Performance & Speed Tests should measure POST asset speed (Plain Write)",
+          "fullName": "Bug Repro: HH18 Budget Loading should retrieve savings pots without error (Repro 500)",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 1,
+          "numPassingAsserts": 3,
           "retryReasons": [],
           "status": "passed",
-          "title": "should measure POST asset speed (Plain Write)"
+          "title": "should retrieve savings pots without error (Repro 500)"
         },
         {
           "ancestorTitles": [
-            "Performance & Speed Tests"
+            "Bug Repro: HH18 Budget Loading"
           ],
-          "duration": 286,
+          "duration": 188,
           "failureDetails": [],
           "failureMessages": [],
-          "fullName": "Performance & Speed Tests should handle \"Load\" (Concurrent requests)",
+          "fullName": "Bug Repro: HH18 Budget Loading should handle payment_day as string \"25\" and convert or store correctly",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should handle payment_day as string \"25\" and convert or store correctly"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 7,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1769683682448,
+        "runtime": 1123,
+        "slow": false,
+        "start": 1769683681325
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/integration/assets.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "Feature: Physical Assets & Vehicles",
+            "General Assets"
+          ],
+          "duration": 114,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Physical Assets & Vehicles General Assets should create an asset",
           "invocations": 1,
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
           "status": "passed",
-          "title": "should handle \"Load\" (Concurrent requests)"
+          "title": "should create an asset"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Physical Assets & Vehicles",
+            "General Assets"
+          ],
+          "duration": 101,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Physical Assets & Vehicles General Assets should update the asset",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should update the asset"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Physical Assets & Vehicles",
+            "General Assets"
+          ],
+          "duration": 94,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Physical Assets & Vehicles General Assets should delete the asset",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should delete the asset"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Physical Assets & Vehicles",
+            "Vehicles"
+          ],
+          "duration": 105,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Physical Assets & Vehicles Vehicles should create a vehicle",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should create a vehicle"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Physical Assets & Vehicles",
+            "Vehicles"
+          ],
+          "duration": 100,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Physical Assets & Vehicles Vehicles should add a service record",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should add a service record"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Physical Assets & Vehicles",
+            "Vehicles"
+          ],
+          "duration": 101,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Physical Assets & Vehicles Vehicles should add finance info",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should add finance info"
+        },
+        {
+          "ancestorTitles": [
+            "Feature: Physical Assets & Vehicles",
+            "Vehicles"
+          ],
+          "duration": 102,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Feature: Physical Assets & Vehicles Vehicles should delete the vehicle",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should delete the vehicle"
         }
       ],
       "failureMessage": null
@@ -3841,10 +3841,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1769679427167,
-        "runtime": 675,
+        "end": 1769683683000,
+        "runtime": 544,
         "slow": false,
-        "start": 1769679426492
+        "start": 1769683682456
       },
       "skipped": false,
       "snapshot": {
@@ -3877,7 +3877,7 @@
           "ancestorTitles": [
             "Viewer Role Restrictions"
           ],
-          "duration": 11,
+          "duration": 8,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Viewer Role Restrictions should block VIEWER from creating Asset",
@@ -3922,7 +3922,7 @@
           "ancestorTitles": [
             "Viewer Role Restrictions"
           ],
-          "duration": 14,
+          "duration": 11,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Viewer Role Restrictions should block VIEWER from creating Charge",
@@ -3937,7 +3937,7 @@
           "ancestorTitles": [
             "Viewer Role Restrictions"
           ],
-          "duration": 9,
+          "duration": 13,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Viewer Role Restrictions should block VIEWER from creating Income",
@@ -3952,7 +3952,7 @@
           "ancestorTitles": [
             "Viewer Role Restrictions"
           ],
-          "duration": 7,
+          "duration": 9,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Viewer Role Restrictions should block VIEWER from creating Waste",
@@ -3967,7 +3967,7 @@
           "ancestorTitles": [
             "Viewer Role Restrictions"
           ],
-          "duration": 13,
+          "duration": 9,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Viewer Role Restrictions should block VIEWER from updating household details",
@@ -3989,10 +3989,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1769679427839,
-        "runtime": 668,
+        "end": 1769683683517,
+        "runtime": 513,
         "slow": false,
-        "start": 1769679427171
+        "start": 1769683683004
       },
       "skipped": false,
       "snapshot": {
@@ -4011,7 +4011,7 @@
             "Feature: Admin User Management",
             "User Management"
           ],
-          "duration": 118,
+          "duration": 42,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Feature: Admin User Management User Management should create a new member",
@@ -4027,7 +4027,7 @@
             "Feature: Admin User Management",
             "User Management"
           ],
-          "duration": 17,
+          "duration": 15,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Feature: Admin User Management User Management should list users",
@@ -4043,7 +4043,7 @@
             "Feature: Admin User Management",
             "User Management"
           ],
-          "duration": 9,
+          "duration": 11,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Feature: Admin User Management User Management should update user",
@@ -4059,7 +4059,7 @@
             "Feature: Admin User Management",
             "User Management"
           ],
-          "duration": 10,
+          "duration": 12,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Feature: Admin User Management User Management should remove user from household",
@@ -4081,10 +4081,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1769679428399,
-        "runtime": 555,
+        "end": 1769683683946,
+        "runtime": 424,
         "slow": false,
-        "start": 1769679427844
+        "start": 1769683683522
       },
       "skipped": false,
       "snapshot": {
@@ -4102,7 +4102,7 @@
           "ancestorTitles": [
             "Feature: Authentication & Profile"
           ],
-          "duration": 172,
+          "duration": 177,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Feature: Authentication & Profile should register a new household",
@@ -4117,7 +4117,7 @@
           "ancestorTitles": [
             "Feature: Authentication & Profile"
           ],
-          "duration": 202,
+          "duration": 51,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Feature: Authentication & Profile should login and receive a token",
@@ -4132,7 +4132,7 @@
           "ancestorTitles": [
             "Feature: Authentication & Profile"
           ],
-          "duration": 11,
+          "duration": 12,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Feature: Authentication & Profile should retrieve the user profile",
@@ -4154,10 +4154,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1769679428954,
-        "runtime": 551,
+        "end": 1769683684392,
+        "runtime": 441,
         "slow": false,
-        "start": 1769679428403
+        "start": 1769683683951
       },
       "skipped": false,
       "snapshot": {
@@ -4175,7 +4175,7 @@
           "ancestorTitles": [
             "Household Selector API"
           ],
-          "duration": 13,
+          "duration": 14,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Household Selector API should return a list of households for the current user",
@@ -4197,10 +4197,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1769679429074,
-        "runtime": 116,
+        "end": 1769683684449,
+        "runtime": 52,
         "slow": false,
-        "start": 1769679428958
+        "start": 1769683684397
       },
       "skipped": false,
       "snapshot": {
@@ -4218,7 +4218,7 @@
           "ancestorTitles": [
             "Frontend Build Smoke Test"
           ],
-          "duration": 30,
+          "duration": 1,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Frontend Build Smoke Test index.html should exist after build",
@@ -4233,7 +4233,7 @@
           "ancestorTitles": [
             "Frontend Build Smoke Test"
           ],
-          "duration": 39,
+          "duration": 1,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Frontend Build Smoke Test index.html should contain root div",
@@ -4248,7 +4248,7 @@
           "ancestorTitles": [
             "Frontend Build Smoke Test"
           ],
-          "duration": 0,
+          "duration": 1,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Frontend Build Smoke Test JS bundle should be referenced",

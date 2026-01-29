@@ -38,15 +38,21 @@ export default function HouseholdLayout({
   themeId,
   onThemeChange,
   installPrompt,
-  onInstall
+  onInstall,
+  household
 }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const [vehicles, setVehicles] = useState([]);
-  const [activeHousehold, setActiveHousehold] = useState(null);
+  const [activeHousehold, setActiveHousehold] = useState(household);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState('main');
+
+  // Sync local active household with prop from App
+  useEffect(() => {
+    if (household) setActiveHousehold(household);
+  }, [household]);
   
   // New: Global Status Bar State
   const [statusBarData, setStatusBarData] = useState(null);
@@ -64,16 +70,25 @@ export default function HouseholdLayout({
     const targetHousehold = (households || []).find(h => h && h.id === parseInt(id));
     
     if (targetHousehold) {
-      const switchHh = async () => {
-          await onSelectHousehold(targetHousehold);
-          setActiveHousehold(targetHousehold);
-          fetchVehicles();
-      };
-      switchHh();
+      // Guard: Only switch if the App's current household doesn't match the URL
+      if (!household || household.id !== targetHousehold.id) {
+          const switchHh = async () => {
+              await onSelectHousehold(targetHousehold);
+              setActiveHousehold(targetHousehold);
+              fetchVehicles();
+          };
+          switchHh();
+      } else {
+          // If already matched, ensure local state is synced and vehicles are loaded
+          if (!activeHousehold || activeHousehold.id !== targetHousehold.id) {
+            setActiveHousehold(targetHousehold);
+          }
+          if (vehicles.length === 0) fetchVehicles();
+      }
     } else if (households && households.length > 0) {
       navigate('/');
     }
-  }, [id, households, onSelectHousehold, navigate, fetchVehicles]);
+  }, [id, households, onSelectHousehold, navigate, fetchVehicles, household, activeHousehold, vehicles.length]);
 
   const isTabActive = (path) => location.pathname.includes(path);
 

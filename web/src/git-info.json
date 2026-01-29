@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Implement fail-fast logic in Nightly Suite: Stage 2 runs only if Stage 1 passes",
-  "date": "Thu 29 Jan 09:38:27 GMT 2026"
+  "commitMessage": "Fix infinite refresh loop on Budget page by adding household context guard in HouseholdLayout",
+  "date": "Thu 29 Jan 10:48:52 GMT 2026"
 }

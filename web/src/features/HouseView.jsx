@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useOutletContext, useNavigate } from 'react-router-dom';
+import { useOutletContext, useNavigate, useParams } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, CircularProgress, Divider, Grid, Input, Button, Tooltip, IconButton, FormControl, FormLabel, Badge
 } from '@mui/joy';
 import { 
-  HomeWork, Payments, Save, ArrowBack, Inventory
+  HomeWork, Payments, Save, ArrowBack, Inventory, DirectionsCar
 } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
 import EntityGrid from '../components/ui/EntityGrid';
@@ -18,10 +18,11 @@ export default function HouseView() {
   const { api, id: householdId, onUpdateHousehold, user: currentUser, showNotification, confirmAction } = useOutletContext();
   const household_data = useOutletContext().household;
   const isAdmin = currentUser?.role === 'admin';
-  const { houseId, assetId } = useParams();
+  const { assetId } = useParams();
   const navigate = useNavigate();
 
-  const [viewMode, setViewMode] = useState('details'); 
+  // If no houseId is provided, we are in 'selector' mode (Landing Page)
+  const [viewMode, setViewMode] = useState(assetId ? 'details' : 'selector'); 
   const [activeTab, setActiveTab] = useState(assetId ? 3 : 0);
   const [household, setHousehold] = useState(null);
   const [vehicles, setVehicles] = useState([]);
