@@ -61,7 +61,6 @@ const allRouters = [
     { path: '/auth', router: authRoutes },
     { path: '/admin', router: adminRoutes },
     { path: '/households/:id/finance', router: financeRoutes },
-    { path: '/households/:id/finance/charges', router: chargeRoutes },
     { path: '/', router: householdRoutes },
     { path: '/', router: memberRoutes },
     { path: '/', router: calendarRoutes },

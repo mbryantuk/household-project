@@ -1,0 +1,189 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - main [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e8]:
+        - generic [ref=e9]:
+          - generic [ref=e11] [cursor=pointer]: 🏠
+          - list [ref=e12]:
+            - listitem [ref=e13]:
+              - button [ref=e14] [cursor=pointer]:
+                - img [ref=e16]
+                - generic [ref=e18]: Calendar
+          - separator [ref=e19]
+        - list [ref=e22]:
+          - listitem [ref=e23]:
+            - button [ref=e24] [cursor=pointer]:
+              - img [ref=e26]
+              - generic [ref=e29]: Household
+          - listitem [ref=e30]:
+            - button [ref=e31] [cursor=pointer]:
+              - img [ref=e33]
+              - generic [ref=e35]: Finance
+          - listitem [ref=e36]:
+            - button [ref=e37] [cursor=pointer]:
+              - img [ref=e39]
+              - generic [ref=e41]: Meals
+      - generic [ref=e43]:
+        - main [ref=e44]:
+          - generic [ref=e45]:
+            - generic [ref=e46]:
+              - button [ref=e47] [cursor=pointer]:
+                - img [ref=e48]
+              - paragraph [ref=e50]: Back to Overview
+            - generic [ref=e52]:
+              - generic [ref=e53]:
+                - heading [level=2] [ref=e54]: Car Finance
+                - paragraph [ref=e55]: Track loans and leases for your fleet.
+              - button [ref=e56] [cursor=pointer]:
+                - img [ref=e58]
+                - text: Add Agreement
+        - generic [ref=e61]:
+          - generic [ref=e63]:
+            - button [ref=e65] [cursor=pointer]:
+              - img [ref=e66]
+              - generic [ref=e68]: Notes
+            - button [ref=e70] [cursor=pointer]:
+              - img [ref=e71]
+              - generic [ref=e73]: Calc
+            - button [ref=e75] [cursor=pointer]:
+              - img [ref=e76]
+              - generic [ref=e78]: Finance
+            - button [ref=e80] [cursor=pointer]:
+              - img [ref=e81]
+              - generic [ref=e83]: Tax
+            - button [ref=e85] [cursor=pointer]:
+              - img [ref=e86]
+              - generic [ref=e88]: Savings
+            - button [ref=e90] [cursor=pointer]:
+              - img [ref=e91]
+              - generic [ref=e93]: Investments
+            - button [ref=e95] [cursor=pointer]:
+              - img [ref=e96]
+              - generic [ref=e98]: Pensions
+            - button [ref=e100] [cursor=pointer]:
+              - img [ref=e101]
+              - generic [ref=e103]: Calendar
+          - generic [ref=e104]:
+            - generic [ref=e105]:
+              - img [ref=e106]
+              - generic [ref=e108]: Online
+            - button [ref=e109] [cursor=pointer]:
+              - img [ref=e110]
+            - button [ref=e113] [cursor=pointer]:
+              - generic [ref=e114]: M
+  - dialog "Add Car Finance" [ref=e116]:
+    - heading "Add Car Finance" [level=2] [ref=e117]
+    - generic [ref=e119]:
+      - generic [ref=e120]:
+        - generic [ref=e121]:
+          - generic [ref=e122]:
+            - text: Vehicle
+            - generic [ref=e123]: "*"
+          - generic [ref=e125] [cursor=pointer]:
+            - combobox [ref=e126]: 🚗 Plymouth Satellite Wagon (BRADY 1)
+            - img [ref=e128]
+            - textbox [ref=e130]: "1"
+        - generic [ref=e131]:
+          - generic [ref=e132]:
+            - text: Provider
+            - generic [ref=e133]: "*"
+          - textbox "Provider" [ref=e135]:
+            - /placeholder: e.g. VW Finance
+            - text: Plymouth Finance
+        - generic [ref=e136]:
+          - generic [ref=e137]: Account Number
+          - textbox "Account Number" [ref=e139]
+        - generic [ref=e140]:
+          - generic [ref=e142]:
+            - generic [ref=e143]:
+              - text: Total Amount (£)
+              - generic [ref=e144]: "*"
+            - spinbutton "Total Amount (£)" [ref=e146]: "25000"
+          - generic [ref=e148]:
+            - generic [ref=e149]:
+              - text: Remaining Balance (£)
+              - generic [ref=e150]: "*"
+            - spinbutton "Remaining Balance (£)" [ref=e152]: "12000"
+          - generic [ref=e154]:
+            - generic [ref=e155]: Interest Rate (%)
+            - spinbutton "Interest Rate (%)" [ref=e157]
+          - generic [ref=e159]:
+            - generic [ref=e160]: Monthly Payment (£)
+            - spinbutton "Monthly Payment (£)" [ref=e162]: "450"
+          - generic [ref=e164]:
+            - generic [ref=e165]: Start Date
+            - textbox "Start Date" [ref=e167]
+          - generic [ref=e169]:
+            - generic [ref=e170]: End Date
+            - textbox "End Date" [ref=e172]
+          - generic [ref=e174]:
+            - generic [ref=e175]:
+              - text: Payment Day
+              - generic [ref=e176]: "*"
+            - spinbutton "Payment Day" [ref=e178]: "15"
+          - generic [ref=e180]:
+            - generic [ref=e181]:
+              - checkbox "Nearest Working Day (Next)" [checked] [ref=e183] [cursor=pointer]
+              - img [ref=e184]
+            - generic [ref=e186]: Nearest Working Day (Next)
+        - generic [ref=e187]:
+          - generic [ref=e188]: Emoji
+          - generic [ref=e189]:
+            - button "🚗" [ref=e190] [cursor=pointer]:
+              - generic [ref=e191]: 🚗
+            - generic [ref=e192]: Click icon to change
+        - generic [ref=e193]:
+          - generic [ref=e194]: Assign Members
+          - generic [ref=e195]:
+            - generic [ref=e196]:
+              - button "Mike Brady" [ref=e197] [cursor=pointer]
+              - generic: Mike Brady
+              - generic:
+                - generic: 👨
+            - generic [ref=e198]:
+              - button "Carol Brady" [ref=e199] [cursor=pointer]
+              - generic: Carol Brady
+              - generic:
+                - generic: 👨
+            - generic [ref=e200]:
+              - button "Alice Brady" [ref=e201] [cursor=pointer]
+              - generic: Alice Brady
+              - generic:
+                - generic: 👨
+            - generic [ref=e202]:
+              - button "Greg Brady" [ref=e203] [cursor=pointer]
+              - generic: Greg Brady
+              - generic:
+                - generic: 👶
+            - generic [ref=e204]:
+              - button "Marcia Brady" [ref=e205] [cursor=pointer]
+              - generic: Marcia Brady
+              - generic:
+                - generic: 👶
+            - generic [ref=e206]:
+              - button "Peter Brady" [ref=e207] [cursor=pointer]
+              - generic: Peter Brady
+              - generic:
+                - generic: 👶
+            - generic [ref=e208]:
+              - button "Jan Brady" [ref=e209] [cursor=pointer]
+              - generic: Jan Brady
+              - generic:
+                - generic: 👶
+            - generic [ref=e210]:
+              - button "Bobby Brady" [ref=e211] [cursor=pointer]
+              - generic: Bobby Brady
+              - generic:
+                - generic: 👶
+            - generic [ref=e212]:
+              - button "Cindy Brady" [ref=e213] [cursor=pointer]
+              - generic: Cindy Brady
+              - generic:
+                - generic: 👶
+      - generic [ref=e215]:
+        - button "Cancel" [ref=e216] [cursor=pointer]
+        - button "Save" [active] [ref=e217] [cursor=pointer]
+```
