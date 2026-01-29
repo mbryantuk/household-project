@@ -9,7 +9,7 @@ test.describe('Breadth-First Routing Smoke Test', () => {
   test('Module Availability Check', async ({ page }) => {
     test.setTimeout(120000);
 
-    // 1. Force test mode for registration
+    // 1. Register
     await page.route('**/api/auth/register', async route => {
         const request = route.request();
         const postData = request.postDataJSON();
@@ -26,27 +26,30 @@ test.describe('Breadth-First Routing Smoke Test', () => {
     await page.fill('input[name="confirmPassword"]', password);
     await page.click('button[type="submit"]');
     
-    await page.waitForURL(/.*login/);
+    await page.waitForURL(/.*login/, { timeout: 30000 });
     await page.fill('input[type="email"]', email);
     await page.fill('input[type="password"]', password);
     await page.click('button[type="submit"]');
-    await page.waitForURL(/.*dashboard/);
+    await page.waitForURL(/.*dashboard/, { timeout: 30000 });
 
     const url = page.url();
     let hhId = url.split('/household/')[1].split('/')[0];
 
-    console.log('Checking basic availability...');
-    
-    // Check Dashboard
-    await expect(page.locator('body')).toContainText('today', { timeout: 15000 });
-    
-    // Check Calendar
-    await page.goto(`/household/${hhId}/calendar`);
-    await expect(page.locator('body')).toContainText('Calendar', { timeout: 15000 });
-    
-    // Check Settings
-    await page.goto(`/household/${hhId}/settings`);
-    await expect(page.locator('body')).toContainText('Settings', { timeout: 15000 });
+    const checks = [
+        { path: 'dashboard', text: 'today' },
+        { path: 'calendar', text: 'Calendar' },
+        { path: 'people', text: 'People' },
+        { path: 'house', text: 'Asset' },
+        { path: 'finance', text: 'Budget' },
+        { path: 'settings', text: 'Settings' }
+    ];
+
+    for (const check of checks) {
+        console.log(`Checking: ${check.path}`);
+        await page.goto(`/household/${hhId}/${check.path}`);
+        // Use a broader text search on the body to be more resilient to UI tweaks
+        await expect(page.locator('body')).toContainText(check.text, { timeout: 15000 });
+    }
     
     console.log('✅ Basic routing verification passed.');
   });

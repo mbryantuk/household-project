@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Split frontend tests into Stage 1 (Routing) and Stage 2 (Comprehensive) for faster failure detection",
-  "date": "Thu 29 Jan 09:25:23 GMT 2026"
+  "commitMessage": "Refactor Nightly Suite to report two-stage frontend results independently",
+  "date": "Thu 29 Jan 09:32:02 GMT 2026"
 }
