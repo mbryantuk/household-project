@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('System Smoke & Comprehensive Test', () => {
+test.describe('Basic System Flow Test', () => {
   const uniqueId = Date.now();
   const email = `smoke_${uniqueId}@test.com`;
   const password = 'Password123!';
   const householdName = `Mega House ${uniqueId}`;
 
-  test('Full System Lifecycle and Route Accessibility', async ({ page }) => {
+  test('Basic End-to-End Flow and Route Check', async ({ page }) => {
     test.setTimeout(480000); // 8 minutes for deep coverage
 
     page.on('console', msg => console.log('BROWSER LOG:', msg.text()));

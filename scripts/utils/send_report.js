@@ -72,7 +72,7 @@ async function sendReport() {
     };
 
     const routingResults = parsePlaywrightJson(routingResultPath, "Frontend Stage 1 (Routing)");
-    const lifecycleResults = parsePlaywrightJson(jsonResultPath, "Frontend Stage 2 (Lifecycle)");
+    const lifecycleResults = parsePlaywrightJson(jsonResultPath, "Frontend Stage 2 (Basic Flow)");
     const frontendPassed = routingResults.passed && lifecycleResults.passed;
 
     // Parse Backend JSON Results

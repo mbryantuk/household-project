@@ -104,15 +104,15 @@ else
             cd "$PROJECT_ROOT"
             node scripts/ops/record_test_results.js frontend_routing "success" || true
 
-            # STAGE 2: COMPREHENSIVE (Only runs if Stage 1 passed)
+            # STAGE 2: BASIC FLOW (Only runs if Stage 1 passed)
             cd "$PROJECT_ROOT/web"
-            echo "   📍 Stage 2: Comprehensive Lifecycle Suite..."
+            echo "   📍 Stage 2: Basic System Flow Suite..."
             if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results.json npx --yes playwright test tests/smoke.spec.js --reporter=list,json > playwright-tests.log 2>&1; then
-                echo "   🟢 Stage 2 (Lifecycle): SUCCESS"
+                echo "   🟢 Stage 2 (Basic Flow): SUCCESS"
                 cd "$PROJECT_ROOT"
                 node scripts/ops/record_test_results.js frontend_lifecycle "success" || true
             else
-                echo "   🔴 Stage 2 (Lifecycle): FAILED"
+                echo "   🔴 Stage 2 (Basic Flow): FAILED"
                 cd "$PROJECT_ROOT"
                 node scripts/ops/record_test_results.js frontend_lifecycle "failure" || true
             fi

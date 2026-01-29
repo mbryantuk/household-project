@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Optimize cleanup script to remove redundant test household links from maintained user",
-  "date": "Thu 29 Jan 13:03:41 GMT 2026"
+  "commitMessage": "Rename 'Comprehensive' test labels to 'Basic' to align with test scope",
+  "date": "Thu 29 Jan 13:08:54 GMT 2026"
 }
