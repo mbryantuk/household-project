@@ -45,19 +45,19 @@ export default function FinanceView() {
   }, []);
 
   const viewMap = useMemo(() => ({
-    budget: { label: 'Budget', icon: PieChart, desc: 'Analyze your financial health and spending limits.' },
-    income: { label: 'Income', icon: Payments, desc: 'Manage salary, contracting, and other income streams.' },
-    banking: { label: 'Banking', icon: AccountBalance, desc: 'Track balances, overdrafts, and account holders.' },
-    savings: { label: 'Savings', icon: Savings, desc: 'Monitor savings goals and rainy day funds.' },
+    budget: { label: 'Monthly Budget', icon: PieChart, desc: 'Analyze your financial health and spending limits.' },
+    income: { label: 'Income Sources', icon: Payments, desc: 'Manage salary, contracting, and other income streams.' },
+    banking: { label: 'Current Accounts', icon: AccountBalance, desc: 'Track balances, overdrafts, and account holders.' },
+    savings: { label: 'Savings & Pots', icon: Savings, desc: 'Monitor savings goals and rainy day funds.' },
     invest: { label: 'Investments', icon: TrendingUp, desc: 'Monitor stocks, bonds, and crypto assets.' },
     pensions: { label: 'Pensions', icon: HourglassBottom, desc: 'Plan for your future retirement.' },
     credit: { label: 'Credit Cards', icon: CreditCard, desc: 'Track credit utilization and repayments.' },
-    loans: { label: 'Loans', icon: RequestQuote, desc: 'Manage unsecured debts and repayment schedules.' },
-    mortgage: { label: 'Mortgage', icon: Home, desc: 'Track property loans and home equity.' },
+    loans: { label: 'Personal Loans', icon: RequestQuote, desc: 'Manage unsecured debts and repayment schedules.' },
+    mortgage: { label: 'Mortgage & Equity', icon: Home, desc: 'Track property loans and home equity.' },
     car: { label: 'Car Finance', icon: DirectionsCar, desc: 'Track loans and leases for your fleet.' }
   }), []);
 
-  const activeTabKey = tabParam || (isMobile ? null : 'budget');
+  const activeTabKey = tabParam; // No default on any device to show landing page
   const activeView = activeTabKey ? viewMap[activeTabKey] : null;
 
   const renderContent = () => {
@@ -71,41 +71,43 @@ export default function FinanceView() {
       if (activeTabKey === 'loans') return <LoansView />;
       if (activeTabKey === 'mortgage') return <MortgagesView />;
       if (activeTabKey === 'car') return <VehicleFinanceView />;
-      
-      if (!activeView) return null;
-      
-      // Placeholder view for tabs without components yet
-      return (
-        <Box>
-            <Box sx={{ mb: 4 }}>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>{activeView?.label || 'Finance'}</Typography>
-                <Typography level="body-md" color="neutral">{activeView?.desc || 'Manage your finances.'}</Typography>
-            </Box>
-            <Sheet variant="outlined" sx={{ borderRadius: 'md', p: 2, minHeight: '500px', bgcolor: 'background.surface' }}>
-                <ComingSoonPlaceholder title={activeView?.label || 'Finance'} icon={activeView?.icon || Payments} />
-            </Sheet>
-        </Box>
-      );
+      return null;
   };
 
-  // 1. Selector view for Mobile (List of Cards)
-  if (isMobile && !activeTabKey) {
+  // Selector view (LANDING PAGE) for all devices when no tab is selected
+  if (!activeTabKey) {
     return (
       <Box>
-        <Box sx={{ mb: 3 }}>
-          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Finance</Typography>
-          <Typography level="body-md" color="neutral">Manage your household wealth.</Typography>
+        <Box sx={{ mb: 4 }}>
+          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Financial Matrix</Typography>
+          <Typography level="body-md" color="neutral">Select a domain to manage your household wealth and liabilities.</Typography>
         </Box>
-        <Grid container spacing={2}>
+        <Grid container spacing={3}>
           {Object.entries(viewMap).map(([key, config]) => (
-            <Grid xs={12} key={key}>
-              <Card variant="outlined" onClick={() => navigate(`?tab=${key}`)} sx={{ flexDirection: 'row', gap: 2, alignItems: 'center', cursor: 'pointer', '&:active': { bgcolor: 'background.level1' } }}>
-                <Avatar size="lg" sx={{ bgcolor: getEmojiColor(config.label ? config.label[0] : '?', isDark) }}><config.icon /></Avatar>
-                <Box sx={{ flexGrow: 1 }}>
-                  <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{config.label}</Typography>
-                  <Typography level="body-xs" sx={{ display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{config.desc}</Typography>
+            <Grid xs={12} sm={6} md={4} lg={3} key={key}>
+              <Card 
+                variant="outlined" 
+                onClick={() => navigate(`?tab=${key}`)} 
+                sx={{ 
+                    p: 3, gap: 2, alignItems: 'center', cursor: 'pointer', 
+                    transition: 'all 0.2s',
+                    '&:hover': { bgcolor: 'background.level1', transform: 'translateY(-4px)', boxShadow: 'md' },
+                    '&:active': { transform: 'translateY(0)' }
+                }}
+              >
+                <Avatar 
+                    size="lg" 
+                    sx={{ 
+                        bgcolor: getEmojiColor(config.label ? config.label[0] : '?', isDark),
+                        '--Avatar-size': '64px'
+                    }}
+                >
+                    <config.icon sx={{ fontSize: '2rem' }} />
+                </Avatar>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography level="title-lg" sx={{ fontWeight: 'lg' }}>{config.label}</Typography>
+                  <Typography level="body-xs" sx={{ mt: 1, opacity: 0.7 }}>{config.desc}</Typography>
                 </Box>
-                <ChevronRight sx={{ color: 'neutral.400' }} />
               </Card>
             </Grid>
           ))}
@@ -114,25 +116,16 @@ export default function FinanceView() {
     );
   }
 
-  // 2. Tab Content view for Mobile (with Back button)
-  if (isMobile && activeTabKey) {
-    return (
-      <Box sx={{ width: '100%' }}>
-        <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <IconButton variant="plain" onClick={() => navigate('.')}>
-            <ArrowBack />
-          </IconButton>
-          {/* Note: Title is removed here to prevent double-header with child views */}
-        </Box>
-        {renderContent()}
-      </Box>
-    );
-  }
-
-  // 3. Desktop View (Child views handle their own headers)
+  // Active Tab view
   return (
     <Box sx={{ width: '100%' }}>
-      {renderContent()}
+        <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+          <IconButton variant="outlined" color="neutral" onClick={() => navigate('.')}>
+            <ArrowBack />
+          </IconButton>
+          <Typography level="title-lg" sx={{ ml: 1 }}>Back to Overview</Typography>
+        </Box>
+        {renderContent()}
     </Box>
   );
 }
