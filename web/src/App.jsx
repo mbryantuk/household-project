@@ -333,7 +333,7 @@ function AppInner({ themeId, setThemeId }) {
                 <Route path="pets/:petId" element={<PetsView />} /><Route path="pets" element={<PetsView />} />
                 <Route path="house/:houseId/assets/:assetId" element={<HouseView />} />
                 <Route path="house/:houseId" element={<HouseView />} />
-                <Route path="house" element={<Navigate to={household ? `${household.id}` : '1'} replace />} />
+                <Route path="house" element={<HouseView />} />
                 <Route path="vehicles/:vehicleId" element={<VehiclesView />} /><Route path="vehicles" element={<VehiclesView />} />
                 <Route path="profile" element={<ProfileView />} />
                 <Route path="meals" element={<MealPlannerView />} />
