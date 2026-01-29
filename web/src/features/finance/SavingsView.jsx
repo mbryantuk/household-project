@@ -342,7 +342,15 @@ export default function SavingsView() {
                             <FormControl><FormLabel>Emoji</FormLabel><Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}><Button variant="outlined" color="neutral" onClick={() => setEmojiPicker({ open: true, type: 'account' })} sx={{ minWidth: 48, px: 0 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(selectedEmoji, isDark) }}>{selectedEmoji}</Avatar></Button><input type="hidden" name="emoji" value={selectedEmoji || ''} /><Typography level="body-xs" color="neutral">Click icon to change</Typography></Box></FormControl>
                             <FormControl><FormLabel>Assign Owners</FormLabel><Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>{members.filter(m => m.type !== 'pet').map(m => { const isSelected = selectedMembers.includes(m.id); return <Chip key={m.id} variant={isSelected ? 'solid' : 'outlined'} color={isSelected ? 'primary' : 'neutral'} onClick={() => setSelectedMembers(prev => prev.includes(m.id) ? prev.filter(id => id !== m.id) : [...prev, m.id])} startDecorator={<Avatar size="sm">{m.emoji}</Avatar>}>{m.name}</Chip> })}</Box></FormControl>
                         </Stack>
-                        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>{!isNewAccount && (<Button color="danger" variant="soft" onClick={() => { handleAccountDelete(selectedAccount.id); }}>Delete</Button>)}<Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}><Button variant="plain" color="neutral" onClick={() => setAccountId(null)}>Cancel</Button><Button type="submit" color="primary">Save Account</Button></Box></Box>
+                        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            {selectedAccountId !== 'new' && (
+                                <Button color="danger" variant="soft" onClick={() => { handleAccountDelete(selectedAccount.id); }}>Delete</Button>
+                            )}
+                            <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
+                                <Button variant="plain" color="neutral" onClick={() => setAccountId(null)}>Cancel</Button>
+                                <Button type="submit" color="primary">Save Account</Button>
+                            </Box>
+                        </Box>
                     </form>
                 </DialogContent>
             </ModalDialog>
