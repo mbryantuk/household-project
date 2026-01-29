@@ -92,20 +92,44 @@ test.describe('System Smoke & Comprehensive Test', () => {
     // ==========================================
     console.log('Step 5: Finance Matrix Verification');
     await page.goto(`/household/${hhId}/finance`);
+    console.log('   - Waiting for Financial Matrix header');
     await expect(page.locator('h2:has-text("Financial Matrix")')).toBeVisible();
 
-    const financeTabs = [
-        { name: 'Monthly Budget', text: 'Budget' },
-        { name: 'Income Sources', text: 'Income' },
-        { name: 'Current Accounts', text: 'Banking' }
-    ];
+    // 5.1 Add Bank Account (Required for Income)
+    console.log('   - Adding Bank Account');
+    await page.click('text=Current Accounts');
+    await page.click('button:has-text("Add Account")');
+    await page.fill('input[name="bank_name"]', 'HSBC');
+    await page.fill('input[name="account_name"]', 'Joint Checking');
+    await page.click('button:has-text("Save Account")');
+    console.log('   - Waiting for Joint Checking to appear');
+    await expect(page.locator('text=Joint Checking')).toBeVisible();
 
-    for (const tab of financeTabs) {
-        console.log(`Checking Finance Tab: ${tab.name}`);
-        await page.click(`text=${tab.name}`);
-        await expect(page.locator('body')).toContainText(tab.text, { timeout: 10000 });
-        await page.goto(`/household/${hhId}/finance`); // Back to matrix
-    }
+    // 5.2 Add Primary Income (Required for Budget)
+    console.log('   - Adding Primary Income');
+    await page.goto(`/household/${hhId}/finance`);
+    await page.click('text=Income Sources');
+    await page.click('button:has-text("Add Income")');
+    await page.fill('input[name="employer"]', 'Tech Corp');
+    await page.fill('input[name="amount"]', '3500');
+    await page.fill('input[name="payment_day"]', '25');
+    console.log('   - Selecting John Doe');
+    await page.click('label:has-text("Assigned Person") + div button');
+    await page.click('li[role="option"]:has-text("John")');
+    await page.check('input[name="is_primary"]');
+    console.log('   - Saving Income');
+    await page.click('button:has-text("Save Income")');
+    console.log('   - Waiting for Tech Corp to appear');
+    await expect(page.locator('text=Tech Corp').first()).toBeVisible();
+
+    // 5.3 Verify Monthly Budget
+    console.log('   - Verifying Monthly Budget');
+    await page.goto(`/household/${hhId}/finance`);
+    await page.click('text=Monthly Budget');
+    console.log('   - Waiting for Budget header');
+    await expect(page.locator('h2:has-text("Budget")')).toBeVisible();
+    console.log('   - Waiting for Safe to Spend');
+    await expect(page.locator('text=Safe to Spend')).toBeVisible();
 
     console.log('Step 6: Final System Verification Summary');
     console.log('   ✅ All Primary Routes Accessible');

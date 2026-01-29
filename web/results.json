@@ -65,12 +65,12 @@
         {
           "title": "System Smoke & Comprehensive Test",
           "file": "smoke.spec.js",
-          "line": 4,
+          "line": 3,
           "column": 6,
           "specs": [
             {
-              "title": "Full System Lifecycle: Family, Fleet, Financial Matrix, and Meal Planning",
-              "ok": false,
+              "title": "Full System Lifecycle and Route Accessibility",
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -83,28 +83,12 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 480263,
-                      "error": {
-                        "message": "\u001b[31mTest timeout of 480000ms exceeded.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 480000ms exceeded.\u001b[39m"
-                      },
-                      "errors": [
-                        {
-                          "message": "\u001b[31mTest timeout of 480000ms exceeded.\u001b[39m"
-                        },
-                        {
-                          "location": {
-                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 20,
-                            "line": 58
-                          },
-                          "message": "Error: page.click: Test timeout of 480000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('nav a:has-text(\"People\")')\u001b[22m\n\n\n  56 |     for (const m of family) {\n  57 |         console.log(`   - Adding Member: ${m.first} ${m.last}`);\n> 58 |         await page.click('nav a:has-text(\"People\")');\n     |                    ^\n  59 |         await expect(page.locator('h2:has-text(\"People & Residents\")')).toBeVisible({ timeout: 20000 });\n  60 |\n  61 |         // Click the appropriate \"Add\" button in the EntityGrid\n    at /home/matt/household-project/web/tests/smoke.spec.js:58:20"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 10921,
+                      "errors": [],
                       "stdout": [
                         {
-                          "text": "Step 1: Registering smoke_1769652057804@test.com\n"
+                          "text": "Step 1: Registering smoke_1769687553839@test.com\n"
                         },
                         {
                           "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
@@ -119,39 +103,130 @@
                           "text": "Step 2: Logging in\n"
                         },
                         {
-                          "text": "Step 3: Dashboard loaded. Household ID: 894\n"
+                          "text": "Step 3: Dashboard loaded. Household ID: 1214\n"
                         },
                         {
-                          "text": "Step 4: Creating Family Members (2 Income Family)\n"
+                          "text": "Checking Route: dashboard\n"
                         },
                         {
-                          "text": "   - Adding Member: John Doe\n"
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "Checking Route: calendar\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "Checking Route: house\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "Checking Route: meals\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "Checking Route: finance\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "Checking Route: settings\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "Checking Route: profile\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "Step 4: Household Hub - Creating Residents\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "Step 5: Finance Matrix Verification\n"
+                        },
+                        {
+                          "text": "   - Waiting for Financial Matrix header\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - Adding Bank Account\n"
+                        },
+                        {
+                          "text": "   - Waiting for Joint Checking to appear\n"
+                        },
+                        {
+                          "text": "   - Adding Primary Income\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - Selecting John Doe\n"
+                        },
+                        {
+                          "text": "   - Saving Income\n"
+                        },
+                        {
+                          "text": "   - Waiting for Tech Corp to appear\n"
+                        },
+                        {
+                          "text": "   - Verifying Monthly Budget\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - Waiting for Budget header\n"
+                        },
+                        {
+                          "text": "   - Waiting for Safe to Spend\n"
+                        },
+                        {
+                          "text": "Step 6: Final System Verification Summary\n"
+                        },
+                        {
+                          "text": "   ✅ All Primary Routes Accessible\n"
+                        },
+                        {
+                          "text": "   ✅ Household Hub Integration Verified\n"
+                        },
+                        {
+                          "text": "   ✅ Financial Matrix Integration Verified\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-01-29T02:00:57.821Z",
+                      "startTime": "2026-01-29T11:52:33.855Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/home/matt/household-project/web/test-results/smoke-System-Smoke-Compreh-1c3c1-al-Matrix-and-Meal-Planning-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/home/matt/household-project/web/test-results/smoke-System-Smoke-Compreh-1c3c1-al-Matrix-and-Meal-Planning-chromium/error-context.md"
-                        }
-                      ]
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
-              "id": "2c14808d47b386fba9eb-eb7d26d672a3fddf00c7",
+              "id": "2c14808d47b386fba9eb-3c53c3fec4ad9e2c1a47",
               "file": "smoke.spec.js",
-              "line": 10,
+              "line": 9,
               "column": 3
             }
           ]
@@ -161,11 +236,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-01-29T02:00:54.701Z",
-    "duration": 483600.877,
-    "expected": 0,
+    "startTime": "2026-01-29T11:52:31.757Z",
+    "duration": 13223.766000000001,
+    "expected": 1,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 0,
     "flaky": 0
   }
 }
