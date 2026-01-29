@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix infinite refresh loop on Budget page by adding household context guard in HouseholdLayout",
-  "date": "Thu 29 Jan 10:48:52 GMT 2026"
+  "commitMessage": "Consolidate People and Assets into unified Household Hub",
+  "date": "Thu 29 Jan 10:55:05 GMT 2026"
 }

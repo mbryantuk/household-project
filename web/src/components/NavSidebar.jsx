@@ -170,10 +170,10 @@ export default function NavSidebar({
   }, [members, vehicles, checkScroll]);
 
   const getCategoryFromPath = useCallback((path) => {
-      if (path.includes('/people')) return 'people';
-      if (path.includes('/pets')) return 'people';
-      if (path.includes('/vehicles')) return 'assets';
-      if (path.includes('/house/') || path.endsWith('/house')) return 'assets';
+      if (path.includes('/people')) return 'household';
+      if (path.includes('/pets')) return 'household';
+      if (path.includes('/vehicles')) return 'household';
+      if (path.includes('/house/') || path.endsWith('/house')) return 'household';
       if (path.includes('/settings')) return 'assets';
       if (path.includes('/profile')) return 'account';
       if (path.includes('/dashboard')) return 'dashboard';
@@ -205,27 +205,7 @@ export default function NavSidebar({
   };
 
   const currentPanelCategory = (hoveredCategory || (isPinned ? activeCategory : null));
-  const showPanel = currentPanelCategory && ['people', 'assets', 'vehicles', 'finance'].includes(currentPanelCategory);
-
-  const groupedPets = useMemo(() => {
-      const groups = {};
-      members.filter(m => m.type === 'pet').forEach(p => {
-          const species = p.species || 'Other';
-          if (!groups[species]) groups[species] = [];
-          groups[species].push(p);
-      });
-      return groups;
-  }, [members]);
-
-  const groupedVehicles = useMemo(() => {
-      const groups = {};
-      vehicles.forEach(v => {
-          const type = v.type || 'Car';
-          if (!groups[type]) groups[type] = [];
-          groups[type].push(v);
-      });
-      return groups;
-  }, [vehicles]);
+  const showPanel = currentPanelCategory && ['household', 'finance'].includes(currentPanelCategory);
 
   const sidebarContent = (
     <Box 
@@ -291,8 +271,7 @@ export default function NavSidebar({
                     }}
                 >
                     <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
-                        <RailIcon icon={<Groups />} label="People" category="people" hasSubItems to="people" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
-                        <RailIcon icon={<Inventory2 />} label="Assets" category="assets" hasSubItems to="house" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
+                        <RailIcon icon={<HomeWork />} label="Household" category="household" hasSubItems to="house" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                         <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems to="finance" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                         {enabledModules.includes('meals') && (
                             <RailIcon icon={<RestaurantMenu />} label="Meals" category="meals" to="meals" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
@@ -335,48 +314,25 @@ export default function NavSidebar({
                 </Box>
                 
                 <List sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>
-                    {currentPanelCategory === 'people' && (
+                    {currentPanelCategory === 'household' && (
                         <>
-                            <GroupHeader label="Adults" />
-                            {members.filter(m => m.type !== 'pet' && m.type !== 'child').map(m => <SubItem key={m.id} label={m.alias || (m.name || '').split(' ')[0]} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
+                            <GroupHeader label="Overview" />
+                            <SubItem label="Dashboard" to="house" emoji="🏠" isDark={isDark} onClick={handleSubItemClick} />
                             <Divider sx={{ my: 1 }} />
-                            <GroupHeader label="Children" />
-                            {members.filter(m => m.type === 'child').map(m => <SubItem key={m.id} label={m.alias || (m.name || '').split(' ')[0]} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
+                            <GroupHeader label="Residents" />
+                            {members.filter(m => m.type !== 'pet').map(m => <SubItem key={m.id} label={m.alias || (m.name || '').split(' ')[0]} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
+                            <SubItem label="Manage Residents" to="people" emoji="👥" isDark={isDark} onClick={handleSubItemClick} />
                             {enabledModules.includes('pets') && (
                                 <>
                                     <Divider sx={{ my: 1 }} />
-                                    {Object.entries(groupedPets).map(([species, pets]) => (
-                                        <React.Fragment key={species}>
-                                            <GroupHeader label={species} />
-                                            {pets.map(m => <SubItem key={m.id} label={m.name} to={`pets/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
-                                        </React.Fragment>
-                                    ))}
+                                    <GroupHeader label="Pets" />
+                                    {members.filter(m => m.type === 'pet').map(m => <SubItem key={m.id} label={m.name} to={`pets/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
                                 </>
                             )}
                             <Divider sx={{ my: 1 }} />
-                            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, p: 1 }}>
-                                <IconButton variant="soft" color="neutral" onClick={() => { navigate('people/new?type=adult'); handleSubItemClick(); }} sx={{ borderRadius: 'sm' }}><PersonAdd /></IconButton>
-                                <IconButton variant="soft" color="neutral" onClick={() => { navigate('people/new?type=child'); handleSubItemClick(); }} sx={{ borderRadius: 'sm' }}><ChildCare /></IconButton>
-                                {enabledModules.includes('pets') && <IconButton variant="soft" color="neutral" onClick={() => { navigate('pets/new'); handleSubItemClick(); }} sx={{ borderRadius: 'sm', gridColumn: 'span 2' }}><Pets /></IconButton>}
-                            </Box>
-                        </>
-                    )}
-                    {currentPanelCategory === 'assets' && (
-                        <>
-                            <GroupHeader label="Properties" />
-                            <SubItem label={household?.name || 'Main House'} to="house/1" emoji={household?.avatar || '🏠'} isDark={isDark} onClick={handleSubItemClick} />
-                            {enabledModules.includes('vehicles') && (
-                                <>
-                                    <Divider sx={{ my: 1 }} />
-                                    {Object.entries(groupedVehicles).map(([type, list]) => (
-                                        <React.Fragment key={type}>
-                                            <GroupHeader label={type} />
-                                            {list.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`vehicles/${v.id}`} emoji={v.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
-                                        </React.Fragment>
-                                    ))}
-                                    <Divider sx={{ my: 1 }} /><SubItem label="Add New Vehicle" to="vehicles/new" isDark={isDark} onClick={handleSubItemClick} />
-                                </>
-                            )}
+                            <GroupHeader label="Fleet" />
+                            {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`vehicles/${v.id}`} emoji={v.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
+                            <SubItem label="Manage Vehicles" to="vehicles" emoji="🚗" isDark={isDark} onClick={handleSubItemClick} />
                         </>
                     )}
                     {currentPanelCategory === 'finance' && (

@@ -274,14 +274,13 @@ export default function HouseholdLayout({
       >
         <Sheet sx={{ bgcolor: 'background.surface', borderTopLeftRadius: '24px', borderTopRightRadius: '24px', p: 3, pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Box sx={{ width: 40, height: 4, borderRadius: 2, bgcolor: 'neutral.300', mx: 'auto', mb: 2 }} />
-            <Typography level="title-lg" sx={{ mb: 1 }}>Categories</Typography>
+            <Typography level="title-lg" sx={{ mb: 1 }}>Navigation</Typography>
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
                 {activeMenu === 'main' ? (
                     <>
-                        <MenuTile icon={<PeopleIcon />} label="People" to="people" onClick={() => setDrawerOpen(false)} />
-                        <MenuTile icon={<RestaurantMenu />} label="Meals" to="meals" onClick={() => setDrawerOpen(false)} />
-                        <MenuTile icon={<AssetsIcon />} label="Assets" to="house/1" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<HomeIcon />} label="Household" to="house" onClick={() => setDrawerOpen(false)} />
                         <MenuTile icon={<AccountBalance />} label="Finance" to="finance" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<RestaurantMenu />} label="Meals" to="meals" onClick={() => setDrawerOpen(false)} />
                     </>
                 ) : (
                     households.map(hh => (
