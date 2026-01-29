@@ -6,7 +6,7 @@ import {
 import {
   Event, Groups, Pets, Inventory2, RestaurantMenu, AccountBalance,
   Close, KeyboardArrowRight, KeyboardArrowUp, KeyboardArrowDown,
-  PersonAdd, ChildCare, PushPin, PushPinOutlined
+  PersonAdd, ChildCare, PushPin, PushPinOutlined, HomeWork
 } from '@mui/icons-material';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getEmojiColor } from '../theme';

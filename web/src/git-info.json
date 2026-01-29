@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Consolidate People and Assets into unified Household Hub",
-  "date": "Thu 29 Jan 10:55:05 GMT 2026"
+  "commitMessage": "Fix HomeWork ReferenceError in NavSidebar by adding missing import",
+  "date": "Thu 29 Jan 10:59:20 GMT 2026"
 }
