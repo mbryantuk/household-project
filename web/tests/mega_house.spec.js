@@ -63,38 +63,18 @@ test.describe('Mega House Scenario Creation', () => {
         
         await page.fill('input[name="name"]', `${firstName} Doe`); // Using full name field
         if (type !== 'pet') {
-             // PeopleView uses 'name' for full name input in the form I read in turn 10
-             // Wait, PeopleView form has:
-             // <FormControl required><FormLabel>Name</FormLabel><Input name="name" /></FormControl>
-             // BUT in 'activeTab === 0' (Identity) it has split fields:
-             // <Input name="first_name" ... />
-             // Let's check which form is shown for 'new'.
-             // In PeopleView.jsx: if (personId === 'new') it shows activeTab 0 logic?
-             // "{(activeTab === 0 || personId === 'new') && (...)"
-             // Inside that block:
-             // It has First Name, Middle Name, Last Name inputs!
-             // It DOES NOT have 'name' input.
-             // Wait, the "ADD FORM" in `MembersView.jsx` had `name`.
-             // But `HouseView` navigates to `PeopleView`.
-             // `PeopleView` (turn 10) has `first_name`, `last_name`.
-             
              await page.fill('input[name="first_name"]', firstName);
              await page.fill('input[name="last_name"]', 'Doe');
         } else {
-             // Pet logic in PeopleView?
-             // PeopleView handles pets too? Yes, type select.
-             // But pets might not have first/last name fields?
-             // PeopleView for pet:
-             // It uses same form! "First Name" etc.
-             // So I should fill first_name for pet too.
              await page.fill('input[name="first_name"]', firstName);
         }
 
         await page.click('button:has-text("Create Person")'); 
         
-        // Wait for redirection to detail page
-        await page.waitForURL(new RegExp(`/household/${hhId}/(people|pets)/\d+`), { timeout: 15000 });
-        await expect(page.locator('h2')).toContainText(firstName);
+        // Revised Expectation: Redirects to Household Hub
+        await page.waitForURL(new RegExp(`/household/${hhId}/house`), { timeout: 15000 });
+        await expect(page.locator('h2')).toContainText('Household Hub');
+        await expect(page.locator(`text=${firstName}`)).toBeVisible();
     };
 
     await addMember('Jane', 'adult');
@@ -131,8 +111,10 @@ test.describe('Mega House Scenario Creation', () => {
         await page.fill('input[name="registration"]', reg);
         await page.click('button:has-text("Create Vehicle")');
         
-        await page.waitForURL(new RegExp(`/household/${hhId}/vehicles/\d+`));
-        await expect(page.locator('h2')).toContainText(`${make} ${model}`);
+        // Revised Expectation: Redirects to Household Hub
+        await page.waitForURL(new RegExp(`/household/${hhId}/house`));
+        await expect(page.locator('h2')).toContainText('Household Hub');
+        await expect(page.locator(`text=${make} ${model}`)).toBeVisible();
     };
 
     await addVehicle('BMW', 'X5', 'BMW 123');
@@ -155,6 +137,9 @@ test.describe('Mega House Scenario Creation', () => {
     await page.click('li[role="option"]:has-text("Property")');
     await page.fill('input[name="purchase_value"]', '800000');
     await page.click('button:has-text("Save Asset")');
+    
+    // Revised Expectation: Navigates back to Assets list
+    await expect(page.locator('text=Appliance & Asset Register')).toBeVisible();
     await expect(page.locator('text=Family Home')).toBeVisible();
 
     // ==========================================
@@ -170,6 +155,8 @@ test.describe('Mega House Scenario Creation', () => {
     await page.fill('input[name="account_name"]', 'Joint Account');
     await page.fill('input[name="current_balance"]', '5000');
     await page.click('button:has-text("Save Account")');
+    // Expectation: Modal closes, item visible in list
+    await expect(page.locator('div[role="dialog"]')).not.toBeVisible(); 
     await expect(page.locator('text=Joint Account')).toBeVisible();
 
     // Incomes
@@ -188,6 +175,8 @@ test.describe('Mega House Scenario Creation', () => {
         await page.click(`li[role="option"]:has-text("${personName}")`);
         
         await page.click('button:has-text("Save Income")');
+        // Expectation: Modal closes, item visible in list
+        await expect(page.locator('div[role="dialog"]')).not.toBeVisible();
         await expect(page.locator(`text=${employer}`).first()).toBeVisible();
     };
 
@@ -217,6 +206,8 @@ test.describe('Mega House Scenario Creation', () => {
     await page.click('div:has-text("Jane")');
     
     await page.click('button:has-text("Save Mortgage Details")');
+    // Expectation: Modal closes, item visible
+    await expect(page.locator('div[role="dialog"]')).not.toBeVisible();
     await expect(page.locator('text=HSBC')).toBeVisible();
 
     // Pensions
@@ -228,6 +219,8 @@ test.describe('Mega House Scenario Creation', () => {
     await page.fill('input[name="current_value"]', '150000');
     await page.fill('input[name="monthly_contribution"]', '500');
     await page.click('button:has-text("Save Pension")');
+    // Expectation: Modal closes
+    await expect(page.locator('div[role="dialog"]')).not.toBeVisible();
     await expect(page.locator('text=Hargreaves Lansdown')).toBeVisible();
 
     // Investments
@@ -238,6 +231,8 @@ test.describe('Mega House Scenario Creation', () => {
     await page.fill('input[name="platform"]', 'Vanguard');
     await page.fill('input[name="current_value"]', '50000');
     await page.click('button:has-text("Save Investment")');
+    // Expectation: Modal closes
+    await expect(page.locator('div[role="dialog"]')).not.toBeVisible();
     await expect(page.locator('text=Vanguard Global')).toBeVisible();
 
     console.log('Step 9: Mega House Scenario Complete');

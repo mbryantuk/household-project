@@ -73,18 +73,19 @@ test.describe('Basic System Flow Test', () => {
     await page.fill('input[name="first_name"]', 'John');
     await page.fill('input[name="last_name"]', 'Doe');
     await page.click('button:has-text("Create Person")');
+    // Revised Expectation: Redirects to Household Hub
+    await page.waitForURL(new RegExp(`/household/${hhId}/house`));
+    await expect(page.locator('text=John')).toBeVisible();
     
     // Add Vehicle
-    await page.goto(`/household/${hhId}/house`);
     await page.click('button:has-text("Add Vehicle")');
     await page.fill('input[name="make"]', 'Tesla');
     await page.fill('input[name="model"]', 'Model 3');
     await page.fill('input[name="registration"]', 'EL22 TEN');
     await page.click('button:has-text("Create Vehicle")');
     
-    // Verify visibility in Hub
-    await page.goto(`/household/${hhId}/house`);
-    await expect(page.locator('text=John')).toBeVisible();
+    // Revised Expectation: Redirects to Household Hub
+    await page.waitForURL(new RegExp(`/household/${hhId}/house`));
     await expect(page.locator('text=Tesla Model 3')).toBeVisible();
 
     // ==========================================
@@ -101,6 +102,9 @@ test.describe('Basic System Flow Test', () => {
     await page.click('li[role="option"]:has-text("Electronics")');
     await page.fill('input[name="purchase_value"]', '2000');
     await page.click('button:has-text("Save Asset")');
+    
+    // Revised Expectation: Navigates back to list
+    await expect(page.locator('text=Appliance & Asset Register')).toBeVisible();
     await expect(page.locator('text=Family Home Content')).toBeVisible();
 
     // ==========================================
@@ -118,6 +122,9 @@ test.describe('Basic System Flow Test', () => {
     await page.fill('input[name="bank_name"]', 'HSBC');
     await page.fill('input[name="account_name"]', 'Joint Checking');
     await page.click('button:has-text("Save Account")');
+    
+    // Expectation: Modal closes
+    await expect(page.locator('div[role="dialog"]')).not.toBeVisible();
     console.log('   - Waiting for Joint Checking to appear');
     await expect(page.locator('text=Joint Checking')).toBeVisible();
 
@@ -135,6 +142,9 @@ test.describe('Basic System Flow Test', () => {
     await page.check('input[name="is_primary"]');
     console.log('   - Saving Income');
     await page.click('button:has-text("Save Income")');
+    
+    // Expectation: Modal closes
+    await expect(page.locator('div[role="dialog"]')).not.toBeVisible();
     console.log('   - Waiting for Tech Corp to appear');
     await expect(page.locator('text=Tech Corp').first()).toBeVisible();
 

@@ -21,6 +21,7 @@ export default function HouseView() {
   const { houseId, assetId } = useParams();
   const navigate = useNavigate();
 
+  const location = useLocation();
   // If houseId is provided, we show the property details tabs. 
   // Otherwise, we show the Household Hub selector.
   const [viewMode, setViewMode] = useState(houseId ? 'details' : 'selector'); 
@@ -37,8 +38,10 @@ export default function HouseView() {
   }, [houseId, assetId]);
 
   useEffect(() => {
-    if (assetId) setActiveTab(3);
-  }, [assetId]);
+    if (assetId || location.pathname.includes('/assets')) {
+        setActiveTab(3);
+    }
+  }, [assetId, location.pathname]);
 
   useEffect(() => {
     api.get(`/households/${householdId}`)

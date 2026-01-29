@@ -13,7 +13,7 @@ import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
 
 export default function AssetsView() {
   const { api, id: householdId, user: currentUser, isDark, showNotification } = useOutletContext();
-  const { assetId } = useParams();
+  const { assetId, houseId } = useParams();
   const navigate = useNavigate();
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -87,6 +87,10 @@ export default function AssetsView() {
       </th>
   );
 
+  const closeModal = () => {
+      navigate(`/household/${householdId}/house/${houseId}`, { replace: true });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -97,12 +101,12 @@ export default function AssetsView() {
         const res = await api.post(`/households/${householdId}/assets`, data);
         showNotification("Asset added.", "success");
         await fetchAssets();
-        navigate(`../assets`, { replace: true });
+        closeModal();
       } else {
         await api.put(`/households/${householdId}/assets/${assetId}`, data);
         showNotification("Asset updated.", "success");
         await fetchAssets();
-        navigate(`../assets`, { replace: true });
+        closeModal();
       }
     } catch {
       showNotification("Failed to save asset", "danger");
@@ -114,7 +118,7 @@ export default function AssetsView() {
     try {
       await api.delete(`/households/${householdId}/assets/${id}`);
       fetchAssets();
-      if (assetId) navigate('../assets', { replace: true });
+      if (assetId) closeModal();
     } catch {
       showNotification("Failed to delete asset", "danger");
     }
@@ -231,7 +235,7 @@ export default function AssetsView() {
       )}
 
       {/* EDIT/DETAIL MODAL */}
-      <Modal open={Boolean(assetId)} onClose={() => navigate('../assets', { replace: true })}>
+      <Modal open={Boolean(assetId)} onClose={closeModal}>
         <ModalDialog sx={{ maxWidth: 800, width: '100%', p: 0, overflow: 'hidden' }}>
             <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2, bgcolor: 'background.level1' }}>
                 <Avatar size="lg" sx={{ bgcolor: getEmojiColor(selectedAsset?.name || 'A', isDark) }}>{selectedAsset?.emoji || selectedAsset?.name?.[0] || <Inventory />}</Avatar>

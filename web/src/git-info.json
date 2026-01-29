@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix navigation logic for Hub Entities and Finance modals",
-  "date": "Thu 29 Jan 13:47:58 GMT 2026"
+  "commitMessage": "Fix blank screen on asset creation and deep link to asset list",
+  "date": "Thu 29 Jan 14:07:50 GMT 2026"
 }
