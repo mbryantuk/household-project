@@ -32,8 +32,11 @@ router.post('/register', async (req, res) => {
         const existingUser = await dbGet(globalDb, `SELECT id FROM users WHERE email = ?`, [email]);
         if (existingUser) return res.status(409).json({ error: "Email already registered" });
 
-        // Auto-mark as test if in test environment
-        const finalIsTest = (is_test || process.env.NODE_ENV === 'test') ? 1 : 0;
+        // Auto-mark as test if in test environment or using test email prefix
+        let finalIsTest = (is_test || process.env.NODE_ENV === 'test') ? 1 : 0;
+        if (email.startsWith('smoke_') || email.startsWith('routing_') || email.startsWith('test_')) {
+            finalIsTest = 1;
+        }
 
         // 2. Create Household
         const hhResult = await dbRun(globalDb, 

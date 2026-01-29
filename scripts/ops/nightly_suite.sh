@@ -48,6 +48,15 @@ fi
 
 echo "🌙 Starting Comprehensive Health Check (v$CURRENT_VERSION)..."
 
+# Load Nightly Credentials
+if [ -f "scripts/ops/.env.nightly" ]; then
+    echo "🔐 Loading nightly environment configuration from scripts/ops/.env.nightly..."
+    export $(grep -v '^#' scripts/ops/.env.nightly | xargs)
+elif [ -f ".env.nightly" ]; then
+    echo "🔐 Loading nightly environment configuration..."
+    export $(grep -v '^#' .env.nightly | xargs)
+fi
+
 # 1. Refresh Containers
 if [ "$SKIP_DOCKER" = true ] || [ "$IS_CONTAINER" = true ]; then
     echo "⏭️  [1/6] Skipping Container Refresh."
@@ -90,7 +99,7 @@ else
     else
         # STAGE 1: ROUTING
         echo "   📍 Stage 1: Basic Routing & Module Availability..."
-        if CI_TEST=true BASE_URL=http://localhost:4001 npx --yes playwright test tests/routing.spec.js --reporter=list > playwright-routing.log 2>&1; then
+        if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-routing.json npx --yes playwright test tests/routing.spec.js --reporter=list,json > playwright-routing.log 2>&1; then
             echo "   🟢 Stage 1 (Routing): SUCCESS"
             cd "$PROJECT_ROOT"
             node scripts/ops/record_test_results.js frontend_routing "success" || true

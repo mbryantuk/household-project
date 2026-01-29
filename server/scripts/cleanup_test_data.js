@@ -12,27 +12,38 @@ async function cleanupTestData() {
 
     try {
         // ==========================================
-        // 1. IDENTIFY LATEST TEST HOUSEHOLD
+        // 1. IDENTIFY TEST HOUSEHOLDS TO KEEP
         // ==========================================
-        const latestTest = await dbGet(globalDb, `SELECT id FROM households WHERE is_test = 1 ORDER BY id DESC LIMIT 1`);
-        const latestId = latestTest ? latestTest.id : null;
+        // Keep the last 5 test households to ensure "Mega House" isn't buried by small integration tests
+        // Also look for names that match our smoke test prefix in case is_test wasn't set
+        const testHouseholds = await dbAll(globalDb, `
+            SELECT id, name FROM households 
+            WHERE is_test = 1 OR name LIKE 'Mega House %' OR name LIKE 'Route Test House %'
+            ORDER BY id DESC LIMIT 5
+        `);
+        const testIds = testHouseholds.map(h => h.id);
         
-        if (latestId) {
-            console.log(`📍 Latest test household identified: #${latestId}`);
+        // Specifically identify the latest "Mega House" for user redirection
+        const megaHouse = testHouseholds.find(h => h.name.includes('Mega House'));
+        const latestId = testIds.length > 0 ? testIds[0] : null;
+        const targetHhId = megaHouse ? megaHouse.id : latestId;
+
+        if (testIds.length > 0) {
+            console.log(`📍 Test households preserved: ${testIds.join(', ')}`);
+            if (megaHouse) console.log(`🎯 Targeted Mega House for access: #${megaHouse.id}`);
         } else {
             console.log("📍 No test households found to preserve.");
         }
 
         // ==========================================
-        // 2. DELETE ALL OTHER HOUSEHOLDS FROM GLOBAL DB
+        // 2. DELETE ALL OTHER TEST HOUSEHOLDS
         // ==========================================
-        const keepIds = [PERMANENT_HOUSEHOLD_ID];
-        if (latestId) keepIds.push(latestId);
-
+        const keepIds = [PERMANENT_HOUSEHOLD_ID, ...testIds];
         const placeholders = keepIds.map(() => '?').join(',');
+        
         const householdsToDelete = await dbAll(globalDb, `
             SELECT id FROM households 
-            WHERE id NOT IN (${placeholders})
+            WHERE is_test = 1 AND id NOT IN (${placeholders})
         `, keepIds);
         
         if (householdsToDelete.length > 0) {
@@ -41,11 +52,11 @@ async function cleanupTestData() {
 
             await dbRun(globalDb, `DELETE FROM user_households WHERE household_id IN (${delPlaceholders})`, deleteIds);
             await dbRun(globalDb, `DELETE FROM households WHERE id IN (${delPlaceholders})`, deleteIds);
-            console.log(`✅ Deleted ${householdsToDelete.length} household records from global DB.`);
+            console.log(`✅ Deleted ${householdsToDelete.length} old test household records.`);
         }
 
         // ==========================================
-        // 3. AGGRESSIVE FILE CLEANUP (DATA & BACKUPS)
+        // 3. FILE CLEANUP
         // ==========================================
         const cleanupDirs = [DATA_DIR, BACKUP_DIR, path.join(DATA_DIR, 'temp_uploads')];
         let deletedFiles = 0;
@@ -53,30 +64,17 @@ async function cleanupTestData() {
         const scanAndRemove = (dir) => {
             if (!fs.existsSync(dir)) return;
             const items = fs.readdirSync(dir);
-            const isTempDir = dir.includes('temp_uploads');
-
             for (const item of items) {
                 const fullPath = path.join(dir, item);
                 if (fs.statSync(fullPath).isDirectory()) {
                     scanAndRemove(fullPath);
-                    // Optionally remove empty dir
-                    try { if (fs.readdirSync(fullPath).length === 0) fs.rmdirSync(fullPath); } catch(e) {}
                 } else {
-                    if (isTempDir) {
-                        if (item !== '.gitkeep') {
-                            try { fs.unlinkSync(fullPath); deletedFiles++; } catch (err) {}
-                        }
-                        continue;
-                    }
-
-                    // Match household_ID.db (and -wal, -shm)
                     const match = item.match(/^household_(\d+)\.db/);
                     if (match) {
                         const id = parseInt(match[1]);
                         if (!keepIds.includes(id)) {
                             try {
                                 fs.unlinkSync(fullPath);
-                                // Also try to unlink wal/shm if they exist
                                 ['-wal', '-shm'].forEach(ext => {
                                     const sidecar = fullPath + ext;
                                     if (fs.existsSync(sidecar)) fs.unlinkSync(sidecar);
@@ -90,64 +88,34 @@ async function cleanupTestData() {
         };
 
         cleanupDirs.forEach(scanAndRemove);
-        console.log(`✅ Purged ${deletedFiles} orphan database files from system.`);
+        console.log(`✅ Purged ${deletedFiles} orphan database files.`);
 
         // ==========================================
-        // 4. DELETE ALL TEST USERS (EXCEPT MAINTAINED)
-        // ==========================================
-        const testUsers = await dbAll(globalDb, `
-            SELECT id FROM users 
-            WHERE is_test = 1 AND email != ?
-        `, [MAINTAINED_USER_EMAIL]);
-
-        if (testUsers.length > 0) {
-            const ids = testUsers.map(u => u.id);
-            const delPlaceholders = ids.map(() => '?').join(',');
-            await dbRun(globalDb, `DELETE FROM user_households WHERE user_id IN (${delPlaceholders})`, ids);
-            await dbRun(globalDb, `DELETE FROM users WHERE id IN (${delPlaceholders})`, ids);
-            console.log(`✅ Removed ${testUsers.length} test user records.`);
-        }
-
-        // ==========================================
-        // 5. RESTORE ACCESS TO BRYANT AND LATEST TEST
+        // 4. RESTORE ACCESS
         // ==========================================
         const targetUser = await dbGet(globalDb, `SELECT id FROM users WHERE email = ?`, [MAINTAINED_USER_EMAIL]);
         
-        if (targetUser) {
-            for (const hhId of keepIds) {
-                const hhExists = await dbGet(globalDb, `SELECT id FROM households WHERE id = ?`, [hhId]);
-                if (!hhExists) continue;
+        if (targetUser && targetHhId) {
+            const existingLink = await dbGet(globalDb, 
+                `SELECT * FROM user_households WHERE user_id = ? AND household_id = ?`, 
+                [targetUser.id, targetHhId]
+            );
 
-                const existingLink = await dbGet(globalDb, 
-                    `SELECT * FROM user_households WHERE user_id = ? AND household_id = ?`, 
-                    [targetUser.id, hhId]
+            if (!existingLink) {
+                await dbRun(globalDb, 
+                    `INSERT INTO user_households (user_id, household_id, role, is_active) VALUES (?, ?, 'admin', 1)`,
+                    [targetUser.id, targetHhId]
                 );
-
-                if (!existingLink) {
-                    await dbRun(globalDb, 
-                        `INSERT INTO user_households (user_id, household_id, role, is_active) VALUES (?, ?, 'admin', 1)`,
-                        [targetUser.id, hhId]
-                    );
-                    console.log(`🔗 Linked ${MAINTAINED_USER_EMAIL} to household #${hhId}.`);
-                } else {
-                    await dbRun(globalDb, 
-                        `UPDATE user_households SET role = 'admin', is_active = 1 WHERE user_id = ? AND household_id = ?`,
-                        [targetUser.id, hhId]
-                    );
-                }
+            } else {
+                await dbRun(globalDb, 
+                    `UPDATE user_households SET role = 'admin', is_active = 1 WHERE user_id = ? AND household_id = ?`,
+                    [targetUser.id, targetHhId]
+                );
             }
 
-            const defaultHh = latestId || PERMANENT_HOUSEHOLD_ID;
-            await dbRun(globalDb, `UPDATE users SET default_household_id = ?, last_household_id = ? WHERE id = ?`, [defaultHh, defaultHh, targetUser.id]);
-            console.log(`🎯 Set default/last household for ${MAINTAINED_USER_EMAIL} to #${defaultHh}.`);
+            await dbRun(globalDb, `UPDATE users SET default_household_id = ?, last_household_id = ? WHERE id = ?`, [targetHhId, targetHhId, targetUser.id]);
+            console.log(`🔗 Linked ${MAINTAINED_USER_EMAIL} to latest valid test household #${targetHhId}.`);
         }
-
-        // Final orphan purge
-        await dbRun(globalDb, `
-            DELETE FROM user_households 
-            WHERE household_id NOT IN (SELECT id FROM households)
-            OR user_id NOT IN (SELECT id FROM users)
-        `);
 
     } catch (err) {
         console.error("❌ Cleanup Failed:", err);
