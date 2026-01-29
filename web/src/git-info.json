@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix HomeWork ReferenceError in NavSidebar by adding missing import",
-  "date": "Thu 29 Jan 10:59:20 GMT 2026"
+  "commitMessage": "Fix Card ReferenceError in HouseView (Household Hub) dashboard",
+  "date": "Thu 29 Jan 11:02:44 GMT 2026"
 }
