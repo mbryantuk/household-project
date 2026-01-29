@@ -67,25 +67,30 @@ export default function HouseholdLayout({
   }, [api, id]);
 
   useEffect(() => {
-    const targetHousehold = (households || []).find(h => h && h.id === parseInt(id));
+    const targetId = parseInt(id);
+    const targetHousehold = (households || []).find(h => h && h.id === targetId);
     
-    if (targetHousehold) {
+    // Fallback: If not in list (e.g. just created), check if it matches the globally active household
+    const effectiveHousehold = targetHousehold || (household && household.id === targetId ? household : null);
+    
+    if (effectiveHousehold) {
       // Guard: Only switch if the App's current household doesn't match the URL
-      if (!household || household.id !== targetHousehold.id) {
+      if (!household || household.id !== effectiveHousehold.id) {
           const switchHh = async () => {
-              await onSelectHousehold(targetHousehold);
-              setActiveHousehold(targetHousehold);
+              await onSelectHousehold(effectiveHousehold);
+              setActiveHousehold(effectiveHousehold);
               fetchVehicles();
           };
           switchHh();
       } else {
           // If already matched, ensure local state is synced and vehicles are loaded
-          if (!activeHousehold || activeHousehold.id !== targetHousehold.id) {
-            setActiveHousehold(targetHousehold);
+          if (!activeHousehold || activeHousehold.id !== effectiveHousehold.id) {
+            setActiveHousehold(effectiveHousehold);
           }
           if (vehicles.length === 0) fetchVehicles();
       }
     } else if (households && households.length > 0) {
+      // Only redirect if we have loaded households and the target isn't found/valid
       navigate('/');
     }
   }, [id, households, onSelectHousehold, navigate, fetchVehicles, household, activeHousehold, vehicles.length]);

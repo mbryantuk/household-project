@@ -1,0 +1,102 @@
+# Page snapshot
+
+```yaml
+- main [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - generic "Switch Household" [ref=e11] [cursor=pointer]: 🏠
+        - list [ref=e12]:
+          - listitem [ref=e13]:
+            - button "Calendar" [ref=e14] [cursor=pointer]:
+              - img [ref=e16]
+              - generic [ref=e18]: Calendar
+        - separator [ref=e19]
+      - list [ref=e22]:
+        - listitem [ref=e23]:
+          - button "Household" [ref=e24] [cursor=pointer]:
+            - img [ref=e26]
+            - generic [ref=e29]: Household
+        - listitem [ref=e30]:
+          - button "Finance" [ref=e31] [cursor=pointer]:
+            - img [ref=e33]
+            - generic [ref=e35]: Finance
+        - listitem [ref=e36]:
+          - button "Meals" [ref=e37] [cursor=pointer]:
+            - img [ref=e39]
+            - generic [ref=e41]: Meals
+    - generic [ref=e43]:
+      - main [ref=e44]:
+        - generic [ref=e45]:
+          - generic [ref=e47]:
+            - heading "Add New Pet" [level=2] [ref=e48]
+            - paragraph [ref=e49]: Enter pet details below.
+          - generic [ref=e52]:
+            - generic [ref=e53]:
+              - heading "Pet Identity" [level=2] [ref=e54]
+              - paragraph [ref=e55]: Core personal identification and breed background.
+            - generic [ref=e57]:
+              - button "Pick an emoji" [ref=e59] [cursor=pointer]:
+                - heading "🐾" [level=1] [ref=e60]
+              - generic [ref=e62]:
+                - generic [ref=e63]:
+                  - text: Pet Name
+                  - generic [ref=e64]: "*"
+                - textbox "Pet Name" [ref=e66]
+              - generic [ref=e68]:
+                - generic [ref=e69]:
+                  - text: Species (e.g. Dog, Cat)
+                  - generic [ref=e70]: "*"
+                - textbox "Species (e.g. Dog, Cat)" [ref=e72]:
+                  - /placeholder: Dog, Cat, Hamster...
+              - generic [ref=e74]:
+                - generic [ref=e75]: Breed
+                - textbox "Breed" [ref=e77]
+              - generic [ref=e79]:
+                - generic [ref=e80]: Date of Birth
+                - textbox "Date of Birth" [ref=e82]
+              - generic [ref=e84]:
+                - generic [ref=e85]: "Microchip #"
+                - 'textbox "Microchip #" [ref=e87]'
+              - generic [ref=e89]:
+                - generic [ref=e90]: Gender
+                - textbox "Gender" [ref=e92]
+              - generic [ref=e94]:
+                - generic [ref=e95]: Notes
+                - textbox "Notes" [ref=e97]
+              - button "Create Pet" [ref=e99] [cursor=pointer]
+      - generic [ref=e101]:
+        - generic [ref=e103]:
+          - button "Notes" [ref=e105] [cursor=pointer]:
+            - img [ref=e106]
+            - generic [ref=e108]: Notes
+          - button "Calc" [ref=e110] [cursor=pointer]:
+            - img [ref=e111]
+            - generic [ref=e113]: Calc
+          - button "Finance" [ref=e115] [cursor=pointer]:
+            - img [ref=e116]
+            - generic [ref=e118]: Finance
+          - button "Tax" [ref=e120] [cursor=pointer]:
+            - img [ref=e121]
+            - generic [ref=e123]: Tax
+          - button "Savings" [ref=e125] [cursor=pointer]:
+            - img [ref=e126]
+            - generic [ref=e128]: Savings
+          - button "Investments" [ref=e130] [cursor=pointer]:
+            - img [ref=e131]
+            - generic [ref=e133]: Investments
+          - button "Pensions" [ref=e135] [cursor=pointer]:
+            - img [ref=e136]
+            - generic [ref=e138]: Pensions
+          - button "Calendar" [ref=e140] [cursor=pointer]:
+            - img [ref=e141]
+            - generic [ref=e143]: Calendar
+        - generic [ref=e144]:
+          - generic [ref=e145]:
+            - img [ref=e146]
+            - generic [ref=e148]: Online
+          - button "Log Out" [ref=e149] [cursor=pointer]:
+            - img [ref=e150]
+          - button "M" [ref=e153] [cursor=pointer]:
+            - generic [ref=e154]: M
+```

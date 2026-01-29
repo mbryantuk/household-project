@@ -1,0 +1,312 @@
+{
+  "config": {
+    "configFile": "/home/matt/household-project/web/playwright.config.js",
+    "rootDir": "/home/matt/household-project/web/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/matt/household-project/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/matt/household-project/web/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "mega_house.spec.js",
+      "file": "mega_house.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Mega House Scenario Creation",
+          "file": "mega_house.spec.js",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Create Mega House Configuration via UI",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 16421,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n    at addMember (/home/matt/household-project/web/tests/mega_house.spec.js:75:20)\n    at /home/matt/household-project/web/tests/mega_house.spec.js:117:5",
+                        "location": {
+                          "file": "/home/matt/household-project/web/tests/mega_house.spec.js",
+                          "column": 20,
+                          "line": 75
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 73 |\u001b[39m         \n \u001b[90m 74 |\u001b[39m         console\u001b[33m.\u001b[39mlog(\u001b[32m`   - [${firstName}] Waiting for Create URL...`\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 75 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[35m/.*\\/new\\?type=/\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 76 |\u001b[39m         \n \u001b[90m 77 |\u001b[39m         console\u001b[33m.\u001b[39mlog(\u001b[32m`   - [${firstName}] Filling form...`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 78 |\u001b[39m         \u001b[90m// The form fields depend on the view logic. Based on previous analysis:\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/mega_house.spec.js",
+                            "column": 20,
+                            "line": 75
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n\u001b[0m \u001b[90m 73 |\u001b[39m         \n \u001b[90m 74 |\u001b[39m         console\u001b[33m.\u001b[39mlog(\u001b[32m`   - [${firstName}] Waiting for Create URL...`\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 75 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[35m/.*\\/new\\?type=/\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 76 |\u001b[39m         \n \u001b[90m 77 |\u001b[39m         console\u001b[33m.\u001b[39mlog(\u001b[32m`   - [${firstName}] Filling form...`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 78 |\u001b[39m         \u001b[90m// The form fields depend on the view logic. Based on previous analysis:\u001b[39m\u001b[0m\n\u001b[2m    at addMember (/home/matt/household-project/web/tests/mega_house.spec.js:75:20)\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/mega_house.spec.js:117:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "Step 1: Registering Admin mega_1769697913095@test.com\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "PAGE LOG: Content is cached for offline use.\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "Step 2: Logging in\n"
+                        },
+                        {
+                          "text": "   - Current URL: http://localhost:4001/household/1330/dashboard\n"
+                        },
+                        {
+                          "text": "Step 3: Mega House Created (ID: 1330)\n"
+                        },
+                        {
+                          "text": "Step 4: Adding Family Members\n"
+                        },
+                        {
+                          "text": "   - [Jane] Navigating to House Hub...\n"
+                        },
+                        {
+                          "text": "   - [Jane] Clicking \"Add Adult\"...\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - [Jane] Waiting for Create URL...\n"
+                        },
+                        {
+                          "text": "   - [Jane] Filling form...\n"
+                        },
+                        {
+                          "text": "   - [Jane] Clicking Create Button...\n"
+                        },
+                        {
+                          "text": "   - [Jane] Waiting for redirect to Hub...\n"
+                        },
+                        {
+                          "text": "   - [Jane] Verifying visibility...\n"
+                        },
+                        {
+                          "text": "   - [Jane] Success!\n"
+                        },
+                        {
+                          "text": "   - [Timmy] Navigating to House Hub...\n"
+                        },
+                        {
+                          "text": "   - [Timmy] Clicking \"Add Child\"...\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - [Timmy] Waiting for Create URL...\n"
+                        },
+                        {
+                          "text": "   - [Timmy] Filling form...\n"
+                        },
+                        {
+                          "text": "   - [Timmy] Clicking Create Button...\n"
+                        },
+                        {
+                          "text": "   - [Timmy] Waiting for redirect to Hub...\n"
+                        },
+                        {
+                          "text": "   - [Timmy] Verifying visibility...\n"
+                        },
+                        {
+                          "text": "   - [Timmy] Success!\n"
+                        },
+                        {
+                          "text": "   - [Sally] Navigating to House Hub...\n"
+                        },
+                        {
+                          "text": "   - [Sally] Clicking \"Add Child\"...\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - [Sally] Waiting for Create URL...\n"
+                        },
+                        {
+                          "text": "   - [Sally] Filling form...\n"
+                        },
+                        {
+                          "text": "   - [Sally] Clicking Create Button...\n"
+                        },
+                        {
+                          "text": "   - [Sally] Waiting for redirect to Hub...\n"
+                        },
+                        {
+                          "text": "   - [Sally] Verifying visibility...\n"
+                        },
+                        {
+                          "text": "   - [Sally] Success!\n"
+                        },
+                        {
+                          "text": "   - [Billy] Navigating to House Hub...\n"
+                        },
+                        {
+                          "text": "   - [Billy] Clicking \"Add Child\"...\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - [Billy] Waiting for Create URL...\n"
+                        },
+                        {
+                          "text": "   - [Billy] Filling form...\n"
+                        },
+                        {
+                          "text": "   - [Billy] Clicking Create Button...\n"
+                        },
+                        {
+                          "text": "   - [Billy] Waiting for redirect to Hub...\n"
+                        },
+                        {
+                          "text": "   - [Billy] Verifying visibility...\n"
+                        },
+                        {
+                          "text": "   - [Billy] Success!\n"
+                        },
+                        {
+                          "text": "Step 5: Adding Pets\n"
+                        },
+                        {
+                          "text": "   - [Rover] Navigating to House Hub...\n"
+                        },
+                        {
+                          "text": "   - [Rover] Clicking \"Add Pet\"...\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - [Rover] Waiting for Create URL...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-29T14:45:12.877Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/mega_house-Mega-House-Scen-2a34b--House-Configuration-via-UI-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/mega_house-Mega-House-Scen-2a34b--House-Configuration-via-UI-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/matt/household-project/web/tests/mega_house.spec.js",
+                        "column": 20,
+                        "line": 75
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "23b2342e83df5e11ba73-70f28d62575141d38b7a",
+              "file": "mega_house.spec.js",
+              "line": 4,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-01-29T14:45:10.536Z",
+    "duration": 18993.118000000002,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}
