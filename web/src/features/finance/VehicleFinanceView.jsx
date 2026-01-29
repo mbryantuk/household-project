@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
@@ -22,14 +22,17 @@ const formatPercent = (val) => {
 };
 
 export default function VehicleFinanceView() {
-  const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, members, showNotification } = useOutletContext();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = new URLSearchParams(location.search);
+  const selectedFinanceId = queryParams.get('selectedFinanceId');
+
   const [finances, setFinances] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  const [editItem, setEditItem] = useState(null);
-  const [isNew, setIsNew] = useState(false);
   const [assignItem, setAssignItem] = useState(null);
   const [emojiPicker, setEmojiPicker] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('🚗');
@@ -39,15 +42,19 @@ export default function VehicleFinanceView() {
 
   const getAssignees = useCallback((itemId) => assignments.filter(a => a.entity_id === itemId).map(a => members.find(m => m.id === a.member_id)).filter(Boolean), [assignments, members]);
 
+  const selectedFinance = useMemo(() => 
+    finances.find(f => String(f.id) === String(selectedFinanceId)),
+  [finances, selectedFinanceId]);
+
   useEffect(() => {
-      if (editItem) {
-          setSelectedEmoji(editItem.emoji || '🚗');
-          setSelectedMembers(getAssignees(editItem.id).map(m => m.id));
-      } else if (isNew) {
+      if (selectedFinance) {
+          setSelectedEmoji(selectedFinance.emoji || '🚗');
+          setSelectedMembers(getAssignees(selectedFinance.id).map(m => m.id));
+      } else if (selectedFinanceId === 'new') {
           setSelectedEmoji('🚗');
           setSelectedMembers([currentUser?.id].filter(Boolean));
       }
-  }, [editItem, isNew, getAssignees, currentUser?.id]);
+  }, [selectedFinance, selectedFinanceId, getAssignees, currentUser?.id]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -65,34 +72,48 @@ export default function VehicleFinanceView() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  const setFinanceId = (id) => {
+    const newParams = new URLSearchParams(location.search);
+    if (id) newParams.set('selectedFinanceId', id);
+    else newParams.delete('selectedFinanceId');
+    navigate(`?${newParams.toString()}`, { replace: true });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
+    data.emoji = selectedEmoji;
     try {
-      let itemId = editItem?.id;
-      if (isNew) {
+      let itemId = selectedFinanceId;
+      if (selectedFinanceId === 'new') {
         const res = await api.post(`/households/${householdId}/finance/vehicle-finance`, data);
         itemId = res.data.id;
+        showNotification("Finance agreement added.", "success");
       } else {
         await api.put(`/households/${householdId}/finance/vehicle-finance/${itemId}`, data);
+        showNotification("Finance agreement updated.", "success");
       }
-      const currentIds = isNew ? [] : getAssignees(itemId).map(m => m.id);
+      const currentIds = selectedFinanceId === 'new' ? [] : getAssignees(itemId).map(m => m.id);
       const toAdd = selectedMembers.filter(id => !currentIds.includes(id));
       await Promise.all(toAdd.map(mid => api.post(`/households/${householdId}/finance/assignments`, {
           entity_type: 'vehicle_finance', entity_id: itemId, member_id: mid
       })));
       const toRemove = currentIds.filter(id => !selectedMembers.includes(id));
       await Promise.all(toRemove.map(mid => api.delete(`/households/${householdId}/finance/assignments/vehicle_finance/${itemId}/${mid}`)));
-      fetchData();
-      setEditItem(null);
-      setIsNew(false);
-    } catch (err) { alert("Failed to save: " + err.message); }
+      
+      await fetchData();
+      setFinanceId(itemId);
+    } catch (err) { showNotification("Failed to save: " + err.message, "danger"); }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this finance agreement?")) return;
-    try { await api.delete(`/households/${householdId}/finance/vehicle-finance/${id}`); fetchData(); } catch { alert("Failed to delete"); }
+    try { 
+        await api.delete(`/households/${householdId}/finance/vehicle-finance/${id}`); 
+        fetchData(); 
+        if (selectedFinanceId === String(id)) setFinanceId(null);
+    } catch { alert("Failed to delete"); }
   };
 
   const handleAssignMember = async (memberId) => {
@@ -123,7 +144,7 @@ export default function VehicleFinanceView() {
                 <Typography level="body-md" color="neutral">Track loans and leases for your fleet.</Typography>
             </Box>
             {isAdmin && (
-                <Button startDecorator={<Add />} onClick={() => { setEditItem({}); setIsNew(true); }}>
+                <Button startDecorator={<Add />} onClick={() => setFinanceId('new')}>
                     Add Agreement
                 </Button>
             )}
@@ -185,7 +206,7 @@ export default function VehicleFinanceView() {
                                     ))}
                                     <IconButton size="sm" onClick={() => setAssignItem(fin)} sx={{ borderRadius: '50%' }}><GroupAdd /></IconButton>
                                 </AvatarGroup>
-                                <IconButton size="sm" onClick={() => { setEditItem(fin); setIsNew(false); }}><Edit /></IconButton>
+                                <IconButton size="sm" onClick={() => setFinanceId(fin.id)}><Edit /></IconButton>
                             </Box>
                         </Card>
                     </Grid>
@@ -193,9 +214,9 @@ export default function VehicleFinanceView() {
             })}
         </Grid>
 
-        <Modal open={Boolean(editItem)} onClose={() => { setEditItem(null); setIsNew(false); }}>
+        <Modal open={Boolean(selectedFinanceId)} onClose={() => setFinanceId(null)}>
             <ModalDialog sx={{ width: '100%', maxWidth: 500 }}>
-                <DialogTitle>{isNew ? 'Add Car Finance' : 'Edit Agreement'}</DialogTitle>
+                <DialogTitle>{selectedFinanceId === 'new' ? 'Add Car Finance' : 'Edit Agreement'}</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleSubmit}>
                         <Stack spacing={2} sx={{ mt: 1 }}>
@@ -203,51 +224,51 @@ export default function VehicleFinanceView() {
                                 <FormLabel>Vehicle</FormLabel>
                                 <AppSelect 
                                     name="vehicle_id" 
-                                    defaultValue={String(editItem?.vehicle_id || '')}
+                                    defaultValue={String(selectedFinance?.vehicle_id || '')}
                                     options={vehicles.map(v => ({ value: String(v.id), label: `${v.emoji} ${v.make} ${v.model} (${v.registration})` }))}
                                     placeholder="Select Vehicle"
                                 />
                             </FormControl>
-                            <FormControl required><FormLabel>Provider</FormLabel><Input name="provider" defaultValue={editItem?.provider} placeholder="e.g. VW Finance" /></FormControl>
-                            <FormControl><FormLabel>Account Number</FormLabel><Input name="account_number" defaultValue={editItem?.account_number} /></FormControl>
+                            <FormControl required><FormLabel>Provider</FormLabel><Input name="provider" defaultValue={selectedFinance?.provider} placeholder="e.g. VW Finance" /></FormControl>
+                            <FormControl><FormLabel>Account Number</FormLabel><Input name="account_number" defaultValue={selectedFinance?.account_number} /></FormControl>
                             <Grid container spacing={2}>
                                 <Grid xs={6}>
                                     <FormControl required><FormLabel>Total Amount (£)</FormLabel>
-                                        <Input name="total_amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.total_amount} />
+                                        <Input name="total_amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedFinance?.total_amount} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={6}>
                                     <FormControl required><FormLabel>Remaining Balance (£)</FormLabel>
-                                        <Input name="remaining_balance" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.remaining_balance} />
+                                        <Input name="remaining_balance" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedFinance?.remaining_balance} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={6}>
                                     <FormControl><FormLabel>Interest Rate (%)</FormLabel>
-                                        <Input name="interest_rate" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.interest_rate} />
+                                        <Input name="interest_rate" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedFinance?.interest_rate} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={6}>
                                     <FormControl><FormLabel>Monthly Payment (£)</FormLabel>
-                                        <Input name="monthly_payment" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.monthly_payment} />
+                                        <Input name="monthly_payment" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedFinance?.monthly_payment} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={6}>
-                                    <FormControl><FormLabel>Start Date</FormLabel><Input name="start_date" type="date" defaultValue={editItem?.start_date} /></FormControl>
+                                    <FormControl><FormLabel>Start Date</FormLabel><Input name="start_date" type="date" defaultValue={selectedFinance?.start_date} /></FormControl>
                                 </Grid>
                                 <Grid xs={6}>
-                                    <FormControl><FormLabel>End Date</FormLabel><Input name="end_date" type="date" defaultValue={editItem?.end_date} /></FormControl>
+                                    <FormControl><FormLabel>End Date</FormLabel><Input name="end_date" type="date" defaultValue={selectedFinance?.end_date} /></FormControl>
                                 </Grid>
                         <Grid xs={6}>
                             <FormControl required>
                                 <FormLabel>Payment Day</FormLabel>
-                                <Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} />
+                                <Input name="payment_day" type="number" min="1" max="31" defaultValue={selectedFinance?.payment_day} />
                             </FormControl>
                         </Grid>
                         <Grid xs={6} sx={{ display: 'flex', alignItems: 'center' }}>
                             <Checkbox 
                                 label="Nearest Working Day (Next)" 
                                 name="nearest_working_day"
-                                defaultChecked={editItem?.nearest_working_day !== 0}
+                                defaultChecked={selectedFinance?.nearest_working_day !== 0}
                                 value="1"
                                 sx={{ mt: 3 }}
                             />
@@ -272,9 +293,9 @@ export default function VehicleFinanceView() {
                             </FormControl>
                         </Stack>
                         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
-                            {!isNew && <Button color="danger" variant="soft" onClick={() => { handleDelete(editItem.id); setEditItem(null); }}>Delete</Button>}
+                            {selectedFinanceId !== 'new' && <Button color="danger" variant="soft" onClick={() => { handleDelete(selectedFinance.id); }}>Delete</Button>}
                             <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
-                                <Button variant="plain" color="neutral" onClick={() => { setEditItem(null); setIsNew(false); }}>Cancel</Button>
+                                <Button variant="plain" color="neutral" onClick={() => setFinanceId(null)}>Cancel</Button>
                                 <Button type="submit">Save</Button>
                             </Box>
                         </Box>

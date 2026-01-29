@@ -90,7 +90,7 @@ export default function VehiclesView() {
             fetchVehiclesList()
         ]);
         
-        navigate(`../vehicles/${res.data.id}`);
+        navigate(`../${res.data.id}`, { replace: true });
       } else {
         await api.put(`/households/${householdId}/vehicles/${vehicleId}`, data);
         showNotification("Vehicle updated.", "success");

@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Button, Sheet, Table, IconButton, 
   Modal, ModalDialog, ModalClose, FormControl, FormLabel, Input, 
@@ -19,9 +19,12 @@ const formatCurrency = (val, currencyCode = 'GBP') => {
 
 export default function InvestmentsView() {
   const { api, id: householdId, household, showNotification, confirmAction } = useOutletContext();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = new URLSearchParams(location.search);
+  const selectedInvestmentId = queryParams.get('selectedInvestmentId');
+
   const [investments, setInvestments] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [editingId, setEditingId] = useState(null);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -37,34 +40,51 @@ export default function InvestmentsView() {
   }, [api, householdId]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchInvestments();
   }, [fetchInvestments]);
 
-  const handleEdit = (inv) => {
-    setEditingId(inv.id);
-    setFormData({
-      name: inv.name, platform: inv.platform,
-      current_value: inv.current_value, total_invested: inv.total_invested,
-      emoji: inv.emoji || '📈'
-    });
-    setOpen(true);
+  const selectedInvestment = useMemo(() => 
+    investments.find(i => String(i.id) === String(selectedInvestmentId)),
+  [investments, selectedInvestmentId]);
+
+  useEffect(() => {
+    if (selectedInvestment) {
+      setFormData({
+        name: selectedInvestment.name, platform: selectedInvestment.platform,
+        current_value: selectedInvestment.current_value, total_invested: selectedInvestment.total_invested,
+        emoji: selectedInvestment.emoji || '📈'
+      });
+    } else if (selectedInvestmentId === 'new') {
+      setFormData({
+        name: '', platform: '', current_value: 0, total_invested: 0, emoji: '📈'
+      });
+    }
+  }, [selectedInvestment, selectedInvestmentId]);
+
+  const setInvestmentId = (id) => {
+    const newParams = new URLSearchParams(location.search);
+    if (id) newParams.set('selectedInvestmentId', id);
+    else newParams.delete('selectedInvestmentId');
+    navigate(`?${newParams.toString()}`, { replace: true });
   };
 
   const handleSave = async () => {
     try {
-      const realUrl = editingId ? `/households/${householdId}/finance/investments/${editingId}` : `/households/${householdId}/finance/investments`;
-      await api[editingId ? 'put' : 'post'](realUrl, formData);
-      setOpen(false); setEditingId(null); fetchInvestments();
-      showNotification("Saved.", "success");
-    } catch { showNotification("Error.", "danger"); }
+      const isNew = selectedInvestmentId === 'new';
+      const realUrl = isNew ? `/households/${householdId}/finance/investments` : `/households/${householdId}/finance/investments/${selectedInvestmentId}`;
+      const res = await api[isNew ? 'post' : 'put'](realUrl, formData);
+      
+      showNotification(isNew ? "Investment added." : "Investment updated.", "success");
+      await fetchInvestments();
+      setInvestmentId(isNew ? res.data.id : null);
+    } catch { showNotification("Error saving investment.", "danger"); }
   };
 
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography level="h2" startDecorator={<TrendingUp />}>Investments</Typography>
-        <Button startDecorator={<Add />} onClick={() => { setEditingId(null); setOpen(true); }}>Add Investment</Button>
+        <Button startDecorator={<Add />} onClick={() => setInvestmentId('new')}>Add Investment</Button>
       </Box>
 
       <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
@@ -87,8 +107,8 @@ export default function InvestmentsView() {
                 <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{formatCurrency(inv.current_value, household?.currency)}</td>
                 <td>
                   <Box sx={{ display: 'flex', gap: 0.5 }}>
-                    <IconButton size="sm" onClick={() => handleEdit(inv)}><Edit /></IconButton>
-                    <IconButton size="sm" color="danger" onClick={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/investments/${inv.id}`).then(fetchInvestments))}><Delete /></IconButton>
+                    <IconButton size="sm" onClick={() => setInvestmentId(inv.id)}><Edit /></IconButton>
+                    <IconButton size="sm" color="danger" onClick={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/investments/${inv.id}`).then(() => { fetchInvestments(); if (selectedInvestmentId === String(inv.id)) setInvestmentId(null); }))}><Delete /></IconButton>
                   </Box>
                 </td>
               </tr>
@@ -97,10 +117,10 @@ export default function InvestmentsView() {
         </Table>
       </Sheet>
 
-      <Modal open={open} onClose={() => setOpen(false)}>
+      <Modal open={Boolean(selectedInvestmentId)} onClose={() => setInvestmentId(null)}>
         <ModalDialog sx={{ maxWidth: 500, width: '100%' }}>
           <ModalClose />
-          <Typography level="h4">{editingId ? 'Edit Investment' : 'New Investment'}</Typography>
+          <Typography level="h4">{selectedInvestmentId === 'new' ? 'New Investment' : 'Edit Investment'}</Typography>
           <Divider />
           <Stack spacing={2} sx={{ mt: 2 }}>
             <Box sx={{ display: 'flex', gap: 2 }}>

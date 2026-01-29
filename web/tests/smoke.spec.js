@@ -46,26 +46,31 @@ test.describe('System Smoke & Comprehensive Test', () => {
     // 4. PEOPLE (Family Setup)
     // ==========================================
     console.log('Step 4: Creating Family Members (2 Income Family)');
-    await page.click('nav a:has-text("People")');
-    await expect(page.locator('h2:has-text("Household Residents")')).toBeVisible({ timeout: 20000 });
     
     const family = [
-        { name: 'John Doe', type: 'Adult', alias: 'John' },
-        { name: 'Jane Doe', type: 'Adult', alias: 'Jane' },
-        { name: 'Billy Doe', type: 'Child', alias: 'Billy' }
+        { first: 'John', last: 'Doe', type: 'Adult', alias: 'John' },
+        { first: 'Jane', last: 'Doe', type: 'Adult', alias: 'Jane' },
+        { first: 'Billy', last: 'Doe', type: 'Child', alias: 'Billy' }
     ];
 
     for (const m of family) {
-        console.log(`   - Adding Member: ${m.name}`);
-        // MUI Joy Select handling
-        await page.click('label:has-text("Type") + div button');
-        await page.click(`li[role="option"]:has-text("${m.type}")`);
+        console.log(`   - Adding Member: ${m.first} ${m.last}`);
+        await page.click('nav a:has-text("People")');
+        await expect(page.locator('h2:has-text("People & Residents")')).toBeVisible({ timeout: 20000 });
+
+        // Click the appropriate "Add" button in the EntityGrid
+        const addBtnLabel = m.type === 'Adult' ? 'Add Adult' : 'Add Child';
+        await page.click(`.MuiCard-root:has-text("${addBtnLabel}")`);
         
-        await page.fill('input[name="name"]', m.name);
+        await page.fill('input[name="first_name"]', m.first);
+        await page.fill('input[name="last_name"]', m.last);
         await page.fill('input[name="alias"]', m.alias);
-        await page.click('button:has-text("Add Resident")');
-        // Use a more specific locator to avoid matching the form itself if it persists
-        await expect(page.locator(`.MuiCard-root:has-text("${m.name}")`).first()).toBeVisible({ timeout: 15000 });
+        
+        await page.click('button:has-text("Create Person")');
+        
+        // Verify navigation to the new person's page
+        await expect(page).toHaveURL(/.*people\/\d+/, { timeout: 15000 });
+        await expect(page.locator(`h2:has-text("${m.first} ${m.last}")`)).toBeVisible();
     }
 
     // ==========================================
@@ -98,6 +103,7 @@ test.describe('System Smoke & Comprehensive Test', () => {
     await page.click('li[role="option"]:has-text("Property")');
     await page.fill('input[name="purchase_value"]', '450000');
     await page.click('button:has-text("Save Asset")');
+    await expect(page).toHaveURL(/.*assets\/\d+/, { timeout: 15000 });
     await expect(page.locator('text=Family Home')).toBeVisible();
 
     // ==========================================
@@ -114,6 +120,7 @@ test.describe('System Smoke & Comprehensive Test', () => {
     await page.fill('input[name="account_name"]', 'Joint Checking');
     await page.fill('input[name="overdraft_limit"]', '1000');
     await page.click('button:has-text("Save Account")');
+    await expect(page).toHaveURL(/.*selectedAccountId=\d+/, { timeout: 15000 });
     await expect(page.locator('text=Joint Checking')).toBeVisible();
 
     // 7.2 Savings + Pots
@@ -124,6 +131,7 @@ test.describe('System Smoke & Comprehensive Test', () => {
     await page.fill('input[name="account_name"]', 'Rainy Day');
     await page.fill('input[name="current_balance"]', '5000');
     await page.click('button:has-text("Save Account")');
+    await expect(page).toHaveURL(/.*selectedAccountId=\d+/, { timeout: 15000 });
     
     // Add a pot to the Barclays account
     await page.locator('.MuiCard-root:has-text("Barclays")').locator('button:has-text("Add Pot")').click();
@@ -131,6 +139,7 @@ test.describe('System Smoke & Comprehensive Test', () => {
     await page.fill('input[name="current_amount"]', '2000');
     await page.fill('input[name="target_amount"]', '5000');
     await page.click('button:has-text("Save Pot")');
+    await expect(page).toHaveURL(/.*selectedPotId=\d+/, { timeout: 15000 });
     await expect(page.locator('text=Holiday Fund')).toBeVisible();
 
     // 7.3 Dual Income
@@ -147,6 +156,7 @@ test.describe('System Smoke & Comprehensive Test', () => {
     await page.click('li[role="option"]:has-text("HSBC - Joint Checking")');
     await page.check('input[name="is_primary"]');
     await page.click('button:has-text("Save Income")');
+    await expect(page).toHaveURL(/.*selectedIncomeId=\d+/, { timeout: 15000 });
 
     // Jane's Income
     await page.click('button:has-text("Add Income")');
@@ -157,6 +167,7 @@ test.describe('System Smoke & Comprehensive Test', () => {
     await page.click('label:has-text("Deposit to Account") + div button');
     await page.click('li[role="option"]:has-text("HSBC - Joint Checking")');
     await page.click('button:has-text("Save Income")');
+    await expect(page).toHaveURL(/.*selectedIncomeId=\d+/, { timeout: 15000 });
 
     // 7.4 2 Car Finance Agreements
     console.log('   - Setting up 2 Car Finance Agreements');
@@ -172,6 +183,7 @@ test.describe('System Smoke & Comprehensive Test', () => {
     await page.fill('input[name="monthly_payment"]', '550');
     await page.fill('input[name="payment_day"]', '1');
     await page.click('button:has-text("Save")');
+    await expect(page).toHaveURL(/.*selectedFinanceId=\d+/, { timeout: 15000 });
 
     // Ford Finance
     await page.click('button:has-text("Add Agreement")');
@@ -183,6 +195,7 @@ test.describe('System Smoke & Comprehensive Test', () => {
     await page.fill('input[name="monthly_payment"]', '400');
     await page.fill('input[name="payment_day"]', '15');
     await page.click('button:has-text("Save")');
+    await expect(page).toHaveURL(/.*selectedFinanceId=\d+/, { timeout: 15000 });
 
     // 7.5 Mortgage
     console.log('   - Setting up Mortgage');
@@ -198,6 +211,7 @@ test.describe('System Smoke & Comprehensive Test', () => {
     await page.fill('input[name="monthly_payment"]', '1800');
     await page.fill('input[name="payment_day"]', '1');
     await page.click('button:has-text("Save Mortgage Details")');
+    await expect(page).toHaveURL(/.*selectedMortgageId=\d+/, { timeout: 15000 });
 
     // 7.6 Personal Loan
     console.log('   - Setting up Personal Loan');
@@ -208,6 +222,7 @@ test.describe('System Smoke & Comprehensive Test', () => {
     await page.fill('label:has-text("Remaining Balance") + input', '10000');
     await page.fill('label:has-text("Monthly Payment") + input', '250');
     await page.click('button:has-text("Save")');
+    await expect(page).toHaveURL(/.*selectedLoanId=\d+/, { timeout: 15000 });
 
     // 7.7 Pensions with Contributions
     console.log('   - Setting up Pensions');
@@ -220,6 +235,7 @@ test.describe('System Smoke & Comprehensive Test', () => {
     await page.fill('input[name="current_value"]', '25000');
     await page.fill('input[name="monthly_contribution"]', '300');
     await page.click('button:has-text("Save")');
+    await expect(page).toHaveURL(/.*selectedPensionId=\d+/, { timeout: 15000 });
 
     // Jane's Pension
     await page.click('button:has-text("Add Pension")');
@@ -228,6 +244,7 @@ test.describe('System Smoke & Comprehensive Test', () => {
     await page.fill('input[name="current_value"]', '18000');
     await page.fill('input[name="monthly_contribution"]', '250');
     await page.click('button:has-text("Save")');
+    await expect(page).toHaveURL(/.*selectedPensionId=\d+/, { timeout: 15000 });
 
     // 7.8 Bills (Charges)
     console.log('   - Setting up Recurring Bills');

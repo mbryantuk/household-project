@@ -1,12 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
   Sheet, Table, Checkbox, Tooltip
 } from '@mui/joy';
-import { Edit, Delete, Add, Star, StarBorder, Search } from '@mui/icons-material';
+import { Edit, Delete, Add, Star, StarBorder } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
@@ -18,16 +18,17 @@ const formatCurrency = (val) => {
 };
 
 export default function IncomeView() {
-  const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, members, showNotification } = useOutletContext();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = new URLSearchParams(location.search);
+  const selectedIncomeId = queryParams.get('selectedIncomeId');
+
   const [incomeList, setIncomeList] = useState([]);
   const [bankAccounts, setBankAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editItem, setEditItem] = useState(null);
-  const [isNew, setIsNew] = useState(false);
   
-  // Sorting & Filtering State
   const [sortConfig, setSortConfig] = useState({ key: 'employer', direction: 'asc' });
-  
   const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
 
   useEffect(() => {
@@ -58,19 +59,27 @@ export default function IncomeView() {
     fetchData();
   }, [fetchData]);
 
-  // Derived State
-  const processedData = incomeList
+  const selectedIncome = useMemo(() => 
+    incomeList.find(i => String(i.id) === String(selectedIncomeId)),
+  [incomeList, selectedIncomeId]);
+
+  const setIncomeId = (id) => {
+    const newParams = new URLSearchParams(location.search);
+    if (id) newParams.set('selectedIncomeId', id);
+    else newParams.delete('selectedIncomeId');
+    navigate(`?${newParams.toString()}`, { replace: true });
+  };
+
+  const processedData = useMemo(() => incomeList
     .sort((a, b) => {
-        // Primary always at top
         if (a.is_primary && !b.is_primary) return -1;
         if (!a.is_primary && b.is_primary) return 1;
-
         const valA = a[sortConfig.key] || '';
         const valB = b[sortConfig.key] || '';
         if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
         if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
         return 0;
-    });
+    }), [incomeList, sortConfig]);
 
   const handleSort = (key) => {
       setSortConfig(prev => ({
@@ -94,30 +103,28 @@ export default function IncomeView() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
-
-    // Explicitly handle checkbox (if not present in FormData, it's 0)
     data.is_primary = data.is_primary === "1" ? 1 : 0;
 
     try {
-      if (isNew) {
-        await api.post(`/households/${householdId}/finance/income`, data);
+      if (selectedIncomeId === 'new') {
+        const res = await api.post(`/households/${householdId}/finance/income`, data);
+        showNotification("Income added.", "success");
+        await fetchData();
+        setIncomeId(res.data.id);
       } else {
-        await api.put(`/households/${householdId}/finance/income/${editItem.id}`, data);
+        await api.put(`/households/${householdId}/finance/income/${selectedIncomeId}`, data);
+        showNotification("Income updated.", "success");
+        await fetchData();
+        setIncomeId(null);
       }
-      fetchData();
-      setEditItem(null);
-      setIsNew(false);
     } catch (err) {
-      alert("Failed to save: " + err.message);
+      showNotification("Failed to save: " + err.message, "danger");
     }
   };
 
   const setPrimaryDirect = async (item) => {
       try {
-          await api.put(`/households/${householdId}/finance/income/${item.id}`, {
-              ...item,
-              is_primary: 1
-          });
+          await api.put(`/households/${householdId}/finance/income/${item.id}`, { ...item, is_primary: 1 });
           fetchData();
       } catch (err) { console.error("Failed to set primary income", err); }
   };
@@ -127,6 +134,7 @@ export default function IncomeView() {
     try {
       await api.delete(`/households/${householdId}/finance/income/${id}`);
       fetchData();
+      if (selectedIncomeId === String(id)) setIncomeId(null);
     } catch {
       alert("Failed to delete income source");
     }
@@ -161,7 +169,7 @@ export default function IncomeView() {
           
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
               {isAdmin && (
-                  <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditItem({}); setIsNew(true); }} sx={{ height: '44px' }}>
+                  <Button variant="solid" startDecorator={<Add />} onClick={() => setIncomeId('new')} sx={{ height: '44px' }}>
                       Add Income
                   </Button>
               )}
@@ -235,7 +243,7 @@ export default function IncomeView() {
                                                 <IconButton size="sm" variant="plain" onClick={() => setPrimaryDirect(row)}><StarBorder /></IconButton>
                                             </Tooltip>
                                         )}
-                                        <IconButton size="sm" variant="plain" onClick={() => { setEditItem(row); setIsNew(false); }} sx={{ minHeight: '44px', minWidth: '44px' }}><Edit /></IconButton>
+                                        <IconButton size="sm" variant="plain" onClick={() => setIncomeId(row.id)} sx={{ minHeight: '44px', minWidth: '44px' }}><Edit /></IconButton>
                                         <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(row.id)} sx={{ minHeight: '44px', minWidth: '44px' }}><Delete /></IconButton>
                                     </Box>
                                 </td>
@@ -273,7 +281,7 @@ export default function IncomeView() {
                                 <Chip size="sm" variant="soft">{getMemberName(a.member_id)}</Chip>
                             </Box>
                         </Box>
-                        <IconButton variant="plain" onClick={() => { setEditItem(a); setIsNew(false); }} sx={{ minHeight: '44px', minWidth: '44px' }}>
+                        <IconButton variant="plain" onClick={() => setIncomeId(a.id)} sx={{ minHeight: '44px', minWidth: '44px' }}>
                             <Edit />
                         </IconButton>
                     </Card>
@@ -283,145 +291,55 @@ export default function IncomeView() {
         </Grid>
       )}
 
-      {/* EDIT MODAL */}
-      <Modal open={Boolean(editItem)} onClose={() => setEditItem(null)}>
+      <Modal open={Boolean(selectedIncomeId)} onClose={() => setIncomeId(null)}>
         <ModalDialog sx={{ maxWidth: 800, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>
-            <DialogTitle>{isNew ? 'Add Income Source' : `Edit ${editItem?.employer}`}</DialogTitle>
+            <DialogTitle>{selectedIncomeId === 'new' ? 'Add Income Source' : `Edit ${selectedIncome?.employer}`}</DialogTitle>
             <DialogContent>
                 <form onSubmit={handleSubmit}>
                     <Grid container spacing={2} sx={{ mt: 1 }}>
                         <Grid xs={12} md={6}>
-                            <FormControl required>
-                                <FormLabel>Employer / Source Name</FormLabel>
-                                <Input name="employer" defaultValue={editItem?.employer} />
-                            </FormControl>
+                            <FormControl required><FormLabel>Employer / Source Name</FormLabel><Input name="employer" defaultValue={selectedIncome?.employer} /></FormControl>
                         </Grid>
                         <Grid xs={12} md={6}>
-                            <FormControl>
-                                <FormLabel>Role / Job Title</FormLabel>
-                                <Input name="role" defaultValue={editItem?.role} />
-                            </FormControl>
-                        </Grid>
-                        
-                        <Grid xs={12} md={6}>
-                             <AppSelect 
-                                label="Employment Type"
-                                name="employment_type"
-                                defaultValue={editItem?.employment_type || 'employed'}
-                                options={[
-                                    { value: 'employed', label: 'Employed' },
-                                    { value: 'self_employed', label: 'Self Employed' },
-                                    { value: 'contractor', label: 'Contractor' },
-                                    { value: 'retired', label: 'Retired' },
-                                    { value: 'unemployed', label: 'Unemployed' },
-                                ]}
-                            />
+                            <FormControl><FormLabel>Role / Job Title</FormLabel><Input name="role" defaultValue={selectedIncome?.role} /></FormControl>
                         </Grid>
                         <Grid xs={12} md={6}>
-                             <AppSelect 
-                                label="Work Type"
-                                name="work_type"
-                                defaultValue={editItem?.work_type || 'full_time'}
-                                options={[
-                                    { value: 'full_time', label: 'Full Time' },
-                                    { value: 'part_time', label: 'Part Time' },
-                                ]}
-                            />
-                        </Grid>
-
-                        <Grid xs={12} md={6}>
-                            <AppSelect 
-                                label="Assigned Person"
-                                name="member_id"
-                                defaultValue={String(editItem?.member_id || '')}
-                                options={members.filter(m => m.type !== 'pet').map(m => ({ value: String(m.id), label: m.alias || m.name }))}
-                                placeholder="Select Person..."
-                            />
+                             <AppSelect label="Employment Type" name="employment_type" defaultValue={selectedIncome?.employment_type || 'employed'} options={[{ value: 'employed', label: 'Employed' }, { value: 'self_employed', label: 'Self Employed' }, { value: 'contractor', label: 'Contractor' }, { value: 'retired', label: 'Retired' }, { value: 'unemployed', label: 'Unemployed' }]} />
                         </Grid>
                         <Grid xs={12} md={6}>
-                            <AppSelect 
-                                label="Deposit to Account"
-                                name="bank_account_id"
-                                defaultValue={String(editItem?.bank_account_id || '')}
-                                options={bankAccounts.map(b => ({ value: String(b.id), label: `${b.bank_name} - ${b.account_name}` }))}
-                                placeholder="Select Bank Account..."
-                            />
+                             <AppSelect label="Work Type" name="work_type" defaultValue={selectedIncome?.work_type || 'full_time'} options={[{ value: 'full_time', label: 'Full Time' }, { value: 'part_time', label: 'Part Time' }]} />
                         </Grid>
-
+                        <Grid xs={12} md={6}>
+                            <AppSelect label="Assigned Person" name="member_id" defaultValue={String(selectedIncome?.member_id || '')} options={members.filter(m => m.type !== 'pet').map(m => ({ value: String(m.id), label: m.alias || m.name }))} placeholder="Select Person..." />
+                        </Grid>
+                        <Grid xs={12} md={6}>
+                            <AppSelect label="Deposit to Account" name="bank_account_id" defaultValue={String(selectedIncome?.bank_account_id || '')} options={bankAccounts.map(b => ({ value: String(b.id), label: `${b.bank_name} - ${b.account_name}` }))} placeholder="Select Bank Account..." />
+                        </Grid>
                         <Grid xs={12}><Divider>Financial Details</Divider></Grid>
-                        
                         <Grid xs={12} sm={6} md={3}>
-                            <FormControl>
-                                <FormLabel>Gross Annual (£)</FormLabel>
-                                <Input name="gross_annual_salary" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.gross_annual_salary} />
-                            </FormControl>
+                            <FormControl><FormLabel>Gross Annual (£)</FormLabel><Input name="gross_annual_salary" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedIncome?.gross_annual_salary} /></FormControl>
                         </Grid>
                         <Grid xs={12} sm={6} md={3}>
-                            <FormControl required>
-                                <FormLabel>Net Pay (per freq)</FormLabel>
-                                <Input name="amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.amount} />
-                            </FormControl>
+                            <FormControl required><FormLabel>Net Pay (per freq)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedIncome?.amount} /></FormControl>
                         </Grid>
                         <Grid xs={12} sm={6} md={3}>
-                             <AppSelect 
-                                label="Frequency"
-                                name="frequency"
-                                defaultValue={editItem?.frequency || 'monthly'}
-                                options={[
-                                    { value: 'weekly', label: 'Weekly' },
-                                    { value: 'bi-weekly', label: 'Bi-Weekly' },
-                                    { value: 'monthly', label: 'Monthly' },
-                                    { value: 'annual', label: 'Annual' },
-                                ]}
-                            />
+                             <AppSelect label="Frequency" name="frequency" defaultValue={selectedIncome?.frequency || 'monthly'} options={[{ value: 'weekly', label: 'Weekly' }, { value: 'bi-weekly', label: 'Bi-Weekly' }, { value: 'monthly', label: 'Monthly' }, { value: 'annual', label: 'Annual' }]} />
                         </Grid>
                         <Grid xs={12} sm={6} md={3}>
-                            <FormControl required>
-                                <FormLabel>Payment Day</FormLabel>
-                                <Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} placeholder="e.g. 25" />
-                            </FormControl>
+                            <FormControl required><FormLabel>Payment Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={selectedIncome?.payment_day} placeholder="e.g. 25" /></FormControl>
                         </Grid>
-
-                        <Grid xs={12}>
-                            <FormControl>
-                                <FormLabel>Add-ons / Bonuses (Description)</FormLabel>
-                                <Input name="addons" defaultValue={editItem?.addons} placeholder="e.g. 10% annual bonus, stock options..." />
-                            </FormControl>
-                        </Grid>
-
-                        <Grid xs={12} md={6}>
-                            <FormControl>
-                                <FormLabel>Notes</FormLabel>
-                                <Input name="notes" defaultValue={editItem?.notes} />
-                            </FormControl>
-                        </Grid>
-                        <Grid xs={12} md={6}>
-                            <FormControl>
-                                <FormLabel>Emoji</FormLabel>
-                                <Input name="emoji" defaultValue={editItem?.emoji} />
-                            </FormControl>
-                        </Grid>
-
+                        <Grid xs={12}><FormControl><FormLabel>Add-ons / Bonuses (Description)</FormLabel><Input name="addons" defaultValue={selectedIncome?.addons} placeholder="e.g. 10% annual bonus, stock options..." /></FormControl></Grid>
+                        <Grid xs={12} md={6}><FormControl><FormLabel>Notes</FormLabel><Input name="notes" defaultValue={selectedIncome?.notes} /></FormControl></Grid>
+                        <Grid xs={12} md={6}><FormControl><FormLabel>Emoji</FormLabel><Input name="emoji" defaultValue={selectedIncome?.emoji} /></FormControl></Grid>
                         <Grid xs={12}>
                             <Stack direction="row" spacing={2}>
-                                <Checkbox 
-                                    label="Primary Paycheck (Drivers Budget Cycle)" 
-                                    name="is_primary"
-                                    defaultChecked={editItem?.is_primary === 1}
-                                    value="1"
-                                />
-                                <Checkbox 
-                                    label="Nearest Working Day (Prior)" 
-                                    name="nearest_working_day"
-                                    defaultChecked={editItem?.nearest_working_day !== 0} // Default to 1
-                                    value="1"
-                                />
+                                <Checkbox label="Primary Paycheck (Drivers Budget Cycle)" name="is_primary" defaultChecked={selectedIncome?.is_primary === 1} value="1" />
+                                <Checkbox label="Nearest Working Day (Prior)" name="nearest_working_day" defaultChecked={selectedIncome?.nearest_working_day !== 0} value="1" />
                             </Stack>
                         </Grid>
-
                     </Grid>
                     <DialogActions sx={{ mt: 2 }}>
-                        <Button variant="plain" color="neutral" onClick={() => setEditItem(null)} sx={{ height: '44px' }}>Cancel</Button>
+                        <Button variant="plain" color="neutral" onClick={() => setIncomeId(null)} sx={{ height: '44px' }}>Cancel</Button>
                         <Button type="submit" variant="solid" sx={{ height: '44px' }}>Save Income</Button>
                     </DialogActions>
                 </form>

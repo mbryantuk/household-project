@@ -18,16 +18,21 @@ export default function HouseView() {
   const { api, id: householdId, onUpdateHousehold, user: currentUser, showNotification, confirmAction } = useOutletContext();
   const household_data = useOutletContext().household;
   const isAdmin = currentUser?.role === 'admin';
+  const { houseId, assetId } = useParams();
   const navigate = useNavigate();
 
   const [viewMode, setViewMode] = useState('details'); 
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(assetId ? 3 : 0);
   const [household, setHousehold] = useState(null);
   const [vehicles, setVehicles] = useState([]);
   const [loadingHh, setLoadingHh] = useState(true);
   const [savingHh, setSavingHh] = useState(false);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('🏠');
+
+  useEffect(() => {
+    if (assetId) setActiveTab(3);
+  }, [assetId]);
 
   useEffect(() => {
     // Fetch Household

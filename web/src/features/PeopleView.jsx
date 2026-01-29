@@ -20,12 +20,15 @@ export default function PeopleView() {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(0);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [localPerson, setLocalPerson] = useState(null);
   
   const isAdmin = currentUser?.role === 'admin';
 
-  const selectedPerson = useMemo(() => 
-    (members || []).find(m => m.id === parseInt(personId)), 
-  [members, personId]);
+  const selectedPerson = useMemo(() => {
+    if (localPerson && String(localPerson.id) === String(personId)) return localPerson;
+    return (members || []).find(m => m.id === parseInt(personId));
+  }, [members, personId, localPerson]);
 
   const queryParams = new URLSearchParams(location.search);
   const initialType = queryParams.get('type') || 'adult';
@@ -34,6 +37,17 @@ export default function PeopleView() {
     first_name: '', middle_name: '', last_name: '',
     type: initialType, alias: '', dob: '', emoji: '👨', notes: '',
   });
+
+  // Fetch person if not in members list (e.g. direct link or just created)
+  useEffect(() => {
+    if (personId && personId !== 'new' && !selectedPerson && !loading) {
+        setLoading(true);
+        api.get(`/households/${householdId}/members/${personId}`)
+            .then(res => setLocalPerson(res.data))
+            .catch(() => showNotification("Failed to load person.", "danger"))
+            .finally(() => setLoading(false));
+    }
+  }, [personId, selectedPerson, api, householdId, loading, showNotification]);
 
   useEffect(() => {
     if (selectedPerson) {
@@ -47,14 +61,14 @@ export default function PeopleView() {
         emoji: selectedPerson.emoji || '👨',
         notes: selectedPerson.notes || '',
       };
-      Promise.resolve().then(() => setFormData(data));
+      setFormData(data);
     } else if (personId === 'new') {
       const currentType = new URLSearchParams(location.search).get('type') || 'adult';
       const data = {
         first_name: '', middle_name: '', last_name: '',
         type: currentType, alias: '', dob: '', emoji: currentType === 'child' ? '👶' : '👨', notes: '',
       };
-      Promise.resolve().then(() => setFormData(data));
+      setFormData(data);
     }
   }, [selectedPerson, personId, location.search]);
 
@@ -69,8 +83,11 @@ export default function PeopleView() {
       if (personId === 'new') {
         const res = await api.post(`/households/${householdId}/members`, formData);
         showNotification("Person added.", "success");
+        // Update local person immediately to prevent fallback to list
+        setLocalPerson(res.data);
         await fetchHhMembers(householdId);
-        navigate(`../people/${res.data.id}`);
+        // Correct navigation to the person's detail page
+        navigate(`../${res.data.id}`, { replace: true });
       } else {
         await api.put(`/households/${householdId}/members/${personId}`, formData);
         showNotification("Details updated.", "success");
@@ -113,7 +130,7 @@ export default function PeopleView() {
   }, [members]);
 
 
-  if (personId !== 'new' && !selectedPerson) {
+  if (!personId) {
     const sections = [
         {
             title: 'Adults',
@@ -163,6 +180,14 @@ export default function PeopleView() {
             />
         </Box>
     );
+  }
+
+  if (loading || (personId !== 'new' && !selectedPerson)) {
+      return (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
+              <CircularProgress />
+          </Box>
+      );
   }
 
   return (

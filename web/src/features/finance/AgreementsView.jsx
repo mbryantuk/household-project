@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Card, Avatar, IconButton, 
-  Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
+  Button, Modal, ModalDialog, DialogTitle, DialogContent, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup, LinearProgress, Checkbox
+  AvatarGroup, LinearProgress, Checkbox, DialogActions
 } from '@mui/joy';
 import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
@@ -17,13 +17,16 @@ const formatCurrency = (val) => {
 };
 
 export default function AgreementsView({ isSubscriptions = false }) {
-  const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, members, showNotification } = useOutletContext();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = new URLSearchParams(location.search);
+  const selectedAgreementId = queryParams.get('selectedAgreementId');
+
   const [items, setItems] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  const [editItem, setEditItem] = useState(null);
-  const [isNew, setIsNew] = useState(false);
   const [assignItem, setAssignItem] = useState(null);
   const [emojiPicker, setEmojiPicker] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState(isSubscriptions ? '📱' : '📄');
@@ -33,15 +36,19 @@ export default function AgreementsView({ isSubscriptions = false }) {
 
   const getAssignees = useCallback((itemId) => assignments.filter(a => a.entity_id === itemId).map(a => members.find(m => m.id === a.member_id)).filter(Boolean), [assignments, members]);
 
+  const selectedAgreement = useMemo(() => 
+    items.find(i => String(i.id) === String(selectedAgreementId)),
+  [items, selectedAgreementId]);
+
   useEffect(() => {
-      if (editItem) {
-          setSelectedEmoji(editItem.emoji || (isSubscriptions ? '📱' : '📄'));
-          setSelectedMembers(getAssignees(editItem.id).map(m => m.id));
-      } else if (isNew) {
+      if (selectedAgreement) {
+          setSelectedEmoji(selectedAgreement.emoji || (isSubscriptions ? '📱' : '📄'));
+          setSelectedMembers(getAssignees(selectedAgreement.id).map(m => m.id));
+      } else if (selectedAgreementId === 'new') {
           setSelectedEmoji(isSubscriptions ? '📱' : '📄');
           setSelectedMembers([currentUser?.id].filter(Boolean));
       }
-  }, [editItem, isNew, isSubscriptions, getAssignees, currentUser?.id]);
+  }, [selectedAgreement, selectedAgreementId, isSubscriptions, getAssignees, currentUser?.id]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -57,38 +64,52 @@ export default function AgreementsView({ isSubscriptions = false }) {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  const setAgreementId = (id) => {
+    const newParams = new URLSearchParams(location.search);
+    if (id) newParams.set('selectedAgreementId', id);
+    else newParams.delete('selectedAgreementId');
+    navigate(`?${newParams.toString()}`, { replace: true });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
+    data.emoji = selectedEmoji;
     
     // Tag as subscription if in sub mode
     if (isSubscriptions) data.notes = (data.notes || '') + ' [SUB]';
 
     try {
-      let itemId = editItem?.id;
-      if (isNew) {
+      let itemId = selectedAgreementId;
+      if (selectedAgreementId === 'new') {
         const res = await api.post(`/households/${householdId}/finance/agreements`, data);
         itemId = res.data.id;
+        showNotification("Agreement added.", "success");
       } else {
         await api.put(`/households/${householdId}/finance/agreements/${itemId}`, data);
+        showNotification("Agreement updated.", "success");
       }
-      const currentIds = isNew ? [] : getAssignees(itemId).map(m => m.id);
+      const currentIds = selectedAgreementId === 'new' ? [] : getAssignees(itemId).map(m => m.id);
       const toAdd = selectedMembers.filter(id => !currentIds.includes(id));
       await Promise.all(toAdd.map(mid => api.post(`/households/${householdId}/finance/assignments`, {
           entity_type: 'finance_agreements', entity_id: itemId, member_id: mid
       })));
       const toRemove = currentIds.filter(id => !selectedMembers.includes(id));
       await Promise.all(toRemove.map(mid => api.delete(`/households/${householdId}/finance/assignments/finance_agreements/${itemId}/${mid}`)));
-      fetchData();
-      setEditItem(null);
-      setIsNew(false);
-    } catch (err) { alert("Failed to save: " + err.message); }
+      
+      await fetchData();
+      setAgreementId(itemId);
+    } catch (err) { showNotification("Failed to save: " + err.message, "danger"); }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this item?")) return;
-    try { await api.delete(`/households/${householdId}/finance/agreements/${id}`); fetchData(); } catch { alert("Failed to delete"); }
+    try { 
+        await api.delete(`/households/${householdId}/finance/agreements/${id}`); 
+        fetchData(); 
+        if (selectedAgreementId === String(id)) setAgreementId(null);
+    } catch { alert("Failed to delete"); }
   };
 
   const handleAssignMember = async (memberId) => {
@@ -123,7 +144,7 @@ export default function AgreementsView({ isSubscriptions = false }) {
                 </Typography>
             </Box>
             {isAdmin && (
-                <Button startDecorator={<Add />} onClick={() => { setEditItem({}); setIsNew(true); }}>
+                <Button startDecorator={<Add />} onClick={() => setAgreementId('new')}>
                     Add {isSubscriptions ? 'Subscription' : 'Agreement'}
                 </Button>
             )}
@@ -190,7 +211,7 @@ export default function AgreementsView({ isSubscriptions = false }) {
                                     ))}
                                     <IconButton size="sm" onClick={() => setAssignItem(item)} sx={{ borderRadius: '50%' }}><GroupAdd /></IconButton>
                                 </AvatarGroup>
-                                <IconButton size="sm" onClick={() => { setEditItem(item); setIsNew(false); }}><Edit /></IconButton>
+                                <IconButton size="sm" onClick={() => setAgreementId(item.id)}><Edit /></IconButton>
                             </Box>
                         </Card>
                     </Grid>
@@ -198,38 +219,38 @@ export default function AgreementsView({ isSubscriptions = false }) {
             })}
         </Grid>
 
-        <Modal open={Boolean(editItem)} onClose={() => { setEditItem(null); setIsNew(false); }}>
+        <Modal open={Boolean(selectedAgreementId)} onClose={() => setAgreementId(null)}>
             <ModalDialog sx={{ width: '100%', maxWidth: 500 }}>
-                <DialogTitle>{isNew ? (isSubscriptions ? 'Add Subscription' : 'Add Agreement') : 'Edit Details'}</DialogTitle>
+                <DialogTitle>{selectedAgreementId === 'new' ? (isSubscriptions ? 'Add Subscription' : 'Add Agreement') : 'Edit Details'}</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleSubmit}>
                         <Stack spacing={2} sx={{ mt: 1 }}>
                             <Grid container spacing={2}>
                                 <Grid xs={12}>
-                                    <FormControl required><FormLabel>Service / Agreement Name</FormLabel><Input name="agreement_name" defaultValue={editItem?.agreement_name} placeholder="e.g. Netflix / iPhone 15" /></FormControl>
+                                    <FormControl required><FormLabel>Service / Agreement Name</FormLabel><Input name="agreement_name" defaultValue={selectedAgreement?.agreement_name} placeholder="e.g. Netflix / iPhone 15" /></FormControl>
                                 </Grid>
                                 <Grid xs={12}>
-                                    <FormControl required><FormLabel>Provider</FormLabel><Input name="provider" defaultValue={editItem?.provider} placeholder="e.g. Amazon / EE" /></FormControl>
+                                    <FormControl required><FormLabel>Provider</FormLabel><Input name="provider" defaultValue={selectedAgreement?.provider} placeholder="e.g. Amazon / EE" /></FormControl>
                                 </Grid>
                             </Grid>
                             
                             <Grid container spacing={2}>
                                 <Grid xs={6}>
                                     <FormControl required><FormLabel>Monthly Cost (£)</FormLabel>
-                                        <Input name="monthly_payment" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.monthly_payment} />
+                                        <Input name="monthly_payment" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedAgreement?.monthly_payment} />
                                     </FormControl>
                                 </Grid>
                         <Grid xs={6}>
                             <FormControl>
                                 <FormLabel>Payment Day</FormLabel>
-                                <Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} />
+                                <Input name="payment_day" type="number" min="1" max="31" defaultValue={selectedAgreement?.payment_day} />
                             </FormControl>
                         </Grid>
                         <Grid xs={6} sx={{ display: 'flex', alignItems: 'center' }}>
                             <Checkbox 
                                 label="Nearest Working Day (Next)" 
                                 name="nearest_working_day"
-                                defaultChecked={editItem?.nearest_working_day !== 0}
+                                defaultChecked={selectedAgreement?.nearest_working_day !== 0}
                                 value="1"
                                 sx={{ mt: 3 }}
                             />
@@ -239,20 +260,20 @@ export default function AgreementsView({ isSubscriptions = false }) {
                             {!isSubscriptions && (
                                 <Grid container spacing={2}>
                                     <Grid xs={6}>
-                                        <FormControl><FormLabel>Total Commitment (£)</FormLabel><Input name="total_amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.total_amount} /></FormControl>
+                                        <FormControl><FormLabel>Total Commitment (£)</FormLabel><Input name="total_amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedAgreement?.total_amount} /></FormControl>
                                     </Grid>
                                     <Grid xs={6}>
-                                        <FormControl><FormLabel>Remaining (£)</FormLabel><Input name="remaining_balance" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.remaining_balance} /></FormControl>
+                                        <FormControl><FormLabel>Remaining (£)</FormLabel><Input name="remaining_balance" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedAgreement?.remaining_balance} /></FormControl>
                                     </Grid>
                                 </Grid>
                             )}
 
                             <Grid container spacing={2}>
                                 <Grid xs={6}>
-                                    <FormControl><FormLabel>Start Date</FormLabel><Input name="start_date" type="date" defaultValue={editItem?.start_date} /></FormControl>
+                                    <FormControl><FormLabel>Start Date</FormLabel><Input name="start_date" type="date" defaultValue={selectedAgreement?.start_date} /></FormControl>
                                 </Grid>
                                 <Grid xs={6}>
-                                    <FormControl><FormLabel>End Date / Renewal</FormLabel><Input name="end_date" type="date" defaultValue={editItem?.end_date} /></FormControl>
+                                    <FormControl><FormLabel>End Date / Renewal</FormLabel><Input name="end_date" type="date" defaultValue={selectedAgreement?.end_date} /></FormControl>
                                 </Grid>
                             </Grid>
 
@@ -264,20 +285,18 @@ export default function AgreementsView({ isSubscriptions = false }) {
                             </FormControl>
                             
                             <FormControl><FormLabel>Assign Members</FormLabel>
-                                <AppSelect 
-                                    name="selected_members_dummy"
-                                    multiple
-                                    value={selectedMembers}
-                                    onChange={(val) => setSelectedMembers(val)}
-                                    options={members.filter(m => m.type !== 'pet').map(m => ({ value: m.id, label: `${m.emoji} ${m.name}` }))}
-                                    placeholder="Select members..."
-                                />
+                                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                                    {members.filter(m => m.type !== 'pet').map(m => {
+                                        const isSelected = selectedMembers.includes(m.id);
+                                        return <Chip key={m.id} variant={isSelected ? 'solid' : 'outlined'} color={isSelected ? 'primary' : 'neutral'} onClick={() => setSelectedMembers(prev => prev.includes(m.id) ? prev.filter(id => id !== m.id) : [...prev, m.id])} startDecorator={<Avatar size="sm">{m.emoji}</Avatar>}>{m.name}</Chip>
+                                    })}
+                                </Box>
                             </FormControl>
                         </Stack>
                         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
-                            {!isNew && <Button color="danger" variant="soft" onClick={() => { handleDelete(editItem.id); setEditItem(null); }}>Delete</Button>}
+                            {selectedAgreementId !== 'new' && <Button color="danger" variant="soft" onClick={() => handleDelete(selectedAgreement.id)}>Delete</Button>}
                             <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
-                                <Button variant="plain" color="neutral" onClick={() => { setEditItem(null); setIsNew(false); }}>Cancel</Button>
+                                <Button variant="plain" color="neutral" onClick={() => setAgreementId(null)}>Cancel</Button>
                                 <Button type="submit">Save</Button>
                             </Box>
                         </Box>

@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
@@ -22,15 +22,18 @@ const formatPercent = (val) => {
 };
 
 export default function MortgagesView() {
-  const { api, id: householdId, user: currentUser, isDark, members, household } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, members, household, showNotification } = useOutletContext();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = new URLSearchParams(location.search);
+  const selectedMortgageId = queryParams.get('selectedMortgageId');
+
   const [mortgages, setMortgages] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [assets, setAssets] = useState([]);
   const [houseDetails, setHouseDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  const [editItem, setEditItem] = useState(null);
-  const [isNew, setIsNew] = useState(false);
   const [activeType, setActiveType] = useState('mortgage'); // 'mortgage' | 'equity'
   const [assignItem, setAssignItem] = useState(null);
   const [emojiPicker, setEmojiPicker] = useState(false);
@@ -41,18 +44,21 @@ export default function MortgagesView() {
 
   const getAssignees = useCallback((itemId) => assignments.filter(a => a.entity_id === itemId).map(a => members.find(m => m.id === a.member_id)).filter(Boolean), [assignments, members]);
 
+  const selectedMortgage = useMemo(() => 
+    mortgages.find(m => String(m.id) === String(selectedMortgageId)),
+  [mortgages, selectedMortgageId]);
+
   useEffect(() => {
-      if (editItem && editItem.id) {
-          setSelectedEmoji(editItem.emoji || (editItem.mortgage_type === 'equity' ? '💰' : '🏠'));
-          setSelectedMembers(getAssignees(editItem.id).map(m => m.id));
-          if (editItem.mortgage_type) setActiveType(editItem.mortgage_type);
-      } else if (isNew) {
+      if (selectedMortgage) {
+          setSelectedEmoji(selectedMortgage.emoji || (selectedMortgage.mortgage_type === 'equity' ? '💰' : '🏠'));
+          setSelectedMembers(getAssignees(selectedMortgage.id).map(m => m.id));
+          if (selectedMortgage.mortgage_type) setActiveType(selectedMortgage.mortgage_type);
+      } else if (selectedMortgageId === 'new') {
           setSelectedEmoji(activeType === 'equity' ? '💰' : '🏠');
-          // Default to the first adult member, not the system user ID (which mismatches)
           const defaultMember = members.find(m => m.type !== 'pet');
           setSelectedMembers(defaultMember ? [defaultMember.id] : []);
       }
-  }, [editItem, isNew, activeType, getAssignees, members]);
+  }, [selectedMortgage, selectedMortgageId, activeType, getAssignees, members]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -76,6 +82,14 @@ export default function MortgagesView() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  const setMortgageId = (id, type) => {
+    const newParams = new URLSearchParams(location.search);
+    if (id) newParams.set('selectedMortgageId', id);
+    else newParams.delete('selectedMortgageId');
+    if (type) setActiveType(type);
+    navigate(`?${newParams.toString()}`, { replace: true });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -89,15 +103,17 @@ export default function MortgagesView() {
     });
 
     try {
-      let itemId = editItem?.id;
-      if (isNew) {
+      let itemId = selectedMortgageId;
+      if (selectedMortgageId === 'new') {
         const res = await api.post(`/households/${householdId}/finance/mortgages`, { ...data, mortgage_type: activeType });
         itemId = res.data.id;
+        showNotification("Mortgage/Equity loan added.", "success");
       } else {
         await api.put(`/households/${householdId}/finance/mortgages/${itemId}`, data);
+        showNotification("Mortgage/Equity loan updated.", "success");
       }
       
-      const currentIds = isNew ? [] : getAssignees(itemId).map(m => m.id);
+      const currentIds = selectedMortgageId === 'new' ? [] : getAssignees(itemId).map(m => m.id);
       const toAdd = selectedMembers.filter(id => !currentIds.includes(id));
       await Promise.all(toAdd.map(mid => api.post(`/households/${householdId}/finance/assignments`, {
           entity_type: 'finance_mortgages', entity_id: itemId, member_id: mid
@@ -105,17 +121,20 @@ export default function MortgagesView() {
       const toRemove = currentIds.filter(id => !selectedMembers.includes(id));
       await Promise.all(toRemove.map(mid => api.delete(`/households/${householdId}/finance/assignments/finance_mortgages/${itemId}/${mid}`)));
       
-      fetchData();
-      setEditItem(null);
-      setIsNew(false);
+      await fetchData();
+      setMortgageId(itemId);
     } catch (err) {
-      alert("Failed to save: " + err.message);
+      showNotification("Failed to save: " + err.message, "danger");
     }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this item?")) return;
-    try { await api.delete(`/households/${householdId}/finance/mortgages/${id}`); fetchData(); } catch { alert("Failed to delete"); }
+    try { 
+        await api.delete(`/households/${householdId}/finance/mortgages/${id}`); 
+        fetchData(); 
+        if (selectedMortgageId === String(id)) setMortgageId(null);
+    } catch { alert("Failed to delete"); }
   };
 
   const handleAssignMember = async (memberId) => {
@@ -224,8 +243,8 @@ export default function MortgagesView() {
                 <Dropdown>
                     <MenuButton variant="solid" color="primary" startDecorator={<Add />} endDecorator={<ArrowDropDown />}>Add New</MenuButton>
                     <Menu placement="bottom-end">
-                        <MenuItem onClick={() => { setEditItem({}); setIsNew(true); setActiveType('mortgage'); }}>Add Mortgage</MenuItem>
-                        <MenuItem onClick={() => { setEditItem({}); setIsNew(true); setActiveType('equity'); }}>Add Equity Loan</MenuItem>
+                        <MenuItem onClick={() => setMortgageId('new', 'mortgage')}>Add Mortgage</MenuItem>
+                        <MenuItem onClick={() => setMortgageId('new', 'equity')}>Add Equity Loan</MenuItem>
                     </Menu>
                 </Dropdown>
             )}
@@ -249,7 +268,7 @@ export default function MortgagesView() {
                     <Box key={prop.id}>
                         <Sheet variant="soft" color="primary" sx={{ p: 2, mb: 2, borderRadius: 'md', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <Avatar sx={{ bgcolor: 'primary.solidBg' }}>{prop.emoji}</Avatar>
+                                <Avatar sx={{ bgcolor: 'primary.softBg' }}>{prop.emoji}</Avatar>
                                 <Box><Typography level="title-md">{prop.name}</Typography><Typography level="body-xs">Valuation: {formatCurrency(prop.valuation)}</Typography></Box>
                             </Box>
                             <Box sx={{ display: 'flex', gap: { xs: 2, sm: 4 } }}>
@@ -346,7 +365,7 @@ export default function MortgagesView() {
 
                                             <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <AvatarGroup size="sm">{getAssignees(mort.id).map(m => (<Avatar key={m.id} sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji}</Avatar>))}<IconButton size="sm" onClick={() => setAssignItem(mort)} sx={{ borderRadius: '50%' }}><GroupAdd /></IconButton></AvatarGroup>
-                                                <Box><IconButton size="sm" variant="plain" onClick={() => { setEditItem(mort); setIsNew(false); }}><Edit /></IconButton><IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(mort.id)}><Delete /></IconButton></Box>
+                                                <Box><IconButton size="sm" variant="plain" onClick={() => setMortgageId(mort.id)}><Edit /></IconButton><IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(mort.id)}><Delete /></IconButton></Box>
                                             </Box>
                                         </Card>
                                     </Grid>
@@ -358,14 +377,14 @@ export default function MortgagesView() {
             })}
         </Stack>
 
-        <Modal open={Boolean(editItem)} onClose={() => { setEditItem(null); setIsNew(false); }}>
+        <Modal open={Boolean(selectedMortgageId)} onClose={() => setMortgageId(null)}>
             <ModalDialog sx={{ width: '100%', maxWidth: 700, maxHeight: '95vh', overflowY: 'auto' }}>
                 <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
                     <Box sx={{ position: 'relative' }}>
                         <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(selectedEmoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => setEmojiPicker(true)}>{selectedEmoji}</Avatar>
                         <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => setEmojiPicker(true)}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
                     </Box>
-                    <Box sx={{ flexGrow: 1 }}><DialogTitle>{isNew ? (activeType === 'equity' ? 'Add Equity Loan' : 'Add Mortgage') : 'Edit Mortgage Details'}</DialogTitle><Typography level="body-sm" color="neutral">Capture professional statement data with full decimal precision.</Typography></Box>
+                    <Box sx={{ flexGrow: 1 }}><DialogTitle>{selectedMortgageId === 'new' ? (activeType === 'equity' ? 'Add Equity Loan' : 'Add Mortgage') : 'Edit Mortgage Details'}</DialogTitle><Typography level="body-sm" color="neutral">Capture professional statement data with full decimal precision.</Typography></Box>
                 </Box>
                 
                 <DialogContent>
@@ -373,30 +392,30 @@ export default function MortgagesView() {
                         <input type="hidden" name="emoji" value={selectedEmoji} />
                         <Stack spacing={2}>
                             <Grid container spacing={2}>
-                                <Grid xs={12} md={6}><AppSelect label="Linked Property" name="asset_id" defaultValue={String(editItem?.asset_id || 'primary')} options={[{ value: 'primary', label: '🏠 Primary Residence' }, ...assets.filter(a => a.category?.toLowerCase() === 'property').map(a => ({ value: String(a.id), label: `${a.emoji || '🏘️'} ${a.name}` }))]} /></Grid>
-                                <Grid xs={12} md={6}><FormControl required><FormLabel>Lender</FormLabel><Input name="lender" defaultValue={editItem?.lender} placeholder="e.g. Nationwide" /></FormControl></Grid>
+                                <Grid xs={12} md={6}><AppSelect label="Linked Property" name="asset_id" defaultValue={String(selectedMortgage?.asset_id || 'primary')} options={[{ value: 'primary', label: '🏠 Primary Residence' }, ...assets.filter(a => a.category?.toLowerCase() === 'property').map(a => ({ value: String(a.id), label: `${a.emoji || '🏘️'} ${a.name}` }))]} /></Grid>
+                                <Grid xs={12} md={6}><FormControl required><FormLabel>Lender</FormLabel><Input name="lender" defaultValue={selectedMortgage?.lender} placeholder="e.g. Nationwide" /></FormControl></Grid>
                             </Grid>
 
                             {activeType === 'mortgage' ? (
                                 <>
                                     <Divider><Chip variant="soft" size="sm">CURRENT FIXED RATE PERIOD</Chip></Divider>
                                     <Grid container spacing={2}>
-                                        <Grid xs={12} sm={6} md={4}><FormControl required><FormLabel>Total Loan Amount (£)</FormLabel><Input name="total_amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.total_amount} /></FormControl></Grid>
-                                        <Grid xs={12} sm={6} md={4}><FormControl required><FormLabel>Current Balance (£)</FormLabel><Input name="remaining_balance" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.remaining_balance} /></FormControl></Grid>
-                                        <Grid xs={12} sm={6} md={4}><FormControl required><FormLabel>Interest Rate (%)</FormLabel><Input name="interest_rate" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.interest_rate} /></FormControl></Grid>
-                                        <Grid xs={12} sm={6} md={4}><FormControl required><FormLabel>Monthly Payment (£)</FormLabel><Input name="monthly_payment" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.monthly_payment} /></FormControl></Grid>
-                                        <Grid xs={12} sm={6} md={4}><FormControl><FormLabel>Fixed Rate Expiry</FormLabel><Input name="fixed_rate_expiry" type="date" defaultValue={editItem?.fixed_rate_expiry} /></FormControl></Grid>
+                                        <Grid xs={12} sm={6} md={4}><FormControl required><FormLabel>Total Loan Amount (£)</FormLabel><Input name="total_amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedMortgage?.total_amount} /></FormControl></Grid>
+                                        <Grid xs={12} sm={6} md={4}><FormControl required><FormLabel>Current Balance (£)</FormLabel><Input name="remaining_balance" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedMortgage?.remaining_balance} /></FormControl></Grid>
+                                        <Grid xs={12} sm={6} md={4}><FormControl required><FormLabel>Interest Rate (%)</FormLabel><Input name="interest_rate" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedMortgage?.interest_rate} /></FormControl></Grid>
+                                        <Grid xs={12} sm={6} md={4}><FormControl required><FormLabel>Monthly Payment (£)</FormLabel><Input name="monthly_payment" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedMortgage?.monthly_payment} /></FormControl></Grid>
+                                        <Grid xs={12} sm={6} md={4}><FormControl><FormLabel>Fixed Rate Expiry</FormLabel><Input name="fixed_rate_expiry" type="date" defaultValue={selectedMortgage?.fixed_rate_expiry} /></FormControl></Grid>
                                                                 <Grid xs={6}>
                                                                     <FormControl required>
                                                                         <FormLabel>Payment Day</FormLabel>
-                                                                        <Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} />
+                                                                        <Input name="payment_day" type="number" min="1" max="31" defaultValue={selectedMortgage?.payment_day} />
                                                                     </FormControl>
                                                                 </Grid>
                                                                 <Grid xs={6} sx={{ display: 'flex', alignItems: 'center' }}>
                                                                     <Checkbox 
                                                                         label="Nearest Working Day (Next)" 
                                                                         name="nearest_working_day"
-                                                                        defaultChecked={editItem?.nearest_working_day !== 0}
+                                                                        defaultChecked={selectedMortgage?.nearest_working_day !== 0}
                                                                         value="1"
                                                                         sx={{ mt: 3 }}
                                                                     />
@@ -404,35 +423,35 @@ export default function MortgagesView() {
                                     </Grid>
                                     <Divider><Chip variant="soft" size="sm">REMAINING TERM</Chip></Divider>
                                     <Grid container spacing={2}>
-                                        <Grid xs={6}><FormControl><FormLabel>Years</FormLabel><Input name="term_years" type="number" defaultValue={editItem?.term_years} /></FormControl></Grid>
-                                        <Grid xs={6}><FormControl><FormLabel>Months</FormLabel><Input name="term_months" type="number" defaultValue={editItem?.term_months || 0} /></FormControl></Grid>
-                                        <Grid xs={12}><AppSelect label="Repayment Type" name="repayment_type" defaultValue={editItem?.repayment_type || 'Repayment'} options={[{ value: 'Repayment', label: 'Capital & Interest (Repayment)' }, { value: 'Interest Only', label: 'Interest Only' }]} /></Grid>
+                                        <Grid xs={6}><FormControl><FormLabel>Years</FormLabel><Input name="term_years" type="number" defaultValue={selectedMortgage?.term_years} /></FormControl></Grid>
+                                        <Grid xs={6}><FormControl><FormLabel>Months</FormLabel><Input name="term_months" type="number" defaultValue={selectedMortgage?.term_months || 0} /></FormControl></Grid>
+                                        <Grid xs={12}><AppSelect label="Repayment Type" name="repayment_type" defaultValue={selectedMortgage?.repayment_type || 'Repayment'} options={[{ value: 'Repayment', label: 'Capital & Interest (Repayment)' }, { value: 'Interest Only', label: 'Interest Only' }]} /></Grid>
                                     </Grid>
                                     <Divider><Chip variant="soft" color="warning" size="sm">FOLLOW-ON RATE (AFTER FIXED ENDS)</Chip></Divider>
                                     <Grid container spacing={2}>
-                                        <Grid xs={12} sm={6}><FormControl><FormLabel>Expected Follow-on Rate (%)</FormLabel><Input name="follow_on_rate" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.follow_on_rate} placeholder="e.g. 8.49" /></FormControl></Grid>
-                                        <Grid xs={12} sm={6}><FormControl><FormLabel>Follow-on Monthly Payment (£)</FormLabel><Input name="follow_on_payment" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.follow_on_payment} placeholder="e.g. 1187.36" /></FormControl></Grid>
+                                        <Grid xs={12} sm={6}><FormControl><FormLabel>Expected Follow-on Rate (%)</FormLabel><Input name="follow_on_rate" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedMortgage?.follow_on_rate} placeholder="e.g. 8.49" /></FormControl></Grid>
+                                        <Grid xs={12} sm={6}><FormControl><FormLabel>Follow-on Monthly Payment (£)</FormLabel><Input name="follow_on_payment" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedMortgage?.follow_on_payment} placeholder="e.g. 1187.36" /></FormControl></Grid>
                                     </Grid>
                                 </>
                             ) : (
                                 <>
                                     <Divider><Chip variant="soft" color="warning" size="sm">HELP TO BUY (2018) DETAILS</Chip></Divider>
                                     <Grid container spacing={2}>
-                                        <Grid xs={12} sm={6}><FormControl required><FormLabel>Original Purchase Price (£)</FormLabel><Input name="original_purchase_price" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.original_purchase_price} /></FormControl></Grid>
-                                        <Grid xs={12} sm={6}><FormControl required><FormLabel>Original Loan Amount (£)</FormLabel><Input name="equity_loan_amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.equity_loan_amount} /></FormControl></Grid>
-                                        <Grid xs={12} sm={6}><FormControl required><FormLabel>Completion Date</FormLabel><Input name="equity_loan_start_date" type="date" defaultValue={editItem?.equity_loan_start_date} /></FormControl></Grid>
-                                        <Grid xs={12} sm={6}><FormControl required><FormLabel>Estimated Future RPI (%)</FormLabel><Input name="equity_loan_cpi_rate" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.equity_loan_cpi_rate || 4.0} /></FormControl></Grid>
-                                        <Grid xs={12} sm={6}><FormControl><FormLabel>Current Monthly Payment (£)</FormLabel><Input name="monthly_payment" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.monthly_payment} /></FormControl></Grid>
-                                        <Grid xs={12} sm={6}><FormControl><FormLabel>Payment Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} /></FormControl></Grid>
+                                        <Grid xs={12} sm={6}><FormControl required><FormLabel>Original Purchase Price (£)</FormLabel><Input name="original_purchase_price" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedMortgage?.original_purchase_price} /></FormControl></Grid>
+                                        <Grid xs={12} sm={6}><FormControl required><FormLabel>Original Loan Amount (£)</FormLabel><Input name="equity_loan_amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedMortgage?.equity_loan_amount} /></FormControl></Grid>
+                                        <Grid xs={12} sm={6}><FormControl required><FormLabel>Completion Date</FormLabel><Input name="equity_loan_start_date" type="date" defaultValue={selectedMortgage?.equity_loan_start_date} /></FormControl></Grid>
+                                        <Grid xs={12} sm={6}><FormControl required><FormLabel>Estimated Future RPI (%)</FormLabel><Input name="equity_loan_cpi_rate" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedMortgage?.equity_loan_cpi_rate || 4.0} /></FormControl></Grid>
+                                        <Grid xs={12} sm={6}><FormControl><FormLabel>Current Monthly Payment (£)</FormLabel><Input name="monthly_payment" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedMortgage?.monthly_payment} /></FormControl></Grid>
+                                        <Grid xs={12} sm={6}><FormControl><FormLabel>Payment Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={selectedMortgage?.payment_day} /></FormControl></Grid>
                                     </Grid>
                                 </>
                             )}
                             <FormControl><FormLabel>Assign Borrowers / Owners</FormLabel><Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>{members.filter(m => m.type !== 'pet').map(m => { const isSelected = selectedMembers.includes(m.id); return <Chip key={m.id} variant={isSelected ? 'solid' : 'outlined'} color={isSelected ? 'primary' : 'neutral'} onClick={() => setSelectedMembers(prev => prev.includes(m.id) ? prev.filter(id => id !== m.id) : [...prev, m.id])} startDecorator={<Avatar size="sm">{m.emoji}</Avatar>}>{m.alias || m.name}</Chip> })}</Box></FormControl>
                         </Stack>
                         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
-                            {!isNew && <Button color="danger" variant="soft" onClick={() => { handleDelete(editItem.id); setEditItem(null); }}>Delete</Button>}
+                            {selectedMortgageId !== 'new' && <Button color="danger" variant="soft" onClick={() => handleDelete(selectedMortgage.id)}>Delete</Button>}
                             <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
-                                <Button variant="plain" color="neutral" onClick={() => { setEditItem(null); setIsNew(false); }}>Cancel</Button>
+                                <Button variant="plain" color="neutral" onClick={() => setMortgageId(null)}>Cancel</Button>
                                 <Button type="submit" color="primary">Save Mortgage Details</Button>
                             </Box>
                         </Box>

@@ -16,17 +16,31 @@ export default function PetsView() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [localPet, setLocalPet] = useState(null);
   
   const isAdmin = currentUser?.role === 'admin';
 
-  const selectedPet = useMemo(() => 
-    (members || []).find(m => m.id === parseInt(petId) && m.type === 'pet'), 
-  [members, petId]);
+  const selectedPet = useMemo(() => {
+    if (localPet && String(localPet.id) === String(petId)) return localPet;
+    return (members || []).find(m => m.id === parseInt(petId) && m.type === 'pet');
+  }, [members, petId, localPet]);
 
   const [formData, setFormData] = useState({
     name: '', species: '', breed: '', dob: '', emoji: '🐾', notes: '',
     microchip_number: '', gender: ''
   });
+
+  // Fetch pet if not in members list
+  useEffect(() => {
+    if (petId && petId !== 'new' && !selectedPet && !loading) {
+        setLoading(true);
+        api.get(`/households/${householdId}/members/${petId}`)
+            .then(res => setLocalPet(res.data))
+            .catch(() => showNotification("Failed to load pet.", "danger"))
+            .finally(() => setLoading(false));
+    }
+  }, [petId, selectedPet, api, householdId, loading, showNotification]);
 
   useEffect(() => {
     if (selectedPet) {
@@ -40,13 +54,13 @@ export default function PetsView() {
         microchip_number: selectedPet.microchip_number || '',
         gender: selectedPet.gender || ''
       };
-      Promise.resolve().then(() => setFormData(data));
+      setFormData(data);
     } else if (petId === 'new') {
       const data = {
         name: '', species: '', breed: '', dob: '', emoji: '🐾', notes: '',
         microchip_number: '', gender: ''
       };
-      Promise.resolve().then(() => setFormData(data));
+      setFormData(data);
     }
   }, [selectedPet, petId]);
 
@@ -63,8 +77,9 @@ export default function PetsView() {
       if (petId === 'new') {
         const res = await api.post(`/households/${householdId}/members`, data);
         showNotification("Pet added.", "success");
+        setLocalPet(res.data);
         await fetchHhMembers(householdId);
-        navigate(`../pets/${res.data.id}`);
+        navigate(`../${res.data.id}`, { replace: true });
       } else {
         await api.put(`/households/${householdId}/members/${petId}`, data);
         showNotification("Pet updated.", "success");
@@ -103,7 +118,7 @@ export default function PetsView() {
       return groups;
   }, [members]);
 
-  if (petId !== 'new' && !selectedPet) {
+  if (!petId) {
     return (
         <Box>
             <Box sx={{ 
@@ -160,6 +175,14 @@ export default function PetsView() {
             ))}
         </Box>
     );
+  }
+
+  if (loading || (petId !== 'new' && !selectedPet)) {
+      return (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
+              <CircularProgress />
+          </Box>
+      );
   }
 
   return (

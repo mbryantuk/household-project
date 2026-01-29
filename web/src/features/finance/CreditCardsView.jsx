@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
@@ -21,13 +21,16 @@ const formatPercent = (val) => {
 };
 
 export default function CreditCardsView() {
-  const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, members, showNotification } = useOutletContext();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = new URLSearchParams(location.search);
+  const selectedCardId = queryParams.get('selectedCardId');
+
   const [cards, setCards] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  const [editItem, setEditItem] = useState(null);
-  const [isNew, setIsNew] = useState(false);
   const [assignItem, setAssignItem] = useState(null);
   const [emojiPicker, setEmojiPicker] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('💳');
@@ -37,15 +40,19 @@ export default function CreditCardsView() {
 
   const getAssignees = useCallback((itemId) => assignments.filter(a => a.entity_id === itemId).map(a => members.find(m => m.id === a.member_id)).filter(Boolean), [assignments, members]);
 
+  const selectedCard = useMemo(() => 
+    cards.find(c => String(c.id) === String(selectedCardId)),
+  [cards, selectedCardId]);
+
   useEffect(() => {
-      if (editItem) {
-          setSelectedEmoji(editItem.emoji || '💳');
-          setSelectedMembers(getAssignees(editItem.id).map(m => m.id));
-      } else if (isNew) {
+      if (selectedCard) {
+          setSelectedEmoji(selectedCard.emoji || '💳');
+          setSelectedMembers(getAssignees(selectedCard.id).map(m => m.id));
+      } else if (selectedCardId === 'new') {
           setSelectedEmoji('💳');
           setSelectedMembers([currentUser?.id].filter(Boolean));
       }
-  }, [editItem, isNew, getAssignees, currentUser?.id]);
+  }, [selectedCard, selectedCardId, getAssignees, currentUser?.id]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -61,34 +68,48 @@ export default function CreditCardsView() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  const setCardId = (id) => {
+    const newParams = new URLSearchParams(location.search);
+    if (id) newParams.set('selectedCardId', id);
+    else newParams.delete('selectedCardId');
+    navigate(`?${newParams.toString()}`, { replace: true });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
+    data.emoji = selectedEmoji;
     try {
-      let itemId = editItem?.id;
-      if (isNew) {
+      let itemId = selectedCardId;
+      if (selectedCardId === 'new') {
         const res = await api.post(`/households/${householdId}/finance/credit-cards`, data);
         itemId = res.data.id;
+        showNotification("Credit card added.", "success");
       } else {
         await api.put(`/households/${householdId}/finance/credit-cards/${itemId}`, data);
+        showNotification("Credit card updated.", "success");
       }
-      const currentIds = isNew ? [] : getAssignees(itemId).map(m => m.id);
+      const currentIds = selectedCardId === 'new' ? [] : getAssignees(itemId).map(m => m.id);
       const toAdd = selectedMembers.filter(id => !currentIds.includes(id));
       await Promise.all(toAdd.map(mid => api.post(`/households/${householdId}/finance/assignments`, {
           entity_type: 'finance_credit_cards', entity_id: itemId, member_id: mid
       })));
       const toRemove = currentIds.filter(id => !selectedMembers.includes(id));
       await Promise.all(toRemove.map(mid => api.delete(`/households/${householdId}/finance/assignments/finance_credit_cards/${itemId}/${mid}`)));
-      fetchData();
-      setEditItem(null);
-      setIsNew(false);
-    } catch (err) { alert("Failed to save: " + err.message); }
+      
+      await fetchData();
+      setCardId(itemId);
+    } catch (err) { showNotification("Failed to save: " + err.message, "danger"); }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this card?")) return;
-    try { await api.delete(`/households/${householdId}/finance/credit-cards/${id}`); fetchData(); } catch { alert("Failed to delete"); }
+    try { 
+        await api.delete(`/households/${householdId}/finance/credit-cards/${id}`); 
+        fetchData(); 
+        if (selectedCardId === String(id)) setCardId(null);
+    } catch { alert("Failed to delete"); }
   };
 
   const handleAssignMember = async (memberId) => {
@@ -119,7 +140,7 @@ export default function CreditCardsView() {
                 <Typography level="body-md" color="neutral">Track credit utilization and repayments.</Typography>
             </Box>
             {isAdmin && (
-                <Button startDecorator={<Add />} onClick={() => { setEditItem({}); setIsNew(true); }}>
+                <Button startDecorator={<Add />} onClick={() => setCardId('new')}>
                     Add Card
                 </Button>
             )}
@@ -174,7 +195,7 @@ export default function CreditCardsView() {
                                     ))}
                                     <IconButton size="sm" onClick={() => setAssignItem(card)} sx={{ borderRadius: '50%' }}><GroupAdd /></IconButton>
                                 </AvatarGroup>
-                                <IconButton size="sm" onClick={() => { setEditItem(card); setIsNew(false); }}><Edit /></IconButton>
+                                <IconButton size="sm" onClick={() => setCardId(card.id)}><Edit /></IconButton>
                             </Box>
                         </Card>
                     </Grid>
@@ -182,48 +203,48 @@ export default function CreditCardsView() {
             })}
         </Grid>
 
-        <Modal open={Boolean(editItem)} onClose={() => { setEditItem(null); setIsNew(false); }}>
+        <Modal open={Boolean(selectedCardId)} onClose={() => setCardId(null)}>
             <ModalDialog sx={{ width: '100%', maxWidth: 500 }}>
-                <DialogTitle>{isNew ? 'Add Card' : 'Edit Card'}</DialogTitle>
+                <DialogTitle>{selectedCardId === 'new' ? 'Add Card' : 'Edit Card'}</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleSubmit}>
                         <Stack spacing={2} sx={{ mt: 1 }}>
                             <Grid container spacing={2}>
                                 <Grid xs={6}>
-                                    <FormControl required><FormLabel>Provider</FormLabel><Input name="provider" defaultValue={editItem?.provider} placeholder="e.g. Amex" /></FormControl>
+                                    <FormControl required><FormLabel>Provider</FormLabel><Input name="provider" defaultValue={selectedCard?.provider} placeholder="e.g. Amex" /></FormControl>
                                 </Grid>
                                 <Grid xs={6}>
-                                    <FormControl required><FormLabel>Card Name</FormLabel><Input name="card_name" defaultValue={editItem?.card_name} placeholder="e.g. Gold" /></FormControl>
+                                    <FormControl required><FormLabel>Card Name</FormLabel><Input name="card_name" defaultValue={selectedCard?.card_name} placeholder="e.g. Gold" /></FormControl>
                                 </Grid>
                             </Grid>
-                            <FormControl><FormLabel>Account Number</FormLabel><Input name="account_number" defaultValue={editItem?.account_number} /></FormControl>
+                            <FormControl><FormLabel>Account Number</FormLabel><Input name="account_number" defaultValue={selectedCard?.account_number} /></FormControl>
                             <Grid container spacing={2}>
                                 <Grid xs={6}>
                                     <FormControl required><FormLabel>Credit Limit (£)</FormLabel>
-                                        <Input name="credit_limit" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.credit_limit} />
+                                        <Input name="credit_limit" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedCard?.credit_limit} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={6}>
                                     <FormControl required><FormLabel>Current Balance (£)</FormLabel>
-                                        <Input name="current_balance" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.current_balance} />
+                                        <Input name="current_balance" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedCard?.current_balance} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={6}>
                                     <FormControl><FormLabel>APR (%)</FormLabel>
-                                        <Input name="apr" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={editItem?.apr} />
+                                        <Input name="apr" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedCard?.apr} />
                                     </FormControl>
                                 </Grid>
                         <Grid xs={12} sm={6} md={3}>
                             <FormControl required>
                                 <FormLabel>Payment Day</FormLabel>
-                                <Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} placeholder="e.g. 25" />
+                                <Input name="payment_day" type="number" min="1" max="31" defaultValue={selectedCard?.payment_day} placeholder="e.g. 25" />
                             </FormControl>
                         </Grid>
                         <Grid xs={12} sm={6} md={3}>
                             <Checkbox 
                                 label="Nearest Working Day (Next)" 
                                 name="nearest_working_day"
-                                defaultChecked={editItem?.nearest_working_day !== 0}
+                                defaultChecked={selectedCard?.nearest_working_day !== 0}
                                 value="1"
                                 sx={{ mt: 4 }}
                             />
@@ -245,9 +266,9 @@ export default function CreditCardsView() {
                             </FormControl>
                         </Stack>
                         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
-                            {!isNew && <Button color="danger" variant="soft" onClick={() => { handleDelete(editItem.id); setEditItem(null); }}>Delete</Button>}
+                            {selectedCardId !== 'new' && <Button color="danger" variant="soft" onClick={() => { handleDelete(selectedCard.id); }}>Delete</Button>}
                             <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
-                                <Button variant="plain" color="neutral" onClick={() => { setEditItem(null); setIsNew(false); }}>Cancel</Button>
+                                <Button variant="plain" color="neutral" onClick={() => setCardId(null)}>Cancel</Button>
                                 <Button type="submit">Save</Button>
                             </Box>
                         </Box>

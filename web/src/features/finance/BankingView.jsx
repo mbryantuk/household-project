@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
@@ -15,13 +15,16 @@ const formatCurrency = (val) => {
 };
 
 export default function BankingView() {
-  const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, members, showNotification } = useOutletContext();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = new URLSearchParams(location.search);
+  const selectedAccountId = queryParams.get('selectedAccountId');
+
   const [accounts, setAccounts] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editItem, setEditItem] = useState(null);
-  const [assignItem, setAssignItem] = useState(null); // Item being assigned
-  const [isNew, setIsNew] = useState(false);
+  const [assignItem, setAssignItem] = useState(null); 
   
   const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
 
@@ -59,22 +62,36 @@ export default function BankingView() {
     fetchData();
   }, [fetchData]);
 
+  const selectedAccount = useMemo(() => 
+    accounts.find(a => String(a.id) === String(selectedAccountId)),
+  [accounts, selectedAccountId]);
+
+  const setAccountId = (id) => {
+    const newParams = new URLSearchParams(location.search);
+    if (id) newParams.set('selectedAccountId', id);
+    else newParams.delete('selectedAccountId');
+    navigate(`?${newParams.toString()}`, { replace: true });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
 
     try {
-      if (isNew) {
-        await api.post(`/households/${householdId}/finance/current-accounts`, data);
+      if (selectedAccountId === 'new') {
+        const res = await api.post(`/households/${householdId}/finance/current-accounts`, data);
+        showNotification("Account added.", "success");
+        await fetchData();
+        setAccountId(res.data.id);
       } else {
-        await api.put(`/households/${householdId}/finance/current-accounts/${editItem.id}`, data);
+        await api.put(`/households/${householdId}/finance/current-accounts/${selectedAccountId}`, data);
+        showNotification("Account updated.", "success");
+        await fetchData();
+        setAccountId(null);
       }
-      fetchData();
-      setEditItem(null);
-      setIsNew(false);
     } catch {
-      alert("Failed to save account");
+      showNotification("Failed to save account", "danger");
     }
   };
 
@@ -83,6 +100,7 @@ export default function BankingView() {
     try {
       await api.delete(`/households/${householdId}/finance/current-accounts/${id}`);
       fetchData();
+      if (selectedAccountId === String(id)) setAccountId(null);
     } catch {
       alert("Failed to delete account");
     }
@@ -129,7 +147,7 @@ export default function BankingView() {
           </Box>
           
           {isAdmin && (
-              <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditItem({}); setIsNew(true); }}>
+              <Button variant="solid" startDecorator={<Add />} onClick={() => setAccountId('new')}>
                   Add Account
               </Button>
           )}
@@ -182,7 +200,7 @@ export default function BankingView() {
                             </td>
                             {isAdmin && (
                                 <td style={{ textAlign: 'right' }}>
-                                    <IconButton size="sm" variant="plain" onClick={() => { setEditItem(row); setIsNew(false); }}><Edit /></IconButton>
+                                    <IconButton size="sm" variant="plain" onClick={() => setAccountId(row.id)}><Edit /></IconButton>
                                     <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(row.id)}><Delete /></IconButton>
                                 </td>
                             )}
@@ -210,7 +228,7 @@ export default function BankingView() {
                             <IconButton size="sm" onClick={() => setAssignItem(a)}><GroupAdd /></IconButton>
                         </Box>
                     </Box>
-                    <IconButton variant="plain" onClick={() => { setEditItem(a); setIsNew(false); }}>
+                    <IconButton variant="plain" onClick={() => setAccountId(a.id)}>
                         <Edit />
                     </IconButton>
                 </Card>
@@ -220,22 +238,22 @@ export default function BankingView() {
       )}
 
       {/* EDIT MODAL */}
-      <Modal open={Boolean(editItem)} onClose={() => setEditItem(null)}>
+      <Modal open={Boolean(selectedAccountId)} onClose={() => setAccountId(null)}>
         <ModalDialog sx={{ maxWidth: 600, width: '100%', overflowY: 'auto' }}>
-            <DialogTitle>{isNew ? 'Add Bank Account' : `Edit ${editItem?.bank_name}`}</DialogTitle>
+            <DialogTitle>{selectedAccountId === 'new' ? 'Add Bank Account' : `Edit ${selectedAccount?.bank_name}`}</DialogTitle>
             <DialogContent>
                 <form onSubmit={handleSubmit}>
                     <Grid container spacing={2} sx={{ mt: 1 }}>
                         <Grid xs={12} md={6}>
                             <FormControl required>
                                 <FormLabel>Bank Name</FormLabel>
-                                <Input name="bank_name" defaultValue={editItem?.bank_name} placeholder="e.g. HSBC" />
+                                <Input name="bank_name" defaultValue={selectedAccount?.bank_name} placeholder="e.g. HSBC" />
                             </FormControl>
                         </Grid>
                         <Grid xs={12} md={6}>
                             <FormControl>
                                 <FormLabel>Account Name/Type</FormLabel>
-                                <Input name="account_name" defaultValue={editItem?.account_name} placeholder="e.g. Joint Current" />
+                                <Input name="account_name" defaultValue={selectedAccount?.account_name} placeholder="e.g. Joint Current" />
                             </FormControl>
                         </Grid>
                         
@@ -244,38 +262,38 @@ export default function BankingView() {
                         <Grid xs={6}>
                             <FormControl>
                                 <FormLabel>Sort Code</FormLabel>
-                                <Input name="sort_code" defaultValue={editItem?.sort_code} placeholder="00-00-00" />
+                                <Input name="sort_code" defaultValue={selectedAccount?.sort_code} placeholder="00-00-00" />
                             </FormControl>
                         </Grid>
                         <Grid xs={6}>
                             <FormControl>
                                 <FormLabel>Account Number</FormLabel>
-                                <Input name="account_number" defaultValue={editItem?.account_number} placeholder="8 digits" />
+                                <Input name="account_number" defaultValue={selectedAccount?.account_number} placeholder="8 digits" />
                             </FormControl>
                         </Grid>
 
                         <Grid xs={6}>
                             <FormControl>
                                 <FormLabel>Current Balance (£)</FormLabel>
-                                <Input name="current_balance" type="number" step="0.01" defaultValue={editItem?.current_balance} />
+                                <Input name="current_balance" type="number" step="0.01" defaultValue={selectedAccount?.current_balance} />
                             </FormControl>
                         </Grid>
                         <Grid xs={6}>
                             <FormControl>
                                 <FormLabel>Overdraft Limit (£)</FormLabel>
-                                <Input name="overdraft_limit" type="number" step="0.01" defaultValue={editItem?.overdraft_limit} />
+                                <Input name="overdraft_limit" type="number" step="0.01" defaultValue={selectedAccount?.overdraft_limit} />
                             </FormControl>
                         </Grid>
 
                         <Grid xs={12}>
                             <FormControl>
                                 <FormLabel>Notes</FormLabel>
-                                <Input name="notes" defaultValue={editItem?.notes} />
+                                <Input name="notes" defaultValue={selectedAccount?.notes} />
                             </FormControl>
                         </Grid>
                     </Grid>
                     <DialogActions>
-                        <Button variant="plain" color="neutral" onClick={() => setEditItem(null)}>Cancel</Button>
+                        <Button variant="plain" color="neutral" onClick={() => setAccountId(null)}>Cancel</Button>
                         <Button type="submit" variant="solid">Save Account</Button>
                     </DialogActions>
                 </form>

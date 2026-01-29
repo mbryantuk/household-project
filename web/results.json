@@ -74,7 +74,7 @@
               "tags": [],
               "tests": [
                 {
-                  "timeout": 300000,
+                  "timeout": 480000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
@@ -83,31 +83,28 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 17083,
+                      "status": "timedOut",
+                      "duration": 480263,
                       "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Household Residents')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Household Residents')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Household Residents')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Household Residents')\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:50:60",
-                        "location": {
-                          "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 60,
-                          "line": 50
-                        },
-                        "snippet": "  48 |     console.log('Step 4: Creating Family Members');\n  49 |     await page.goto(`/household/${hhId}/people`);\n> 50 |     await expect(page.locator('text=Household Residents')).toBeVisible({ timeout: 15000 });\n     |                                                            ^\n  51 |     \n  52 |     const family = [\n  53 |         { name: 'John Doe', type: 'Adult', alias: 'Dad' },"
+                        "message": "\u001b[31mTest timeout of 480000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 480000ms exceeded.\u001b[39m"
                       },
                       "errors": [
                         {
+                          "message": "\u001b[31mTest timeout of 480000ms exceeded.\u001b[39m"
+                        },
+                        {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 60,
-                            "line": 50
+                            "column": 20,
+                            "line": 58
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Household Residents')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Household Residents')\u001b[22m\n\n\n  48 |     console.log('Step 4: Creating Family Members');\n  49 |     await page.goto(`/household/${hhId}/people`);\n> 50 |     await expect(page.locator('text=Household Residents')).toBeVisible({ timeout: 15000 });\n     |                                                            ^\n  51 |     \n  52 |     const family = [\n  53 |         { name: 'John Doe', type: 'Adult', alias: 'Dad' },\n    at /home/matt/household-project/web/tests/smoke.spec.js:50:60"
+                          "message": "Error: page.click: Test timeout of 480000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('nav a:has-text(\"People\")')\u001b[22m\n\n\n  56 |     for (const m of family) {\n  57 |         console.log(`   - Adding Member: ${m.first} ${m.last}`);\n> 58 |         await page.click('nav a:has-text(\"People\")');\n     |                    ^\n  59 |         await expect(page.locator('h2:has-text(\"People & Residents\")')).toBeVisible({ timeout: 20000 });\n  60 |\n  61 |         // Click the appropriate \"Add\" button in the EntityGrid\n    at /home/matt/household-project/web/tests/smoke.spec.js:58:20"
                         }
                       ],
                       "stdout": [
                         {
-                          "text": "Step 1: Registering smoke_1769624148152@test.com\n"
+                          "text": "Step 1: Registering smoke_1769652057804@test.com\n"
                         },
                         {
                           "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
@@ -122,18 +119,18 @@
                           "text": "Step 2: Logging in\n"
                         },
                         {
-                          "text": "Step 3: Dashboard loaded. Household ID: 828\n"
+                          "text": "Step 3: Dashboard loaded. Household ID: 894\n"
                         },
                         {
-                          "text": "Step 4: Creating Family Members\n"
+                          "text": "Step 4: Creating Family Members (2 Income Family)\n"
                         },
                         {
-                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                          "text": "   - Adding Member: John Doe\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-01-28T18:15:48.169Z",
+                      "startTime": "2026-01-29T02:00:57.821Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -146,12 +143,7 @@
                           "contentType": "text/markdown",
                           "path": "/home/matt/household-project/web/test-results/smoke-System-Smoke-Compreh-1c3c1-al-Matrix-and-Meal-Planning-chromium/error-context.md"
                         }
-                      ],
-                      "errorLocation": {
-                        "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 60,
-                        "line": 50
-                      }
+                      ]
                     }
                   ],
                   "status": "unexpected"
@@ -169,8 +161,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-01-28T18:15:44.800Z",
-    "duration": 20869.697,
+    "startTime": "2026-01-29T02:00:54.701Z",
+    "duration": 483600.877,
     "expected": 0,
     "skipped": 0,
     "unexpected": 1,

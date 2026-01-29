@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Button, Sheet, Table, IconButton, 
   Modal, ModalDialog, ModalClose, FormControl, FormLabel, Input, 
@@ -19,9 +19,12 @@ const formatCurrency = (val, currencyCode = 'GBP') => {
 
 export default function LoansView() {
   const { api, id: householdId, household, showNotification, confirmAction } = useOutletContext();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = new URLSearchParams(location.search);
+  const selectedLoanId = queryParams.get('selectedLoanId');
+
   const [loans, setLoans] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [editingId, setEditingId] = useState(null);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -37,34 +40,53 @@ export default function LoansView() {
   }, [api, householdId]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchLoans();
   }, [fetchLoans]);
 
-  const handleEdit = (loan) => {
-    setEditingId(loan.id);
-    setFormData({
-      lender: loan.lender, loan_type: loan.loan_type,
-      remaining_balance: loan.remaining_balance, monthly_payment: loan.monthly_payment,
-      emoji: loan.emoji || '📝'
-    });
-    setOpen(true);
+  const selectedLoan = useMemo(() => 
+    loans.find(l => String(l.id) === String(selectedLoanId)),
+  [loans, selectedLoanId]);
+
+  useEffect(() => {
+    if (selectedLoan) {
+      setFormData({
+        lender: selectedLoan.lender, 
+        loan_type: selectedLoan.loan_type,
+        remaining_balance: selectedLoan.remaining_balance, 
+        monthly_payment: selectedLoan.monthly_payment,
+        emoji: selectedLoan.emoji || '📝'
+      });
+    } else if (selectedLoanId === 'new') {
+      setFormData({
+        lender: '', loan_type: '', remaining_balance: 0, monthly_payment: 0, emoji: '📝'
+      });
+    }
+  }, [selectedLoan, selectedLoanId]);
+
+  const setLoanId = (id) => {
+    const newParams = new URLSearchParams(location.search);
+    if (id) newParams.set('selectedLoanId', id);
+    else newParams.delete('selectedLoanId');
+    navigate(`?${newParams.toString()}`, { replace: true });
   };
 
   const handleSave = async () => {
     try {
-      const url = editingId ? `/households/${householdId}/finance/loans/${editingId}` : `/households/${householdId}/finance/loans`;
-      await api[editingId ? 'put' : 'post'](url, formData);
-      setOpen(false); setEditingId(null); fetchLoans();
-      showNotification("Saved.", "success");
-    } catch { showNotification("Error.", "danger"); }
+      const isNew = selectedLoanId === 'new';
+      const url = isNew ? `/households/${householdId}/finance/loans` : `/households/${householdId}/finance/loans/${selectedLoanId}`;
+      const res = await api[isNew ? 'post' : 'put'](url, formData);
+      
+      showNotification(isNew ? "Loan added." : "Loan updated.", "success");
+      await fetchLoans();
+      setLoanId(isNew ? res.data.id : null);
+    } catch { showNotification("Error saving loan.", "danger"); }
   };
 
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography level="h2" startDecorator={<RequestQuote />}>Loans</Typography>
-        <Button startDecorator={<Add />} onClick={() => { setEditingId(null); setOpen(true); }}>Add Loan</Button>
+        <Button startDecorator={<Add />} onClick={() => setLoanId('new')}>Add Loan</Button>
       </Box>
 
       <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
@@ -89,8 +111,8 @@ export default function LoansView() {
                 <td style={{ textAlign: 'right' }}>{formatCurrency(loan.monthly_payment, household?.currency)}</td>
                 <td>
                   <Box sx={{ display: 'flex', gap: 0.5 }}>
-                    <IconButton size="sm" onClick={() => handleEdit(loan)}><Edit /></IconButton>
-                    <IconButton size="sm" color="danger" onClick={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/loans/${loan.id}`).then(fetchLoans))}><Delete /></IconButton>
+                    <IconButton size="sm" onClick={() => setLoanId(loan.id)}><Edit /></IconButton>
+                    <IconButton size="sm" color="danger" onClick={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/loans/${loan.id}`).then(() => { fetchLoans(); if (selectedLoanId === String(loan.id)) setLoanId(null); }))}><Delete /></IconButton>
                   </Box>
                 </td>
               </tr>
@@ -99,10 +121,10 @@ export default function LoansView() {
         </Table>
       </Sheet>
 
-      <Modal open={open} onClose={() => setOpen(false)}>
+      <Modal open={Boolean(selectedLoanId)} onClose={() => setLoanId(null)}>
         <ModalDialog sx={{ maxWidth: 500, width: '100%' }}>
           <ModalClose />
-          <Typography level="h4">{editingId ? 'Edit Loan' : 'New Loan'}</Typography>
+          <Typography level="h4">{selectedLoanId === 'new' ? 'New Loan' : 'Edit Loan'}</Typography>
           <Divider />
           <Stack spacing={2} sx={{ mt: 2 }}>
             <Box sx={{ display: 'flex', gap: 2 }}>

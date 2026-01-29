@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fixed Health Check 127 error by copying scripts to container and making orchestrator environment-aware",
-  "date": "Wed 28 Jan 20:38:03 GMT 2026"
+  "commitMessage": "Refactor asset and member creation to support URL-based redirection and fix smoke test race conditions",
+  "date": "Thu 29 Jan 08:38:09 GMT 2026"
 }

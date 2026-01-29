@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
@@ -16,14 +16,16 @@ const formatCurrency = (val) => {
 };
 
 export default function PensionsView() {
-  const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, members, showNotification } = useOutletContext();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = new URLSearchParams(location.search);
+  const selectedPensionId = queryParams.get('selectedPensionId');
+
   const [pensions, setPensions] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // Modal States
-  const [editItem, setEditItem] = useState(null);
-  const [isNew, setIsNew] = useState(false);
   const [assignItem, setAssignItem] = useState(null);
   const [emojiPicker, setEmojiPicker] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('⏳');
@@ -35,16 +37,20 @@ export default function PensionsView() {
       return assignments.filter(a => a.entity_id === itemId).map(a => members.find(m => m.id === a.member_id)).filter(Boolean);
   }, [assignments, members]);
 
+  const selectedPension = useMemo(() => 
+    pensions.find(p => String(p.id) === String(selectedPensionId)),
+  [pensions, selectedPensionId]);
+
   useEffect(() => {
-      if (editItem) {
-          setSelectedEmoji(editItem.emoji || '⏳');
-          const currentAssignees = getAssignees(editItem.id).map(m => m.id);
+      if (selectedPension) {
+          setSelectedEmoji(selectedPension.emoji || '⏳');
+          const currentAssignees = getAssignees(selectedPension.id).map(m => m.id);
           setSelectedMembers(currentAssignees);
-      } else if (isNew) {
+      } else if (selectedPensionId === 'new') {
           setSelectedEmoji('⏳');
           setSelectedMembers([currentUser?.id].filter(Boolean));
       }
-  }, [editItem, isNew, getAssignees, currentUser?.id]);
+  }, [selectedPension, selectedPensionId, getAssignees, currentUser?.id]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -66,22 +72,32 @@ export default function PensionsView() {
     fetchData();
   }, [fetchData]);
 
+  const setPensionId = (id) => {
+    const newParams = new URLSearchParams(location.search);
+    if (id) newParams.set('selectedPensionId', id);
+    else newParams.delete('selectedPensionId');
+    navigate(`?${newParams.toString()}`, { replace: true });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
+    data.emoji = selectedEmoji;
     
     try {
-      let itemId = editItem?.id;
-      if (isNew) {
+      let itemId = selectedPensionId;
+      if (selectedPensionId === 'new') {
         const res = await api.post(`/households/${householdId}/finance/pensions`, data);
         itemId = res.data.id;
+        showNotification("Pension added.", "success");
       } else {
         await api.put(`/households/${householdId}/finance/pensions/${itemId}`, data);
+        showNotification("Pension updated.", "success");
       }
 
       // Handle Assignments
-      const currentIds = isNew ? [] : getAssignees(itemId).map(m => m.id);
+      const currentIds = selectedPensionId === 'new' ? [] : getAssignees(itemId).map(m => m.id);
       const toAdd = selectedMembers.filter(id => !currentIds.includes(id));
       await Promise.all(toAdd.map(mid => api.post(`/households/${householdId}/finance/assignments`, {
           entity_type: 'finance_pensions', entity_id: itemId, member_id: mid
@@ -90,11 +106,10 @@ export default function PensionsView() {
       const toRemove = currentIds.filter(id => !selectedMembers.includes(id));
       await Promise.all(toRemove.map(mid => api.delete(`/households/${householdId}/finance/assignments/finance_pensions/${itemId}/${mid}`)));
 
-      fetchData();
-      setEditItem(null);
-      setIsNew(false);
+      await fetchData();
+      setPensionId(itemId);
     } catch (err) { 
-        alert("Failed to save pension: " + err.message); 
+        showNotification("Failed to save pension: " + err.message, "danger"); 
     }
   };
 
@@ -103,6 +118,7 @@ export default function PensionsView() {
     try {
         await api.delete(`/households/${householdId}/finance/pensions/${id}`);
         fetchData();
+        if (selectedPensionId === String(id)) setPensionId(null);
     } catch { alert("Failed to delete"); }
   };
 
@@ -136,7 +152,7 @@ export default function PensionsView() {
                 <Typography level="body-md" color="neutral">Plan for your future retirement.</Typography>
             </Box>
             {isAdmin && (
-                <Button startDecorator={<Add />} onClick={() => { setEditItem({}); setIsNew(true); }}>
+                <Button startDecorator={<Add />} onClick={() => setPensionId('new')}>
                     Add Pension
                 </Button>
             )}
@@ -180,7 +196,7 @@ export default function PensionsView() {
                                     ))}
                                     <IconButton size="sm" onClick={() => setAssignItem(pen)} sx={{ borderRadius: '50%' }}><GroupAdd /></IconButton>
                                 </AvatarGroup>
-                                <IconButton size="sm" onClick={() => { setEditItem(pen); setIsNew(false); }}><Edit /></IconButton>
+                                <IconButton size="sm" onClick={() => setPensionId(pen.id)}><Edit /></IconButton>
                             </Box>
                         </Card>
                     </Grid>
@@ -189,58 +205,58 @@ export default function PensionsView() {
         </Grid>
 
         {/* MODAL: EDIT/ADD */}
-        <Modal open={Boolean(editItem)} onClose={() => { setEditItem(null); setIsNew(false); }}>
+        <Modal open={Boolean(selectedPensionId)} onClose={() => setPensionId(null)}>
             <ModalDialog sx={{ width: '100%', maxWidth: 500 }}>
-                <DialogTitle>{isNew ? 'Add Pension' : 'Edit Pension'}</DialogTitle>
+                <DialogTitle>{selectedPensionId === 'new' ? 'Add Pension' : 'Edit Pension'}</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleSubmit}>
                         <Stack spacing={2} sx={{ mt: 1 }}>
                             <FormControl required>
                                 <FormLabel>Plan Name</FormLabel>
-                                <Input name="plan_name" defaultValue={editItem?.plan_name} placeholder="e.g. Workplace Pension" />
+                                <Input name="plan_name" defaultValue={selectedPension?.plan_name} placeholder="e.g. Workplace Pension" />
                             </FormControl>
                             <Grid container spacing={2}>
                                 <Grid xs={6}>
                                     <FormControl required>
                                         <FormLabel>Provider</FormLabel>
-                                        <Input name="provider" defaultValue={editItem?.provider} placeholder="e.g. Aviva" />
+                                        <Input name="provider" defaultValue={selectedPension?.provider} placeholder="e.g. Aviva" />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={6}>
                                     <FormControl>
                                         <FormLabel>Type</FormLabel>
-                                        <Input name="type" defaultValue={editItem?.type} placeholder="e.g. SIPP, Workplace" />
+                                        <Input name="type" defaultValue={selectedPension?.type} placeholder="e.g. SIPP, Workplace" />
                                     </FormControl>
                                 </Grid>
                             </Grid>
                             <FormControl>
                                 <FormLabel>Account Number (Encrypted)</FormLabel>
-                                <Input name="account_number" defaultValue={editItem?.account_number} />
+                                <Input name="account_number" defaultValue={selectedPension?.account_number} />
                             </FormControl>
                             <Grid container spacing={2}>
                                 <Grid xs={6}>
                                     <FormControl required>
                                         <FormLabel>Current Value (£)</FormLabel>
-                                        <Input name="current_value" type="number" step="0.01" defaultValue={editItem?.current_value} />
+                                        <Input name="current_value" type="number" step="0.01" defaultValue={selectedPension?.current_value} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={6}>
                                     <FormControl>
                                         <FormLabel>Monthly Contribution (£)</FormLabel>
-                                        <Input name="monthly_contribution" type="number" step="0.01" defaultValue={editItem?.monthly_contribution} />
+                                        <Input name="monthly_contribution" type="number" step="0.01" defaultValue={selectedPension?.monthly_contribution} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={6}>
                                     <FormControl>
                                         <FormLabel>Payment Day</FormLabel>
-                                        <Input name="payment_day" type="number" min="1" max="31" defaultValue={editItem?.payment_day} placeholder="e.g. 1" />
+                                        <Input name="payment_day" type="number" min="1" max="31" defaultValue={selectedPension?.payment_day} placeholder="e.g. 1" />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={12}>
                                     <Checkbox 
                                         label="Nearest Working Day (Next)" 
                                         name="nearest_working_day"
-                                        defaultChecked={editItem?.nearest_working_day !== 0}
+                                        defaultChecked={selectedPension?.nearest_working_day !== 0}
                                         value="1"
                                     />
                                 </Grid>
@@ -276,9 +292,9 @@ export default function PensionsView() {
                             </FormControl>
                         </Stack>
                         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
-                            {!isNew && <Button color="danger" variant="soft" onClick={() => { handleDelete(editItem.id); setEditItem(null); }}>Delete</Button>}
+                            {selectedPensionId !== 'new' && <Button color="danger" variant="soft" onClick={() => { handleDelete(selectedPension.id); }}>Delete</Button>}
                             <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
-                                <Button variant="plain" color="neutral" onClick={() => { setEditItem(null); setIsNew(false); }}>Cancel</Button>
+                                <Button variant="plain" color="neutral" onClick={() => setPensionId(null)}>Cancel</Button>
                                 <Button type="submit">Save</Button>
                             </Box>
                         </Box>

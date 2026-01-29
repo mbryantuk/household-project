@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
@@ -13,10 +13,10 @@ import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
 
 export default function AssetsView() {
   const { api, id: householdId, user: currentUser, isDark, showNotification } = useOutletContext();
+  const { assetId } = useParams();
+  const navigate = useNavigate();
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editAsset, setEditAsset] = useState(null);
-  const [isNew, setIsNew] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   
   // Sorting & Filtering State
@@ -50,8 +50,12 @@ export default function AssetsView() {
     fetchAssets();
   }, [fetchAssets]);
 
+  const selectedAsset = useMemo(() => 
+    assets.find(a => String(a.id) === String(assetId)), 
+  [assets, assetId]);
+
   // Derived State: Filtered & Sorted Assets
-  const processedAssets = assets
+  const processedAssets = useMemo(() => assets
     .filter(a => 
         a.name.toLowerCase().includes(filterQuery.toLowerCase()) || 
         a.category.toLowerCase().includes(filterQuery.toLowerCase()) ||
@@ -63,7 +67,7 @@ export default function AssetsView() {
         if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
         if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
         return 0;
-    });
+    }), [assets, filterQuery, sortConfig]);
 
   const handleSort = (key) => {
       setSortConfig(prev => ({
@@ -89,14 +93,17 @@ export default function AssetsView() {
     const data = Object.fromEntries(formData.entries());
 
     try {
-      if (isNew) {
-        await api.post(`/households/${householdId}/assets`, data);
+      if (assetId === 'new') {
+        const res = await api.post(`/households/${householdId}/assets`, data);
+        showNotification("Asset added.", "success");
+        await fetchAssets();
+        navigate(`../assets/${res.data.id}`, { replace: true });
       } else {
-        await api.put(`/households/${householdId}/assets/${editAsset.id}`, data);
+        await api.put(`/households/${householdId}/assets/${assetId}`, data);
+        showNotification("Asset updated.", "success");
+        await fetchAssets();
+        navigate(`../assets`, { replace: true });
       }
-      fetchAssets();
-      setEditAsset(null);
-      setIsNew(false);
     } catch {
       showNotification("Failed to save asset", "danger");
     }
@@ -107,6 +114,7 @@ export default function AssetsView() {
     try {
       await api.delete(`/households/${householdId}/assets/${id}`);
       fetchAssets();
+      if (assetId) navigate('../assets', { replace: true });
     } catch {
       showNotification("Failed to delete asset", "danger");
     }
@@ -138,7 +146,7 @@ export default function AssetsView() {
                 sx={{ width: { xs: '100%', sm: 250 } }}
               />
               {isAdmin && (
-                  <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditAsset({}); setIsNew(true); setActiveTab(0); }}>
+                  <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('assets/new')}>
                       Add Asset
                   </Button>
               )}
@@ -185,7 +193,7 @@ export default function AssetsView() {
                             </td>
                             {isAdmin && (
                                 <td style={{ textAlign: 'right' }}>
-                                    <IconButton size="sm" variant="plain" aria-label="Edit" onClick={() => { setEditAsset(row); setIsNew(false); setActiveTab(0); }}><Edit /></IconButton>
+                                    <IconButton size="sm" variant="plain" aria-label="Edit" onClick={() => navigate(`assets/${row.id}`)}><Edit /></IconButton>
                                     <IconButton size="sm" variant="plain" color="danger" aria-label="Delete" onClick={() => handleDelete(row.id)}><Delete /></IconButton>
                                 </td>
                             )}
@@ -213,7 +221,7 @@ export default function AssetsView() {
                             </Chip>
                         </Box>
                     </Box>
-                    <IconButton variant="plain" onClick={() => { setEditAsset(a); setIsNew(false); setActiveTab(0); }}>
+                    <IconButton variant="plain" onClick={() => navigate(`assets/${a.id}`)}>
                         <Edit />
                     </IconButton>
                 </Card>
@@ -223,20 +231,20 @@ export default function AssetsView() {
       )}
 
       {/* EDIT/DETAIL MODAL */}
-      <Modal open={Boolean(editAsset)} onClose={() => setEditAsset(null)}>
+      <Modal open={Boolean(assetId)} onClose={() => navigate('../assets', { replace: true })}>
         <ModalDialog sx={{ maxWidth: 800, width: '100%', p: 0, overflow: 'hidden' }}>
             <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2, bgcolor: 'background.level1' }}>
-                <Avatar size="lg" sx={{ bgcolor: getEmojiColor(editAsset?.name || 'A', isDark) }}>{editAsset?.emoji || editAsset?.name?.[0] || <Inventory />}</Avatar>
+                <Avatar size="lg" sx={{ bgcolor: getEmojiColor(selectedAsset?.name || 'A', isDark) }}>{selectedAsset?.emoji || selectedAsset?.name?.[0] || <Inventory />}</Avatar>
                 <Box>
-                    <Typography level="h3">{isNew ? 'New Asset' : editAsset?.name}</Typography>
-                    <Typography level="body-sm" color="neutral">{editAsset?.category} • {editAsset?.location || 'No Location'}</Typography>
+                    <Typography level="h3">{assetId === 'new' ? 'New Asset' : selectedAsset?.name}</Typography>
+                    <Typography level="body-sm" color="neutral">{selectedAsset?.category} • {selectedAsset?.location || 'No Location'}</Typography>
                 </Box>
             </Box>
 
             <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)}>
                 <TabList variant="plain" sx={{ px: 2, bgcolor: 'background.level1' }}>
                     <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'}><Info sx={{ mr: 1 }} /> Identity</Tab>
-                    {!isNew && (
+                    {assetId !== 'new' && (
                         <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}><Payments sx={{ mr: 1 }} /> Recurring Costs</Tab>
                     )}
                 </TabList>
@@ -247,14 +255,14 @@ export default function AssetsView() {
                                 <Grid xs={12} md={6}>
                                     <FormControl required>
                                         <FormLabel>Asset Name</FormLabel>
-                                        <Input name="name" defaultValue={editAsset?.name} />
+                                        <Input name="name" defaultValue={selectedAsset?.name} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={12} md={6}>
                                     <AppSelect 
                                         label="Category"
                                         name="category"
-                                        defaultValue={editAsset?.category || 'Appliance'}
+                                        defaultValue={selectedAsset?.category || 'Appliance'}
                                         options={[
                                             { value: 'Appliance', label: 'Appliance' },
                                             { value: 'Electronics', label: 'Electronics' },
@@ -270,7 +278,7 @@ export default function AssetsView() {
                                     <AppSelect 
                                         label="Insurance Status"
                                         name="insurance_status"
-                                        defaultValue={editAsset?.insurance_status || 'uninsured'}
+                                        defaultValue={selectedAsset?.insurance_status || 'uninsured'}
                                         options={[
                                             { value: 'insured', label: 'Insured' },
                                             { value: 'uninsured', label: 'Uninsured' },
@@ -282,19 +290,19 @@ export default function AssetsView() {
                                 <Grid xs={12} md={6}>
                                     <FormControl>
                                         <FormLabel>Location</FormLabel>
-                                        <Input name="location" defaultValue={editAsset?.location} />
+                                        <Input name="location" defaultValue={selectedAsset?.location} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={12} md={6}>
                                     <FormControl>
                                         <FormLabel>Manufacturer</FormLabel>
-                                        <Input name="manufacturer" defaultValue={editAsset?.manufacturer} />
+                                        <Input name="manufacturer" defaultValue={selectedAsset?.manufacturer} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={12} md={6}>
                                     <FormControl>
                                         <FormLabel>Model Number</FormLabel>
-                                        <Input name="model_number" defaultValue={editAsset?.model_number} />
+                                        <Input name="model_number" defaultValue={selectedAsset?.model_number} />
                                     </FormControl>
                                 </Grid>
 
@@ -303,36 +311,36 @@ export default function AssetsView() {
                                 <Grid xs={6} md={3}>
                                     <FormControl>
                                         <FormLabel>Purchase Value (£)</FormLabel>
-                                        <Input name="purchase_value" type="number" step="0.01" defaultValue={editAsset?.purchase_value} />
+                                        <Input name="purchase_value" type="number" step="0.01" defaultValue={selectedAsset?.purchase_value} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={6} md={3}>
                                     <FormControl>
                                         <FormLabel>Monthly Maintenance (£)</FormLabel>
-                                        <Input name="monthly_maintenance_cost" type="number" step="0.01" defaultValue={editAsset?.monthly_maintenance_cost} />
+                                        <Input name="monthly_maintenance_cost" type="number" step="0.01" defaultValue={selectedAsset?.monthly_maintenance_cost} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={6} md={3}>
                                     <FormControl>
                                         <FormLabel>Notes</FormLabel>
-                                        <Input name="notes" defaultValue={editAsset?.notes} />
+                                        <Input name="notes" defaultValue={selectedAsset?.notes} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={6} md={3}>
                                     <FormControl>
                                         <FormLabel>Emoji</FormLabel>
-                                        <Input name="emoji" defaultValue={editAsset?.emoji} />
+                                        <Input name="emoji" defaultValue={selectedAsset?.emoji} />
                                     </FormControl>
                                 </Grid>
                             </Grid>
                         </form>
                     )}
-                    {activeTab === 1 && editAsset?.id && (
+                    {activeTab === 1 && assetId !== 'new' && (
                         <RecurringCostsWidget 
                             api={api} 
                             householdId={householdId} 
                             parentType="asset" 
-                            parentId={editAsset.id} 
+                            parentId={assetId} 
                             isAdmin={isAdmin} 
                             showNotification={showNotification} 
                         />
@@ -341,7 +349,7 @@ export default function AssetsView() {
             </Tabs>
             <Divider />
             <DialogActions sx={{ p: 2 }}>
-                <Button variant="plain" color="neutral" onClick={() => setEditAsset(null)}>Cancel</Button>
+                <Button variant="plain" color="neutral" onClick={() => navigate('../assets', { replace: true })}>Cancel</Button>
                 {activeTab === 0 && (
                     <Button type="submit" form="asset-form" variant="solid">Save Asset</Button>
                 )}
