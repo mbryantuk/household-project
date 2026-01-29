@@ -321,7 +321,6 @@ export default function NavSidebar({
                             <Divider sx={{ my: 1 }} />
                             <GroupHeader label="Residents" />
                             {members.filter(m => m.type !== 'pet').map(m => <SubItem key={m.id} label={m.alias || (m.name || '').split(' ')[0]} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
-                            <SubItem label="Manage Residents" to="people" emoji="👥" isDark={isDark} onClick={handleSubItemClick} />
                             {enabledModules.includes('pets') && (
                                 <>
                                     <Divider sx={{ my: 1 }} />
@@ -332,7 +331,6 @@ export default function NavSidebar({
                             <Divider sx={{ my: 1 }} />
                             <GroupHeader label="Fleet" />
                             {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`vehicles/${v.id}`} emoji={v.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
-                            <SubItem label="Manage Vehicles" to="vehicles" emoji="🚗" isDark={isDark} onClick={handleSubItemClick} />
                         </>
                     )}
                     {currentPanelCategory === 'finance' && (

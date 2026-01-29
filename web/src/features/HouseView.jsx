@@ -102,7 +102,7 @@ export default function HouseView() {
                         </Box>
                         <Divider sx={{ my: 1 }} />
                         <Typography level="body-sm" sx={{ opacity: 0.8 }}>{household?.address_street}<br/>{household?.address_city}, {household?.address_zip}</Typography>
-                        <Button variant="plain" size="sm" endDecorator={<HomeWork />} sx={{ mt: 'auto', justifyContent: 'flex-start', p: 0 }}>Manage Property & Assets</Button>
+                        <Button variant="plain" size="sm" endDecorator={<HomeWork />} sx={{ mt: 'auto', justifyContent: 'flex-start', p: 0, pointerEvents: 'none' }}>Manage Property & Assets</Button>
                     </Card>
                 </Grid>
 
@@ -111,12 +111,18 @@ export default function HouseView() {
                     <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', bgcolor: 'background.level1', height: '100%' }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                             <Typography level="title-lg" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Groups /> Residents</Typography>
-                            {isAdmin && <Button size="sm" variant="soft" startDecorator={<Add />} onClick={() => navigate('/people')}>Manage</Button>}
+                            {isAdmin && (
+                                <Stack direction="row" spacing={1}>
+                                    <Button size="sm" variant="soft" startDecorator={<Add />} onClick={() => navigate('/people/new?type=adult')}>Add Adult</Button>
+                                    <Button size="sm" variant="soft" color="neutral" startDecorator={<Add />} onClick={() => navigate('/people/new?type=child')}>Add Child</Button>
+                                    <Button size="sm" variant="soft" color="warning" startDecorator={<Add />} onClick={() => navigate('/pets/new')}>Add Pet</Button>
+                                </Stack>
+                            )}
                         </Box>
                         <Grid container spacing={2}>
                             {members.map(m => (
                                 <Grid xs={6} sm={4} md={3} key={m.id}>
-                                    <Card variant="outlined" onClick={() => navigate(`/people/${m.id}`)} sx={{ p: 1.5, alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s', '&:hover': { bgcolor: 'background.surface', borderColor: 'primary.outlinedBorder' } }}>
+                                    <Card variant="outlined" onClick={() => navigate(m.type === 'pet' ? `/pets/${m.id}` : `/people/${m.id}`)} sx={{ p: 1.5, alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s', '&:hover': { bgcolor: 'background.surface', borderColor: 'primary.outlinedBorder' } }}>
                                         <Avatar size="md" sx={{ bgcolor: getEmojiColor(m.emoji || '👤', isDark), mb: 1 }}>{m.emoji || (m.type === 'pet' ? '🐾' : '👤')}</Avatar>
                                         <Typography level="title-sm" noWrap>{m.alias || m.name.split(' ')[0]}</Typography>
                                         <Chip size="sm" variant="soft" color={m.type === 'pet' ? 'warning' : 'primary'} sx={{ mt: 0.5, fontSize: '10px', textTransform: 'capitalize' }}>{m.type}</Chip>
