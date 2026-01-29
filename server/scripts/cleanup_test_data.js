@@ -91,11 +91,20 @@ async function cleanupTestData() {
         console.log(`✅ Purged ${deletedFiles} orphan database files.`);
 
         // ==========================================
-        // 4. RESTORE ACCESS
+        // 4. RESTORE ACCESS & CLEAN OLD LINKS
         // ==========================================
         const targetUser = await dbGet(globalDb, `SELECT id FROM users WHERE email = ?`, [MAINTAINED_USER_EMAIL]);
         
         if (targetUser && targetHhId) {
+            // Remove all existing links to test households for this user first
+            // This ensures they only see the LATEST one we want them to check
+            await dbRun(globalDb, `
+                DELETE FROM user_households 
+                WHERE user_id = ? 
+                AND household_id != ? 
+                AND household_id IN (SELECT id FROM households WHERE is_test = 1 OR name LIKE 'Mega House %')
+            `, [targetUser.id, PERMANENT_HOUSEHOLD_ID]);
+
             const existingLink = await dbGet(globalDb, 
                 `SELECT * FROM user_households WHERE user_id = ? AND household_id = ?`, 
                 [targetUser.id, targetHhId]
@@ -114,7 +123,7 @@ async function cleanupTestData() {
             }
 
             await dbRun(globalDb, `UPDATE users SET default_household_id = ?, last_household_id = ? WHERE id = ?`, [targetHhId, targetHhId, targetUser.id]);
-            console.log(`🔗 Linked ${MAINTAINED_USER_EMAIL} to latest valid test household #${targetHhId}.`);
+            console.log(`🔗 Refreshed links for ${MAINTAINED_USER_EMAIL}. Access granted to latest test household #${targetHhId} (others cleared).`);
         }
 
     } catch (err) {

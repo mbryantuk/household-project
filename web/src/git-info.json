@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Ensure Mega House is correctly flagged as test data and preserved during cleanup",
-  "date": "Thu 29 Jan 13:00:09 GMT 2026"
+  "commitMessage": "Optimize cleanup script to remove redundant test household links from maintained user",
+  "date": "Thu 29 Jan 13:03:41 GMT 2026"
 }
