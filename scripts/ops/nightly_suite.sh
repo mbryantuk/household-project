@@ -87,7 +87,7 @@ else
     fi
 fi
 
-# 3. Frontend Tests (Two-Stage Fail-Fast)
+# 3. Frontend Tests (Three-Stage Fail-Fast)
 if [ "$SKIP_FRONTEND" = true ]; then
     echo "⏭️  [3/6] Skipping Frontend Tests."
 else
@@ -97,30 +97,45 @@ else
     if [ "$IS_CONTAINER" = true ] && [ ! -d "/root/.cache/ms-playwright" ]; then
         echo "⚠️  Browsers not found."
     else
-        # STAGE 1: ROUTING
-        echo "   📍 Stage 1: Basic Routing & Module Availability..."
-        if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-routing.json npx --yes playwright test tests/routing.spec.js --reporter=list,json > playwright-routing.log 2>&1; then
-            echo "   🟢 Stage 1 (Routing): SUCCESS"
+        # STAGE 1: SMOKE (Basic Flow)
+        echo "   📍 Stage 1: Basic System Flow (Smoke)..."
+        if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results.json npx --yes playwright test tests/smoke.spec.js --reporter=list,json > playwright-smoke.log 2>&1; then
+            echo "   🟢 Stage 1 (Smoke): SUCCESS"
             cd "$PROJECT_ROOT"
-            node scripts/ops/record_test_results.js frontend_routing "success" || true
+            node scripts/ops/record_test_results.js frontend_lifecycle "success" || true
 
-            # STAGE 2: BASIC FLOW (Only runs if Stage 1 passed)
+            # STAGE 2: ROUTING (Only runs if Stage 1 passed)
             cd "$PROJECT_ROOT/web"
-            echo "   📍 Stage 2: Basic System Flow Suite..."
-            if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results.json npx --yes playwright test tests/smoke.spec.js --reporter=list,json > playwright-tests.log 2>&1; then
-                echo "   🟢 Stage 2 (Basic Flow): SUCCESS"
+            echo "   📍 Stage 2: Basic Routing & Module Availability..."
+            if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-routing.json npx --yes playwright test tests/routing.spec.js --reporter=list,json > playwright-routing.log 2>&1; then
+                echo "   🟢 Stage 2 (Routing): SUCCESS"
                 cd "$PROJECT_ROOT"
-                node scripts/ops/record_test_results.js frontend_lifecycle "success" || true
+                node scripts/ops/record_test_results.js frontend_routing "success" || true
+
+                # STAGE 3: BRADY (Only runs if Stage 2 passed)
+                cd "$PROJECT_ROOT/web"
+                echo "   📍 Stage 3: Brady Suite..."
+                if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-brady.json npx --yes playwright test tests/brady_test.spec.js --reporter=list,json > playwright-brady.log 2>&1; then
+                    echo "                    🟢 Stage 3 (Brady): SUCCESS"
+                    cd "$PROJECT_ROOT"
+                    node scripts/ops/record_test_results.js frontend_brady "success" || true
+                else
+                    echo "                    🔴 Stage 3 (Brady): FAILED"
+                    cd "$PROJECT_ROOT"
+                    node scripts/ops/record_test_results.js frontend_brady "failure" || true
+                fi
             else
-                echo "   🔴 Stage 2 (Basic Flow): FAILED"
+                echo "   🔴 Stage 2 (Routing): FAILED"
+                echo "   ⏭️  Stage 3 (Brady): SKIPPED (Fast-fail)"
                 cd "$PROJECT_ROOT"
-                node scripts/ops/record_test_results.js frontend_lifecycle "failure" || true
+                node scripts/ops/record_test_results.js frontend_routing "failure" || true
             fi
         else
-            echo "   🔴 Stage 1 (Routing): FAILED"
-            echo "   ⏭️  Stage 2 (Lifecycle): SKIPPED (Fast-fail)"
+            echo "   🔴 Stage 1 (Smoke): FAILED"
+            echo "   ⏭️  Stage 2 (Routing): SKIPPED (Fast-fail)"
+            echo "   ⏭️  Stage 3 (Brady): SKIPPED (Fast-fail)"
             cd "$PROJECT_ROOT"
-            node scripts/ops/record_test_results.js frontend_routing "failure" || true
+            node scripts/ops/record_test_results.js frontend_lifecycle "failure" || true
         fi
     fi
 fi

@@ -4,8 +4,9 @@ const path = require('path');
 
 async function sendReport() {
     const reportPath = path.join(__dirname, '../../web/playwright-report/index.html');
-    const jsonResultPath = path.join(__dirname, '../../web/results.json');
+    const smokeResultPath = path.join(__dirname, '../../web/results.json');
     const routingResultPath = path.join(__dirname, '../../web/results-routing.json');
+    const bradyResultPath = path.join(__dirname, '../../web/results-brady.json');
     
     // Read Version
     let version = "Unknown";
@@ -27,7 +28,7 @@ async function sendReport() {
 
     // Helper to parse Playwright JSON
     const parsePlaywrightJson = (filePath, title) => {
-        let summary = `${title}: No JSON report found.`;
+        let summary = `${title}: No JSON report found (Skipped or Failed Fast).`;
         let detailed = "";
         let passed = false;
 
@@ -35,27 +36,31 @@ async function sendReport() {
             try {
                 const results = JSON.parse(fs.readFileSync(filePath, 'utf8'));
                 const stats = results.stats;
-                const total = stats.expected;
-                const failed = stats.unexpected;
-                const passedCount = total - failed;
+                const total = stats.expected + stats.unexpected + stats.flaky + stats.skipped;
+                const failed = stats.unexpected + stats.flaky;
+                const passedCount = stats.expected;
                 const duration = (stats.duration / 1000).toFixed(2);
                 
-                passed = failed === 0;
+                passed = failed === 0 && total > 0;
                 summary = `${title}: ${passed ? 'PASSED' : 'FAILED'} (Total: ${total}, Passed: ${passedCount}, Failed: ${failed}, Duration: ${duration}s)`;
                 
-                detailed += `\n${title} - Detailed Breakdown:\n`;
+                detailed += `
+${title} - Detailed Breakdown:
+`;
                 results.suites.forEach(suite => {
                     const processSuite = (s) => {
                         s.specs?.forEach(spec => {
                             const specTitle = spec.title;
                             const result = spec.tests[0]?.results[0];
                             const icon = result?.status === 'passed' ? '✅' : '❌';
-                            detailed += `${icon} ${specTitle}\n`;
+                            detailed += `${icon} ${specTitle}
+`;
                             
                             if (result?.stdout) {
                                 result.stdout.forEach(entry => {
                                     if (entry.text && (entry.text.startsWith('Step') || entry.text.startsWith('Checking:'))) {
-                                        detailed += `   - ${entry.text.trim()}\n`;
+                                        detailed += `   - ${entry.text.trim()}
+`;
                                     }
                                 });
                             }
@@ -71,9 +76,12 @@ async function sendReport() {
         return { summary, detailed, passed };
     };
 
-    const routingResults = parsePlaywrightJson(routingResultPath, "Frontend Stage 1 (Routing)");
-    const lifecycleResults = parsePlaywrightJson(jsonResultPath, "Frontend Stage 2 (Basic Flow)");
-    const frontendPassed = routingResults.passed && lifecycleResults.passed;
+    const smokeResults = parsePlaywrightJson(smokeResultPath, "Frontend Stage 1 (Smoke)");
+    const routingResults = parsePlaywrightJson(routingResultPath, "Frontend Stage 2 (Routing)");
+    const bradyResults = parsePlaywrightJson(bradyResultPath, "Frontend Stage 3 (Brady)");
+    
+    // Check if tests actually ran and passed
+    const frontendPassed = smokeResults.passed && routingResults.passed && bradyResults.passed;
 
     // Parse Backend JSON Results
     const backendReportPath = path.join(__dirname, '../../server/test-report.json');
@@ -142,10 +150,14 @@ async function sendReport() {
               `================================\n` +
               `FRONTEND STATUS\n` +
               `================================\n` +
+              `${smokeResults.summary}\n` +
+              `${smokeResults.detailed}\n` +
+              `\n` +
               `${routingResults.summary}\n` +
               `${routingResults.detailed}\n` +
-              `${lifecycleResults.summary}\n` +
-              `${lifecycleResults.detailed}\n` +
+              `\n` +
+              `${bradyResults.summary}\n` +
+              `${bradyResults.detailed}\n` +
               `\n` +
               `Time: ${new Date().toLocaleString()}\n`,
         attachments

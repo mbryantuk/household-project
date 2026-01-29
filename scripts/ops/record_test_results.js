@@ -5,6 +5,8 @@ const pkg = require('../../package.json');
 
 const BACKEND_REPORT = path.join(__dirname, '../../server/test-report.json');
 const FRONTEND_REPORT = path.join(__dirname, '../../web/results.json');
+const ROUTING_REPORT = path.join(__dirname, '../../web/results-routing.json');
+const BRADY_REPORT = path.join(__dirname, '../../web/results-brady.json');
 
 async function recordBackendResults() {
     if (!fs.existsSync(BACKEND_REPORT)) {
@@ -29,14 +31,14 @@ async function recordBackendResults() {
     }
 }
 
-async function recordFrontendResults(type = 'frontend', suiteName = 'Playwright Smoke Suite') {
-    if (!fs.existsSync(FRONTEND_REPORT)) {
-        console.log("⚠️ Frontend report not found at " + FRONTEND_REPORT);
+async function recordFrontendResults(type = 'frontend', suiteName = 'Playwright Smoke Suite', reportFile = FRONTEND_REPORT) {
+    if (!fs.existsSync(reportFile)) {
+        console.log(`⚠️ Frontend report not found at ${reportFile}`);
         return;
     }
 
     try {
-        const data = JSON.parse(fs.readFileSync(FRONTEND_REPORT, 'utf8'));
+        const data = JSON.parse(fs.readFileSync(reportFile, 'utf8'));
         const stats = data.stats || {};
         const passes = stats.expected || 0;
         const fails = (stats.unexpected || 0) + (stats.flaky || 0);
@@ -55,14 +57,16 @@ async function recordFrontendResults(type = 'frontend', suiteName = 'Playwright 
 
 async function main() {
     const type = process.argv[2];
-    const status = process.argv[3]; // Not currently used for logic but passed by script
+    const status = process.argv[3];
 
     if (type === 'backend') {
         await recordBackendResults();
     } else if (type === 'frontend_routing') {
-        await recordFrontendResults('frontend_routing', 'Routing & Availability');
+        await recordFrontendResults('frontend_routing', 'Routing & Availability', ROUTING_REPORT);
     } else if (type === 'frontend_lifecycle') {
-        await recordFrontendResults('frontend_lifecycle', 'Comprehensive Lifecycle');
+        await recordFrontendResults('frontend_lifecycle', 'Comprehensive Lifecycle', FRONTEND_REPORT);
+    } else if (type === 'frontend_brady') {
+        await recordFrontendResults('frontend_brady', 'Brady Test Suite', BRADY_REPORT);
     } else if (type === 'frontend') {
         await recordFrontendResults();
     } else {
