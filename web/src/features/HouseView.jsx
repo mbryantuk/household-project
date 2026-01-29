@@ -18,10 +18,12 @@ export default function HouseView() {
   const { api, id: householdId, onUpdateHousehold, user: currentUser, showNotification, confirmAction, isDark, members = [] } = useOutletContext();
   const household_data = useOutletContext().household;
   const isAdmin = currentUser?.role === 'admin';
-  const { assetId } = useParams();
+  const { houseId, assetId } = useParams();
   const navigate = useNavigate();
 
-  const [viewMode, setViewMode] = useState(assetId ? 'details' : 'selector'); 
+  // If houseId is provided, we show the property details tabs. 
+  // Otherwise, we show the Household Hub selector.
+  const [viewMode, setViewMode] = useState(houseId ? 'details' : 'selector'); 
   const [activeTab, setActiveTab] = useState(assetId ? 3 : 0);
   const [household, setHousehold] = useState(null);
   const [vehicles, setVehicles] = useState([]);
@@ -31,7 +33,11 @@ export default function HouseView() {
   const [selectedEmoji, setSelectedEmoji] = useState('🏠');
 
   useEffect(() => {
-      setViewMode(assetId ? 'details' : 'selector');
+      setViewMode(houseId ? 'details' : 'selector');
+  }, [houseId, assetId]);
+
+  useEffect(() => {
+    if (assetId) setActiveTab(3);
   }, [assetId]);
 
   useEffect(() => {
@@ -92,7 +98,7 @@ export default function HouseView() {
             <Grid container spacing={3}>
                 {/* 1. HOUSEHOLD IDENTITY CARD */}
                 <Grid xs={12} lg={4}>
-                    <Card variant="outlined" onClick={() => navigate('1')} sx={{ p: 3, cursor: 'pointer', height: '100%', transition: 'all 0.2s', '&:hover': { bgcolor: 'background.level1', transform: 'translateY(-4px)', boxShadow: 'md' } }}>
+                    <Card variant="outlined" onClick={() => navigate(String(householdId))} sx={{ p: 3, cursor: 'pointer', height: '100%', transition: 'all 0.2s', '&:hover': { bgcolor: 'background.level1', transform: 'translateY(-4px)', boxShadow: 'md' } }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                             <Avatar size="lg" sx={{ bgcolor: getEmojiColor(household?.avatar || '🏠', isDark), '--Avatar-size': '64px', fontSize: '2.5rem' }}>{household?.avatar || '🏠'}</Avatar>
                             <Box>
@@ -102,7 +108,7 @@ export default function HouseView() {
                         </Box>
                         <Divider sx={{ my: 1 }} />
                         <Typography level="body-sm" sx={{ opacity: 0.8 }}>{household?.address_street}<br/>{household?.address_city}, {household?.address_zip}</Typography>
-                        <Button variant="plain" size="sm" endDecorator={<HomeWork />} sx={{ mt: 'auto', justifyContent: 'flex-start', p: 0, pointerEvents: 'none' }}>Manage Property & Assets</Button>
+                        <Button variant="plain" size="sm" endDecorator={<HomeWork />} sx={{ mt: 'auto', justifyContent: 'flex-start', p: 0 }}>Manage Property & Assets</Button>
                     </Card>
                 </Grid>
 
@@ -113,16 +119,16 @@ export default function HouseView() {
                             <Typography level="title-lg" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Groups /> Residents</Typography>
                             {isAdmin && (
                                 <Stack direction="row" spacing={1}>
-                                    <Button size="sm" variant="soft" startDecorator={<Add />} onClick={() => navigate('/people/new?type=adult')}>Add Adult</Button>
-                                    <Button size="sm" variant="soft" color="neutral" startDecorator={<Add />} onClick={() => navigate('/people/new?type=child')}>Add Child</Button>
-                                    <Button size="sm" variant="soft" color="warning" startDecorator={<Add />} onClick={() => navigate('/pets/new')}>Add Pet</Button>
+                                    <Button size="sm" variant="soft" startDecorator={<Add />} onClick={() => navigate(`../people/new?type=adult`)}>Add Adult</Button>
+                                    <Button size="sm" variant="soft" color="neutral" startDecorator={<Add />} onClick={() => navigate(`../people/new?type=child`)}>Add Child</Button>
+                                    <Button size="sm" variant="soft" color="warning" startDecorator={<Add />} onClick={() => navigate(`../pets/new`)}>Add Pet</Button>
                                 </Stack>
                             )}
                         </Box>
                         <Grid container spacing={2}>
                             {members.map(m => (
                                 <Grid xs={6} sm={4} md={3} key={m.id}>
-                                    <Card variant="outlined" onClick={() => navigate(m.type === 'pet' ? `/pets/${m.id}` : `/people/${m.id}`)} sx={{ p: 1.5, alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s', '&:hover': { bgcolor: 'background.surface', borderColor: 'primary.outlinedBorder' } }}>
+                                    <Card variant="outlined" onClick={() => navigate(m.type === 'pet' ? `../pets/${m.id}` : `../people/${m.id}`)} sx={{ p: 1.5, alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s', '&:hover': { bgcolor: 'background.surface', borderColor: 'primary.outlinedBorder' } }}>
                                         <Avatar size="md" sx={{ bgcolor: getEmojiColor(m.emoji || '👤', isDark), mb: 1 }}>{m.emoji || (m.type === 'pet' ? '🐾' : '👤')}</Avatar>
                                         <Typography level="title-sm" noWrap>{m.alias || m.name.split(' ')[0]}</Typography>
                                         <Chip size="sm" variant="soft" color={m.type === 'pet' ? 'warning' : 'primary'} sx={{ mt: 0.5, fontSize: '10px', textTransform: 'capitalize' }}>{m.type}</Chip>
@@ -138,12 +144,12 @@ export default function HouseView() {
                     <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', bgcolor: 'background.level1' }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                             <Typography level="title-lg" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><DirectionsCar /> Household Fleet</Typography>
-                            {isAdmin && <Button size="sm" variant="soft" startDecorator={<Add />} onClick={() => navigate('/vehicles/new')}>Add Vehicle</Button>}
+                            {isAdmin && <Button size="sm" variant="soft" startDecorator={<Add />} onClick={() => navigate(`../vehicles/new`)}>Add Vehicle</Button>}
                         </Box>
                         <Grid container spacing={2}>
                             {vehicles.map(v => (
                                 <Grid xs={12} sm={6} md={4} lg={3} key={v.id}>
-                                    <Card variant="outlined" onClick={() => navigate(`/vehicles/${v.id}`)} sx={{ p: 2, flexDirection: 'row', gap: 2, alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s', bgcolor: 'background.surface', '&:hover': { transform: 'translateY(-2px)', boxShadow: 'sm' } }}>
+                                    <Card variant="outlined" onClick={() => navigate(`../vehicles/${v.id}`)} sx={{ p: 2, flexDirection: 'row', gap: 2, alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s', bgcolor: 'background.surface', '&:hover': { transform: 'translateY(-2px)', boxShadow: 'sm' } }}>
                                         <Typography level="h2" sx={{ m: 0 }}>{v.emoji || '🚗'}</Typography>
                                         <Box>
                                             <Typography level="title-sm" sx={{ fontWeight: 'bold' }}>{v.make} {v.model}</Typography>
@@ -161,10 +167,11 @@ export default function HouseView() {
     );
   }
 
+  // DETAILS MODE
   return (
     <Box sx={{ pb: 10 }}>
       <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
-        <IconButton variant="outlined" color="neutral" onClick={() => navigate('/house')}><ArrowBack /></IconButton>
+        <IconButton variant="outlined" color="neutral" onClick={() => navigate('../house')}><ArrowBack /></IconButton>
         <Box>
             <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>{household?.name || 'Primary Residence'}</Typography>
             <Typography level="body-md" color="neutral">Manage identity, structure, and recurring financial obligations.</Typography>
