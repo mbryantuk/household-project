@@ -7,7 +7,6 @@ const { authenticateToken, requireHouseholdRole } = require('../middleware/auth'
  * Middleware to Attach Tenant DB
  */
 const useTenantDb = (req, res, next) => {
-    // Parent router handles :id
     const hhId = req.params.id;
     if (!hhId) return res.status(400).json({ error: "Household ID required" });
     const db = getHouseholdDb(hhId);
@@ -20,7 +19,7 @@ const closeDb = (req) => {
     if (req.tenantDb) req.tenantDb.close();
 };
 
-// GET / (relative to mount point /households/:id/finance/charges)
+// GET /households/:id/finance/charges
 router.get('/', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
     const sql = `SELECT * FROM finance_recurring_charges WHERE household_id = ? ORDER BY created_at DESC`;
     req.tenantDb.all(sql, [req.hhId], (err, rows) => {
@@ -30,7 +29,7 @@ router.get('/', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, 
     });
 });
 
-// GET /:chargeId
+// GET /households/:id/finance/charges/:chargeId
 router.get('/:chargeId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
     const sql = `SELECT * FROM finance_recurring_charges WHERE id = ? AND household_id = ?`;
     req.tenantDb.get(sql, [req.params.chargeId, req.hhId], (err, row) => {
@@ -41,7 +40,7 @@ router.get('/:chargeId', authenticateToken, requireHouseholdRole('viewer'), useT
     });
 });
 
-// POST /
+// POST /households/:id/finance/charges
 router.post('/', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     const { 
         name, amount, segment, frequency, 
@@ -68,7 +67,7 @@ router.post('/', authenticateToken, requireHouseholdRole('member'), useTenantDb,
     });
 });
 
-// PUT /:chargeId
+// PUT /households/:id/finance/charges/:chargeId
 router.put('/:chargeId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     const { 
         name, amount, segment, frequency, 
@@ -99,7 +98,7 @@ router.put('/:chargeId', authenticateToken, requireHouseholdRole('member'), useT
     });
 });
 
-// DELETE /:chargeId
+// DELETE /households/:id/finance/charges/:chargeId
 router.delete('/:chargeId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     const sql = `UPDATE finance_recurring_charges SET is_active = 0 WHERE id = ? AND household_id = ?`;
     req.tenantDb.run(sql, [req.params.chargeId, req.hhId], function(err) {

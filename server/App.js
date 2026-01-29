@@ -22,7 +22,6 @@ const calendarRoutes = require('./routes/calendar');
 const detailsRoutes = require('./routes/details');
 const mealRoutes = require('./routes/meals');
 const financeRoutes = require('./routes/finance');
-const chargeRoutes = require('./routes/charges');
 
 const { createBackup, cleanOldBackups } = require('./services/backup');
 
