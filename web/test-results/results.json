@@ -1,0 +1,585 @@
+{
+  "config": {
+    "configFile": "/home/matt/household-project/web/playwright.config.js",
+    "rootDir": "/home/matt/household-project/web/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/matt/household-project/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/matt/household-project/web/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "brady_test.spec.js",
+      "file": "brady_test.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Brady Test Scenario",
+          "file": "brady_test.spec.js",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Create Brady Family Configuration via UI",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 900000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 26797,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('dialog', { name: 'Add Car Finance' })\nExpected: not visible\nReceived: visible\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Add Car Finance' })\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"dialog\" tabindex=\"-1\" aria-modal=\"true\" aria-labelledby=\"_r_5_\" aria-describedby=\"_r_6_\" class=\"MuiModalDialog-root MuiModalDialog-variantOutlined MuiModalDialog-colorNeutral MuiModalDialog-sizeMd MuiModalDialog-layoutCenter css-17x1u2b\">…</div>\u001b[22m\n\u001b[2m      - unexpected value \"visible\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('dialog', { name: 'Add Car Finance' })\nExpected: not visible\nReceived: visible\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Add Car Finance' })\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"dialog\" tabindex=\"-1\" aria-modal=\"true\" aria-labelledby=\"_r_5_\" aria-describedby=\"_r_6_\" class=\"MuiModalDialog-root MuiModalDialog-variantOutlined MuiModalDialog-colorNeutral MuiModalDialog-sizeMd MuiModalDialog-layoutCenter css-17x1u2b\">…</div>\u001b[22m\n\u001b[2m      - unexpected value \"visible\"\u001b[22m\n\n    at /home/matt/household-project/web/tests/brady_test.spec.js:257:77",
+                        "location": {
+                          "file": "/home/matt/household-project/web/tests/brady_test.spec.js",
+                          "column": 77,
+                          "line": 257
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 255 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'      - Saving Car Finance'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 256 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Save\")'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 257 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'dialog'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Add Car Finance'\u001b[39m }))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 258 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Plymouth Finance'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 259 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'      - Verified Car Finance visible'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 260 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/brady_test.spec.js",
+                            "column": 77,
+                            "line": 257
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('dialog', { name: 'Add Car Finance' })\nExpected: not visible\nReceived: visible\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Add Car Finance' })\u001b[22m\n\u001b[2m    9 × locator resolved to <div role=\"dialog\" tabindex=\"-1\" aria-modal=\"true\" aria-labelledby=\"_r_5_\" aria-describedby=\"_r_6_\" class=\"MuiModalDialog-root MuiModalDialog-variantOutlined MuiModalDialog-colorNeutral MuiModalDialog-sizeMd MuiModalDialog-layoutCenter css-17x1u2b\">…</div>\u001b[22m\n\u001b[2m      - unexpected value \"visible\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 255 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'      - Saving Car Finance'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 256 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Save\")'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 257 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'dialog'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Add Car Finance'\u001b[39m }))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 258 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Plymouth Finance'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 259 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'      - Verified Car Finance visible'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 260 |\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/brady_test.spec.js:257:77\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "Step 1: Registering Admin (Mike Brady) brady_1769700736559@test.com\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "PAGE LOG: Content is cached for offline use.\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "Step 2: Logging in\n"
+                        },
+                        {
+                          "text": "Step 3: Brady Household Created (ID: 1348)\n"
+                        },
+                        {
+                          "text": "Step 4: Adding Family Members\n"
+                        },
+                        {
+                          "text": "   - [Mike] Navigating to House Hub...\n"
+                        },
+                        {
+                          "text": "   - [Mike] Clicking \"Add Adult\"...\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - [Mike] Waiting for Create URL...\n"
+                        },
+                        {
+                          "text": "   - [Mike] Filling form...\n"
+                        },
+                        {
+                          "text": "   - [Mike] Clicking Create Button...\n"
+                        },
+                        {
+                          "text": "   - [Mike] Waiting for redirect to Hub...\n"
+                        },
+                        {
+                          "text": "   - [Mike] Verifying visibility...\n"
+                        },
+                        {
+                          "text": "   - [Mike] Success!\n"
+                        },
+                        {
+                          "text": "   - [Carol] Navigating to House Hub...\n"
+                        },
+                        {
+                          "text": "   - [Carol] Clicking \"Add Adult\"...\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - [Carol] Waiting for Create URL...\n"
+                        },
+                        {
+                          "text": "   - [Carol] Filling form...\n"
+                        },
+                        {
+                          "text": "   - [Carol] Clicking Create Button...\n"
+                        },
+                        {
+                          "text": "   - [Carol] Waiting for redirect to Hub...\n"
+                        },
+                        {
+                          "text": "   - [Carol] Verifying visibility...\n"
+                        },
+                        {
+                          "text": "   - [Carol] Success!\n"
+                        },
+                        {
+                          "text": "   - [Alice] Navigating to House Hub...\n"
+                        },
+                        {
+                          "text": "   - [Alice] Clicking \"Add Adult\"...\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - [Alice] Waiting for Create URL...\n"
+                        },
+                        {
+                          "text": "   - [Alice] Filling form...\n"
+                        },
+                        {
+                          "text": "   - [Alice] Clicking Create Button...\n"
+                        },
+                        {
+                          "text": "   - [Alice] Waiting for redirect to Hub...\n"
+                        },
+                        {
+                          "text": "   - [Alice] Verifying visibility...\n"
+                        },
+                        {
+                          "text": "   - [Alice] Success!\n"
+                        },
+                        {
+                          "text": "   - [Greg] Navigating to House Hub...\n"
+                        },
+                        {
+                          "text": "   - [Greg] Clicking \"Add Child\"...\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - [Greg] Waiting for Create URL...\n"
+                        },
+                        {
+                          "text": "   - [Greg] Filling form...\n"
+                        },
+                        {
+                          "text": "   - [Greg] Clicking Create Button...\n"
+                        },
+                        {
+                          "text": "   - [Greg] Waiting for redirect to Hub...\n"
+                        },
+                        {
+                          "text": "   - [Greg] Verifying visibility...\n"
+                        },
+                        {
+                          "text": "   - [Greg] Success!\n"
+                        },
+                        {
+                          "text": "   - [Marcia] Navigating to House Hub...\n"
+                        },
+                        {
+                          "text": "   - [Marcia] Clicking \"Add Child\"...\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - [Marcia] Waiting for Create URL...\n"
+                        },
+                        {
+                          "text": "   - [Marcia] Filling form...\n"
+                        },
+                        {
+                          "text": "   - [Marcia] Clicking Create Button...\n"
+                        },
+                        {
+                          "text": "   - [Marcia] Waiting for redirect to Hub...\n"
+                        },
+                        {
+                          "text": "   - [Marcia] Verifying visibility...\n"
+                        },
+                        {
+                          "text": "   - [Marcia] Success!\n"
+                        },
+                        {
+                          "text": "   - [Peter] Navigating to House Hub...\n"
+                        },
+                        {
+                          "text": "   - [Peter] Clicking \"Add Child\"...\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - [Peter] Waiting for Create URL...\n"
+                        },
+                        {
+                          "text": "   - [Peter] Filling form...\n"
+                        },
+                        {
+                          "text": "   - [Peter] Clicking Create Button...\n"
+                        },
+                        {
+                          "text": "   - [Peter] Waiting for redirect to Hub...\n"
+                        },
+                        {
+                          "text": "   - [Peter] Verifying visibility...\n"
+                        },
+                        {
+                          "text": "   - [Peter] Success!\n"
+                        },
+                        {
+                          "text": "   - [Jan] Navigating to House Hub...\n"
+                        },
+                        {
+                          "text": "   - [Jan] Clicking \"Add Child\"...\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - [Jan] Waiting for Create URL...\n"
+                        },
+                        {
+                          "text": "   - [Jan] Filling form...\n"
+                        },
+                        {
+                          "text": "   - [Jan] Clicking Create Button...\n"
+                        },
+                        {
+                          "text": "   - [Jan] Waiting for redirect to Hub...\n"
+                        },
+                        {
+                          "text": "   - [Jan] Verifying visibility...\n"
+                        },
+                        {
+                          "text": "   - [Jan] Success!\n"
+                        },
+                        {
+                          "text": "   - [Bobby] Navigating to House Hub...\n"
+                        },
+                        {
+                          "text": "   - [Bobby] Clicking \"Add Child\"...\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - [Bobby] Waiting for Create URL...\n"
+                        },
+                        {
+                          "text": "   - [Bobby] Filling form...\n"
+                        },
+                        {
+                          "text": "   - [Bobby] Clicking Create Button...\n"
+                        },
+                        {
+                          "text": "   - [Bobby] Waiting for redirect to Hub...\n"
+                        },
+                        {
+                          "text": "   - [Bobby] Verifying visibility...\n"
+                        },
+                        {
+                          "text": "   - [Bobby] Success!\n"
+                        },
+                        {
+                          "text": "   - [Cindy] Navigating to House Hub...\n"
+                        },
+                        {
+                          "text": "   - [Cindy] Clicking \"Add Child\"...\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - [Cindy] Waiting for Create URL...\n"
+                        },
+                        {
+                          "text": "   - [Cindy] Filling form...\n"
+                        },
+                        {
+                          "text": "   - [Cindy] Clicking Create Button...\n"
+                        },
+                        {
+                          "text": "   - [Cindy] Waiting for redirect to Hub...\n"
+                        },
+                        {
+                          "text": "   - [Cindy] Verifying visibility...\n"
+                        },
+                        {
+                          "text": "   - [Cindy] Success!\n"
+                        },
+                        {
+                          "text": "Step 5: Adding Tiger (Pet)\n"
+                        },
+                        {
+                          "text": "   - [Tiger] Navigating to House Hub...\n"
+                        },
+                        {
+                          "text": "   - [Tiger] Clicking \"Add Pet\"...\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - [Tiger] Waiting for Create URL...\n"
+                        },
+                        {
+                          "text": "   - [Tiger] Filling form...\n"
+                        },
+                        {
+                          "text": "   - [Tiger] Clicking Create Button...\n"
+                        },
+                        {
+                          "text": "   - [Tiger] Waiting for redirect to Hub...\n"
+                        },
+                        {
+                          "text": "   - [Tiger] Verifying visibility...\n"
+                        },
+                        {
+                          "text": "   - [Tiger] Success!\n"
+                        },
+                        {
+                          "text": "Step 6: Adding Vehicles\n"
+                        },
+                        {
+                          "text": "   - Adding Vehicle: Plymouth Satellite Wagon\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - Verified Plymouth Satellite Wagon visible\n"
+                        },
+                        {
+                          "text": "   - Adding Vehicle: Chevrolet Impana Wagon\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - Verified Chevrolet Impana Wagon visible\n"
+                        },
+                        {
+                          "text": "Step 7: Adding Brady Home Asset\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - Opening Add Asset Modal\n"
+                        },
+                        {
+                          "text": "   - Saving Asset\n"
+                        },
+                        {
+                          "text": "Step 8: Setting up Finances\n"
+                        },
+                        {
+                          "text": "   - 8.1 Adding Joint Bank Account\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "   - 8.2 Adding Income Sources\n"
+                        },
+                        {
+                          "text": "      - Adding Income: Architectural Firm for Mike\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "      - [Mike] Selecting person...\n"
+                        },
+                        {
+                          "text": "      - [Mike] Clicking dropdown trigger...\n"
+                        },
+                        {
+                          "text": "      - [Mike] Waiting for listbox...\n"
+                        },
+                        {
+                          "text": "      - [Mike] Clicking option...\n"
+                        },
+                        {
+                          "text": "      - [Mike] Waiting for listbox to close...\n"
+                        },
+                        {
+                          "text": "      - [Mike] Saving Income...\n"
+                        },
+                        {
+                          "text": "      - Verified Income: Architectural Firm\n"
+                        },
+                        {
+                          "text": "      - Adding Income: Freelance Writing for Carol\n"
+                        },
+                        {
+                          "text": "      - [Carol] Selecting person...\n"
+                        },
+                        {
+                          "text": "      - [Carol] Clicking dropdown trigger...\n"
+                        },
+                        {
+                          "text": "      - [Carol] Waiting for listbox...\n"
+                        },
+                        {
+                          "text": "      - [Carol] Clicking option...\n"
+                        },
+                        {
+                          "text": "      - [Carol] Waiting for listbox to close...\n"
+                        },
+                        {
+                          "text": "      - [Carol] Saving Income...\n"
+                        },
+                        {
+                          "text": "      - Verified Income: Freelance Writing\n"
+                        },
+                        {
+                          "text": "   - 8.3 Adding Mortgage\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "      - Assigning to Mike & Carol\n"
+                        },
+                        {
+                          "text": "   - 8.4 Adding Car Finance\n"
+                        },
+                        {
+                          "text": "      - Opening Add Car Finance Modal\n"
+                        },
+                        {
+                          "text": "PAGE LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "      - Selecting Vehicle\n"
+                        },
+                        {
+                          "text": "      - Saving Car Finance\n"
+                        },
+                        {
+                          "text": "❌ API ERROR: http://localhost:4001/api/households/1348/finance/assignments 404\n"
+                        },
+                        {
+                          "text": "PAGE LOG: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-29T15:32:16.360Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/brady_test-Brady-Test-Scen-63cdd-Family-Configuration-via-UI-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/brady_test-Brady-Test-Scen-63cdd-Family-Configuration-via-UI-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/matt/household-project/web/tests/brady_test.spec.js",
+                        "column": 77,
+                        "line": 257
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "9f16f5b833d1b42fcb6d-a2212da0c56b35e9e217",
+              "file": "brady_test.spec.js",
+              "line": 4,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-01-29T15:32:13.979Z",
+    "duration": 29415.096,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}
