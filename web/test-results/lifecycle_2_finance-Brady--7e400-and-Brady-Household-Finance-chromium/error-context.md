@@ -33,94 +33,138 @@
               - button [ref=e47] [cursor=pointer]:
                 - img [ref=e48]
               - paragraph [ref=e50]: Back to Overview
-            - generic [ref=e51]:
-              - generic [ref=e52]:
-                - generic [ref=e53]:
-                  - heading [level=2] [ref=e54]: Current Accounts
-                  - paragraph [ref=e55]: Track balances, overdrafts, and account holders.
-                - button [ref=e56] [cursor=pointer]:
-                  - img [ref=e58]
-                  - text: Add Account
-              - table [ref=e61]:
-                - rowgroup [ref=e62]:
-                  - row [ref=e63]:
-                    - columnheader [ref=e64]
-                    - columnheader [ref=e65]: Bank / Name
-                    - columnheader [ref=e66]: Sort Code
-                    - columnheader [ref=e67]: Account No.
-                    - columnheader [ref=e68]: Overdraft
-                    - columnheader [ref=e69]: Balance
-                    - columnheader [ref=e70]: Holders
-                    - columnheader [ref=e71]: Actions
-        - generic [ref=e73]:
-          - generic [ref=e75]:
-            - button [ref=e77] [cursor=pointer]:
-              - img [ref=e78]
-              - generic [ref=e80]: Notes
-            - button [ref=e82] [cursor=pointer]:
-              - img [ref=e83]
-              - generic [ref=e85]: Calc
-            - button [ref=e87] [cursor=pointer]:
-              - img [ref=e88]
-              - generic [ref=e90]: Finance
-            - button [ref=e92] [cursor=pointer]:
-              - img [ref=e93]
-              - generic [ref=e95]: Tax
-            - button [ref=e97] [cursor=pointer]:
-              - img [ref=e98]
-              - generic [ref=e100]: Savings
-            - button [ref=e102] [cursor=pointer]:
-              - img [ref=e103]
-              - generic [ref=e105]: Investments
-            - button [ref=e107] [cursor=pointer]:
-              - img [ref=e108]
-              - generic [ref=e110]: Pensions
-            - button [ref=e112] [cursor=pointer]:
-              - img [ref=e113]
-              - generic [ref=e115]: Calendar
-          - generic [ref=e116]:
-            - generic [ref=e117]:
-              - img [ref=e118]
-              - generic [ref=e120]: Online
-            - button [ref=e121] [cursor=pointer]:
-              - img [ref=e122]
-            - button [ref=e125] [cursor=pointer]:
-              - generic [ref=e126]: M
-  - dialog "Add Bank Account" [ref=e128]:
-    - heading "Add Bank Account" [level=2] [ref=e129]
-    - generic [ref=e131]:
-      - generic [ref=e132]:
-        - generic [ref=e134]:
-          - generic [ref=e135]:
-            - text: Bank Name
-            - generic [ref=e136]: "*"
-          - textbox "Bank Name" [ref=e138]:
-            - /placeholder: e.g. HSBC
-            - text: First National
-        - generic [ref=e140]:
-          - generic [ref=e141]: Account Name/Type
-          - textbox "Account Name/Type" [active] [ref=e143]:
-            - /placeholder: e.g. Joint Current
-            - text: Family Checking
-        - separator [ref=e145]: Details
-        - generic [ref=e147]:
-          - generic [ref=e148]: Sort Code
-          - textbox "Sort Code" [ref=e150]:
-            - /placeholder: 00-00-00
-        - generic [ref=e152]:
-          - generic [ref=e153]: Account Number
-          - textbox "Account Number" [ref=e155]:
-            - /placeholder: 8 digits
+            - generic [ref=e52]:
+              - generic [ref=e53]:
+                - heading [level=2] [ref=e54]: Savings
+                - paragraph [ref=e55]: Monitor savings goals and rainy day funds.
+              - button [ref=e56] [cursor=pointer]:
+                - img [ref=e58]
+                - text: Add Savings Account
+        - generic [ref=e61]:
+          - generic [ref=e63]:
+            - button [ref=e65] [cursor=pointer]:
+              - img [ref=e66]
+              - generic [ref=e68]: Notes
+            - button [ref=e70] [cursor=pointer]:
+              - img [ref=e71]
+              - generic [ref=e73]: Calc
+            - button [ref=e75] [cursor=pointer]:
+              - img [ref=e76]
+              - generic [ref=e78]: Finance
+            - button [ref=e80] [cursor=pointer]:
+              - img [ref=e81]
+              - generic [ref=e83]: Tax
+            - button [ref=e85] [cursor=pointer]:
+              - img [ref=e86]
+              - generic [ref=e88]: Savings
+            - button [ref=e90] [cursor=pointer]:
+              - img [ref=e91]
+              - generic [ref=e93]: Investments
+            - button [ref=e95] [cursor=pointer]:
+              - img [ref=e96]
+              - generic [ref=e98]: Pensions
+            - button [ref=e100] [cursor=pointer]:
+              - img [ref=e101]
+              - generic [ref=e103]: Calendar
+          - generic [ref=e104]:
+            - generic [ref=e105]:
+              - img [ref=e106]
+              - generic [ref=e108]: Online
+            - button [ref=e109] [cursor=pointer]:
+              - img [ref=e110]
+            - button [ref=e113] [cursor=pointer]:
+              - generic [ref=e114]: M
+  - dialog "Add Savings Account" [ref=e116]:
+    - heading "Add Savings Account" [level=2] [ref=e117]
+    - generic [ref=e119]:
+      - generic [ref=e120]:
+        - generic [ref=e121]:
+          - generic [ref=e122]:
+            - text: Institution
+            - generic [ref=e123]: "*"
+          - textbox "Institution" [ref=e125]:
+            - /placeholder: e.g. Chase
+            - text: Chase
+        - generic [ref=e126]:
+          - generic [ref=e127]:
+            - text: Account Name
+            - generic [ref=e128]: "*"
+          - textbox "Account Name" [ref=e130]:
+            - /placeholder: e.g. Saver
+            - text: Rainy Day
+        - generic [ref=e131]:
+          - generic [ref=e133]:
+            - generic [ref=e134]:
+              - text: Current Balance (£)
+              - generic [ref=e135]: "*"
+            - spinbutton "Current Balance (£)" [ref=e137]: "12000"
+          - generic [ref=e139]:
+            - generic [ref=e140]: Interest Rate (%)
+            - spinbutton "Interest Rate (%)" [active] [ref=e142]: "4.5"
+          - generic [ref=e144]:
+            - generic [ref=e145]: Monthly Deposit (£)
+            - spinbutton "Monthly Deposit (£)" [ref=e147]
+          - generic [ref=e149]:
+            - generic [ref=e150]: Deposit Day
+            - spinbutton "Deposit Day" [ref=e152]
+        - generic [ref=e153]:
+          - generic [ref=e154]: Account Number (Encrypted)
+          - textbox "Account Number (Encrypted)" [ref=e156]
         - generic [ref=e157]:
-          - generic [ref=e158]: Current Balance (£)
-          - spinbutton "Current Balance (£)" [ref=e160]
-        - generic [ref=e162]:
-          - generic [ref=e163]: Overdraft Limit (£)
-          - spinbutton "Overdraft Limit (£)" [ref=e165]
-        - generic [ref=e167]:
-          - generic [ref=e168]: Notes
-          - textbox "Notes" [ref=e170]
-      - generic [ref=e171]:
-        - button "Cancel" [ref=e172] [cursor=pointer]
-        - button "Save Account" [ref=e173] [cursor=pointer]
+          - generic [ref=e158]: Emoji
+          - generic [ref=e159]:
+            - button "💰" [ref=e160] [cursor=pointer]:
+              - generic [ref=e161]: 💰
+            - generic [ref=e162]: Click icon to change
+        - generic [ref=e163]:
+          - generic [ref=e164]: Assign Owners
+          - generic [ref=e165]:
+            - generic [ref=e166]:
+              - button "Mike Brady" [ref=e167] [cursor=pointer]
+              - generic: Mike Brady
+              - generic:
+                - generic: 👨
+            - generic [ref=e168]:
+              - button "Carol Brady" [ref=e169] [cursor=pointer]
+              - generic: Carol Brady
+              - generic:
+                - generic: 👨
+            - generic [ref=e170]:
+              - button "Alice Nelson" [ref=e171] [cursor=pointer]
+              - generic: Alice Nelson
+              - generic:
+                - generic: 👨
+            - generic [ref=e172]:
+              - button "Greg Brady" [ref=e173] [cursor=pointer]
+              - generic: Greg Brady
+              - generic:
+                - generic: 👶
+            - generic [ref=e174]:
+              - button "Marcia Brady" [ref=e175] [cursor=pointer]
+              - generic: Marcia Brady
+              - generic:
+                - generic: 👶
+            - generic [ref=e176]:
+              - button "Peter Brady" [ref=e177] [cursor=pointer]
+              - generic: Peter Brady
+              - generic:
+                - generic: 👶
+            - generic [ref=e178]:
+              - button "Jan Brady" [ref=e179] [cursor=pointer]
+              - generic: Jan Brady
+              - generic:
+                - generic: 👶
+            - generic [ref=e180]:
+              - button "Bobby Brady" [ref=e181] [cursor=pointer]
+              - generic: Bobby Brady
+              - generic:
+                - generic: 👶
+            - generic [ref=e182]:
+              - button "Cindy Brady" [ref=e183] [cursor=pointer]
+              - generic: Cindy Brady
+              - generic:
+                - generic: 👶
+      - generic [ref=e185]:
+        - button "Cancel" [ref=e186] [cursor=pointer]
+        - button "Save Account" [ref=e187] [cursor=pointer]
 ```
