@@ -89,9 +89,10 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
         await page.fill('input[name="interest_rate"]', '4.5');
         await page.click('button:has-text("Save Account")');
         
-        // Wait for first account to be created and modal to close
+        // Wait for success toast and modal close
+        await expect(page.locator('text=Account added.')).toBeVisible();
         await expect(page.locator('text=Rainy Day')).toBeVisible();
-        await expect(page.locator('h2:has-text("Add Savings Account")')).not.toBeVisible();
+        await expect(page.locator('h2:has-text("Add Savings Account")')).not.toBeVisible({ timeout: 15000 });
 
         // 2. College Fund (Pot)
         logStep('Finance', 'Adding Savings: College Fund');
