@@ -19,13 +19,15 @@ import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
 import { getEmojiColor } from '../theme';
 
-export default function HouseholdLayout({ 
-  households = [], 
+export default function HouseholdLayout({
+  households = [],
   onSelectHousehold,
   api,
   onUpdateHousehold,
   members,
   fetchHhMembers,
+  vehicles = [],
+  fetchVehicles,
   user,
   isDark,
   showNotification,
@@ -44,7 +46,6 @@ export default function HouseholdLayout({
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const [vehicles, setVehicles] = useState([]);
   const [activeHousehold, setActiveHousehold] = useState(household);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState('main');
@@ -57,15 +58,6 @@ export default function HouseholdLayout({
   // New: Global Status Bar State
   const [statusBarData, setStatusBarData] = useState(null);
 
-  const fetchVehicles = useCallback(async () => {
-    try {
-      const res = await api.get(`/households/${id}/vehicles`);
-      setVehicles(res.data || []);
-    } catch (err) {
-      console.error("Failed to fetch vehicles for sidebar", err);
-    }
-  }, [api, id]);
-
   useEffect(() => {
     const targetId = parseInt(id);
     const targetHousehold = (households || []).find(h => h && h.id === targetId);
@@ -76,30 +68,19 @@ export default function HouseholdLayout({
     if (effectiveHousehold) {
       // Guard: Only switch if the App's current household doesn't match the URL
       if (!household || household.id !== effectiveHousehold.id) {
-          const switchHh = async () => {
-              // FLUSH: Clear local state before fetching new data
-              setVehicles([]);
-              await onSelectHousehold(effectiveHousehold);
-              setActiveHousehold(effectiveHousehold);
-              fetchVehicles();
-          };
-          switchHh();
+          onSelectHousehold(effectiveHousehold);
+          setActiveHousehold(effectiveHousehold);
       } else {
-          // If already matched, ensure local state is synced and vehicles are loaded
+          // If already matched, ensure local state is synced
           if (!activeHousehold || activeHousehold.id !== effectiveHousehold.id) {
             setActiveHousehold(effectiveHousehold);
-          }
-          // Only fetch if empty (this handles the flush above)
-          if (vehicles.length === 0) {
-              fetchVehicles();
           }
       }
     } else if (households && households.length > 0) {
       // Only redirect if we have loaded households and the target isn't found/valid
       navigate('/');
     }
-  }, [id, households, onSelectHousehold, navigate, fetchVehicles, household, activeHousehold, vehicles.length]);
-
+  }, [id, households, onSelectHousehold, navigate, household, activeHousehold]);
   const isTabActive = (path) => location.pathname.includes(path);
 
   const pageTitle = useMemo(() => {

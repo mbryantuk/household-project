@@ -72,6 +72,7 @@ function AppInner({ themeId, setThemeId }) {
   const [households, setHouseholds] = useState([]);
   const [hhUsers, setHhUsers] = useState([]);     
   const [hhMembers, setHhMembers] = useState([]); 
+  const [hhVehicles, setHhVehicles] = useState([]);
   const [hhDates, setHhDates] = useState([]);
 
   const [notification, setNotification] = useState({ open: false, message: '', severity: 'neutral' });
@@ -145,6 +146,11 @@ function AppInner({ themeId, setThemeId }) {
     return authAxios.get(`/households/${hhId}/dates`).then(res => setHhDates(Array.isArray(res.data) ? res.data : []));
   }, [authAxios]);
 
+  const fetchHhVehicles = useCallback((hhId) => {
+    if (!hhId) return;
+    return authAxios.get(`/households/${hhId}/vehicles`).then(res => setHhVehicles(Array.isArray(res.data) ? res.data : []));
+  }, [authAxios]);
+
   useEffect(() => {
     if (token) {
         Promise.resolve().then(() => fetchHouseholds());
@@ -171,12 +177,14 @@ function AppInner({ themeId, setThemeId }) {
         setHhMembers([]);
         setHhUsers([]);
         setHhDates([]);
+        setHhVehicles([]);
 
         fetchHhMembers(household.id);
         fetchHhUsers(household.id);
         fetchHhDates(household.id);
+        fetchHhVehicles(household.id);
     }
-  }, [token, household?.id, fetchHhMembers, fetchHhUsers, fetchHhDates]);
+  }, [token, household?.id, fetchHhMembers, fetchHhUsers, fetchHhDates, fetchHhVehicles]);
 
   // Actions
   const logout = useCallback(() => {
@@ -323,7 +331,9 @@ function AppInner({ themeId, setThemeId }) {
               households={households}
               onSelectHousehold={handleSelectHousehold}
               api={authAxios} onUpdateHousehold={handleUpdateHouseholdSettings}
-              members={hhMembers} fetchHhMembers={fetchHhMembers} user={user} isDark={isDark}
+              members={hhMembers} fetchHhMembers={fetchHhMembers} 
+              vehicles={hhVehicles} fetchVehicles={fetchHhVehicles}
+              user={user} isDark={isDark}
               showNotification={showNotification} confirmAction={confirmAction}
               dates={hhDates} onDateAdded={() => household && fetchHhDates(household.id)}
               onUpdateProfile={handleUpdateProfile} onLogout={logout}
