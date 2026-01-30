@@ -1,0 +1,176 @@
+{
+  "config": {
+    "configFile": "/home/matt/household-project/web/playwright.config.js",
+    "rootDir": "/home/matt/household-project/web/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/matt/household-project/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/matt/household-project/web/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "lifecycle_3_finance.spec.js",
+      "file": "lifecycle_3_finance.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Lifecycle Stage 3: Finance & Fringe",
+          "file": "lifecycle_3_finance.spec.js",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Expand Brady Household",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 400000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 63469,
+                      "error": {
+                        "message": "Error: Failed - Timeout: Step \"Fringe Data - Calendar & Birthdays\" exceeded 60s without progressing.",
+                        "stack": "Error: Failed - Timeout: Step \"Fringe Data - Calendar & Birthdays\" exceeded 60s without progressing.\n    at Timeout.<anonymous> (/home/matt/household-project/web/tests/utils/testLogger.js:30:20)",
+                        "location": {
+                          "file": "/home/matt/household-project/web/tests/utils/testLogger.js",
+                          "column": 20,
+                          "line": 30
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/testLogger.js:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m             \u001b[36mconst\u001b[39m err \u001b[33m=\u001b[39m \u001b[32m`Failed - Timeout: Step \"${stepName}\" exceeded ${timeoutMs/1000}s without progressing.`\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 29 |\u001b[39m             logStep(stepName\u001b[33m,\u001b[39m \u001b[32m`ERROR: ${err}`\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m             reject(\u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(err))\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m         }\u001b[33m,\u001b[39m timeoutMs)\u001b[33m;\u001b[39m\n \u001b[90m 32 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 33 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/utils/testLogger.js",
+                            "column": 20,
+                            "line": 30
+                          },
+                          "message": "Error: Failed - Timeout: Step \"Fringe Data - Calendar & Birthdays\" exceeded 60s without progressing.\n\n\u001b[90m   at \u001b[39mutils/testLogger.js:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m             \u001b[36mconst\u001b[39m err \u001b[33m=\u001b[39m \u001b[32m`Failed - Timeout: Step \"${stepName}\" exceeded ${timeoutMs/1000}s without progressing.`\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 29 |\u001b[39m             logStep(stepName\u001b[33m,\u001b[39m \u001b[32m`ERROR: ${err}`\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m             reject(\u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(err))\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m         }\u001b[33m,\u001b[39m timeoutMs)\u001b[33m;\u001b[39m\n \u001b[90m 32 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 33 |\u001b[39m\u001b[0m\n\u001b[2m    at Timeout.<anonymous> (/home/matt/household-project/web/tests/utils/testLogger.js:30:20)\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "[2026-01-30T13:40:50.128Z] [STEP: Admin Login] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-30T13:40:50.927Z] [STEP: Admin Login] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-01-30T13:40:50.927Z] [STEP: Finance Setup] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-30T13:40:53.359Z] [STEP: Finance Setup] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-01-30T13:40:53.360Z] [STEP: Fringe Data - Calendar & Birthdays] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-30T13:41:53.360Z] [STEP: Fringe Data - Calendar & Birthdays] ERROR: Failed - Timeout: Step \"Fringe Data - Calendar & Birthdays\" exceeded 60s without progressing.\n"
+                        },
+                        {
+                          "text": "[2026-01-30T13:41:53.361Z] [STEP: Fringe Data - Calendar & Birthdays] FAILED: Failed - Timeout: Step \"Fringe Data - Calendar & Birthdays\" exceeded 60s without progressing.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-30T13:40:49.886Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/lifecycle_3_finance-Lifecy-ce3f8-inge-Expand-Brady-Household-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/lifecycle_3_finance-Lifecy-ce3f8-inge-Expand-Brady-Household-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/matt/household-project/web/tests/utils/testLogger.js",
+                        "column": 20,
+                        "line": 30
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "b81141431086918f223f-9a2eba78ecaa796336dc",
+              "file": "lifecycle_3_finance.spec.js",
+              "line": 13,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-01-30T13:40:47.863Z",
+    "duration": 65773.886,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

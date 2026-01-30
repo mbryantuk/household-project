@@ -1,5 +1,6 @@
 const request = require('supertest');
 const { app } = require('../../server');
+const pkg = require('../../../package.json');
 
 describe('Meal Planner API', () => {
     let agent;
@@ -12,13 +13,14 @@ describe('Meal Planner API', () => {
     const uniqueId = Date.now();
     const adminEmail = `mealadmin_${uniqueId}@test.com`;
     const adminPassword = 'password123';
+    const householdName = `Meal Planner Test (v${pkg.version})`;
 
     beforeAll(async () => {
         agent = request(app);
 
         // 1. Register a new household
         const regRes = await agent.post('/auth/register').send({
-            householdName: `MealHouse_${uniqueId}`,
+            householdName: householdName,
             email: adminEmail,
             password: adminPassword,
             firstName: 'Chef',

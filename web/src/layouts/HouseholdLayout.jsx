@@ -77,6 +77,8 @@ export default function HouseholdLayout({
       // Guard: Only switch if the App's current household doesn't match the URL
       if (!household || household.id !== effectiveHousehold.id) {
           const switchHh = async () => {
+              // FLUSH: Clear local state before fetching new data
+              setVehicles([]);
               await onSelectHousehold(effectiveHousehold);
               setActiveHousehold(effectiveHousehold);
               fetchVehicles();
@@ -87,7 +89,10 @@ export default function HouseholdLayout({
           if (!activeHousehold || activeHousehold.id !== effectiveHousehold.id) {
             setActiveHousehold(effectiveHousehold);
           }
-          if (vehicles.length === 0) fetchVehicles();
+          // Only fetch if empty (this handles the flush above)
+          if (vehicles.length === 0) {
+              fetchVehicles();
+          }
       }
     } else if (households && households.length > 0) {
       // Only redirect if we have loaded households and the target isn't found/valid

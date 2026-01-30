@@ -1,9 +1,11 @@
 const request = require('supertest');
 const { app } = require('../../server');
+const pkg = require('../../../package.json');
 
 describe('Viewer Role Restrictions', () => {
     jest.setTimeout(30000);
     const uniqueId = Date.now();
+    const householdName = `Viewer Test (v${pkg.version})`;
     let householdId = null;
     let adminToken = '';
     let viewerToken = '';
@@ -11,7 +13,7 @@ describe('Viewer Role Restrictions', () => {
     beforeAll(async () => {
         // 1. Register Household
         await request(app).post('/auth/register').send({
-            householdName: 'Viewer Test', email: `admin_${uniqueId}@test.com`, password: 'password', firstName: 'Admin'
+            householdName: householdName, email: `admin_${uniqueId}@test.com`, password: 'password', firstName: 'Admin'
         });
         const loginA = await request(app).post('/auth/login').send({ email: `admin_${uniqueId}@test.com`, password: 'password' });
         adminToken = loginA.body.token;

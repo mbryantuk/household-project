@@ -1,21 +1,16 @@
 const request = require('supertest');
 const { app } = require('../../server');
+const pkg = require('../../../package.json');
 
-describe('Feature: Authentication & Profile', () => {
-    jest.setTimeout(30000);
-    
+describe('Auth API', () => {
     const uniqueId = Date.now();
     const adminEmail = `auth_admin_${uniqueId}@test.com`;
-    const adminPassword = 'password123';
-    let token = '';
-    let householdId = null;
+    const adminPassword = 'Password123!';
 
-    it('should register a new household', async () => {
-        const res = await request(app)
-            .post('/auth/register')
-            .send({
-                householdName: `AuthTest_${uniqueId}`,
-                email: adminEmail,
+    test('POST /auth/register - Create Household + Admin', async () => {
+        const res = await request(app).post('/auth/register').send({
+            householdName: `Auth Test (v${pkg.version})`,
+            email: adminEmail,
                 password: adminPassword,
                 firstName: 'Auth',
                 lastName: 'Admin'

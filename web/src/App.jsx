@@ -167,11 +167,16 @@ function AppInner({ themeId, setThemeId }) {
 
   useEffect(() => {
     if (token && household) {
+        // FLUSH: Clear old data immediately to prevent ghosting during switch
+        setHhMembers([]);
+        setHhUsers([]);
+        setHhDates([]);
+
         fetchHhMembers(household.id);
         fetchHhUsers(household.id);
         fetchHhDates(household.id);
     }
-  }, [token, household, fetchHhMembers, fetchHhUsers, fetchHhDates]);
+  }, [token, household?.id, fetchHhMembers, fetchHhUsers, fetchHhDates]);
 
   // Actions
   const logout = useCallback(() => {

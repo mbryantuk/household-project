@@ -1,9 +1,11 @@
 const request = require('supertest');
 const { app } = require('../../server');
+const pkg = require('../../../package.json');
 
 describe('🛡️ Role Matrix Completion: Member Constraints', () => {
     jest.setTimeout(30000);
     const uniqueId = Date.now();
+    const householdName = `Member Constraint Test (v${pkg.version})`;
     let householdId = null;
     let adminToken = '';
     let memberToken = '';
@@ -11,7 +13,7 @@ describe('🛡️ Role Matrix Completion: Member Constraints', () => {
     beforeAll(async () => {
         // 1. Register Household
         const reg = await request(app).post('/auth/register').send({
-            householdName: 'Member Constraint Test', email: `admin_mc_${uniqueId}@test.com`, password: 'password', firstName: 'Admin'
+            householdName: householdName, email: `admin_mc_${uniqueId}@test.com`, password: 'password', firstName: 'Admin'
         });
         const loginA = await request(app).post('/auth/login').send({ email: `admin_mc_${uniqueId}@test.com`, password: 'password' });
         adminToken = loginA.body.token;

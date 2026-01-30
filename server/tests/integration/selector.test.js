@@ -1,16 +1,18 @@
 const request = require('supertest');
 const { app } = require('../../server');
+const pkg = require('../../../package.json');
 
 describe('Household Selector API', () => {
     let token = '';
     const uniqueId = Date.now();
     const email = `selector_${uniqueId}@test.com`;
     const password = 'password123';
+    const householdName = `Selector Test House (v${pkg.version})`;
 
     beforeAll(async () => {
         // Register a user first
         await request(app).post('/auth/register').send({
-            householdName: 'Selector Test House',
+            householdName: householdName,
             email,
             password,
             firstName: 'Selector'

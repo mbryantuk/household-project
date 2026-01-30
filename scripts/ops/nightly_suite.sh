@@ -1,6 +1,6 @@
 #!/bin/bash
 # scripts/ops/nightly_suite.sh
-# Nightly Comprehensive Test Orchestrator (Modular & Verbose)
+# Brady Lifecycle Test Orchestrator (2-Stage Version)
 
 set -e
 
@@ -10,16 +10,19 @@ SKIP_BACKEND=false
 SKIP_FRONTEND=false
 SKIP_PURGE=false
 VERSION_FILTER=""
+export RUN_ID="RUN_$(date +%s)"
+export LOG_FILE="/tmp/brady_lifecycle.log"
+
+# Initialize Log
+echo "=== NIGHTLY RUN $RUN_ID STARTED ===" > $LOG_FILE
 
 # Detect Environment
 if [ -f "/.dockerenv" ]; then
-    echo "🐳 Running inside Docker container."
     IS_CONTAINER=true
     PROJECT_ROOT="/app"
     SKIP_DOCKER=true
     SKIP_PURGE=true
 else
-    echo "🖥️ Running on host machine."
     IS_CONTAINER=false
     PROJECT_ROOT="/home/matt/household-project"
 fi
@@ -37,7 +40,6 @@ while [[ "$#" -gt 0 ]]; do
   shift
 done
 
-export DEBIAN_FRONTEND=noninteractive
 cd "$PROJECT_ROOT"
 
 CURRENT_VERSION=$(grep '"version":' package.json | head -1 | awk -F: '{ print $2 }' | sed 's/[", ]//g')
@@ -48,32 +50,15 @@ fi
 
 echo "🌙 Starting Comprehensive Health Check (v$CURRENT_VERSION)..."
 
-# Load Nightly Credentials
-if [ -f "scripts/ops/.env.nightly" ]; then
-    echo "🔐 Loading nightly environment configuration from scripts/ops/.env.nightly..."
-    export $(grep -v '^#' scripts/ops/.env.nightly | xargs)
-elif [ -f ".env.nightly" ]; then
-    echo "🔐 Loading nightly environment configuration..."
-    export $(grep -v '^#' .env.nightly | xargs)
-fi
-
 # 1. Refresh Containers
-if [ "$SKIP_DOCKER" = true ] || [ "$IS_CONTAINER" = true ]; then
-    echo "⏭️  [1/6] Skipping Container Refresh."
-else
+if [ "$SKIP_DOCKER" = false ] && [ "$IS_CONTAINER" = false ]; then
     echo "🚀 [1/6] Refreshing containers..."
-    if command -v docker >/dev/null 2>&1; then
-        docker compose up -d --build > /dev/null 2>&1
-        echo "✅ Containers ready."
-    else
-        echo "⚠️  Docker not found."
-    fi
+    docker compose up -d --build > /dev/null 2>&1
+    echo "✅ Containers ready."
 fi
 
 # 2. Backend Tests
-if [ "$SKIP_BACKEND" = true ]; then
-    echo "⏭️  [2/6] Skipping Backend Tests."
-else
+if [ "$SKIP_BACKEND" = false ]; then
     echo "🏗️  [2/6] Running Backend Tests..."
     cd "$PROJECT_ROOT/server"
     if npm test -- --json --outputFile=test-report.json > test-results.log 2>&1; then
@@ -87,56 +72,42 @@ else
     fi
 fi
 
-# 3. Frontend Tests (Three-Stage Fail-Fast)
+# PHYSICAL CLEANUP (Safety)
+echo "🧹 Physical cleanup of test databases..."
+rm -f /tmp/brady_context.json
+find "$PROJECT_ROOT/server/data" -name "household_*.db*" ! -name "household_60.db*" -delete
+
+# 3. Brady Lifecycle
 if [ "$SKIP_FRONTEND" = true ]; then
     echo "⏭️  [3/6] Skipping Frontend Tests."
 else
-    echo "🌐 [3/6] Running Frontend Suite..."
+    echo "🌐 [3/6] Running Brady Lifecycle (RunID: $RUN_ID)..."
     cd "$PROJECT_ROOT/web"
     
-    if [ "$IS_CONTAINER" = true ] && [ ! -d "/root/.cache/ms-playwright" ]; then
-        echo "⚠️  Browsers not found."
-    else
-        # STAGE 1: SMOKE (Basic Flow)
-        echo "   📍 Stage 1: Basic System Flow (Smoke)..."
-        if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results.json npx --yes playwright test tests/smoke.spec.js --reporter=list,json > playwright-smoke.log 2>&1; then
-            echo "   🟢 Stage 1 (Smoke): SUCCESS"
+    # STAGE 1: FOUNDATION
+    echo "   📍 Stage 1: Brady Foundation & Page Checks..."
+    if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-1.json npx playwright test tests/lifecycle_1_foundation.spec.js --reporter=list,json; then
+        echo "   🟢 Stage 1: SUCCESS"
+        cd "$PROJECT_ROOT"
+        node scripts/ops/record_test_results.js frontend_lifecycle_1 "success" || true
+
+        # STAGE 2: FINANCE
+        cd "$PROJECT_ROOT/web"
+        echo "   📍 Stage 2: Finance & Fringe Data..."
+        if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-2.json npx playwright test tests/lifecycle_2_finance.spec.js --reporter=list,json; then
+            echo "   🟢 Stage 2: SUCCESS"
             cd "$PROJECT_ROOT"
-            node scripts/ops/record_test_results.js frontend_lifecycle "success" || true
-
-            # STAGE 2: ROUTING (Only runs if Stage 1 passed)
-            cd "$PROJECT_ROOT/web"
-            echo "   📍 Stage 2: Basic Routing & Module Availability..."
-            if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-routing.json npx --yes playwright test tests/routing.spec.js --reporter=list,json > playwright-routing.log 2>&1; then
-                echo "   🟢 Stage 2 (Routing): SUCCESS"
-                cd "$PROJECT_ROOT"
-                node scripts/ops/record_test_results.js frontend_routing "success" || true
-
-                # STAGE 3: BRADY (Only runs if Stage 2 passed)
-                cd "$PROJECT_ROOT/web"
-                echo "   📍 Stage 3: Brady Suite..."
-                if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-brady.json npx --yes playwright test tests/brady_test.spec.js --reporter=list,json > playwright-brady.log 2>&1; then
-                    echo "                    🟢 Stage 3 (Brady): SUCCESS"
-                    cd "$PROJECT_ROOT"
-                    node scripts/ops/record_test_results.js frontend_brady "success" || true
-                else
-                    echo "                    🔴 Stage 3 (Brady): FAILED"
-                    cd "$PROJECT_ROOT"
-                    node scripts/ops/record_test_results.js frontend_brady "failure" || true
-                fi
-            else
-                echo "   🔴 Stage 2 (Routing): FAILED"
-                echo "   ⏭️  Stage 3 (Brady): SKIPPED (Fast-fail)"
-                cd "$PROJECT_ROOT"
-                node scripts/ops/record_test_results.js frontend_routing "failure" || true
-            fi
+            node scripts/ops/record_test_results.js frontend_lifecycle_2 "success" || true
         else
-            echo "   🔴 Stage 1 (Smoke): FAILED"
-            echo "   ⏭️  Stage 2 (Routing): SKIPPED (Fast-fail)"
-            echo "   ⏭️  Stage 3 (Brady): SKIPPED (Fast-fail)"
+            echo "   🔴 Stage 2: FAILED"
             cd "$PROJECT_ROOT"
-            node scripts/ops/record_test_results.js frontend_lifecycle "failure" || true
+            node scripts/ops/record_test_results.js frontend_lifecycle_2 "failure" || true
         fi
+    else
+        echo "   🔴 Stage 1: FAILED"
+        echo "   ⏭️  Stage 2: SKIPPED"
+        cd "$PROJECT_ROOT"
+        node scripts/ops/record_test_results.js frontend_lifecycle_1 "failure" || true
     fi
 fi
 

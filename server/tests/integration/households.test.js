@@ -1,16 +1,16 @@
 const request = require('supertest');
 const { app } = require('../../server');
+const pkg = require('../../../package.json');
 
-describe('Feature: Household Management', () => {
-    jest.setTimeout(30000);
-
-    const uniqueId = Date.now();
+describe('Household Management API', () => {
     let token = '';
+    const uniqueId = Date.now();
     let householdId = null;
 
     beforeAll(async () => {
-        const reg = await request(app).post('/auth/register').send({
-            householdName: `HouseTest_${uniqueId}`,
+        // Register a user first
+        await request(app).post('/auth/register').send({
+            householdName: `Household Test (v${pkg.version})`,
             email: `house_${uniqueId}@test.com`,
             password: 'password',
             firstName: 'HouseAdmin'

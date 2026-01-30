@@ -1,18 +1,16 @@
 const request = require('supertest');
 const { app } = require('../../server');
+const pkg = require('../../../package.json');
 
-describe('Feature: Expanded Financial Management', () => {
-    jest.setTimeout(30000);
-
-    const uniqueId = Date.now();
+describe('Expanded Finance API', () => {
     let token = '';
-    let viewerToken = '';
+    const uniqueId = Date.now();
     let householdId = null;
 
     beforeAll(async () => {
-        // Admin/Member User
-        const reg = await request(app).post('/auth/register').send({
-            householdName: `FinanceExp_${uniqueId}`,
+        // 1. Setup
+        await request(app).post('/auth/register').send({
+            householdName: `Finance Expanded (v${pkg.version})`,
             email: `finance_exp_${uniqueId}@test.com`,
             password: 'password',
             firstName: 'MoneyAdmin'

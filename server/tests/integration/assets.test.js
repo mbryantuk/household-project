@@ -1,17 +1,16 @@
 const request = require('supertest');
 const { app } = require('../../server');
+const pkg = require('../../../package.json');
 
-describe('Feature: Physical Assets & Vehicles', () => {
-    jest.setTimeout(30000);
-
-    const uniqueId = Date.now();
+describe('Assets API', () => {
     let token = '';
+    const uniqueId = Date.now();
     let householdId = null;
 
     beforeAll(async () => {
-        // Setup Household
-        const reg = await request(app).post('/auth/register').send({
-            householdName: `AssetsTest_${uniqueId}`,
+        // Setup
+        await request(app).post('/auth/register').send({
+            householdName: `Assets Test (v${pkg.version})`,
             email: `assets_${uniqueId}@test.com`,
             password: 'password',
             firstName: 'AssetAdmin'

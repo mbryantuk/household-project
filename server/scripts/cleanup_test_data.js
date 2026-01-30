@@ -14,36 +14,37 @@ async function cleanupTestData() {
         // ==========================================
         // 1. IDENTIFY TEST HOUSEHOLDS TO KEEP
         // ==========================================
-        // Keep the last 5 test households to ensure "Mega House" isn't buried by small integration tests
-        // Also look for names that match our smoke test prefix in case is_test wasn't set
-        const testHouseholds = await dbAll(globalDb, `
-            SELECT id, name FROM households 
-            WHERE is_test = 1 OR name LIKE 'Mega House %' OR name LIKE 'Route Test House %'
-            ORDER BY id DESC LIMIT 5
-        `);
-        const testIds = testHouseholds.map(h => h.id);
-        
-        // Specifically identify the latest "Mega House" for user redirection
-        const megaHouse = testHouseholds.find(h => h.name.includes('Mega House'));
-        const latestId = testIds.length > 0 ? testIds[0] : null;
-        const targetHhId = megaHouse ? megaHouse.id : latestId;
+        // We want ONLY the absolute latest of each core test type
+        const testTypes = ['Smoke Test %', 'Routing Test %', 'Brady Foundation %'];
+        const keepIds = [PERMANENT_HOUSEHOLD_ID];
+        const preservedNames = [];
 
-        if (testIds.length > 0) {
-            console.log(`📍 Test households preserved: ${testIds.join(', ')}`);
-            if (megaHouse) console.log(`🎯 Targeted Mega House for access: #${megaHouse.id}`);
-        } else {
-            console.log("📍 No test households found to preserve.");
+        for (const pattern of testTypes) {
+            const latest = await dbGet(globalDb, `
+                SELECT id, name FROM households 
+                WHERE name LIKE ? 
+                ORDER BY id DESC LIMIT 1
+            `, [pattern]);
+            
+            if (latest) {
+                keepIds.push(latest.id);
+                preservedNames.push(latest.name);
+            }
         }
+
+        // AGGRESSIVE: We no longer keep "others". We purge EVERYTHING else.
+        
+        console.log(`📍 Preserving specific test targets: ${preservedNames.join(', ')}`);
+        console.log(`📍 Total test households preserved: ${keepIds.join(', ')}`);
 
         // ==========================================
         // 2. DELETE ALL OTHER TEST HOUSEHOLDS
         // ==========================================
-        const keepIds = [PERMANENT_HOUSEHOLD_ID, ...testIds];
         const placeholders = keepIds.map(() => '?').join(',');
-        
         const householdsToDelete = await dbAll(globalDb, `
             SELECT id FROM households 
-            WHERE is_test = 1 AND id NOT IN (${placeholders})
+            WHERE (is_test = 1 OR name LIKE 'Smoke Test %' OR name LIKE 'Routing Test %' OR name LIKE 'Brady Family %' OR name LIKE 'Meal%')
+            AND id NOT IN (${placeholders})
         `, keepIds);
         
         if (householdsToDelete.length > 0) {
@@ -56,7 +57,22 @@ async function cleanupTestData() {
         }
 
         // ==========================================
-        // 3. FILE CLEANUP
+        // 3. PURGE ORPHAN TEST USERS
+        // ==========================================
+        // We delete users who are marked as test OR have test-prefixed emails,
+        // EXCEPT for the MAINTAINED_USER_EMAIL.
+        const testUserPatterns = ['ephemeral%', 'mike%', 'carol%', 'greg%', 'marcia%', 'peter%', 'jan%', 'bobby%', 'cindy%', 'smoke%', 'routing%', 'brady%', 'test%'];
+        const userDelPlaceholders = testUserPatterns.map(() => 'email LIKE ?').join(' OR ');
+        
+        await dbRun(globalDb, `
+            DELETE FROM users 
+            WHERE (is_test = 1 OR ${userDelPlaceholders}) 
+            AND email != ?
+        `, [...testUserPatterns, MAINTAINED_USER_EMAIL]);
+        console.log(`✅ Purged orphan test user accounts.`);
+
+        // ==========================================
+        // 4. FILE CLEANUP
         // ==========================================
         const cleanupDirs = [DATA_DIR, BACKUP_DIR, path.join(DATA_DIR, 'temp_uploads')];
         let deletedFiles = 0;
@@ -91,39 +107,37 @@ async function cleanupTestData() {
         console.log(`✅ Purged ${deletedFiles} orphan database files.`);
 
         // ==========================================
-        // 4. RESTORE ACCESS & CLEAN OLD LINKS
+        // 4. RESTORE ACCESS TO ALL PRESERVED TEST HOUSEHOLDS
         // ==========================================
         const targetUser = await dbGet(globalDb, `SELECT id FROM users WHERE email = ?`, [MAINTAINED_USER_EMAIL]);
         
-        if (targetUser && targetHhId) {
-            // Remove all existing links to test households for this user first
-            // This ensures they only see the LATEST one we want them to check
-            await dbRun(globalDb, `
-                DELETE FROM user_households 
-                WHERE user_id = ? 
-                AND household_id != ? 
-                AND household_id IN (SELECT id FROM households WHERE is_test = 1 OR name LIKE 'Mega House %')
-            `, [targetUser.id, PERMANENT_HOUSEHOLD_ID]);
-
-            const existingLink = await dbGet(globalDb, 
-                `SELECT * FROM user_households WHERE user_id = ? AND household_id = ?`, 
-                [targetUser.id, targetHhId]
-            );
-
-            if (!existingLink) {
-                await dbRun(globalDb, 
-                    `INSERT INTO user_households (user_id, household_id, role, is_active) VALUES (?, ?, 'admin', 1)`,
-                    [targetUser.id, targetHhId]
+        if (targetUser) {
+            for (const hhId of keepIds) {
+                const existingLink = await dbGet(globalDb, 
+                    `SELECT * FROM user_households WHERE user_id = ? AND household_id = ?`, 
+                    [targetUser.id, hhId]
                 );
-            } else {
-                await dbRun(globalDb, 
-                    `UPDATE user_households SET role = 'admin', is_active = 1 WHERE user_id = ? AND household_id = ?`,
-                    [targetUser.id, targetHhId]
-                );
+
+                if (!existingLink) {
+                    await dbRun(globalDb, 
+                        `INSERT INTO user_households (user_id, household_id, role, is_active) VALUES (?, ?, 'admin', 1)`,
+                        [targetUser.id, hhId]
+                    );
+                } else {
+                    await dbRun(globalDb, 
+                        `UPDATE user_households SET role = 'admin', is_active = 1 WHERE user_id = ? AND household_id = ?`,
+                        [targetUser.id, hhId]
+                    );
+                }
             }
 
-            await dbRun(globalDb, `UPDATE users SET default_household_id = ?, last_household_id = ? WHERE id = ?`, [targetHhId, targetHhId, targetUser.id]);
-            console.log(`🔗 Refreshed links for ${MAINTAINED_USER_EMAIL}. Access granted to latest test household #${targetHhId} (others cleared).`);
+            // Set the absolute latest one as the default landing spot
+            const latestOverall = keepIds.filter(id => id !== PERMANENT_HOUSEHOLD_ID)[0];
+            if (latestOverall) {
+                await dbRun(globalDb, `UPDATE users SET default_household_id = ?, last_household_id = ? WHERE id = ?`, [latestOverall, latestOverall, targetUser.id]);
+            }
+            
+            console.log(`🔗 Refreshed links for ${MAINTAINED_USER_EMAIL}. Access granted to ${keepIds.length} households.`);
         }
 
     } catch (err) {

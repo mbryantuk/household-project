@@ -1,16 +1,16 @@
 const request = require('supertest');
 const { app } = require('../../server');
+const pkg = require('../../../package.json');
 
-describe('Feature: Calendar & Events', () => {
-    jest.setTimeout(30000);
-
+describe('Calendar API', () => {
     const uniqueId = Date.now();
     let token = '';
     let householdId = null;
 
     beforeAll(async () => {
-        const reg = await request(app).post('/auth/register').send({
-            householdName: `CalendarTest_${uniqueId}`,
+        // 1. Setup
+        await request(app).post('/auth/register').send({
+            householdName: `Calendar Test (v${pkg.version})`,
             email: `cal_${uniqueId}@test.com`,
             password: 'password',
             firstName: 'CalAdmin'

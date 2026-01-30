@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix stalling tests by adding name attributes to Loans and Investments views, and update schema to include payment_day for loans",
-  "date": "Fri 30 Jan 11:38:32 GMT 2026"
+  "commitMessage": "Feature: Brady Lifecycle Suite, Ghost Data Fix, and Resilience Upgrades. Implemented state flushing during household switches, fixed 403 stale context errors, and upgraded cleanup to purge orphan test users.",
+  "date": "Fri 30 Jan 14:42:34 GMT 2026"
 }

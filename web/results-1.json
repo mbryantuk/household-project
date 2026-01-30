@@ -1,0 +1,273 @@
+{
+  "config": {
+    "configFile": "/home/matt/household-project/web/playwright.config.js",
+    "rootDir": "/home/matt/household-project/web/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/matt/household-project/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/matt/household-project/web/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "lifecycle_1_foundation.spec.js",
+      "file": "lifecycle_1_foundation.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Brady Lifecycle Stage 1: Foundation",
+          "file": "lifecycle_1_foundation.spec.js",
+          "line": 6,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Setup Foundation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 400000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 20578,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "[2026-01-30T14:41:13.944Z] [STEP: Mike Registration] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:13.947Z] [STEP: Mike Registration] Attempt 1...\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:14.431Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:14.433Z] [STEP: BROWSER] Content is cached for offline use.\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:14.635Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:15.022Z] [STEP: Mike Registration] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:15.023Z] [STEP: Mike Login] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:15.167Z] [STEP: Mike Login] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:15.167Z] [STEP: Foundation] Brady Household ID: 1675\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:15.167Z] [STEP: Route Check] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:15.168Z] [STEP: Route Check] Checking /dashboard\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:15.631Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:15.665Z] [STEP: Route Check] Checking /calendar\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:16.052Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:16.075Z] [STEP: Route Check] Checking /house\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:16.492Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:16.512Z] [STEP: Route Check] Checking /meals\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:16.927Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:16.948Z] [STEP: Route Check] Checking /finance\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:17.323Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:17.343Z] [STEP: Route Check] Checking /settings\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:17.735Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:17.763Z] [STEP: Route Check] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:17.763Z] [STEP: Grant Lead Architect Access] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:18.144Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:18.783Z] [STEP: Grant Access] Inviting mbryantuk@gmail.com as Admin\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:19.507Z] [STEP: Grant Access] Result: User invited successfully.\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:19.521Z] [STEP: Grant Lead Architect Access] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:19.521Z] [STEP: Invite Family] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:19.681Z] [STEP: Invite Family] Inviting Carol (Standard Member)\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:19.871Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:20.828Z] [STEP: Invite Family] Inviting Greg (Viewer (Read-only))\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:21.705Z] [STEP: Invite Family] Inviting Marcia (Viewer (Read-only))\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:22.595Z] [STEP: Invite Family] Inviting Peter (Viewer (Read-only))\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:23.522Z] [STEP: Invite Family] Inviting Jan (Viewer (Read-only))\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:24.437Z] [STEP: Invite Family] Inviting Bobby (Viewer (Read-only))\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:25.367Z] [STEP: Invite Family] Inviting Cindy (Viewer (Read-only))\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:26.329Z] [STEP: Invite Family] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:26.330Z] [STEP: Add Residents & House] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:26.501Z] [STEP: Add Residents] Adding Mike (Adult, Age: 40, DOB: 1986-08-02)\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:26.705Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:27.372Z] [STEP: Add Residents] Adding Carol (Adult, Age: 35, DOB: 1991-05-20)\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:27.857Z] [STEP: Add Residents] Adding Alice (Adult, Age: 45, DOB: 1981-07-24)\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:28.337Z] [STEP: Add Residents] Adding Greg (Child, Age: 14, DOB: 2012-02-19)\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:28.837Z] [STEP: Add Residents] Adding Marcia (Child, Age: 13, DOB: 2013-01-22)\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:29.297Z] [STEP: Add Residents] Adding Peter (Child, Age: 11, DOB: 2015-08-20)\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:29.745Z] [STEP: Add Residents] Adding Jan (Child, Age: 10, DOB: 2016-08-10)\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:30.178Z] [STEP: Add Residents] Adding Bobby (Child, Age: 8, DOB: 2018-06-26)\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:30.646Z] [STEP: Add Residents] Adding Cindy (Child, Age: 7, DOB: 2019-10-10)\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:31.105Z] [STEP: Add Residents] Adding Property Assets\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:32.105Z] [STEP: Add Residents & House] Completed successfully.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-30T14:41:11.735Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1e6f3fac90a232f03b11-e3160800fed256b60c8c",
+              "file": "lifecycle_1_foundation.spec.js",
+              "line": 12,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-01-30T14:41:09.814Z",
+    "duration": 22692.893,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

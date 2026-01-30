@@ -1,0 +1,183 @@
+{
+  "config": {
+    "configFile": "/home/matt/household-project/web/playwright.config.js",
+    "rootDir": "/home/matt/household-project/web/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/matt/household-project/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/matt/household-project/web/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "lifecycle_2_finance.spec.js",
+      "file": "lifecycle_2_finance.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Brady Lifecycle Stage 2: Finance & Fringe",
+          "file": "lifecycle_2_finance.spec.js",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Expand Brady Household",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 400000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6854,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "[2026-01-30T14:41:37.445Z] [STEP: Admin Login] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:37.918Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:37.919Z] [STEP: BROWSER] Content is cached for offline use.\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:38.123Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:38.402Z] [STEP: Admin Login] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:38.402Z] [STEP: Finance Setup] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:38.713Z] [STEP: Finance] Adding Bank Account\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:38.972Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:39.743Z] [STEP: Finance] Adding Mike's Income\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:40.120Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:40.799Z] [STEP: Finance Setup] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:40.799Z] [STEP: Fringe Data - Calendar & Birthdays] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:40.944Z] [STEP: Fringe Data] Adding Family Picnic event\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:41.164Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:42.171Z] [STEP: Fringe Data] Adding Alice's Birthday via Calendar\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:43.078Z] [STEP: Fringe Data] Birthday event created successfully\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:43.079Z] [STEP: Fringe Data - Calendar & Birthdays] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:43.079Z] [STEP: Budget Verification] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:43.415Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:44.100Z] [STEP: Budget] Budget matrix verified with income.\n"
+                        },
+                        {
+                          "text": "[2026-01-30T14:41:44.101Z] [STEP: Budget Verification] Completed successfully.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-30T14:41:37.194Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ac27a2489c48f35ed2af-14d5c9b8f7df5c18f5ef",
+              "file": "lifecycle_2_finance.spec.js",
+              "line": 13,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-01-30T14:41:35.229Z",
+    "duration": 9055.979,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

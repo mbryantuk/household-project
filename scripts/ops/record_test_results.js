@@ -8,7 +8,7 @@ const FRONTEND_REPORT = path.join(__dirname, '../../web/results.json');
 const ROUTING_REPORT = path.join(__dirname, '../../web/results-routing.json');
 const BRADY_REPORT = path.join(__dirname, '../../web/results-brady.json');
 
-async function recordBackendResults() {
+async function recordBackendResults(runId = null) {
     if (!fs.existsSync(BACKEND_REPORT)) {
         console.log("⚠️ Backend report not found at " + BACKEND_REPORT);
         return;
@@ -22,8 +22,8 @@ async function recordBackendResults() {
         const duration = (Date.now() - (data.startTime || Date.now())) / 1000;
 
         await dbRun(globalDb, 
-            `INSERT INTO test_results (test_type, suite_name, passes, fails, total, duration, report_json, version) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            ['backend', 'Jest Integration Suite', passes, fails, total, duration, JSON.stringify(data), pkg.version]
+            `INSERT INTO test_results (test_type, suite_name, passes, fails, total, duration, report_json, version, run_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            ['backend', 'Jest Integration Suite', passes, fails, total, duration, JSON.stringify(data), pkg.version, runId]
         );
         console.log("✅ Backend test results recorded.");
     } catch (err) {
@@ -31,7 +31,7 @@ async function recordBackendResults() {
     }
 }
 
-async function recordFrontendResults(type = 'frontend', suiteName = 'Playwright Smoke Suite', reportFile = FRONTEND_REPORT) {
+async function recordFrontendResults(type = 'frontend', suiteName = 'Playwright Smoke Suite', reportFile = FRONTEND_REPORT, runId = null) {
     if (!fs.existsSync(reportFile)) {
         console.log(`⚠️ Frontend report not found at ${reportFile}`);
         return;
@@ -46,8 +46,8 @@ async function recordFrontendResults(type = 'frontend', suiteName = 'Playwright 
         const duration = (stats.duration || 0) / 1000;
 
         await dbRun(globalDb, 
-            `INSERT INTO test_results (test_type, suite_name, passes, fails, total, duration, report_json, version) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            [type, suiteName, passes, fails, total, duration, JSON.stringify(data), pkg.version]
+            `INSERT INTO test_results (test_type, suite_name, passes, fails, total, duration, report_json, version, run_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [type, suiteName, passes, fails, total, duration, JSON.stringify(data), pkg.version, runId]
         );
         console.log(`✅ Frontend test results recorded for ${type}.`);
     } catch (err) {
@@ -58,20 +58,19 @@ async function recordFrontendResults(type = 'frontend', suiteName = 'Playwright 
 async function main() {
     const type = process.argv[2];
     const status = process.argv[3];
+    const runId = process.env.RUN_ID || null;
 
     if (type === 'backend') {
-        await recordBackendResults();
-    } else if (type === 'frontend_routing') {
-        await recordFrontendResults('frontend_routing', 'Routing & Availability', ROUTING_REPORT);
-    } else if (type === 'frontend_lifecycle') {
-        await recordFrontendResults('frontend_lifecycle', 'Comprehensive Lifecycle', FRONTEND_REPORT);
-    } else if (type === 'frontend_brady') {
-        await recordFrontendResults('frontend_brady', 'Brady Test Suite', BRADY_REPORT);
+        await recordBackendResults(runId);
+    } else if (type === 'frontend_lifecycle_1') {
+        await recordFrontendResults('frontend_lifecycle_1', 'Stage 1: Brady Foundation', path.join(__dirname, '../../web/results-1.json'), runId);
+    } else if (type === 'frontend_lifecycle_2') {
+        await recordFrontendResults('frontend_lifecycle_2', 'Stage 2: Finance & Fringe', path.join(__dirname, '../../web/results-2.json'), runId);
     } else if (type === 'frontend') {
-        await recordFrontendResults();
+        await recordFrontendResults(undefined, undefined, undefined, runId);
     } else {
-        await recordBackendResults();
-        await recordFrontendResults();
+        await recordBackendResults(runId);
+        await recordFrontendResults(undefined, undefined, undefined, runId);
     }
     process.exit(0);
 }

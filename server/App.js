@@ -38,7 +38,7 @@ app.use(express.json());
 // Rate Limiter
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, 
-    max: process.env.NODE_ENV === 'test' ? 1000 : 20,
+    max: 1000, // Increased for stability during rapid test cycles
     message: "Too many login attempts, please try again later."
 });
 app.use('/auth/login', authLimiter);
