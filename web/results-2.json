@@ -84,80 +84,80 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 10788,
+                      "duration": 10406,
                       "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('h2:has-text(\"Add Savings Account\")')\nExpected: not visible\nReceived: visible\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h2:has-text(\"Add Savings Account\")')\u001b[22m\n\u001b[2m    9 × locator resolved to <h2 id=\"_r_5_\" data-first-child=\"\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg css-h1z3ma\">Add Savings Account</h2>\u001b[22m\n\u001b[2m      - unexpected value \"visible\"\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('h2:has-text(\"Add Savings Account\")')\nExpected: not visible\nReceived: visible\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h2:has-text(\"Add Savings Account\")')\u001b[22m\n\u001b[2m    9 × locator resolved to <h2 id=\"_r_5_\" data-first-child=\"\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg css-h1z3ma\">Add Savings Account</h2>\u001b[22m\n\u001b[2m      - unexpected value \"visible\"\u001b[22m\n\n    at /home/matt/household-project/web/tests/lifecycle_2_finance.spec.js:94:78\n    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:35:24)\n    at /home/matt/household-project/web/tests/lifecycle_2_finance.spec.js:81:5",
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Account added.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Account added.')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Account added.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Account added.')\u001b[22m\n\n    at /home/matt/household-project/web/tests/lifecycle_2_finance.spec.js:93:59\n    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:35:24)\n    at /home/matt/household-project/web/tests/lifecycle_2_finance.spec.js:81:5",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/lifecycle_2_finance.spec.js",
-                          "column": 78,
-                          "line": 94
+                          "column": 59,
+                          "line": 93
                         },
-                        "snippet": "\u001b[0m \u001b[90m 92 |\u001b[39m         \u001b[90m// Wait for first account to be created and modal to close\u001b[39m\n \u001b[90m 93 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Rainy Day'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 94 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2:has-text(\"Add Savings Account\")'\u001b[39m))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 95 |\u001b[39m\n \u001b[90m 96 |\u001b[39m         \u001b[90m// 2. College Fund (Pot)\u001b[39m\n \u001b[90m 97 |\u001b[39m         logStep(\u001b[32m'Finance'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'Adding Savings: College Fund'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m 91 |\u001b[39m         \n \u001b[90m 92 |\u001b[39m         \u001b[90m// Wait for success toast and modal close\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 93 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Account added.'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 94 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Rainy Day'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2:has-text(\"Add Savings Account\")'\u001b[39m))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 96 |\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/lifecycle_2_finance.spec.js",
-                            "column": 78,
-                            "line": 94
+                            "column": 59,
+                            "line": 93
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('h2:has-text(\"Add Savings Account\")')\nExpected: not visible\nReceived: visible\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h2:has-text(\"Add Savings Account\")')\u001b[22m\n\u001b[2m    9 × locator resolved to <h2 id=\"_r_5_\" data-first-child=\"\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg css-h1z3ma\">Add Savings Account</h2>\u001b[22m\n\u001b[2m      - unexpected value \"visible\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 92 |\u001b[39m         \u001b[90m// Wait for first account to be created and modal to close\u001b[39m\n \u001b[90m 93 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Rainy Day'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 94 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2:has-text(\"Add Savings Account\")'\u001b[39m))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 95 |\u001b[39m\n \u001b[90m 96 |\u001b[39m         \u001b[90m// 2. College Fund (Pot)\u001b[39m\n \u001b[90m 97 |\u001b[39m         logStep(\u001b[32m'Finance'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'Adding Savings: College Fund'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_2_finance.spec.js:94:78\u001b[22m\n\u001b[2m    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:35:24)\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_2_finance.spec.js:81:5\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Account added.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Account added.')\u001b[22m\n\n\n\u001b[0m \u001b[90m 91 |\u001b[39m         \n \u001b[90m 92 |\u001b[39m         \u001b[90m// Wait for success toast and modal close\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 93 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Account added.'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 94 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Rainy Day'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2:has-text(\"Add Savings Account\")'\u001b[39m))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 96 |\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_2_finance.spec.js:93:59\u001b[22m\n\u001b[2m    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:35:24)\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_2_finance.spec.js:81:5\u001b[22m"
                         }
                       ],
                       "stdout": [
                         {
-                          "text": "[2026-01-30T16:16:05.015Z] [STEP: Admin Login] Starting...\n"
+                          "text": "[2026-01-30T16:23:52.200Z] [STEP: Admin Login] Starting...\n"
                         },
                         {
-                          "text": "[2026-01-30T16:16:05.749Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-30T16:23:52.715Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:16:05.750Z] [STEP: BROWSER] Content is cached for offline use.\n"
+                          "text": "[2026-01-30T16:23:52.716Z] [STEP: BROWSER] Content is cached for offline use.\n"
                         },
                         {
-                          "text": "[2026-01-30T16:16:05.977Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-30T16:23:52.938Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:16:06.189Z] [STEP: Admin Login] Completed successfully.\n"
+                          "text": "[2026-01-30T16:23:53.155Z] [STEP: Admin Login] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-01-30T16:16:06.190Z] [STEP: Finance: Income & Banking] Starting...\n"
+                          "text": "[2026-01-30T16:23:53.155Z] [STEP: Finance: Income & Banking] Starting...\n"
                         },
                         {
-                          "text": "[2026-01-30T16:16:06.541Z] [STEP: Finance] Adding Family Checking\n"
+                          "text": "[2026-01-30T16:23:53.519Z] [STEP: Finance] Adding Family Checking\n"
                         },
                         {
-                          "text": "[2026-01-30T16:16:06.814Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-30T16:23:53.761Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:16:07.431Z] [STEP: Finance] Adding Mike's Income\n"
+                          "text": "[2026-01-30T16:23:54.302Z] [STEP: Finance] Adding Mike's Income\n"
                         },
                         {
-                          "text": "[2026-01-30T16:16:07.864Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-30T16:23:54.696Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:16:08.547Z] [STEP: Finance] Adding Carol's Income\n"
+                          "text": "[2026-01-30T16:23:55.290Z] [STEP: Finance] Adding Carol's Income\n"
                         },
                         {
-                          "text": "[2026-01-30T16:16:09.187Z] [STEP: Finance: Income & Banking] Completed successfully.\n"
+                          "text": "[2026-01-30T16:23:55.936Z] [STEP: Finance: Income & Banking] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-01-30T16:16:09.188Z] [STEP: Finance: Savings & Investments] Starting...\n"
+                          "text": "[2026-01-30T16:23:55.938Z] [STEP: Finance: Savings & Investments] Starting...\n"
                         },
                         {
-                          "text": "[2026-01-30T16:16:09.189Z] [STEP: Finance] Adding Savings: Rainy Day\n"
+                          "text": "[2026-01-30T16:23:55.939Z] [STEP: Finance] Adding Savings: Rainy Day\n"
                         },
                         {
-                          "text": "[2026-01-30T16:16:09.680Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-30T16:23:56.446Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:16:15.221Z] [STEP: Finance: Savings & Investments] FAILED: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('h2:has-text(\"Add Savings Account\")')\nExpected: not visible\nReceived: visible\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h2:has-text(\"Add Savings Account\")')\u001b[22m\n\u001b[2m    9 × locator resolved to <h2 id=\"_r_5_\" data-first-child=\"\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg css-h1z3ma\">Add Savings Account</h2>\u001b[22m\n\u001b[2m      - unexpected value \"visible\"\u001b[22m\n"
+                          "text": "[2026-01-30T16:24:01.960Z] [STEP: Finance: Savings & Investments] FAILED: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Account added.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Account added.')\u001b[22m\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-01-30T16:16:04.687Z",
+                      "startTime": "2026-01-30T16:23:51.924Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -173,8 +173,8 @@
                       ],
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/lifecycle_2_finance.spec.js",
-                        "column": 78,
-                        "line": 94
+                        "column": 59,
+                        "line": 93
                       }
                     }
                   ],
@@ -193,8 +193,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-01-30T16:16:02.313Z",
-    "duration": 13473.229,
+    "startTime": "2026-01-30T16:23:49.549Z",
+    "duration": 13054.991,
     "expected": 0,
     "skipped": 0,
     "unexpected": 1,
