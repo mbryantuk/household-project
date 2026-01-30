@@ -1,0 +1,126 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - main [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e8]:
+        - generic [ref=e9]:
+          - generic [ref=e11] [cursor=pointer]: 🏠
+          - list [ref=e12]:
+            - listitem [ref=e13]:
+              - button [ref=e14] [cursor=pointer]:
+                - img [ref=e16]
+                - generic [ref=e18]: Calendar
+          - separator [ref=e19]
+        - list [ref=e22]:
+          - listitem [ref=e23]:
+            - button [ref=e24] [cursor=pointer]:
+              - img [ref=e26]
+              - generic [ref=e29]: Household
+          - listitem [ref=e30]:
+            - button [ref=e31] [cursor=pointer]:
+              - img [ref=e33]
+              - generic [ref=e35]: Finance
+          - listitem [ref=e36]:
+            - button [ref=e37] [cursor=pointer]:
+              - img [ref=e39]
+              - generic [ref=e41]: Meals
+      - generic [ref=e43]:
+        - main [ref=e44]:
+          - generic [ref=e45]:
+            - generic [ref=e46]:
+              - button [ref=e47] [cursor=pointer]:
+                - img [ref=e48]
+              - paragraph [ref=e50]: Back to Overview
+            - generic [ref=e51]:
+              - generic [ref=e52]:
+                - generic [ref=e53]:
+                  - heading [level=2] [ref=e54]: Current Accounts
+                  - paragraph [ref=e55]: Track balances, overdrafts, and account holders.
+                - button [ref=e56] [cursor=pointer]:
+                  - img [ref=e58]
+                  - text: Add Account
+              - table [ref=e61]:
+                - rowgroup [ref=e62]:
+                  - row [ref=e63]:
+                    - columnheader [ref=e64]
+                    - columnheader [ref=e65]: Bank / Name
+                    - columnheader [ref=e66]: Sort Code
+                    - columnheader [ref=e67]: Account No.
+                    - columnheader [ref=e68]: Overdraft
+                    - columnheader [ref=e69]: Balance
+                    - columnheader [ref=e70]: Holders
+                    - columnheader [ref=e71]: Actions
+        - generic [ref=e73]:
+          - generic [ref=e75]:
+            - button [ref=e77] [cursor=pointer]:
+              - img [ref=e78]
+              - generic [ref=e80]: Notes
+            - button [ref=e82] [cursor=pointer]:
+              - img [ref=e83]
+              - generic [ref=e85]: Calc
+            - button [ref=e87] [cursor=pointer]:
+              - img [ref=e88]
+              - generic [ref=e90]: Finance
+            - button [ref=e92] [cursor=pointer]:
+              - img [ref=e93]
+              - generic [ref=e95]: Tax
+            - button [ref=e97] [cursor=pointer]:
+              - img [ref=e98]
+              - generic [ref=e100]: Savings
+            - button [ref=e102] [cursor=pointer]:
+              - img [ref=e103]
+              - generic [ref=e105]: Investments
+            - button [ref=e107] [cursor=pointer]:
+              - img [ref=e108]
+              - generic [ref=e110]: Pensions
+            - button [ref=e112] [cursor=pointer]:
+              - img [ref=e113]
+              - generic [ref=e115]: Calendar
+          - generic [ref=e116]:
+            - generic [ref=e117]:
+              - img [ref=e118]
+              - generic [ref=e120]: Online
+            - button [ref=e121] [cursor=pointer]:
+              - img [ref=e122]
+            - button [ref=e125] [cursor=pointer]:
+              - generic [ref=e126]: M
+  - dialog "Add Bank Account" [ref=e128]:
+    - heading "Add Bank Account" [level=2] [ref=e129]
+    - generic [ref=e131]:
+      - generic [ref=e132]:
+        - generic [ref=e134]:
+          - generic [ref=e135]:
+            - text: Bank Name
+            - generic [ref=e136]: "*"
+          - textbox "Bank Name" [ref=e138]:
+            - /placeholder: e.g. HSBC
+            - text: First National
+        - generic [ref=e140]:
+          - generic [ref=e141]: Account Name/Type
+          - textbox "Account Name/Type" [active] [ref=e143]:
+            - /placeholder: e.g. Joint Current
+            - text: Family Checking
+        - separator [ref=e145]: Details
+        - generic [ref=e147]:
+          - generic [ref=e148]: Sort Code
+          - textbox "Sort Code" [ref=e150]:
+            - /placeholder: 00-00-00
+        - generic [ref=e152]:
+          - generic [ref=e153]: Account Number
+          - textbox "Account Number" [ref=e155]:
+            - /placeholder: 8 digits
+        - generic [ref=e157]:
+          - generic [ref=e158]: Current Balance (£)
+          - spinbutton "Current Balance (£)" [ref=e160]
+        - generic [ref=e162]:
+          - generic [ref=e163]: Overdraft Limit (£)
+          - spinbutton "Overdraft Limit (£)" [ref=e165]
+        - generic [ref=e167]:
+          - generic [ref=e168]: Notes
+          - textbox "Notes" [ref=e170]
+      - generic [ref=e171]:
+        - button "Cancel" [ref=e172] [cursor=pointer]
+        - button "Save Account" [ref=e173] [cursor=pointer]
+```

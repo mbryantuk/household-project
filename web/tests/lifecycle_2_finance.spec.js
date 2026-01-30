@@ -57,7 +57,7 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
         await page.click('button:has-text("Add Account")');
         await page.fill('input[name="bank_name"]', 'First National');
         await page.fill('input[name="account_name"]', 'Family Checking');
-        await page.fill('input[name="balance"]', '4500.50');
+        await page.fill('input[name="current_balance"]', '4500.50');
         await page.click('button:has-text("Save Account")');
 
         // 2. Mike's Income (Architect)
@@ -103,7 +103,7 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
         await page.goto(`/household/${hhId}/finance?tab=invest`);
         await page.click('button:has-text("Add Investment")');
         await page.fill('input[name="name"]', 'Tech Stocks Portfolio');
-        await page.fill('input[name="value"]', '15000');
+        await page.fill('input[name="current_value"]', '15000');
         await page.click('button:has-text("Save Investment")');
 
         // 4. Pensions
@@ -112,7 +112,7 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
         await page.click('button:has-text("Add Pension")');
         await page.fill('input[name="provider"]', 'Fidelity');
         await page.fill('input[name="current_value"]', '85000');
-        await page.fill('input[name="contribution"]', '500'); // Monthly
+        await page.fill('input[name="monthly_contribution"]', '500'); // Monthly
         await page.click('button:has-text("Save Pension")');
     });
 
@@ -122,8 +122,8 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
         await page.goto(`/household/${hhId}/finance?tab=mortgage`);
         await page.click('button:has-text("Add Mortgage")');
         await page.fill('input[name="lender"]', 'Big Bank Corp');
-        await page.fill('input[name="name"]', 'Primary Mortgage');
-        await page.fill('input[name="balance"]', '450000');
+        // Name field removed as it does not exist in form
+        await page.fill('input[name="remaining_balance"]', '450000');
         await page.fill('input[name="monthly_payment"]', '2800');
         await page.fill('input[name="payment_day"]', '1');
         await page.fill('input[name="interest_rate"]', '3.5');
@@ -135,13 +135,17 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
         // 2. Car Finance (Mike's Wagon)
         logStep('Finance', 'Adding Car Finance');
         await page.goto(`/household/${hhId}/finance?tab=car`);
-        await page.click('button:has-text("Add Finance")');
-        await page.fill('input[name="lender"]', 'GM Financial');
-        await page.fill('input[name="vehicle_name"]', 'Kingswood Wagon'); // Descriptive
-        await page.fill('input[name="balance"]', '1200');
+        await page.click('button:has-text("Add Agreement")');
+        await page.fill('input[name="provider"]', 'GM Financial');
+        
+        // Select Vehicle via AppSelect
+        await page.click('button:has-text("Select Vehicle")'); // Click dropdown
+        await page.click('li[role="option"]:has-text("Kingswood")'); // Select option
+
+        await page.fill('input[name="remaining_balance"]', '1200');
         await page.fill('input[name="monthly_payment"]', '150');
         await page.fill('input[name="payment_day"]', '5');
-        await page.click('button:has-text("Save Finance")');
+        await page.click('button:has-text("Save")');
     });
 
     await withTimeout('Finance: Credit Cards', async () => {
@@ -150,18 +154,18 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
         // 1. Mike's Amex
         logStep('Finance', "Adding Mike's Amex");
         await page.click('button:has-text("Add Card")');
-        await page.fill('input[name="name"]', 'Amex Gold');
-        await page.fill('input[name="balance"]', '450');
-        await page.fill('input[name="limit"]', '10000');
+        await page.fill('input[name="card_name"]', 'Amex Gold');
+        await page.fill('input[name="current_balance"]', '450');
+        await page.fill('input[name="credit_limit"]', '10000');
         await page.fill('input[name="payment_day"]', '28');
         await page.click('button:has-text("Save Card")');
 
         // 2. Carol's Visa
         logStep('Finance', "Adding Carol's Visa");
         await page.click('button:has-text("Add Card")');
-        await page.fill('input[name="name"]', 'Chase Sapphire');
-        await page.fill('input[name="balance"]', '120');
-        await page.fill('input[name="limit"]', '15000');
+        await page.fill('input[name="card_name"]', 'Chase Sapphire');
+        await page.fill('input[name="current_balance"]', '120');
+        await page.fill('input[name="credit_limit"]', '15000');
         await page.fill('input[name="payment_day"]', '14');
         await page.click('button:has-text("Save Card")');
     });
