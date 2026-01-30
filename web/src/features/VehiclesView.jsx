@@ -271,27 +271,28 @@ export default function VehiclesView() {
                         </FormControl>
                     </Grid>
                     
+                    <Grid xs={12}><Divider>Asset Valuation</Divider></Grid>
+                    <Grid xs={6} md={3}>
+                        <FormControl>
+                            <FormLabel>Purchase Value (£)</FormLabel>
+                            <Input name="purchase_value" type="number" defaultValue={selectedVehicle?.purchase_value} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={6} md={3}>
+                        <FormControl>
+                            <FormLabel>Replacement Cost (£)</FormLabel>
+                            <Input name="replacement_cost" type="number" defaultValue={selectedVehicle?.replacement_cost} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={6} md={4}>
+                        <FormControl>
+                            <FormLabel>Annual Depreciation %</FormLabel>
+                            <Input name="depreciation_rate" type="number" defaultValue={selectedVehicle?.depreciation_rate} />
+                        </FormControl>
+                    </Grid>
+
                     {vehicleId !== 'new' && (
                         <>
-                            <Grid xs={12}><Divider>Asset Valuation</Divider></Grid>
-                            <Grid xs={6} md={3}>
-                                <FormControl>
-                                    <FormLabel>Purchase Value (£)</FormLabel>
-                                    <Input name="purchase_value" type="number" defaultValue={selectedVehicle?.purchase_value} />
-                                </FormControl>
-                            </Grid>
-                            <Grid xs={6} md={3}>
-                                <FormControl>
-                                    <FormLabel>Replacement Cost (£)</FormLabel>
-                                    <Input name="replacement_cost" type="number" defaultValue={selectedVehicle?.replacement_cost} />
-                                </FormControl>
-                            </Grid>
-                            <Grid xs={6} md={4}>
-                                <FormControl>
-                                    <FormLabel>Annual Depreciation %</FormLabel>
-                                    <Input name="depreciation_rate" type="number" defaultValue={selectedVehicle?.depreciation_rate} />
-                                </FormControl>
-                            </Grid>
                             <Grid xs={12}><Divider>Maintenance Schedule</Divider></Grid>
                             <Grid xs={12} md={4}>
                                 <FormControl>
