@@ -132,10 +132,13 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
         await page.fill('input[name="monthly_payment"]', '2800');
         await page.fill('input[name="payment_day"]', '1');
         await page.fill('input[name="interest_rate"]', '3.5');
-        // Link to House asset (assuming it's the first in the list if select is present)
-        // Note: Logic usually auto-links if House exists, or we select it. 
-        // For now, we assume simple entry or verify if select exists.
-        await page.click('button:has-text("Save Mortgage Details")');
+        await page.fill('input[name="term_years"]', '25');
+        
+        // Force click in case of overlay/scroll issues
+        await page.click('button:has-text("Save Mortgage Details")', { force: true });
+        
+        // Verify creation
+        await expect(page.locator('text=Primary Mortgage')).toBeVisible();
 
         // 2. Car Finance (Mike's Wagon)
         logStep('Finance', 'Adding Car Finance');

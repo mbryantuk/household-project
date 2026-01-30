@@ -84,7 +84,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 67675,
+                      "duration": 67476,
                       "error": {
                         "message": "Error: Failed - Timeout: Step \"Finance: Liabilities (Mortgage & Cars)\" exceeded 60s without progressing.",
                         "stack": "Error: Failed - Timeout: Step \"Finance: Liabilities (Mortgage & Cars)\" exceeded 60s without progressing.\n    at Timeout.<anonymous> (/home/matt/household-project/web/tests/utils/testLogger.js:30:20)",
@@ -107,90 +107,90 @@
                       ],
                       "stdout": [
                         {
-                          "text": "[2026-01-30T16:41:54.869Z] [STEP: Admin Login] Starting...\n"
+                          "text": "[2026-01-30T16:47:06.313Z] [STEP: Admin Login] Starting...\n"
                         },
                         {
-                          "text": "[2026-01-30T16:41:55.390Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-30T16:47:06.833Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:41:55.391Z] [STEP: BROWSER] Content is cached for offline use.\n"
+                          "text": "[2026-01-30T16:47:06.834Z] [STEP: BROWSER] Content is cached for offline use.\n"
                         },
                         {
-                          "text": "[2026-01-30T16:41:55.609Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-30T16:47:07.036Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:41:55.827Z] [STEP: Admin Login] Completed successfully.\n"
+                          "text": "[2026-01-30T16:47:07.320Z] [STEP: Admin Login] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-01-30T16:41:55.827Z] [STEP: Finance: Income & Banking] Starting...\n"
+                          "text": "[2026-01-30T16:47:07.321Z] [STEP: Finance: Income & Banking] Starting...\n"
                         },
                         {
-                          "text": "[2026-01-30T16:41:56.179Z] [STEP: Finance] Adding Family Checking\n"
+                          "text": "[2026-01-30T16:47:07.650Z] [STEP: Finance] Adding Family Checking\n"
                         },
                         {
-                          "text": "[2026-01-30T16:41:56.429Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-30T16:47:07.865Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:41:56.989Z] [STEP: Finance] Adding Mike's Income\n"
+                          "text": "[2026-01-30T16:47:08.416Z] [STEP: Finance] Adding Mike's Income\n"
                         },
                         {
-                          "text": "[2026-01-30T16:41:57.385Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-30T16:47:08.795Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:41:57.953Z] [STEP: Finance] Adding Carol's Income\n"
+                          "text": "[2026-01-30T16:47:09.360Z] [STEP: Finance] Adding Carol's Income\n"
                         },
                         {
-                          "text": "[2026-01-30T16:41:58.581Z] [STEP: Finance: Income & Banking] Completed successfully.\n"
+                          "text": "[2026-01-30T16:47:09.979Z] [STEP: Finance: Income & Banking] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-01-30T16:41:58.582Z] [STEP: Finance: Savings & Investments] Starting...\n"
+                          "text": "[2026-01-30T16:47:09.979Z] [STEP: Finance: Savings & Investments] Starting...\n"
                         },
                         {
-                          "text": "[2026-01-30T16:41:58.582Z] [STEP: Finance] Adding Savings: Rainy Day\n"
+                          "text": "[2026-01-30T16:47:09.980Z] [STEP: Finance] Adding Savings: Rainy Day\n"
                         },
                         {
-                          "text": "[2026-01-30T16:41:59.048Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-30T16:47:10.425Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:41:59.746Z] [STEP: Finance] Adding Savings: College Fund\n"
+                          "text": "[2026-01-30T16:47:11.153Z] [STEP: Finance] Adding Savings: College Fund\n"
                         },
                         {
-                          "text": "[2026-01-30T16:41:59.964Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-30T16:47:11.379Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:42:00.507Z] [STEP: Finance] Adding Investments\n"
+                          "text": "[2026-01-30T16:47:11.970Z] [STEP: Finance] Adding Investments\n"
                         },
                         {
-                          "text": "[2026-01-30T16:42:00.909Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-30T16:47:12.359Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:42:01.339Z] [STEP: Finance] Adding Pensions\n"
+                          "text": "[2026-01-30T16:47:12.783Z] [STEP: Finance] Adding Pensions\n"
                         },
                         {
-                          "text": "[2026-01-30T16:42:01.725Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-30T16:47:13.142Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:42:02.292Z] [STEP: Finance: Savings & Investments] Completed successfully.\n"
+                          "text": "[2026-01-30T16:47:13.527Z] [STEP: Finance: Savings & Investments] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-01-30T16:42:02.292Z] [STEP: Finance: Liabilities (Mortgage & Cars)] Starting...\n"
+                          "text": "[2026-01-30T16:47:13.527Z] [STEP: Finance: Liabilities (Mortgage & Cars)] Starting...\n"
                         },
                         {
-                          "text": "[2026-01-30T16:42:02.293Z] [STEP: Finance] Adding Mortgage\n"
+                          "text": "[2026-01-30T16:47:13.528Z] [STEP: Finance] Adding Mortgage\n"
                         },
                         {
-                          "text": "[2026-01-30T16:42:02.705Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-30T16:47:13.895Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:43:02.293Z] [STEP: Finance: Liabilities (Mortgage & Cars)] ERROR: Failed - Timeout: Step \"Finance: Liabilities (Mortgage & Cars)\" exceeded 60s without progressing.\n"
+                          "text": "[2026-01-30T16:48:13.528Z] [STEP: Finance: Liabilities (Mortgage & Cars)] ERROR: Failed - Timeout: Step \"Finance: Liabilities (Mortgage & Cars)\" exceeded 60s without progressing.\n"
                         },
                         {
-                          "text": "[2026-01-30T16:43:02.293Z] [STEP: Finance: Liabilities (Mortgage & Cars)] FAILED: Failed - Timeout: Step \"Finance: Liabilities (Mortgage & Cars)\" exceeded 60s without progressing.\n"
+                          "text": "[2026-01-30T16:48:13.528Z] [STEP: Finance: Liabilities (Mortgage & Cars)] FAILED: Failed - Timeout: Step \"Finance: Liabilities (Mortgage & Cars)\" exceeded 60s without progressing.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-01-30T16:41:54.562Z",
+                      "startTime": "2026-01-30T16:47:06.026Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -226,8 +226,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-01-30T16:41:52.083Z",
-    "duration": 70466.329,
+    "startTime": "2026-01-30T16:47:03.711Z",
+    "duration": 70066.638,
     "expected": 0,
     "skipped": 0,
     "unexpected": 1,

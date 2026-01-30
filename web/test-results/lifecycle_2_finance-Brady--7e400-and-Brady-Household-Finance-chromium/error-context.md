@@ -45,7 +45,7 @@
               - generic [ref=e66]:
                 - generic [ref=e67]: 🏠
                 - generic [ref=e68]:
-                  - paragraph [ref=e69]: Brady Foundation (v3.0.141)
+                  - paragraph [ref=e69]: Brady Foundation (v3.0.142)
                   - generic [ref=e70]: "Valuation: £0.00"
               - generic [ref=e71]:
                 - generic [ref=e72]:
