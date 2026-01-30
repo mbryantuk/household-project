@@ -10,7 +10,7 @@ test.describe('Brady Lifecycle Stage 1: Foundation', () => {
   let registeredAdminEmail = '';
 
   test('Setup Foundation', async ({ page }) => {
-    test.setTimeout(400000);
+    test.setTimeout(600000); // 10 mins
 
     page.on('console', msg => logStep('BROWSER', msg.text()));
     page.on('pageerror', err => logStep('BROWSER_ERROR', err.message));
@@ -20,21 +20,24 @@ test.describe('Brady Lifecycle Stage 1: Foundation', () => {
         }
     });
 
-    await page.waitForTimeout(2000); // Wait for DB cleanup to settle
+    await page.waitForTimeout(2000); 
 
     // Disable Service Worker
     await page.route('**/sw.js', route => route.abort());
 
-    // Force is_test to true for registration
-    await page.route('**/auth/register', async route => {
-        const request = route.request();
-        if (request.method() === 'POST') {
-            const postData = request.postDataJSON() || {};
-            postData.is_test = 1; 
-            await route.continue({ postData: JSON.stringify(postData) });
-        } else {
-            await route.continue();
+    // Force is_test context for all writes
+    await page.route('**/*', async route => {
+        if (route.request().method() === 'POST' || route.request().method() === 'PUT') {
+            try {
+                const postData = route.request().postDataJSON();
+                if (postData && typeof postData === 'object') {
+                    postData.is_test = 1;
+                    await route.continue({ postData: JSON.stringify(postData) });
+                    return;
+                }
+            } catch (e) {}
         }
+        await route.continue();
     });
 
     await withTimeout('Mike Registration', async () => {
@@ -101,14 +104,9 @@ test.describe('Brady Lifecycle Stage 1: Foundation', () => {
         
         await page.click('button:has-text("Send Invitation")');
         
-        // Wait for ANY result (Modal or Snackbar)
         const modalSuccess = page.locator('text=Invitation Sent');
         const snackbar = page.locator('div.MuiSnackbar-root');
-        
         await expect(modalSuccess.or(snackbar)).toBeVisible({ timeout: 15000 });
-        
-        const resultText = await modalSuccess.or(snackbar).innerText();
-        logStep('Grant Access', `Result: ${resultText}`);
         
         if (await modalSuccess.isVisible()) {
             await page.click('button:has-text("Done")');
@@ -153,7 +151,7 @@ test.describe('Brady Lifecycle Stage 1: Foundation', () => {
         }
     });
 
-    await withTimeout('Add Residents & House', async () => {
+    await withTimeout('Add Residents, Pets, Vehicles & House', async () => {
         await page.goto(`/household/${hhId}/house`);
         
         const generateDOB = (age) => {
@@ -164,16 +162,38 @@ test.describe('Brady Lifecycle Stage 1: Foundation', () => {
         };
 
         const addPerson = async (firstName, lastName, age, type = 'Adult') => {
-            const dob = generateDOB(age);
-            logStep('Add Residents', `Adding ${firstName} (${type}, Age: ${age}, DOB: ${dob})`);
+            logStep('Add Residents', `Adding ${firstName} (${type}, Age: ${age})`);
+            
             await page.click(`button:has-text("Add ${type}")`);
-            await page.fill('input[name="first_name"]', firstName);
-            await page.fill('input[name="last_name"]', lastName);
-            await page.fill('input[name="dob"]', dob);
-            await page.click('button:has-text("Create Person")');
+            
+            if (type === 'Pet') {
+                await page.waitForSelector('input[name="name"]');
+                await page.fill('input[name="name"]', firstName);
+                await page.fill('input[name="species"]', firstName === 'Tiger' ? 'Dog' : 'Cat');
+                if (age) await page.fill('input[name="dob"]', generateDOB(age));
+                await page.click('button:has-text("Create Pet")');
+            } else {
+                await page.waitForSelector('input[name="first_name"]');
+                await page.fill('input[name="first_name"]', firstName);
+                await page.fill('input[name="last_name"]', lastName);
+                if (age) await page.fill('input[name="dob"]', generateDOB(age));
+                await page.click('button:has-text("Create Person")');
+            }
+            
             await page.waitForURL(new RegExp(`/household/${hhId}/house`));
-            // VERIFY visible
-            await expect(page.locator('div.MuiCard-root', { hasText: firstName }).first()).toBeVisible({ timeout: 10000 });
+            await expect(page.locator('div.MuiCard-root, div.MuiSheet-root', { hasText: firstName }).first()).toBeVisible({ timeout: 10000 });
+        };
+
+        const addVehicle = async (make, model, reg) => {
+            logStep('Add Residents', `Adding Vehicle: ${make} ${model}`);
+            await page.click('button:has-text("Add Vehicle")');
+            await page.waitForSelector('input[name="make"]');
+            await page.fill('input[name="make"]', make);
+            await page.fill('input[name="model"]', model);
+            await page.fill('input[name="registration"]', reg);
+            await page.click('button:has-text("Create Vehicle")');
+            await page.waitForURL(new RegExp(`/household/${hhId}/house`));
+            await expect(page.locator('div.MuiCard-root', { hasText: model }).first()).toBeVisible({ timeout: 15000 });
         };
 
         // 1. Add Adults
@@ -183,18 +203,21 @@ test.describe('Brady Lifecycle Stage 1: Foundation', () => {
 
         // 2. Add Children
         const kids = [
-            { name: 'Greg', age: 14 },
-            { name: 'Marcia', age: 13 },
-            { name: 'Peter', age: 11 },
-            { name: 'Jan', age: 10 },
-            { name: 'Bobby', age: 8 },
-            { name: 'Cindy', age: 7 }
+            { name: 'Greg', age: 14 }, { name: 'Marcia', age: 13 },
+            { name: 'Peter', age: 11 }, { name: 'Jan', age: 10 },
+            { name: 'Bobby', age: 8 }, { name: 'Cindy', age: 7 }
         ];
+        for (const kid of kids) await addPerson(kid.name, 'Brady', kid.age, 'Child');
+
+        // 3. Add Pets
+        await addPerson('Tiger', 'Brady', 5, 'Pet');
+        await addPerson('Fluffy', 'Brady', 3, 'Pet');
+
+        // 4. Add Vehicles
+        await addVehicle('Chevrolet', 'Kingswood Estate', 'MIKE 1');
+        await addVehicle('Chevrolet', 'Chevelle Wagon', 'CAROL 1');
         
-        for (const kid of kids) {
-            await addPerson(kid.name, 'Brady', kid.age, 'Child');
-        }
-        
+        // 5. Add Property
         logStep('Add Residents', 'Adding Property Assets');
         await page.click('text=Manage Property & Assets');
         await page.click('button[role="tab"]:has-text("Assets")');
@@ -202,7 +225,7 @@ test.describe('Brady Lifecycle Stage 1: Foundation', () => {
         await page.fill('input[name="name"]', 'Brady House');
         await page.fill('input[name="purchase_value"]', '1200000');
         await page.click('button:has-text("Save Asset")');
-    });
+    }, 300000);
 
     // Save context for Stage 2
     const context = { hhId, adminEmail: registeredAdminEmail, password, uniqueId };

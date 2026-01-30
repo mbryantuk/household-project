@@ -73,6 +73,16 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
         await page.fill('input[name="payment_day"]', '1');
         await page.click('button:has-text("Save Income")');
         await expect(page.locator('text=Architectural Assoc')).toBeVisible();
+
+        // 3. Add Savings Account (Regression Test)
+        logStep('Finance', 'Adding Savings Account');
+        await page.goto(`/household/${hhId}/finance?tab=savings`);
+        await page.click('button:has-text("Add Savings Account")');
+        await page.fill('input[name="institution"]', 'Chase');
+        await page.fill('input[name="account_name"]', 'Rainy Day');
+        await page.fill('input[name="current_balance"]', '1000');
+        await page.click('button:has-text("Save Account")');
+        await expect(page.locator('text=Rainy Day')).toBeVisible();
     });
 
     await withTimeout('Fringe Data - Calendar & Birthdays', async () => {

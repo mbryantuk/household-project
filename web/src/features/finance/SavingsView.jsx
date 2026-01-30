@@ -64,7 +64,7 @@ export default function SavingsView() {
           setSelectedMembers(currentAssignees);
       } else if (selectedPot) {
           setSelectedEmoji(selectedPot.emoji || '🎯');
-      } else if (selectedSavingsId === 'new') {
+      } else if (selectedAccountId === 'new') {
           setSelectedEmoji('💰');
           const defaultMember = members.find(m => m.type !== 'pet');
           setSelectedMembers(defaultMember ? [defaultMember.id] : []);

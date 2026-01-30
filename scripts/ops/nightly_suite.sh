@@ -50,6 +50,15 @@ fi
 
 echo "🌙 Starting Comprehensive Health Check (v$CURRENT_VERSION)..."
 
+# Load Nightly Credentials
+if [ -f "scripts/ops/.env.nightly" ]; then
+    echo "🔐 Loading nightly environment configuration from scripts/ops/.env.nightly..."
+    export $(grep -v '^#' scripts/ops/.env.nightly | xargs)
+elif [ -f ".env.nightly" ]; then
+    echo "🔐 Loading nightly environment configuration..."
+    export $(grep -v '^#' .env.nightly | xargs)
+fi
+
 # 1. Refresh Containers
 if [ "$SKIP_DOCKER" = false ] && [ "$IS_CONTAINER" = false ]; then
     echo "🚀 [1/6] Refreshing containers..."
