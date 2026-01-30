@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix ReferenceError in SavingsView and expand test coverage",
-  "date": "Fri 30 Jan 15:19:17 GMT 2026"
+  "commitMessage": "Fix backend admin_users integration tests by providing household context",
+  "date": "Fri 30 Jan 15:34:25 GMT 2026"
 }

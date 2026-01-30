@@ -44,7 +44,8 @@ describe('Admin User Management API', () => {
         it('should list users', async () => {
             const res = await request(app)
                 .get('/admin/users')
-                .set('Authorization', `Bearer ${token}`);
+                .set('Authorization', `Bearer ${token}`)
+                .send({ householdId: householdId });
             expect(res.statusCode).toBe(200);
             expect(res.body.find(u => u.id === createdUserId)).toBeDefined();
         });
@@ -53,14 +54,15 @@ describe('Admin User Management API', () => {
             const res = await request(app)
                 .put(`/admin/users/${createdUserId}`)
                 .set('Authorization', `Bearer ${token}`)
-                .send({ first_name: 'UpdatedName' });
+                .send({ first_name: 'UpdatedName', householdId: householdId });
             expect(res.statusCode).toBe(200);
         });
 
         it('should remove user from household', async () => {
             const res = await request(app)
                 .delete(`/admin/users/${createdUserId}`)
-                .set('Authorization', `Bearer ${token}`);
+                .set('Authorization', `Bearer ${token}`)
+                .send({ householdId: householdId });
             expect(res.statusCode).toBe(200);
         });
     });

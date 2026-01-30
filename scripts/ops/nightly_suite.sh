@@ -9,6 +9,7 @@ SKIP_DOCKER=false
 SKIP_BACKEND=false
 SKIP_FRONTEND=false
 SKIP_PURGE=false
+SKIP_EMAIL=false
 VERSION_FILTER=""
 export RUN_ID="RUN_$(date +%s)"
 export LOG_FILE="/tmp/brady_lifecycle.log"
@@ -34,6 +35,7 @@ while [[ "$#" -gt 0 ]]; do
     --skip-backend) SKIP_BACKEND=true ;;
     --skip-frontend) SKIP_FRONTEND=true ;;
     --skip-purge) SKIP_PURGE=true ;;
+    --no-email) SKIP_EMAIL=true ;;
     --version) VERSION_FILTER="$2"; shift ;;
     *) echo "Unknown parameter passed: $1"; exit 1 ;;
   esac
@@ -127,9 +129,13 @@ node server/scripts/cleanup_test_data.js > /dev/null 2>&1 || true
 echo "✅ Cleanup complete."
 
 # 5. Report
-echo "📧 [5/6] Emailing report..."
-node scripts/utils/send_report.js || true
-echo "✅ Report task finished."
+if [ "$SKIP_EMAIL" = true ]; then
+    echo "📧 [5/6] Email report skipped (--no-email)."
+else
+    echo "📧 [5/6] Emailing report..."
+    node scripts/utils/send_report.js || true
+    echo "✅ Report task finished."
+fi
 
 # 6. Docker Prune
 if [ "$SKIP_PURGE" = false ] && [ "$IS_CONTAINER" = false ]; then
