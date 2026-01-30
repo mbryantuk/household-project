@@ -184,13 +184,14 @@ test.describe('Brady Lifecycle Stage 1: Foundation', () => {
             await expect(page.locator('div.MuiCard-root, div.MuiSheet-root', { hasText: firstName }).first()).toBeVisible({ timeout: 10000 });
         };
 
-        const addVehicle = async (make, model, reg) => {
+        const addVehicle = async (make, model, reg, value) => {
             logStep('Add Residents', `Adding Vehicle: ${make} ${model}`);
             await page.click('button:has-text("Add Vehicle")');
             await page.waitForSelector('input[name="make"]');
             await page.fill('input[name="make"]', make);
             await page.fill('input[name="model"]', model);
             await page.fill('input[name="registration"]', reg);
+            if (value) await page.fill('input[name="purchase_value"]', value);
             await page.click('button:has-text("Create Vehicle")');
             await page.waitForURL(new RegExp(`/household/${hhId}/house`));
             await expect(page.locator('div.MuiCard-root', { hasText: model }).first()).toBeVisible({ timeout: 15000 });
@@ -214,8 +215,8 @@ test.describe('Brady Lifecycle Stage 1: Foundation', () => {
         await addPerson('Fluffy', 'Brady', 3, 'Pet');
 
         // 4. Add Vehicles
-        await addVehicle('Chevrolet', 'Kingswood Estate', 'MIKE 1');
-        await addVehicle('Chevrolet', 'Chevelle Wagon', 'CAROL 1');
+        await addVehicle('Chevrolet', 'Kingswood Estate', 'MIKE 1', '3500');
+        await addVehicle('Chevrolet', 'Chevelle Wagon', 'CAROL 1', '2800');
         
         // 5. Add Property
         logStep('Add Residents', 'Adding Property Assets');
