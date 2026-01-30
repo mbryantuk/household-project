@@ -33,138 +33,87 @@
               - button [ref=e47] [cursor=pointer]:
                 - img [ref=e48]
               - paragraph [ref=e50]: Back to Overview
-            - generic [ref=e52]:
-              - generic [ref=e53]:
-                - heading [level=2] [ref=e54]: Savings
-                - paragraph [ref=e55]: Monitor savings goals and rainy day funds.
-              - button [ref=e56] [cursor=pointer]:
-                - img [ref=e58]
-                - text: Add Savings Account
-        - generic [ref=e61]:
-          - generic [ref=e63]:
-            - button [ref=e65] [cursor=pointer]:
-              - img [ref=e66]
-              - generic [ref=e68]: Notes
-            - button [ref=e70] [cursor=pointer]:
-              - img [ref=e71]
-              - generic [ref=e73]: Calc
+            - generic [ref=e51]:
+              - generic [ref=e52]:
+                - heading [level=2] [ref=e53]:
+                  - img [ref=e55]
+                  - text: Investments
+                - button [ref=e57] [cursor=pointer]:
+                  - img [ref=e59]
+                  - text: Add Investment
+              - table [ref=e62]:
+                - rowgroup [ref=e63]:
+                  - row [ref=e64]:
+                    - columnheader [ref=e65]
+                    - columnheader [ref=e66]: Name
+                    - columnheader [ref=e67]: Platform
+                    - columnheader [ref=e68]: Current Value
+                    - columnheader [ref=e69]
+        - generic [ref=e71]:
+          - generic [ref=e73]:
             - button [ref=e75] [cursor=pointer]:
               - img [ref=e76]
-              - generic [ref=e78]: Finance
+              - generic [ref=e78]: Notes
             - button [ref=e80] [cursor=pointer]:
               - img [ref=e81]
-              - generic [ref=e83]: Tax
+              - generic [ref=e83]: Calc
             - button [ref=e85] [cursor=pointer]:
               - img [ref=e86]
-              - generic [ref=e88]: Savings
+              - generic [ref=e88]: Finance
             - button [ref=e90] [cursor=pointer]:
               - img [ref=e91]
-              - generic [ref=e93]: Investments
+              - generic [ref=e93]: Tax
             - button [ref=e95] [cursor=pointer]:
               - img [ref=e96]
-              - generic [ref=e98]: Pensions
+              - generic [ref=e98]: Savings
             - button [ref=e100] [cursor=pointer]:
               - img [ref=e101]
-              - generic [ref=e103]: Calendar
-          - generic [ref=e104]:
-            - generic [ref=e105]:
+              - generic [ref=e103]: Investments
+            - button [ref=e105] [cursor=pointer]:
               - img [ref=e106]
-              - generic [ref=e108]: Online
-            - button [ref=e109] [cursor=pointer]:
-              - img [ref=e110]
-            - button [ref=e113] [cursor=pointer]:
-              - generic [ref=e114]: M
-  - dialog "Add Savings Account" [ref=e116]:
-    - heading "Add Savings Account" [level=2] [ref=e117]
-    - generic [ref=e119]:
-      - generic [ref=e120]:
-        - generic [ref=e121]:
-          - generic [ref=e122]:
-            - text: Institution
-            - generic [ref=e123]: "*"
-          - textbox "Institution" [ref=e125]:
-            - /placeholder: e.g. Chase
-            - text: Chase
-        - generic [ref=e126]:
-          - generic [ref=e127]:
-            - text: Account Name
-            - generic [ref=e128]: "*"
-          - textbox "Account Name" [ref=e130]:
-            - /placeholder: e.g. Saver
-            - text: Rainy Day
-        - generic [ref=e131]:
-          - generic [ref=e133]:
-            - generic [ref=e134]:
-              - text: Current Balance (£)
-              - generic [ref=e135]: "*"
-            - spinbutton "Current Balance (£)" [ref=e137]: "12000"
-          - generic [ref=e139]:
-            - generic [ref=e140]: Interest Rate (%)
-            - spinbutton "Interest Rate (%)" [active] [ref=e142]: "4.5"
-          - generic [ref=e144]:
-            - generic [ref=e145]: Monthly Deposit (£)
-            - spinbutton "Monthly Deposit (£)" [ref=e147]
-          - generic [ref=e149]:
-            - generic [ref=e150]: Deposit Day
-            - spinbutton "Deposit Day" [ref=e152]
+              - generic [ref=e108]: Pensions
+            - button [ref=e110] [cursor=pointer]:
+              - img [ref=e111]
+              - generic [ref=e113]: Calendar
+          - generic [ref=e114]:
+            - generic [ref=e115]:
+              - img [ref=e116]
+              - generic [ref=e118]: Online
+            - button [ref=e119] [cursor=pointer]:
+              - img [ref=e120]
+            - button [ref=e123] [cursor=pointer]:
+              - generic [ref=e124]: M
+  - dialog [ref=e126]:
+    - button [ref=e127] [cursor=pointer]:
+      - img [ref=e128]
+    - heading "New Investment" [level=4] [ref=e130]
+    - separator [ref=e131]
+    - generic [ref=e132]:
+      - generic [ref=e133]:
+        - button "📈" [ref=e134] [cursor=pointer]:
+          - heading "📈" [level=2] [ref=e135]
+        - generic [ref=e136]:
+          - generic [ref=e137]:
+            - text: Investment Name
+            - generic [ref=e138]: "*"
+          - textbox "Investment Name" [ref=e140]: Tech Stocks Portfolio
+      - generic [ref=e141]:
+        - generic [ref=e142]:
+          - text: Platform
+          - generic [ref=e143]: "*"
+        - textbox "Platform" [ref=e145]
+      - generic [ref=e146]:
+        - generic [ref=e147]:
+          - generic [ref=e148]:
+            - text: Current Value
+            - generic [ref=e149]: "*"
+          - generic [ref=e150]:
+            - generic [ref=e151]: £
+            - spinbutton "Current Value" [active] [ref=e152]: "15000"
         - generic [ref=e153]:
-          - generic [ref=e154]: Account Number (Encrypted)
-          - textbox "Account Number (Encrypted)" [ref=e156]
-        - generic [ref=e157]:
-          - generic [ref=e158]: Emoji
-          - generic [ref=e159]:
-            - button "💰" [ref=e160] [cursor=pointer]:
-              - generic [ref=e161]: 💰
-            - generic [ref=e162]: Click icon to change
-        - generic [ref=e163]:
-          - generic [ref=e164]: Assign Owners
-          - generic [ref=e165]:
-            - generic [ref=e166]:
-              - button "Mike Brady" [ref=e167] [cursor=pointer]
-              - generic: Mike Brady
-              - generic:
-                - generic: 👨
-            - generic [ref=e168]:
-              - button "Carol Brady" [ref=e169] [cursor=pointer]
-              - generic: Carol Brady
-              - generic:
-                - generic: 👨
-            - generic [ref=e170]:
-              - button "Alice Nelson" [ref=e171] [cursor=pointer]
-              - generic: Alice Nelson
-              - generic:
-                - generic: 👨
-            - generic [ref=e172]:
-              - button "Greg Brady" [ref=e173] [cursor=pointer]
-              - generic: Greg Brady
-              - generic:
-                - generic: 👶
-            - generic [ref=e174]:
-              - button "Marcia Brady" [ref=e175] [cursor=pointer]
-              - generic: Marcia Brady
-              - generic:
-                - generic: 👶
-            - generic [ref=e176]:
-              - button "Peter Brady" [ref=e177] [cursor=pointer]
-              - generic: Peter Brady
-              - generic:
-                - generic: 👶
-            - generic [ref=e178]:
-              - button "Jan Brady" [ref=e179] [cursor=pointer]
-              - generic: Jan Brady
-              - generic:
-                - generic: 👶
-            - generic [ref=e180]:
-              - button "Bobby Brady" [ref=e181] [cursor=pointer]
-              - generic: Bobby Brady
-              - generic:
-                - generic: 👶
-            - generic [ref=e182]:
-              - button "Cindy Brady" [ref=e183] [cursor=pointer]
-              - generic: Cindy Brady
-              - generic:
-                - generic: 👶
-      - generic [ref=e185]:
-        - button "Cancel" [ref=e186] [cursor=pointer]
-        - button "Save Account" [ref=e187] [cursor=pointer]
+          - generic [ref=e154]: Total Invested
+          - generic [ref=e155]:
+            - generic [ref=e156]: £
+            - spinbutton "Total Invested" [ref=e157]: "0"
+      - button "Save" [ref=e158] [cursor=pointer]
 ```

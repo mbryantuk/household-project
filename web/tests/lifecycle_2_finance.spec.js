@@ -108,7 +108,7 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
         await page.click('button:has-text("Add Investment")');
         await page.fill('input[name="name"]', 'Tech Stocks Portfolio');
         await page.fill('input[name="current_value"]', '15000');
-        await page.click('button:has-text("Save Investment")');
+        await page.click('button:has-text("Save")');
 
         // 4. Pensions
         logStep('Finance', 'Adding Pensions');
@@ -117,7 +117,7 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
         await page.fill('input[name="provider"]', 'Fidelity');
         await page.fill('input[name="current_value"]', '85000');
         await page.fill('input[name="monthly_contribution"]', '500'); // Monthly
-        await page.click('button:has-text("Save Pension")');
+        await page.click('button:has-text("Save")');
     });
 
     await withTimeout('Finance: Liabilities (Mortgage & Cars)', async () => {
@@ -134,7 +134,7 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
         // Link to House asset (assuming it's the first in the list if select is present)
         // Note: Logic usually auto-links if House exists, or we select it. 
         // For now, we assume simple entry or verify if select exists.
-        await page.click('button:has-text("Save Mortgage")');
+        await page.click('button:has-text("Save Mortgage Details")');
 
         // 2. Car Finance (Mike's Wagon)
         logStep('Finance', 'Adding Car Finance');
@@ -162,7 +162,7 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
         await page.fill('input[name="current_balance"]', '450');
         await page.fill('input[name="credit_limit"]', '10000');
         await page.fill('input[name="payment_day"]', '28');
-        await page.click('button:has-text("Save Card")');
+        await page.click('button:has-text("Save")');
 
         // 2. Carol's Visa
         logStep('Finance', "Adding Carol's Visa");
@@ -171,7 +171,7 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
         await page.fill('input[name="current_balance"]', '120');
         await page.fill('input[name="credit_limit"]', '15000');
         await page.fill('input[name="payment_day"]', '14');
-        await page.click('button:has-text("Save Card")');
+        await page.click('button:has-text("Save")');
     });
 
     await withTimeout('Finance: Expenses & Budget', async () => {
