@@ -18,7 +18,7 @@ const formatCurrency = (val, currencyCode = 'GBP') => {
 };
 
 export default function InvestmentsView() {
-  const { api, id: householdId, household, showNotification, confirmAction } = useOutletContext();
+  const { api, id: householdId, household, showNotification, confirmAction, isDark } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
@@ -50,8 +50,10 @@ export default function InvestmentsView() {
   useEffect(() => {
     if (selectedInvestment) {
       setFormData({
-        name: selectedInvestment.name, platform: selectedInvestment.platform,
-        current_value: selectedInvestment.current_value, total_invested: selectedInvestment.total_invested,
+        name: selectedInvestment.name || '', 
+        platform: selectedInvestment.platform || '',
+        current_value: selectedInvestment.current_value || 0, 
+        total_invested: selectedInvestment.total_invested || 0,
         emoji: selectedInvestment.emoji || '📈'
       });
     } else if (selectedInvestmentId === 'new') {
@@ -72,7 +74,14 @@ export default function InvestmentsView() {
     try {
       const isNew = selectedInvestmentId === 'new';
       const realUrl = isNew ? `/households/${householdId}/finance/investments` : `/households/${householdId}/finance/investments/${selectedInvestmentId}`;
-      const res = await api[isNew ? 'post' : 'put'](realUrl, formData);
+      
+      const payload = {
+          ...formData,
+          current_value: parseFloat(formData.current_value) || 0,
+          total_invested: parseFloat(formData.total_invested) || 0
+      };
+
+      await api[isNew ? 'post' : 'put'](realUrl, payload);
       
       showNotification(isNew ? "Investment added." : "Investment updated.", "success");
       await fetchInvestments();
@@ -101,7 +110,7 @@ export default function InvestmentsView() {
           <tbody>
             {investments.map(inv => (
               <tr key={inv.id}>
-                <td><Avatar size="sm" sx={{ bgcolor: getEmojiColor(inv.emoji) }}>{inv.emoji}</Avatar></td>
+                <td><Avatar size="sm" sx={{ bgcolor: getEmojiColor(inv.emoji, isDark) }}>{inv.emoji}</Avatar></td>
                 <td><Typography fontWeight="lg">{inv.name}</Typography></td>
                 <td>{inv.platform}</td>
                 <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{formatCurrency(inv.current_value, household?.currency)}</td>
@@ -127,18 +136,55 @@ export default function InvestmentsView() {
                 <IconButton variant="outlined" sx={{ width: 56, height: 56 }} onClick={() => setEmojiPickerOpen(true)}>
                     <Typography level="h2">{formData.emoji}</Typography>
                 </IconButton>
-                <FormControl required sx={{ flex: 1 }}><FormLabel>Investment Name</FormLabel><Input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} /></FormControl>
+                <FormControl required sx={{ flex: 1 }}>
+                    <FormLabel>Investment Name</FormLabel>
+                    <Input 
+                        name="name"
+                        value={formData.name} 
+                        onChange={e => setFormData({ ...formData, name: e.target.value })} 
+                    />
+                </FormControl>
             </Box>
-            <FormControl required><FormLabel>Platform</FormLabel><Input value={formData.platform} onChange={e => setFormData({ ...formData, platform: e.target.value })} /></FormControl>
+            <FormControl required>
+                <FormLabel>Platform</FormLabel>
+                <Input 
+                    name="platform"
+                    value={formData.platform} 
+                    onChange={e => setFormData({ ...formData, platform: e.target.value })} 
+                />
+            </FormControl>
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                <FormControl required><FormLabel>Current Value</FormLabel><Input type="number" startDecorator="£" value={formData.current_value} onChange={e => setFormData({ ...formData, current_value: e.target.value })} /></FormControl>
-                <FormControl><FormLabel>Total Invested</FormLabel><Input type="number" startDecorator="£" value={formData.total_invested} onChange={e => setFormData({ ...formData, total_invested: e.target.value })} /></FormControl>
+                <FormControl required>
+                    <FormLabel>Current Value</FormLabel>
+                    <Input 
+                        name="current_value"
+                        type="number" 
+                        startDecorator="£" 
+                        value={formData.current_value} 
+                        onChange={e => setFormData({ ...formData, current_value: e.target.value })} 
+                    />
+                </FormControl>
+                <FormControl>
+                    <FormLabel>Total Invested</FormLabel>
+                    <Input 
+                        name="total_invested"
+                        type="number" 
+                        startDecorator="£" 
+                        value={formData.total_invested} 
+                        onChange={e => setFormData({ ...formData, total_invested: e.target.value })} 
+                    />
+                </FormControl>
             </Box>
             <Button size="lg" onClick={handleSave}>Save</Button>
           </Stack>
         </ModalDialog>
       </Modal>
-      <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(e) => { setFormData({ ...formData, emoji: e }); setEmojiPickerOpen(false); }} />
+      <EmojiPicker 
+        open={emojiPickerOpen} 
+        onClose={() => setEmojiPickerOpen(false)} 
+        onEmojiSelect={(e) => { setFormData({ ...formData, emoji: e }); setEmojiPickerOpen(false); }} 
+        isDark={isDark}
+      />
     </Box>
   );
 }

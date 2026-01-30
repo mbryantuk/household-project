@@ -124,7 +124,8 @@ test.describe('Basic System Flow Test', () => {
     await page.click('button:has-text("Save Account")');
     
     // Expectation: Modal closes
-    await expect(page.locator('div[role="dialog"]')).not.toBeVisible();
+    await page.waitForSelector('.MuiModalDialog-root', { state: 'hidden' });
+    console.log('   - Waiting for Joint Checking to appear');
     console.log('   - Waiting for Joint Checking to appear');
     await expect(page.locator('text=Joint Checking')).toBeVisible();
 
@@ -144,7 +145,7 @@ test.describe('Basic System Flow Test', () => {
     await page.click('button:has-text("Save Income")');
     
     // Expectation: Modal closes
-    await expect(page.locator('div[role="dialog"]')).not.toBeVisible();
+    await page.waitForSelector('.MuiModalDialog-root', { state: 'hidden' });
     console.log('   - Waiting for Tech Corp to appear');
     await expect(page.locator('text=Tech Corp').first()).toBeVisible();
 

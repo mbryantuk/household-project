@@ -382,6 +382,7 @@ const TENANT_SCHEMA = [
         remaining_balance REAL,
         interest_rate REAL,
         monthly_payment REAL,
+        payment_day INTEGER,
         start_date DATE,
         end_date DATE,
         emoji TEXT,
@@ -631,6 +632,7 @@ function initializeHouseholdSchema(db) {
         const additionalFinanceCols = [
             ['finance_budget_progress', 'actual_amount', 'REAL'],
             ['finance_pensions', 'payment_day', 'INTEGER'],
+            ['finance_loans', 'payment_day', 'INTEGER'],
             ['finance_income', 'nearest_working_day', 'INTEGER DEFAULT 1'],
             ['finance_credit_cards', 'nearest_working_day', 'INTEGER DEFAULT 1'],
             ['finance_loans', 'nearest_working_day', 'INTEGER DEFAULT 1'],

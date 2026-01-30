@@ -52,7 +52,8 @@ export default function VehicleFinanceView() {
           setSelectedMembers(getAssignees(selectedFinance.id).map(m => m.id));
       } else if (selectedFinanceId === 'new') {
           setSelectedEmoji('🚗');
-          setSelectedMembers([currentUser?.id].filter(Boolean));
+          const defaultMember = members.find(m => m.type !== 'pet');
+          setSelectedMembers(defaultMember ? [defaultMember.id] : []);
       }
   }, [selectedFinance, selectedFinanceId, getAssignees, currentUser?.id]);
 

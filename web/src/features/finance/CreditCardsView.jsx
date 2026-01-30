@@ -50,7 +50,8 @@ export default function CreditCardsView() {
           setSelectedMembers(getAssignees(selectedCard.id).map(m => m.id));
       } else if (selectedCardId === 'new') {
           setSelectedEmoji('💳');
-          setSelectedMembers([currentUser?.id].filter(Boolean));
+          const defaultMember = members.find(m => m.type !== 'pet');
+          setSelectedMembers(defaultMember ? [defaultMember.id] : []);
       }
   }, [selectedCard, selectedCardId, getAssignees, currentUser?.id]);
 

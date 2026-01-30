@@ -46,7 +46,8 @@ export default function AgreementsView({ isSubscriptions = false }) {
           setSelectedMembers(getAssignees(selectedAgreement.id).map(m => m.id));
       } else if (selectedAgreementId === 'new') {
           setSelectedEmoji(isSubscriptions ? '📱' : '📄');
-          setSelectedMembers([currentUser?.id].filter(Boolean));
+          const defaultMember = members.find(m => m.type !== 'pet');
+          setSelectedMembers(defaultMember ? [defaultMember.id] : []);
       }
   }, [selectedAgreement, selectedAgreementId, isSubscriptions, getAssignees, currentUser?.id]);
 

@@ -47,8 +47,9 @@ export default function PensionsView() {
           const currentAssignees = getAssignees(selectedPension.id).map(m => m.id);
           setSelectedMembers(currentAssignees);
       } else if (selectedPensionId === 'new') {
-          setSelectedEmoji('⏳');
-          setSelectedMembers([currentUser?.id].filter(Boolean));
+          setSelectedEmoji('👵');
+          const defaultMember = members.find(m => m.type !== 'pet');
+          setSelectedMembers(defaultMember ? [defaultMember.id] : []);
       }
   }, [selectedPension, selectedPensionId, getAssignees, currentUser?.id]);
 

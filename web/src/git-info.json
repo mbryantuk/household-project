@@ -1,4 +1,4 @@
 {
-  "commitMessage": "DevOps: Reorder nightly frontend tests (Smoke -> Routing -> Brady) with fail-fast logic and detailed reporting",
-  "date": "Thu 29 Jan 19:38:35 GMT 2026"
+  "commitMessage": "Fix stalling tests by adding name attributes to Loans and Investments views, and update schema to include payment_day for loans",
+  "date": "Fri 30 Jan 11:38:32 GMT 2026"
 }

@@ -226,8 +226,8 @@ test.describe('Brady Test Scenario', () => {
     await page.fill('input[name="payment_day"]', '1');
     
     console.log('      - Assigning to Mike & Carol');
-    await page.click('div:has-text("Mike")');
-    await page.click('div:has-text("Carol")');
+    await page.getByRole('button', { name: 'Mike', exact: false }).first().click();
+    await page.getByRole('button', { name: 'Carol', exact: false }).first().click();
     
     await page.click('button:has-text("Save Mortgage Details")');
     await expect(page.getByRole('dialog', { name: 'Add Mortgage' })).not.toBeVisible();
@@ -272,8 +272,8 @@ test.describe('Brady Test Scenario', () => {
         await page.fill('input[name="payment_day"]', '20');
         
         console.log(`      - [${personName}] Selecting member...`);
-        // Credit cards use Chip selection
-        await page.click(`div[role="button"]:has-text("${personName}")`); 
+        // Credit cards use Chip selection - use getByRole for better matching
+        await page.getByRole('button', { name: personName, exact: false }).first().click(); 
         
         console.log(`      - [${personName}] Saving Credit Card`);
         await page.click('button:has-text("Save")');

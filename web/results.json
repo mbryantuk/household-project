@@ -63,13 +63,13 @@
       "specs": [],
       "suites": [
         {
-          "title": "System Smoke & Comprehensive Test",
+          "title": "Basic System Flow Test",
           "file": "smoke.spec.js",
           "line": 3,
           "column": 6,
           "specs": [
             {
-              "title": "Full System Lifecycle and Route Accessibility",
+              "title": "Basic End-to-End Flow and Route Check",
               "ok": true,
               "tags": [],
               "tests": [
@@ -84,11 +84,11 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 11299,
+                      "duration": 11319,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "Step 1: Registering smoke_1769691583480@test.com\n"
+                          "text": "Step 1: Registering smoke_1769738483096@test.com\n"
                         },
                         {
                           "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
@@ -103,7 +103,7 @@
                           "text": "Step 2: Logging in\n"
                         },
                         {
-                          "text": "Step 3: Dashboard loaded. Household ID: 1319\n"
+                          "text": "Step 3: Dashboard loaded. Household ID: 1385\n"
                         },
                         {
                           "text": "Checking Route: dashboard\n"
@@ -154,13 +154,10 @@
                           "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                          "text": "Step 5: Property Management\n"
                         },
                         {
-                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "Step 5: Finance Matrix Verification\n"
+                          "text": "Step 6: Finance Matrix Verification\n"
                         },
                         {
                           "text": "   - Waiting for Financial Matrix header\n"
@@ -170,6 +167,9 @@
                         },
                         {
                           "text": "   - Adding Bank Account\n"
+                        },
+                        {
+                          "text": "   - Waiting for Joint Checking to appear\n"
                         },
                         {
                           "text": "   - Waiting for Joint Checking to appear\n"
@@ -202,7 +202,7 @@
                           "text": "   - Waiting for Safe to Spend\n"
                         },
                         {
-                          "text": "Step 6: Final System Verification Summary\n"
+                          "text": "Step 7: Final System Verification Summary\n"
                         },
                         {
                           "text": "   ✅ All Primary Routes Accessible\n"
@@ -211,12 +211,15 @@
                           "text": "   ✅ Household Hub Integration Verified\n"
                         },
                         {
+                          "text": "   ✅ Property & Assets Verified\n"
+                        },
+                        {
                           "text": "   ✅ Financial Matrix Integration Verified\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-01-29T12:59:43.495Z",
+                      "startTime": "2026-01-30T02:01:23.111Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -224,7 +227,7 @@
                   "status": "expected"
                 }
               ],
-              "id": "2c14808d47b386fba9eb-3c53c3fec4ad9e2c1a47",
+              "id": "2c14808d47b386fba9eb-3773889b1ca6d49f5e75",
               "file": "smoke.spec.js",
               "line": 9,
               "column": 3
@@ -236,8 +239,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-01-29T12:59:41.503Z",
-    "duration": 13540.666,
+    "startTime": "2026-01-30T02:01:21.154Z",
+    "duration": 13459.844,
     "expected": 1,
     "skipped": 0,
     "unexpected": 0,
