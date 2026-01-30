@@ -127,6 +127,7 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
         await page.click('button:has-text("Add Mortgage")');
         await page.fill('input[name="lender"]', 'Big Bank Corp');
         // Name field removed as it does not exist in form
+        await page.fill('input[name="total_amount"]', '500000');
         await page.fill('input[name="remaining_balance"]', '450000');
         await page.fill('input[name="monthly_payment"]', '2800');
         await page.fill('input[name="payment_day"]', '1');
@@ -146,6 +147,7 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
         await page.click('button:has-text("Select Vehicle")'); // Click dropdown
         await page.click('li[role="option"]:has-text("Kingswood")'); // Select option
 
+        await page.fill('input[name="total_amount"]', '5000');
         await page.fill('input[name="remaining_balance"]', '1200');
         await page.fill('input[name="monthly_payment"]', '150');
         await page.fill('input[name="payment_day"]', '5');

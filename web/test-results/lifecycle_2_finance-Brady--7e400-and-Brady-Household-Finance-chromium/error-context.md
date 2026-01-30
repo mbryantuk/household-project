@@ -1,119 +1,94 @@
 # Page snapshot
 
 ```yaml
-- generic [ref=e1]:
-  - main [ref=e4]:
-    - generic [ref=e5]:
-      - generic [ref=e8]:
-        - generic [ref=e9]:
-          - generic [ref=e11] [cursor=pointer]: 🏠
-          - list [ref=e12]:
-            - listitem [ref=e13]:
-              - button [ref=e14] [cursor=pointer]:
-                - img [ref=e16]
-                - generic [ref=e18]: Calendar
-          - separator [ref=e19]
-        - list [ref=e22]:
-          - listitem [ref=e23]:
-            - button [ref=e24] [cursor=pointer]:
-              - img [ref=e26]
-              - generic [ref=e29]: Household
-          - listitem [ref=e30]:
-            - button [ref=e31] [cursor=pointer]:
-              - img [ref=e33]
-              - generic [ref=e35]: Finance
-          - listitem [ref=e36]:
-            - button [ref=e37] [cursor=pointer]:
-              - img [ref=e39]
-              - generic [ref=e41]: Meals
-      - generic [ref=e43]:
-        - main [ref=e44]:
-          - generic [ref=e45]:
-            - generic [ref=e46]:
-              - button [ref=e47] [cursor=pointer]:
-                - img [ref=e48]
-              - paragraph [ref=e50]: Back to Overview
-            - generic [ref=e51]:
-              - generic [ref=e52]:
-                - heading [level=2] [ref=e53]:
-                  - img [ref=e55]
-                  - text: Investments
-                - button [ref=e57] [cursor=pointer]:
-                  - img [ref=e59]
-                  - text: Add Investment
-              - table [ref=e62]:
-                - rowgroup [ref=e63]:
-                  - row [ref=e64]:
-                    - columnheader [ref=e65]
-                    - columnheader [ref=e66]: Name
-                    - columnheader [ref=e67]: Platform
-                    - columnheader [ref=e68]: Current Value
-                    - columnheader [ref=e69]
-        - generic [ref=e71]:
-          - generic [ref=e73]:
-            - button [ref=e75] [cursor=pointer]:
-              - img [ref=e76]
-              - generic [ref=e78]: Notes
-            - button [ref=e80] [cursor=pointer]:
-              - img [ref=e81]
-              - generic [ref=e83]: Calc
-            - button [ref=e85] [cursor=pointer]:
-              - img [ref=e86]
-              - generic [ref=e88]: Finance
-            - button [ref=e90] [cursor=pointer]:
-              - img [ref=e91]
-              - generic [ref=e93]: Tax
-            - button [ref=e95] [cursor=pointer]:
-              - img [ref=e96]
-              - generic [ref=e98]: Savings
-            - button [ref=e100] [cursor=pointer]:
-              - img [ref=e101]
-              - generic [ref=e103]: Investments
-            - button [ref=e105] [cursor=pointer]:
-              - img [ref=e106]
-              - generic [ref=e108]: Pensions
-            - button [ref=e110] [cursor=pointer]:
-              - img [ref=e111]
-              - generic [ref=e113]: Calendar
-          - generic [ref=e114]:
-            - generic [ref=e115]:
-              - img [ref=e116]
-              - generic [ref=e118]: Online
-            - button [ref=e119] [cursor=pointer]:
-              - img [ref=e120]
-            - button [ref=e123] [cursor=pointer]:
-              - generic [ref=e124]: M
-  - dialog [ref=e126]:
-    - button [ref=e127] [cursor=pointer]:
-      - img [ref=e128]
-    - heading "New Investment" [level=4] [ref=e130]
-    - separator [ref=e131]
-    - generic [ref=e132]:
-      - generic [ref=e133]:
-        - button "📈" [ref=e134] [cursor=pointer]:
-          - heading "📈" [level=2] [ref=e135]
-        - generic [ref=e136]:
-          - generic [ref=e137]:
-            - text: Investment Name
-            - generic [ref=e138]: "*"
-          - textbox "Investment Name" [ref=e140]: Tech Stocks Portfolio
-      - generic [ref=e141]:
-        - generic [ref=e142]:
-          - text: Platform
-          - generic [ref=e143]: "*"
-        - textbox "Platform" [ref=e145]
-      - generic [ref=e146]:
-        - generic [ref=e147]:
-          - generic [ref=e148]:
-            - text: Current Value
-            - generic [ref=e149]: "*"
-          - generic [ref=e150]:
-            - generic [ref=e151]: £
-            - spinbutton "Current Value" [active] [ref=e152]: "15000"
-        - generic [ref=e153]:
-          - generic [ref=e154]: Total Invested
-          - generic [ref=e155]:
-            - generic [ref=e156]: £
-            - spinbutton "Total Invested" [ref=e157]: "0"
-      - button "Save" [ref=e158] [cursor=pointer]
+- main [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - generic "Switch Household" [ref=e11] [cursor=pointer]: 🏠
+        - list [ref=e12]:
+          - listitem [ref=e13]:
+            - button "Calendar" [ref=e14] [cursor=pointer]:
+              - img [ref=e16]
+              - generic [ref=e18]: Calendar
+        - separator [ref=e19]
+      - list [ref=e22]:
+        - listitem [ref=e23]:
+          - button "Household" [ref=e24] [cursor=pointer]:
+            - img [ref=e26]
+            - generic [ref=e29]: Household
+        - listitem [ref=e30]:
+          - button "Finance" [ref=e31] [cursor=pointer]:
+            - img [ref=e33]
+            - generic [ref=e35]: Finance
+        - listitem [ref=e36]:
+          - button "Meals" [ref=e37] [cursor=pointer]:
+            - img [ref=e39]
+            - generic [ref=e41]: Meals
+    - generic [ref=e43]:
+      - main [ref=e44]:
+        - generic [ref=e45]:
+          - generic [ref=e46]:
+            - button [ref=e47] [cursor=pointer]:
+              - img [ref=e48]
+            - paragraph [ref=e50]: Back to Overview
+          - generic [ref=e51]:
+            - generic [ref=e52]:
+              - generic [ref=e53]:
+                - heading "Mortgages & Equity" [level=2] [ref=e54]
+                - paragraph [ref=e55]: Track loans secured against your properties.
+              - button "Add New" [ref=e56] [cursor=pointer]:
+                - img [ref=e58]
+                - text: Add New
+                - img [ref=e61]
+            - generic [ref=e65]:
+              - generic [ref=e66]:
+                - generic [ref=e67]: 🏠
+                - generic [ref=e68]:
+                  - paragraph [ref=e69]: Brady Foundation (v3.0.141)
+                  - generic [ref=e70]: "Valuation: £0.00"
+              - generic [ref=e71]:
+                - generic [ref=e72]:
+                  - generic [ref=e73]: Total Debt
+                  - paragraph [ref=e74]: £0.00
+                - generic [ref=e75]:
+                  - generic [ref=e76]: Net Equity
+                  - paragraph [ref=e77]: £0.00
+                - generic [ref=e78]:
+                  - generic [ref=e79]: LTV
+                  - paragraph [ref=e80]: 0.0%
+      - generic [ref=e82]:
+        - generic [ref=e84]:
+          - button "Notes" [ref=e86] [cursor=pointer]:
+            - img [ref=e87]
+            - generic [ref=e89]: Notes
+          - button "Calc" [ref=e91] [cursor=pointer]:
+            - img [ref=e92]
+            - generic [ref=e94]: Calc
+          - button "Finance" [ref=e96] [cursor=pointer]:
+            - img [ref=e97]
+            - generic [ref=e99]: Finance
+          - button "Tax" [ref=e101] [cursor=pointer]:
+            - img [ref=e102]
+            - generic [ref=e104]: Tax
+          - button "Savings" [ref=e106] [cursor=pointer]:
+            - img [ref=e107]
+            - generic [ref=e109]: Savings
+          - button "Investments" [ref=e111] [cursor=pointer]:
+            - img [ref=e112]
+            - generic [ref=e114]: Investments
+          - button "Pensions" [ref=e116] [cursor=pointer]:
+            - img [ref=e117]
+            - generic [ref=e119]: Pensions
+          - button "Calendar" [ref=e121] [cursor=pointer]:
+            - img [ref=e122]
+            - generic [ref=e124]: Calendar
+        - generic [ref=e125]:
+          - generic [ref=e126]:
+            - img [ref=e127]
+            - generic [ref=e129]: Online
+          - button "Log Out" [ref=e130] [cursor=pointer]:
+            - img [ref=e131]
+          - button "M" [ref=e134] [cursor=pointer]:
+            - generic [ref=e135]: M
 ```
