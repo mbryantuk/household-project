@@ -109,6 +109,25 @@ else
             echo "   🟢 Stage 2: SUCCESS"
             cd "$PROJECT_ROOT"
             node scripts/ops/record_test_results.js frontend_lifecycle_2 "success" || true
+
+            # STAGE 3: ADVANCED FINANCE
+            cd "$PROJECT_ROOT/web"
+            echo "   📍 Stage 3: Advanced Finance (Expenses & Pots)..."
+            if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-3.json npx playwright test tests/lifecycle_3_expenses.spec.js --reporter=list,json; then
+                if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-4.json npx playwright test tests/lifecycle_4_savings_pots.spec.js --reporter=list,json; then
+                    echo "   🟢 Stage 3: SUCCESS"
+                    cd "$PROJECT_ROOT"
+                    node scripts/ops/record_test_results.js frontend_lifecycle_3 "success" || true
+                else
+                    echo "   🔴 Stage 3 (Pots): FAILED"
+                    cd "$PROJECT_ROOT"
+                    node scripts/ops/record_test_results.js frontend_lifecycle_3 "failure" || true
+                fi
+            else
+                echo "   🔴 Stage 3 (Expenses): FAILED"
+                cd "$PROJECT_ROOT"
+                node scripts/ops/record_test_results.js frontend_lifecycle_3 "failure" || true
+            fi
         else
             echo "   🔴 Stage 2: FAILED"
             cd "$PROJECT_ROOT"

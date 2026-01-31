@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Budget View: Adjust Month Label logic for late paydays",
-  "date": "Sat 31 Jan 17:12:25 GMT 2026"
+  "commitMessage": "Budget View: Conditionally show Savings Accounts only if they have no Pots.",
+  "date": "Sat 31 Jan 17:30:46 GMT 2026"
 }

@@ -367,7 +367,14 @@ export default function BudgetView() {
 
       liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit_card', `${cc.card_name} (Bal: ${formatCurrency(cc.current_balance)})`, 0, getAdjustedDate(cc.payment_day || 1, true, startDate), <CreditCard />, 'Credit Card', 'household'));
 
-      // 6. WEALTH items (Pensions, Investments, and Pots only per latest requirement)
+      // 6. WEALTH items
+      // Only include Savings Accounts that do NOT have pots (to avoid double counting)
+      liabilities.savings.forEach(s => {
+          const hasPots = savingsPots.some(pot => String(pot.savings_id) === String(s.id));
+          if (!hasPots) {
+              addExpense(s, 'savings_deposit', `${s.institution} ${s.account_name}`, s.deposit_amount || 0, getAdjustedDate(s.deposit_day || 1, false, startDate), <SavingsIcon />, 'Savings Deposit', 'wealth');
+          }
+      });
       liabilities.pensions.forEach(p => addExpense(p, 'pension', `${p.provider} Pension`, p.monthly_contribution || 0, getAdjustedDate(p.payment_day || 1, true, startDate), <Assignment />, 'Pension', 'wealth'));
       liabilities.investments.forEach(i => addExpense(i, 'investment', `${i.name} Investment`, i.monthly_contribution || 0, getAdjustedDate(i.payment_day || 1, true, startDate), <TrendingUp />, 'Investment', 'wealth'));
       savingsPots.forEach(pot => addExpense(pot, 'pot', pot.name, 0, getAdjustedDate(pot.deposit_day || 1, false, startDate), <SavingsIcon />, 'Pot Allocation', 'wealth'));
