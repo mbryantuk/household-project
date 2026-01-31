@@ -321,6 +321,8 @@ export default function BudgetView() {
       return { total, paid, unpaid: total - paid };
   }, [cycleData]);
 
+  const savingsTotal = useMemo(() => savingsPots.reduce((sum, pot) => sum + (parseFloat(pot.current_amount) || 0), 0), [savingsPots]);
+
   const trueDisposable = (parseFloat(currentBalance) || 0) - cycleTotals.unpaid;
 
   // Selected Totals for StatusBar
