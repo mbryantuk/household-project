@@ -658,7 +658,9 @@ function initializeHouseholdSchema(db) {
             ['finance_credit_cards', 'parent_id', 'INTEGER'],
             ['finance_agreements', 'parent_type', "TEXT DEFAULT 'general'"],
             ['finance_agreements', 'parent_id', 'INTEGER'],
-            ['finance_recurring_charges', 'start_date', 'DATE']
+            ['finance_recurring_charges', 'start_date', 'DATE'],
+            ['house_details', 'purchase_price', 'REAL DEFAULT 0'],
+            ['house_details', 'current_valuation', 'REAL DEFAULT 0']
         ];
 
         additionalFinanceCols.forEach(([table, col, type]) => {

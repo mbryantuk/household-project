@@ -11,7 +11,7 @@ import EmojiPicker from '../components/EmojiPicker';
  * A generic view for tables that only have one row (id=1)
  * e.g., House Details, Water Info, Council, Waste
  */
-export default function GeneralDetailView({ title, endpoint, fields }) {
+export default function GeneralDetailView({ title, endpoint, fields, computed = [] }) {
   const { api, id: householdId, user: currentUser, showNotification } = useOutletContext();
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
@@ -71,6 +71,28 @@ export default function GeneralDetailView({ title, endpoint, fields }) {
           View and manage the structural and specific details for this section.
         </Typography>
       </Box>
+
+      {computed.length > 0 && (
+        <Grid container spacing={2} sx={{ mb: 3 }}>
+          {computed.map((item, idx) => {
+            const val = item.calculate ? item.calculate(data) : 0;
+            return (
+              <Grid xs={12} sm={6} md={4} key={idx}>
+                <Sheet variant="soft" color={item.color || 'primary'} sx={{ p: 2, borderRadius: 'md' }}>
+                  <Typography level="body-sm" sx={{ fontWeight: 'bold', textTransform: 'uppercase', opacity: 0.8 }}>
+                    {item.label}
+                  </Typography>
+                  <Typography level="h3">
+                    {item.format === 'currency' 
+                      ? new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(val) 
+                      : val}
+                  </Typography>
+                </Sheet>
+              </Grid>
+            );
+          })}
+        </Grid>
+      )}
 
       <Sheet variant="outlined" sx={{ p: { xs: 2, md: 3 }, borderRadius: 'md' }}>
         <form onSubmit={handleSubmit}>

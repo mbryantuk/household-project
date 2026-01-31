@@ -206,7 +206,21 @@ export default function HouseView() {
                     <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(emoji) => { setSelectedEmoji(emoji); setEmojiPickerOpen(false); }} title="Select Household Emoji" />
                 </Box>
             )}
-            {activeTab === 1 && <GeneralDetailView title="Structural & General Info" endpoint="details" fields={houseFields} />}
+            {activeTab === 1 && (
+                <GeneralDetailView 
+                    title="Structural & General Info" 
+                    endpoint="details" 
+                    fields={houseFields} 
+                    computed={[
+                        { 
+                            label: 'Value Increase', 
+                            calculate: (d) => (d.current_valuation || 0) - (d.purchase_price || 0), 
+                            format: 'currency',
+                            color: 'success'
+                        }
+                    ]}
+                />
+            )}
             {activeTab === 2 && <Box><RecurringChargesWidget api={api} householdId={householdId} household={household_data} entityType="house" entityId={1} segments={[{ id: 'household_bill', label: 'Household Bills' }, { id: 'utility', label: 'Utilities' }, { id: 'subscription', label: 'Subscriptions' }, { id: 'insurance', label: 'Insurance' }, { id: 'warranty', label: 'Warranties' }, { id: 'other', label: 'Other' }]} title="Home Recurring Costs" showNotification={showNotification} confirmAction={confirmAction} /></Box>}
             {activeTab === 3 && <AssetsView />}
           </Box>

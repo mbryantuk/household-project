@@ -84,175 +84,175 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 22673,
+                      "duration": 23407,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "[2026-01-30T16:46:40.131Z] [STEP: Mike Registration] Starting...\n"
+                          "text": "[2026-01-31T11:45:21.878Z] [STEP: Mike Registration] Starting...\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:40.134Z] [STEP: Mike Registration] Attempt 1...\n"
+                          "text": "[2026-01-31T11:45:21.881Z] [STEP: Mike Registration] Attempt 1...\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:40.701Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-31T11:45:22.369Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:40.703Z] [STEP: BROWSER] Content is cached for offline use.\n"
+                          "text": "[2026-01-31T11:45:22.373Z] [STEP: BROWSER] Content is cached for offline use.\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:40.937Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-31T11:45:22.594Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:41.428Z] [STEP: Mike Registration] Completed successfully.\n"
+                          "text": "[2026-01-31T11:45:22.986Z] [STEP: Mike Registration] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:41.428Z] [STEP: Mike Login] Starting...\n"
+                          "text": "[2026-01-31T11:45:22.987Z] [STEP: Mike Login] Starting...\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:41.569Z] [STEP: Mike Login] Completed successfully.\n"
+                          "text": "[2026-01-31T11:45:23.137Z] [STEP: Mike Login] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:41.570Z] [STEP: Foundation] Brady Household ID: 1940\n"
+                          "text": "[2026-01-31T11:45:23.138Z] [STEP: Foundation] Brady Household ID: 2024\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:41.570Z] [STEP: Route Check] Starting...\n"
+                          "text": "[2026-01-31T11:45:23.138Z] [STEP: Route Check] Starting...\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:41.571Z] [STEP: Route Check] Checking /dashboard\n"
+                          "text": "[2026-01-31T11:45:23.139Z] [STEP: Route Check] Checking /dashboard\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:42.121Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-31T11:45:23.694Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:42.137Z] [STEP: Route Check] Checking /calendar\n"
+                          "text": "[2026-01-31T11:45:23.714Z] [STEP: Route Check] Checking /calendar\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:42.663Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-31T11:45:24.173Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:42.669Z] [STEP: Route Check] Checking /house\n"
+                          "text": "[2026-01-31T11:45:24.181Z] [STEP: Route Check] Checking /house\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:43.093Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-31T11:45:24.584Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:43.125Z] [STEP: Route Check] Checking /meals\n"
+                          "text": "[2026-01-31T11:45:24.629Z] [STEP: Route Check] Checking /meals\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:43.575Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-31T11:45:25.160Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:43.590Z] [STEP: Route Check] Checking /finance\n"
+                          "text": "[2026-01-31T11:45:25.175Z] [STEP: Route Check] Checking /finance\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:44.061Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-31T11:45:25.635Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:44.068Z] [STEP: Route Check] Checking /settings\n"
+                          "text": "[2026-01-31T11:45:25.661Z] [STEP: Route Check] Checking /settings\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:44.483Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-31T11:45:26.114Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:44.571Z] [STEP: Route Check] Completed successfully.\n"
+                          "text": "[2026-01-31T11:45:26.140Z] [STEP: Route Check] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:44.572Z] [STEP: Grant Lead Architect Access] Starting...\n"
+                          "text": "[2026-01-31T11:45:26.140Z] [STEP: Grant Lead Architect Access] Starting...\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:44.958Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-31T11:45:26.577Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:45.551Z] [STEP: Grant Access] Inviting mbryantuk@gmail.com as Admin\n"
+                          "text": "[2026-01-31T11:45:27.151Z] [STEP: Grant Access] Inviting mbryantuk@gmail.com as Admin\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:46.307Z] [STEP: Grant Lead Architect Access] Completed successfully.\n"
+                          "text": "[2026-01-31T11:45:27.952Z] [STEP: Grant Lead Architect Access] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:46.308Z] [STEP: Invite Family] Starting...\n"
+                          "text": "[2026-01-31T11:45:27.953Z] [STEP: Invite Family] Starting...\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:46.447Z] [STEP: Invite Family] Inviting Carol (Standard Member)\n"
+                          "text": "[2026-01-31T11:45:28.109Z] [STEP: Invite Family] Inviting Carol (Standard Member)\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:46.662Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-31T11:45:28.346Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:47.713Z] [STEP: Invite Family] Inviting Greg (Viewer (Read-only))\n"
+                          "text": "[2026-01-31T11:45:29.494Z] [STEP: Invite Family] Inviting Greg (Viewer (Read-only))\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:48.639Z] [STEP: Invite Family] Inviting Marcia (Viewer (Read-only))\n"
+                          "text": "[2026-01-31T11:45:30.487Z] [STEP: Invite Family] Inviting Marcia (Viewer (Read-only))\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:49.523Z] [STEP: Invite Family] Inviting Peter (Viewer (Read-only))\n"
+                          "text": "[2026-01-31T11:45:31.455Z] [STEP: Invite Family] Inviting Peter (Viewer (Read-only))\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:50.388Z] [STEP: Invite Family] Inviting Jan (Viewer (Read-only))\n"
+                          "text": "[2026-01-31T11:45:32.376Z] [STEP: Invite Family] Inviting Jan (Viewer (Read-only))\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:51.350Z] [STEP: Invite Family] Inviting Bobby (Viewer (Read-only))\n"
+                          "text": "[2026-01-31T11:45:33.286Z] [STEP: Invite Family] Inviting Bobby (Viewer (Read-only))\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:52.365Z] [STEP: Invite Family] Inviting Cindy (Viewer (Read-only))\n"
+                          "text": "[2026-01-31T11:45:34.315Z] [STEP: Invite Family] Inviting Cindy (Viewer (Read-only))\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:53.309Z] [STEP: Invite Family] Completed successfully.\n"
+                          "text": "[2026-01-31T11:45:35.342Z] [STEP: Invite Family] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:53.310Z] [STEP: Add Residents, Pets, Vehicles & House] Starting...\n"
+                          "text": "[2026-01-31T11:45:35.342Z] [STEP: Add Residents, Pets, Vehicles & House] Starting...\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:53.502Z] [STEP: Add Residents] Adding Mike (Adult, Age: 40)\n"
+                          "text": "[2026-01-31T11:45:35.490Z] [STEP: Add Residents] Adding Mike (Adult, Age: 40)\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:53.734Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-01-31T11:45:35.847Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:54.339Z] [STEP: Add Residents] Adding Carol (Adult, Age: 35)\n"
+                          "text": "[2026-01-31T11:45:36.596Z] [STEP: Add Residents] Adding Carol (Adult, Age: 35)\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:54.820Z] [STEP: Add Residents] Adding Alice (Adult, Age: 45)\n"
+                          "text": "[2026-01-31T11:45:37.090Z] [STEP: Add Residents] Adding Alice (Adult, Age: 45)\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:55.284Z] [STEP: Add Residents] Adding Greg (Child, Age: 14)\n"
+                          "text": "[2026-01-31T11:45:37.565Z] [STEP: Add Residents] Adding Greg (Child, Age: 14)\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:55.705Z] [STEP: Add Residents] Adding Marcia (Child, Age: 13)\n"
+                          "text": "[2026-01-31T11:45:38.006Z] [STEP: Add Residents] Adding Marcia (Child, Age: 13)\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:56.146Z] [STEP: Add Residents] Adding Peter (Child, Age: 11)\n"
+                          "text": "[2026-01-31T11:45:38.533Z] [STEP: Add Residents] Adding Peter (Child, Age: 11)\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:56.573Z] [STEP: Add Residents] Adding Jan (Child, Age: 10)\n"
+                          "text": "[2026-01-31T11:45:38.973Z] [STEP: Add Residents] Adding Jan (Child, Age: 10)\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:57.047Z] [STEP: Add Residents] Adding Bobby (Child, Age: 8)\n"
+                          "text": "[2026-01-31T11:45:39.435Z] [STEP: Add Residents] Adding Bobby (Child, Age: 8)\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:57.488Z] [STEP: Add Residents] Adding Cindy (Child, Age: 7)\n"
+                          "text": "[2026-01-31T11:45:39.862Z] [STEP: Add Residents] Adding Cindy (Child, Age: 7)\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:57.934Z] [STEP: Add Residents] Adding Tiger (Pet, Age: 5)\n"
+                          "text": "[2026-01-31T11:45:40.326Z] [STEP: Add Residents] Adding Tiger (Pet, Age: 5)\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:58.367Z] [STEP: Add Residents] Adding Fluffy (Pet, Age: 3)\n"
+                          "text": "[2026-01-31T11:45:40.776Z] [STEP: Add Residents] Adding Fluffy (Pet, Age: 3)\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:58.793Z] [STEP: Add Residents] Adding Vehicle: Chevrolet Kingswood Estate\n"
+                          "text": "[2026-01-31T11:45:41.244Z] [STEP: Add Residents] Adding Vehicle: Chevrolet Kingswood Estate\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:59.270Z] [STEP: Add Residents] Adding Vehicle: Chevrolet Chevelle Wagon\n"
+                          "text": "[2026-01-31T11:45:41.723Z] [STEP: Add Residents] Adding Vehicle: Chevrolet Chevelle Wagon\n"
                         },
                         {
-                          "text": "[2026-01-30T16:46:59.790Z] [STEP: Add Residents] Adding Property Assets\n"
+                          "text": "[2026-01-31T11:45:42.190Z] [STEP: Add Residents] Adding Property Assets\n"
                         },
                         {
-                          "text": "[2026-01-30T16:47:00.534Z] [STEP: Add Residents, Pets, Vehicles & House] Completed successfully.\n"
+                          "text": "[2026-01-31T11:45:42.955Z] [STEP: Add Residents, Pets, Vehicles & House] Completed successfully.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-01-30T16:46:37.851Z",
+                      "startTime": "2026-01-31T11:45:19.615Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -272,8 +272,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-01-30T16:46:35.869Z",
-    "duration": 24905.824,
+    "startTime": "2026-01-31T11:45:17.574Z",
+    "duration": 25654.083000000002,
     "expected": 1,
     "skipped": 0,
     "unexpected": 0,

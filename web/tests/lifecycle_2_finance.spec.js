@@ -110,7 +110,6 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
                 is_test: 1
             }
          });
-         
          // Car Finance (Mike's Wagon)
          const vehiclesRes = await api.get(`/api/households/${hhId}/vehicles`);
          const vehicles = await vehiclesRes.json();
@@ -129,6 +128,21 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
                 }
              });
          }
+
+         // Personal Loan
+         await api.post(`/api/households/${hhId}/finance/loans`, {
+            data: {
+                lender: 'Credit Union',
+                loan_type: 'Personal',
+                total_amount: 10000,
+                remaining_balance: 8500,
+                interest_rate: 6.5,
+                monthly_payment: 350,
+                payment_day: 10,
+                notes: 'Home Improvements',
+                is_test: 1
+            }
+         });
          
          // Credit Cards
          await api.post(`/api/households/${hhId}/finance/credit-cards`, {

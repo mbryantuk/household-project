@@ -30,7 +30,12 @@ describe('Property Details API', () => {
             const res = await request(app)
                 .put(`/households/${householdId}/details`)
                 .set('Authorization', `Bearer ${token}`)
-                .send({ property_type: 'Detached', bedrooms: 4 });
+                .send({ 
+                    property_type: 'Detached', 
+                    bedrooms: 4,
+                    purchase_price: 350000,
+                    current_valuation: 420000
+                });
             expect(res.statusCode).toBe(200);
         });
 
@@ -40,6 +45,8 @@ describe('Property Details API', () => {
                 .set('Authorization', `Bearer ${token}`);
             expect(res.statusCode).toBe(200);
             expect(res.body.property_type).toBe('Detached');
+            expect(res.body.purchase_price).toBe(350000);
+            expect(res.body.current_valuation).toBe(420000);
         });
     });
 
