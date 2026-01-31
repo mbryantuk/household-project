@@ -19,7 +19,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 4001,
+    port: 5173,
     proxy: {
       '/auth': 'http://localhost:4001',
       '/households': 'http://localhost:4001',

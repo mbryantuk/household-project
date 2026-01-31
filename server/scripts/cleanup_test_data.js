@@ -15,7 +15,7 @@ async function cleanupTestData() {
         // 1. IDENTIFY TEST HOUSEHOLDS TO KEEP
         // ==========================================
         // We want ONLY the absolute latest of each core test type
-        const testTypes = ['Smoke Test %', 'Routing Test %', 'Brady Foundation %'];
+        const testTypes = ['Smoke Test %', 'Routing Test %', 'Brady Family %'];
         const keepIds = [PERMANENT_HOUSEHOLD_ID];
         const preservedNames = [];
 

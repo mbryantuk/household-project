@@ -6,7 +6,7 @@ import fs from 'fs';
 test.describe('Brady Lifecycle Stage 1: Foundation', () => {
   const uniqueId = Date.now();
   const password = 'Password123!';
-  const householdName = `Brady Foundation (v${pkg.version})`;
+  const householdName = `Brady Family (v${pkg.version})`;
   let registeredAdminEmail = '';
 
   test('Setup Foundation', async ({ page }) => {
