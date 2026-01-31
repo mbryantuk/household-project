@@ -238,13 +238,13 @@ export default function PensionsView() {
                                 <Grid xs={6}>
                                     <FormControl required>
                                         <FormLabel>Current Value (£)</FormLabel>
-                                        <Input name="current_value" type="number" step="0.01" defaultValue={selectedPension?.current_value} />
+                                        <Input name="current_value" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedPension?.current_value} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={6}>
                                     <FormControl>
                                         <FormLabel>Monthly Contribution (£)</FormLabel>
-                                        <Input name="monthly_contribution" type="number" step="0.01" defaultValue={selectedPension?.monthly_contribution} />
+                                        <Input name="monthly_contribution" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedPension?.monthly_contribution} />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={6}>

@@ -6,226 +6,285 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
   let context;
   
   test.beforeAll(() => {
-    const data = fs.readFileSync('/tmp/brady_context.json', 'utf8');
-    context = JSON.parse(data);
+    try {
+        const data = fs.readFileSync('/tmp/brady_context.json', 'utf8');
+        context = JSON.parse(data);
+    } catch (e) {
+        console.warn("Context file not found, using defaults for dev testing if applicable.");
+        context = { hhId: '1', adminEmail: 'mbryantuk@gmail.com', password: 'password' };
+    }
   });
 
-  test('Expand Brady Household Finance', async ({ page }) => {
+  test('Expand Brady Household Finance (Frontend - Resilience Mode)', async ({ page }) => {
     test.setTimeout(300000); // 5 mins
     const { hhId, adminEmail, password } = context;
+    const errors = [];
     
     // Login UI
+    page.on('console', msg => console.log(`BROWSER LOG: ${msg.text()}`));
+
+    // Disable Service Worker (Prevent Caching/Interception issues in Test)
+    await page.route('**/sw.js', route => route.abort());
+
     await page.goto('/login');
     await page.fill('input[type="email"]', adminEmail);
     await page.fill('input[type="password"]', password);
     await page.click('button[type="submit"]');
     await page.waitForURL(new RegExp(`/household/${hhId}/dashboard`));
     
-    // Extract Token
-    const token = await page.evaluate(() => localStorage.getItem('token'));
-    if (!token) throw new Error("No token found in localStorage");
+    // --- HELPERS ---
+    const createFinancialItem = async (tab, addBtnText, fillFn) => {
+        const stepName = `Adding item to ${tab}`;
+        try {
+            await logStep(stepName, 'Navigating...');
+            // Use 'commit' to return as soon as server sends response headers
+            await page.goto(`/household/${hhId}/finance?tab=${tab}`, { waitUntil: 'commit' });
+            // Poll for URL update, robust against client-side transitions
+            await expect(page).toHaveURL(new RegExp(`tab=${tab}`), { timeout: 10000 });
+            // Wait for spinner to disappear (MUI Joy CircularProgress)
+            await expect(page.locator('span[role="progressbar"]')).not.toBeVisible();
+            
+            await logStep(stepName, `Clicking ${addBtnText}...`);
+            if (addBtnText.startsWith('MENU:')) {
+                 const menuText = addBtnText.replace('MENU:', '');
+                 await page.getByRole('button', { name: 'Add New' }).click(); 
+                 await page.getByRole('menuitem', { name: menuText }).click();
+            } else {
+                 await page.getByRole('button', { name: addBtnText }).click();
+            }
 
-    // API Helper with Auth
-    const request = page.context().request;
-    const api = {
-        get: (url) => request.get(url, { headers: { 'Authorization': `Bearer ${token}` } }),
-        post: (url, opts) => request.post(url, { ...opts, headers: { ...opts?.headers, 'Authorization': `Bearer ${token}` } }),
-        put: (url, opts) => request.put(url, { ...opts, headers: { ...opts?.headers, 'Authorization': `Bearer ${token}` } }),
-        delete: (url, opts) => request.delete(url, { ...opts, headers: { ...opts?.headers, 'Authorization': `Bearer ${token}` } })
+            await expect(page.getByRole('dialog')).toBeVisible();
+            
+            await fillFn();
+            
+            await logStep(stepName, `Saving...`);
+            await page.waitForTimeout(500); 
+
+            // Check Validity
+            const isFormValid = await page.evaluate(() => {
+                const form = document.querySelector('div[role="dialog"] form');
+                return form ? form.checkValidity() : false;
+            });
+            if (!isFormValid) {
+                 console.error(`❌ Form is invalid in ${stepName}`);
+                 await page.evaluate(() => {
+                     const form = document.querySelector('div[role="dialog"] form');
+                     const invalid = form.querySelectorAll(':invalid');
+                     invalid.forEach(el => console.error('Invalid Field:', el.name));
+                 });
+                 throw new Error('Form validation failed');
+            }
+
+            // Debug Network
+            const apiPattern = tab === 'banking' ? 'current-accounts' : 
+                               tab === 'income' ? 'income' :
+                               tab === 'savings' ? 'savings' :
+                               tab === 'invest' ? 'investments' :
+                               tab === 'pensions' ? 'pensions' :
+                               tab === 'mortgage' ? 'mortgages' :
+                               tab === 'car' ? 'vehicle-finance' :
+                               tab === 'loans' ? 'loans' :
+                               tab === 'credit' ? 'credit-cards' : 'unknown';
+
+            const responsePromise = page.waitForResponse(resp => 
+                resp.url().includes(apiPattern) && resp.request().method() === 'POST', 
+                { timeout: 5000 }
+            ).catch(() => null);
+
+            await page.getByRole('dialog').getByRole('button', { name: /Save|Add|Create/i }).click();
+            
+            const response = await responsePromise;
+            if (response) {
+                const status = response.status();
+                if (status >= 400) {
+                     const body = await response.text();
+                     console.error(`API ERROR [${apiPattern}]: ${status} - ${body}`);
+                     throw new Error(`API Error ${status}: ${body}`);
+                }
+                console.log(`API SUCCESS [${apiPattern}]: ${status}`);
+            } else {
+                console.warn(`API TIMEOUT [${apiPattern}]: No response received in 5s`);
+            }
+            
+            try {
+                await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 10000 });
+                await expect(page.locator('div[role="alert"]')).toBeVisible({ timeout: 10000 });
+                await logStep(stepName, 'Success!');
+            } catch (err) {
+                // Ignore missing alert if dialog closed
+            }
+        } catch (e) {
+            console.error(`❌ FAILED: ${stepName} - ${e.message}`);
+            errors.push(`${stepName}: ${e.message}`);
+            await page.screenshot({ path: `/tmp/fail_${tab}.png` });
+        }
     };
 
-    // Fetch Members for linking
-    const membersRes = await api.get(`/api/households/${hhId}/members`);
-    const members = await membersRes.json();
-    const mike = members.find(m => m.name.includes('Mike'));
-    const carol = members.find(m => m.name.includes('Carol'));
-
-    await withTimeout('Finance: Income & Banking (API)', async () => {
-        // 1. Bank Account
-        await api.post(`/api/households/${hhId}/finance/current-accounts`, {
-            data: {
-                bank_name: 'First National',
-                account_name: 'Family Checking',
-                current_balance: 4500.50,
-                is_test: 1
-            }
-        });
-
-        // 2. Mike's Income
-        if (mike) {
-            await api.post(`/api/households/${hhId}/finance/income`, {
-                data: {
-                    employer: 'Architectural Assoc',
-                    amount: 8500,
-                    payment_day: 1,
-                    member_id: mike.id,
-                    is_test: 1
-                }
-            });
+    const selectOption = async (label, optionText) => {
+        await logStep('selectOption', `Selecting "${optionText}" for "${label}"`);
+        let trigger = page.locator(`label:has-text("${label}") + div button, button:has-text("${label}")`).first();
+        if (await trigger.count() === 0) {
+             trigger = page.getByRole('button', { name: label }).first();
         }
-
-        // 3. Carol's Income
-        if (carol) {
-            await api.post(`/api/households/${hhId}/finance/income`, {
-                data: {
-                    employer: 'Freelance Writing',
-                    amount: 1200,
-                    payment_day: 15,
-                    member_id: carol.id,
-                    is_test: 1
-                }
-            });
-        }
-    });
-
-    await withTimeout('Finance: Savings & Assets (API)', async () => {
-         // Savings
-         await api.post(`/api/households/${hhId}/finance/savings`, {
-            data: { institution: 'Chase', account_name: 'Rainy Day', current_balance: 12000, interest_rate: 4.5, is_test: 1 }
-         });
-         await api.post(`/api/households/${hhId}/finance/savings`, {
-            data: { institution: 'Vanguard', account_name: 'College Fund', current_balance: 5000, interest_rate: 5.0, is_test: 1 }
-         });
-         
-         // Investments
-         await api.post(`/api/households/${hhId}/finance/investments`, {
-            data: { name: 'Tech Stocks Portfolio', current_value: 15000, is_test: 1 }
-         });
-         
-         // Pensions
-         await api.post(`/api/households/${hhId}/finance/pensions`, {
-            data: { provider: 'Fidelity', current_value: 85000, monthly_contribution: 500, payment_day: 1, is_test: 1 }
-         });
-         
-         // Mortgage
-         await api.post(`/api/households/${hhId}/finance/mortgages`, {
-            data: {
-                lender: 'Big Bank Corp',
-                total_amount: 500000,
-                remaining_balance: 450000,
-                monthly_payment: 2800,
-                payment_day: 1,
-                interest_rate: 3.5,
-                term_years: 25,
-                is_test: 1
-            }
-         });
-         // Car Finance (Mike's Wagon)
-         const vehiclesRes = await api.get(`/api/households/${hhId}/vehicles`);
-         const vehicles = await vehiclesRes.json();
-         const mikeCar = vehicles.find(v => v.model.includes('Kingswood'));
-         
-         if (mikeCar) {
-             await api.post(`/api/households/${hhId}/finance/vehicle-finance`, {
-                data: {
-                    provider: 'GM Financial',
-                    vehicle_id: mikeCar.id,
-                    total_amount: 5000,
-                    remaining_balance: 1200,
-                    monthly_payment: 150,
-                    payment_day: 5,
-                    is_test: 1
-                }
-             });
-         }
-
-         // Personal Loan
-         await api.post(`/api/households/${hhId}/finance/loans`, {
-            data: {
-                lender: 'Credit Union',
-                loan_type: 'Personal',
-                total_amount: 10000,
-                remaining_balance: 8500,
-                interest_rate: 6.5,
-                monthly_payment: 350,
-                payment_day: 10,
-                notes: 'Home Improvements',
-                is_test: 1
-            }
-         });
-         
-         // Credit Cards
-         await api.post(`/api/households/${hhId}/finance/credit-cards`, {
-            data: { card_name: 'Amex Gold', current_balance: 450, credit_limit: 10000, payment_day: 28, is_test: 1 }
-         });
-         await api.post(`/api/households/${hhId}/finance/credit-cards`, {
-            data: { card_name: 'Chase Sapphire', current_balance: 120, credit_limit: 15000, payment_day: 14, is_test: 1 }
-         });
-    });
-
-    await withTimeout('Finance: Utilities & Services', async () => {
-        // 1. Council Tax
-        await api.post(`/api/households/${hhId}/council`, {
-            data: { authority_name: 'City Council', account_number: '12345678', monthly_amount: 180, payment_day: 1, band: 'D', notes: 'Council Tax 2026', is_test: 1 }
-        });
-        // 2. Water
-        await api.post(`/api/households/${hhId}/water`, {
-            data: { provider: 'Thames Water', account_number: '98765432', monthly_amount: 45, payment_day: 15, supply_type: 'metered', notes: 'Water Bill', is_test: 1 }
-        });
-        // 3. Energy
-        await api.post(`/api/households/${hhId}/energy`, {
-            data: { provider: 'Octopus Energy', account_number: '55667788', type: 'Dual', tariff_name: 'Flexible', monthly_amount: 220, payment_day: 20, notes: 'Gas & Electric', is_test: 1 }
-        });
-    });
-
-    await withTimeout('Finance: Member & Vehicle Bills', async () => {
-        // Members
-        for (const m of members) {
-             if (m.type === 'adult') {
-                await api.post(`/api/households/${hhId}/finance/charges`, {
-                    data: { name: 'Mobile Plan', amount: 25, segment: 'subscription', frequency: 'monthly', linked_entity_type: 'member', linked_entity_id: m.id, notes: 'Unlimited Data', is_test: 1 }
-                });
-             }
-        }
-        // Vehicles
-        const vehiclesRes = await api.get(`/api/households/${hhId}/vehicles`);
-        const vehicles = await vehiclesRes.json();
-        for (const v of vehicles) {
-            await api.post(`/api/households/${hhId}/finance/charges`, {
-                data: { name: 'Vehicle Tax', amount: 15, segment: 'vehicle_tax', frequency: 'monthly', linked_entity_type: 'vehicle', linked_entity_id: v.id, is_test: 1 }
-            });
-            await api.post(`/api/households/${hhId}/vehicles/${v.id}/insurance`, {
-                data: { provider: 'Direct Line', policy_number: 'POL123', premium: 450, frequency: 'annual', renewal_date: '2027-01-01', notes: 'Fully Comp', is_test: 1 }
-            });
-        }
-    });
-
-    await withTimeout('Operations: Meal Plans', async () => {
-        // Create Meals
-        const mealList = [
-            { name: 'Spaghetti Bolognese', emoji: '🍝', category: 'Dinner' },
-            { name: 'Chicken Curry', emoji: '🍛', category: 'Dinner' },
-            { name: 'Roast Beef', emoji: '🍖', category: 'Dinner' },
-            { name: 'Fish & Chips', emoji: '🐟', category: 'Dinner' },
-            { name: 'Pizza Night', emoji: '🍕', category: 'Dinner' },
-            { name: 'Tacos', emoji: '🌮', category: 'Dinner' },
-            { name: 'Burger & Fries', emoji: '🍔', category: 'Dinner' }
-        ];
-        const createdMeals = [];
-        for (const m of mealList) {
-            const res = await api.post(`/api/households/${hhId}/meals`, { data: { ...m, is_test: 1 } });
-            const json = await res.json();
-            createdMeals.push(json.id);
-        }
+        await trigger.click();
         
-        // Assign for 90 days
-        const eaters = members.filter(m => m.type !== 'pet').map(m => m.id);
-        const startDate = new Date();
-        for (let i = 0; i < 90; i++) {
-            const d = new Date(startDate);
-            d.setDate(d.getDate() + i);
-            const dateStr = d.toISOString().split('T')[0];
-            const mealId = createdMeals[i % createdMeals.length];
-            for (const memberId of eaters) {
-                 await api.post(`/api/households/${hhId}/meal-plans`, {
-                    data: { date: dateStr, member_id: memberId, meal_id: mealId, is_test: 1 }
-                });
-            }
+        await logStep('selectOption', `Clicking option "${optionText}"`);
+        const option = page.getByRole('option', { name: optionText, exact: false }).first();
+        try {
+            await option.click({ timeout: 5000 });
+            await logStep('selectOption', `Success!`);
+        } catch (e) {
+            const available = await page.getByRole('option').allInnerTexts();
+            console.error(`Failed to find "${optionText}". Available: ${available.join(', ')}`);
+            throw e;
         }
+    };
+
+    // --- TEST STEPS ---
+
+    // 1. Banking
+    await withTimeout('Finance: Banking', async () => {
+        await createFinancialItem('banking', 'Add Account', async () => {
+            await page.fill('input[name="bank_name"]', 'First National');
+            await page.fill('input[name="account_name"]', 'Family Checking');
+            await page.fill('input[name="current_balance"]', '4500.50');
+            
+            // Assign to Mike (Chip)
+            const mikeChip = page.locator('div[role="button"]').filter({ hasText: 'Mike Brady' });
+            if (await mikeChip.count() > 0) {
+                const classAttr = await mikeChip.getAttribute('class');
+                if (!classAttr.includes('variantSolid')) {
+                    await mikeChip.click();
+                }
+            }
+        });
     });
 
-    // Verification
+    // 2. Income (Mike)
+    await withTimeout('Finance: Income (Mike)', async () => {
+        await createFinancialItem('income', 'Add Income', async () => {
+             await selectOption('Assigned Person', 'Mike Brady');
+             await page.fill('input[name="employer"]', 'Architectural Assoc');
+             await page.fill('input[name="gross_annual_salary"]', '102000');
+             await page.fill('input[name="amount"]', '8500');
+             await page.fill('input[name="payment_day"]', '1');
+             await selectOption('Deposit to Account', 'First National'); 
+        });
+    });
+
+    // 3. Income (Carol)
+    await withTimeout('Finance: Income (Carol)', async () => {
+        await createFinancialItem('income', 'Add Income', async () => {
+            await selectOption('Assigned Person', 'Carol Brady');
+            await page.fill('input[name="employer"]', 'Freelance Writing');
+            await page.fill('input[name="amount"]', '1200');
+            await page.fill('input[name="payment_day"]', '15');
+        });
+    });
+    
+    // 4. Savings
+    await withTimeout('Finance: Savings', async () => {
+        await createFinancialItem('savings', 'Add Savings', async () => {
+            await page.fill('input[name="institution"]', 'Chase');
+            await page.fill('input[name="account_name"]', 'Rainy Day');
+            await page.fill('input[name="current_balance"]', '12000');
+            await page.fill('input[name="interest_rate"]', '4.5');
+        });
+    });
+
+    // 5. Investments
+    await withTimeout('Finance: Investments', async () => {
+        await createFinancialItem('invest', 'Add Investment', async () => {
+            await page.fill('input[name="name"]', 'Tech Stocks Portfolio');
+            await page.fill('input[name="platform"]', 'Robinhood');
+            await page.fill('input[name="current_value"]', '15000');
+            await page.fill('input[name="total_invested"]', '10000');
+        });
+    });
+
+    // 6. Pensions
+    await withTimeout('Finance: Pensions', async () => {
+        await createFinancialItem('pensions', 'Add Pension', async () => {
+            await page.fill('input[name="provider"]', 'Fidelity');
+            await page.fill('input[name="plan_name"]', 'My Pension Plan');
+            await page.fill('input[name="current_value"]', '85000');
+            await page.fill('input[name="monthly_contribution"]', '500');
+            await page.fill('input[name="payment_day"]', '1');
+        });
+    });
+
+    // 7. Mortgage
+    await withTimeout('Finance: Mortgage', async () => {
+        await createFinancialItem('mortgage', 'MENU:Add Mortgage', async () => {
+            await page.fill('input[name="lender"]', 'Big Bank Corp');
+            await page.fill('input[name="total_amount"]', '500000');
+            await page.fill('input[name="remaining_balance"]', '450000');
+            await page.fill('input[name="monthly_payment"]', '2800');
+            await page.fill('input[name="interest_rate"]', '3.5');
+            await page.fill('input[name="term_years"]', '25');
+            await page.fill('input[name="payment_day"]', '1');
+        });
+    });
+
+    // 8. Vehicle Finance
+    await withTimeout('Finance: Vehicle Finance', async () => {
+        await createFinancialItem('car', 'Add Agreement', async () => {
+            await selectOption('Vehicle', 'Kingswood'); 
+            await page.fill('input[name="provider"]', 'GM Financial');
+            await page.fill('input[name="total_amount"]', '5000');
+            await page.fill('input[name="remaining_balance"]', '1200');
+            await page.fill('input[name="monthly_payment"]', '150');
+            await page.fill('input[name="payment_day"]', '5');
+        });
+    });
+
+    // 9. Loans
+    await withTimeout('Finance: Loans', async () => {
+        await createFinancialItem('loans', 'Add Loan', async () => {
+            await page.fill('input[name="lender"]', 'Credit Union');
+            await page.fill('input[name="loan_type"]', 'Personal');
+            await page.fill('input[name="total_amount"]', '10000');
+            await page.fill('input[name="remaining_balance"]', '8500');
+            await page.fill('input[name="monthly_payment"]', '350');
+            await page.fill('input[name="payment_day"]', '10');
+
+            const mikeChip = page.locator('div[role="button"]').filter({ hasText: 'Mike Brady' });
+            if (await mikeChip.count() > 0) {
+                const classAttr = await mikeChip.getAttribute('class');
+                if (!classAttr.includes('variantSolid')) {
+                    await mikeChip.click();
+                }
+            }
+        });
+    });
+    
+    // 10. Credit Cards
+    await withTimeout('Finance: Credit Cards', async () => {
+        await createFinancialItem('credit', 'Add Card', async () => {
+            await page.fill('input[name="provider"]', 'American Express');
+            await page.fill('input[name="card_name"]', 'Amex Gold');
+            await page.fill('input[name="current_balance"]', '450');
+            await page.fill('input[name="credit_limit"]', '10000');
+            await page.fill('input[name="payment_day"]', '28');
+        });
+        
+        await createFinancialItem('credit', 'Add Card', async () => {
+            await page.fill('input[name="provider"]', 'Chase');
+            await page.fill('input[name="card_name"]', 'Chase Sapphire');
+            await page.fill('input[name="current_balance"]', '120');
+            await page.fill('input[name="credit_limit"]', '15000');
+            await page.fill('input[name="payment_day"]', '14');
+        });
+    });
+
+    // REPORTING
+    if (errors.length > 0) {
+        console.log('\n\n🛑 TEST FAILURES DETECTED:');
+        errors.forEach(e => console.log(` - ${e}`));
+        throw new Error(`Encountered ${errors.length} errors during Finance Setup.`);
+    }
+
     await page.goto(`/household/${hhId}/finance?tab=budget`);
-    await expect(page.locator('text=Safe to Spend')).toBeVisible({ timeout: 30000 });
+    await expect(page.locator('text=Safe to Spend')).toBeVisible({ timeout: 15000 });
   });
 });

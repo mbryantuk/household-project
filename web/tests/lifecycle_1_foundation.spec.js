@@ -218,13 +218,24 @@ test.describe('Brady Lifecycle Stage 1: Foundation', () => {
         await addVehicle('Chevrolet', 'Kingswood Estate', 'MIKE 1', '3500');
         await addVehicle('Chevrolet', 'Chevelle Wagon', 'CAROL 1', '2800');
         
-        // 5. Add Property
-        logStep('Add Residents', 'Adding Property Assets');
+        // 5. Setup General Property Details
+        logStep('Add Residents', 'Setting up Property Details');
         await page.click('text=Manage Property & Assets');
+        await page.click('button[role="tab"]:has-text("General Details")');
+        await page.fill('input[name="property_type"]', 'Detached');
+        await page.fill('input[name="construction_year"]', '1969');
+        await page.fill('input[name="purchase_price"]', '1200000');
+        await page.fill('input[name="current_valuation"]', '1850000');
+        await page.click('button:has-text("Save Changes")');
+        await expect(page.locator('text=Structural & General Info updated successfully')).toBeVisible();
+        await expect(page.locator('text=£650,000.00')).toBeVisible(); // Check calculated Value Increase
+
+        // 6. Add Property Assets
+        logStep('Add Residents', 'Adding Property Assets');
         await page.click('button[role="tab"]:has-text("Assets")');
         await page.click('button:has-text("Add Asset")');
-        await page.fill('input[name="name"]', 'Brady House');
-        await page.fill('input[name="purchase_value"]', '1200000');
+        await page.fill('input[name="name"]', 'Living Room Furniture');
+        await page.fill('input[name="purchase_value"]', '5000');
         await page.click('button:has-text("Save Asset")');
     }, 300000);
 

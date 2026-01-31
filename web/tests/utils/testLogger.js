@@ -2,10 +2,25 @@ import fs from 'fs';
 import path from 'path';
 
 const LOG_FILE = '/tmp/brady_lifecycle.log';
+const stepStartTimes = new Map();
 
 export const logStep = (stepName, message = '') => {
-    const timestamp = new Date().toISOString();
-    const logEntry = `[${timestamp}] [STEP: ${stepName}] ${message}\n`;
+    const now = new Date();
+    const timestamp = now.toISOString();
+    let durationStr = '';
+
+    if (message.startsWith('Starting...')) {
+        stepStartTimes.set(stepName, now.getTime());
+    } else if (message.includes('Completed') || message.includes('FAILED') || message.includes('ERROR')) {
+        const startTime = stepStartTimes.get(stepName);
+        if (startTime) {
+            const duration = ((now.getTime() - startTime) / 1000).toFixed(2);
+            durationStr = ` [${duration}s]`;
+            // don't delete yet if we have nested logs, but usually start/complete are pairs
+        }
+    }
+
+    const logEntry = `[${timestamp}] [STEP: ${stepName}]${durationStr} ${message}\n`;
     fs.appendFileSync(LOG_FILE, logEntry);
     console.log(logEntry.trim());
 };

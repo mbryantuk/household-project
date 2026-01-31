@@ -131,6 +131,7 @@ export default function InvestmentsView() {
           <ModalClose />
           <Typography level="h4">{selectedInvestmentId === 'new' ? 'New Investment' : 'Edit Investment'}</Typography>
           <Divider />
+          <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
           <Stack spacing={2} sx={{ mt: 2 }}>
             <Box sx={{ display: 'flex', gap: 2 }}>
                 <IconButton variant="outlined" sx={{ width: 56, height: 56 }} onClick={() => setEmojiPickerOpen(true)}>
@@ -159,6 +160,7 @@ export default function InvestmentsView() {
                     <Input 
                         name="current_value"
                         type="number" 
+                        slotProps={{ input: { step: 'any' } }}
                         startDecorator="£" 
                         value={formData.current_value} 
                         onChange={e => setFormData({ ...formData, current_value: e.target.value })} 
@@ -169,14 +171,16 @@ export default function InvestmentsView() {
                     <Input 
                         name="total_invested"
                         type="number" 
+                        slotProps={{ input: { step: 'any' } }}
                         startDecorator="£" 
                         value={formData.total_invested} 
                         onChange={e => setFormData({ ...formData, total_invested: e.target.value })} 
                     />
                 </FormControl>
             </Box>
-            <Button size="lg" onClick={handleSave}>Save</Button>
+            <Button size="lg" type="submit">Save</Button>
           </Stack>
+          </form>
         </ModalDialog>
       </Modal>
       <EmojiPicker 

@@ -69,7 +69,7 @@
           "column": 6,
           "specs": [
             {
-              "title": "Expand Brady Household Finance",
+              "title": "Expand Brady Household Finance (Frontend - Resilience Mode)",
               "ok": true,
               "tags": [],
               "tests": [
@@ -84,43 +84,331 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 17393,
+                      "duration": 134195,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "[2026-01-31T11:45:49.657Z] [STEP: Finance: Income & Banking (API)] Starting...\n"
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-31T11:45:49.782Z] [STEP: Finance: Income & Banking (API)] Completed successfully.\n"
+                          "text": "BROWSER LOG: Content is cached for offline use.\n"
                         },
                         {
-                          "text": "[2026-01-31T11:45:49.782Z] [STEP: Finance: Savings & Assets (API)] Starting...\n"
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-31T11:45:50.201Z] [STEP: Finance: Savings & Assets (API)] Completed successfully.\n"
+                          "text": "[2026-01-31T15:39:27.276Z] [STEP: Finance: Banking] Starting...\n"
                         },
                         {
-                          "text": "[2026-01-31T11:45:50.202Z] [STEP: Finance: Utilities & Services] Starting...\n"
+                          "text": "[2026-01-31T15:39:27.278Z] [STEP: Adding item to banking] Navigating...\n"
                         },
                         {
-                          "text": "[2026-01-31T11:45:50.263Z] [STEP: Finance: Utilities & Services] Completed successfully.\n"
+                          "text": "[2026-01-31T15:39:27.626Z] [STEP: Adding item to banking] Clicking Add Account...\n"
                         },
                         {
-                          "text": "[2026-01-31T11:45:50.263Z] [STEP: Finance: Member & Vehicle Bills] Starting...\n"
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-01-31T11:45:50.433Z] [STEP: Finance: Member & Vehicle Bills] Completed successfully.\n"
+                          "text": "[2026-01-31T15:39:28.259Z] [STEP: Adding item to banking] Saving...\n"
                         },
                         {
-                          "text": "[2026-01-31T11:45:50.433Z] [STEP: Operations: Meal Plans] Starting...\n"
+                          "text": "BROWSER LOG: BankingView: handleSubmit triggered\n"
                         },
                         {
-                          "text": "[2026-01-31T11:46:04.909Z] [STEP: Operations: Meal Plans] Completed successfully.\n"
+                          "text": "API SUCCESS [current-accounts]: 201\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:39:39.035Z] [STEP: Finance: Banking] [11.76s] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:39:39.035Z] [STEP: Finance: Income (Mike)] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:39:39.036Z] [STEP: Adding item to income] Navigating...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:39:39.140Z] [STEP: Adding item to income] Clicking Add Income...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:39:39.843Z] [STEP: selectOption] Selecting \"Mike Brady\" for \"Assigned Person\"\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:39:39.987Z] [STEP: selectOption] Clicking option \"Mike Brady\"\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:39:40.073Z] [STEP: selectOption] Success!\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:39:40.203Z] [STEP: selectOption] Selecting \"First National\" for \"Deposit to Account\"\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:39:40.337Z] [STEP: selectOption] Clicking option \"First National\"\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:39:40.459Z] [STEP: selectOption] Success!\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:39:40.459Z] [STEP: Adding item to income] Saving...\n"
+                        },
+                        {
+                          "text": "API SUCCESS [income]: 201\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:39:51.105Z] [STEP: Finance: Income (Mike)] [12.07s] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:39:51.105Z] [STEP: Finance: Income (Carol)] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:39:51.106Z] [STEP: Adding item to income] Navigating...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:39:51.201Z] [STEP: Adding item to income] Clicking Add Income...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:39:51.891Z] [STEP: selectOption] Selecting \"Carol Brady\" for \"Assigned Person\"\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:39:52.038Z] [STEP: selectOption] Clicking option \"Carol Brady\"\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:39:52.144Z] [STEP: selectOption] Success!\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:39:52.220Z] [STEP: Adding item to income] Saving...\n"
+                        },
+                        {
+                          "text": "API SUCCESS [income]: 201\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:02.874Z] [STEP: Finance: Income (Carol)] [11.77s] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:02.874Z] [STEP: Finance: Savings] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:02.875Z] [STEP: Adding item to savings] Navigating...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:02.963Z] [STEP: Adding item to savings] Clicking Add Savings...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:04.324Z] [STEP: Adding item to savings] Saving...\n"
+                        },
+                        {
+                          "text": "API SUCCESS [savings]: 201\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:15.474Z] [STEP: Finance: Savings] [12.60s] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:15.474Z] [STEP: Finance: Investments] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:15.474Z] [STEP: Adding item to invest] Navigating...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:15.574Z] [STEP: Adding item to invest] Clicking Add Investment...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:16.246Z] [STEP: Adding item to invest] Saving...\n"
+                        },
+                        {
+                          "text": "API SUCCESS [investments]: 201\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:27.401Z] [STEP: Finance: Investments] [11.93s] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:27.402Z] [STEP: Finance: Pensions] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:27.402Z] [STEP: Adding item to pensions] Navigating...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:27.517Z] [STEP: Adding item to pensions] Clicking Add Pension...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:28.263Z] [STEP: Adding item to pensions] Saving...\n"
+                        },
+                        {
+                          "text": "API SUCCESS [pensions]: 201\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:39.401Z] [STEP: Finance: Pensions] [12.00s] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:39.401Z] [STEP: Finance: Mortgage] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:39.402Z] [STEP: Adding item to mortgage] Navigating...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:39.489Z] [STEP: Adding item to mortgage] Clicking MENU:Add Mortgage...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:40.416Z] [STEP: Adding item to mortgage] Saving...\n"
+                        },
+                        {
+                          "text": "API SUCCESS [mortgages]: 201\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:51.519Z] [STEP: Finance: Mortgage] [12.12s] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:51.519Z] [STEP: Finance: Vehicle Finance] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:51.520Z] [STEP: Adding item to car] Navigating...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:51.614Z] [STEP: Adding item to car] Clicking Add Agreement...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:52.277Z] [STEP: selectOption] Selecting \"Kingswood\" for \"Vehicle\"\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:52.412Z] [STEP: selectOption] Clicking option \"Kingswood\"\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:52.519Z] [STEP: selectOption] Success!\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:40:52.644Z] [STEP: Adding item to car] Saving...\n"
+                        },
+                        {
+                          "text": "API SUCCESS [vehicle-finance]: 201\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:41:03.821Z] [STEP: Finance: Vehicle Finance] [12.30s] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:41:03.822Z] [STEP: Finance: Loans] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:41:03.822Z] [STEP: Adding item to loans] Navigating...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:41:03.909Z] [STEP: Adding item to loans] Clicking Add Loan...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: LoansView: Rendering...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: LoansView: Rendering...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: LoansView: Rendering...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: LoansView: Rendering...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: LoansView: Rendering...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: LoansView: Rendering...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: LoansView: Rendering...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: LoansView: Rendering...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: LoansView: Rendering...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: LoansView: Rendering...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: LoansView: Rendering...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: LoansView: Rendering...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:41:04.740Z] [STEP: Adding item to loans] Saving...\n"
+                        },
+                        {
+                          "text": "API SUCCESS [loans]: 201\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: LoansView: Rendering...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: LoansView: Rendering...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:41:16.298Z] [STEP: Finance: Loans] [12.48s] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:41:16.298Z] [STEP: Finance: Credit Cards] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:41:16.298Z] [STEP: Adding item to credit] Navigating...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:41:16.393Z] [STEP: Adding item to credit] Clicking Add Card...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:41:17.088Z] [STEP: Adding item to credit] Saving...\n"
+                        },
+                        {
+                          "text": "API SUCCESS [credit-cards]: 201\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:41:27.828Z] [STEP: Adding item to credit] Navigating...\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:41:27.916Z] [STEP: Adding item to credit] Clicking Add Card...\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:41:28.725Z] [STEP: Adding item to credit] Saving...\n"
+                        },
+                        {
+                          "text": "API SUCCESS [credit-cards]: 201\n"
+                        },
+                        {
+                          "text": "[2026-01-31T15:41:39.460Z] [STEP: Finance: Credit Cards] [23.16s] Completed successfully.\n"
+                        },
+                        {
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-01-31T11:45:48.200Z",
+                      "startTime": "2026-01-31T15:39:25.990Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -128,9 +416,9 @@
                   "status": "expected"
                 }
               ],
-              "id": "ac27a2489c48f35ed2af-e150551287e1a91a609d",
+              "id": "ac27a2489c48f35ed2af-3cc5441749210b74f483",
               "file": "lifecycle_2_finance.spec.js",
-              "line": 13,
+              "line": 18,
               "column": 3
             }
           ]
@@ -140,8 +428,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-01-31T11:45:46.073Z",
-    "duration": 19782.503,
+    "startTime": "2026-01-31T15:39:23.899Z",
+    "duration": 136597.611,
     "expected": 1,
     "skipped": 0,
     "unexpected": 0,

@@ -73,24 +73,49 @@ export default function BankingView() {
     navigate(`?${newParams.toString()}`, { replace: true });
   };
 
+  const [selectedMembers, setSelectedMembers] = useState([]);
+
+  useEffect(() => {
+      if (selectedAccount) {
+          setSelectedMembers(getAssignees(selectedAccount.id).map(m => m.id));
+      } else if (selectedAccountId === 'new') {
+          // Default to current user or first adult
+          const defaultMember = members.find(m => m.id === currentUser?.id) || members.find(m => m.type !== 'pet');
+          setSelectedMembers(defaultMember ? [defaultMember.id] : []);
+      }
+  }, [selectedAccount, selectedAccountId, getAssignees, members, currentUser]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("BankingView: handleSubmit triggered");
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
 
     try {
+      let itemId = selectedAccountId;
       if (selectedAccountId === 'new') {
         const res = await api.post(`/households/${householdId}/finance/current-accounts`, data);
+        itemId = res.data.id;
         showNotification("Account added.", "success");
-        await fetchData();
-        setAccountId(res.data.id);
       } else {
         await api.put(`/households/${householdId}/finance/current-accounts/${selectedAccountId}`, data);
         showNotification("Account updated.", "success");
-        await fetchData();
-        setAccountId(null);
       }
-    } catch {
+
+      // Handle Assignments
+      const currentIds = selectedAccountId === 'new' ? [] : getAssignees(itemId).map(m => m.id);
+      const toAdd = selectedMembers.filter(id => !currentIds.includes(id));
+      const toRemove = currentIds.filter(id => !selectedMembers.includes(id));
+
+      await Promise.all([
+          ...toAdd.map(mid => api.post(`/households/${householdId}/finance/assignments`, { entity_type: 'current_account', entity_id: itemId, member_id: mid })),
+          ...toRemove.map(mid => api.delete(`/households/${householdId}/finance/assignments/current_account/${itemId}/${mid}`))
+      ]);
+
+      await fetchData();
+      setAccountId(null);
+    } catch (err) {
+      console.error("BankingView Save Error:", err);
       showNotification("Failed to save account", "danger");
     }
   };
@@ -275,13 +300,13 @@ export default function BankingView() {
                         <Grid xs={6}>
                             <FormControl>
                                 <FormLabel>Current Balance (£)</FormLabel>
-                                <Input name="current_balance" type="number" step="0.01" defaultValue={selectedAccount?.current_balance} />
+                                <Input name="current_balance" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedAccount?.current_balance} />
                             </FormControl>
                         </Grid>
                         <Grid xs={6}>
                             <FormControl>
                                 <FormLabel>Overdraft Limit (£)</FormLabel>
-                                <Input name="overdraft_limit" type="number" step="0.01" defaultValue={selectedAccount?.overdraft_limit} />
+                                <Input name="overdraft_limit" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedAccount?.overdraft_limit} />
                             </FormControl>
                         </Grid>
 
@@ -289,6 +314,28 @@ export default function BankingView() {
                             <FormControl>
                                 <FormLabel>Notes</FormLabel>
                                 <Input name="notes" defaultValue={selectedAccount?.notes} />
+                            </FormControl>
+                        </Grid>
+
+                        <Grid xs={12}>
+                            <FormControl>
+                                <FormLabel>Assign Account Holders</FormLabel>
+                                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                                    {members.filter(m => m.type !== 'pet').map(m => {
+                                        const isSelected = selectedMembers.includes(m.id);
+                                        return (
+                                            <Chip 
+                                                key={m.id} 
+                                                variant={isSelected ? 'solid' : 'outlined'} 
+                                                color={isSelected ? 'primary' : 'neutral'} 
+                                                onClick={() => setSelectedMembers(prev => prev.includes(m.id) ? prev.filter(id => id !== m.id) : [...prev, m.id])}
+                                                startDecorator={<Avatar size="sm" src={m.avatar}>{m.emoji}</Avatar>}
+                                            >
+                                                {m.alias || m.name}
+                                            </Chip>
+                                        );
+                                    })}
+                                </Box>
                             </FormControl>
                         </Grid>
                     </Grid>

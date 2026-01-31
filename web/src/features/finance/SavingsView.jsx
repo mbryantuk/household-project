@@ -334,9 +334,9 @@ export default function SavingsView() {
                             <FormControl required><FormLabel>Institution</FormLabel><Input name="institution" defaultValue={selectedAccount?.institution} placeholder="e.g. Chase" /></FormControl>
                             <FormControl required><FormLabel>Account Name</FormLabel><Input name="account_name" defaultValue={selectedAccount?.account_name} placeholder="e.g. Saver" /></FormControl>
                             <Grid container spacing={2}>
-                                <Grid xs={12} sm={6}><FormControl required><FormLabel>Current Balance (£)</FormLabel><Input name="current_balance" type="number" step="any" defaultValue={selectedAccount?.current_balance} /></FormControl></Grid>
-                                <Grid xs={12} sm={6}><FormControl><FormLabel>Interest Rate (%)</FormLabel><Input name="interest_rate" type="number" step="any" defaultValue={selectedAccount?.interest_rate} /></FormControl></Grid>
-                                <Grid xs={12} sm={6}><FormControl><FormLabel>Monthly Deposit (£)</FormLabel><Input name="deposit_amount" type="number" step="any" defaultValue={selectedAccount?.deposit_amount} /></FormControl></Grid>
+                                <Grid xs={12} sm={6}><FormControl required><FormLabel>Current Balance (£)</FormLabel><Input name="current_balance" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedAccount?.current_balance} /></FormControl></Grid>
+                                <Grid xs={12} sm={6}><FormControl><FormLabel>Interest Rate (%)</FormLabel><Input name="interest_rate" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedAccount?.interest_rate} /></FormControl></Grid>
+                                <Grid xs={12} sm={6}><FormControl><FormLabel>Monthly Deposit (£)</FormLabel><Input name="deposit_amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedAccount?.deposit_amount} /></FormControl></Grid>
                                 <Grid xs={12} sm={6}><FormControl><FormLabel>Deposit Day</FormLabel><Input name="deposit_day" type="number" min="1" max="31" defaultValue={selectedAccount?.deposit_day} placeholder="e.g. 1" /></FormControl></Grid>
                             </Grid>
                             <FormControl><FormLabel>Account Number (Encrypted)</FormLabel><Input name="account_number" defaultValue={selectedAccount?.account_number} /></FormControl>
