@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Budget View: Fixed breakdown headers, missing charges, and grouping logic",
-  "date": "Sat 31 Jan 16:31:29 GMT 2026"
+  "commitMessage": "Budget View: Fix cycle label to use raw intended month",
+  "date": "Sat 31 Jan 16:35:59 GMT 2026"
 }

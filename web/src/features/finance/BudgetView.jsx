@@ -231,7 +231,9 @@ export default function BudgetView() {
       const startDate = getPriorWorkingDay(rawStartDate);
       const endDate = getPriorWorkingDay(addMonths(rawStartDate, 1));
       const cycleKey = format(startDate, 'yyyy-MM-dd');
-      const label = format(startDate, 'MMM yyyy') + " Budget";
+      // Use rawStartDate for the label so it reflects the intended month (e.g. "Jan") 
+      // even if the actual start date shifted back to Dec 31st due to a holiday.
+      const label = format(rawStartDate, 'MMM yyyy') + " Budget";
       const cycleDuration = differenceInDays(endDate, startDate);
 
       const now = startOfDay(new Date());
