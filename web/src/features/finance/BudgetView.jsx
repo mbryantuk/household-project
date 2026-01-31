@@ -242,7 +242,10 @@ export default function BudgetView() {
       const startDate = getPriorWorkingDay(rawStartDate);
       const endDate = getPriorWorkingDay(addMonths(rawStartDate, 1));
       const cycleKey = format(startDate, 'yyyy-MM-dd');
-      const label = format(rawStartDate, 'MMM yyyy') + " Budget";
+      // "Budget Month" Logic: If start date is late in the month (>= 20th), it effectively funds the NEXT month.
+      // e.g. Dec 25th -> January Budget. Jan 1st -> January Budget.
+      const budgetLabelDate = rawStartDate.getDate() >= 20 ? addMonths(rawStartDate, 1) : rawStartDate;
+      const label = format(budgetLabelDate, 'MMMM yyyy') + " Budget";
       const cycleDuration = differenceInDays(endDate, startDate);
 
       const now = startOfDay(new Date());

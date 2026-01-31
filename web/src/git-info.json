@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Budget View: Hide generic savings, show only Pots. Implement Pot-to-Account balance automation.",
-  "date": "Sat 31 Jan 17:09:22 GMT 2026"
+  "commitMessage": "Budget View: Adjust Month Label logic for late paydays",
+  "date": "Sat 31 Jan 17:12:25 GMT 2026"
 }
