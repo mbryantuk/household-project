@@ -147,6 +147,78 @@ export default function BudgetView() {
       return useNwd ? getNextWorkingDay(d) : d;
   }, [getNextWorkingDay]);
 
+  const entityGroups = useMemo(() => {
+    return [
+        { label: 'General', options: [{ value: 'general:household', label: 'Household (General)', emoji: '🏠' }] },
+        { label: 'People', options: members.filter(m => m.type !== 'pet').map(m => ({ value: `member:${m.id}`, label: m.name, emoji: m.emoji || '👤' })) },
+        { label: 'Pets', options: members.filter(m => m.type === 'pet').map(p => ({ value: `pet:${p.id}`, label: p.name, emoji: p.emoji || '🐾' })) },
+        { label: 'Vehicles', options: liabilities.vehicles.map(v => ({ value: `vehicle:${v.id}`, label: `${v.make} ${v.model}`, emoji: v.emoji || '🚗' })) },
+        { label: 'Assets', options: liabilities.assets.map(a => ({ value: `asset:${a.id}`, label: a.name, emoji: a.emoji || '📦' })) }
+    ].filter(g => g.options.length > 0);
+  }, [members, liabilities]);
+
+  const getCategoryOptions = useCallback((entityString) => {
+      const [type] = (entityString || 'general:household').split(':');
+      
+      const HOUSEHOLD_CATS = [
+          { value: 'household_bill', label: 'Household Bill' },
+          { value: 'utility', label: 'Utility (Water/Gas/Elec)' },
+          { value: 'subscription', label: 'Subscription' },
+          { value: 'insurance', label: 'Insurance' },
+          { value: 'warranty', label: 'Warranty' },
+          { value: 'service', label: 'Service / Maintenance' },
+          { value: 'other', label: 'Other' }
+      ];
+
+      const VEHICLE_CATS = [
+          { value: 'vehicle_fuel', label: 'Fuel' },
+          { value: 'vehicle_tax', label: 'Tax' },
+          { value: 'vehicle_mot', label: 'MOT' },
+          { value: 'vehicle_service', label: 'Service' },
+          { value: 'insurance', label: 'Insurance' },
+          { value: 'warranty', label: 'Warranty' },
+          { value: 'finance', label: 'Finance Payment' },
+          { value: 'other', label: 'Other' }
+      ];
+
+      const MEMBER_CATS = [
+          { value: 'subscription', label: 'Subscription' },
+          { value: 'insurance', label: 'Life/Health Insurance' },
+          { value: 'education', label: 'Education' },
+          { value: 'care', label: 'Care / Childcare' },
+          { value: 'other', label: 'Other' }
+      ];
+      
+      const PET_CATS = [
+          { value: 'food', label: 'Food' },
+          { value: 'insurance', label: 'Pet Insurance' },
+          { value: 'vet', label: 'Vet Bills' },
+          { value: 'other', label: 'Other' }
+      ];
+
+      if (type === 'vehicle') return VEHICLE_CATS;
+      if (type === 'member') return MEMBER_CATS;
+      if (type === 'pet') return PET_CATS;
+      return HOUSEHOLD_CATS;
+  }, []);
+
+  const playDing = useCallback(() => {
+      try {
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const oscillator = audioCtx.createOscillator();
+          const gainNode = audioCtx.createGain();
+          oscillator.type = 'sine';
+          oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.1);
+          gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+          gainNode.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+          oscillator.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+          oscillator.start();
+          oscillator.stop(audioCtx.currentTime + 0.3);
+      } catch (e) { console.warn("Audio feedback failed", e); }
+  }, []);
+
   const cycleData = useMemo(() => {
       const primaryIncome = incomes.find(i => i.is_primary === 1) || incomes.find(i => i.payment_day > 0);
       if (!primaryIncome || !primaryIncome.payment_day) return null;
@@ -195,6 +267,25 @@ export default function BudgetView() {
           }
       };
 
+      const getLinkedObject = (type, id) => {
+          if (type === 'member') {
+              const m = members.find(mem => String(mem.id) === String(id));
+              return m ? { name: m.alias || m.name, emoji: m.emoji || '👤' } : null;
+          }
+          if (type === 'vehicle') {
+              const v = liabilities.vehicles.find(veh => String(veh.id) === String(id));
+              return v ? { name: `${v.make} ${v.model}`, emoji: v.emoji || '🚗' } : null;
+          }
+          if (type === 'asset' || type === 'house') {
+              return { name: 'Household', emoji: '🏠' };
+          }
+          if (type === 'pet') {
+              const p = members.find(mem => String(mem.id) === String(id) && mem.type === 'pet');
+              return p ? { name: p.name, emoji: p.emoji || '🐾' } : null;
+          }
+          return null;
+      };
+
       // 1. FIXED OBLIGATIONS
       liabilities.mortgages.forEach(m => addExpense(m, 'mortgage', m.lender, m.monthly_payment, getAdjustedDate(m.payment_day, true, startDate), <Home />, 'Mortgage', 'obligations'));
       liabilities.loans.forEach(l => addExpense(l, 'loan', `${l.lender} Loan`, l.monthly_payment, getAdjustedDate(l.payment_day, true, startDate), <TrendingDown />, 'Loan', 'obligations'));
@@ -228,11 +319,12 @@ export default function BudgetView() {
              datesToAdd.push(getAdjustedDate(charge.day_of_month, charge.adjust_for_working_day, startDate));
           }
 
+          const linkedObj = getLinkedObject(charge.linked_entity_type, charge.linked_entity_id);
           datesToAdd.forEach(d => {
              let icon = <Receipt />;
              if (charge.segment === 'insurance') icon = <Shield />;
              else if (charge.segment === 'subscription') icon = <ShoppingBag />;
-             addExpense(charge, 'charge', charge.name, charge.amount, d, icon, charge.segment, 'obligations');
+             addExpense(charge, 'charge', charge.name, charge.amount, d, icon, charge.segment, 'obligations', linkedObj);
           });
       });
 
@@ -307,11 +399,97 @@ export default function BudgetView() {
       } catch (err) { console.error("Failed to toggle paid status", err); } finally { setSavingProgress(false); }
   };
 
-  const handleDisableItem = (itemKey) => { /* ... */ }; // Implemented below
-  const handleRestoreItem = (itemKey) => { /* ... */ }; // Implemented below
-  const handleArchiveCharge = (id) => { /* ... */ }; // Implemented below
-  const handleQuickAdd = async (e) => { /* ... */ }; // Implemented below
-  const handleRecurringAdd = async (e) => { /* ... */ }; // Implemented below
+  const handleResetCycle = () => {
+      confirmAction(
+          "Reset Month?", 
+          "Are you sure you want to reset this month's budget? This will clear all progress, payments, and actual amounts for this cycle. This cannot be undone.",
+          async () => {
+              try {
+                  await api.delete(`/households/${householdId}/finance/budget-cycles/${cycleData.cycleKey}`);
+                  showNotification("Budget cycle reset.", "success");
+                  fetchData();
+              } catch { showNotification("Failed to reset cycle.", "danger"); }
+          }
+      );
+  };
+
+  const handleDisableItem = (itemKey) => {
+      confirmAction(
+          "Disable for this month?",
+          "This will remove the item from this month's budget. It will reappear next month. You can restore it from the Skipped Items section at the bottom.",
+          async () => {
+              try {
+                  await api.post(`/households/${householdId}/finance/budget-progress`, { 
+                      cycle_start: cycleData.cycleKey, 
+                      item_key: itemKey, 
+                      is_paid: -1, 
+                      actual_amount: 0 
+                  });
+                  showNotification("Item disabled for this cycle.", "success");
+                  fetchData();
+              } catch { showNotification("Failed to disable item.", "danger"); }
+          }
+      );
+  };
+
+  const handleRestoreItem = async (itemKey) => {
+      try {
+          await api.delete(`/households/${householdId}/finance/budget-progress/${cycleData.cycleKey}/${itemKey}`);
+          showNotification("Item restored to budget.", "success");
+          fetchData();
+      } catch { showNotification("Failed to restore item.", "danger"); }
+  };
+
+  const handleArchiveCharge = (chargeId) => {
+      confirmAction(
+          "Archive Recurring Charge?",
+          "This will move the charge to the deleted section. It will no longer appear in future budgets unless restored.",
+          async () => {
+              try {
+                  await api.delete(`/households/${householdId}/finance/charges/${chargeId}`);
+                  showNotification("Charge archived.", "success");
+                  fetchData();
+              } catch { showNotification("Failed to archive.", "danger"); }
+          }
+      );
+  };
+
+  const handleQuickAdd = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.currentTarget);
+      const data = Object.fromEntries(formData.entries());
+      data.frequency = 'one_off'; 
+      data.segment = data.category || 'other';
+      data.adjust_for_working_day = data.nearest_working_day === "1" ? 1 : 0;
+      data.linked_entity_type = quickLinkType;
+      data.linked_entity_id = data.linked_entity_id || null;
+
+      try {
+          await api.post(`/households/${householdId}/finance/charges`, data);
+          showNotification("One-off expense added.", "success");
+          fetchData(); setQuickAddOpen(false);
+      } catch { showNotification("Failed to add one-off expense", "danger"); }
+  };
+
+  const handleRecurringAdd = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.currentTarget);
+      const data = Object.fromEntries(formData.entries());
+      
+      const [type, id] = selectedEntity.split(':');
+      
+      data.adjust_for_working_day = data.nearest_working_day === "1" ? 1 : 0;
+      data.frequency = recurringType;
+      data.segment = data.category || 'other';
+      data.linked_entity_type = type;
+      data.linked_entity_id = id === 'household' ? null : id;
+
+      try {
+          await api.post(`/households/${householdId}/finance/charges`, data);
+          showNotification("Recurring expense added.", "success");
+          fetchData(); setRecurringAddOpen(false);
+      } catch { showNotification("Failed to add recurring expense", "danger"); }
+  };
 
   const cycleTotals = useMemo(() => {
       if (!cycleData) return { total: 0, paid: 0, unpaid: 0 };
@@ -387,6 +565,30 @@ export default function BudgetView() {
                   sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} 
               />
           </td>
+          <td style={{ textAlign: 'center' }}>
+                <Stack direction="row" spacing={0.5} justifyContent="center">
+                    {exp.type === 'charge' && (
+                        <IconButton 
+                            size="sm" variant="plain" color="neutral" 
+                            onClick={(e) => { e.stopPropagation(); handleArchiveCharge(exp.id); }}
+                            sx={{ '--IconButton-size': '28px' }}
+                            title="Archive/Delete Recurring Charge"
+                        >
+                            <DeleteOutline fontSize="small" />
+                        </IconButton>
+                    )}
+                    {exp.isDeletable && (
+                        <IconButton 
+                            size="sm" variant="plain" color="danger" 
+                            onClick={(e) => { e.stopPropagation(); handleDisableItem(exp.key); }}
+                            sx={{ '--IconButton-size': '28px' }}
+                            title="Skip for this month"
+                        >
+                            <RestartAlt fontSize="small" sx={{ transform: 'rotate(-45deg)' }} />
+                        </IconButton>
+                    )}
+                </Stack>
+            </td>
       </tr>
   );
 
@@ -415,12 +617,13 @@ export default function BudgetView() {
                           <th onClick={() => requestSort('label')} style={{ cursor: 'pointer' }}>Item <Sort sx={{ fontSize: '0.8rem', opacity: sortConfig.key === 'label' ? 1 : 0.3 }} /></th>
                           <th onClick={() => requestSort('amount')} style={{ width: 100, textAlign: 'right', cursor: 'pointer' }}>Amount <Sort sx={{ fontSize: '0.8rem', opacity: sortConfig.key === 'amount' ? 1 : 0.3 }} /></th>
                           <th style={{ width: 60, textAlign: 'center' }}>Paid</th>
+                          <th style={{ width: 80, textAlign: 'center' }}>Action</th>
                       </tr>
                   </thead>
                   <tbody>
                       {items.map(renderItemRow)}
                       {items.length === 0 && (
-                          <tr><td colSpan={4} style={{ textAlign: 'center', padding: '16px', color: 'var(--joy-palette-neutral-500)' }}>No items</td></tr>
+                          <tr><td colSpan={5} style={{ textAlign: 'center', padding: '16px', color: 'var(--joy-palette-neutral-500)' }}>No items</td></tr>
                       )}
                   </tbody>
               </Table>
