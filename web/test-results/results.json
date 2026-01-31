@@ -1,0 +1,160 @@
+{
+  "config": {
+    "configFile": "/home/matt/household-project/web/playwright.config.js",
+    "rootDir": "/home/matt/household-project/web/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/matt/household-project/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/matt/household-project/web/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "lifecycle_4_savings_pots.spec.js",
+      "file": "lifecycle_4_savings_pots.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Brady Lifecycle Stage 4: Savings Pots & Budget Integration",
+          "file": "lifecycle_4_savings_pots.spec.js",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Create Savings Pot, Allocate in Budget, Verify Balance Update",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 120141,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/lifecycle_4_savings_pots.spec.js",
+                            "column": 16,
+                            "line": 28
+                          },
+                          "message": "Error: page.waitForURL: Test timeout of 120000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"domcontentloaded\"\n============================================================\n\n\u001b[0m \u001b[90m 26 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m password)\u001b[33m;\u001b[39m\n \u001b[90m 27 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button[type=\"submit\"]'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 28 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[36mnew\u001b[39m \u001b[33mRegExp\u001b[39m(\u001b[32m`/household/${hhId}/dashboard`\u001b[39m)\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'domcontentloaded'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 29 |\u001b[39m\n \u001b[90m 30 |\u001b[39m     \u001b[90m// 2. Setup Savings Account (if needed) - Assuming \"Rainy Day\" from previous test exists, but robustly checking\u001b[39m\n \u001b[90m 31 |\u001b[39m     \u001b[90m// We will navigate to Savings tab to add a Pot\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_4_savings_pots.spec.js:28:16\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "[2026-01-31T17:05:49.417Z] [STEP: Login] Authenticating...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-31T17:05:49.183Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/lifecycle_4_savings_pots-B-cd79f-udget-Verify-Balance-Update-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/lifecycle_4_savings_pots-B-cd79f-udget-Verify-Balance-Update-chromium/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "aecec9cccc8e36dc41ac-784506608065837eb498",
+              "file": "lifecycle_4_savings_pots.spec.js",
+              "line": 18,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-01-31T17:05:47.135Z",
+    "duration": 122450.781,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

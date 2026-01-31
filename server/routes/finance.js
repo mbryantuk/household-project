@@ -364,24 +364,39 @@ router.post('/budget-progress', authenticateToken, requireHouseholdRole('member'
     const { cycle_start, item_key, is_paid, actual_amount } = req.body;
     const newAmount = parseFloat(actual_amount) || 0;
     const newPaid = parseInt(is_paid) || 0;
+    
     req.tenantDb.get(`SELECT is_paid, actual_amount FROM finance_budget_progress WHERE household_id = ? AND cycle_start = ? AND item_key = ?`, [req.hhId, cycle_start, item_key], (err, row) => {
         if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
+        
         const oldPaid = row ? (row.is_paid || 0) : 0;
         const oldAmount = row ? (row.actual_amount || 0) : 0;
         let delta = 0;
+        
+        // Logic: Calculate delta if it's a Pot (pot_ID)
+        // If becoming Paid: +newAmount
+        // If becoming Unpaid: -oldAmount
+        // If staying Paid but amount changes: +(newAmount - oldAmount)
         if (item_key.startsWith('pot_')) {
-            if (newPaid && !oldPaid) delta = newAmount;
-            else if (!newPaid && oldPaid) delta = -oldAmount;
-            else if (newPaid && oldPaid) delta = newAmount - oldAmount;
+            if (newPaid && !oldPaid) {
+                delta = newAmount;
+            } else if (!newPaid && oldPaid) {
+                delta = -oldAmount;
+            } else if (newPaid && oldPaid) {
+                delta = newAmount - oldAmount;
+            }
         }
+
         req.tenantDb.serialize(() => {
             req.tenantDb.run("BEGIN TRANSACTION");
             req.tenantDb.run(`INSERT INTO finance_budget_progress (household_id, cycle_start, item_key, is_paid, actual_amount) VALUES (?, ?, ?, ?, ?) ON CONFLICT(household_id, cycle_start, item_key) DO UPDATE SET is_paid = excluded.is_paid, actual_amount = excluded.actual_amount`, [req.hhId, cycle_start, item_key, newPaid, newAmount], (pErr) => {
                 if (pErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: pErr.message }); }
+                
                 if (delta !== 0 && item_key.startsWith('pot_')) {
                     const potId = item_key.split('_')[1];
+                    // Update Pot Balance
                     req.tenantDb.run(`UPDATE finance_savings_pots SET current_amount = current_amount + ? WHERE id = ? AND savings_id IN (SELECT id FROM finance_savings WHERE household_id = ?)`, [delta, potId, req.hhId], (potErr) => {
                         if (potErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: potErr.message }); }
+                        // Update Parent Savings Account Balance
                         req.tenantDb.run(`UPDATE finance_savings SET current_balance = current_balance + ? WHERE id = (SELECT savings_id FROM finance_savings_pots WHERE id = ?) AND household_id = ?`, [delta, potId, req.hhId], (savErr) => {
                             if (savErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: savErr.message }); }
                             req.tenantDb.run("COMMIT", (cErr) => { closeDb(req); res.status(201).json({ message: "Progress saved and savings updated", delta }); });
@@ -399,10 +414,16 @@ router.delete('/budget-progress/:cycleStart/:itemKey', authenticateToken, requir
     const { cycleStart, itemKey } = req.params;
     req.tenantDb.get(`SELECT is_paid, actual_amount FROM finance_budget_progress WHERE household_id = ? AND cycle_start = ? AND item_key = ?`, [req.hhId, cycleStart, itemKey], (err, row) => {
         if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
+        
         const oldPaid = row ? (row.is_paid || 0) : 0;
         const oldAmount = row ? (row.actual_amount || 0) : 0;
         let delta = 0;
-        if (itemKey.startsWith('pot_') && oldPaid) delta = -oldAmount;
+        
+        // Logic: If we remove a record that was "Paid", we must reverse the balance change
+        if (itemKey.startsWith('pot_') && oldPaid) {
+            delta = -oldAmount;
+        }
+
         req.tenantDb.serialize(() => {
             req.tenantDb.run("BEGIN TRANSACTION");
             const updatePotPromise = new Promise((resolve, reject) => {
@@ -415,14 +436,19 @@ router.delete('/budget-progress/:cycleStart/:itemKey', authenticateToken, requir
                             resolve();
                         });
                     });
-                } else resolve();
+                } else {
+                    resolve();
+                }
             });
+
             updatePotPromise.then(() => {
                 req.tenantDb.run(`DELETE FROM finance_budget_progress WHERE household_id = ? AND cycle_start = ? AND item_key = ?`, [req.hhId, cycleStart, itemKey], (delErr) => {
                     if (delErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: delErr.message }); }
                     req.tenantDb.run("COMMIT", (cErr) => { closeDb(req); res.json({ message: "Progress removed and savings updated", delta }); });
                 });
-            }).catch(err => { req.tenantDb.run("ROLLBACK"); closeDb(req); res.status(500).json({ error: err.message }); });
+            }).catch(err => {
+                req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: err.message });
+            });
         });
     });
 });
