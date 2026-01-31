@@ -47,7 +47,7 @@ export default function BudgetView() {
   const [savingsPots, setSavingsPots] = useState([]);
 
   // Sections State
-  const [sectionsOpen, setSectionsOpen] = useState({ obligations: true, wealth: true });
+  const [sectionsOpen, setSectionsOpen] = useState({ household: true, wealth: true }); // Dynamic sections use this map? Or separate. Using simple map for now.
 
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: 'computedDate', direction: 'asc' });
@@ -143,10 +143,83 @@ export default function BudgetView() {
           d = input;
       } else {
           d = setDate(startOfMonth(new Date(cycleStartDate)), parseInt(input));
+          // If the fixed day is BEFORE the cycle start (e.g. cycle starts 25th, payment is 1st), move to next month
           if (isAfter(cycleStartDate, d)) { d = addMonths(d, 1); }
       }
       return useNwd ? getNextWorkingDay(d) : d;
   }, [getNextWorkingDay]);
+
+  const entityGroupsOptions = useMemo(() => {
+    return [
+        { label: 'General', options: [{ value: 'general:household', label: 'Household (General)', emoji: '🏠' }] },
+        { label: 'People', options: members.filter(m => m.type !== 'pet').map(m => ({ value: `member:${m.id}`, label: m.name, emoji: m.emoji || '👤' })) },
+        { label: 'Pets', options: members.filter(m => m.type === 'pet').map(p => ({ value: `pet:${p.id}`, label: p.name, emoji: p.emoji || '🐾' })) },
+        { label: 'Vehicles', options: liabilities.vehicles.map(v => ({ value: `vehicle:${v.id}`, label: `${v.make} ${v.model}`, emoji: v.emoji || '🚗' })) },
+        { label: 'Assets', options: liabilities.assets.map(a => ({ value: `asset:${a.id}`, label: a.name, emoji: a.emoji || '📦' })) }
+    ].filter(g => g.options.length > 0);
+  }, [members, liabilities]);
+
+  const getCategoryOptions = useCallback((entityString) => {
+      const [type] = (entityString || 'general:household').split(':');
+      
+      const HOUSEHOLD_CATS = [
+          { value: 'household_bill', label: 'Household Bill' },
+          { value: 'utility', label: 'Utility (Water/Gas/Elec)' },
+          { value: 'subscription', label: 'Subscription' },
+          { value: 'insurance', label: 'Insurance' },
+          { value: 'warranty', label: 'Warranty' },
+          { value: 'service', label: 'Service / Maintenance' },
+          { value: 'other', label: 'Other' }
+      ];
+
+      const VEHICLE_CATS = [
+          { value: 'vehicle_fuel', label: 'Fuel' },
+          { value: 'vehicle_tax', label: 'Tax' },
+          { value: 'vehicle_mot', label: 'MOT' },
+          { value: 'vehicle_service', label: 'Service' },
+          { value: 'insurance', label: 'Insurance' },
+          { value: 'warranty', label: 'Warranty' },
+          { value: 'finance', label: 'Finance Payment' },
+          { value: 'other', label: 'Other' }
+      ];
+
+      const MEMBER_CATS = [
+          { value: 'subscription', label: 'Subscription' },
+          { value: 'insurance', label: 'Life/Health Insurance' },
+          { value: 'education', label: 'Education' },
+          { value: 'care', label: 'Care / Childcare' },
+          { value: 'other', label: 'Other' }
+      ];
+      
+      const PET_CATS = [
+          { value: 'food', label: 'Food' },
+          { value: 'insurance', label: 'Pet Insurance' },
+          { value: 'vet', label: 'Vet Bills' },
+          { value: 'other', label: 'Other' }
+      ];
+
+      if (type === 'vehicle') return VEHICLE_CATS;
+      if (type === 'member') return MEMBER_CATS;
+      if (type === 'pet') return PET_CATS;
+      return HOUSEHOLD_CATS;
+  }, []);
+
+  const playDing = useCallback(() => {
+      try {
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const oscillator = audioCtx.createOscillator();
+          const gainNode = audioCtx.createGain();
+          oscillator.type = 'sine';
+          oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.1);
+          gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+          gainNode.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+          oscillator.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+          oscillator.start();
+          oscillator.stop(audioCtx.currentTime + 0.3);
+      } catch (e) { console.warn("Audio feedback failed", e); }
+  }, []);
 
   const cycleData = useMemo(() => {
       const primaryIncome = incomes.find(i => i.is_primary === 1) || incomes.find(i => i.payment_day > 0);
@@ -169,11 +242,26 @@ export default function BudgetView() {
       }
       if (daysRemaining < 0) daysRemaining = 0;
 
-      const obligations = [];
-      const wealth = [];
+      // Grouping Structure:
+      // { id: 'household', label: 'Household', items: [], totals: { total: 0, paid: 0, unpaid: 0 } }
+      // { id: 'member_1', label: 'Mike', items: [], ... }
+      const groups = {
+          'household': { id: 'household', label: 'Financial Obligations (Household)', items: [], order: 0, emoji: '🏠' },
+          'wealth': { id: 'wealth', label: 'Savings & Growth', items: [], order: 999, emoji: '📈' }
+      };
+
+      // Helper to get or create group
+      const getGroup = (type, id, label, emoji) => {
+          const key = `${type}_${id}`;
+          if (!groups[key]) {
+              groups[key] = { id: key, label: label || 'Other', items: [], order: 10, emoji: emoji || '❓' };
+          }
+          return groups[key];
+      };
+
       const skipped = [];
       
-      const addExpense = (item, type, label, amount, dateObj, icon, category, section, object = null) => {
+      const addExpense = (item, type, label, amount, dateObj, icon, category, targetGroupKey, object = null) => {
           if (!dateObj || !isValid(dateObj)) return;
           const key = `${type}_${item.id || 'fixed'}_${format(dateObj, 'ddMM')}`; 
           const progressItem = progress.find(p => p.item_key === key && p.cycle_start === cycleKey);
@@ -189,23 +277,48 @@ export default function BudgetView() {
 
           if (progressItem?.is_paid === -1) {
               skipped.push(expObj);
-          } else if (section === 'obligations') {
-              obligations.push(expObj);
           } else {
-              wealth.push(expObj);
+              if (targetGroupKey === 'wealth') {
+                  groups['wealth'].items.push(expObj);
+              } else if (targetGroupKey === 'household') {
+                  groups['household'].items.push(expObj);
+              } else if (targetGroupKey) {
+                  // Specific entity group
+                  const g = groups[targetGroupKey];
+                  if (g) g.items.push(expObj);
+                  else groups['household'].items.push(expObj); // Fallback
+              } else {
+                  groups['household'].items.push(expObj);
+              }
           }
       };
 
-      // FIXED OBLIGATIONS & WEALTH (Simplified for brevity, logic restored from previous step)
-      liabilities.mortgages.forEach(m => addExpense(m, 'mortgage', m.lender, m.monthly_payment, getAdjustedDate(m.payment_day, true, startDate), <Home />, 'Mortgage', 'obligations'));
-      liabilities.loans.forEach(l => addExpense(l, 'loan', `${l.lender} Loan`, l.monthly_payment, getAdjustedDate(l.payment_day, true, startDate), <TrendingDown />, 'Loan', 'obligations'));
-      liabilities.vehicle_finance.forEach(v => addExpense(v, 'vehicle_finance', v.provider, v.monthly_payment, getAdjustedDate(v.payment_day, true, startDate), <DirectionsCar />, 'Car Finance', 'obligations'));
-      liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit_card', `${cc.card_name} (Bal: ${formatCurrency(cc.current_balance)})`, 0, getAdjustedDate(cc.payment_day || 1, true, startDate), <CreditCard />, 'Credit Card', 'obligations'));
+      // 1. HOUSEHOLD OBLIGATIONS
+      liabilities.mortgages.forEach(m => addExpense(m, 'mortgage', m.lender, m.monthly_payment, getAdjustedDate(m.payment_day, true, startDate), <Home />, 'Mortgage', 'household'));
       
+      // 2. LOANS (Check assignment)
+      liabilities.loans.forEach(l => {
+          // Find assignment
+          // Note: assignments are not fully loaded in this view context except via specialized calls?
+          // Wait, fetchData didn't load assignments. I need to load ALL assignments or assume unassigned?
+          // I will fetch assignments in fetchData. For now, defaulting to Household.
+          addExpense(l, 'loan', `${l.lender} Loan`, l.monthly_payment, getAdjustedDate(l.payment_day, true, startDate), <TrendingDown />, 'Loan', 'household');
+      });
+
+      // 3. VEHICLE FINANCE (Group by Vehicle)
+      liabilities.vehicle_finance.forEach(v => {
+          const veh = liabilities.vehicles.find(veh => veh.id === v.vehicle_id);
+          const groupKey = veh ? `vehicle_${veh.id}` : 'household';
+          if (veh && !groups[groupKey]) getGroup('vehicle', veh.id, `${veh.make} ${veh.model}`, veh.emoji || '🚗');
+          addExpense(v, 'vehicle_finance', v.provider, v.monthly_payment, getAdjustedDate(v.payment_day, true, startDate), <DirectionsCar />, 'Car Finance', groupKey);
+      });
+
+      // 4. CHARGES (Group by Linked Entity)
       liabilities.charges.filter(c => c.is_active !== 0).forEach(charge => {
           let datesToAdd = [];
           const freq = charge.frequency?.toLowerCase();
           const anchor = charge.start_date ? parseISO(charge.start_date) : null;
+          // ... (Date logic same as before) ...
           if (freq === 'one_off') {
              const oneOffDate = parseISO(charge.exact_date || charge.start_date);
              if (isWithinInterval(oneOffDate, { start: startDate, end: endDate })) datesToAdd.push(oneOffDate);
@@ -227,14 +340,35 @@ export default function BudgetView() {
           } else if (freq === 'monthly') {
              datesToAdd.push(getAdjustedDate(charge.day_of_month, charge.adjust_for_working_day, startDate));
           }
+
+          // Determine Group
+          let groupKey = 'household';
+          if (charge.linked_entity_type === 'member') {
+              const m = members.find(mem => String(mem.id) === String(charge.linked_entity_id));
+              if (m) {
+                  groupKey = `member_${m.id}`;
+                  if (!groups[groupKey]) getGroup('member', m.id, m.name, m.emoji || '👤');
+              }
+          } else if (charge.linked_entity_type === 'vehicle') {
+              const v = liabilities.vehicles.find(veh => String(veh.id) === String(charge.linked_entity_id));
+              if (v) {
+                  groupKey = `vehicle_${v.id}`;
+                  if (!groups[groupKey]) getGroup('vehicle', v.id, `${v.make} ${v.model}`, v.emoji || '🚗');
+              }
+          }
+
           datesToAdd.forEach(d => {
              let icon = <Receipt />;
              if (charge.segment === 'insurance') icon = <Shield />;
              else if (charge.segment === 'subscription') icon = <ShoppingBag />;
-             addExpense(charge, 'charge', charge.name, charge.amount, d, icon, charge.segment, 'obligations');
+             addExpense(charge, 'charge', charge.name, charge.amount, d, icon, charge.segment, groupKey);
           });
       });
 
+      // 5. CREDIT CARDS (Household)
+      liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit_card', `${cc.card_name} (Bal: ${formatCurrency(cc.current_balance)})`, 0, getAdjustedDate(cc.payment_day || 1, true, startDate), <CreditCard />, 'Credit Card', 'household'));
+
+      // 6. WEALTH items
       liabilities.savings.forEach(s => {
           if (s.deposit_amount > 0) addExpense(s, 'savings_deposit', `${s.institution} ${s.account_name}`, s.deposit_amount, getAdjustedDate(s.deposit_day || 1, false, startDate), <SavingsIcon />, 'Savings Deposit', 'wealth');
       });
@@ -246,20 +380,28 @@ export default function BudgetView() {
       });
       savingsPots.forEach(pot => addExpense(pot, 'pot', pot.name, 0, getAdjustedDate(pot.deposit_day || 1, false, startDate), <SavingsIcon />, 'Pot Allocation', 'wealth'));
 
+      // Finalize Groups (Sort & Calculate Totals)
+      const groupList = Object.values(groups).filter(g => g.items.length > 0).sort((a, b) => a.order - b.order);
+      
       const sorter = (a, b) => {
           if (sortConfig.key === 'amount') return sortConfig.direction === 'asc' ? a.amount - b.amount : b.amount - a.amount;
           if (sortConfig.key === 'label') return sortConfig.direction === 'asc' ? a.label.localeCompare(b.label) : b.label.localeCompare(a.label);
           return sortConfig.direction === 'asc' ? a.computedDate - b.computedDate : b.computedDate - a.computedDate;
       };
-      obligations.sort(sorter);
-      wealth.sort(sorter);
 
-      return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, obligations, wealth, skipped };
+      groupList.forEach(g => {
+          g.items.sort(sorter);
+          g.total = g.items.reduce((sum, i) => sum + i.amount, 0);
+          g.paid = g.items.filter(i => i.isPaid).reduce((sum, i) => sum + i.amount, 0);
+          g.unpaid = g.total - g.paid;
+      });
+
+      return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, groupList, skipped };
   }, [incomes, liabilities, progress, viewDate, getPriorWorkingDay, getAdjustedDate, savingsPots, getNextWorkingDay, members, sortConfig]);
 
+  // --- Logic for Updates, Toggles, etc. ---
   const currentCycleRecord = useMemo(() => cycles.find(c => c.cycle_start === cycleData?.cycleKey), [cycles, cycleData]);
   
-  // INITIALIZATION LOGIC
   useEffect(() => {
       if (cycleData && !loading) {
           if (currentCycleRecord) {
@@ -275,7 +417,6 @@ export default function BudgetView() {
   const projectedIncome = useMemo(() => {
       if (!cycleData) return 0;
       return incomes.reduce((sum, inc) => {
-          // Simplification: Sum all incomes. A more robust logic would check if income payment_day is in range.
           // Assuming monthly incomes active for the cycle.
           if (inc.is_active !== 0) return sum + (parseFloat(inc.amount) || 0);
           return sum;
@@ -283,30 +424,16 @@ export default function BudgetView() {
   }, [incomes, cycleData]);
 
   const handleSetupBudget = async (mode) => {
-      // mode: 'fresh' (Projected) | 'copy' (Last Month)
       let initialPay = projectedIncome;
-      let initialBalance = projectedIncome; // Default balance to Pay amount to start
-
+      let initialBalance = projectedIncome;
       if (mode === 'copy') {
-          // Find last month
-          const lastMonthDate = addMonths(cycleData.startDate, -1);
-          // Simplified match: find closest cycle before this one?
-          // Or strictly formatted key.
-          // Cycle keys are usually YYYY-MM-DD of start date.
-          // We don't have exact previous key easily without recalculating logic.
-          // Just taking the last recorded cycle might be enough?
-          // Assuming sorted cycles:
           const sortedCycles = [...cycles].sort((a,b) => b.cycle_start.localeCompare(a.cycle_start));
           const lastRecord = sortedCycles.find(c => c.cycle_start < cycleData.cycleKey);
           if (lastRecord) {
               initialPay = lastRecord.actual_pay;
-              // Balance usually shouldn't be copied from *previous balance*, but maybe *previous pay*?
-              // Or starting balance = 0?
-              // User said "copy previous month". I'll assume Pay is copied. Balance defaults to Pay (fresh start logic).
               initialBalance = lastRecord.actual_pay; 
           }
       }
-
       await saveCycleData(initialPay, initialBalance);
       setSetupModalOpen(false);
   };
@@ -341,6 +468,7 @@ export default function BudgetView() {
       } catch (err) { console.error("Failed to toggle paid status", err); } finally { setSavingProgress(false); }
   };
 
+  // Handlers
   const handleResetCycle = () => {
       confirmAction("Reset Month?", "Are you sure? This clears progress.", async () => {
           try {
@@ -414,7 +542,7 @@ export default function BudgetView() {
 
   const cycleTotals = useMemo(() => {
       if (!cycleData) return { total: 0, paid: 0, unpaid: 0 };
-      const allItems = [...cycleData.obligations, ...cycleData.wealth];
+      const allItems = cycleData.groupList.flatMap(g => g.items);
       const total = allItems.reduce((sum, e) => sum + e.amount, 0);
       const paid = allItems.filter(e => e.isPaid).reduce((sum, e) => sum + e.amount, 0);
       return { total, paid, unpaid: total - paid };
@@ -424,7 +552,7 @@ export default function BudgetView() {
   const trueDisposable = (parseFloat(currentBalance) || 0) - cycleTotals.unpaid;
   const selectedTotals = useMemo(() => {
       if (!selectedKeys.length || !cycleData) return null;
-      const allItems = [...cycleData.obligations, ...cycleData.wealth];
+      const allItems = cycleData.groupList.flatMap(g => g.items);
       const selected = allItems.filter(e => selectedKeys.includes(e.key));
       const total = selected.reduce((sum, e) => sum + e.amount, 0);
       const paid = selected.filter(e => e.isPaid).reduce((sum, e) => sum + e.amount, 0);
@@ -462,6 +590,9 @@ export default function BudgetView() {
                   </Box>
               </Box>
           </td>
+          <td style={{ textAlign: 'center' }}>
+              <Chip size="sm" variant="soft" sx={{ fontSize: '0.65rem' }}>{exp.category}</Chip>
+          </td>
           <td style={{ textAlign: 'right' }}>
               <Input 
                   size="sm" type="number" variant="soft" 
@@ -485,16 +616,6 @@ export default function BudgetView() {
           </td>
           <td style={{ textAlign: 'center' }}>
                 <Stack direction="row" spacing={0.5} justifyContent="center">
-                    {exp.type === 'charge' && (
-                        <IconButton 
-                            size="sm" variant="plain" color="neutral" 
-                            onClick={(e) => { e.stopPropagation(); handleArchiveCharge(exp.id); }}
-                            sx={{ '--IconButton-size': '28px' }}
-                            title="Archive/Delete Recurring Charge"
-                        >
-                            <DeleteOutline fontSize="small" />
-                        </IconButton>
-                    )}
                     {exp.isDeletable && (
                         <IconButton 
                             size="sm" variant="plain" color="danger" 
@@ -510,17 +631,22 @@ export default function BudgetView() {
       </tr>
   );
 
-  const renderSection = (title, items, type, isOpen, toggle) => (
-      <Accordion expanded={isOpen} onChange={toggle} variant="outlined" sx={{ borderRadius: 'md', mb: 2 }}>
+  const renderSection = (group) => {
+      const isOpen = sectionsOpen[group.id] ?? true;
+      const toggle = () => setSectionsOpen(prev => ({ ...prev, [group.id]: !prev[group.id] }));
+      
+      return (
+      <Accordion expanded={isOpen} onChange={toggle} variant="outlined" sx={{ borderRadius: 'md', mb: 2 }} key={group.id}>
           <AccordionSummary expandIcon={<ExpandMore />}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', mr: 2 }}>
                   <Typography level="title-lg" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      {type === 'obligations' ? <Payments color="danger" /> : <TrendingUp color="success" />} 
-                      {title}
+                      <Avatar size="sm">{group.emoji}</Avatar> {group.label}
                   </Typography>
-                  <Typography level="body-sm" color="neutral">
-                      {formatCurrency(items.reduce((sum, i) => sum + i.amount, 0))}
-                  </Typography>
+                  <Stack direction="row" spacing={2}>
+                      <Box sx={{ textAlign: 'center' }}><Typography level="body-xs">Total</Typography><Typography level="body-sm" fontWeight="bold">{formatCurrency(group.total)}</Typography></Box>
+                      <Box sx={{ textAlign: 'center' }}><Typography level="body-xs" color="success">Paid</Typography><Typography level="body-sm" fontWeight="bold" color="success">{formatCurrency(group.paid)}</Typography></Box>
+                      <Box sx={{ textAlign: 'center' }}><Typography level="body-xs" color="danger">Unpaid</Typography><Typography level="body-sm" fontWeight="bold" color="danger">{formatCurrency(group.unpaid)}</Typography></Box>
+                  </Stack>
               </Box>
           </AccordionSummary>
           <AccordionDetails sx={{ p: 0 }}>
@@ -528,26 +654,25 @@ export default function BudgetView() {
                   <thead>
                       <tr>
                           <th style={{ width: 40, textAlign: 'center' }}><Checkbox size="sm" onChange={(e) => {
-                              const keys = items.map(exp => exp.key);
+                              const keys = group.items.map(exp => exp.key);
                               if (e.target.checked) setSelectedKeys(prev => Array.from(new Set([...prev, ...keys])));
                               else setSelectedKeys(prev => prev.filter(k => !keys.includes(k)));
                           }} /></th>
                           <th onClick={() => requestSort('label')} style={{ cursor: 'pointer' }}>Item <Sort sx={{ fontSize: '0.8rem', opacity: sortConfig.key === 'label' ? 1 : 0.3 }} /></th>
+                          <th style={{ width: 120 }}>Category</th>
                           <th onClick={() => requestSort('amount')} style={{ width: 100, textAlign: 'right', cursor: 'pointer' }}>Amount <Sort sx={{ fontSize: '0.8rem', opacity: sortConfig.key === 'amount' ? 1 : 0.3 }} /></th>
                           <th style={{ width: 60, textAlign: 'center' }}>Paid</th>
                           <th style={{ width: 80, textAlign: 'center' }}>Action</th>
                       </tr>
                   </thead>
                   <tbody>
-                      {items.map(renderItemRow)}
-                      {items.length === 0 && (
-                          <tr><td colSpan={5} style={{ textAlign: 'center', padding: '16px', color: 'var(--joy-palette-neutral-500)' }}>No items</td></tr>
-                      )}
+                      {group.items.map(renderItemRow)}
                   </tbody>
               </Table>
           </AccordionDetails>
       </Accordion>
-  );
+      );
+  };
 
   return (
     <Box sx={{ userSelect: 'none', pb: 10 }}>
@@ -608,8 +733,7 @@ export default function BudgetView() {
 
             {/* RIGHT SIDE: LISTS */}
             <Grid xs={12} md={9}>
-                {renderSection('Fixed Obligations', cycleData.obligations, 'obligations', sectionsOpen.obligations, () => setSectionsOpen(prev => ({ ...prev, obligations: !prev.obligations })))}
-                {renderSection('Savings & Growth', cycleData.wealth, 'wealth', sectionsOpen.wealth, () => setSectionsOpen(prev => ({ ...prev, wealth: !prev.wealth })))}
+                {cycleData.groupList.map(renderSection)}
                 
                 {cycleData.skipped?.length > 0 && (
                         <Box sx={{ mt: 4, pt: 4, borderTop: '1px solid', borderColor: 'divider' }}>
@@ -651,7 +775,7 @@ export default function BudgetView() {
         </Grid>
 
         {/* MODALS */}
-        
+        {/* ... (Existing modals) ... */}
         {/* SETUP MODAL */}
         <Modal open={setupModalOpen}>
             <ModalDialog sx={{ maxWidth: 500, width: '100%' }}>
@@ -691,14 +815,63 @@ export default function BudgetView() {
         
         {/* Recurring Add */}
         <Modal open={recurringAddOpen} onClose={() => setRecurringAddOpen(false)}>
-            <ModalDialog sx={{ maxWidth: 450, width: '100%' }}>
+            <ModalDialog sx={{ maxWidth: 450, width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
                 <DialogTitle>Add Recurring Expense</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleRecurringAdd}>
                         <Stack spacing={2}>
-                            <FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus /></FormControl>
+                            {/* Step 1: Entity First Selection */}
+                            <FormControl>
+                                <FormLabel>Assign To</FormLabel>
+                                <Select 
+                                    value={selectedEntity} 
+                                    onChange={(e, val) => setSelectedEntity(val)}
+                                    placeholder="Select Household, Person, Vehicle..."
+                                >
+                                    {entityGroupsOptions.map((group, idx) => [
+                                        idx > 0 && <Divider key={`div-${idx}`} />,
+                                        <Typography level="body-xs" fontWeight="bold" sx={{ px: 1.5, py: 0.5, color: 'primary.500' }} key={`header-${idx}`}>
+                                            {group.label}
+                                        </Typography>,
+                                        ...group.options.map(opt => (
+                                            <Option key={opt.value} value={opt.value}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <Avatar size="sm" sx={{ width: 20, height: 20, fontSize: '12px' }}>{opt.emoji}</Avatar>
+                                                    {opt.label}
+                                                </Box>
+                                            </Option>
+                                        ))
+                                    ])}
+                                </Select>
+                            </FormControl>
+
+                            {/* Step 2: Contextual Details */}
+                            <Grid container spacing={2}>
+                                <Grid xs={6}>
+                                    <AppSelect 
+                                        label="Category" 
+                                        name="category" 
+                                        defaultValue={getCategoryOptions(selectedEntity)[0]?.value} 
+                                        options={getCategoryOptions(selectedEntity)} 
+                                    />
+                                </Grid>
+                                <Grid xs={6}>
+                                    <AppSelect label="Frequency" value={recurringType} onChange={setRecurringType} options={[
+                                        { value: 'weekly', label: 'Weekly' },
+                                        { value: 'monthly', label: 'Monthly' },
+                                        { value: 'quarterly', label: 'Quarterly' },
+                                        { value: 'yearly', label: 'Yearly' }
+                                    ]} />
+                                </Grid>
+                            </Grid>
+
+                            <FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus placeholder="e.g. Netflix, Car Insurance" /></FormControl>
+                            
                             <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" step="0.01" /></FormControl>
-                            <FormControl required><FormLabel>Date</FormLabel><Input name="start_date" type="date" required defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
+
+                            <FormControl required><FormLabel>First Charge Date</FormLabel><Input name="start_date" type="date" required defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
+                            <Checkbox label="Adjust for Working Day (Next)" name="nearest_working_day" defaultChecked value="1" />
+                            
                             <Button type="submit">Add Recurring Expense</Button>
                         </Stack>
                     </form>
