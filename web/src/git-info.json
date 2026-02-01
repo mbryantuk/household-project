@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Enhance Brady seed with payment days and linked charges for objects",
-  "date": "Sun  1 Feb 13:32:53 GMT 2026"
+  "commitMessage": "fix(ui): ensure recurring costs with missing segments default to 'other' and update brady seed",
+  "date": "Sun  1 Feb 13:39:13 GMT 2026"
 }

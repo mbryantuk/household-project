@@ -57,7 +57,11 @@ export default function RecurringCostsWidget({ api, householdId, parentType, par
   const [isNearestWorkingDay, setIsNearestWorkingDay] = useState(false);
   const [holidays, setHolidays] = useState([]);
   
-  const apiEntityType = parentType === 'house' ? 'general' : parentType;
+  const apiEntityType = useMemo(() => {
+    if (parentType === 'house') return 'general';
+    if (parentType === 'member' || parentType === 'pet') return 'member';
+    return parentType;
+  }, [parentType]);
 
   const segments = useMemo(() => {
       if (parentType === 'vehicle') return VEHICLE_SEGMENTS;

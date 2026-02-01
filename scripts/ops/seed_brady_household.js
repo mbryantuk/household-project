@@ -83,7 +83,7 @@ async function seed() {
         const waterRes = await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Thames Water", amount: 45, segment: "utility", frequency: "monthly", day_of_month: 18 }, token);
         const eId = energyRes.data.id;
         for (const kid of ["Greg", "Marcia", "Peter", "Jan", "Bobby", "Cindy"]) {
-            await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: `Pocket Money (${kid})`, amount: 30, frequency: "monthly", day_of_month: 1, linked_entity_type: "member", linked_entity_id: members[kid] }, token);
+            await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: `Pocket Money (${kid})`, amount: 30, frequency: "monthly", day_of_month: 1, linked_entity_type: "member", linked_entity_id: members[kid], segment: "other" }, token);
         }
 
         // Add vehicle-specific charges (Insurance/Tax)

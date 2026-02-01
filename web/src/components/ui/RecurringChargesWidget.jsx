@@ -66,7 +66,12 @@ export default function RecurringChargesWidget({
   useEffect(() => { fetchCharges(); }, [fetchCharges]);
 
   const currentSegmentId = segments[activeTab]?.id || 'other';
-  const filteredCharges = useMemo(() => charges.filter(c => c.segment === currentSegmentId), [charges, currentSegmentId]);
+  const filteredCharges = useMemo(() => charges.filter(c => {
+    if (currentSegmentId === 'other') {
+        return !c.segment || c.segment === 'other';
+    }
+    return c.segment === currentSegmentId;
+  }), [charges, currentSegmentId]);
 
   const resetForm = () => {
     setFormData({
