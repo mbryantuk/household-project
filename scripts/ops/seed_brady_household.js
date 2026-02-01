@@ -80,7 +80,7 @@ async function seed() {
             mot_due: "2026-11-01", tax_due: "2026-11-01" 
         }, token);
         await apiRequest('POST', `/api/households/${hhId}/vehicles/${v1.data.id}/finance`, { provider: "Tesla Finance", total_amount: 80000, remaining_balance: 45000, monthly_payment: 850, payment_day: 5 }, token);
-        await apiRequest('POST', `/api/households/${hhId}/vehicles/${v1.data.id}/insurance`, { provider: "Direct Line", policy_number: "DL-12345", premium: 1200, renewal_date: "2027-01-15" }, token);
+        const v1Ins = await apiRequest('POST', `/api/households/${hhId}/vehicles/${v1.data.id}/insurance`, { provider: "Direct Line", policy_number: "DL-12345", premium: 1200, renewal_date: "2027-01-15" }, token);
         
         // Rivian
         const v2 = await apiRequest('POST', `/api/households/${hhId}/vehicles`, { 
@@ -88,14 +88,14 @@ async function seed() {
             mot_due: "2026-08-20", tax_due: "2026-08-20"
         }, token);
         await apiRequest('POST', `/api/households/${hhId}/vehicles/${v2.data.id}/finance`, { provider: "Rivian Financial", total_amount: 75000, remaining_balance: 62000, monthly_payment: 920, payment_day: 15 }, token);
-        await apiRequest('POST', `/api/households/${hhId}/vehicles/${v2.data.id}/service_plans`, { provider: "Rivian Care", monthly_cost: 50, start_date: "2025-01-01", end_date: "2028-01-01" }, token);
+        const v2Svc = await apiRequest('POST', `/api/households/${hhId}/vehicles/${v2.data.id}/service_plans`, { provider: "Rivian Care", monthly_cost: 50, start_date: "2025-01-01", end_date: "2028-01-01" }, token);
 
-        // 5. HOUSEHOLD BILLS (Specific Tabs)
-        await apiRequest('POST', `/api/households/${hhId}/council`, { authority_name: "Los Angeles County", account_number: "LA-998877", monthly_amount: 280, payment_day: 1, band: "D" }, token);
-        await apiRequest('POST', `/api/households/${hhId}/water`, { provider: "LA Water", account_number: "H2O-555", monthly_amount: 45, payment_day: 15, supply_type: "metered" }, token);
-        await apiRequest('POST', `/api/households/${hhId}/energy`, { provider: "Pacific Power", account_number: "ELEC-222", type: "dual", monthly_amount: 250, payment_day: 20 }, token);
-        await apiRequest('POST', `/api/households/${hhId}/waste`, { bin_type: "General", frequency: "weekly", day_of_week: "Tuesday", color: "black" }, token);
-        await apiRequest('POST', `/api/households/${hhId}/waste`, { bin_type: "Recycling", frequency: "biweekly", day_of_week: "Wednesday", color: "blue" }, token);
+        // 5. HOUSEHOLD BILLS (Specific Tabs) - Capturing IDs for Linking
+        const councilRes = await apiRequest('POST', `/api/households/${hhId}/council`, { authority_name: "Los Angeles County", account_number: "LA-998877", monthly_amount: 280, payment_day: 1, band: "D" }, token);
+        const waterRes = await apiRequest('POST', `/api/households/${hhId}/water`, { provider: "LA Water", account_number: "H2O-555", monthly_amount: 45, payment_day: 15, supply_type: "metered" }, token);
+        const energyRes = await apiRequest('POST', `/api/households/${hhId}/energy`, { provider: "Pacific Power", account_number: "ELEC-222", type: "dual", monthly_amount: 250, payment_day: 20 }, token);
+        const waste1Res = await apiRequest('POST', `/api/households/${hhId}/waste`, { bin_type: "General", frequency: "weekly", day_of_week: "Tuesday", color: "black", monthly_amount: 0 }, token);
+        const waste2Res = await apiRequest('POST', `/api/households/${hhId}/waste`, { bin_type: "Recycling", frequency: "biweekly", day_of_week: "Wednesday", color: "blue", monthly_amount: 0 }, token);
 
         // 6. FINANCIAL MATRIX (Deep Seeding)
         const bank1 = await apiRequest('POST', `/api/households/${hhId}/finance/current-accounts`, { bank_name: "Wells Fargo", account_name: "Checking", current_balance: 15000 }, token);
@@ -111,12 +111,23 @@ async function seed() {
         await apiRequest('POST', `/api/households/${hhId}/finance/pensions`, { provider: "Fidelity", plan_name: "401k", current_value: 420000, monthly_contribution: 1200, payment_day: 1 }, token);
 
         // 7. COMPREHENSIVE CHARGES (Linking everything)
-        // Note: We duplicate some data here because 'charges' is the central budget view.
         
         // --- HOUSEHOLD ---
-        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Council Tax", amount: 280, segment: "household_bill", frequency: "monthly", day_of_month: 1 }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Water Bill", amount: 45, segment: "utility", frequency: "monthly", day_of_month: 15 }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Energy Bill", amount: 250, segment: "utility", frequency: "monthly", day_of_month: 20 }, token);
+        // LINKED to specific accounts created in step 5
+        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { 
+            name: "Council Tax", amount: 280, segment: "household_bill", frequency: "monthly", day_of_month: 1, 
+            linked_entity_type: "council_account", linked_entity_id: councilRes.data.id 
+        }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { 
+            name: "Water Bill", amount: 45, segment: "utility", frequency: "monthly", day_of_month: 15,
+            linked_entity_type: "water_account", linked_entity_id: waterRes.data.id
+        }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { 
+            name: "Energy Bill", amount: 250, segment: "utility", frequency: "monthly", day_of_month: 20,
+            linked_entity_type: "energy_account", linked_entity_id: energyRes.data.id
+        }, token);
+        
+        // Unlinked charges (No specific table/page yet)
         await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Netflix Premium", amount: 18, segment: "subscription", frequency: "monthly", day_of_month: 20 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Home Insurance", amount: 65, segment: "insurance", frequency: "monthly", day_of_month: 5 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Boiler Warranty", amount: 22, segment: "warranty", frequency: "monthly", day_of_month: 2 }, token);
@@ -125,9 +136,9 @@ async function seed() {
         // --- VEHICLES ---
         // Tesla
         await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Tesla Charging", amount: 60, segment: "vehicle_fuel", frequency: "monthly", day_of_month: 28, linked_entity_type: "vehicle", linked_entity_id: v1.data.id }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Tesla Insurance", amount: 100, segment: "insurance", frequency: "monthly", day_of_month: 7, linked_entity_type: "vehicle", linked_entity_id: v1.data.id }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Tesla Insurance", amount: 100, segment: "insurance", frequency: "monthly", day_of_month: 7, linked_entity_type: "vehicle_insurance", linked_entity_id: v1Ins.data.id }, token);
         // Rivian
-        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Rivian Service Plan", amount: 50, segment: "vehicle_service", frequency: "monthly", day_of_month: 14, linked_entity_type: "vehicle", linked_entity_id: v2.data.id }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Rivian Service Plan", amount: 50, segment: "vehicle_service", frequency: "monthly", day_of_month: 14, linked_entity_type: "vehicle_service_plan", linked_entity_id: v2Svc.data.id }, token);
 
         // --- MEMBERS (Adults - Fun Money & More) ---
         await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Golf Club", amount: 150, segment: "fun_money", frequency: "monthly", day_of_month: 1, linked_entity_type: "member", linked_entity_id: members.Mike }, token);
@@ -138,7 +149,7 @@ async function seed() {
             await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: `Pocket Money (${kid})`, amount: 30, frequency: "monthly", day_of_month: 1, linked_entity_type: "member", linked_entity_id: members[kid], segment: "pocket_money" }, token);
         }
 
-        // 8. MEALS (3 Weeks - ALL Types)
+        // 8. MEALS (3 Weeks - FAMILY PLANS)
         const recipes = [
             { n: "Meatloaf", e: "🍞", t: "dinner" }, { n: "Spaghetti", e: "🍝", t: "dinner" }, { n: "Tacos", e: "🌮", t: "dinner" },
             { n: "Pancakes", e: "🥞", t: "breakfast" }, { n: "Cereal", e: "🥣", t: "breakfast" }, { n: "Toast", e: "🍞", t: "breakfast" },
@@ -153,21 +164,38 @@ async function seed() {
         }
 
         const mealTypes = ['breakfast', 'lunch', 'dinner', 'snack'];
+        // All human members
+        const allHumans = Object.keys(members).filter(n => n !== 'Tiger' && n !== 'Fluffy');
+        
         for (let i = 0; i < 21; i++) {
             const d = new Date(); d.setDate(d.getDate() + i);
             const dateStr = d.toISOString().split('T')[0];
             
             for (const type of mealTypes) {
-                // Rotate through available meals for this type
                 const available = mealIds[type];
                 const mealId = available[i % available.length];
-                // Randomly assign to a member (usually Alice/Carol cooking, but let's just assign plan to Carol for now)
-                await apiRequest('POST', `/api/households/${hhId}/meal-plans`, { 
-                    date: dateStr, 
-                    meal_id: mealId, 
-                    member_id: members.Carol, 
-                    type: type 
-                }, token);
+                
+                if (type === 'dinner') {
+                    // FAMILY MEAL: Assign to EVERYONE
+                    for (const name of allHumans) {
+                        await apiRequest('POST', `/api/households/${hhId}/meal-plans`, { 
+                            date: dateStr, 
+                            meal_id: mealId, 
+                            member_id: members[name], 
+                            type: type 
+                        }, token);
+                    }
+                } else {
+                    // INDIVIDUAL: Assign just to Carol for now (or rotate, but user specifically asked for "Family" ones)
+                    // Let's rotate assignment for non-dinner to show variety
+                    const assignee = allHumans[i % allHumans.length];
+                    await apiRequest('POST', `/api/households/${hhId}/meal-plans`, { 
+                        date: dateStr, 
+                        meal_id: mealId, 
+                        member_id: members[assignee], 
+                        type: type 
+                    }, token);
+                }
             }
         }
 
