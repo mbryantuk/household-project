@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix 404 error on /finance/savings/pots by reordering routes and enabling mergeParams",
-  "date": "Sun  1 Feb 13:21:53 GMT 2026"
+  "commitMessage": "Add credit cards to Brady household seed data",
+  "date": "Sun  1 Feb 13:25:04 GMT 2026"
 }

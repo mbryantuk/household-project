@@ -72,6 +72,8 @@ async function seed() {
         const mId = mortgageRes.data.id;
         const savRes = await apiRequest('POST', `/api/households/${hhId}/finance/savings`, { institution: "Ally", account_name: "Joint Savings", current_balance: 55000 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/savings/${savRes.data.id}/pots`, { name: "Hawaii 2026", target_amount: 15000, current_amount: 8000, emoji: "🌋" }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/credit-cards`, { provider: "Amex", card_name: "Platinum", credit_limit: 20000, current_balance: 1200, emoji: "💳" }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/credit-cards`, { provider: "Chase", card_name: "Sapphire", credit_limit: 15000, current_balance: 0, emoji: "🟦" }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/loans`, { lender: "SoFi", loan_type: "Personal", total_amount: 35000, remaining_balance: 22000, monthly_payment: 450 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/investments`, { name: "Vanguard ETF", platform: "Vanguard", current_value: 152000 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/pensions`, { provider: "Fidelity", plan_name: "401k", current_value: 420000 }, token);
