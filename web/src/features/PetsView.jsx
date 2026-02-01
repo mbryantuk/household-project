@@ -304,11 +304,13 @@ export default function PetsView() {
                 api={api} 
                 householdId={householdId} 
                 household={household}
-                entityType="member" 
+                entityType="pet" 
                 entityId={petId} 
                 segments={[
+                    { id: 'food', label: 'Food & Supplies' },
                     { id: 'insurance', label: 'Pet Insurance' },
-                    { id: 'other', label: 'Maintenance & Other' }
+                    { id: 'vet', label: 'Vet & Medical' },
+                    { id: 'other', label: 'Other' }
                 ]}
                 title="Pet Recurring Costs"
                 showNotification={showNotification}

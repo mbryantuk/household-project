@@ -28,6 +28,7 @@ const SEGMENT_CONFIG = {
     utility: { label: 'Utilities', icon: <ElectricBolt /> },
     subscription: { label: 'Subscriptions', icon: <ShoppingBag /> },
     warranty: { label: 'Warranties', icon: <Assignment /> },
+    service: { label: 'Service / Maintenance', icon: <Build /> },
     vehicle_tax: { label: 'Tax', icon: <Timer /> },
     vehicle_mot: { label: 'MOT', icon: <Build /> },
     vehicle_service: { label: 'Service', icon: <Build /> },
@@ -35,6 +36,11 @@ const SEGMENT_CONFIG = {
     vehicle_breakdown: { label: 'Breakdown', icon: <HelpOutline /> },
     pocket_money: { label: 'Pocket Money', icon: <AccountBalanceWallet /> },
     fun_money: { label: 'Fun Money', icon: <LocalActivity /> },
+    food: { label: 'Food & Supplies', icon: <ShoppingBag /> },
+    vet: { label: 'Vet & Medical', icon: <Shield /> },
+    education: { label: 'Education', icon: <Assignment /> },
+    care: { label: 'Care & Support', icon: <HelpOutline /> },
+    finance: { label: 'Finance / Loan', icon: <Payments /> },
     other: { label: 'Other', icon: <Receipt /> }
 };
 
@@ -86,7 +92,7 @@ export default function RecurringChargesWidget({
   const handleEdit = (charge) => {
     setEditingId(charge.id);
     setFormData({
-      name: charge.name, amount: charge.amount, segment: charge.segment,
+      name: charge.name, amount: charge.amount, segment: charge.segment || 'other',
       frequency: charge.frequency, start_date: charge.start_date || format(new Date(), 'yyyy-MM-dd'),
       adjust_for_working_day: !!charge.adjust_for_working_day, notes: charge.notes || '',
       emoji: charge.emoji || '💸'
@@ -172,7 +178,18 @@ export default function RecurringChargesWidget({
                     <Input autoFocus value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
                 </FormControl>
             </Box>
-            <FormControl required><FormLabel>Amount</FormLabel><Input type="number" startDecorator={household?.currency === '$' ? '$' : '£'} value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} /></FormControl>
+            
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                <FormControl required><FormLabel>Category</FormLabel>
+                    <Select value={formData.segment} onChange={(e, v) => setFormData({ ...formData, segment: v })}>
+                        {segments.map(seg => (
+                            <Option key={seg.id} value={seg.id}>{seg.label}</Option>
+                        ))}
+                    </Select>
+                </FormControl>
+                <FormControl required><FormLabel>Amount</FormLabel><Input type="number" startDecorator={household?.currency === '$' ? '$' : '£'} value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} /></FormControl>
+            </Box>
+
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
                 <FormControl required><FormLabel>Frequency</FormLabel>
                     <Select value={formData.frequency} onChange={(e, v) => setFormData({ ...formData, frequency: v })}>

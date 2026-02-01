@@ -193,7 +193,7 @@ export default function BudgetView() {
           { value: 'subscription', label: 'Subscription' },
           { value: 'insurance', label: 'Life/Health Insurance' },
           { value: 'education', label: 'Education' },
-          { value: 'care', label: 'Care / Childcare' },
+          { value: 'care', label: 'Care & Support' },
           { value: 'other', label: 'Other' }
       ];
 
@@ -202,14 +202,14 @@ export default function BudgetView() {
           { value: 'subscription', label: 'Subscription' },
           { value: 'insurance', label: 'Life/Health Insurance' },
           { value: 'education', label: 'Education' },
-          { value: 'care', label: 'Care / Childcare' },
+          { value: 'care', label: 'Care & Support' },
           { value: 'other', label: 'Other' }
       ];
       
       const PET_CATS = [
-          { value: 'food', label: 'Food' },
+          { value: 'food', label: 'Food & Supplies' },
           { value: 'insurance', label: 'Pet Insurance' },
-          { value: 'vet', label: 'Vet Bills' },
+          { value: 'vet', label: 'Vet & Medical' },
           { value: 'other', label: 'Other' }
       ];
 

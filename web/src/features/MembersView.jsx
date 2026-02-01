@@ -39,9 +39,9 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
   const getMemberSegments = (type) => {
     if (type === 'pet') {
         return [
-          { id: 'food', label: 'Food' },
-          { id: 'insurance', label: 'Insurance' },
-          { id: 'vet', label: 'Vet Bills' },
+          { id: 'food', label: 'Food & Supplies' },
+          { id: 'insurance', label: 'Pet Insurance' },
+          { id: 'vet', label: 'Vet & Medical' },
           { id: 'other', label: 'Other' }
         ];
     }
@@ -50,7 +50,7 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
         { id: 'subscription', label: 'Subscriptions' },
         { id: 'insurance', label: 'Insurance' },
         { id: 'education', label: 'Education' },
-        { id: 'care', label: 'Care' },
+        { id: 'care', label: 'Care & Support' },
         { id: 'other', label: 'Other' }
     ];
 
