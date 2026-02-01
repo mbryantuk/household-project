@@ -1,37 +1,33 @@
 #!/bin/bash
-# Totem Deployment Script (High-Speed)
-# Usage: ./deploy_verify.sh [commit_message]
+# Totem Nightly Deployment Script
+# Automatically runs every midnight
 
 set -e
 
-# 0. Prepare Commit Message
-if [ -z "$1" ]; then
-  echo "❌ Error: No commit message provided."
-  exit 1
-fi
+PROJECT_ROOT="/home/matt/household-project"
+cd "$PROJECT_ROOT"
 
-COMMIT_SUFFIX="$1"
+COMMIT_MESSAGE="Nightly Build $(date +'%Y-%m-%d')"
 
 # 0.5. Set Maintenance Mode
 echo "🚧 Enabling Maintenance Mode (Locking Login)..."
 touch server/data/upgrading.lock
 
-# 1. Bump Version
-echo "📦 Bumping Version..."
-node scripts/utils/bump_version.js
-NEW_VERSION=$(node -p "require('./package.json').version")
+# 1. Bump Version (with Date)
+echo "📦 Bumping Version for Nightly..."
+NEW_VERSION=$(node scripts/utils/bump_version_nightly.js | tail -n 1)
 
 # 1.5. Update Client Git Info
 echo "📝 Updating Client Git Info..."
 cat > web/src/git-info.json <<EOF
 {
-  "commitMessage": "$COMMIT_SUFFIX",
+  "commitMessage": "$COMMIT_MESSAGE",
   "date": "$(date)"
 }
 EOF
 
 # 2. Build & Deploy
-echo "🚀 Deploying v$NEW_VERSION..."
+echo "🚀 Deploying Nightly v$NEW_VERSION..."
 docker compose up -d --build
 
 echo "⏳ Waiting 30s for container stabilization..."
@@ -42,8 +38,7 @@ echo "🧪 Running Post-Deployment Verification..."
 echo "   - Running Backend Tests..."
 (cd server && BYPASS_MAINTENANCE=true npm test)
 
-# 2.6. Seed Brady Household (Only if tests pass)
-# This script now updates server/api-coverage.json so the Slack reporter picks it up.
+# 2.6. Seed Brady Household (API Coverage)
 echo "🌱 Seeding Brady Household..."
 export BYPASS_MAINTENANCE=true
 node scripts/ops/seed_brady_household.js
@@ -52,22 +47,24 @@ unset BYPASS_MAINTENANCE
 # 3. Commit & Push
 echo "💾 Committing changes..."
 git add .
-git commit -m "v$NEW_VERSION - $COMMIT_SUFFIX"
+git commit -m "nightly: v$NEW_VERSION - $COMMIT_MESSAGE [Tests: $TEST_RESULT]"
 CURRENT_BRANCH=$(git branch --show-current)
 git push origin "$CURRENT_BRANCH"
 
 # 3.2. Record Deployment History
 echo "📝 Recording deployment history..."
-node scripts/ops/record_deployment.js "$COMMIT_SUFFIX"
+node scripts/ops/record_deployment.js "$COMMIT_MESSAGE (Tests: $TEST_RESULT)"
 
 # 3.3. Update Slack Dashboards
 echo "📢 Updating Slack Dashboards..."
 if [ -f "scripts/ops/.env.nightly" ]; then
     export $(grep -v '^#' scripts/ops/.env.nightly | xargs)
-    node scripts/utils/post_to_slack.js || echo "⚠️ Dashboard update failed, but deployment continues."
-    node scripts/utils/post_version_to_slack.js "$COMMIT_SUFFIX" || echo "⚠️ Version announcement failed, but deployment continues."
+    # Record test result for dashboard
+    node scripts/ops/record_test_results.js backend "$(echo $TEST_RESULT | tr '[:upper:]' '[:lower:]')" || true
+    node scripts/utils/post_to_slack.js || echo "⚠️ Dashboard update failed."
+    node scripts/utils/post_version_to_slack.js "$COMMIT_MESSAGE (Tests: $TEST_RESULT)" || echo "⚠️ Version announcement failed."
 else
-    echo "⚠️  Skipping Slack update (missing scripts/ops/.env.nightly)"
+    echo "⚠️ Skipping Slack update (missing scripts/ops/.env.nightly)"
 fi
 
 # 3.5. System Hygiene
@@ -82,4 +79,4 @@ docker system prune -f
 echo "🔓 Disabling Maintenance Mode..."
 rm -f server/data/upgrading.lock
 
-echo "✅ Deployment of v$NEW_VERSION Complete!"
+echo "✅ Nightly Deployment of v$NEW_VERSION Complete!"

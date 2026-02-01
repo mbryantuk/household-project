@@ -35,6 +35,21 @@ app.use(helmet({
 app.use(cors());
 app.use(express.json());
 
+// Maintenance Mode Middleware
+app.use((req, res, next) => {
+    const lockFile = path.join(__dirname, 'data/upgrading.lock');
+    const isAuthPath = req.path.includes('/auth/login') || req.path.includes('/auth/register');
+    const bypassLock = process.env.BYPASS_MAINTENANCE === 'true' || req.headers['x-bypass-maintenance'] === 'true';
+    
+    if (fs.existsSync(lockFile) && isAuthPath && !bypassLock) {
+        return res.status(503).json({ 
+            error: "System Upgrade in Progress", 
+            message: "We are currently performing a scheduled maintenance. Please try again in a few minutes." 
+        });
+    }
+    next();
+});
+
 // Rate Limiter
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, 

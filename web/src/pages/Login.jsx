@@ -32,9 +32,15 @@ export default function Login({ onLogin }) {
       }
     } catch (err) {
       console.error("Login failed:", err);
-      if (err.response && err.response.status === 404) setError("User not found.");
-      else if (err.response && err.response.status === 401) setError("Incorrect password.");
-      else setError("Login failed. Please check your connection.");
+      if (err.response && err.response.status === 503) {
+          setError(err.response.data.message || "System Upgrade in Progress. Please try again in a few minutes.");
+      } else if (err.response && err.response.status === 404) {
+          setError("User not found.");
+      } else if (err.response && err.response.status === 401) {
+          setError("Incorrect password.");
+      } else {
+          setError("Login failed. Please check your connection.");
+      }
       setLoading(false); 
     }
   };

@@ -16,7 +16,10 @@ function apiRequest(method, urlPath, data = null, token = null) {
         const payload = data ? JSON.stringify(data) : '';
         const options = {
             hostname: 'localhost', port: 4001, path: urlPath, method: method,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'x-bypass-maintenance': 'true'
+            },
             timeout: 30000
         };
         if (token) options.headers['Authorization'] = `Bearer ${token}`;
