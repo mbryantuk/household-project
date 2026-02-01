@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Rollback verbose comments and fix scrollbar issue",
-  "date": "Sun  1 Feb 17:11:46 GMT 2026"
+  "commitMessage": "Align HouseView and BudgetView entity linking for recurring costs",
+  "date": "Sun  1 Feb 17:18:14 GMT 2026"
 }

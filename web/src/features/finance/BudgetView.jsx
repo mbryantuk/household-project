@@ -363,6 +363,18 @@ export default function BudgetView() {
                   groupKey = `vehicle_${v.id}`;
                   if (!groups[groupKey]) getGroup('vehicle', v.id, `${v.make} ${v.model}`, v.emoji || '🚗');
               }
+          } else if (charge.linked_entity_type === 'asset') {
+              const a = liabilities.assets.find(asset => String(asset.id) === String(charge.linked_entity_id));
+              if (a) {
+                  groupKey = `asset_${a.id}`;
+                  if (!groups[groupKey]) getGroup('asset', a.id, a.name, a.emoji || '📦');
+              }
+          } else if (charge.linked_entity_type === 'pet') {
+              const p = members.find(mem => String(mem.id) === String(charge.linked_entity_id));
+              if (p) {
+                  groupKey = `pet_${p.id}`;
+                  if (!groups[groupKey]) getGroup('pet', p.id, p.name, p.emoji || '🐾');
+              }
           }
 
           datesToAdd.forEach(d => {
