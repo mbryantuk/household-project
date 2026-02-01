@@ -21,32 +21,27 @@ test.describe('Authentication & Session Persistence', () => {
     await page.goto('/login');
 
     // Step 1: Email
-    await expect(page.locator('h4')).toContainText('Sign In');
+    await expect(page.locator('h3')).toContainText('TOTEM');
     await page.fill('input[type="email"]', testEmail);
     await page.click('button:has-text("Next")');
 
     // Step 2: Password (should show personalized greeting)
     await expect(page.locator('h4')).toContainText('Welcome back, Auth');
     await page.fill('input[type="password"]', testPassword);
-    
-    // Check "Remember me" (should be on by default in state if we want, but let's check it)
-    const rememberMe = page.locator('input[type="checkbox"]');
-    // It's in Step 1, so let's go back and check it or assume it's tested.
-    // In our new UI, rememberMe is in Step 1.
-    
     await page.click('button:has-text("Log In")');
 
     // Should land on household selector or dashboard
     await expect(page).toHaveURL(/.*(select-household|dashboard)/);
+    
+    // Verify logged in state via any Avatar (present on selector or sidebar)
+    await expect(page.locator('.MuiAvatar-root').first()).toBeVisible();
 
     // Refresh page to check persistence
     await page.reload();
     
-    // Should still be logged in (not redirected to login)
+    // Should still be logged in
     await expect(page).not.toHaveURL(/.*login/);
-    
-    // Should see user initial or avatar
-    await expect(page.locator('text=Auth Tester')).toBeVisible();
+    await expect(page.locator('.MuiAvatar-root').first()).toBeVisible();
   });
 
   test('Login lookup for unknown user', async ({ page }) => {
@@ -54,8 +49,7 @@ test.describe('Authentication & Session Persistence', () => {
     await page.fill('input[type="email"]', 'nonexistent@example.com');
     await page.click('button:has-text("Next")');
 
-    // Should still proceed to password step (standard security practice to avoid email harvesting, 
-    // although we have a lookup route, the UI should handle "not found" gracefully)
+    // Should still proceed to password step
     await expect(page.locator('input[type="password"]')).toBeVisible();
     await expect(page.locator('h4')).toContainText('Welcome back'); // Default greeting
   });
