@@ -164,7 +164,7 @@ export default function BudgetView() {
   }, [members, liabilities]);
 
   const getCategoryOptions = useCallback((entityString) => {
-      const [type] = (entityString || 'general:household').split(':');
+      const [type, id] = (entityString || 'general:household').split(':');
       
       const HOUSEHOLD_CATS = [
           { value: 'household_bill', label: 'Household Bill' },
@@ -188,8 +188,16 @@ export default function BudgetView() {
           { value: 'other', label: 'Other' }
       ];
 
-      const MEMBER_CATS = [
+      const ADULT_CATS = [
           { value: 'fun_money', label: 'Fun Money' },
+          { value: 'subscription', label: 'Subscription' },
+          { value: 'insurance', label: 'Life/Health Insurance' },
+          { value: 'education', label: 'Education' },
+          { value: 'care', label: 'Care / Childcare' },
+          { value: 'other', label: 'Other' }
+      ];
+
+      const CHILD_CATS = [
           { value: 'pocket_money', label: 'Pocket Money' },
           { value: 'subscription', label: 'Subscription' },
           { value: 'insurance', label: 'Life/Health Insurance' },
@@ -206,10 +214,14 @@ export default function BudgetView() {
       ];
 
       if (type === 'vehicle') return VEHICLE_CATS;
-      if (type === 'member') return MEMBER_CATS;
+      if (type === 'member') {
+          const m = members.find(mem => String(mem.id) === String(id));
+          if (m && m.type === 'child') return CHILD_CATS;
+          return ADULT_CATS;
+      }
       if (type === 'pet') return PET_CATS;
       return HOUSEHOLD_CATS;
-  }, []);
+  }, [members]);
 
   const playDing = useCallback(() => {
       try {
