@@ -73,13 +73,31 @@ async function seed() {
             members[m.n] = res.data.id;
         }
 
-        // 4. VEHICLES + STRUCTURED FINANCE
-        const v1 = await apiRequest('POST', `/api/households/${hhId}/vehicles`, { make: "Tesla", model: "Model S", emoji: "⚡" }, token);
-        const v2 = await apiRequest('POST', `/api/households/${hhId}/vehicles`, { make: "Rivian", model: "R1S", emoji: "🔋" }, token);
+        // 4. VEHICLES + DETAILED SUB-MODULES
+        // Tesla
+        const v1 = await apiRequest('POST', `/api/households/${hhId}/vehicles`, { 
+            make: "Tesla", model: "Model S", emoji: "⚡", 
+            mot_due: "2026-11-01", tax_due: "2026-11-01" 
+        }, token);
         await apiRequest('POST', `/api/households/${hhId}/vehicles/${v1.data.id}/finance`, { provider: "Tesla Finance", total_amount: 80000, remaining_balance: 45000, monthly_payment: 850, payment_day: 5 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/vehicles/${v1.data.id}/insurance`, { provider: "Direct Line", policy_number: "DL-12345", premium: 1200, renewal_date: "2027-01-15" }, token);
+        
+        // Rivian
+        const v2 = await apiRequest('POST', `/api/households/${hhId}/vehicles`, { 
+            make: "Rivian", model: "R1S", emoji: "🔋",
+            mot_due: "2026-08-20", tax_due: "2026-08-20"
+        }, token);
         await apiRequest('POST', `/api/households/${hhId}/vehicles/${v2.data.id}/finance`, { provider: "Rivian Financial", total_amount: 75000, remaining_balance: 62000, monthly_payment: 920, payment_day: 15 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/vehicles/${v2.data.id}/service_plans`, { provider: "Rivian Care", monthly_cost: 50, start_date: "2025-01-01", end_date: "2028-01-01" }, token);
 
-        // 5. FINANCIAL MATRIX (Deep Seeding)
+        // 5. HOUSEHOLD BILLS (Specific Tabs)
+        await apiRequest('POST', `/api/households/${hhId}/council`, { authority_name: "Los Angeles County", account_number: "LA-998877", monthly_amount: 280, payment_day: 1, band: "D" }, token);
+        await apiRequest('POST', `/api/households/${hhId}/water`, { provider: "LA Water", account_number: "H2O-555", monthly_amount: 45, payment_day: 15, supply_type: "metered" }, token);
+        await apiRequest('POST', `/api/households/${hhId}/energy`, { provider: "Pacific Power", account_number: "ELEC-222", type: "dual", monthly_amount: 250, payment_day: 20 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/waste`, { bin_type: "General", frequency: "weekly", day_of_week: "Tuesday", color: "black" }, token);
+        await apiRequest('POST', `/api/households/${hhId}/waste`, { bin_type: "Recycling", frequency: "biweekly", day_of_week: "Wednesday", color: "blue" }, token);
+
+        // 6. FINANCIAL MATRIX (Deep Seeding)
         const bank1 = await apiRequest('POST', `/api/households/${hhId}/finance/current-accounts`, { bank_name: "Wells Fargo", account_name: "Checking", current_balance: 15000 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "Brady Architecture", amount: 9500, is_primary: 1, payment_day: 1, bank_account_id: bank1.data.id }, token);
         const mortgageRes = await apiRequest('POST', `/api/households/${hhId}/finance/mortgages`, { lender: "Standard", total_amount: 1000000, remaining_balance: 850000, term_years: 25, payment_day: 1, monthly_payment: 4800 }, token);
@@ -92,62 +110,65 @@ async function seed() {
         await apiRequest('POST', `/api/households/${hhId}/finance/investments`, { name: "Vanguard ETF", platform: "Vanguard", current_value: 152000, monthly_contribution: 500, payment_day: 2 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/pensions`, { provider: "Fidelity", plan_name: "401k", current_value: 420000, monthly_contribution: 1200, payment_day: 1 }, token);
 
-        // 6. COMPREHENSIVE CHARGES (Covering ALL categories)
+        // 7. COMPREHENSIVE CHARGES (Linking everything)
+        // Note: We duplicate some data here because 'charges' is the central budget view.
         
         // --- HOUSEHOLD ---
         await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Council Tax", amount: 280, segment: "household_bill", frequency: "monthly", day_of_month: 1 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Water Bill", amount: 45, segment: "utility", frequency: "monthly", day_of_month: 15 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Energy Bill", amount: 250, segment: "utility", frequency: "monthly", day_of_month: 20 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Netflix Premium", amount: 18, segment: "subscription", frequency: "monthly", day_of_month: 20 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Home Insurance", amount: 65, segment: "insurance", frequency: "monthly", day_of_month: 5 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Boiler Warranty", amount: 22, segment: "warranty", frequency: "monthly", day_of_month: 2 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Cleaner", amount: 120, segment: "service", frequency: "monthly", day_of_month: 28 }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Window Cleaner", amount: 20, segment: "other", frequency: "monthly", day_of_month: 10 }, token);
-
+        
         // --- VEHICLES ---
         // Tesla
         await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Tesla Charging", amount: 60, segment: "vehicle_fuel", frequency: "monthly", day_of_month: 28, linked_entity_type: "vehicle", linked_entity_id: v1.data.id }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Tesla Tax", amount: 0, segment: "vehicle_tax", frequency: "yearly", day_of_month: 1, linked_entity_type: "vehicle", linked_entity_id: v1.data.id }, token); // EV Tax free usually
-        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Tesla Insurance", amount: 120, segment: "insurance", frequency: "monthly", day_of_month: 7, linked_entity_type: "vehicle", linked_entity_id: v1.data.id }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Tesla Insurance", amount: 100, segment: "insurance", frequency: "monthly", day_of_month: 7, linked_entity_type: "vehicle", linked_entity_id: v1.data.id }, token);
         // Rivian
         await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Rivian Service Plan", amount: 50, segment: "vehicle_service", frequency: "monthly", day_of_month: 14, linked_entity_type: "vehicle", linked_entity_id: v2.data.id }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Rivian Breakdown", amount: 15, segment: "vehicle_breakdown", frequency: "monthly", day_of_month: 14, linked_entity_type: "vehicle", linked_entity_id: v2.data.id }, token);
 
         // --- MEMBERS (Adults - Fun Money & More) ---
-        // Mike
         await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Golf Club", amount: 150, segment: "fun_money", frequency: "monthly", day_of_month: 1, linked_entity_type: "member", linked_entity_id: members.Mike }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Architect Digest", amount: 12, segment: "subscription", frequency: "monthly", day_of_month: 5, linked_entity_type: "member", linked_entity_id: members.Mike }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Life Insurance (Mike)", amount: 45, segment: "insurance", frequency: "monthly", day_of_month: 10, linked_entity_type: "member", linked_entity_id: members.Mike }, token);
-        // Carol
         await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Yoga Classes", amount: 80, segment: "fun_money", frequency: "monthly", day_of_month: 3, linked_entity_type: "member", linked_entity_id: members.Carol }, token);
         
         // --- MEMBERS (Children - Pocket Money & More) ---
         for (const kid of ["Greg", "Marcia", "Peter", "Jan", "Bobby", "Cindy"]) {
             await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: `Pocket Money (${kid})`, amount: 30, frequency: "monthly", day_of_month: 1, linked_entity_type: "member", linked_entity_id: members[kid], segment: "pocket_money" }, token);
         }
-        // School Fees / Care
-        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Cindy Afterschool Club", amount: 120, segment: "care", frequency: "monthly", day_of_month: 25, linked_entity_type: "member", linked_entity_id: members.Cindy }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Bobby Math Tutor", amount: 100, segment: "education", frequency: "monthly", day_of_month: 15, linked_entity_type: "member", linked_entity_id: members.Bobby }, token);
 
-        // --- PETS ---
-        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Tiger Food", amount: 60, segment: "food", frequency: "monthly", day_of_month: 2, linked_entity_type: "pet", linked_entity_id: members.Tiger }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Fluffy Insurance", amount: 25, segment: "insurance", frequency: "monthly", day_of_month: 5, linked_entity_type: "pet", linked_entity_id: members.Fluffy }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Tiger Vet Plan", amount: 30, segment: "vet", frequency: "monthly", day_of_month: 12, linked_entity_type: "pet", linked_entity_id: members.Tiger }, token);
-
-        // 7. BUDGET CYCLES
-        for (const date of ["2026-02-01", "2026-03-01", "2026-04-01"]) {
-            await apiRequest('POST', `/api/households/${hhId}/finance/budget-cycles`, { cycle_start: date, actual_pay: 12000, current_balance: 15400 }, token);
-            if (date !== "2026-04-01") {
-                await apiRequest('POST', `/api/households/${hhId}/finance/budget-progress`, { cycle_start: date, item_key: `mortgage_${mId}`, is_paid: 1, actual_amount: 4800 }, token);
-            }
+        // 8. MEALS (3 Weeks - ALL Types)
+        const recipes = [
+            { n: "Meatloaf", e: "🍞", t: "dinner" }, { n: "Spaghetti", e: "🍝", t: "dinner" }, { n: "Tacos", e: "🌮", t: "dinner" },
+            { n: "Pancakes", e: "🥞", t: "breakfast" }, { n: "Cereal", e: "🥣", t: "breakfast" }, { n: "Toast", e: "🍞", t: "breakfast" },
+            { n: "Sandwich", e: "🥪", t: "lunch" }, { n: "Salad", e: "🥗", t: "lunch" }, { n: "Soup", e: "🥣", t: "lunch" },
+            { n: "Apple", e: "🍎", t: "snack" }, { n: "Yogurt", e: "🍦", t: "snack" }, { n: "Chips", e: "🥔", t: "snack" }
+        ];
+        
+        const mealIds = { dinner: [], breakfast: [], lunch: [], snack: [] };
+        for (const r of recipes) { 
+            const res = await apiRequest('POST', `/api/households/${hhId}/meals`, { name: r.n, emoji: r.e, category: r.t }, token); 
+            mealIds[r.t].push(res.data.id); 
         }
 
-        // 8. MEALS (3 Weeks)
-        const recipes = [{ n: "Meatloaf", e: "🍞" }, { n: "Spaghetti", e: "🍝" }, { n: "Tacos", e: "🌮" }];
-        const mealIds = [];
-        for (const r of recipes) { const res = await apiRequest('POST', `/api/households/${hhId}/meals`, { name: r.n, emoji: r.e }, token); mealIds.push(res.data.id); }
+        const mealTypes = ['breakfast', 'lunch', 'dinner', 'snack'];
         for (let i = 0; i < 21; i++) {
             const d = new Date(); d.setDate(d.getDate() + i);
-            await apiRequest('POST', `/api/households/${hhId}/meal-plans`, { date: d.toISOString().split('T')[0], meal_id: mealIds[i % 3], member_id: members.Carol, type: 'dinner' }, token);
+            const dateStr = d.toISOString().split('T')[0];
+            
+            for (const type of mealTypes) {
+                // Rotate through available meals for this type
+                const available = mealIds[type];
+                const mealId = available[i % available.length];
+                // Randomly assign to a member (usually Alice/Carol cooking, but let's just assign plan to Carol for now)
+                await apiRequest('POST', `/api/households/${hhId}/meal-plans`, { 
+                    date: dateStr, 
+                    meal_id: mealId, 
+                    member_id: members.Carol, 
+                    type: type 
+                }, token);
+            }
         }
 
         // 9. UPDATE API COVERAGE FOR SLACK
