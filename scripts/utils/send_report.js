@@ -4,9 +4,10 @@ const path = require('path');
 
 async function sendReport() {
     const reportPath = path.join(__dirname, '../../web/playwright-report/index.html');
-    const smokeResultPath = path.join(__dirname, '../../web/results.json');
-    const routingResultPath = path.join(__dirname, '../../web/results-routing.json');
-    const bradyResultPath = path.join(__dirname, '../../web/results-brady.json');
+    const stage1Path = path.join(__dirname, '../../web/results-1.json');
+    const stage2Path = path.join(__dirname, '../../web/results-2.json');
+    const stage3Path = path.join(__dirname, '../../web/results-3.json');
+    const stage4Path = path.join(__dirname, '../../web/results-4.json');
     
     // Read Version
     let version = "Unknown";
@@ -76,12 +77,13 @@ ${title} - Detailed Breakdown:
         return { summary, detailed, passed };
     };
 
-    const smokeResults = parsePlaywrightJson(smokeResultPath, "Frontend Stage 1 (Smoke)");
-    const routingResults = parsePlaywrightJson(routingResultPath, "Frontend Stage 2 (Routing)");
-    const bradyResults = parsePlaywrightJson(bradyResultPath, "Frontend Stage 3 (Brady)");
+    const stage1Results = parsePlaywrightJson(stage1Path, "Frontend Stage 1 (Foundation)");
+    const stage2Results = parsePlaywrightJson(stage2Path, "Frontend Stage 2 (Finance)");
+    const stage3Results = parsePlaywrightJson(stage3Path, "Frontend Stage 3 (Expenses)");
+    const stage4Results = parsePlaywrightJson(stage4Path, "Frontend Stage 4 (Savings & Pots)");
     
     // Check if tests actually ran and passed
-    const frontendPassed = smokeResults.passed && routingResults.passed && bradyResults.passed;
+    const frontendPassed = stage1Results.passed && stage2Results.passed && stage3Results.passed && stage4Results.passed;
 
     // Parse Backend JSON Results
     const backendReportPath = path.join(__dirname, '../../server/test-report.json');
@@ -186,14 +188,17 @@ ${title} - Detailed Breakdown:
               `================================\n` +
               `FRONTEND STATUS\n` +
               `================================\n` +
-              `${smokeResults.summary}\n` +
-              `${smokeResults.detailed}\n` +
+              `${stage1Results.summary}\n` +
+              `${stage1Results.detailed}\n` +
               `\n` +
-              `${routingResults.summary}\n` +
-              `${routingResults.detailed}\n` +
+              `${stage2Results.summary}\n` +
+              `${stage2Results.detailed}\n` +
               `\n` +
-              `${bradyResults.summary}\n` +
-              `${bradyResults.detailed}\n` +
+              `${stage3Results.summary}\n` +
+              `${stage3Results.detailed}\n` +
+              `\n` +
+              `${stage4Results.summary}\n` +
+              `${stage4Results.detailed}\n` +
               `\n` +
               `Time: ${new Date().toLocaleString()}\n`,
         attachments

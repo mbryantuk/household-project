@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Integrate Slack reporting into deployment pipeline",
-  "date": "Sun  1 Feb 14:27:21 GMT 2026"
+  "commitMessage": "Feature: Idle timeout (5m warn, 6m logout)",
+  "date": "Sun  1 Feb 14:53:46 GMT 2026"
 }

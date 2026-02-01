@@ -1,10 +1,14 @@
 const jwt = require('jsonwebtoken');
 const { globalDb } = require('../db');
+const pkg = require('../package.json');
 const SECRET_KEY = 'super_secret_pi_key';
 
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
+    
+    // Always attach version header for client checks
+    res.setHeader('x-api-version', pkg.version);
     
     if (!token) return res.sendStatus(401);
 

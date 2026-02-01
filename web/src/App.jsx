@@ -1,12 +1,13 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { 
   Box, CssVarsProvider, Button, 
   Snackbar, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions,
-  GlobalStyles, useColorScheme
+  GlobalStyles, useColorScheme, Typography
 } from '@mui/joy';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import CssBaseline from '@mui/joy/CssBaseline';
+import pkg from '../package.json';
 
 // Theme and Local Components
 import { getTotemTheme, getThemeSpec, THEMES } from './theme';
@@ -40,6 +41,9 @@ import FinanceView from './features/FinanceView';
 
 const API_BASE = window.location.origin;
 const API_URL = `${API_BASE}/api`;
+
+const IDLE_WARNING_MS = 5 * 60 * 1000; // 5 Minutes
+const IDLE_LOGOUT_MS = 6 * 60 * 1000;  // 6 Minutes (1 min grace)
 
 // Inner App handles logic that requires useColorScheme context
 function AppInner({ themeId, setThemeId }) {
@@ -78,6 +82,10 @@ function AppInner({ themeId, setThemeId }) {
   const [notification, setNotification] = useState({ open: false, message: '', severity: 'neutral' });
   const [confirmDialog, setConfirmDialog] = useState({ open: false, title: '', message: '', onConfirm: null });
   const [installPrompt, setInstallPrompt] = useState(null);
+
+  // Idle Timer State
+  const lastActivity = useRef(Date.now());
+  const [isIdleWarning, setIsIdleWarning] = useState(false);
 
   useEffect(() => {
     const handler = (e) => {
@@ -119,6 +127,59 @@ function AppInner({ themeId, setThemeId }) {
     if (confirmDialog.onConfirm) confirmDialog.onConfirm();
     handleConfirmClose();
   };
+
+  // Actions
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('household');
+    setToken(null); setUser(null); setHousehold(null);
+    setIsIdleWarning(false); // Clear idle state
+    navigate('/login');
+  }, [navigate]);
+
+  // --- Idle Timer Logic ---
+  const resetActivity = useCallback(() => {
+    // Only reset if the warning is NOT open.
+    // If warning is open, user must explicitly click "Extend"
+    if (!isIdleWarning) {
+        lastActivity.current = Date.now();
+    }
+  }, [isIdleWarning]);
+
+  useEffect(() => {
+      const events = ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll'];
+      const handler = () => resetActivity();
+      
+      events.forEach(e => window.addEventListener(e, handler));
+      return () => events.forEach(e => window.removeEventListener(e, handler));
+  }, [resetActivity]);
+
+  useEffect(() => {
+      if (!token) return; // Only track when logged in
+
+      const interval = setInterval(() => {
+          const now = Date.now();
+          const diff = now - lastActivity.current;
+
+          if (diff > IDLE_WARNING_MS && !isIdleWarning) {
+              setIsIdleWarning(true);
+          }
+
+          if (diff > IDLE_LOGOUT_MS) {
+              logout();
+              showNotification("Session expired due to inactivity.", "neutral");
+          }
+      }, 1000); // Check every second
+
+      return () => clearInterval(interval);
+  }, [token, isIdleWarning, logout, showNotification]);
+
+  const handleExtendSession = () => {
+      lastActivity.current = Date.now();
+      setIsIdleWarning(false);
+  };
+  // ------------------------
 
   // Data Fetching
   const fetchHouseholds = useCallback(async () => {
@@ -186,31 +247,50 @@ function AppInner({ themeId, setThemeId }) {
     }
   }, [token, household?.id, fetchHhMembers, fetchHhUsers, fetchHhDates, fetchHhVehicles]);
 
-  // Actions
-  const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('household');
-    setToken(null); setUser(null); setHousehold(null);
-    navigate('/login');
-  }, [navigate]);
-
-  // Automatic Logout on 401/403
+  // Automatic Logout on 401/403/Version Mismatch
   useEffect(() => {
     const interceptor = authAxios.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        const serverVersion = response.headers['x-api-version'];
+        if (serverVersion && serverVersion !== pkg.version) {
+           console.warn(`Version Mismatch: Client v${pkg.version} vs Server v${serverVersion}. Reloading...`);
+           logout();
+           window.location.reload();
+        }
+        return response;
+      },
       (error) => {
-        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-          // Prevent loop if already on login
-          if (window.location.pathname !== '/login') {
-            logout();
-          }
+        if (error.response) {
+            const { status, data } = error.response;
+            
+            // Version Check on Error too
+            const serverVersion = error.response.headers['x-api-version'];
+            if (serverVersion && serverVersion !== pkg.version) {
+                logout();
+                window.location.reload();
+                return Promise.reject(error);
+            }
+
+            if (status === 401 || status === 403) {
+                // Prevent loop if already on login
+                if (window.location.pathname !== '/login') {
+                    logout();
+                }
+            } else if (status === 404 && data?.error && typeof data.error === 'string') {
+                // Household Availability Check
+                if (data.error.includes('Household') && data.error.includes('no longer exists')) {
+                    setHousehold(null);
+                    localStorage.removeItem('household');
+                    navigate('/select-household');
+                    showNotification("The selected household is no longer available.", "warning");
+                }
+            }
         }
         return Promise.reject(error);
       }
     );
     return () => authAxios.interceptors.response.eject(interceptor);
-  }, [authAxios, logout]);
+  }, [authAxios, logout, navigate, showNotification]);
 
   const login = useCallback(async (email, password) => {
       // Login uses API_URL which now includes /api
@@ -386,6 +466,24 @@ function AppInner({ themeId, setThemeId }) {
             <Button variant="plain" color="neutral" onClick={handleConfirmClose}>Cancel</Button>
             <Button variant="solid" color="danger" onClick={handleConfirmProceed}>Proceed</Button>
           </DialogActions>
+        </ModalDialog>
+      </Modal>
+
+      {/* Idle Warning Modal */}
+      <Modal open={isIdleWarning} onClose={() => { /* Force user to click Extend */ }}>
+        <ModalDialog variant="outlined" role="alertdialog" color="warning">
+            <DialogTitle>Session Expiring</DialogTitle>
+            <DialogContent>
+                <Typography>Your session has been idle for 5 minutes. You will be logged out in 1 minute.</Typography>
+            </DialogContent>
+            <DialogActions>
+                <Button variant="solid" color="primary" onClick={handleExtendSession}>
+                    Extend Session
+                </Button>
+                <Button variant="plain" color="neutral" onClick={logout}>
+                    Log Out Now
+                </Button>
+            </DialogActions>
         </ModalDialog>
       </Modal>
     </>

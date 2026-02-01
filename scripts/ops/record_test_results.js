@@ -5,8 +5,6 @@ const pkg = require('../../package.json');
 
 const BACKEND_REPORT = path.join(__dirname, '../../server/test-report.json');
 const FRONTEND_REPORT = path.join(__dirname, '../../web/results.json');
-const ROUTING_REPORT = path.join(__dirname, '../../web/results-routing.json');
-const BRADY_REPORT = path.join(__dirname, '../../web/results-brady.json');
 
 async function recordBackendResults(runId = null) {
     if (!fs.existsSync(BACKEND_REPORT)) {

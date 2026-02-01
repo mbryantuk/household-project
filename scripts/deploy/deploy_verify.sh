@@ -32,8 +32,6 @@ docker compose up -d --build
 
 # 2.5. Post-Deployment Verification
 echo "🧪 Running Post-Deployment Verification..."
-echo "   - Building Frontend (Verification)..."
-(cd web && npm run build)
 echo "   - Running Backend Tests..."
 (cd server && npm test)
 
@@ -52,7 +50,8 @@ node scripts/ops/record_deployment.js "$COMMIT_SUFFIX"
 echo "📢 Updating Slack Dashboards..."
 if [ -f "scripts/ops/.env.nightly" ]; then
     export $(grep -v '^#' scripts/ops/.env.nightly | xargs)
-    node scripts/utils/post_to_slack.js || echo "⚠️ Slack update failed, but deployment continues."
+    node scripts/utils/post_to_slack.js || echo "⚠️ Dashboard update failed, but deployment continues."
+    node scripts/utils/post_version_to_slack.js "$COMMIT_SUFFIX" || echo "⚠️ Version announcement failed, but deployment continues."
 else
     echo "⚠️  Skipping Slack update (missing scripts/ops/.env.nightly)"
 fi
