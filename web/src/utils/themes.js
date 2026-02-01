@@ -63,3 +63,12 @@ export const THEMES = {
   moss: { name: 'Deep Moss', mode: 'dark', primary: '#86efac', bg: '#14532d', surface: '#166534', selection: '#15803d', text: '#dcfce7' },
   galaxy: { name: 'Galaxy', mode: 'dark', primary: '#818cf8', bg: '#1e1b4b', surface: '#312e81', selection: '#3730a3', text: '#e0e7ff' },
 };
+
+export const getEmojiColor = (emoji, isDark = true) => {
+  if (!emoji) return isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+  let hash = 0;
+  const str = String(emoji);
+  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  const hue = Math.abs(hash % 360);
+  return `hsl(${hue}, ${isDark ? 50 : 70}%, ${isDark ? 25 : 90}%)`;
+};

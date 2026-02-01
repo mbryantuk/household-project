@@ -72,6 +72,24 @@ router.post('/register', async (req, res) => {
 });
 
 /**
+ * POST /lookup
+ * Public route to fetch avatar/name for personalized login
+ */
+router.post('/lookup', async (req, res) => {
+    const { email, username } = req.body;
+    const identifier = email || username;
+    if (!identifier) return res.status(400).json({ error: "Identifier required" });
+
+    try {
+        const user = await dbGet(globalDb, `SELECT first_name, avatar FROM users WHERE email = ? OR username = ? COLLATE NOCASE`, [identifier, identifier]);
+        if (!user) return res.status(404).json({ error: "Not found" });
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ error: "Lookup failed" });
+    }
+});
+
+/**
  * POST /login
  */
 router.post('/login', async (req, res) => {

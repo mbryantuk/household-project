@@ -42,8 +42,8 @@ import FinanceView from './features/FinanceView';
 const API_BASE = window.location.origin;
 const API_URL = `${API_BASE}/api`;
 
-const IDLE_WARNING_MS = 5 * 60 * 1000; // 5 Minutes
-const IDLE_LOGOUT_MS = 6 * 60 * 1000;  // 6 Minutes (1 min grace)
+const IDLE_WARNING_MS = 60 * 60 * 1000; // 1 Hour
+const IDLE_LOGOUT_MS = 120 * 60 * 1000;  // 2 Hours
 
 function AppInner({ 
     themeId, setThemeId, user, setUser, token, setToken, household, setHousehold, 
