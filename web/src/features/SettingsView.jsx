@@ -18,13 +18,34 @@ import gitInfo from '../git-info.json';
 
 export default function SettingsView({ 
     household, users, currentUser, api, showNotification, confirmAction, fetchHhUsers,
-    themeId, onThemeChange, onUpdateHousehold
+    themeId, onThemeChange, onUpdateHousehold, onUpdateProfile
 }) {
   const [activeTab, setActiveTab] = useState(0);
   const [editUser, setEditUser] = useState(null);
   const [isInvite, setIsInvite] = useState(false);
   const [savingUser, setSavingUser] = useState(false);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+
+  // Custom Theme State
+  const [customThemeConfig, setCustomThemeConfig] = useState(() => {
+    if (currentUser?.custom_theme) {
+      try {
+        return typeof currentUser.custom_theme === 'string' 
+          ? JSON.parse(currentUser.custom_theme) 
+          : currentUser.custom_theme;
+      } catch { return { mode: 'light', primary: '#644AC9', bg: '#FFFBEB', surface: '#FFF', selection: '#CFCFDE', text: '#1F1F1F' }; }
+    }
+    return { mode: 'light', primary: '#644AC9', bg: '#FFFBEB', surface: '#FFF', selection: '#CFCFDE', text: '#1F1F1F' };
+  });
+
+  const handleSaveCustomTheme = async () => {
+    try {
+      await onUpdateProfile({ custom_theme: JSON.stringify(customThemeConfig) });
+      showNotification("Custom theme saved.", "success");
+    } catch {
+      showNotification("Failed to save custom theme.", "danger");
+    }
+  };
 
   // New Household Modal State
   const [isCreateHhModalOpen, setIsCreateHhModalOpen] = useState(false);
@@ -638,8 +659,77 @@ export default function SettingsView({
                 <Box>
                     <Box sx={{ mb: 4 }}>
                         <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Personalize Your Experience</Typography>
-                        <Typography level="body-md" color="neutral">Select from our library of 50+ themes. Your preference is saved to your profile and follows you across devices.</Typography>
+                        <Typography level="body-md" color="neutral">Select from our library of 100+ themes or create your own. Your preference is saved to your profile.</Typography>
                     </Box>
+
+                    {themeId === 'custom' && (
+                        <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', mb: 4, bgcolor: 'background.level1' }}>
+                            <Typography level="title-md" sx={{ mb: 2 }} startDecorator={<Palette color="primary" />}>Custom Theme Builder</Typography>
+                            <Grid container spacing={3}>
+                                <Grid xs={12} sm={6} md={4}>
+                                    <FormControl>
+                                        <FormLabel>Mode</FormLabel>
+                                        <Stack direction="row" spacing={1} alignItems="center">
+                                            <Typography level="body-xs">Light</Typography>
+                                            <Switch 
+                                                checked={customThemeConfig.mode === 'dark'} 
+                                                onChange={(e) => setCustomThemeConfig({...customThemeConfig, mode: e.target.checked ? 'dark' : 'light'})}
+                                            />
+                                            <Typography level="body-xs">Dark</Typography>
+                                        </Stack>
+                                    </FormControl>
+                                </Grid>
+                                <Grid xs={12} sm={6} md={4}>
+                                    <FormControl>
+                                        <FormLabel>Primary Color</FormLabel>
+                                        <Stack direction="row" spacing={1}>
+                                            <input type="color" value={customThemeConfig.primary} onChange={(e) => setCustomThemeConfig({...customThemeConfig, primary: e.target.value})} style={{ width: 40, height: 40, border: 'none', borderRadius: 4, cursor: 'pointer' }} />
+                                            <Input size="sm" value={customThemeConfig.primary} onChange={(e) => setCustomThemeConfig({...customThemeConfig, primary: e.target.value})} />
+                                        </Stack>
+                                    </FormControl>
+                                </Grid>
+                                <Grid xs={12} sm={6} md={4}>
+                                    <FormControl>
+                                        <FormLabel>Background</FormLabel>
+                                        <Stack direction="row" spacing={1}>
+                                            <input type="color" value={customThemeConfig.bg} onChange={(e) => setCustomThemeConfig({...customThemeConfig, bg: e.target.value})} style={{ width: 40, height: 40, border: 'none', borderRadius: 4, cursor: 'pointer' }} />
+                                            <Input size="sm" value={customThemeConfig.bg} onChange={(e) => setCustomThemeConfig({...customThemeConfig, bg: e.target.value})} />
+                                        </Stack>
+                                    </FormControl>
+                                </Grid>
+                                <Grid xs={12} sm={6} md={4}>
+                                    <FormControl>
+                                        <FormLabel>Surface</FormLabel>
+                                        <Stack direction="row" spacing={1}>
+                                            <input type="color" value={customThemeConfig.surface} onChange={(e) => setCustomThemeConfig({...customThemeConfig, surface: e.target.value})} style={{ width: 40, height: 40, border: 'none', borderRadius: 4, cursor: 'pointer' }} />
+                                            <Input size="sm" value={customThemeConfig.surface} onChange={(e) => setCustomThemeConfig({...customThemeConfig, surface: e.target.value})} />
+                                        </Stack>
+                                    </FormControl>
+                                </Grid>
+                                <Grid xs={12} sm={6} md={4}>
+                                    <FormControl>
+                                        <FormLabel>Selection / Divider</FormLabel>
+                                        <Stack direction="row" spacing={1}>
+                                            <input type="color" value={customThemeConfig.selection} onChange={(e) => setCustomThemeConfig({...customThemeConfig, selection: e.target.value})} style={{ width: 40, height: 40, border: 'none', borderRadius: 4, cursor: 'pointer' }} />
+                                            <Input size="sm" value={customThemeConfig.selection} onChange={(e) => setCustomThemeConfig({...customThemeConfig, selection: e.target.value})} />
+                                        </Stack>
+                                    </FormControl>
+                                </Grid>
+                                <Grid xs={12} sm={6} md={4}>
+                                    <FormControl>
+                                        <FormLabel>Text Primary</FormLabel>
+                                        <Stack direction="row" spacing={1}>
+                                            <input type="color" value={customThemeConfig.text} onChange={(e) => setCustomThemeConfig({...customThemeConfig, text: e.target.value})} style={{ width: 40, height: 40, border: 'none', borderRadius: 4, cursor: 'pointer' }} />
+                                            <Input size="sm" value={customThemeConfig.text} onChange={(e) => setCustomThemeConfig({...customThemeConfig, text: e.target.value})} />
+                                        </Stack>
+                                    </FormControl>
+                                </Grid>
+                                <Grid xs={12}>
+                                    <Button variant="solid" color="primary" onClick={handleSaveCustomTheme}>Apply & Save Custom Theme</Button>
+                                </Grid>
+                            </Grid>
+                        </Sheet>
+                    )}
 
                     <Stack spacing={4}>
                       <Box>

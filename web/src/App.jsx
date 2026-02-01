@@ -45,12 +45,12 @@ const API_URL = `${API_BASE}/api`;
 const IDLE_WARNING_MS = 5 * 60 * 1000; // 5 Minutes
 const IDLE_LOGOUT_MS = 6 * 60 * 1000;  // 6 Minutes (1 min grace)
 
-// Inner App handles logic that requires useColorScheme context
-function AppInner({ themeId, setThemeId }) {
+function AppInner({ 
+    themeId, setThemeId, user, setUser, token, setToken, household, setHousehold, 
+    logout, login, spec, isDark 
+}) {
   const { setMode } = useColorScheme();
   
-  const { spec, isDark } = useMemo(() => getThemeSpec(themeId), [themeId]);
-
   // Synchronize MUI mode with theme spec mode
   useEffect(() => {
     setMode(spec.mode);
@@ -64,15 +64,6 @@ function AppInner({ themeId, setThemeId }) {
     }
   }, [spec.primary]);
 
-  // Auth & Data State
-  const [token, setToken] = useState(localStorage.getItem('token'));
-  const [user, setUser] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('user')) || null; } catch { return null; }
-  });
-  const [household, setHousehold] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('household')) || null; } catch { return null; }
-  });
-
   const [households, setHouseholds] = useState([]);
   const [hhUsers, setHhUsers] = useState([]);     
   const [hhMembers, setHhMembers] = useState([]); 
@@ -84,7 +75,12 @@ function AppInner({ themeId, setThemeId }) {
   const [installPrompt, setInstallPrompt] = useState(null);
 
   // Idle Timer State
-  const lastActivity = useRef(Date.now());
+  const lastActivity = useRef(0);
+  
+  useEffect(() => {
+      lastActivity.current = Date.now();
+  }, []);
+
   const [isIdleWarning, setIsIdleWarning] = useState(false);
 
   useEffect(() => {
@@ -128,20 +124,8 @@ function AppInner({ themeId, setThemeId }) {
     handleConfirmClose();
   };
 
-  // Actions
-  const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('household');
-    setToken(null); setUser(null); setHousehold(null);
-    setIsIdleWarning(false); // Clear idle state
-    navigate('/login');
-  }, [navigate]);
-
   // --- Idle Timer Logic ---
   const resetActivity = useCallback(() => {
-    // Only reset if the warning is NOT open.
-    // If warning is open, user must explicitly click "Extend"
     if (!isIdleWarning) {
         lastActivity.current = Date.now();
     }
@@ -156,7 +140,7 @@ function AppInner({ themeId, setThemeId }) {
   }, [resetActivity]);
 
   useEffect(() => {
-      if (!token) return; // Only track when logged in
+      if (!token) return;
 
       const interval = setInterval(() => {
           const now = Date.now();
@@ -170,7 +154,7 @@ function AppInner({ themeId, setThemeId }) {
               logout();
               showNotification("Session expired due to inactivity.", "neutral");
           }
-      }, 1000); // Check every second
+      }, 1000);
 
       return () => clearInterval(interval);
   }, [token, isIdleWarning, logout, showNotification]);
@@ -230,11 +214,10 @@ function AppInner({ themeId, setThemeId }) {
             });
         }
     }
-  }, [household, households, user]);
+  }, [household, households, user, setUser]);
 
   useEffect(() => {
     if (token && household) {
-        // FLUSH: Clear old data immediately to prevent ghosting during switch
         setHhMembers([]);
         setHhUsers([]);
         setHhDates([]);
@@ -253,7 +236,6 @@ function AppInner({ themeId, setThemeId }) {
       (response) => {
         const serverVersion = response.headers['x-api-version'];
         if (serverVersion && serverVersion !== pkg.version) {
-           console.warn(`Version Mismatch: Client v${pkg.version} vs Server v${serverVersion}. Reloading...`);
            logout();
            window.location.reload();
         }
@@ -262,8 +244,6 @@ function AppInner({ themeId, setThemeId }) {
       (error) => {
         if (error.response) {
             const { status, data } = error.response;
-            
-            // Version Check on Error too
             const serverVersion = error.response.headers['x-api-version'];
             if (serverVersion && serverVersion !== pkg.version) {
                 logout();
@@ -272,12 +252,10 @@ function AppInner({ themeId, setThemeId }) {
             }
 
             if (status === 401 || status === 403) {
-                // Prevent loop if already on login
                 if (window.location.pathname !== '/login') {
                     logout();
                 }
             } else if (status === 404 && data?.error && typeof data.error === 'string') {
-                // Household Availability Check
                 if (data.error.includes('Household') && data.error.includes('no longer exists')) {
                     setHousehold(null);
                     localStorage.removeItem('household');
@@ -290,40 +268,15 @@ function AppInner({ themeId, setThemeId }) {
       }
     );
     return () => authAxios.interceptors.response.eject(interceptor);
-  }, [authAxios, logout, navigate, showNotification]);
-
-  const login = useCallback(async (email, password) => {
-      // Login uses API_URL which now includes /api
-      const res = await axios.post(`${API_URL}/auth/login`, { email, password });
-      const { token, role, context, household: hhData, user: userData, system_role } = res.data;
-      const fullUser = { ...userData, role, system_role };
-      setToken(token); setUser(fullUser);
-      localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(fullUser));
-      
-      // Update theme from user object
-      if (userData.theme) setThemeId(userData.theme);
-
-      if (context === 'household') {
-        setHousehold(hhData);
-        localStorage.setItem('household', JSON.stringify(hhData));
-        navigate(`/household/${hhData.id}/dashboard`);
-      } else {
-        setHousehold(null); localStorage.removeItem('household');
-        navigate('/select-household');
-      }
-  }, [navigate, setThemeId]);
+  }, [authAxios, logout, navigate, showNotification, setHousehold]);
 
   const handleSelectHousehold = useCallback(async (hh) => {
     try {
-      // 1. Persist preference
       await authAxios.post(`/households/${hh.id}/select`);
-      
-      // 2. Get new token for the new context
       const tokenRes = await authAxios.post('/auth/token', { householdId: hh.id });
       const newToken = tokenRes.data.token;
       const newRole = tokenRes.data.role;
 
-      // 3. Update Auth State
       setToken(newToken);
       localStorage.setItem('token', newToken);
 
@@ -331,32 +284,25 @@ function AppInner({ themeId, setThemeId }) {
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
 
-      // 4. Update Household State
       setHousehold(hh);
       localStorage.setItem('household', JSON.stringify(hh));
     } catch (err) {
-      console.error("Failed to transition to new household context", err);
+      console.error("Failed to transition context", err);
       showNotification("Failed to switch household context.", "danger");
     }
-  }, [authAxios, user, showNotification]);
+  }, [authAxios, user, setUser, setToken, setHousehold, showNotification]);
 
   const handleUpdateHouseholdSettings = useCallback(async (updates) => {
     if (!household) return;
     try {
       await authAxios.put(`/households/${household.id}`, updates);
-      
       const updatedHH = { ...household, ...updates };
-      
-      // Update Single State
       setHousehold(updatedHH);
       localStorage.setItem('household', JSON.stringify(updatedHH));
-
-      // Update List State to ensure Layouts depending on list are updated
       setHouseholds(prev => prev.map(h => h.id === household.id ? { ...h, ...updates } : h));
-
       showNotification("Household updated.", "success");
     } catch { showNotification("Failed to update.", "danger"); }
-  }, [authAxios, household, showNotification]);
+  }, [authAxios, household, setHousehold, showNotification]);
 
   const handleUpdateProfile = useCallback(async (updates) => {
     try {
@@ -367,32 +313,15 @@ function AppInner({ themeId, setThemeId }) {
       
       if (updates.theme) setThemeId(updates.theme);
       
-      if (!updates.sticky_note && !updates.theme) showNotification("Profile updated.", "success");
+      if (!updates.sticky_note && !updates.theme && !updates.custom_theme) showNotification("Profile updated.", "success");
     } catch (err) { showNotification("Failed to update profile.", "danger"); throw err; }
-  }, [authAxios, user, showNotification, setThemeId]);
-
-  // Synchronize themeId with user theme preference
-  useEffect(() => {
-    if (user?.theme && user.theme !== themeId) {
-      setThemeId(user.theme);
-    }
-  }, [user, themeId, setThemeId]);
+  }, [authAxios, user, setUser, setThemeId, showNotification]);
 
   return (
     <>
       <GlobalStyles styles={{
-          'html, body': { 
-            margin: 0, 
-            padding: 0, 
-            overflow: 'hidden', 
-            height: '100dvh',
-            width: '100vw'
-          },
-          '#root': {
-            height: '100dvh',
-            width: '100vw',
-            overflow: 'hidden'
-          },
+          'html, body': { margin: 0, padding: 0, overflow: 'hidden', height: '100dvh', width: '100vw' },
+          '#root': { height: '100dvh', width: '100vw', overflow: 'hidden' },
           '.rbc-calendar': { color: `${spec.text} !important`, fontFamily: 'var(--joy-fontFamily-body, sans-serif)' },
           '.rbc-off-range-bg': { backgroundColor: isDark ? 'rgba(0,0,0,0.2) !important' : 'rgba(0,0,0,0.05) !important' },
           '.rbc-today': { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05) !important' : 'rgba(0, 0, 0, 0.03) !important', border: `1px solid ${spec.primary} !important` },
@@ -420,18 +349,13 @@ function AppInner({ themeId, setThemeId }) {
           <Route path="select-household" element={<HouseholdSelector api={authAxios} currentUser={user} onLogout={logout} showNotification={showNotification} onSelectHousehold={handleSelectHousehold} />} />
 
           <Route path="household/:id" element={<HouseholdLayout 
-              households={households}
-              onSelectHousehold={handleSelectHousehold}
-              api={authAxios} onUpdateHousehold={handleUpdateHouseholdSettings}
-              members={hhMembers} fetchHhMembers={fetchHhMembers} 
-              vehicles={hhVehicles} fetchVehicles={fetchHhVehicles}
-              user={user} isDark={isDark}
-              showNotification={showNotification} confirmAction={confirmAction}
+              households={households} onSelectHousehold={handleSelectHousehold} api={authAxios} onUpdateHousehold={handleUpdateHouseholdSettings}
+              members={hhMembers} fetchHhMembers={fetchHhMembers} vehicles={hhVehicles} fetchVehicles={fetchHhVehicles}
+              user={user} isDark={isDark} showNotification={showNotification} confirmAction={confirmAction}
               dates={hhDates} onDateAdded={() => household && fetchHhDates(household.id)}
               onUpdateProfile={handleUpdateProfile} onLogout={logout}
               themeId={themeId} onThemeChange={(newId) => handleUpdateProfile({ theme: newId })}
-              installPrompt={installPrompt} onInstall={handleInstall}
-              household={household}
+              installPrompt={installPrompt} onInstall={handleInstall} household={household}
             />}>
                 <Route index element={<Navigate to="dashboard" replace />} />
                 <Route path="dashboard" element={<HomeView household={household} members={hhMembers} currentUser={user} dates={hhDates} onUpdateProfile={handleUpdateProfile} api={authAxios} />} />
@@ -448,12 +372,11 @@ function AppInner({ themeId, setThemeId }) {
                 <Route path="finance" element={<FinanceView />} />
                 <Route path="settings" element={<SettingsView 
                     household={household} users={hhUsers} currentUser={user} api={authAxios}
-                    onUpdateHousehold={handleUpdateHouseholdSettings}
-                    themeId={themeId} onThemeChange={(newId) => handleUpdateProfile({ theme: newId })}
-                    showNotification={showNotification} confirmAction={confirmAction}
-                    fetchHhUsers={fetchHhUsers}
+                    onUpdateHousehold={handleUpdateHouseholdSettings} themeId={themeId}
+                    onThemeChange={(newId) => handleUpdateProfile({ theme: newId })}
+                    showNotification={showNotification} confirmAction={confirmAction} fetchHhUsers={fetchHhUsers}
+                    onUpdateProfile={handleUpdateProfile}
                 />} />
-                {/* Mobile Tools Routes */}
                 <Route path="tools/notes" element={<Box sx={{ height: '100%' }}><PostItNote isPopout={true} onClose={() => navigate(-1)} user={user} onUpdateProfile={handleUpdateProfile} /></Box>} />
                 <Route path="tools/calculator" element={<Box sx={{ height: '100%' }}><FloatingCalculator isPopout={true} onClose={() => navigate(-1)} isDark={isDark} /></Box>} />
                 <Route path="tools/finance" element={<Box sx={{ height: '100%' }}><FinancialCalculator isPopout={true} onClose={() => navigate(-1)} isDark={isDark} /></Box>} />
@@ -481,20 +404,13 @@ function AppInner({ themeId, setThemeId }) {
         </ModalDialog>
       </Modal>
 
-      {/* Idle Warning Modal */}
-      <Modal open={isIdleWarning} onClose={() => { /* Force user to click Extend */ }}>
+      <Modal open={isIdleWarning} onClose={() => {}}>
         <ModalDialog variant="outlined" role="alertdialog" color="warning">
             <DialogTitle>Session Expiring</DialogTitle>
-            <DialogContent>
-                <Typography>Your session has been idle for 5 minutes. You will be logged out in 1 minute.</Typography>
-            </DialogContent>
+            <DialogContent><Typography>Your session has been idle for 5 minutes. Logout in 1 minute.</Typography></DialogContent>
             <DialogActions>
-                <Button variant="solid" color="primary" onClick={handleExtendSession}>
-                    Extend Session
-                </Button>
-                <Button variant="plain" color="neutral" onClick={logout}>
-                    Log Out Now
-                </Button>
+                <Button variant="solid" color="primary" onClick={handleExtendSession}>Extend Session</Button>
+                <Button variant="plain" color="neutral" onClick={logout}>Log Out Now</Button>
             </DialogActions>
         </ModalDialog>
       </Modal>
@@ -503,21 +419,63 @@ function AppInner({ themeId, setThemeId }) {
 }
 
 export default function App() {
-  const [themeId, setThemeId] = useState(() => {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      return user.theme || 'totem';
+  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [user, setUser] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('user')) || null; } catch { return null; }
   });
-  const theme = useMemo(() => getTotemTheme(themeId), [themeId]);
+  const [household, setHousehold] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('household')) || null; } catch { return null; }
+  });
+
+  const [themeId, setThemeId] = useState(user?.theme || 'totem');
+
+  const customConfig = useMemo(() => {
+    if (!user?.custom_theme) return null;
+    try {
+        return typeof user.custom_theme === 'string' ? JSON.parse(user.custom_theme) : user.custom_theme;
+    } catch { return null; }
+  }, [user?.custom_theme]);
+
+  const { spec, isDark } = useMemo(() => getThemeSpec(themeId, customConfig), [themeId, customConfig]);
+  const theme = useMemo(() => getTotemTheme(themeId, customConfig), [themeId, customConfig]);
   
-  const handleThemeChange = (newThemeId) => {
-    setThemeId(newThemeId);
-  };
+  const login = useCallback(async (email, password) => {
+      const res = await axios.post(`${API_URL}/auth/login`, { email, password });
+      const { token, role, context, household: hhData, user: userData, system_role } = res.data;
+      const fullUser = { ...userData, role, system_role };
+      setToken(token); setUser(fullUser);
+      localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(fullUser));
+      if (userData.theme) setThemeId(userData.theme);
+      if (context === 'household') {
+        setHousehold(hhData);
+        localStorage.setItem('household', JSON.stringify(hhData));
+        window.location.href = `/household/${hhData.id}/dashboard`;
+      } else {
+        setHousehold(null); localStorage.removeItem('household');
+        window.location.href = '/select-household';
+      }
+  }, []);
+
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('household');
+    setToken(null); setUser(null); setHousehold(null);
+    window.location.href = '/login';
+  }, []);
 
   return (
     <BrowserRouter>
-      <CssVarsProvider theme={theme} defaultMode={THEMES[themeId]?.mode || 'light'} disableNestedContext>
+      <CssVarsProvider theme={theme} defaultMode={spec.mode} disableNestedContext>
         <CssBaseline />
-        <AppInner themeId={themeId} setThemeId={handleThemeChange} />
+        <AppInner 
+            themeId={themeId} setThemeId={setThemeId} 
+            user={user} setUser={setUser} 
+            token={token} setToken={setToken} 
+            household={household} setHousehold={setHousehold}
+            logout={logout} login={login}
+            spec={spec} isDark={isDark}
+        />
       </CssVarsProvider>
     </BrowserRouter>
   );
