@@ -395,7 +395,7 @@ export default function BudgetView() {
           g.unpaid = g.total - g.paid;
       });
 
-      return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, groupList, skipped };
+      return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, groupList, skipped, budgetLabelDate };
   }, [incomes, liabilities, progress, viewDate, getPriorWorkingDay, getAdjustedDate, savingsPots, getNextWorkingDay, members, sortConfig, searchQuery]);
 
   const currentCycleRecord = useMemo(() => cycles.find(c => c.cycle_start === cycleData?.cycleKey), [cycles, cycleData]);
@@ -781,7 +781,7 @@ export default function BudgetView() {
         {/* SETUP MODAL */}
         <Modal open={setupModalOpen}>
             <ModalDialog sx={{ maxWidth: 500, width: '100%' }}>
-                <DialogTitle>Setup {format(budgetLabelDate, 'MMMM')} Budget</DialogTitle>
+                <DialogTitle>Setup {format(cycleData.budgetLabelDate, 'MMMM')} Budget</DialogTitle>
                 <DialogContent>
                     <Typography>Let's get started. Projected income for this cycle is <b>{formatCurrency(projectedIncome)}</b>.</Typography>
                     <Stack spacing={2} sx={{ mt: 2 }}>
