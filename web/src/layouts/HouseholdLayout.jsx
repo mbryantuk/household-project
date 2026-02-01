@@ -130,7 +130,7 @@ export default function HouseholdLayout({
           onUpdateHousehold={onUpdateHousehold}
       />
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0, height: '100%', position: 'relative' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0, height: '100%', position: 'relative', overflow: 'hidden' }}>
         
         <Sheet
           sx={{
@@ -165,6 +165,7 @@ export default function HouseholdLayout({
 
         <Box component="main" sx={{ 
             flexGrow: 1, 
+            minHeight: 0,
             p: { xs: 2, md: 3 }, 
             pb: { xs: 10, md: 3 }, 
             overflowY: 'auto',

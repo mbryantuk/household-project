@@ -218,7 +218,7 @@ export default function UtilityBar({
         sx={{
             position: 'relative', width: '100%', minHeight: 40, display: 'flex', alignItems: 'center',
             bgcolor: 'background.surface', borderTop: '1px solid', borderColor: 'divider', zIndex: 900, 
-            flexShrink: 0, overflow: 'visible',
+            flexShrink: 0, overflow: 'hidden',
             flexDirection: { xs: 'column', md: 'row' },
             py: { xs: 1, md: 0 }
         }}
@@ -227,7 +227,8 @@ export default function UtilityBar({
             flex: '1 1 auto', display: 'flex', width: '100%', alignItems: 'center', position: 'relative',
             flexWrap: { xs: 'wrap', md: 'nowrap' },
             justifyContent: { xs: 'center', md: 'flex-start' },
-            gap: { xs: 1, md: 0 }
+            gap: { xs: 1, md: 0 },
+            minWidth: 0
         }}>
             {/* Left Hint Gradient - Desktop Only */}
             {!isMobile && canScrollLeft && (

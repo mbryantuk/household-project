@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Implement Maintenance Mode & Upgrade UI Notifications (Header-Based Bypass)",
-  "date": "Sun  1 Feb 16:22:11 GMT 2026"
+  "commitMessage": "Rollback verbose comments and fix scrollbar issue",
+  "date": "Sun  1 Feb 17:11:46 GMT 2026"
 }

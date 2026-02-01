@@ -381,6 +381,18 @@ function AppInner({ themeId, setThemeId }) {
   return (
     <>
       <GlobalStyles styles={{
+          'html, body': { 
+            margin: 0, 
+            padding: 0, 
+            overflow: 'hidden', 
+            height: '100dvh',
+            width: '100vw'
+          },
+          '#root': {
+            height: '100dvh',
+            width: '100vw',
+            overflow: 'hidden'
+          },
           '.rbc-calendar': { color: `${spec.text} !important`, fontFamily: 'var(--joy-fontFamily-body, sans-serif)' },
           '.rbc-off-range-bg': { backgroundColor: isDark ? 'rgba(0,0,0,0.2) !important' : 'rgba(0,0,0,0.05) !important' },
           '.rbc-today': { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05) !important' : 'rgba(0, 0, 0, 0.03) !important', border: `1px solid ${spec.primary} !important` },
