@@ -39,6 +39,7 @@ echo "   - Running Backend Tests..."
 (cd server && npm test)
 
 # 2.6. Seed Brady Household (Only if tests pass)
+# This script now updates server/api-coverage.json so the Slack reporter picks it up.
 echo "🌱 Seeding Brady Household..."
 node scripts/ops/seed_brady_household.js
 

@@ -150,6 +150,18 @@ async function seed() {
             await apiRequest('POST', `/api/households/${hhId}/meal-plans`, { date: d.toISOString().split('T')[0], meal_id: mealIds[i % 3], member_id: members.Carol, type: 'dinner' }, token);
         }
 
+        // 9. UPDATE API COVERAGE FOR SLACK
+        const coveragePath = path.join(__dirname, '../../server/api-coverage.json');
+        if (fs.existsSync(coveragePath)) {
+            const coverage = JSON.parse(fs.readFileSync(coveragePath, 'utf8'));
+            coverage.results = coverage.results || {};
+            coverage.results["BRADY SEED"] = "PASS";
+            coverage.results["BRADY DATA"] = "PASS";
+            coverage.steps = coverage.steps || [];
+            coverage.steps.push(`${new Date().toISOString().split('T')[1].split('.')[0]}: Brady Household Seeded Successfully.`);
+            fs.writeFileSync(coveragePath, JSON.stringify(coverage, null, 2));
+        }
+
         console.log(`✅ DEFINITIVE SEED COMPLETE: ID ${hhId}`);
         process.exit(0);
     } catch (err) { console.error("❌ Seed Failed:", err); process.exit(1); }

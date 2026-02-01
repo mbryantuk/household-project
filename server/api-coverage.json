@@ -1,13 +1,14 @@
 {
-  "timestamp": "2026-02-01T15:10:53.485Z",
+  "timestamp": "2026-02-01T15:17:19.659Z",
   "accounts": {
-    "admin": "admin_1769958648359@test.com",
-    "viewer": "viewer_1769958648359@test.com"
+    "admin": "admin_1769959033210@test.com",
+    "viewer": "viewer_1769959033210@test.com"
   },
   "steps": [
-    "15:10:48: Loading Swagger schema for strict sync enforcement.",
-    "15:10:48: Initializing test environment.",
-    "15:10:53: Cleaning up: Deleting test household."
+    "15:17:13: Loading Swagger schema for strict sync enforcement.",
+    "15:17:13: Initializing test environment.",
+    "15:17:19: Cleaning up: Deleting test household.",
+    "15:17:34: Brady Household Seeded Successfully."
   ],
   "summary": {
     "total_endpoints": 83,
@@ -97,7 +98,9 @@
     "PUT /households/{id}/meals/{itemId}": "PASS",
     "DELETE /households/{id}/meals/{itemId}": "PASS",
     "GET /admin/test-results": "PASS",
-    "GET /admin/version-history": "PASS"
+    "GET /admin/version-history": "PASS",
+    "BRADY SEED": "PASS",
+    "BRADY DATA": "PASS"
   },
   "swagger_discrepancies": {
     "missing_in_swagger": [],
