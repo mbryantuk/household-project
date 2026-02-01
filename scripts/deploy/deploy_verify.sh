@@ -48,6 +48,15 @@ git push origin "$CURRENT_BRANCH"
 echo "📝 Recording deployment history..."
 node scripts/ops/record_deployment.js "$COMMIT_SUFFIX"
 
+# 3.3. Update Slack Dashboards
+echo "📢 Updating Slack Dashboards..."
+if [ -f "scripts/ops/.env.nightly" ]; then
+    export $(grep -v '^#' scripts/ops/.env.nightly | xargs)
+    node scripts/utils/post_to_slack.js || echo "⚠️ Slack update failed, but deployment continues."
+else
+    echo "⚠️  Skipping Slack update (missing scripts/ops/.env.nightly)"
+fi
+
 # 3.5. System Hygiene
 echo "🧹 Cleaning up test data..."
 node server/scripts/cleanup_test_data.js
