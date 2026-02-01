@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Update Brady seed name to use readable datetime (retry)",
-  "date": "Sun  1 Feb 15:02:34 GMT 2026"
+  "commitMessage": "Refactor deployment pipeline: Move Brady seeding after tests",
+  "date": "Sun  1 Feb 15:08:01 GMT 2026"
 }
