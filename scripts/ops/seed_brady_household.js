@@ -62,8 +62,8 @@ async function seed() {
         // 4. VEHICLES + STRUCTURED FINANCE
         const v1 = await apiRequest('POST', `/api/households/${hhId}/vehicles`, { make: "Tesla", model: "Model S", emoji: "⚡" }, token);
         const v2 = await apiRequest('POST', `/api/households/${hhId}/vehicles`, { make: "Rivian", model: "R1S", emoji: "🔋" }, token);
-        await apiRequest('POST', `/api/households/${hhId}/vehicles/${v1.data.id}/finance`, { provider: "Tesla Finance", total_amount: 80000, remaining_balance: 45000, monthly_payment: 850 }, token);
-        await apiRequest('POST', `/api/households/${hhId}/vehicles/${v2.data.id}/finance`, { provider: "Rivian Financial", total_amount: 75000, remaining_balance: 62000, monthly_payment: 920 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/vehicles/${v1.data.id}/finance`, { provider: "Tesla Finance", total_amount: 80000, remaining_balance: 45000, monthly_payment: 850, payment_day: 5 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/vehicles/${v2.data.id}/finance`, { provider: "Rivian Financial", total_amount: 75000, remaining_balance: 62000, monthly_payment: 920, payment_day: 15 }, token);
 
         // 5. FINANCIAL MATRIX (Deep Seeding)
         const bank1 = await apiRequest('POST', `/api/households/${hhId}/finance/current-accounts`, { bank_name: "Wells Fargo", account_name: "Checking", current_balance: 15000 }, token);
@@ -71,19 +71,24 @@ async function seed() {
         const mortgageRes = await apiRequest('POST', `/api/households/${hhId}/finance/mortgages`, { lender: "Standard", total_amount: 1000000, remaining_balance: 850000, term_years: 25, payment_day: 1, monthly_payment: 4800 }, token);
         const mId = mortgageRes.data.id;
         const savRes = await apiRequest('POST', `/api/households/${hhId}/finance/savings`, { institution: "Ally", account_name: "Joint Savings", current_balance: 55000 }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/savings/${savRes.data.id}/pots`, { name: "Hawaii 2026", target_amount: 15000, current_amount: 8000, emoji: "🌋" }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/credit-cards`, { provider: "Amex", card_name: "Platinum", credit_limit: 20000, current_balance: 1200, emoji: "💳" }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/credit-cards`, { provider: "Chase", card_name: "Sapphire", credit_limit: 15000, current_balance: 0, emoji: "🟦" }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/loans`, { lender: "SoFi", loan_type: "Personal", total_amount: 35000, remaining_balance: 22000, monthly_payment: 450 }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/investments`, { name: "Vanguard ETF", platform: "Vanguard", current_value: 152000 }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/pensions`, { provider: "Fidelity", plan_name: "401k", current_value: 420000 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/savings/${savRes.data.id}/pots`, { name: "Hawaii 2026", target_amount: 15000, current_amount: 8000, emoji: "🌋", deposit_day: 1 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/credit-cards`, { provider: "Amex", card_name: "Platinum", credit_limit: 20000, current_balance: 1200, emoji: "💳", payment_day: 21 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/credit-cards`, { provider: "Chase", card_name: "Sapphire", credit_limit: 15000, current_balance: 0, emoji: "🟦", payment_day: 28 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/loans`, { lender: "SoFi", loan_type: "Personal", total_amount: 35000, remaining_balance: 22000, monthly_payment: 450, payment_day: 10 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/investments`, { name: "Vanguard ETF", platform: "Vanguard", current_value: 152000, monthly_contribution: 500, payment_day: 2 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/pensions`, { provider: "Fidelity", plan_name: "401k", current_value: 420000, monthly_contribution: 1200, payment_day: 1 }, token);
 
         // 6. BILLS & PROGRESS
-        const energyRes = await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Octopus Energy", amount: 280, segment: "utility", frequency: "monthly" }, token);
+        const energyRes = await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Octopus Energy", amount: 280, segment: "utility", frequency: "monthly", day_of_month: 12, adjust_for_working_day: 1 }, token);
+        const waterRes = await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Thames Water", amount: 45, segment: "utility", frequency: "monthly", day_of_month: 18 }, token);
         const eId = energyRes.data.id;
         for (const kid of ["Greg", "Marcia", "Peter", "Jan", "Bobby", "Cindy"]) {
-            await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: `Pocket Money (${kid})`, amount: 30, frequency: "weekly", linked_entity_type: "member", linked_entity_id: members[kid] }, token);
+            await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: `Pocket Money (${kid})`, amount: 30, frequency: "monthly", day_of_month: 1, linked_entity_type: "member", linked_entity_id: members[kid] }, token);
         }
+
+        // Add vehicle-specific charges (Insurance/Tax)
+        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Tesla Insurance", amount: 120, frequency: "monthly", day_of_month: 7, linked_entity_type: "vehicle", linked_entity_id: v1.data.id, segment: "insurance" }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Rivian Insurance", amount: 145, frequency: "monthly", day_of_month: 22, linked_entity_type: "vehicle", linked_entity_id: v2.data.id, segment: "insurance" }, token);
 
         // 7. BUDGET CYCLES
         for (const date of ["2026-02-01", "2026-03-01", "2026-04-01"]) {
