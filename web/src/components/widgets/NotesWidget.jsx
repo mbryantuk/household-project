@@ -51,15 +51,15 @@ export default function NotesWidget({ user, onUpdateProfile }) {
       <Sheet sx={{ bgcolor: YELLOW, height: '100%', m: -1, display: 'flex', flexDirection: 'column' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
             {activeNoteId ? (
-                <IconButton size="sm" variant="plain" onClick={() => setActiveNoteId(null)} sx={{ color: '#000' }}>
+                <IconButton size="sm" variant="plain" onClick={() => setActiveNoteId(null)} sx={{ color: 'neutral.900' }}>
                     <ChevronLeft />
                 </IconButton>
             ) : (
-                <IconButton size="sm" variant="plain" onClick={handleAdd} sx={{ color: '#000' }}>
+                <IconButton size="sm" variant="plain" onClick={handleAdd} sx={{ color: 'neutral.900' }}>
                     <Add />
                 </IconButton>
             )}
-            <Typography level="body-xs" fontWeight="bold" sx={{ color: '#000' }}>
+            <Typography level="body-xs" fontWeight="bold" sx={{ color: 'neutral.900' }}>
                 {activeNoteId ? 'Editing' : 'Notes'}
             </Typography>
             <Box width={28} />
@@ -77,7 +77,7 @@ export default function NotesWidget({ user, onUpdateProfile }) {
                     sx={{ 
                         bgcolor: 'transparent', 
                         fontSize: 'md', p: 1, 
-                        '& textarea': { color: '#000' },
+                        '& textarea': { color: 'neutral.900' },
                         height: '100%'
                     }}
                 />
@@ -102,7 +102,7 @@ export default function NotesWidget({ user, onUpdateProfile }) {
                                 <ListItemContent sx={{ 
                                     textDecoration: n.done ? 'line-through' : 'none', 
                                     opacity: n.done ? 0.5 : 1, 
-                                    color: '#000', fontSize: 'sm',
+                                    color: 'neutral.900', fontSize: 'sm',
                                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' 
                                 }}>
                                     {n.text || 'Empty note...'}
@@ -111,7 +111,7 @@ export default function NotesWidget({ user, onUpdateProfile }) {
                         </ListItem>
                     ))}
                     {notes.length === 0 && (
-                         <Typography level="body-xs" sx={{ textAlign: 'center', py: 4, opacity: 0.5, color: '#000' }}>
+                         <Typography level="body-xs" sx={{ textAlign: 'center', py: 4, opacity: 0.5, color: 'neutral.900' }}>
                              Click + to add a note
                          </Typography>
                     )}

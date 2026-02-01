@@ -18,7 +18,6 @@ const formatCurrency = (val, currencyCode = 'GBP') => {
 };
 
 export default function LoansView() {
-  console.log("LoansView: Rendering...");
   const { api, id: householdId, user: currentUser, household, showNotification, confirmAction, isDark, members } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();

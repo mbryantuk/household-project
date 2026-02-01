@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Expand demo seeding with pocket money, fun money, and full household/vehicle coverage",
-  "date": "Sun  1 Feb 19:46:43 GMT 2026"
+  "commitMessage": "v3.1.7: Codebase tidy up - removed junk files, fixed hardcoded UI colors, cleaned debug logs, and refactored calendar routes to use unified recurring_costs system.",
+  "date": "Sun  1 Feb 20:05:09 GMT 2026"
 }

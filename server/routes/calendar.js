@@ -41,21 +41,14 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
         const now = new Date();
 
         const [
-            dates, costs, incomes, creditCards, water, council, energy,
-            mortgages, loans, agreements, vehicleFinance, savings, investments, pensions,
+            dates, recurringCosts, incomes, creditCards,
+            savings, investments, pensions,
             vehicles, assets, members
         ] = await Promise.all([
             dbAll(`SELECT * FROM dates WHERE household_id = ? ORDER BY date ASC`, [householdId]),
-            dbAll(`SELECT * FROM finance_recurring_charges WHERE household_id = ?`, [householdId]),
+            dbAll(`SELECT * FROM recurring_costs WHERE household_id = ? AND is_active = 1`, [householdId]),
             dbAll(`SELECT * FROM finance_income WHERE household_id = ?`, [householdId]),
             dbAll(`SELECT * FROM finance_credit_cards WHERE household_id = ?`, [householdId]),
-            dbAll(`SELECT * FROM water_accounts WHERE household_id = ?`, [householdId]),
-            dbAll(`SELECT * FROM council_accounts WHERE household_id = ?`, [householdId]),
-            dbAll(`SELECT * FROM energy_accounts WHERE household_id = ?`, [householdId]),
-            dbAll(`SELECT * FROM finance_mortgages WHERE household_id = ?`, [householdId]),
-            dbAll(`SELECT * FROM finance_loans WHERE household_id = ?`, [householdId]),
-            dbAll(`SELECT * FROM finance_agreements WHERE household_id = ?`, [householdId]),
-            dbAll(`SELECT * FROM vehicle_finance WHERE household_id = ?`, [householdId]),
             dbAll(`SELECT * FROM finance_savings WHERE household_id = ?`, [householdId]),
             dbAll(`SELECT * FROM finance_investments WHERE household_id = ?`, [householdId]),
             dbAll(`SELECT * FROM finance_pensions WHERE household_id = ?`, [householdId]),
@@ -97,14 +90,14 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
                     const month = (parseInt(item.month_of_year) || 1) - 1;
                     datesToAdd.push(new Date(now.getFullYear(), month, day));
                     datesToAdd.push(new Date(now.getFullYear() + 1, month, day));
-                } else if (freq === 'one_off' && item.exact_date) {
-                    const d = new Date(item.exact_date);
+                } else if (freq === 'one_off' && (item.start_date || item.exact_date)) {
+                    const d = new Date(item.start_date || item.exact_date);
                     if (isValid(d)) datesToAdd.push(d);
                 }
 
                 datesToAdd.forEach((eventDate, idx) => {
                     let logic = 'exact';
-                    if (type === 'charge') {
+                    if (type === 'charge' || type === 'recurring_cost') {
                         logic = item.adjust_for_working_day ? 'next' : 'exact';
                     } else {
                         logic = item.nearest_working_day ? 'next' : 'exact';
@@ -115,14 +108,17 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
                     else if (logic === 'prior') finalDate = getPriorWorkingDay(finalDate, holidays);
 
                     let extraTitle = '';
-                    if (item.linked_entity_type === 'asset') {
-                        const asset = assets.find(a => a.id === item.linked_entity_id);
+                    const objectType = item.object_type || item.linked_entity_type;
+                    const objectId = item.object_id || item.linked_entity_id;
+
+                    if (objectType === 'asset') {
+                        const asset = assets.find(a => a.id === objectId);
                         if (asset) extraTitle = ` (${asset.emoji || '📦'} ${asset.name})`;
-                    } else if (item.linked_entity_type === 'vehicle') {
-                        const vehicle = vehicles.find(v => v.id === item.linked_entity_id);
+                    } else if (objectType === 'vehicle') {
+                        const vehicle = vehicles.find(v => v.id === objectId);
                         if (vehicle) extraTitle = ` (${vehicle.emoji || '🚗'} ${vehicle.make})`;
-                    } else if (item.linked_entity_type === 'member') {
-                        const member = members.find(m => m.id === item.linked_entity_id);
+                    } else if (objectType === 'member' || objectType === 'person' || objectType === 'pet') {
+                        const member = members.find(m => m.id === objectId);
                         if (member) extraTitle = ` (${member.emoji || '👤'} ${member.alias || member.name})`;
                     }
 
@@ -140,16 +136,12 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             });
         };
 
-        generateEvents(costs, 'charge', c => `💸 ${c.name}`, c => '💸', c => `Recurring charge: £${c.amount}`);
+        // Unified Recurring Costs
+        generateEvents(recurringCosts, 'recurring_cost', c => c.name, c => c.emoji || '💸', c => `${c.category_id || 'Cost'}: £${c.amount}`);
+
+        // Incomes, Credit Cards, and Savings (States that are NOT recurring costs)
         generateEvents(incomes.map(i => ({ ...i, frequency: i.frequency || 'monthly', day_of_month: i.payment_day })), 'income', inc => `💰 Payday: ${inc.employer}`, inc => inc.emoji || '💰', inc => `Net Pay: £${inc.amount}`);
         generateEvents(creditCards.map(cc => ({ ...cc, frequency: 'monthly', day_of_month: cc.payment_day })), 'bill', cc => `💳 ${cc.card_name} Bill`, cc => cc.emoji || '💳', cc => `${cc.provider} Credit Card Bill`);
-        generateEvents(water ? [water].flat().map(w => ({ ...w, frequency: w.frequency || 'monthly', day_of_month: w.payment_day })) : [], 'bill', w => `💧 ${w.provider || 'Water'} Bill`, () => '💧', w => `Water Bill: £${w.monthly_amount || '?'}`);
-        generateEvents(council ? [council].flat().map(c => ({ ...c, frequency: c.frequency || 'monthly', day_of_month: c.payment_day })) : [], 'bill', c => `🏛️ Council Tax`, () => '🏛️', c => `Council Tax (${c.authority_name}): £${c.monthly_amount || '?'}`);
-        generateEvents(energy.map(e => ({ ...e, frequency: 'monthly', day_of_month: e.payment_day })), 'bill', e => `⚡ ${e.provider || 'Energy'} Bill`, () => '⚡', e => `${e.type} Bill: £${e.monthly_amount || '?'}`);
-        generateEvents(mortgages.map(m => ({ ...m, frequency: 'monthly', day_of_month: m.payment_day })), 'bill', m => `🏠 ${m.lender} Payment`, m => m.emoji || '🏠', m => `${m.mortgage_type === 'equity' ? 'Equity Loan' : 'Mortgage'} Payment: £${m.monthly_payment}`);
-        generateEvents(loans.map(l => ({ ...l, frequency: 'monthly', day_of_month: l.payment_day })), 'bill', l => `💰 ${l.lender} Loan Payment`, l => l.emoji || '💰', l => `Loan Payment: £${l.monthly_payment}`);
-        generateEvents(agreements.map(a => ({ ...a, frequency: 'monthly', day_of_month: a.payment_day })), 'bill', a => `📄 ${a.agreement_name} Payment`, a => a.emoji || '📄', a => `Agreement Payment (${a.provider}): £${a.monthly_payment}`);
-        generateEvents(vehicleFinance.map(v => ({ ...v, frequency: v.frequency || 'monthly', day_of_month: v.payment_day })), 'bill', v => `🚗 Vehicle Finance: ${v.provider}`, v => v.emoji || '🚗', v => `Vehicle Finance Payment: £${v.monthly_payment}`);
         generateEvents(savings.map(s => ({ ...s, frequency: 'monthly', day_of_month: s.deposit_day })), 'saving', s => `🎯 Saving: ${s.institution}`, s => s.emoji || '🎯', s => `Monthly Deposit: £${s.deposit_amount}`);
         generateEvents(investments.map(i => ({ ...i, frequency: 'monthly', day_of_month: i.deposit_day })), 'saving', i => `📈 Investment: ${i.name}`, i => i.emoji || '📈', i => `Monthly Deposit: £${i.deposit_amount}`);
         generateEvents(pensions.map(p => ({ ...p, frequency: 'monthly', day_of_month: p.payment_day })), 'saving', p => `👴 Pension: ${p.plan_name}`, p => p.emoji || '👴', p => `Monthly Contribution: £${p.monthly_contribution}`);

@@ -87,7 +87,6 @@ export default function BankingView() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("BankingView: handleSubmit triggered");
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
 

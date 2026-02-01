@@ -336,9 +336,9 @@ export default function SettingsView({
                         <Tooltip title="Selection" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.selection }} /></Tooltip>
                         <Tooltip title="Text" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.text }} /></Tooltip>
                     </Box>
-                    <Typography level="title-sm" noWrap sx={{ fontSize: '13px', color: themeId === spec.id ? '#fff' : 'text.primary', width: '100%' }}>{spec.name}</Typography>
+                    <Typography level="title-sm" noWrap sx={{ fontSize: '13px', color: themeId === spec.id ? 'common.white' : 'text.primary', width: '100%' }}>{spec.name}</Typography>
                     {themeId === spec.id && (
-                        <Palette sx={{ position: 'absolute', top: 6, right: 6, fontSize: '0.7rem', color: '#fff' }} />
+                        <Palette sx={{ position: 'absolute', top: 6, right: 6, fontSize: '0.7rem', color: 'common.white' }} />
                     )}
                 </Sheet>
             </Grid>

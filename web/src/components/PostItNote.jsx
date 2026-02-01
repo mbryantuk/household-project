@@ -86,7 +86,7 @@ export default function PostItNote({ onClose, user, onUpdateProfile, onPopout, i
         width: (isPopout || isDocked) ? '100%' : 320,
         height: (isPopout || isDocked) ? '100%' : 450,
         bgcolor: YELLOW,
-        color: '#000',
+        color: 'neutral.900',
         zIndex: 1300,
         boxShadow: 'lg',
         display: 'flex',
@@ -98,15 +98,15 @@ export default function PostItNote({ onClose, user, onUpdateProfile, onPopout, i
       }}
     >
       <Box onMouseDown={onMouseDown} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, borderBottom: '1px solid rgba(0,0,0,0.1)', bgcolor: 'rgba(0,0,0,0.05)', cursor: isDocked ? 'default' : 'move' }}>
-         {!isDocked && !isPopout && <DragIndicator fontSize="small" sx={{ mr: 1, color: '#000', opacity: 0.5 }} />}
+         {!isDocked && !isPopout && <DragIndicator fontSize="small" sx={{ mr: 1, color: 'neutral.900', opacity: 0.5 }} />}
          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexGrow: 1 }}>
-            <IconButton size="sm" variant="plain" onClick={handleAdd} sx={{ color: '#000' }}><Add /></IconButton>
-            <Typography level="title-sm" sx={{ color: '#000' }}>{activeNoteId ? 'Editing Note' : 'Sticky Notes'}</Typography>
+            <IconButton size="sm" variant="plain" onClick={handleAdd} sx={{ color: 'neutral.900' }}><Add /></IconButton>
+            <Typography level="title-sm" sx={{ color: 'neutral.900' }}>{activeNoteId ? 'Editing Note' : 'Sticky Notes'}</Typography>
          </Box>
          <Box>
-            {activeNoteId && <IconButton size="sm" variant="plain" onClick={() => setActiveNoteId(null)} sx={{ color: '#000' }}><Minimize fontSize="small" /></IconButton>}
-            {!isPopout && <IconButton size="sm" variant="plain" onClick={onPopout} sx={{ color: '#000' }}><OpenInNew fontSize="small" /></IconButton>}
-            <IconButton size="sm" variant="plain" onClick={onClose} sx={{ color: '#000' }}><Close fontSize="small" /></IconButton>
+            {activeNoteId && <IconButton size="sm" variant="plain" onClick={() => setActiveNoteId(null)} sx={{ color: 'neutral.900' }}><Minimize fontSize="small" /></IconButton>}
+            {!isPopout && <IconButton size="sm" variant="plain" onClick={onPopout} sx={{ color: 'neutral.900' }}><OpenInNew fontSize="small" /></IconButton>}
+            <IconButton size="sm" variant="plain" onClick={onClose} sx={{ color: 'neutral.900' }}><Close fontSize="small" /></IconButton>
          </Box>
       </Box>
 
@@ -116,7 +116,7 @@ export default function PostItNote({ onClose, user, onUpdateProfile, onPopout, i
                 autoFocus multiline variant="plain" fullWidth
                 value={notes.find(n => n.id === activeNoteId)?.text || ''}
                 onChange={(e) => setNotes(notes.map(n => n.id === activeNoteId ? { ...n, text: e.target.value } : n))}
-                sx={{ bgcolor: 'transparent', fontFamily: 'Caveat, cursive', fontSize: 'xl', p: 2, '& textarea': { color: '#000' } }}
+                sx={{ bgcolor: 'transparent', fontFamily: 'Caveat, cursive', fontSize: 'xl', p: 2, '& textarea': { color: 'neutral.900' } }}
               />
           ) : (
               <List sx={{ p: 0 }}>
@@ -124,7 +124,7 @@ export default function PostItNote({ onClose, user, onUpdateProfile, onPopout, i
                       <ListItem key={n.id} sx={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }} endAction={<IconButton size="sm" color="danger" onClick={() => setNotes(notes.filter(x => x.id !== n.id))}><Delete /></IconButton>}>
                           <ListItemButton onClick={() => setActiveNoteId(n.id)}>
                               <Checkbox checked={n.done} onChange={() => setNotes(notes.map(x => x.id === n.id ? { ...x, done: !x.done } : x))} sx={{ mr: 1 }} />
-                              <ListItemContent sx={{ textDecoration: n.done ? 'line-through' : 'none', opacity: n.done ? 0.5 : 1, color: '#000', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.text || 'New Note...'}</ListItemContent>
+                              <ListItemContent sx={{ textDecoration: n.done ? 'line-through' : 'none', opacity: n.done ? 0.5 : 1, color: 'neutral.900', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.text || 'New Note...'}</ListItemContent>
                           </ListItemButton>
                       </ListItem>
                   ))}
