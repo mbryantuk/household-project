@@ -10,7 +10,7 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-COMMIT_SUFFIX="$1"
+RAW_COMMIT_MESSAGE="$1"
 
 # 0.5. Set Maintenance Mode
 echo "🚧 Enabling Maintenance Mode (Locking Login)..."
@@ -18,14 +18,19 @@ touch server/data/upgrading.lock
 
 # 1. Bump Version
 echo "📦 Bumping Version..."
+OLD_VERSION=$(node -p "require('./package.json').version")
 node scripts/utils/bump_version.js
 NEW_VERSION=$(node -p "require('./package.json').version")
+
+# 1.2. Clean up Commit Message (remove redundant versions)
+# Strip leading 'vX.Y.Z - ' or 'vX.Y.Z: ' if it matches either OLD or NEW version
+CLEAN_MESSAGE=$(echo "$RAW_COMMIT_MESSAGE" | sed -E "s/^v?($OLD_VERSION|$NEW_VERSION)[[:space:]]*[-:][[:space:]]*//g" | sed -E "s/^v?($OLD_VERSION|$NEW_VERSION)[[:space:]]*//g")
 
 # 1.5. Update Client Git Info
 echo "📝 Updating Client Git Info..."
 cat > web/src/git-info.json <<EOF
 {
-  "commitMessage": "$COMMIT_SUFFIX",
+  "commitMessage": "$CLEAN_MESSAGE",
   "date": "$(date)"
 }
 EOF
@@ -43,7 +48,6 @@ echo "   - Running Backend Tests..."
 (cd server && BYPASS_MAINTENANCE=true npm test)
 
 # 2.6. Seed Brady Household (Only if tests pass)
-# This script now updates server/api-coverage.json so the Slack reporter picks it up.
 echo "🌱 Seeding Brady Household..."
 export BYPASS_MAINTENANCE=true
 node scripts/ops/seed_brady_household.js
@@ -52,20 +56,20 @@ unset BYPASS_MAINTENANCE
 # 3. Commit & Push
 echo "💾 Committing changes..."
 git add .
-git commit -m "v$NEW_VERSION - $COMMIT_SUFFIX"
+git commit -m "v$NEW_VERSION - $CLEAN_MESSAGE"
 CURRENT_BRANCH=$(git branch --show-current)
 git push origin "$CURRENT_BRANCH"
 
 # 3.2. Record Deployment History
 echo "📝 Recording deployment history..."
-node scripts/ops/record_deployment.js "$COMMIT_SUFFIX"
+node scripts/ops/record_deployment.js "$CLEAN_MESSAGE"
 
 # 3.3. Update Slack Dashboards
 echo "📢 Updating Slack Dashboards..."
 if [ -f "scripts/ops/.env.nightly" ]; then
     export $(grep -v '^#' scripts/ops/.env.nightly | xargs)
     node scripts/utils/post_to_slack.js || echo "⚠️ Dashboard update failed, but deployment continues."
-    node scripts/utils/post_version_to_slack.js "$COMMIT_SUFFIX" || echo "⚠️ Version announcement failed, but deployment continues."
+    node scripts/utils/post_version_to_slack.js "$CLEAN_MESSAGE" || echo "⚠️ Version announcement failed, but deployment continues."
 else
     echo "⚠️  Skipping Slack update (missing scripts/ops/.env.nightly)"
 fi

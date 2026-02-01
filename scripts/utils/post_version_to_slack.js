@@ -52,7 +52,7 @@ function slackRequest(endpoint, payload) {
 
 async function run() {
     // 1. Validate Inputs
-    const commitMessage = process.argv[2];
+    let commitMessage = process.argv[2] || "No description provided.";
     if (!process.env.SLACK_BOT_TOKEN || !process.env.SLACK_CHANNEL_ID) {
         console.error("❌ Missing SLACK_BOT_TOKEN or SLACK_CHANNEL_ID.");
         process.exit(1);
@@ -75,6 +75,11 @@ async function run() {
         return;
     }
 
+    // 3.5 Deduplicate version in commit message if present
+    // Remove "vX.Y.Z - " or "vX.Y.Z: " or just "vX.Y.Z " from start of message
+    const versionCleanPattern = new RegExp(`^v?${version.replace(/\./g, '\\.')}\s*[-:]?\s*`, 'i');
+    commitMessage = commitMessage.replace(versionCleanPattern, '');
+
     // 4. Construct Message
     const blocks = [
         {
@@ -90,7 +95,7 @@ async function run() {
             text: {
                 type: "mrkdwn",
                 text: `*Summary of Change:*
-${commitMessage || "No description provided."}`
+${commitMessage}`
             }
         },
         {

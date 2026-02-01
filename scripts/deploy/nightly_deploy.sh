@@ -7,15 +7,16 @@ set -e
 PROJECT_ROOT="/home/matt/household-project"
 cd "$PROJECT_ROOT"
 
-COMMIT_MESSAGE="Nightly Build $(date +'%Y-%m-%d')"
-
-# 0.5. Set Maintenance Mode
+# 0. Set Maintenance Mode
 echo "🚧 Enabling Maintenance Mode (Locking Login)..."
 touch server/data/upgrading.lock
 
 # 1. Bump Version (with Date)
 echo "📦 Bumping Version for Nightly..."
+OLD_VERSION=$(node -p "require('./package.json').version")
 NEW_VERSION=$(node scripts/utils/bump_version_nightly.js | tail -n 1)
+
+COMMIT_MESSAGE="Nightly Build $(date +'%Y-%m-%d')"
 
 # 1.5. Update Client Git Info
 echo "📝 Updating Client Git Info..."
@@ -36,7 +37,17 @@ sleep 30
 # 2.5. Post-Deployment Verification
 echo "🧪 Running Post-Deployment Verification..."
 echo "   - Running Backend Tests..."
+# Capture test result
+set +e
 (cd server && BYPASS_MAINTENANCE=true npm test)
+TEST_EXIT_CODE=$?
+set -e
+
+if [ $TEST_EXIT_CODE -eq 0 ]; then
+    TEST_RESULT="PASS"
+else
+    TEST_RESULT="FAIL"
+fi
 
 # 2.6. Seed Brady Household (API Coverage)
 echo "🌱 Seeding Brady Household..."
