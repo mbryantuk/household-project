@@ -29,9 +29,15 @@ const SEGMENT_CONFIG = {
     subscription: { label: 'Subscriptions', icon: <ShoppingBag /> },
     warranty: { label: 'Warranties', icon: <Assignment /> },
     service: { label: 'Service / Maintenance', icon: <Build /> },
+    water: { label: 'Water', icon: <ElectricBolt /> },
+    energy: { label: 'Energy', icon: <ElectricBolt /> },
+    council: { label: 'Council Tax', icon: <Assignment /> },
+    waste: { label: 'Waste Collection', icon: <Build /> },
+    vehicle_finance: { label: 'Finance', icon: <Payments /> },
+    vehicle_insurance: { label: 'Insurance', icon: <Shield /> },
+    vehicle_service: { label: 'Service / Plan', icon: <Build /> },
     vehicle_tax: { label: 'Tax', icon: <Timer /> },
     vehicle_mot: { label: 'MOT', icon: <Build /> },
-    vehicle_service: { label: 'Service', icon: <Build /> },
     vehicle_fuel: { label: 'Fuel', icon: <LocalGasStation /> },
     vehicle_breakdown: { label: 'Breakdown', icon: <HelpOutline /> },
     pocket_money: { label: 'Pocket Money', icon: <AccountBalanceWallet /> },
@@ -41,6 +47,9 @@ const SEGMENT_CONFIG = {
     education: { label: 'Education', icon: <Assignment /> },
     care: { label: 'Care & Support', icon: <HelpOutline /> },
     finance: { label: 'Finance / Loan', icon: <Payments /> },
+    loan: { label: 'Loan', icon: <Payments /> },
+    agreement: { label: 'Agreement', icon: <Payments /> },
+    mortgage: { label: 'Mortgage', icon: <Payments /> },
     other: { label: 'Other', icon: <Receipt /> }
 };
 
@@ -57,17 +66,23 @@ export default function RecurringChargesWidget({
   const [, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: '', amount: '', segment: segments[0]?.id || 'other',
+    name: '', amount: '', category_id: segments[0]?.id || 'other',
     frequency: 'monthly', start_date: format(new Date(), 'yyyy-MM-dd'),
-    adjust_for_working_day: true, notes: '', emoji: '💸'
+    adjust_for_working_day: true, notes: '', emoji: '💸', metadata: {}
   });
 
   const fetchCharges = useCallback(async () => {
     if (!householdId) return;
     setLoading(true);
     try {
-      const res = await api.get(`/households/${householdId}/finance/charges`);
-      setCharges(res.data.filter(c => c.linked_entity_type === entityType && String(c.linked_entity_id) === String(entityId)));
+      // Use the new consolidated recurring-costs endpoint
+      const res = await api.get(`/households/${householdId}/finance/recurring-costs`, {
+        params: {
+          object_type: entityType,
+          object_id: entityId
+        }
+      });
+      setCharges(res.data);
     } catch (err) { console.error(err); } finally { setLoading(false); }
   }, [api, householdId, entityType, entityId]);
 
@@ -76,34 +91,42 @@ export default function RecurringChargesWidget({
   const currentSegmentId = segments[activeTab]?.id || 'other';
   const filteredCharges = useMemo(() => charges.filter(c => {
     if (currentSegmentId === 'other') {
-        return !c.segment || c.segment === 'other';
+        return !c.category_id || c.category_id === 'other';
     }
-    return c.segment === currentSegmentId;
+    return c.category_id === currentSegmentId;
   }), [charges, currentSegmentId]);
 
   const resetForm = () => {
     setFormData({
-      name: '', amount: '', segment: currentSegmentId,
+      name: '', amount: '', category_id: currentSegmentId,
       frequency: 'monthly', start_date: format(new Date(), 'yyyy-MM-dd'),
-      adjust_for_working_day: true, notes: '', emoji: '💸'
+      adjust_for_working_day: true, notes: '', emoji: '💸', metadata: {}
     });
   };
 
   const handleEdit = (charge) => {
     setEditingId(charge.id);
     setFormData({
-      name: charge.name, amount: charge.amount, segment: charge.segment || 'other',
+      name: charge.name, amount: charge.amount, category_id: charge.category_id || 'other',
       frequency: charge.frequency, start_date: charge.start_date || format(new Date(), 'yyyy-MM-dd'),
       adjust_for_working_day: !!charge.adjust_for_working_day, notes: charge.notes || '',
-      emoji: charge.emoji || '💸'
+      emoji: charge.emoji || '💸', metadata: charge.metadata || {}
     });
     setOpen(true);
   };
 
   const handleSave = async () => {
       try {
-          const url = editingId ? `/households/${householdId}/finance/charges/${editingId}` : `/households/${householdId}/finance/charges`;
-          const payload = { ...formData, linked_entity_type: entityType, linked_entity_id: entityId };
+          const url = editingId 
+            ? `/households/${householdId}/finance/recurring-costs/${editingId}` 
+            : `/households/${householdId}/finance/recurring-costs`;
+          
+          const payload = { 
+            ...formData, 
+            object_type: entityType, 
+            object_id: entityId 
+          };
+
           await api[editingId ? 'put' : 'post'](url, payload);
           showNotification(editingId ? "Updated." : "Created.", "success");
           setOpen(false); setEditingId(null); fetchCharges();
@@ -152,7 +175,7 @@ export default function RecurringChargesWidget({
                 <td>
                     <Box sx={{ display: 'flex', gap: 0.5 }}>
                         <IconButton size="sm" variant="plain" onClick={() => handleEdit(c)}><Edit fontSize="small" /></IconButton>
-                        <IconButton size="sm" variant="plain" color="danger" onClick={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/charges/${c.id}`).then(fetchCharges))}><Delete fontSize="small" /></IconButton>
+                        <IconButton size="sm" variant="plain" color="danger" onClick={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/recurring-costs/${c.id}`).then(fetchCharges))}><Delete fontSize="small" /></IconButton>
                     </Box>
                 </td>
               </tr>
@@ -181,7 +204,7 @@ export default function RecurringChargesWidget({
             
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
                 <FormControl required><FormLabel>Category</FormLabel>
-                    <Select value={formData.segment} onChange={(e, v) => setFormData({ ...formData, segment: v })}>
+                    <Select value={formData.category_id} onChange={(e, v) => setFormData({ ...formData, category_id: v })}>
                         {segments.map(seg => (
                             <Option key={seg.id} value={seg.id}>{seg.label}</Option>
                         ))}

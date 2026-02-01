@@ -32,10 +32,10 @@ describe('🛡️ Advanced System Integrity & Security', () => {
     });
 
     test('📅 Friday Rule: Creation with valid payload', async () => {
-        const res = await request(app).post(`/api/households/${householdId}/finance/charges`)
+        const res = await request(app).post(`/api/households/${householdId}/finance/recurring-costs`)
             .set('Authorization', `Bearer ${token}`)
             .send({
-                name: "Weekend Bill", amount: 100, segment: "utility", frequency: "monthly", 
+                name: "Weekend Bill", amount: 100, category_id: "utility", frequency: "monthly", 
                 start_date: "2026-02-07", adjust_for_working_day: 1
             });
         expect(res.status).toBe(201);

@@ -40,7 +40,7 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
     if (type === 'pet') {
         return [
           { id: 'food', label: 'Food & Supplies' },
-          { id: 'insurance', label: 'Pet Insurance' },
+          { id: 'insurance', label: 'Insurance' },
           { id: 'vet', label: 'Vet & Medical' },
           { id: 'other', label: 'Other' }
         ];

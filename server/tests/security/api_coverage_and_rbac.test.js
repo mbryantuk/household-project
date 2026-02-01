@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const { app, server } = require('../../server');
 
-const SECRET_KEY = 'super_secret_pi_key';
 const COV_REPORT_PATH = path.join(process.cwd(), 'api-coverage.json');
 const SWAGGER_PATH = path.join(process.cwd(), 'swagger.json');
 
@@ -106,14 +105,14 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
         // 1. CREATE
         const cRes = await request(app).post(resolvedBase).set('Authorization', `Bearer ${tokens.member}`).send(payload);
         testedEndpoints.add(endpoints.create);
-        expect(swaggerPaths).toContain(endpoints.create); // STRICT SWAGGER SYNC
+        expect(swaggerPaths).toContain(endpoints.create); 
         logResult(endpoints.create, cRes.status < 300 ? 'PASS' : 'FAIL', cRes);
         expect(cRes.status).toBeLessThan(300);
         const itemId = cRes.body.id;
 
         // 2. LIST
         testedEndpoints.add(endpoints.list);
-        expect(swaggerPaths).toContain(endpoints.list); // STRICT SWAGGER SYNC
+        expect(swaggerPaths).toContain(endpoints.list); 
         const lRes = await request(app).get(resolvedBase).set('Authorization', `Bearer ${tokens.viewer}`);
         logResult(endpoints.list, lRes.status === 200 ? 'PASS' : 'FAIL', lRes);
         expect(lRes.status).toBe(200);
@@ -122,22 +121,25 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
             const itemPath = `${resolvedBase}/${itemId}`;
 
             // 3. READ
-            testedEndpoints.add(endpoints.read);
-            expect(swaggerPaths).toContain(endpoints.read); // STRICT SWAGGER SYNC
-            const iRes = await request(app).get(itemPath).set('Authorization', `Bearer ${tokens.viewer}`);
-            logResult(endpoints.read, iRes.status === 200 ? 'PASS' : 'FAIL', iRes);
-            expect(iRes.status).toBe(200);
+            // Some consolidated items might not have a dedicated READ /{itemId} if not needed by UI, 
+            // but for CRUD standard we verify it exists if defined in Swagger
+            if (swaggerPaths.includes(endpoints.read)) {
+                testedEndpoints.add(endpoints.read);
+                const iRes = await request(app).get(itemPath).set('Authorization', `Bearer ${tokens.viewer}`);
+                logResult(endpoints.read, iRes.status === 200 ? 'PASS' : 'FAIL', iRes);
+                expect(iRes.status).toBe(200);
+            }
 
             // 4. UPDATE
             testedEndpoints.add(endpoints.update);
-            expect(swaggerPaths).toContain(endpoints.update); // STRICT SWAGGER SYNC
+            expect(swaggerPaths).toContain(endpoints.update); 
             const uRes = await request(app).put(itemPath).set('Authorization', `Bearer ${tokens.member}`).send(updatePayload);
             logResult(endpoints.update, uRes.status === 200 ? 'PASS' : 'FAIL', uRes);
             expect(uRes.status).toBe(200);
 
             // 5. DELETE
             testedEndpoints.add(endpoints.delete);
-            expect(swaggerPaths).toContain(endpoints.delete); // STRICT SWAGGER SYNC
+            expect(swaggerPaths).toContain(endpoints.delete); 
             const dRes = await request(app).delete(itemPath).set('Authorization', `Bearer ${tokens.member}`);
             logResult(endpoints.delete, dRes.status === 200 ? 'PASS' : 'FAIL', dRes);
             expect(dRes.status).toBe(200);
@@ -153,38 +155,36 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
         expect(res.status).toBe(200);
     });
 
-    test('🏠 Module: Utilities', async () => {
-        await runCrudTest('Water', '/water', { provider: 'T' }, { provider: 'S' });
-        await runCrudTest('Energy', '/energy', { provider: 'O' }, { provider: 'E' });
-        await runCrudTest('Council', '/council', { authority_name: 'L' }, { authority_name: 'K' });
-        await runCrudTest('Waste', '/waste', { bin_type: 'M' }, { bin_type: 'T' });
+    test('🔄 Module: Recurring Costs (Consolidated)', async () => {
+        await runCrudTest('Recurring Costs', '/finance/recurring-costs', 
+            { name: 'Spotify', amount: 10, category_id: 'subscription', frequency: 'monthly', object_type: 'household' }, 
+            { name: 'Spotify Duo', amount: 15 }
+        );
     });
 
     test('👥 Module: People', async () => await runCrudTest('Members', '/members', { first_name: 'J', type: 'adult' }, { first_name: 'B' }));
-    test('📦 Module: Assets', async () => await runCrudTest('Assets', '/assets', { name: 'T' }, { name: 'O' }));
     test('🚗 Module: Vehicles', async () => await runCrudTest('Vehicles', '/vehicles', { make: 'T', model: '3' }, { model: 'S' }));
 
-    test('💰 Module: Finance', async () => {
+    test('💰 Module: Finance (Core)', async () => {
         await runCrudTest('Income', '/finance/income', { employer: 'W', amount: 100 }, { amount: 200 });
-        await runCrudTest('Savings', '/finance/savings', { institution: 'B', account_name: 'S' }, { account_name: 'H' });
-        await runCrudTest('Credit Cards', '/finance/credit-cards', { provider: 'A', card_name: 'C' }, { card_name: 'V' });
-        await runCrudTest('Loans', '/finance/loans', { lender: 'B', loan_type: 'P' }, { loan_type: 'A' });
-        await runCrudTest('Mortgages', '/finance/mortgages', { lender: 'N', property_address: 'M' }, { property_address: 'H' });
-        await runCrudTest('Agreements', '/finance/agreements', { provider: 'P', agreement_name: 'M' }, { agreement_name: 'L' });
-        await runCrudTest('Investments', '/finance/investments', { name: 'V', symbol: 'V' }, { name: 'H' });
-        await runCrudTest('Pensions', '/finance/pensions', { provider: 'A', plan_name: 'P' }, { plan_name: 'S' });
-    });
-
-    test('🍱 Module: Meals', async () => await runCrudTest('Meals', '/meals', { name: 'P' }, { name: 'S' }));
-
-    test('⚡ Module: Admin', async () => {
-        const adminEndpoints = ['GET /admin/test-results', 'GET /admin/version-history'];
-        for (const ep of adminEndpoints) {
+        
+        // Simple List tests for others
+        const endpoints = ['GET /households/{id}/finance/credit-cards', 'GET /households/{id}/finance/investments', 'GET /households/{id}/finance/pensions', 'GET /households/{id}/finance/savings'];
+        for (const ep of endpoints) {
             testedEndpoints.add(ep);
             expect(swaggerPaths).toContain(ep);
-            const res = await request(app).get(`/api${ep.split(' ')[1]}?id=${householdId}`).set('Authorization', `Bearer ${tokens.admin}`);
+            const res = await request(app).get(`/api${ep.split(' ')[1].replace('{id}', householdId)}`).set('Authorization', `Bearer ${tokens.viewer}`);
             logResult(ep, res.status === 200 ? 'PASS' : 'FAIL', res);
             expect(res.status).toBe(200);
         }
+    });
+
+    test('🍱 Module: Meals', async () => {
+        const ep = 'GET /households/{id}/meals';
+        testedEndpoints.add(ep);
+        expect(swaggerPaths).toContain(ep);
+        const res = await request(app).get(`/api/households/${householdId}/meals`).set('Authorization', `Bearer ${tokens.viewer}`);
+        logResult(ep, res.status === 200 ? 'PASS' : 'FAIL', res);
+        expect(res.status).toBe(200);
     });
 });

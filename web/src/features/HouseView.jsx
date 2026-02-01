@@ -221,7 +221,7 @@ export default function HouseView() {
                     ]}
                 />
             )}
-            {activeTab === 2 && <Box><RecurringChargesWidget api={api} householdId={householdId} household={household_data} entityType="general" entityId={null} segments={[{ id: 'household_bill', label: 'Household Bills' }, { id: 'utility', label: 'Utilities' }, { id: 'subscription', label: 'Subscriptions' }, { id: 'insurance', label: 'Insurance' }, { id: 'warranty', label: 'Warranties' }, { id: 'service', label: 'Service / Maintenance' }, { id: 'other', label: 'Other' }]} title="Home Recurring Costs" showNotification={showNotification} confirmAction={confirmAction} /></Box>}
+            {activeTab === 2 && <Box><RecurringChargesWidget api={api} householdId={householdId} household={household_data} entityType="household" entityId={null} segments={[{ id: 'water', label: 'Water' }, { id: 'energy', label: 'Energy' }, { id: 'council', label: 'Council Tax' }, { id: 'waste', label: 'Waste' }, { id: 'utility', label: 'Utilities' }, { id: 'insurance', label: 'Insurance' }, { id: 'subscription', label: 'Subscriptions' }, { id: 'household_bill', label: 'General Bills' }, { id: 'other', label: 'Other' }]} title="Home Recurring Costs" showNotification={showNotification} confirmAction={confirmAction} /></Box>}
             {activeTab === 3 && <AssetsView />}
           </Box>
         </Tabs>

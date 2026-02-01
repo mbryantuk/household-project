@@ -184,27 +184,6 @@ const handleDeleteItem = (table) => (req, res) => {
 router.get('/households/:id/details', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetSingle('house_details'));
 router.put('/households/:id/details', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateSingle('house_details'));
 
-// Water Accounts
-router.get('/households/:id/water', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('water_accounts'));
-router.get('/households/:id/water/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetItem('water_accounts'));
-router.post('/households/:id/water', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('water_accounts'));
-router.put('/households/:id/water/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('water_accounts'));
-router.delete('/households/:id/water/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('water_accounts'));
-
-// Council Accounts
-router.get('/households/:id/council', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('council_accounts'));
-router.get('/households/:id/council/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetItem('council_accounts'));
-router.post('/households/:id/council', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('council_accounts'));
-router.put('/households/:id/council/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('council_accounts'));
-router.delete('/households/:id/council/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('council_accounts'));
-
-// Waste Collections
-router.get('/households/:id/waste', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('waste_collections'));
-router.get('/households/:id/waste/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetItem('waste_collections'));
-router.post('/households/:id/waste', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('waste_collections'));
-router.put('/households/:id/waste/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('waste_collections'));
-router.delete('/households/:id/waste/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('waste_collections'));
-
 // Vehicles
 router.get('/households/:id/vehicles', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('vehicles'));
 router.get('/households/:id/vehicles/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetItem('vehicles'));
@@ -212,61 +191,36 @@ router.post('/households/:id/vehicles', authenticateToken, requireHouseholdRole(
 router.put('/households/:id/vehicles/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('vehicles'));
 router.delete('/households/:id/vehicles/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('vehicles'));
 
-// Vehicle Sub-modules
-const VEHICLE_SUBS = ['services', 'finance', 'insurance', 'service_plans'];
-VEHICLE_SUBS.forEach(sub => {
-    const table = `vehicle_${sub}`;
-    router.get(`/households/:id/vehicles/:vehicleId/${sub}`, authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
-        req.tenantDb.all(`SELECT * FROM ${table} WHERE vehicle_id = ? AND household_id = ?`, [req.params.vehicleId, req.hhId], (err, rows) => {
+// Vehicle Services (Still needed as they are one-off maintenance records)
+router.get(`/households/:id/vehicles/:vehicleId/services`, authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
+    req.tenantDb.all(`SELECT * FROM vehicle_services WHERE vehicle_id = ? AND household_id = ?`, [req.params.vehicleId, req.hhId], (err, rows) => {
+        closeDb(req);
+        if (err) return res.status(500).json({ error: err.message });
+        res.json((rows || []).map(decryptRow));
+    });
+});
+router.post(`/households/:id/vehicles/:vehicleId/services`, authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
+    req.tenantDb.all(`PRAGMA table_info(vehicle_services)`, [], (pErr, cols) => {
+        if (pErr) { closeDb(req); return res.status(500).json({ error: pErr.message }); }
+        const validColumns = cols.map(c => c.name);
+        const data = encryptPayload({ ...req.body, vehicle_id: req.params.vehicleId, household_id: req.hhId });
+        const insertData = {};
+        Object.keys(data).forEach(key => {
+            if (validColumns.includes(key)) insertData[key] = data[key];
+        });
+        const fields = Object.keys(insertData);
+        req.tenantDb.run(`INSERT INTO vehicle_services (${fields.join(', ')}) VALUES (${fields.map(() => '?').join(', ')})`, Object.values(insertData), function(err) {
             closeDb(req);
             if (err) return res.status(500).json({ error: err.message });
-            res.json((rows || []).map(decryptRow));
+            res.status(201).json({ id: this.lastID, ...insertData });
         });
     });
-    router.post(`/households/:id/vehicles/:vehicleId/${sub}`, authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-        req.tenantDb.all(`PRAGMA table_info(${table})`, [], (pErr, cols) => {
-            if (pErr) { closeDb(req); return res.status(500).json({ error: pErr.message }); }
-            const validColumns = cols.map(c => c.name);
-            const data = encryptPayload({ ...req.body, vehicle_id: req.params.vehicleId, household_id: req.hhId });
-            const insertData = {};
-            Object.keys(data).forEach(key => {
-                if (validColumns.includes(key)) insertData[key] = data[key];
-            });
-            const fields = Object.keys(insertData);
-            req.tenantDb.run(`INSERT INTO ${table} (${fields.join(', ')}) VALUES (${fields.map(() => '?').join(', ')})`, Object.values(insertData), function(err) {
-                closeDb(req);
-                if (err) return res.status(500).json({ error: err.message });
-                res.status(201).json({ id: this.lastID, ...insertData });
-            });
-        });
-    });
-    router.put(`/households/:id/vehicles/:vehicleId/${sub}/:itemId`, authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-        req.tenantDb.all(`PRAGMA table_info(${table})`, [], (pErr, cols) => {
-            if (pErr) { closeDb(req); return res.status(500).json({ error: pErr.message }); }
-            const validColumns = cols.map(c => c.name);
-            const data = encryptPayload(req.body);
-            const updateData = {};
-            Object.keys(data).forEach(key => {
-                if (validColumns.includes(key) && key !== 'id' && key !== 'household_id' && key !== 'vehicle_id') {
-                    updateData[key] = data[key];
-                }
-            });
-            const fields = Object.keys(updateData);
-            if (fields.length === 0) { closeDb(req); return res.status(400).json({ error: "No valid fields" }); }
-            const sets = fields.map(f => `${f} = ?`).join(', ');
-            req.tenantDb.run(`UPDATE ${table} SET ${sets} WHERE id = ? AND vehicle_id = ? AND household_id = ?`, [...Object.values(updateData), req.params.itemId, req.params.vehicleId, req.hhId], function(err) {
-                closeDb(req);
-                if (err) return res.status(500).json({ error: err.message });
-                res.json({ message: "Updated" });
-            });
-        });
-    });
-    router.delete(`/households/:id/vehicles/:vehicleId/${sub}/:itemId`, authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-        req.tenantDb.run(`DELETE FROM ${table} WHERE id = ? AND vehicle_id = ? AND household_id = ?`, [req.params.itemId, req.params.vehicleId, req.hhId], function(err) {
-            closeDb(req);
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "Deleted" });
-        });
+});
+router.delete(`/households/:id/vehicles/:vehicleId/services/:itemId`, authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
+    req.tenantDb.run(`DELETE FROM vehicle_services WHERE id = ? AND vehicle_id = ? AND household_id = ?`, [req.params.itemId, req.params.vehicleId, req.hhId], function(err) {
+        closeDb(req);
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Deleted" });
     });
 });
 
@@ -276,12 +230,5 @@ router.get('/households/:id/assets/:itemId', authenticateToken, requireHousehold
 router.post('/households/:id/assets', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('assets'));
 router.put('/households/:id/assets/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('assets'));
 router.delete('/households/:id/assets/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('assets'));
-
-// Energy Accounts
-router.get('/households/:id/energy', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('energy_accounts'));
-router.get('/households/:id/energy/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetItem('energy_accounts'));
-router.post('/households/:id/energy', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('energy_accounts'));
-router.put('/households/:id/energy/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('energy_accounts'));
-router.delete('/households/:id/energy/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('energy_accounts'));
 
 module.exports = router;

@@ -328,13 +328,13 @@ export default function VehiclesView() {
                 entityType="vehicle" 
                 entityId={vehicleId} 
                 segments={[
+                    { id: 'vehicle_finance', label: 'Finance' },
+                    { id: 'insurance', label: 'Insurance' },
+                    { id: 'vehicle_service', label: 'Service / Plan' },
                     { id: 'vehicle_tax', label: 'Tax' },
                     { id: 'vehicle_mot', label: 'MOT' },
-                    { id: 'vehicle_service', label: 'Service' },
                     { id: 'vehicle_fuel', label: 'Fuel' },
                     { id: 'vehicle_breakdown', label: 'Breakdown' },
-                    { id: 'insurance', label: 'Insurance' },
-                    { id: 'warranty', label: 'Warranty' },
                     { id: 'other', label: 'Other' }
                 ]}
                 title="Vehicle Costs"

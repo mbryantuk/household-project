@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Standardize entity types and align recurring cost categories",
-  "date": "Sun  1 Feb 17:27:20 GMT 2026"
+  "commitMessage": "Consolidated all recurring costs into a unified recurring_costs table and API",
+  "date": "Sun  1 Feb 19:16:22 GMT 2026"
 }

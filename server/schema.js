@@ -111,51 +111,6 @@ const TENANT_SCHEMA = [
         notes TEXT,
         FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
     )`,
-    `CREATE TABLE IF NOT EXISTS vehicle_finance (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        household_id INTEGER,
-        vehicle_id INTEGER,
-        provider TEXT,
-        account_number TEXT, -- Encrypted
-        total_amount REAL,
-        remaining_balance REAL,
-        monthly_payment REAL,
-        interest_rate REAL,
-        start_date DATE,
-        end_date DATE,
-        payment_day INTEGER,
-        emoji TEXT,
-        notes TEXT,
-        nearest_working_day INTEGER DEFAULT 1,
-        frequency TEXT DEFAULT 'monthly',
-        FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
-    )`,
-    `CREATE TABLE IF NOT EXISTS vehicle_insurance (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        household_id INTEGER,
-        vehicle_id INTEGER,
-        provider TEXT,
-        policy_number TEXT, -- Encrypted
-        renewal_date DATE,
-        premium REAL,
-        notes TEXT,
-        frequency TEXT DEFAULT 'annual',
-        nearest_working_day INTEGER DEFAULT 1,
-        FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
-    )`,
-    `CREATE TABLE IF NOT EXISTS vehicle_service_plans (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        household_id INTEGER,
-        vehicle_id INTEGER,
-        provider TEXT,
-        account_number TEXT, -- Encrypted
-        monthly_cost REAL,
-        start_date DATE,
-        end_date DATE,
-        notes TEXT,
-        nearest_working_day INTEGER DEFAULT 1,
-        FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
-    )`,
     `CREATE TABLE IF NOT EXISTS assets (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
@@ -171,28 +126,23 @@ const TENANT_SCHEMA = [
         notes TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
-    `CREATE TABLE IF NOT EXISTS finance_recurring_charges (
+    `CREATE TABLE IF NOT EXISTS recurring_costs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
+        object_type TEXT, -- 'household', 'member', 'vehicle', 'asset', 'pet'
+        object_id INTEGER,
+        category_id TEXT, -- 'water', 'energy', 'council_tax', 'insurance', 'subscription', 'utility', 'service_plan', 'finance', 'mortgage', 'other'
         name TEXT,
         amount REAL,
-        segment TEXT, -- 'household_bill', 'insurance', 'warranty', 'subscription', 'utility', 'other', 'vehicle_tax', 'vehicle_mot', 'vehicle_service', 'vehicle_fuel'
         frequency TEXT, -- 'weekly', 'monthly', 'quarterly', 'yearly', 'one_off'
-        
-        -- Scheduling Configuration
-        day_of_month INTEGER, -- 1-31 (Monthly, Quarterly, Yearly)
-        month_of_year INTEGER, -- 1-12 (Yearly)
-        day_of_week INTEGER, -- 0-6 (Weekly)
-        exact_date DATE, -- YYYY-MM-DD (One-off)
-        start_date DATE, -- Anchor date for recurring cycles (e.g. Quarterly)
-        
-        adjust_for_working_day INTEGER DEFAULT 1, -- Boolean
-        
-        -- Linking
-        linked_entity_type TEXT, -- 'vehicle', 'asset', 'member', 'pet', 'general'
-        linked_entity_id INTEGER,
-        
+        start_date DATE,
+        day_of_month INTEGER,
+        month_of_year INTEGER,
+        day_of_week INTEGER,
+        adjust_for_working_day INTEGER DEFAULT 1,
+        emoji TEXT,
         notes TEXT,
+        metadata TEXT, -- JSON String
         is_active INTEGER DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
@@ -249,70 +199,6 @@ const TENANT_SCHEMA = [
         purchase_price REAL DEFAULT 0,
         current_valuation REAL DEFAULT 0
     )`,
-    `CREATE TABLE IF NOT EXISTS water_accounts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        household_id INTEGER,
-        provider TEXT,
-        account_number TEXT, -- Encrypted
-        supply_type TEXT,
-        meter_serial TEXT,
-        monthly_amount REAL,
-        payment_day INTEGER,
-        notes TEXT,
-        nearest_working_day INTEGER DEFAULT 1,
-        waste_provider TEXT,
-        waste_account_number TEXT, -- Encrypted
-        color TEXT,
-        frequency TEXT DEFAULT 'monthly'
-    )`,
-    `CREATE TABLE IF NOT EXISTS council_accounts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        household_id INTEGER,
-        authority_name TEXT,
-        account_number TEXT, -- Encrypted
-        payment_method TEXT,
-        monthly_amount REAL,
-        payment_day INTEGER,
-        band TEXT,
-        notes TEXT,
-        nearest_working_day INTEGER DEFAULT 1,
-        color TEXT,
-        frequency TEXT DEFAULT 'monthly'
-    )`,
-    `CREATE TABLE IF NOT EXISTS energy_accounts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        household_id INTEGER,
-        provider TEXT,
-        account_number TEXT, -- Encrypted
-        type TEXT, -- Gas, Electric, Dual
-        tariff_name TEXT,
-        contract_end_date DATE,
-        monthly_amount REAL,
-        payment_day INTEGER,
-        notes TEXT,
-        nearest_working_day INTEGER DEFAULT 1,
-        electric_meter_serial TEXT,
-        electric_mpan TEXT,
-        gas_meter_serial TEXT,
-        gas_mprn TEXT,
-        payment_method TEXT
-    )`,
-    `CREATE TABLE IF NOT EXISTS waste_collections (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        household_id INTEGER,
-        bin_type TEXT, 
-        waste_type TEXT, -- Alias for tests
-        frequency TEXT,
-        day_of_week TEXT,
-        collection_day TEXT, -- Alias for tests
-        next_date DATE,
-        color TEXT,
-        emoji TEXT,
-        notes TEXT,
-        monthly_amount REAL,
-        payment_day INTEGER,
-        nearest_working_day INTEGER DEFAULT 1
-    )`,
     // FINANCE TABLES
     `CREATE TABLE IF NOT EXISTS finance_income (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -345,7 +231,9 @@ const TENANT_SCHEMA = [
         interest_rate REAL,
         current_balance REAL,
         emoji TEXT,
-        notes TEXT
+        notes TEXT,
+        deposit_amount REAL DEFAULT 0,
+        deposit_day INTEGER
     )`,
     `CREATE TABLE IF NOT EXISTS finance_savings_pots (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -385,57 +273,6 @@ const TENANT_SCHEMA = [
         parent_type TEXT DEFAULT 'general',
         parent_id INTEGER
     )`,
-    `CREATE TABLE IF NOT EXISTS finance_loans (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        household_id INTEGER,
-        lender TEXT,
-        loan_type TEXT,
-        account_number TEXT, -- Encrypted
-        total_amount REAL,
-        remaining_balance REAL,
-        interest_rate REAL,
-        monthly_payment REAL,
-        payment_day INTEGER,
-        start_date DATE,
-        end_date DATE,
-        emoji TEXT,
-        notes TEXT,
-        nearest_working_day INTEGER DEFAULT 1,
-        parent_type TEXT DEFAULT 'general',
-        parent_id INTEGER
-    )`,
-    `CREATE TABLE IF NOT EXISTS finance_mortgages (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        household_id INTEGER,
-        asset_id INTEGER, -- Linked to assets table (Property)
-        lender TEXT,
-        property_address TEXT,
-        account_number TEXT, -- Encrypted
-        total_amount REAL,
-        remaining_balance REAL,
-        interest_rate REAL,
-        monthly_payment REAL,
-        term_years INTEGER,
-        term_months INTEGER DEFAULT 0,
-        start_date DATE,
-        fixed_rate_expiry DATE,
-        repayment_type TEXT, -- Repayment, Interest Only
-        equity_loan_amount REAL DEFAULT 0,
-        equity_loan_start_date DATE,
-        equity_loan_interest_rate REAL DEFAULT 1.75,
-        equity_loan_cpi_rate REAL DEFAULT 2.0,
-        estimated_value REAL DEFAULT 0,
-        other_secured_debt REAL DEFAULT 0,
-        mortgage_type TEXT DEFAULT 'mortgage', -- mortgage, equity
-        payment_day INTEGER,
-        follow_on_rate REAL,
-        follow_on_payment REAL,
-        original_purchase_price REAL,
-        emoji TEXT,
-        notes TEXT,
-        nearest_working_day INTEGER DEFAULT 1,
-        FOREIGN KEY(asset_id) REFERENCES assets(id) ON DELETE SET NULL
-    )`,
     `CREATE TABLE IF NOT EXISTS finance_pensions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
@@ -468,25 +305,9 @@ const TENANT_SCHEMA = [
         current_value REAL,
         total_invested REAL,
         emoji TEXT,
-        notes TEXT
-    )`,
-    `CREATE TABLE IF NOT EXISTS finance_agreements (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        household_id INTEGER,
-        provider TEXT,
-        agreement_name TEXT,
-        account_number TEXT, -- Encrypted
-        total_amount REAL,
-        remaining_balance REAL,
-        monthly_payment REAL,
-        interest_rate REAL,
-        start_date DATE,
-        end_date DATE,
-        emoji TEXT,
         notes TEXT,
-        nearest_working_day INTEGER DEFAULT 1,
-        parent_type TEXT DEFAULT 'general',
-        parent_id INTEGER
+        monthly_contribution REAL DEFAULT 0,
+        payment_day INTEGER
     )`,
     `CREATE TABLE IF NOT EXISTS finance_budget_categories (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -623,55 +444,12 @@ function initializeHouseholdSchema(db) {
             db.run(`ALTER TABLE finance_income ADD COLUMN ${col} ${type}`, () => {});
         });
 
-        const mortgageCols = [
-            ['equity_loan_amount', 'REAL'],
-            ['equity_loan_start_date', 'DATE'],
-            ['equity_loan_interest_rate', 'REAL'],
-            ['equity_loan_cpi_rate', 'REAL'],
-            ['estimated_value', 'REAL'],
-            ['other_secured_debt', 'REAL'],
-            ['mortgage_type', "TEXT DEFAULT 'mortgage'"],
-            ['asset_id', 'INTEGER'],
-            ['term_months', 'INTEGER DEFAULT 0'],
-            ['follow_on_rate', 'REAL'],
-            ['follow_on_payment', 'REAL'],
-            ['original_purchase_price', 'REAL']
-        ];
-
-        mortgageCols.forEach(([col, type]) => {
-            db.run(`ALTER TABLE finance_mortgages ADD COLUMN ${col} ${type}`, () => {});
-        });
-
         const additionalFinanceCols = [
             ['finance_budget_progress', 'actual_amount', 'REAL'],
             ['finance_pensions', 'payment_day', 'INTEGER'],
-            ['finance_loans', 'payment_day', 'INTEGER'],
             ['finance_income', 'nearest_working_day', 'INTEGER DEFAULT 1'],
             ['finance_credit_cards', 'nearest_working_day', 'INTEGER DEFAULT 1'],
-            ['finance_loans', 'nearest_working_day', 'INTEGER DEFAULT 1'],
-            ['finance_mortgages', 'nearest_working_day', 'INTEGER DEFAULT 1'],
-            ['finance_agreements', 'nearest_working_day', 'INTEGER DEFAULT 1'],
-            ['vehicle_finance', 'nearest_working_day', 'INTEGER DEFAULT 1'],
-            ['water_info', 'nearest_working_day', 'INTEGER DEFAULT 1'],
-            ['council_info', 'nearest_working_day', 'INTEGER DEFAULT 1'],
-            ['energy_accounts', 'nearest_working_day', 'INTEGER DEFAULT 1'],
             ['finance_pensions', 'nearest_working_day', 'INTEGER DEFAULT 1'],
-            ['vehicle_finance', 'frequency', "TEXT DEFAULT 'monthly'"],
-            ['vehicle_insurance', 'frequency', "TEXT DEFAULT 'annual'"],
-            ['vehicle_insurance', 'nearest_working_day', 'INTEGER DEFAULT 1'],
-            ['vehicle_insurance', 'payment_day', 'INTEGER'],
-            ['water_accounts', 'frequency', "TEXT DEFAULT 'monthly'"],
-            ['council_accounts', 'frequency', "TEXT DEFAULT 'monthly'"],
-            ['waste_collections', 'monthly_amount', 'REAL'],
-            ['waste_collections', 'payment_day', 'INTEGER'],
-            ['waste_collections', 'nearest_working_day', 'INTEGER DEFAULT 1'],
-            ['finance_loans', 'parent_type', "TEXT DEFAULT 'general'"],
-            ['finance_loans', 'parent_id', 'INTEGER'],
-            ['finance_credit_cards', 'parent_type', "TEXT DEFAULT 'general'"],
-            ['finance_credit_cards', 'parent_id', 'INTEGER'],
-            ['finance_agreements', 'parent_type', "TEXT DEFAULT 'general'"],
-            ['finance_agreements', 'parent_id', 'INTEGER'],
-            ['finance_recurring_charges', 'start_date', 'DATE'],
             ['house_details', 'purchase_price', 'REAL DEFAULT 0'],
             ['house_details', 'current_valuation', 'REAL DEFAULT 0'],
             ['finance_savings', 'deposit_amount', 'REAL DEFAULT 0'],
@@ -684,45 +462,72 @@ function initializeHouseholdSchema(db) {
             db.run(`ALTER TABLE ${table} ADD COLUMN ${col} ${type}`, () => {});
         });
 
-        // 🛠️ MIGRATION: Ensure recurring_costs has all required columns
-        const recurringCostCols = [
-            ['last_paid', 'DATE'],
-            ['next_due', 'DATE'],
-            ['is_active', 'INTEGER DEFAULT 1']
+        // 🛠️ COMPREHENSIVE MIGRATION TO recurring_costs
+        const legacyTables = [
+            { name: 'finance_recurring_charges', type: 'charge' },
+            { name: 'water_accounts', type: 'water' },
+            { name: 'energy_accounts', type: 'energy' },
+            { name: 'council_accounts', type: 'council' },
+            { name: 'waste_collections', type: 'waste' },
+            { name: 'vehicle_finance', type: 'vehicle_finance' },
+            { name: 'vehicle_insurance', type: 'vehicle_insurance' },
+            { name: 'vehicle_service_plans', type: 'vehicle_service' },
+            { name: 'finance_loans', type: 'loan' },
+            { name: 'finance_agreements', type: 'agreement' },
+            { name: 'finance_mortgages', type: 'mortgage' }
         ];
-        recurringCostCols.forEach(([col, type]) => {
-            db.run(`ALTER TABLE recurring_costs ADD COLUMN ${col} ${type}`, () => {});
-        });
 
-        // 🛠️ MIGRATION: Convert water_info to water_accounts if exists
-        db.get(`SELECT name FROM sqlite_master WHERE type='table' AND name='water_info'`, (err, row) => {
-            if (row) {
-                // If water_info exists, migrate data to water_accounts
-                db.all(`SELECT * FROM water_info`, (err, rows) => {
-                    if (rows && rows.length > 0) {
-                        rows.forEach(r => {
-                            db.run(`INSERT INTO water_accounts (household_id, provider, account_number, supply_type, meter_serial, monthly_amount, payment_day, notes, nearest_working_day) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
-                                [r.household_id, r.provider, r.account_number, r.supply_type, r.meter_serial, r.monthly_amount, r.payment_day, r.notes, r.nearest_working_day || 1]);
-                        });
-                    }
-                });
-                // Rename old table so we don't migrate again (or drop it)
-                // db.run(`DROP TABLE water_info`); // Safer to keep for now or just ignore
-            }
-        });
+        legacyTables.forEach(table => {
+            db.get(`SELECT name FROM sqlite_master WHERE type='table' AND name='${table.name}'`, (err, row) => {
+                if (row) {
+                    console.log(`🛠️ Migrating ${table.name} to recurring_costs...`);
+                    db.all(`SELECT * FROM ${table.name}`, (err, rows) => {
+                        if (rows && rows.length > 0) {
+                            rows.forEach(r => {
+                                let object_type = 'household';
+                                let object_id = null;
+                                let category_id = table.type;
+                                let metadata = {};
+                                let amount = r.amount || r.monthly_amount || r.monthly_payment || r.premium || r.monthly_cost || 0;
+                                let frequency = r.frequency || 'monthly';
+                                let start_date = r.start_date || r.purchase_date || r.date || null;
+                                let day_of_month = r.payment_day || r.day_of_month || null;
+                                let name = r.name || r.provider || r.authority_name || r.lender || r.bin_type || r.agreement_name || 'Legacy Cost';
+                                let emoji = r.emoji || null;
+                                let notes = r.notes || null;
 
-        // 🛠️ MIGRATION: Convert council_info to council_accounts if exists
-        db.get(`SELECT name FROM sqlite_master WHERE type='table' AND name='council_info'`, (err, row) => {
-            if (row) {
-                 db.all(`SELECT * FROM council_info`, (err, rows) => {
-                    if (rows && rows.length > 0) {
-                        rows.forEach(r => {
-                            db.run(`INSERT INTO council_accounts (household_id, authority_name, account_number, payment_method, monthly_amount, payment_day, band, notes, nearest_working_day, color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
-                                [r.household_id, r.authority_name, r.account_number, r.payment_method, r.monthly_amount, r.payment_day, r.band, r.notes, r.nearest_working_day || 1, r.color]);
-                        });
-                    }
-                });
-            }
+                                // Specialized Mapping
+                                if (table.name.startsWith('vehicle_')) {
+                                    object_type = 'vehicle';
+                                    object_id = r.vehicle_id;
+                                } else if (table.name === 'finance_recurring_charges') {
+                                    object_type = r.linked_entity_type || 'household';
+                                    object_id = r.linked_entity_id;
+                                    category_id = r.segment;
+                                }
+
+                                // Collect Metadata
+                                Object.keys(r).forEach(key => {
+                                    if (!['id', 'household_id', 'amount', 'monthly_amount', 'monthly_payment', 'premium', 'monthly_cost', 'frequency', 'start_date', 'payment_day', 'day_of_month', 'name', 'provider', 'authority_name', 'lender', 'bin_type', 'agreement_name', 'emoji', 'notes', 'vehicle_id', 'linked_entity_type', 'linked_entity_id'].includes(key)) {
+                                        metadata[key] = r[key];
+                                    }
+                                });
+
+                                db.run(`INSERT INTO recurring_costs (
+                                    household_id, object_type, object_id, category_id, name, amount, frequency, 
+                                    start_date, day_of_month, emoji, notes, metadata
+                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
+                                    r.household_id, object_type, object_id, category_id, name, amount, frequency,
+                                    start_date, day_of_month, emoji, notes, JSON.stringify(metadata)
+                                ]);
+                            });
+                        }
+                        // Drop Table after migration
+                        console.log(`✅ ${table.name} migrated. Dropping legacy table.`);
+                        db.run(`DROP TABLE ${table.name}`);
+                    });
+                }
+            });
         });
     });
 }

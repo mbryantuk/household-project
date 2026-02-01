@@ -4,8 +4,8 @@ const { getHouseholdDb } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { encrypt, decrypt } = require('../services/crypto');
 
-// Import Charges
-const chargeRoutes = require('./charges');
+// Import Recurring Costs
+const recurringCostsRoutes = require('./recurring_costs');
 
 /**
  * Multi-Tenancy Enforcement:
@@ -288,18 +288,6 @@ router.post('/credit-cards', authenticateToken, requireHouseholdRole('member'), 
 router.put('/credit-cards/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('finance_credit_cards'));
 router.delete('/credit-cards/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('finance_credit_cards'));
 
-router.get('/loans', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('finance_loans'));
-router.get('/loans/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetItem('finance_loans'));
-router.post('/loans', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('finance_loans'));
-router.put('/loans/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('finance_loans'));
-router.delete('/loans/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('finance_loans'));
-
-router.get('/mortgages', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('finance_mortgages'));
-router.get('/mortgages/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetItem('finance_mortgages'));
-router.post('/mortgages', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('finance_mortgages'));
-router.put('/mortgages/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('finance_mortgages'));
-router.delete('/mortgages/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('finance_mortgages'));
-
 router.get('/investments', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('finance_investments'));
 router.get('/investments/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetItem('finance_investments'));
 router.post('/investments', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('finance_investments'));
@@ -311,18 +299,6 @@ router.get('/pensions/:itemId', authenticateToken, requireHouseholdRole('viewer'
 router.post('/pensions', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('finance_pensions'));
 router.put('/pensions/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('finance_pensions'));
 router.delete('/pensions/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('finance_pensions'));
-
-router.get('/agreements', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('finance_agreements'));
-router.get('/agreements/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetItem('finance_agreements'));
-router.post('/agreements', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('finance_agreements'));
-router.put('/agreements/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('finance_agreements'));
-router.delete('/agreements/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('finance_agreements'));
-
-router.get('/vehicle-finance', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('vehicle_finance'));
-router.get('/vehicle-finance/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetItem('vehicle_finance'));
-router.post('/vehicle-finance', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('vehicle_finance'));
-router.put('/vehicle-finance/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('vehicle_finance'));
-router.delete('/vehicle-finance/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('vehicle_finance'));
 
 router.get('/pensions/:pensionId/history', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleSubList('finance_pensions_history', 'finance_pensions', 'pensionId'));
 router.post('/pensions/:pensionId/history', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleSubCreate('finance_pensions_history', 'finance_pensions', 'pensionId'));
@@ -468,7 +444,7 @@ router.post('/current-accounts', authenticateToken, requireHouseholdRole('member
 router.put('/current-accounts/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('finance_current_accounts'));
 router.delete('/current-accounts/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('finance_current_accounts'));
 
-// Mount charges
-router.use('/charges', chargeRoutes);
+// Mount recurring costs
+router.use('/recurring-costs', recurringCostsRoutes);
 
 module.exports = router;

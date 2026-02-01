@@ -30,7 +30,7 @@ const formatCurrency = (val) => {
 const getCategoryColor = (cat) => {
     const lower = (cat || '').toLowerCase();
     if (lower.includes('saving') || lower.includes('invest') || lower.includes('pension')) return 'success';
-    if (lower.includes('bill') || lower.includes('utility') || lower.includes('council')) return 'warning';
+    if (lower.includes('bill') || lower.includes('utility') || lower.includes('council') || lower.includes('water') || lower.includes('energy')) return 'warning';
     if (lower.includes('food') || lower.includes('grocer') || lower.includes('dining')) return 'success';
     if (lower.includes('insur') || lower.includes('health') || lower.includes('life')) return 'danger';
     if (lower.includes('loan') || lower.includes('mortgage') || lower.includes('finance')) return 'danger';
@@ -52,8 +52,7 @@ export default function BudgetView() {
   const [cycles, setCycles] = useState([]); 
   
   const [liabilities, setLiabilities] = useState({
-      mortgages: [], loans: [], agreements: [], vehicle_finance: [], 
-      charges: [], credit_cards: [], pensions: [], vehicles: [], assets: [],
+      recurring_costs: [], credit_cards: [], pensions: [], vehicles: [], assets: [],
       savings: [], investments: []
   });
   const [savingsPots, setSavingsPots] = useState([]);
@@ -67,10 +66,9 @@ export default function BudgetView() {
 
   // Modals
   const [quickAddOpen, setQuickAddOpen] = useState(false);
-  const [quickLinkType] = useState('general');
   const [recurringAddOpen, setRecurringAddOpen] = useState(false);
   const [recurringType, setRecurringType] = useState('monthly');
-  const [selectedEntity, setSelectedEntity] = useState('general:household');
+  const [selectedEntity, setSelectedEntity] = useState('household:null');
   const [setupModalOpen, setSetupModalOpen] = useState(false);
 
   const [actualPay, setActualPay] = useState('');
@@ -81,16 +79,12 @@ export default function BudgetView() {
     setLoading(true);
     try {
       const [
-          incRes, progRes, cycleRes, mortRes, loanRes, agreeRes, carRes, chargeRes, ccRes, pensionRes, potRes, holidayRes, vehRes, assetRes, saveRes, invRes
+          incRes, progRes, cycleRes, recurringRes, ccRes, pensionRes, potRes, holidayRes, vehRes, assetRes, saveRes, invRes
       ] = await Promise.all([
           api.get(`/households/${householdId}/finance/income`),
           api.get(`/households/${householdId}/finance/budget-progress`),
           api.get(`/households/${householdId}/finance/budget-cycles`),
-          api.get(`/households/${householdId}/finance/mortgages`),
-          api.get(`/households/${householdId}/finance/loans`),
-          api.get(`/households/${householdId}/finance/agreements`),
-          api.get(`/households/${householdId}/finance/vehicle-finance`),
-          api.get(`/households/${householdId}/finance/charges`),
+          api.get(`/households/${householdId}/finance/recurring-costs`),
           api.get(`/households/${householdId}/finance/credit-cards`),
           api.get(`/households/${householdId}/finance/pensions`),
           api.get(`/households/${householdId}/finance/savings/pots`),
@@ -105,11 +99,7 @@ export default function BudgetView() {
       setProgress(progRes.data || []);
       setCycles(cycleRes.data || []);
       setLiabilities({
-          mortgages: mortRes.data || [],
-          loans: loanRes.data || [],
-          agreements: agreeRes.data || [],
-          vehicle_finance: carRes.data || [],
-          charges: chargeRes.data || [],
+          recurring_costs: recurringRes.data || [],
           credit_cards: ccRes.data || [],
           pensions: pensionRes.data || [],
           vehicles: vehRes.data || [],
@@ -155,7 +145,7 @@ export default function BudgetView() {
 
   const entityGroupsOptions = useMemo(() => {
     return [
-        { label: 'General', options: [{ value: 'general:household', label: 'Household (General)', emoji: '🏠' }] },
+        { label: 'General', options: [{ value: 'household:null', label: 'Household (General)', emoji: '🏠' }] },
         { label: 'People', options: members.filter(m => m.type !== 'pet').map(m => ({ value: `member:${m.id}`, label: m.name, emoji: m.emoji || '👤' })) },
         { label: 'Pets', options: members.filter(m => m.type === 'pet').map(p => ({ value: `pet:${p.id}`, label: p.name, emoji: p.emoji || '🐾' })) },
         { label: 'Vehicles', options: liabilities.vehicles.map(v => ({ value: `vehicle:${v.id}`, label: `${v.make} ${v.model}`, emoji: v.emoji || '🚗' })) },
@@ -164,15 +154,18 @@ export default function BudgetView() {
   }, [members, liabilities]);
 
   const getCategoryOptions = useCallback((entityString) => {
-      const [type, id] = (entityString || 'general:household').split(':');
+      const [type, id] = (entityString || 'household:null').split(':');
       
       const HOUSEHOLD_CATS = [
-          { value: 'household_bill', label: 'Household Bill' },
-          { value: 'utility', label: 'Utility (Water/Gas/Elec)' },
+          { value: 'water', label: 'Water' },
+          { value: 'energy', label: 'Energy' },
+          { value: 'council', label: 'Council Tax' },
+          { value: 'waste', label: 'Waste' },
+          { value: 'utility', label: 'Utility (Other)' },
+          { value: 'household_bill', label: 'Fixed Bill' },
           { value: 'subscription', label: 'Subscription' },
           { value: 'insurance', label: 'Insurance' },
-          { value: 'warranty', label: 'Warranty' },
-          { value: 'service', label: 'Service / Maintenance' },
+          { value: 'mortgage', label: 'Mortgage' },
           { value: 'other', label: 'Other' }
       ];
 
@@ -180,11 +173,10 @@ export default function BudgetView() {
           { value: 'vehicle_fuel', label: 'Fuel' },
           { value: 'vehicle_tax', label: 'Tax' },
           { value: 'vehicle_mot', label: 'MOT' },
-          { value: 'vehicle_service', label: 'Service' },
-          { value: 'vehicle_breakdown', label: 'Breakdown Cover' },
+          { value: 'vehicle_service', label: 'Service / Plan' },
+          { value: 'vehicle_breakdown', label: 'Breakdown' },
           { value: 'insurance', label: 'Insurance' },
-          { value: 'warranty', label: 'Warranty' },
-          { value: 'finance', label: 'Finance Payment' },
+          { value: 'vehicle_finance', label: 'Finance' },
           { value: 'other', label: 'Other' }
       ];
 
@@ -194,13 +186,13 @@ export default function BudgetView() {
           { value: 'insurance', label: 'Life/Health Insurance' },
           { value: 'education', label: 'Education' },
           { value: 'care', label: 'Care & Support' },
+          { value: 'loan', label: 'Loan' },
           { value: 'other', label: 'Other' }
       ];
 
       const CHILD_CATS = [
           { value: 'pocket_money', label: 'Pocket Money' },
           { value: 'subscription', label: 'Subscription' },
-          { value: 'insurance', label: 'Life/Health Insurance' },
           { value: 'education', label: 'Education' },
           { value: 'care', label: 'Care & Support' },
           { value: 'other', label: 'Other' }
@@ -208,7 +200,7 @@ export default function BudgetView() {
       
       const PET_CATS = [
           { value: 'food', label: 'Food & Supplies' },
-          { value: 'insurance', label: 'Pet Insurance' },
+          { value: 'insurance', label: 'Insurance' },
           { value: 'vet', label: 'Vet & Medical' },
           { value: 'other', label: 'Other' }
       ];
@@ -250,8 +242,6 @@ export default function BudgetView() {
       const startDate = getPriorWorkingDay(rawStartDate);
       const endDate = getPriorWorkingDay(addMonths(rawStartDate, 1));
       const cycleKey = format(startDate, 'yyyy-MM-dd');
-      // "Budget Month" Logic: If start date is late in the month (>= 20th), it effectively funds the NEXT month.
-      // e.g. Dec 25th -> January Budget. Jan 1st -> January Budget.
       const budgetLabelDate = rawStartDate.getDate() >= 20 ? addMonths(rawStartDate, 1) : rawStartDate;
       const label = format(budgetLabelDate, 'MMMM yyyy') + " Budget";
       const cycleDuration = differenceInDays(endDate, startDate);
@@ -282,7 +272,6 @@ export default function BudgetView() {
       
       const addExpense = (item, type, label, amount, dateObj, icon, category, targetGroupKey, object = null) => {
           if (!dateObj || !isValid(dateObj)) return;
-          
           if (searchQuery && !label.toLowerCase().includes(lowerSearch) && !category.toLowerCase().includes(lowerSearch)) return;
 
           const key = `${type}_${item.id || 'fixed'}_${format(dateObj, 'ddMM')}`; 
@@ -314,20 +303,12 @@ export default function BudgetView() {
           }
       };
 
-      liabilities.mortgages.forEach(m => addExpense(m, 'mortgage', m.lender, m.monthly_payment, getAdjustedDate(m.payment_day, true, startDate), <Home />, 'Mortgage', 'household'));
-      liabilities.loans.forEach(l => addExpense(l, 'loan', `${l.lender} Loan`, l.monthly_payment, getAdjustedDate(l.payment_day, true, startDate), <TrendingDown />, 'Loan', 'household'));
-      
-      liabilities.vehicle_finance.forEach(v => {
-          const veh = liabilities.vehicles.find(veh => veh.id === v.vehicle_id);
-          const groupKey = veh ? `vehicle_${veh.id}` : 'household';
-          if (veh && !groups[groupKey]) getGroup('vehicle', veh.id, `${veh.make} ${veh.model}`, veh.emoji || '🚗');
-          addExpense(v, 'vehicle_finance', v.provider, v.monthly_payment, getAdjustedDate(v.payment_day, true, startDate), <DirectionsCar />, 'Car Finance', groupKey);
-      });
-
-      liabilities.charges.filter(c => c.is_active !== 0).forEach(charge => {
+      // --- CONSOLIDATED RECURRING COSTS ---
+      liabilities.recurring_costs.filter(c => c.is_active !== 0).forEach(charge => {
           let datesToAdd = [];
           const freq = charge.frequency?.toLowerCase();
           const anchor = charge.start_date ? parseISO(charge.start_date) : null;
+          
           if (freq === 'one_off') {
              const oneOffDate = parseISO(charge.exact_date || charge.start_date);
              if (isWithinInterval(oneOffDate, { start: startDate, end: endDate })) datesToAdd.push(oneOffDate);
@@ -337,40 +318,51 @@ export default function BudgetView() {
                  if (freq === 'weekly') current = addWeeks(current, 1);
                  else if (freq === 'monthly') current = addMonths(current, 1);
                  else if (freq === 'quarterly') current = addMonths(current, 3);
-                 else current = addYears(current, 1);
+                 else if (freq === 'yearly') current = addYears(current, 1);
+                 else break;
              }
              while (isWithinInterval(current, { start: startDate, end: endDate })) {
                  datesToAdd.push(charge.adjust_for_working_day ? getNextWorkingDay(current) : new Date(current));
                  if (freq === 'weekly') current = addWeeks(current, 1);
                  else if (freq === 'monthly') current = addMonths(current, 1);
                  else if (freq === 'quarterly') current = addMonths(current, 3);
-                 else current = addYears(current, 1);
+                 else if (freq === 'yearly') current = addYears(current, 1);
+                 else break;
              }
-          } else if (freq === 'monthly') {
+          } else if (freq === 'monthly' && charge.day_of_month) {
              datesToAdd.push(getAdjustedDate(charge.day_of_month, charge.adjust_for_working_day, startDate));
           }
 
           let groupKey = 'household';
-          if (charge.linked_entity_type === 'member') {
-              const m = members.find(mem => String(mem.id) === String(charge.linked_entity_id));
+          let icon = <Receipt />;
+          const cat = charge.category_id;
+          
+          if (cat === 'mortgage') icon = <Home />;
+          else if (cat === 'insurance') icon = <Shield />;
+          else if (cat === 'subscription') icon = <ShoppingBag />;
+          else if (cat?.includes('utility') || cat === 'water' || cat === 'energy') icon = <ElectricBolt />;
+          else if (cat?.includes('vehicle')) icon = <DirectionsCar />;
+
+          if (charge.object_type === 'member') {
+              const m = members.find(mem => String(mem.id) === String(charge.object_id));
               if (m) {
                   groupKey = `member_${m.id}`;
                   if (!groups[groupKey]) getGroup('member', m.id, m.name, m.emoji || '👤');
               }
-          } else if (charge.linked_entity_type === 'vehicle') {
-              const v = liabilities.vehicles.find(veh => String(veh.id) === String(charge.linked_entity_id));
+          } else if (charge.object_type === 'vehicle') {
+              const v = liabilities.vehicles.find(veh => String(veh.id) === String(charge.object_id));
               if (v) {
                   groupKey = `vehicle_${v.id}`;
                   if (!groups[groupKey]) getGroup('vehicle', v.id, `${v.make} ${v.model}`, v.emoji || '🚗');
               }
-          } else if (charge.linked_entity_type === 'asset') {
-              const a = liabilities.assets.find(asset => String(asset.id) === String(charge.linked_entity_id));
+          } else if (charge.object_type === 'asset') {
+              const a = liabilities.assets.find(asset => String(asset.id) === String(charge.object_id));
               if (a) {
                   groupKey = `asset_${a.id}`;
                   if (!groups[groupKey]) getGroup('asset', a.id, a.name, a.emoji || '📦');
               }
-          } else if (charge.linked_entity_type === 'pet') {
-              const p = members.find(mem => String(mem.id) === String(charge.linked_entity_id));
+          } else if (charge.object_type === 'pet') {
+              const p = members.find(mem => String(mem.id) === String(charge.object_id) && mem.type === 'pet');
               if (p) {
                   groupKey = `pet_${p.id}`;
                   if (!groups[groupKey]) getGroup('pet', p.id, p.name, p.emoji || '🐾');
@@ -378,17 +370,13 @@ export default function BudgetView() {
           }
 
           datesToAdd.forEach(d => {
-             let icon = <Receipt />;
-             if (charge.segment === 'insurance') icon = <Shield />;
-             else if (charge.segment === 'subscription') icon = <ShoppingBag />;
-             addExpense(charge, 'charge', charge.name, charge.amount, d, icon, charge.segment, groupKey);
+             addExpense(charge, 'recurring', charge.name, charge.amount, d, icon, charge.category_id, groupKey);
           });
       });
 
       liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit_card', `${cc.card_name} (Bal: ${formatCurrency(cc.current_balance)})`, 0, getAdjustedDate(cc.payment_day || 1, true, startDate), <CreditCard />, 'Credit Card', 'household'));
 
       // 6. WEALTH items
-      // Only include Savings Accounts that do NOT have pots (to avoid double counting)
       liabilities.savings.forEach(s => {
           const hasPots = savingsPots.some(pot => String(pot.savings_id) === String(s.id));
           if (!hasPots) {
@@ -517,13 +505,18 @@ export default function BudgetView() {
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
       const data = Object.fromEntries(formData.entries());
-      data.frequency = 'one_off'; 
-      data.segment = data.category || 'other';
-      data.adjust_for_working_day = data.nearest_working_day === "1" ? 1 : 0;
-      data.linked_entity_type = quickLinkType;
-      data.linked_entity_id = data.linked_entity_id || null;
+      const payload = {
+        name: data.name,
+        amount: parseFloat(data.amount) || 0,
+        frequency: 'one_off',
+        start_date: data.start_date,
+        category_id: data.category || 'other',
+        object_type: 'household',
+        object_id: null,
+        adjust_for_working_day: 1
+      };
       try {
-          await api.post(`/households/${householdId}/finance/charges`, data);
+          await api.post(`/households/${householdId}/finance/recurring-costs`, payload);
           showNotification("Expense added.", "success");
           fetchData(); setQuickAddOpen(false);
       } catch { showNotification("Failed.", "danger"); }
@@ -534,13 +527,20 @@ export default function BudgetView() {
       const formData = new FormData(e.currentTarget);
       const data = Object.fromEntries(formData.entries());
       const [type, id] = selectedEntity.split(':');
-      data.adjust_for_working_day = data.nearest_working_day === "1" ? 1 : 0;
-      data.frequency = recurringType;
-      data.segment = data.category || 'other';
-      data.linked_entity_type = type;
-      data.linked_entity_id = id === 'household' ? null : id;
+      
+      const payload = {
+        name: data.name,
+        amount: parseFloat(data.amount) || 0,
+        frequency: recurringType,
+        start_date: data.start_date,
+        category_id: data.category || 'other',
+        object_type: type,
+        object_id: id === 'null' ? null : id,
+        adjust_for_working_day: data.nearest_working_day === "1" ? 1 : 0
+      };
+
       try {
-          await api.post(`/households/${householdId}/finance/charges`, data);
+          await api.post(`/households/${householdId}/finance/recurring-costs`, payload);
           showNotification("Recurring expense added.", "success");
           fetchData(); setRecurringAddOpen(false);
       } catch { showNotification("Failed.", "danger"); }
@@ -787,7 +787,6 @@ export default function BudgetView() {
             </Grid>
         </Grid>
 
-        {/* ... Modals (Setup, QuickAdd, RecurringAdd) ... */}
         {/* SETUP MODAL */}
         <Modal open={setupModalOpen}>
             <ModalDialog sx={{ maxWidth: 500, width: '100%' }}>
