@@ -50,6 +50,14 @@ docker compose up -d --build
 ```
 Access the application at `http://localhost:4001`.
 
+### Demo Environment (The Brady Master Seed)
+For testing and demonstration purposes, you can generate a comprehensive household (The Brady Bunch) populated with complex financial data, vehicles, assets, and recurring costs:
+```bash
+# Ensure the server is running, then execute:
+node scripts/ops/seed_brady_household.js
+```
+This script creates a realistic multi-generational household with 11 members, 2 vehicles, multiple assets, and 30+ recurring costs including utilities, insurance, and pocket money.
+
 ### Development Setup
 ```bash
 # Install server dependencies

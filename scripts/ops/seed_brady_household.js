@@ -116,27 +116,59 @@ async function seed() {
 
         // 6. CONSOLIDATED RECURRING COSTS
         const costDefs = [
-            // Household Utility/Tax
+            // Household Utility/Tax/Insurance
             { n: "Council Tax", a: 280, c: "council", f: "monthly", d: 1, ot: "household" },
             { n: "LA Water", a: 45, c: "water", f: "monthly", d: 15, ot: "household", m: { meter_serial: "H2O-555", supply_type: "metered" } },
             { n: "Pacific Power", a: 250, c: "energy", f: "monthly", d: 20, ot: "household", m: { account_number: "ELEC-222" } },
+            { n: "Home Insurance", a: 65, c: "insurance", f: "monthly", d: 12, ot: "household", m: { policy_number: "H-9988-77", provider: "State Farm" } },
+            { n: "Life Insurance (Mike)", a: 40, c: "insurance", f: "monthly", d: 1, ot: "member", oi: members.Mike },
+            { n: "Life Insurance (Carol)", a: 35, c: "insurance", f: "monthly", d: 1, ot: "member", oi: members.Carol },
+            { n: "Home Emergency Cover", a: 15, c: "insurance", f: "monthly", d: 15, ot: "household" },
             
-            // Subscriptions
+            // Subscriptions & Tech
             { n: "Netflix Premium", a: 18, c: "subscription", f: "monthly", d: 20, ot: "household" },
+            { n: "Disney+", a: 12, c: "subscription", f: "monthly", d: 5, ot: "household" },
+            { n: "Amazon Prime", a: 10, c: "subscription", f: "monthly", d: 14, ot: "household" },
+            { n: "Spotify Family", a: 17, c: "subscription", f: "monthly", d: 2, ot: "household" },
             
-            // Vehicle Costs
+            // Vehicle Costs (Tesla)
             { n: "Tesla Finance", a: 850, c: "vehicle_finance", f: "monthly", d: 5, ot: "vehicle", oi: v1.data.id },
-            { n: "Tesla Insurance", a: 100, c: "insurance", f: "monthly", d: 7, ot: "vehicle", oi: v1.data.id },
+            { n: "Tesla Insurance", a: 120, c: "insurance", f: "monthly", d: 7, ot: "vehicle", oi: v1.data.id },
+            { n: "Tesla Service Plan", a: 45, c: "vehicle_service", f: "monthly", d: 10, ot: "vehicle", oi: v1.data.id },
+            { n: "Tesla Extended Warranty", a: 35, c: "insurance", f: "monthly", d: 10, ot: "vehicle", oi: v1.data.id },
+            
+            // Vehicle Costs (Rivian)
             { n: "Rivian Finance", a: 920, c: "vehicle_finance", f: "monthly", d: 15, ot: "vehicle", oi: v2.data.id },
+            { n: "Rivian Insurance", a: 135, c: "insurance", f: "monthly", d: 18, ot: "vehicle", oi: v2.data.id },
             { n: "Rivian Service", a: 50, c: "vehicle_service", f: "monthly", d: 14, ot: "vehicle", oi: v2.data.id },
+            { n: "Rivian Warranty", a: 40, c: "insurance", f: "monthly", d: 14, ot: "vehicle", oi: v2.data.id },
             
             // Mortgage & Loans
             { n: "Main Mortgage", a: 4800, c: "mortgage", f: "monthly", d: 1, ot: "household", m: { lender: "Standard", term_years: 25 } },
             { n: "SoFi Loan", a: 450, c: "loan", f: "monthly", d: 10, ot: "household" },
             
-            // Member Costs
-            { n: "Golf Club", a: 150, c: "fun_money", f: "monthly", d: 1, ot: "member", oi: members.Mike },
-            { n: "Yoga Classes", a: 80, c: "fun_money", f: "monthly", d: 3, ot: "member", oi: members.Carol }
+            // Adults Fun Money
+            { n: "Golf Club (Mike)", a: 150, c: "fun_money", f: "monthly", d: 1, ot: "member", oi: members.Mike },
+            { n: "Gym & Spa (Mike)", a: 85, c: "fun_money", f: "monthly", d: 5, ot: "member", oi: members.Mike },
+            { n: "Yoga & Pilates (Carol)", a: 120, c: "fun_money", f: "monthly", d: 3, ot: "member", oi: members.Carol },
+            { n: "Book Club & Coffee (Carol)", a: 40, c: "fun_money", f: "monthly", d: 7, ot: "member", oi: members.Carol },
+            { n: "College Social (Greg)", a: 200, c: "fun_money", f: "monthly", d: 1, ot: "member", oi: members.Greg },
+            { n: "University Fund (Marcia)", a: 200, c: "fun_money", f: "monthly", d: 1, ot: "member", oi: members.Marcia },
+            { n: "Retirement Social (Alice)", a: 100, c: "fun_money", f: "monthly", d: 1, ot: "member", oi: members.Alice },
+
+            // Kids Pocket Money
+            { n: "Pocket Money (Peter)", a: 20, c: "pocket_money", f: "monthly", d: 1, ot: "member", oi: members.Peter },
+            { n: "Pocket Money (Jan)", a: 20, c: "pocket_money", f: "monthly", d: 1, ot: "member", oi: members.Jan },
+            { n: "Pocket Money (Bobby)", a: 15, c: "pocket_money", f: "monthly", d: 1, ot: "member", oi: members.Bobby },
+            { n: "Pocket Money (Cindy)", a: 15, c: "pocket_money", f: "monthly", d: 1, ot: "member", oi: members.Cindy },
+
+            // Pet Expenses
+            { n: "Dog Food (Tiger)", a: 60, c: "food", f: "monthly", d: 5, ot: "member", oi: members.Tiger },
+            { n: "Pet Insurance (Tiger)", a: 45, c: "insurance", f: "monthly", d: 10, ot: "member", oi: members.Tiger },
+            { n: "Vet Wellness Plan (Tiger)", a: 25, c: "health", f: "monthly", d: 15, ot: "member", oi: members.Tiger },
+            { n: "Cat Food (Fluffy)", a: 40, c: "food", f: "monthly", d: 5, ot: "member", oi: members.Fluffy },
+            { n: "Pet Insurance (Fluffy)", a: 30, c: "insurance", f: "monthly", d: 10, ot: "member", oi: members.Fluffy },
+            { n: "Vet Wellness Plan (Fluffy)", a: 20, c: "health", f: "monthly", d: 15, ot: "member", oi: members.Fluffy }
         ];
 
         for (const c of costDefs) {
