@@ -1,1 +1,107 @@
-{"numFailedTestSuites":0,"numFailedTests":0,"numPassedTestSuites":3,"numPassedTests":13,"numPendingTestSuites":0,"numPendingTests":0,"numRuntimeErrorTestSuites":0,"numTodoTests":0,"numTotalTestSuites":3,"numTotalTests":13,"openHandles":[],"snapshot":{"added":0,"didUpdate":false,"failure":false,"filesAdded":0,"filesRemoved":0,"filesRemovedList":[],"filesUnmatched":0,"filesUpdated":0,"matched":0,"total":0,"unchecked":0,"uncheckedKeysByFile":[],"unmatched":0,"updated":0},"startTime":1769949922606,"success":true,"testResults":[{"assertionResults":[{"ancestorTitles":["🛡️ Comprehensive Backend API & RBAC Verification"],"duration":10,"failureDetails":[],"failureMessages":[],"fullName":"🛡️ Comprehensive Backend API & RBAC Verification 🔑 Authentication Profile","invocations":1,"location":null,"numPassingAsserts":2,"retryReasons":[],"status":"passed","title":"🔑 Authentication Profile"},{"ancestorTitles":["🛡️ Comprehensive Backend API & RBAC Verification"],"duration":467,"failureDetails":[],"failureMessages":[],"fullName":"🛡️ Comprehensive Backend API & RBAC Verification 🏠 Module: Utilities","invocations":1,"location":null,"numPassingAsserts":40,"retryReasons":[],"status":"passed","title":"🏠 Module: Utilities"},{"ancestorTitles":["🛡️ Comprehensive Backend API & RBAC Verification"],"duration":117,"failureDetails":[],"failureMessages":[],"fullName":"🛡️ Comprehensive Backend API & RBAC Verification 👥 Module: People","invocations":1,"location":null,"numPassingAsserts":10,"retryReasons":[],"status":"passed","title":"👥 Module: People"},{"ancestorTitles":["🛡️ Comprehensive Backend API & RBAC Verification"],"duration":107,"failureDetails":[],"failureMessages":[],"fullName":"🛡️ Comprehensive Backend API & RBAC Verification 📦 Module: Assets","invocations":1,"location":null,"numPassingAsserts":10,"retryReasons":[],"status":"passed","title":"📦 Module: Assets"},{"ancestorTitles":["🛡️ Comprehensive Backend API & RBAC Verification"],"duration":98,"failureDetails":[],"failureMessages":[],"fullName":"🛡️ Comprehensive Backend API & RBAC Verification 🚗 Module: Vehicles","invocations":1,"location":null,"numPassingAsserts":10,"retryReasons":[],"status":"passed","title":"🚗 Module: Vehicles"},{"ancestorTitles":["🛡️ Comprehensive Backend API & RBAC Verification"],"duration":811,"failureDetails":[],"failureMessages":[],"fullName":"🛡️ Comprehensive Backend API & RBAC Verification 💰 Module: Finance","invocations":1,"location":null,"numPassingAsserts":80,"retryReasons":[],"status":"passed","title":"💰 Module: Finance"},{"ancestorTitles":["🛡️ Comprehensive Backend API & RBAC Verification"],"duration":110,"failureDetails":[],"failureMessages":[],"fullName":"🛡️ Comprehensive Backend API & RBAC Verification 🍱 Module: Meals","invocations":1,"location":null,"numPassingAsserts":10,"retryReasons":[],"status":"passed","title":"🍱 Module: Meals"},{"ancestorTitles":["🛡️ Comprehensive Backend API & RBAC Verification"],"duration":192,"failureDetails":[],"failureMessages":[],"fullName":"🛡️ Comprehensive Backend API & RBAC Verification ⚡ Module: Admin","invocations":1,"location":null,"numPassingAsserts":4,"retryReasons":[],"status":"passed","title":"⚡ Module: Admin"}],"endTime":1769949925981,"message":"","name":"/home/matt/household-project/server/tests/security/api_coverage_and_rbac.test.js","startTime":1769949922689,"status":"passed","summary":""},{"assertionResults":[{"ancestorTitles":["⚡ SQLite Concurrency Stress"],"duration":643,"failureDetails":[],"failureMessages":[],"fullName":"⚡ SQLite Concurrency Stress 🧬 WAL Mode Concurrency (20 Parallel Writes)","invocations":1,"location":null,"numPassingAsserts":1,"retryReasons":[],"status":"passed","title":"🧬 WAL Mode Concurrency (20 Parallel Writes)"}],"endTime":1769949927133,"message":"","name":"/home/matt/household-project/server/tests/performance/concurrency.test.js","startTime":1769949926067,"status":"passed","summary":""},{"assertionResults":[{"ancestorTitles":["🛡️ Advanced System Integrity & Security"],"duration":46,"failureDetails":[],"failureMessages":[],"fullName":"🛡️ Advanced System Integrity & Security 📅 Friday Rule: Creation with valid payload","invocations":1,"location":null,"numPassingAsserts":1,"retryReasons":[],"status":"passed","title":"📅 Friday Rule: Creation with valid payload"},{"ancestorTitles":["🛡️ Advanced System Integrity & Security"],"duration":72,"failureDetails":[],"failureMessages":[],"fullName":"🛡️ Advanced System Integrity & Security ♻️ Idempotency: Duplicate creation check","invocations":1,"location":null,"numPassingAsserts":2,"retryReasons":[],"status":"passed","title":"♻️ Idempotency: Duplicate creation check"},{"ancestorTitles":["🛡️ Advanced System Integrity & Security"],"duration":20,"failureDetails":[],"failureMessages":[],"fullName":"🛡️ Advanced System Integrity & Security 🛑 Security: Path Traversal prevention","invocations":1,"location":null,"numPassingAsserts":3,"retryReasons":[],"status":"passed","title":"🛑 Security: Path Traversal prevention"},{"ancestorTitles":["🛡️ Advanced System Integrity & Security"],"duration":19,"failureDetails":[],"failureMessages":[],"fullName":"🛡️ Advanced System Integrity & Security 💾 Integrity: Backup Trigger","invocations":1,"location":null,"numPassingAsserts":2,"retryReasons":[],"status":"passed","title":"💾 Integrity: Backup Trigger"}],"endTime":1769949927658,"message":"","name":"/home/matt/household-project/server/tests/security/advanced_integrity.test.js","startTime":1769949927139,"status":"passed","summary":""}],"wasInterrupted":false}
+{
+  "numFailedTestSuites": 0,
+  "numFailedTests": 0,
+  "numPassedTestSuites": 1,
+  "numPassedTests": 3,
+  "numPendingTestSuites": 0,
+  "numPendingTests": 0,
+  "numRuntimeErrorTestSuites": 0,
+  "numTodoTests": 0,
+  "numTotalTestSuites": 1,
+  "numTotalTests": 3,
+  "openHandles": [],
+  "snapshot": {
+    "added": 0,
+    "didUpdate": false,
+    "failure": false,
+    "filesAdded": 0,
+    "filesRemoved": 0,
+    "filesRemovedList": [],
+    "filesUnmatched": 0,
+    "filesUpdated": 0,
+    "matched": 0,
+    "total": 0,
+    "unchecked": 0,
+    "uncheckedKeysByFile": [],
+    "unmatched": 0,
+    "updated": 0
+  },
+  "startTime": 1769952107998,
+  "success": false,
+  "testResults": [
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 3,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1769952109592,
+        "runtime": 1506,
+        "slow": false,
+        "start": 1769952108086
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/finance_routing.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "💰 Finance Routing Verification"
+          ],
+          "duration": 55,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/pots should not return 404",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "GET /api/households/:id/finance/savings/pots should not return 404"
+        },
+        {
+          "ancestorTitles": [
+            "💰 Finance Routing Verification"
+          ],
+          "duration": 60,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/:itemId should still work for valid items",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 3,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "GET /api/households/:id/finance/savings/:itemId should still work for valid items"
+        },
+        {
+          "ancestorTitles": [
+            "💰 Finance Routing Verification"
+          ],
+          "duration": 20,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/999999 should return 404",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "GET /api/households/:id/finance/savings/999999 should return 404"
+        }
+      ],
+      "failureMessage": null
+    }
+  ],
+  "wasInterrupted": false
+}

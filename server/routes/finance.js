@@ -262,12 +262,6 @@ router.post('/income', authenticateToken, requireHouseholdRole('member'), useTen
 router.put('/income/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('finance_income'));
 router.delete('/income/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('finance_income'));
 
-router.get('/savings', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('finance_savings'));
-router.get('/savings/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetItem('finance_savings'));
-router.post('/savings', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('finance_savings'));
-router.put('/savings/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('finance_savings'));
-router.delete('/savings/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('finance_savings'));
-
 router.get('/savings/pots', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
     const sql = `SELECT p.*, s.institution, s.account_name, s.emoji as account_emoji, s.current_balance FROM finance_savings_pots p JOIN finance_savings s ON p.savings_id = s.id WHERE s.household_id = ?`;
     req.tenantDb.all(sql, [req.hhId], (err, rows) => {
@@ -276,6 +270,12 @@ router.get('/savings/pots', authenticateToken, requireHouseholdRole('viewer'), u
         res.json(rows || []);
     });
 });
+
+router.get('/savings', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetList('finance_savings'));
+router.get('/savings/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetItem('finance_savings'));
+router.post('/savings', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateItem('finance_savings'));
+router.put('/savings/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateItem('finance_savings'));
+router.delete('/savings/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('finance_savings'));
 
 router.get('/savings/:savingsId/pots', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleSubList('finance_savings_pots', 'finance_savings', 'savingsId'));
 router.post('/savings/:savingsId/pots', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleSubCreate('finance_savings_pots', 'finance_savings', 'savingsId'));

@@ -36,7 +36,7 @@ function apiRequest(method, urlPath, data = null, token = null) {
 }
 
 async function seed() {
-    console.log(`🚀 LAUNCHING PRECISION MORTGAGE SEED: ${HOUSEHOLD_NAME}`);
+    console.log(`🚀 LAUNCHING DEFINITIVE MASTER SEED: ${HOUSEHOLD_NAME}`);
     try {
         // 1. SETUP
         await apiRequest('POST', '/api/auth/register', { householdName: HOUSEHOLD_NAME, email: ADMIN_EMAIL, password: PASSWORD, is_test: 1 });
@@ -46,44 +46,44 @@ async function seed() {
         await apiRequest('POST', `/api/households/${hhId}/select`, {}, token);
         await apiRequest('POST', `/api/households/${hhId}/users`, { email: PRIMARY_USER, role: 'admin', first_name: 'Matt', password: PASSWORD }, token);
 
-        // 2. HOUSE VALUATION (Critical for Equity calculation)
-        console.log("   Seeding House Valuation...");
-        await apiRequest('PUT', `/api/households/${hhId}/details`, {
-            purchase_price: 61000, 
-            current_valuation: 2450000,
-            property_type: "Brady Residence",
-            construction_year: 1960
-        }, token);
+        // 2. HOUSE DETAILS (Valuation)
+        await apiRequest('PUT', `/api/households/${hhId}/details`, { purchase_price: 61000, current_valuation: 2450000, property_type: "Brady Residence" }, token);
 
-        // 3. PRECISION MORTGAGE
-        console.log("   Seeding Structured Mortgage...");
-        const mortgageRes = await apiRequest('POST', `/api/households/${hhId}/finance/mortgages`, {
-            lender: "Standard Trust",
-            property_address: "4222 Clinton Way",
-            total_amount: 1000000,
-            remaining_balance: 850000, // This populates 'Total Debt'
-            interest_rate: 3.25,       // This populates the percentage
-            monthly_payment: 4800,
-            term_years: 25,            // This fixes 'nully'
-            payment_day: 1,            // This fixes 'Day -'
-            repayment_type: "Repayment",
-            start_date: "2020-01-01"
-        }, token);
-        const mId = mortgageRes.data.id;
-
-        // 4. MEMBERS
+        // 3. MEMBERS (Verify all 11)
         const members = {};
-        const memberDefs = [{ n: "Mike", t: "adult", e: "👨" }, { n: "Carol", t: "adult", e: "👩" }, { n: "Greg", t: "adult", e: "👦" }, { n: "Alice", t: "adult", e: "👵" }];
+        const memberDefs = [
+            { n: "Mike", t: "adult", e: "👨" }, { n: "Carol", t: "adult", e: "👩" }, { n: "Greg", t: "adult", e: "👦" }, { n: "Marcia", t: "adult", e: "👧" }, { n: "Peter", t: "child", e: "👦" }, { n: "Jan", t: "child", e: "👧" }, { n: "Bobby", t: "child", e: "👦" }, { n: "Cindy", t: "child", e: "👧" }, { n: "Alice", t: "adult", e: "👵" }, { n: "Tiger", t: "pet", e: "🐕" }, { n: "Fluffy", t: "pet", e: "🐈" }
+        ];
         for (const m of memberDefs) {
             const res = await apiRequest('POST', `/api/households/${hhId}/members`, { first_name: m.n, type: m.t, emoji: m.e }, token);
             members[m.n] = res.data.id;
         }
 
-        // 5. BUDGET CYCLES (With Mortgage Progress)
-        console.log("   Projecting Budget Progress...");
+        // 4. VEHICLES + STRUCTURED FINANCE
+        const v1 = await apiRequest('POST', `/api/households/${hhId}/vehicles`, { make: "Tesla", model: "Model S", emoji: "⚡" }, token);
+        const v2 = await apiRequest('POST', `/api/households/${hhId}/vehicles`, { make: "Rivian", model: "R1S", emoji: "🔋" }, token);
+        await apiRequest('POST', `/api/households/${hhId}/vehicles/${v1.data.id}/finance`, { provider: "Tesla Finance", total_amount: 80000, remaining_balance: 45000, monthly_payment: 850 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/vehicles/${v2.data.id}/finance`, { provider: "Rivian Financial", total_amount: 75000, remaining_balance: 62000, monthly_payment: 920 }, token);
+
+        // 5. FINANCIAL MATRIX (Deep Seeding)
+        const bank1 = await apiRequest('POST', `/api/households/${hhId}/finance/current-accounts`, { bank_name: "Wells Fargo", account_name: "Checking", current_balance: 15000 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "Brady Architecture", amount: 9500, is_primary: 1, payment_day: 1, bank_account_id: bank1.data.id }, token);
+        const mortgageRes = await apiRequest('POST', `/api/households/${hhId}/finance/mortgages`, { lender: "Standard", total_amount: 1000000, remaining_balance: 850000, term_years: 25, payment_day: 1, monthly_payment: 4800 }, token);
+        const mId = mortgageRes.data.id;
+        const savRes = await apiRequest('POST', `/api/households/${hhId}/finance/savings`, { institution: "Ally", account_name: "Joint Savings", current_balance: 55000 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/savings/${savRes.data.id}/pots`, { name: "Hawaii 2026", target_amount: 15000, current_amount: 8000, emoji: "🌋" }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/loans`, { lender: "SoFi", loan_type: "Personal", total_amount: 35000, remaining_balance: 22000, monthly_payment: 450 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/investments`, { name: "Vanguard ETF", platform: "Vanguard", current_value: 152000 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/pensions`, { provider: "Fidelity", plan_name: "401k", current_value: 420000 }, token);
+
+        // 6. BILLS & PROGRESS
         const energyRes = await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: "Octopus Energy", amount: 280, segment: "utility", frequency: "monthly" }, token);
         const eId = energyRes.data.id;
+        for (const kid of ["Greg", "Marcia", "Peter", "Jan", "Bobby", "Cindy"]) {
+            await apiRequest('POST', `/api/households/${hhId}/finance/charges`, { name: `Pocket Money (${kid})`, amount: 30, frequency: "weekly", linked_entity_type: "member", linked_entity_id: members[kid] }, token);
+        }
 
+        // 7. BUDGET CYCLES
         for (const date of ["2026-02-01", "2026-03-01", "2026-04-01"]) {
             await apiRequest('POST', `/api/households/${hhId}/finance/budget-cycles`, { cycle_start: date, actual_pay: 12000, current_balance: 15400 }, token);
             if (date !== "2026-04-01") {
@@ -92,7 +92,16 @@ async function seed() {
             }
         }
 
-        console.log(`✅ PRECISION SEED COMPLETE: ID ${hhId}`);
+        // 8. MEALS (3 Weeks)
+        const recipes = [{ n: "Meatloaf", e: "🍞" }, { n: "Spaghetti", e: "🍝" }, { n: "Tacos", e: "🌮" }];
+        const mealIds = [];
+        for (const r of recipes) { const res = await apiRequest('POST', `/api/households/${hhId}/meals`, { name: r.n, emoji: r.e }, token); mealIds.push(res.data.id); }
+        for (let i = 0; i < 21; i++) {
+            const d = new Date(); d.setDate(d.getDate() + i);
+            await apiRequest('POST', `/api/households/${hhId}/meal-plans`, { date: d.toISOString().split('T')[0], meal_id: mealIds[i % 3], member_id: members.Carol, type: 'dinner' }, token);
+        }
+
+        console.log(`✅ DEFINITIVE SEED COMPLETE: ID ${hhId}`);
         process.exit(0);
     } catch (err) { console.error("❌ Seed Failed:", err); process.exit(1); }
 }

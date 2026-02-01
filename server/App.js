@@ -73,7 +73,7 @@ allRouters.forEach(r => {
 });
 
 // 2. Mount under /api prefix
-const apiRouter = express.Router();
+const apiRouter = express.Router({ mergeParams: true });
 allRouters.forEach(r => {
     apiRouter.use(r.path, r.router);
 });

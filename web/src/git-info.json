@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Build: Syncing backend fixes and refreshing Brady seed data.",
-  "date": "Sun  1 Feb 13:04:06 GMT 2026"
+  "commitMessage": "Fix 404 error on /finance/savings/pots by reordering routes and enabling mergeParams",
+  "date": "Sun  1 Feb 13:21:53 GMT 2026"
 }
