@@ -1,4 +1,4 @@
 {
-  "commitMessage": "fix(ui): ensure recurring costs with missing segments default to 'other' and update brady seed",
-  "date": "Sun  1 Feb 13:39:13 GMT 2026"
+  "commitMessage": "feat(ui): add 'pocket_money' segment for child recurring costs",
+  "date": "Sun  1 Feb 13:43:15 GMT 2026"
 }
