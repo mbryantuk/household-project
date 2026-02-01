@@ -30,6 +30,13 @@ EOF
 echo "🚀 Deploying v$NEW_VERSION..."
 docker compose up -d --build
 
+# 2.5. Post-Deployment Verification
+echo "🧪 Running Post-Deployment Verification..."
+echo "   - Building Frontend (Verification)..."
+(cd web && npm run build)
+echo "   - Running Backend Tests..."
+(cd server && npm test)
+
 # 3. Commit & Push
 echo "💾 Committing changes..."
 git add .
