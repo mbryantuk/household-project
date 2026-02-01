@@ -1,8 +1,8 @@
 {
-  "numFailedTestSuites": 1,
-  "numFailedTests": 3,
-  "numPassedTestSuites": 5,
-  "numPassedTests": 19,
+  "numFailedTestSuites": 0,
+  "numFailedTests": 0,
+  "numPassedTestSuites": 6,
+  "numPassedTests": 22,
   "numPendingTestSuites": 0,
   "numPendingTests": 0,
   "numRuntimeErrorTestSuites": 0,
@@ -26,21 +26,21 @@
     "unmatched": 0,
     "updated": 0
   },
-  "startTime": 1769973541440,
+  "startTime": 1769974914160,
   "success": false,
   "testResults": [
     {
       "leaks": false,
-      "numFailingTests": 3,
-      "numPassingTests": 3,
+      "numFailingTests": 0,
+      "numPassingTests": 6,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1769973546080,
-        "runtime": 4499,
-        "slow": false,
-        "start": 1769973541581
+        "end": 1769974919597,
+        "runtime": 5321,
+        "slow": true,
+        "start": 1769974914276
       },
       "skipped": false,
       "snapshot": {
@@ -58,7 +58,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 18,
+          "duration": 11,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🔑 Authentication Profile",
@@ -73,7 +73,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 958,
+          "duration": 656,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🔄 Module: Recurring Costs (Consolidated)",
@@ -88,79 +88,52 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 578,
-          "failureDetails": [
-            {
-              "matcherResult": {
-                "message": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected value: \u001b[32m\"PUT /households/{id}/members/{itemId}\"\u001b[39m\nReceived array: \u001b[31m[\"POST /auth/register\", \"POST /auth/login\", \"GET /auth/profile\", \"PUT /auth/profile\", \"POST /households\", \"GET /households/{id}\", \"PUT /households/{id}\", \"GET /households/{id}/members\", \"POST /households/{id}/members\", \"GET /households/{id}/vehicles\", …]\u001b[39m",
-                "pass": false
-              }
-            }
-          ],
-          "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected value: \u001b[32m\"PUT /households/{id}/members/{itemId}\"\u001b[39m\nReceived array: \u001b[31m[\"POST /auth/register\", \"POST /auth/login\", \"GET /auth/profile\", \"PUT /auth/profile\", \"POST /households\", \"GET /households/{id}\", \"PUT /households/{id}\", \"GET /households/{id}/members\", \"POST /households/{id}/members\", \"GET /households/{id}/vehicles\", …]\u001b[39m\n    at toContain (/home/matt/household-project/server/tests/security/api_coverage_and_rbac.test.js:135:34)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/home/matt/household-project/server/tests/security/api_coverage_and_rbac.test.js:165:43)"
-          ],
+          "duration": 884,
+          "failureDetails": [],
+          "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 👥 Module: People",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 4,
+          "numPassingAsserts": 9,
           "retryReasons": [],
-          "status": "failed",
+          "status": "passed",
           "title": "👥 Module: People"
         },
         {
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 302,
-          "failureDetails": [
-            {
-              "matcherResult": {
-                "message": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected value: \u001b[32m\"PUT /households/{id}/vehicles/{itemId}\"\u001b[39m\nReceived array: \u001b[31m[\"POST /auth/register\", \"POST /auth/login\", \"GET /auth/profile\", \"PUT /auth/profile\", \"POST /households\", \"GET /households/{id}\", \"PUT /households/{id}\", \"GET /households/{id}/members\", \"POST /households/{id}/members\", \"GET /households/{id}/vehicles\", …]\u001b[39m",
-                "pass": false
-              }
-            }
-          ],
-          "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected value: \u001b[32m\"PUT /households/{id}/vehicles/{itemId}\"\u001b[39m\nReceived array: \u001b[31m[\"POST /auth/register\", \"POST /auth/login\", \"GET /auth/profile\", \"PUT /auth/profile\", \"POST /households\", \"GET /households/{id}\", \"PUT /households/{id}\", \"GET /households/{id}/members\", \"POST /households/{id}/members\", \"GET /households/{id}/vehicles\", …]\u001b[39m\n    at toContain (/home/matt/household-project/server/tests/security/api_coverage_and_rbac.test.js:135:34)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/home/matt/household-project/server/tests/security/api_coverage_and_rbac.test.js:166:45)"
-          ],
+          "duration": 870,
+          "failureDetails": [],
+          "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🚗 Module: Vehicles",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 4,
+          "numPassingAsserts": 9,
           "retryReasons": [],
-          "status": "failed",
+          "status": "passed",
           "title": "🚗 Module: Vehicles"
         },
         {
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 299,
-          "failureDetails": [
-            {
-              "matcherResult": {
-                "message": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected value: \u001b[32m\"PUT /households/{id}/finance/income/{itemId}\"\u001b[39m\nReceived array: \u001b[31m[\"POST /auth/register\", \"POST /auth/login\", \"GET /auth/profile\", \"PUT /auth/profile\", \"POST /households\", \"GET /households/{id}\", \"PUT /households/{id}\", \"GET /households/{id}/members\", \"POST /households/{id}/members\", \"GET /households/{id}/vehicles\", …]\u001b[39m",
-                "pass": false
-              }
-            }
-          ],
-          "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected value: \u001b[32m\"PUT /households/{id}/finance/income/{itemId}\"\u001b[39m\nReceived array: \u001b[31m[\"POST /auth/register\", \"POST /auth/login\", \"GET /auth/profile\", \"PUT /auth/profile\", \"POST /households\", \"GET /households/{id}\", \"PUT /households/{id}\", \"GET /households/{id}/members\", \"POST /households/{id}/members\", \"GET /households/{id}/vehicles\", …]\u001b[39m\n    at toContain (/home/matt/household-project/server/tests/security/api_coverage_and_rbac.test.js:135:34)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/home/matt/household-project/server/tests/security/api_coverage_and_rbac.test.js:169:9)"
-          ],
+          "duration": 1108,
+          "failureDetails": [],
+          "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 💰 Module: Finance (Core)",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 4,
+          "numPassingAsserts": 17,
           "retryReasons": [],
-          "status": "failed",
+          "status": "passed",
           "title": "💰 Module: Finance (Core)"
         },
         {
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 21,
+          "duration": 14,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🍱 Module: Meals",
@@ -172,7 +145,7 @@
           "title": "🍱 Module: Meals"
         }
       ],
-      "failureMessage": "\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1m🛡️ Comprehensive Backend API & RBAC Verification › 👥 Module: People\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\n    Expected value: \u001b[32m\"PUT /households/{id}/members/{itemId}\"\u001b[39m\n    Received array: \u001b[31m[\"POST /auth/register\", \"POST /auth/login\", \"GET /auth/profile\", \"PUT /auth/profile\", \"POST /households\", \"GET /households/{id}\", \"PUT /households/{id}\", \"GET /households/{id}/members\", \"POST /households/{id}/members\", \"GET /households/{id}/vehicles\", …]\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 133 |\u001b[39m             \u001b[90m// 4. UPDATE\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 134 |\u001b[39m             testedEndpoints\u001b[33m.\u001b[39madd(endpoints\u001b[33m.\u001b[39mupdate)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 135 |\u001b[39m             expect(swaggerPaths)\u001b[33m.\u001b[39mtoContain(endpoints\u001b[33m.\u001b[39mupdate)\u001b[33m;\u001b[39m \u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 136 |\u001b[39m             \u001b[36mconst\u001b[39m uRes \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m request(app)\u001b[33m.\u001b[39mput(itemPath)\u001b[33m.\u001b[39m\u001b[36mset\u001b[39m(\u001b[32m'Authorization'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m`Bearer ${tokens.member}`\u001b[39m)\u001b[33m.\u001b[39msend(updatePayload)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 137 |\u001b[39m             logResult(endpoints\u001b[33m.\u001b[39mupdate\u001b[33m,\u001b[39m uRes\u001b[33m.\u001b[39mstatus \u001b[33m===\u001b[39m \u001b[35m200\u001b[39m \u001b[33m?\u001b[39m \u001b[32m'PASS'\u001b[39m \u001b[33m:\u001b[39m \u001b[32m'FAIL'\u001b[39m\u001b[33m,\u001b[39m uRes)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 138 |\u001b[39m             expect(uRes\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m200\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat toContain (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/security/api_coverage_and_rbac.test.js\u001b[39m\u001b[0m\u001b[2m:135:34)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/security/api_coverage_and_rbac.test.js\u001b[39m\u001b[0m\u001b[2m:165:43)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1m🛡️ Comprehensive Backend API & RBAC Verification › 🚗 Module: Vehicles\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\n    Expected value: \u001b[32m\"PUT /households/{id}/vehicles/{itemId}\"\u001b[39m\n    Received array: \u001b[31m[\"POST /auth/register\", \"POST /auth/login\", \"GET /auth/profile\", \"PUT /auth/profile\", \"POST /households\", \"GET /households/{id}\", \"PUT /households/{id}\", \"GET /households/{id}/members\", \"POST /households/{id}/members\", \"GET /households/{id}/vehicles\", …]\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 133 |\u001b[39m             \u001b[90m// 4. UPDATE\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 134 |\u001b[39m             testedEndpoints\u001b[33m.\u001b[39madd(endpoints\u001b[33m.\u001b[39mupdate)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 135 |\u001b[39m             expect(swaggerPaths)\u001b[33m.\u001b[39mtoContain(endpoints\u001b[33m.\u001b[39mupdate)\u001b[33m;\u001b[39m \u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 136 |\u001b[39m             \u001b[36mconst\u001b[39m uRes \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m request(app)\u001b[33m.\u001b[39mput(itemPath)\u001b[33m.\u001b[39m\u001b[36mset\u001b[39m(\u001b[32m'Authorization'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m`Bearer ${tokens.member}`\u001b[39m)\u001b[33m.\u001b[39msend(updatePayload)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 137 |\u001b[39m             logResult(endpoints\u001b[33m.\u001b[39mupdate\u001b[33m,\u001b[39m uRes\u001b[33m.\u001b[39mstatus \u001b[33m===\u001b[39m \u001b[35m200\u001b[39m \u001b[33m?\u001b[39m \u001b[32m'PASS'\u001b[39m \u001b[33m:\u001b[39m \u001b[32m'FAIL'\u001b[39m\u001b[33m,\u001b[39m uRes)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 138 |\u001b[39m             expect(uRes\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m200\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat toContain (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/security/api_coverage_and_rbac.test.js\u001b[39m\u001b[0m\u001b[2m:135:34)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/security/api_coverage_and_rbac.test.js\u001b[39m\u001b[0m\u001b[2m:166:45)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1m🛡️ Comprehensive Backend API & RBAC Verification › 💰 Module: Finance (Core)\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\n    Expected value: \u001b[32m\"PUT /households/{id}/finance/income/{itemId}\"\u001b[39m\n    Received array: \u001b[31m[\"POST /auth/register\", \"POST /auth/login\", \"GET /auth/profile\", \"PUT /auth/profile\", \"POST /households\", \"GET /households/{id}\", \"PUT /households/{id}\", \"GET /households/{id}/members\", \"POST /households/{id}/members\", \"GET /households/{id}/vehicles\", …]\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 133 |\u001b[39m             \u001b[90m// 4. UPDATE\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 134 |\u001b[39m             testedEndpoints\u001b[33m.\u001b[39madd(endpoints\u001b[33m.\u001b[39mupdate)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 135 |\u001b[39m             expect(swaggerPaths)\u001b[33m.\u001b[39mtoContain(endpoints\u001b[33m.\u001b[39mupdate)\u001b[33m;\u001b[39m \u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 136 |\u001b[39m             \u001b[36mconst\u001b[39m uRes \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m request(app)\u001b[33m.\u001b[39mput(itemPath)\u001b[33m.\u001b[39m\u001b[36mset\u001b[39m(\u001b[32m'Authorization'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m`Bearer ${tokens.member}`\u001b[39m)\u001b[33m.\u001b[39msend(updatePayload)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 137 |\u001b[39m             logResult(endpoints\u001b[33m.\u001b[39mupdate\u001b[33m,\u001b[39m uRes\u001b[33m.\u001b[39mstatus \u001b[33m===\u001b[39m \u001b[35m200\u001b[39m \u001b[33m?\u001b[39m \u001b[32m'PASS'\u001b[39m \u001b[33m:\u001b[39m \u001b[32m'FAIL'\u001b[39m\u001b[33m,\u001b[39m uRes)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 138 |\u001b[39m             expect(uRes\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m200\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat toContain (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/security/api_coverage_and_rbac.test.js\u001b[39m\u001b[0m\u001b[2m:135:34)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/security/api_coverage_and_rbac.test.js\u001b[39m\u001b[0m\u001b[2m:169:9)\u001b[22m\u001b[2m\u001b[22m\n"
+      "failureMessage": null
     },
     {
       "leaks": false,
@@ -182,10 +155,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1769973547798,
-        "runtime": 1613,
+        "end": 1769974920411,
+        "runtime": 713,
         "slow": false,
-        "start": 1769973546185
+        "start": 1769974919698
       },
       "skipped": false,
       "snapshot": {
@@ -203,7 +176,7 @@
           "ancestorTitles": [
             "🛡️ Advanced System Integrity & Security"
           ],
-          "duration": 148,
+          "duration": 22,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Advanced System Integrity & Security 📅 Friday Rule: Creation with valid payload",
@@ -218,7 +191,7 @@
           "ancestorTitles": [
             "🛡️ Advanced System Integrity & Security"
           ],
-          "duration": 701,
+          "duration": 38,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Advanced System Integrity & Security ♻️ Idempotency: Duplicate creation check",
@@ -233,7 +206,7 @@
           "ancestorTitles": [
             "🛡️ Advanced System Integrity & Security"
           ],
-          "duration": 25,
+          "duration": 16,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Advanced System Integrity & Security 🛑 Security: Path Traversal prevention",
@@ -248,7 +221,7 @@
           "ancestorTitles": [
             "🛡️ Advanced System Integrity & Security"
           ],
-          "duration": 17,
+          "duration": 21,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Advanced System Integrity & Security 💾 Integrity: Backup Trigger",
@@ -270,10 +243,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1769973549161,
-        "runtime": 1317,
+        "end": 1769974921760,
+        "runtime": 1342,
         "slow": false,
-        "start": 1769973547844
+        "start": 1769974920418
       },
       "skipped": false,
       "snapshot": {
@@ -291,7 +264,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 42,
+          "duration": 56,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should measure login speed (Heavy Bcrypt)",
@@ -306,7 +279,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 192,
+          "duration": 179,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should measure GET assets speed (Plain Read)",
@@ -321,7 +294,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 149,
+          "duration": 151,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should measure GET finance savings speed (Decryption Overhead)",
@@ -336,7 +309,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 47,
+          "duration": 49,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should measure POST asset speed (Plain Write)",
@@ -351,7 +324,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 623,
+          "duration": 647,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should handle \"Load\" (Concurrent requests)",
@@ -368,88 +341,15 @@
     {
       "leaks": false,
       "numFailingTests": 0,
-      "numPassingTests": 3,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1769973554095,
-        "runtime": 1393,
-        "slow": false,
-        "start": 1769973552702
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/finance_routing.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "💰 Finance Routing Verification"
-          ],
-          "duration": 156,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/pots should not return 404",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "GET /api/households/:id/finance/savings/pots should not return 404"
-        },
-        {
-          "ancestorTitles": [
-            "💰 Finance Routing Verification"
-          ],
-          "duration": 544,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/:itemId should still work for valid items",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 3,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "GET /api/households/:id/finance/savings/:itemId should still work for valid items"
-        },
-        {
-          "ancestorTitles": [
-            "💰 Finance Routing Verification"
-          ],
-          "duration": 39,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/999999 should return 404",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "GET /api/households/:id/finance/savings/999999 should return 404"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
       "numPassingTests": 1,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1769973555283,
-        "runtime": 1182,
+        "end": 1769974926281,
+        "runtime": 967,
         "slow": false,
-        "start": 1769973554101
+        "start": 1769974925314
       },
       "skipped": false,
       "snapshot": {
@@ -467,7 +367,7 @@
           "ancestorTitles": [
             "⚡ SQLite Concurrency Stress"
           ],
-          "duration": 644,
+          "duration": 515,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "⚡ SQLite Concurrency Stress 🧬 WAL Mode Concurrency (20 Parallel Writes)",
@@ -489,10 +389,83 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1769973555372,
-        "runtime": 83,
+        "end": 1769974926975,
+        "runtime": 688,
         "slow": false,
-        "start": 1769973555289
+        "start": 1769974926287
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/finance_routing.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "💰 Finance Routing Verification"
+          ],
+          "duration": 33,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/pots should not return 404",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "GET /api/households/:id/finance/savings/pots should not return 404"
+        },
+        {
+          "ancestorTitles": [
+            "💰 Finance Routing Verification"
+          ],
+          "duration": 223,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/:itemId should still work for valid items",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 3,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "GET /api/households/:id/finance/savings/:itemId should still work for valid items"
+        },
+        {
+          "ancestorTitles": [
+            "💰 Finance Routing Verification"
+          ],
+          "duration": 35,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/999999 should return 404",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "GET /api/households/:id/finance/savings/999999 should return 404"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 3,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1769974927043,
+        "runtime": 63,
+        "slow": false,
+        "start": 1769974926980
       },
       "skipped": false,
       "snapshot": {
@@ -510,7 +483,7 @@
           "ancestorTitles": [
             "Frontend Build Smoke Test"
           ],
-          "duration": 1,
+          "duration": 2,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Frontend Build Smoke Test index.html should exist after build",
@@ -525,7 +498,7 @@
           "ancestorTitles": [
             "Frontend Build Smoke Test"
           ],
-          "duration": 20,
+          "duration": 1,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Frontend Build Smoke Test index.html should contain root div",
