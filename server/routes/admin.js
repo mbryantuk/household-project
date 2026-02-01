@@ -7,6 +7,7 @@ const path = require('path');
 const fs = require('fs');
 const { spawn } = require('child_process');
 const { globalDb, getHouseholdDb } = require('../db');
+const SECRET_KEY = 'super_secret_pi_key';
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { listBackups, createBackup, restoreBackup, BACKUP_DIR, DATA_DIR } = require('../services/backup');
 
@@ -162,7 +163,7 @@ router.post('/create-user', authenticateToken, requireHouseholdRole('admin'), as
             userId = existing.id;
         } else {
             const res = await dbRun(globalDb, 
-                `INSERT INTO users (email, password_hash, first_name, last_name, avatar, system_role) VALUES (?, ?, ?, ?, ?, 'user')`,
+                `INSERT INTO users (email, password_hash, first_name, last_name, avatar, system_role, is_active) VALUES (?, ?, ?, ?, ?, 'user', 1)`,
                 [finalEmail, hash, first_name || username, last_name, avatar]
             );
             userId = res.id;

@@ -143,6 +143,19 @@ const TENANT_SCHEMA = [
         nearest_working_day INTEGER DEFAULT 1,
         FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
     )`,
+    `CREATE TABLE IF NOT EXISTS vehicle_service_plans (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        vehicle_id INTEGER,
+        provider TEXT,
+        account_number TEXT, -- Encrypted
+        monthly_cost REAL,
+        start_date DATE,
+        end_date DATE,
+        notes TEXT,
+        nearest_working_day INTEGER DEFAULT 1,
+        FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
+    )`,
     `CREATE TABLE IF NOT EXISTS assets (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,

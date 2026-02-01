@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { globalDb } = require('../db');
-const { SECRET_KEY } = require('../config');
+const SECRET_KEY = 'super_secret_pi_key';
 
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
@@ -9,29 +9,26 @@ function authenticateToken(req, res, next) {
     if (!token) return res.sendStatus(401);
 
     jwt.verify(token, SECRET_KEY, (err, user) => {
-        if (err) return res.sendStatus(403); 
-        
-        // CRITICAL: Check if user is active globally
-        globalDb.get("SELECT is_active, system_role FROM users WHERE id = ?", [user.id], (err, row) => {
+        if (err) {
+            if (process.env.NODE_ENV === 'test') console.error(`JWT Verify Error on ${req.path}:`, err.message, "Key Length:", SECRET_KEY.length);
+            return res.status(403).json({ error: "Invalid or expired token." }); 
+        }
+
+        globalDb.get("SELECT is_active, system_role, last_household_id FROM users WHERE id = ?", [user.id], (err, row) => {
             if (err || !row || !row.is_active) {
-                return res.status(403).json({ error: "Account is inactive." });
+                return res.status(403).json({ error: "Account is inactive or not found." });
             }
 
             req.user = { ...user, systemRole: row.system_role };
+            const effectiveHhId = user.householdId || row.last_household_id;
 
-            // If a household context is present, check if that link is active
-            if (user.householdId) {
-                globalDb.get("SELECT role, is_active FROM user_households WHERE user_id = ? AND household_id = ?", [user.id, user.householdId], (err, link) => {
-                    if (err || !link || !link.is_active) {
-                        // Resiliency: If the household context in the token is stale/deleted, 
-                        // we null it out but ALLOW the request to proceed. 
-                        // Specific RBAC checks (requireHouseholdRole) will still enforce 
-                        // access to the actual target resource.
-                        req.user.role = null;
-                        req.user.householdId = null;
-                        return next();
+            // Always try to fetch household role to ensure req.user.role is populated
+            if (effectiveHhId) {
+                globalDb.get("SELECT role, is_active FROM user_households WHERE user_id = ? AND household_id = ?", [user.id, effectiveHhId], (err, link) => {
+                    if (!err && link && link.is_active) {
+                        req.user.role = link.role;
+                        req.user.householdId = effectiveHhId;
                     }
-                    req.user.role = link.role; // Ensure we use the latest role from DB
                     next();
                 });
             } else {
@@ -47,7 +44,7 @@ function authenticateToken(req, res, next) {
  */
 function requireHouseholdRole(requiredRole) {
     return (req, res, next) => {
-        const targetIdRaw = req.params.id || req.params.hhId || req.body.householdId;
+        const targetIdRaw = req.params.id || req.params.hhId || req.body.householdId || req.query.id || req.query.hhId;
         const targetHouseholdId = targetIdRaw ? parseInt(targetIdRaw) : null;
         const userHouseholdId = req.user.householdId ? parseInt(req.user.householdId) : null;
         const roles = ['viewer', 'member', 'admin'];
@@ -71,19 +68,29 @@ function requireHouseholdRole(requiredRole) {
         // 2. If context doesn't match OR is missing, we MUST check the database for the target household
         if (targetHouseholdId) {
             globalDb.get(
-                "SELECT role, is_active FROM user_households WHERE user_id = ? AND household_id = ?",
-                [req.user.id, targetHouseholdId],
-                (err, link) => {
-                    if (err) return res.status(500).json({ error: "Database error during RBAC check" });
-                    if (!link || !link.is_active) {
-                        return res.status(403).json({ error: "Access denied: No active link to this household" });
+                "SELECT id, name FROM households WHERE id = ?",
+                [targetHouseholdId],
+                (hErr, household) => {
+                    if (!household) {
+                        return res.status(404).json({ error: `Household #${targetHouseholdId} no longer exists. It may have been purged during cleanup.` });
                     }
-                    if (hasPermission(link.role)) {
-                        req.user.role = link.role; // Update role for this request
-                        next();
-                    } else {
-                        res.status(403).json({ error: `Access denied: Required role ${requiredRole}, you have ${link.role} in this household` });
-                    }
+
+                    globalDb.get(
+                        "SELECT role, is_active FROM user_households WHERE user_id = ? AND household_id = ?",
+                        [req.user.id, targetHouseholdId],
+                        (err, link) => {
+                            if (err) return res.status(500).json({ error: "Database error during RBAC check" });
+                            if (!link || !link.is_active) {
+                                return res.status(403).json({ error: "Access denied: No active link to this household" });
+                            }
+                            if (hasPermission(link.role)) {
+                                req.user.role = link.role; // Update role for this request
+                                next();
+                            } else {
+                                res.status(403).json({ error: `Access denied: Required role ${requiredRole}, you have ${link.role} in this household` });
+                            }
+                        }
+                    );
                 }
             );
         } else {

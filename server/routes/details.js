@@ -71,31 +71,25 @@ const handleUpdateSingle = (table) => (req, res) => {
         
         const updateData = {};
         Object.keys(data).forEach(key => {
-            if (validColumns.includes(key) && key !== 'id') {
+            if (validColumns.includes(key)) {
                 updateData[key] = data[key];
             }
         });
 
         const fields = Object.keys(updateData);
-        if (fields.length === 0) { closeDb(req); return res.status(400).json({ error: "No valid fields to update" }); }
+        if (fields.length === 0) { closeDb(req); return res.status(400).json({ error: "No valid fields" }); }
 
-        const sets = fields.map(f => `${f} = ?`).join(', ');
+        const placeholders = fields.join(', ');
+        const qs = fields.map(() => '?').join(', ');
         const values = Object.values(updateData);
 
-        req.tenantDb.run(`UPDATE ${table} SET ${sets} WHERE household_id = ?`, [...values, req.hhId], function(err) {
-            if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
-            if (this.changes === 0) {
-                const placeholders = fields.join(', ');
-                const qs = fields.map(() => '?').join(', ');
-                req.tenantDb.run(`INSERT INTO ${table} (${placeholders}) VALUES (${qs})`, values, (iErr) => {
-                    closeDb(req);
-                    if (iErr) return res.status(500).json({ error: iErr.message });
-                    res.json({ message: "Created" });
-                });
-            } else {
-                closeDb(req);
-                res.json({ message: "Updated" });
-            }
+        // Atomic Upsert
+        const sql = `INSERT OR REPLACE INTO ${table} (${placeholders}) VALUES (${qs})`;
+
+        req.tenantDb.run(sql, values, function(err) {
+            closeDb(req);
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: this.changes > 0 ? "Updated" : "Created" });
         });
     });
 };
@@ -141,7 +135,7 @@ const handleCreateItem = (table) => (req, res) => {
         req.tenantDb.run(`INSERT INTO ${table} (${placeholders}) VALUES (${qs})`, values, function(err) {
             closeDb(req);
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: this.lastID, ...insertData });
+            res.status(201).json({ id: this.lastID, ...insertData });
         });
     });
 };
@@ -242,7 +236,7 @@ VEHICLE_SUBS.forEach(sub => {
             req.tenantDb.run(`INSERT INTO ${table} (${fields.join(', ')}) VALUES (${fields.map(() => '?').join(', ')})`, Object.values(insertData), function(err) {
                 closeDb(req);
                 if (err) return res.status(500).json({ error: err.message });
-                res.json({ id: this.lastID, ...insertData });
+                res.status(201).json({ id: this.lastID, ...insertData });
             });
         });
     });

@@ -155,7 +155,7 @@ router.post('/households/:id/users', authenticateToken, requireHouseholdRole('ad
             
             const hash = bcrypt.hashSync(generatedPassword, 8);
             const result = await dbRun(globalDb, 
-                `INSERT INTO users (email, password_hash, first_name, last_name, avatar, system_role, is_test) VALUES (?, ?, ?, ?, ?, 'user', ?)`,
+                `INSERT INTO users (email, password_hash, first_name, last_name, avatar, system_role, is_test, is_active) VALUES (?, ?, ?, ?, ?, 'user', ?, 1)`,
                 [email, hash, finalFirstName, finalLastName, avatar || null, finalIsTest]
             );
             userId = result.id;
@@ -212,7 +212,7 @@ router.get('/households/:id/backups', authenticateToken, requireHouseholdRole('a
     }
 });
 
-router.post('/households/:id/backups/trigger', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
+router.post('/households/:id/backups', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
     try {
         const filename = await createBackup(req.params.id);
         res.json({ message: "Household backup created", filename });

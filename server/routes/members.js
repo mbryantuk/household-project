@@ -136,11 +136,11 @@ router.post('/households/:id/members', authenticateToken, requireHouseholdRole('
                 const birthdaySql = `INSERT INTO dates (household_id, title, date, type, member_id, emoji) VALUES (?, ?, ?, 'birthday', ?, ?)`;
                 req.tenantDb.run(birthdaySql, [req.hhId, `${name}'s Birthday`, rawDob, memberId, emoji || '🎂'], (bErr) => {
                     closeDb(req);
-                    res.json({ id: memberId, ...insertData, dob: rawDob });
+                    res.status(201).json({ id: memberId, ...insertData, dob: rawDob });
                 });
             } else {
                 closeDb(req);
-                res.json({ id: memberId, ...insertData });
+                res.status(201).json({ id: memberId, ...insertData });
             }
         });
     });

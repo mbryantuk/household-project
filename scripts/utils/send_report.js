@@ -85,38 +85,73 @@ ${title} - Detailed Breakdown:
 
     // Parse Backend JSON Results
     const backendReportPath = path.join(__dirname, '../../server/test-report.json');
+    const apiCoveragePath = path.join(__dirname, '../../api-coverage.json');
     let backendSummary = "Backend Tests: No JSON report found.";
     let backendDetailed = "";
     let backendPassed = false;
+    let swaggerGaps = "";
 
     if (fs.existsSync(backendReportPath)) {
         try {
             const results = JSON.parse(fs.readFileSync(backendReportPath, 'utf8'));
-            const total = results.numTotalTests;
-            const passed = results.numPassedTests;
-            const failed = results.numFailedTests;
+            // Jest report structure check
+            const total = results.numTotalTests || 0;
+            const passed = results.numPassedTests || 0;
+            const failed = results.numFailedTests || 0;
             
-            backendPassed = failed === 0 && results.numFailedTestSuites === 0;
+            backendPassed = failed === 0 && (results.numFailedTestSuites || 0) === 0;
             backendSummary = `Backend Tests: ${backendPassed ? 'PASSED' : 'FAILED'}\n` +
                              `Total: ${total}, Passed: ${passed}, Failed: ${failed}`;
             
             backendDetailed += "\nFile-by-File Breakdown:\n";
-            results.testResults.forEach(suite => {
-                const fileName = path.basename(suite.testFilePath);
-                const suitePassed = suite.numFailingTests === 0;
-                const icon = suitePassed ? '✅' : '❌';
-                backendDetailed += `${icon} ${fileName} (${suite.numPassingTests} tests)\n`;
-                
-                if (!suitePassed) {
-                     suite.testResults.forEach(test => {
-                         if (test.status === 'failed') {
-                             backendDetailed += `   - ❌ ${test.title}\n`;
-                         }
-                     });
-                }
-            });
+            if (results.testResults && Array.isArray(results.testResults)) {
+                results.testResults.forEach(suite => {
+                    const filePath = suite.name || suite.testFilePath || "Unknown";
+                    const fileName = path.basename(filePath);
+                    const suitePassed = (suite.status === 'passed') || (suite.numFailingTests === 0);
+                    const icon = suitePassed ? '✅' : '❌';
+                    backendDetailed += `${icon} ${fileName} (${suite.assertionResults ? suite.assertionResults.length : 0} tests)\n`;
+                    
+                    if (!suitePassed && suite.assertionResults) {
+                         suite.assertionResults.forEach(test => {
+                             if (test.status === 'failed') {
+                                 backendDetailed += `   - ❌ ${test.title}\n`;
+                             }
+                         });
+                    }
+                });
+            }
         } catch (e) {
              backendSummary = `Backend Tests: Error parsing JSON report (${e.message})`;
+        }
+    }
+
+    if (fs.existsSync(apiCoveragePath)) {
+        try {
+            const cov = JSON.parse(fs.readFileSync(apiCoveragePath, 'utf8'));
+            swaggerGaps = `\n================================\n`;
+            swaggerGaps += `API COVERAGE & SWAGGER SYNC\n`;
+            swaggerGaps += `================================\n`;
+            swaggerGaps += `Total Endpoints Tested: ${cov.summary.total_endpoints}\n`;
+            swaggerGaps += `Swagger Coverage: ${cov.summary.swagger_coverage_pct}%\n`;
+            
+            if (cov.swagger_discrepancies.missing_in_swagger.length > 0) {
+                swaggerGaps += `\n🚨 MISSING IN SWAGGER (Document these!):\n`;
+                cov.swagger_discrepancies.missing_in_swagger.forEach(ep => {
+                    swaggerGaps += ` - ${ep}\n`;
+                });
+            } else {
+                swaggerGaps += `\n✅ All tested endpoints are documented in Swagger.\n`;
+            }
+
+            if (cov.swagger_discrepancies.not_tested_from_swagger.length > 0) {
+                swaggerGaps += `\n⚠️  SWAGGER ENDPOINTS NOT TESTED:\n`;
+                cov.swagger_discrepancies.not_tested_from_swagger.forEach(ep => {
+                    swaggerGaps += ` - ${ep}\n`;
+                });
+            }
+        } catch (e) {
+            console.error("Error parsing api-coverage.json", e);
         }
     }
 
@@ -146,6 +181,7 @@ ${title} - Detailed Breakdown:
               `================================\n` +
               `${backendSummary}\n` +
               `${backendDetailed}\n` +
+              `${swaggerGaps}\n` +
               `\n` +
               `================================\n` +
               `FRONTEND STATUS\n` +

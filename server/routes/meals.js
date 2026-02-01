@@ -14,6 +14,16 @@ router.get('/households/:id/meals', authenticateToken, requireHouseholdRole('vie
     });
 });
 
+// Get Single Meal
+router.get('/households/:id/meals/:mealId', authenticateToken, requireHouseholdRole('viewer'), (req, res) => {
+    const db = getHouseholdDb(req.params.id);
+    db.get("SELECT * FROM meals WHERE id = ? AND household_id = ?", [req.params.mealId, req.params.id], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!row) return res.status(404).json({ error: "Meal not found" });
+        res.json(row);
+    });
+});
+
 // Create Meal
 router.post('/households/:id/meals', authenticateToken, requireHouseholdRole('member'), (req, res) => {
     const { name, description, emoji } = req.body;

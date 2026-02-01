@@ -9,8 +9,8 @@ const { apiReference } = require('@scalar/express-api-reference');
 const swaggerDocument = require('./swagger.json');
 
 // Import unified database instance
-const { globalDb } = require('./db');
-const { bootstrap } = require('./bootstrap');
+const { SECRET_KEY } = require('./config');
+console.log("System Initialized with Secret Key Length:", SECRET_KEY ? SECRET_KEY.length : 0);
 require('./services/crypto'); 
 
 // Routes

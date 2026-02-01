@@ -12,7 +12,7 @@ const globalDb = new sqlite3.Database(path.join(DATA_DIR, 'global.db'), (err) =>
         // Optimization for concurrent access
         globalDb.run("PRAGMA journal_mode=WAL");
         globalDb.run("PRAGMA synchronous=NORMAL");
-        globalDb.run("PRAGMA busy_timeout=5000"); // Wait up to 5s if locked
+        globalDb.run("PRAGMA busy_timeout=10000"); // Wait up to 10s if locked
         console.log("Connected to Global SQLite database (Optimized).");
         initializeGlobalSchema(globalDb);
     }
@@ -26,7 +26,7 @@ const getHouseholdDb = (householdId) => {
     // Apply optimizations to every tenant connection
     db.run("PRAGMA journal_mode=WAL");
     db.run("PRAGMA synchronous=NORMAL");
-    db.run("PRAGMA busy_timeout=5000");
+    db.run("PRAGMA busy_timeout=10000");
 
     if (!dbExists || true) {
         initializeHouseholdSchema(db);

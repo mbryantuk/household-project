@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-02-01T12:56:46.316Z",
+  "version": "3.0.162",
+  "accounts": {
+    "admin": "mike.brady.1769950605228@test.com",
+    "carol": "Member",
+    "kids": "6 Viewers"
+  },
+  "steps": [
+    "Total Relational Enrichment",
+    "Full Finance Matrix",
+    "3 Cycles with Progress",
+    "21 Day Meals"
+  ],
+  "summary": {
+    "total_endpoints": 105,
+    "passed": 105,
+    "failed": 0
+  },
+  "results": {
+    "BRADY DATA": "PASS"
+  }
+}

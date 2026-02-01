@@ -48,7 +48,7 @@ router.post('/register', async (req, res) => {
         // 3. Create Admin User
         const passwordHash = bcrypt.hashSync(password, 8);
         const userResult = await dbRun(globalDb,
-            `INSERT INTO users (email, password_hash, first_name, last_name, system_role, default_household_id, is_test) VALUES (?, ?, ?, ?, 'user', ?, ?)`,
+            `INSERT INTO users (email, password_hash, first_name, last_name, system_role, default_household_id, is_test, is_active) VALUES (?, ?, ?, ?, 'user', ?, ?, 1)`,
             [email, passwordHash, firstName || 'Admin', lastName || '', householdId, finalIsTest]
         );
         const userId = userResult.id;
