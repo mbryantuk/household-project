@@ -1,4 +1,4 @@
 {
-  "commitMessage": "feat(ui): add 'pocket_money' segment for child recurring costs",
-  "date": "Sun  1 Feb 13:43:15 GMT 2026"
+  "commitMessage": "Standardize recurring cost categories in Budget and Entity views",
+  "date": "Sun  1 Feb 13:58:17 GMT 2026"
 }

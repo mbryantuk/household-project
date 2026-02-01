@@ -324,6 +324,7 @@ export default function PeopleView() {
                 entityId={personId} 
                 segments={[
                     ...(selectedPerson?.type === 'child' ? [{ id: 'pocket_money', label: 'Pocket Money' }] : []),
+                    ...(selectedPerson?.type === 'adult' ? [{ id: 'fun_money', label: 'Fun Money' }] : []),
                     { id: 'insurance', label: 'Insurance' },
                     { id: 'subscription', label: 'Subscriptions' },
                     { id: 'other', label: 'Other' }

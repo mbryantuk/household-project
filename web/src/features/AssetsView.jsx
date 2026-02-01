@@ -9,10 +9,10 @@ import {
 import { Edit, Delete, Add, Search, Inventory, Payments, Info } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
 import AppSelect from '../components/ui/AppSelect';
-import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
+import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
 
 export default function AssetsView() {
-  const { api, id: householdId, user: currentUser, isDark, showNotification } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, showNotification, confirmAction, household } = useOutletContext();
   const { assetId, houseId } = useParams();
   const navigate = useNavigate();
   const [assets, setAssets] = useState([]);
@@ -98,7 +98,7 @@ export default function AssetsView() {
 
     try {
       if (assetId === 'new') {
-        const res = await api.post(`/households/${householdId}/assets`, data);
+        await api.post(`/households/${householdId}/assets`, data);
         showNotification("Asset added.", "success");
         await fetchAssets();
         closeModal();
@@ -340,13 +340,22 @@ export default function AssetsView() {
                         </form>
                     )}
                     {activeTab === 1 && assetId !== 'new' && (
-                        <RecurringCostsWidget 
+                        <RecurringChargesWidget 
                             api={api} 
                             householdId={householdId} 
-                            parentType="asset" 
-                            parentId={assetId} 
-                            isAdmin={isAdmin} 
-                            showNotification={showNotification} 
+                            household={household}
+                            entityType="asset" 
+                            entityId={assetId} 
+                            segments={[
+                                { id: 'warranty', label: 'Warranty' },
+                                { id: 'insurance', label: 'Insurance' },
+                                { id: 'service', label: 'Service / Maintenance' },
+                                { id: 'subscription', label: 'Subscription' },
+                                { id: 'other', label: 'Other' }
+                            ]}
+                            title="Asset Costs"
+                            showNotification={showNotification}
+                            confirmAction={confirmAction}
                         />
                     )}
                 </Box>

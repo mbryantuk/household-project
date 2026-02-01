@@ -5,13 +5,13 @@ import {
   Divider, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Stack, Tabs, TabList, Tab
 } from '@mui/joy';
 import { PersonAdd, Delete, Groups, Edit, ChildCare, Face, Visibility, Payments, Info } from '@mui/icons-material';
-import RecurringCostsWidget from '../components/widgets/RecurringCostsWidget';
+import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
 import { useOutletContext } from 'react-router-dom';
 
 const PET_SPECIES = ['Dog', 'Cat', 'Hamster', 'Rabbit', 'Bird', 'Fish', 'Reptile', 'Other'];
 
 export default function MembersView({ members, onAddMember, onRemoveMember, onUpdateMember }) {
-  const { api, id: householdId, showNotification } = useOutletContext();
+  const { api, id: householdId, household, showNotification, confirmAction } = useOutletContext();
   const [memberType, setMemberType] = useState('adult');
   const [editMember, setEditMember] = useState(null);
   const [viewMember, setViewMember] = useState(null);
@@ -34,6 +34,32 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
     if (gender === 'male') return type === 'child' ? '👦' : '👨';
     if (gender === 'female') return type === 'child' ? '👧' : '👩';
     return type === 'child' ? <ChildCare /> : <Face />;
+  };
+
+  const getMemberSegments = (type) => {
+    if (type === 'pet') {
+        return [
+          { id: 'food', label: 'Food' },
+          { id: 'insurance', label: 'Insurance' },
+          { id: 'vet', label: 'Vet Bills' },
+          { id: 'other', label: 'Other' }
+        ];
+    }
+
+    const base = [
+        { id: 'subscription', label: 'Subscriptions' },
+        { id: 'insurance', label: 'Insurance' },
+        { id: 'education', label: 'Education' },
+        { id: 'care', label: 'Care' },
+        { id: 'other', label: 'Other' }
+    ];
+
+    if (type === 'child') {
+        return [{ id: 'pocket_money', label: 'Pocket Money' }, ...base];
+    }
+    
+    // Adult / Viewer
+    return [{ id: 'fun_money', label: 'Fun Money' }, ...base];
   };
 
   const handleEditSubmit = (e) => {
@@ -178,13 +204,16 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
                                 </Grid>
                             )}
                             {activeTab === 1 && (
-                                <RecurringCostsWidget 
+                                <RecurringChargesWidget 
                                     api={api} 
                                     householdId={householdId} 
-                                    parentType={viewMember.type === 'pet' ? 'pet' : 'member'} 
-                                    parentId={viewMember.id} 
-                                    isAdmin={true} 
+                                    household={household}
+                                    entityType={viewMember.type === 'pet' ? 'pet' : 'member'} 
+                                    entityId={viewMember.id} 
+                                    title="Recurring Costs"
+                                    segments={getMemberSegments(viewMember.type)}
                                     showNotification={showNotification} 
+                                    confirmAction={confirmAction}
                                 />
                             )}
                         </Box>

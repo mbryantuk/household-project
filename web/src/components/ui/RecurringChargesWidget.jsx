@@ -8,7 +8,7 @@ import {
 import { 
   Add, Edit, Delete, Receipt, Shield, ShoppingBag, ElectricBolt, 
   Build, LocalGasStation, HelpOutline,
-  Assignment, Payments, Timer, AccountBalanceWallet
+  Assignment, Payments, Timer, AccountBalanceWallet, LocalActivity
 } from '@mui/icons-material';
 import { format, parseISO } from 'date-fns';
 import { getEmojiColor } from '../../theme';
@@ -34,6 +34,7 @@ const SEGMENT_CONFIG = {
     vehicle_fuel: { label: 'Fuel', icon: <LocalGasStation /> },
     vehicle_breakdown: { label: 'Breakdown', icon: <HelpOutline /> },
     pocket_money: { label: 'Pocket Money', icon: <AccountBalanceWallet /> },
+    fun_money: { label: 'Fun Money', icon: <LocalActivity /> },
     other: { label: 'Other', icon: <Receipt /> }
 };
 

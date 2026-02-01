@@ -334,6 +334,7 @@ export default function VehiclesView() {
                     { id: 'vehicle_fuel', label: 'Fuel' },
                     { id: 'vehicle_breakdown', label: 'Breakdown' },
                     { id: 'insurance', label: 'Insurance' },
+                    { id: 'warranty', label: 'Warranty' },
                     { id: 'other', label: 'Other' }
                 ]}
                 title="Vehicle Costs"

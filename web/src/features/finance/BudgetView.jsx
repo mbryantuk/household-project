@@ -40,7 +40,7 @@ const getCategoryColor = (cat) => {
 };
 
 export default function BudgetView() {
-  const { api, id: householdId, isDark, showNotification, members = [], setStatusBarData, confirmAction, user, onUpdateProfile } = useOutletContext();
+  const { api, id: householdId, isDark, showNotification, members = [], setStatusBarData, confirmAction } = useOutletContext();
   const [loading, setLoading] = useState(true);
   const [savingProgress, setSavingProgress] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
@@ -67,7 +67,7 @@ export default function BudgetView() {
 
   // Modals
   const [quickAddOpen, setQuickAddOpen] = useState(false);
-  const [quickLinkType, setQuickLinkType] = useState('general');
+  const [quickLinkType] = useState('general');
   const [recurringAddOpen, setRecurringAddOpen] = useState(false);
   const [recurringType, setRecurringType] = useState('monthly');
   const [selectedEntity, setSelectedEntity] = useState('general:household');
@@ -76,13 +76,6 @@ export default function BudgetView() {
   const [actualPay, setActualPay] = useState('');
   const [currentBalance, setCurrentBalance] = useState('');
   const [isPayLocked, setIsPayLocked] = useState(true);
-
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 900);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -188,6 +181,7 @@ export default function BudgetView() {
           { value: 'vehicle_tax', label: 'Tax' },
           { value: 'vehicle_mot', label: 'MOT' },
           { value: 'vehicle_service', label: 'Service' },
+          { value: 'vehicle_breakdown', label: 'Breakdown Cover' },
           { value: 'insurance', label: 'Insurance' },
           { value: 'warranty', label: 'Warranty' },
           { value: 'finance', label: 'Finance Payment' },
@@ -195,6 +189,8 @@ export default function BudgetView() {
       ];
 
       const MEMBER_CATS = [
+          { value: 'fun_money', label: 'Fun Money' },
+          { value: 'pocket_money', label: 'Pocket Money' },
           { value: 'subscription', label: 'Subscription' },
           { value: 'insurance', label: 'Life/Health Insurance' },
           { value: 'education', label: 'Education' },
@@ -491,16 +487,6 @@ export default function BudgetView() {
           showNotification("Item restored.", "success");
           fetchData();
       } catch { showNotification("Failed.", "danger"); }
-  };
-
-  const handleArchiveCharge = (chargeId) => {
-      confirmAction("Archive Charge?", "Delete permanently?", async () => {
-          try {
-              await api.delete(`/households/${householdId}/finance/charges/${chargeId}`);
-              showNotification("Archived.", "success");
-              fetchData();
-          } catch { showNotification("Failed.", "danger"); }
-      });
   };
 
   const handleQuickAdd = async (e) => {
