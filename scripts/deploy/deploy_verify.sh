@@ -30,6 +30,11 @@ EOF
 echo "🚀 Deploying v$NEW_VERSION..."
 docker compose up -d --build
 
+# 2.2. Seed Brady Household
+echo "🌱 Seeding Brady Household..."
+sleep 30 # Wait for container to be ready
+node scripts/ops/seed_brady_household.js
+
 # 2.5. Post-Deployment Verification
 echo "🧪 Running Post-Deployment Verification..."
 echo "   - Running Backend Tests..."
