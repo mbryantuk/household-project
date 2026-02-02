@@ -192,7 +192,7 @@ const IncomeSourceCard = ({ inc, onUpdateAmount, onTogglePaid }) => {
 export default function BudgetView() {
   const { api, id: householdId, isDark, showNotification, members = [], setStatusBarData, confirmAction } = useOutletContext();
   const [loading, setLoading] = useState(true);
-  const [savingProgress, setSavingProgress] = useState(false);
+    const [savingProgress] = useState(new Map());
   const [viewDate, setViewDate] = useState(new Date());
   const [bankHolidays, setBankHolidays] = useState([]);
   const [hidePaid, setHidePaid] = useState(false);

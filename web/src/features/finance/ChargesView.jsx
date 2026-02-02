@@ -3,7 +3,8 @@ import { useOutletContext } from 'react-router-dom';
 import { 
   Box, Sheet, Typography, Button, Table, IconButton, 
   Modal, ModalDialog, ModalClose, FormControl, FormLabel, Input, 
-  Select, Option, Checkbox, Tabs, TabList, Tab, Stack, Chip, Divider
+  Select, Option, Checkbox, Tabs, TabList, Tab, Stack, Chip, Divider,
+  Grid
 } from '@mui/joy';
 import { Add, Edit, Delete } from '@mui/icons-material';
 import { format, parseISO } from 'date-fns';
@@ -27,7 +28,7 @@ const formatCurrency = (val, currencyCode = 'GBP') => {
     }
 };
 
-const SEGMENTS = [
+const CATEGORIES = [
   { id: 'household_bill', label: 'Household Bills' },
   { id: 'utility', label: 'Utilities' },
   { id: 'subscription', label: 'Subscriptions' },
@@ -48,13 +49,42 @@ const FREQUENCIES = [
   { id: 'one_off', label: 'One-off' }
 ];
 
+const METADATA_SCHEMAS = {
+    insurance: [
+        { key: 'policy_number', label: 'Policy Number', type: 'text' },
+        { key: 'provider_contact', label: 'Provider Phone', type: 'tel' },
+        { key: 'policy_type', label: 'Policy Type', type: 'select', options: ['Contents', 'Building', 'Combined', 'Life', 'Pet', 'Vehicle', 'Travel'] },
+        { key: 'renewal_date', label: 'Renewal Date', type: 'date' }
+    ],
+    utility: [
+        { key: 'account_number', label: 'Account Number', type: 'text' },
+        { key: 'meter_type', label: 'Meter Type', type: 'select', options: ['Standard', 'Smart', 'Prepaid', 'Economy 7'] },
+        { key: 'provider_website', label: 'Provider Website', type: 'url' }
+    ],
+    household_bill: [
+        { key: 'account_number', label: 'Account Number', type: 'text' },
+        { key: 'contract_end_date', label: 'Contract End Date', type: 'date' }
+    ],
+    subscription: [
+        { key: 'login_email', label: 'Login Email', type: 'email' },
+        { key: 'plan_tier', label: 'Plan Tier', type: 'text' }
+    ],
+    vehicle_tax: [
+        { key: 'registration', label: 'Registration Plate', type: 'text' }
+    ],
+    vehicle_service: [
+        { key: 'garage_name', label: 'Garage Name', type: 'text' },
+        { key: 'service_level', label: 'Service Level', type: 'select', options: ['Interim', 'Full', 'Major'] }
+    ]
+};
+
 export default function ChargesView({ initialTab }) {
   const { household, api } = useOutletContext();
   const householdId = household?.id;
   const [charges, setCharges] = useState([]);
   const [activeTab, setActiveTab] = useState(() => {
     if (initialTab === 'subscriptions') {
-      const subIdx = SEGMENTS.findIndex(s => s.id === 'subscription');
+      const subIdx = CATEGORIES.findIndex(s => s.id === 'subscription');
       return subIdx !== -1 ? subIdx : 0;
     }
     return 0;
@@ -69,19 +99,20 @@ export default function ChargesView({ initialTab }) {
   const [formData, setFormData] = useState({
     name: '',
     amount: '',
-    segment: 'household_bill',
+    category_id: 'household_bill',
     frequency: 'monthly',
     start_date: format(new Date(), 'yyyy-MM-dd'),
     adjust_for_working_day: true,
     notes: '',
-    linked_entity_type: 'general',
-    linked_entity_id: householdId
+    object_type: 'household', // Renamed from linked_entity_type
+    object_id: null,        // Renamed from linked_entity_id
+    metadata: {}
   });
 
   const fetchCharges = useCallback(async () => {
     if (!householdId) return;
     try {
-      const res = await api.get(`/households/${householdId}/finance/charges`);
+      const res = await api.get(`/households/${householdId}/finance/recurring-costs`);
       setCharges(res.data || []);
     } catch (err) { console.error(err); }
   }, [householdId, api]);
@@ -108,11 +139,15 @@ export default function ChargesView({ initialTab }) {
 
   const handleSave = async () => {
     const url = editingId 
-      ? `/households/${householdId}/finance/charges/${editingId}`
-      : `/households/${householdId}/finance/charges`;
+      ? `/households/${householdId}/finance/recurring-costs/${editingId}`
+      : `/households/${householdId}/finance/recurring-costs`;
     
     const method = editingId ? 'put' : 'post';
-    const payload = { ...formData };
+    const payload = { 
+        ...formData,
+        // Ensure metadata is a JSON object (API expects it)
+        metadata: formData.metadata 
+    };
 
     try {
       await api[method](url, payload);
@@ -126,7 +161,7 @@ export default function ChargesView({ initialTab }) {
   const handleDelete = async (id) => {
     if (!confirm('Are you sure?')) return;
     try {
-      await api.delete(`/households/${householdId}/finance/charges/${id}`);
+      await api.delete(`/households/${householdId}/finance/recurring-costs/${id}`);
       fetchCharges();
     } catch (err) { console.error(err); }
   };
@@ -135,41 +170,43 @@ export default function ChargesView({ initialTab }) {
     setFormData({
       name: '',
       amount: '',
-      segment: SEGMENTS[activeTab].id,
+      category_id: CATEGORIES[activeTab].id,
       frequency: 'monthly',
       start_date: format(new Date(), 'yyyy-MM-dd'),
       adjust_for_working_day: true,
       notes: '',
-      linked_entity_type: 'general',
-      linked_entity_id: householdId
+      object_type: 'household',
+      object_id: null,
+      metadata: {}
     });
-  }, [activeTab, householdId]);
+  }, [activeTab]);
 
   const handleEdit = (charge) => {
     setEditingId(charge.id);
     setFormData({
       name: charge.name,
       amount: charge.amount,
-      segment: charge.segment,
+      category_id: charge.category_id,
       frequency: charge.frequency,
-      start_date: charge.start_date || charge.exact_date || format(new Date(), 'yyyy-MM-dd'),
+      start_date: charge.start_date || format(new Date(), 'yyyy-MM-dd'),
       adjust_for_working_day: !!charge.adjust_for_working_day,
       notes: charge.notes || '',
-      linked_entity_type: charge.linked_entity_type || 'general',
-      linked_entity_id: charge.linked_entity_id || householdId
+      object_type: charge.object_type || 'household',
+      object_id: charge.object_id,
+      metadata: typeof charge.metadata === 'string' ? JSON.parse(charge.metadata) : (charge.metadata || {})
     });
     setOpen(true);
   };
 
   const filteredCharges = useMemo(() => {
-    const currentSegment = SEGMENTS[activeTab].id;
-    return charges.filter(c => c.segment === currentSegment);
+    const currentCategory = CATEGORIES[activeTab].id;
+    return charges.filter(c => c.category_id === currentCategory);
   }, [charges, activeTab]);
 
   const calculateTotal = (items) => items.reduce((sum, item) => sum + (item.amount || 0), 0);
 
   const resolveEntityName = (type, id) => {
-      if (type === 'general' || !type) return 'Household';
+      if (type === 'household' || !type) return 'Household';
       if (type === 'member') return members.find(m => m.id === id)?.name || 'Member';
       if (type === 'vehicle') {
           const v = vehicles.find(i => i.id === id);
@@ -179,19 +216,23 @@ export default function ChargesView({ initialTab }) {
       return type;
   };
 
+  const currentMetadataFields = useMemo(() => {
+      return METADATA_SCHEMAS[formData.category_id] || [];
+  }, [formData.category_id]);
+
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Box>
           <Typography level="h2">Recurring Charges</Typography>
-          <Typography level="body-md" color="neutral">Manage bills and regular expenses.</Typography>
+          <Typography level="body-md" color="neutral">Manage bills, insurance, and subscriptions.</Typography>
         </Box>
         <Button startDecorator={<Add />} onClick={() => { resetForm(); setOpen(true); }}>Add Charge</Button>
       </Box>
 
       <Tabs value={activeTab} onChange={(e, val) => { setActiveTab(val); resetForm(); }} sx={{ bgcolor: 'transparent' }}>
         <TabList sx={{ mb: 2, flexWrap: 'wrap' }}>
-          {SEGMENTS.map((seg, idx) => <Tab key={seg.id} value={idx}>{seg.label}</Tab>)}
+          {CATEGORIES.map((cat, idx) => <Tab key={cat.id} value={idx}>{cat.label}</Tab>)}
         </TabList>
       </Tabs>
 
@@ -213,8 +254,21 @@ export default function ChargesView({ initialTab }) {
                 <td>
                   <Typography fontWeight="lg">{charge.name}</Typography>
                   {charge.notes && <Typography level="body-xs" color="neutral">{charge.notes}</Typography>}
+                  {/* Show Metadata Summary if relevant */}
+                  {charge.metadata && (
+                       <Stack direction="row" spacing={1} sx={{ mt: 0.5 }}>
+                           {Object.entries(typeof charge.metadata === 'string' ? JSON.parse(charge.metadata) : charge.metadata)
+                               .filter(([k]) => ['policy_number', 'account_number', 'renewal_date', 'registration'].includes(k))
+                               .map(([k, v]) => (
+                                   <Chip key={k} size="sm" variant="outlined" color="neutral">
+                                       {k.replace('_', ' ')}: {v}
+                                   </Chip>
+                               ))
+                           }
+                       </Stack>
+                  )}
                 </td>
-                <td><Chip size="sm" variant="soft">{resolveEntityName(charge.linked_entity_type, charge.linked_entity_id)}</Chip></td>
+                <td><Chip size="sm" variant="soft">{resolveEntityName(charge.object_type, charge.object_id)}</Chip></td>
                 <td><Chip size="sm" variant="plain" color="neutral" sx={{ textTransform: 'capitalize' }}>{charge.frequency}</Chip></td>
                 <td>
                   <Typography level="body-sm">
@@ -243,31 +297,76 @@ export default function ChargesView({ initialTab }) {
       </Sheet>
 
       <Modal open={open} onClose={() => setOpen(false)}>
-        <ModalDialog sx={{ maxWidth: 500, width: '100%' }}>
+        <ModalDialog sx={{ maxWidth: 600, width: '100%', overflowY: 'auto' }}>
           <ModalClose />
           <Typography level="h4">{editingId ? 'Edit Charge' : 'New Charge'}</Typography>
           <Divider sx={{ my: 2 }} />
           <Stack spacing={2}>
-            <FormControl required><FormLabel>Name</FormLabel><Input autoFocus value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} /></FormControl>
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                <FormControl required><FormLabel>Amount</FormLabel><Input type="number" startDecorator={household?.currency === 'USD' ? '$' : '£'} value={formData.amount} onChange={e => setFormData({ ...formData, amount: parseFloat(e.target.value) })} /></FormControl>
-                <FormControl required><FormLabel>Category</FormLabel>
-                    <Select value={formData.segment} onChange={(e, val) => setFormData({ ...formData, segment: val })}>{SEGMENTS.map(s => <Option key={s.id} value={s.id}>{s.label}</Option>)}</Select>
-                </FormControl>
-            </Box>
-            <FormControl required><FormLabel>Frequency</FormLabel>
-              <Select value={formData.frequency} onChange={(e, val) => setFormData({ ...formData, frequency: val })}>{FREQUENCIES.map(f => <Option key={f.id} value={f.id}>{f.label}</Option>)}</Select>
-            </FormControl>
-            <FormControl required><FormLabel>Start Date / Anchor Date</FormLabel><Input type="date" value={formData.start_date} onChange={e => setFormData({ ...formData, start_date: e.target.value })} /></FormControl>
-            <Checkbox label="Adjust for next working day" checked={formData.adjust_for_working_day} onChange={e => setFormData({ ...formData, adjust_for_working_day: e.target.checked })} />
+            <Grid container spacing={2}>
+                <Grid xs={12}>
+                    <FormControl required><FormLabel>Name</FormLabel><Input autoFocus value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} /></FormControl>
+                </Grid>
+                <Grid xs={6}>
+                    <FormControl required><FormLabel>Amount</FormLabel><Input type="number" startDecorator={household?.currency === 'USD' ? '$' : '£'} value={formData.amount} onChange={e => setFormData({ ...formData, amount: parseFloat(e.target.value) })} /></FormControl>
+                </Grid>
+                <Grid xs={6}>
+                    <FormControl required><FormLabel>Category</FormLabel>
+                        <Select value={formData.category_id} onChange={(e, val) => setFormData({ ...formData, category_id: val })}>{CATEGORIES.map(s => <Option key={s.id} value={s.id}>{s.label}</Option>)}</Select>
+                    </FormControl>
+                </Grid>
+                <Grid xs={6}>
+                    <FormControl required><FormLabel>Frequency</FormLabel>
+                    <Select value={formData.frequency} onChange={(e, val) => setFormData({ ...formData, frequency: val })}>{FREQUENCIES.map(f => <Option key={f.id} value={f.id}>{f.label}</Option>)}</Select>
+                    </FormControl>
+                </Grid>
+                <Grid xs={6}>
+                    <FormControl required><FormLabel>Start Date</FormLabel><Input type="date" value={formData.start_date} onChange={e => setFormData({ ...formData, start_date: e.target.value })} /></FormControl>
+                </Grid>
+            </Grid>
+
+            {/* Dynamic Metadata Section */}
+            {currentMetadataFields.length > 0 && (
+                <Sheet variant="soft" color="neutral" sx={{ p: 2, borderRadius: 'md' }}>
+                    <Typography level="title-sm" mb={1} textTransform="uppercase" letterSpacing="1px" fontSize="xs">
+                        {CATEGORIES.find(c => c.id === formData.category_id)?.label} Details
+                    </Typography>
+                    <Grid container spacing={2}>
+                        {currentMetadataFields.map(field => (
+                            <Grid xs={field.type === 'select' ? 6 : 6} key={field.key}>
+                                <FormControl>
+                                    <FormLabel>{field.label}</FormLabel>
+                                    {field.type === 'select' ? (
+                                        <Select 
+                                            value={formData.metadata[field.key] || ''} 
+                                            onChange={(e, val) => setFormData(prev => ({ ...prev, metadata: { ...prev.metadata, [field.key]: val } }))}
+                                        >
+                                            {field.options.map(opt => <Option key={opt} value={opt}>{opt}</Option>)}
+                                        </Select>
+                                    ) : (
+                                        <Input 
+                                            type={field.type} 
+                                            value={formData.metadata[field.key] || ''} 
+                                            onChange={e => setFormData(prev => ({ ...prev, metadata: { ...prev.metadata, [field.key]: e.target.value } }))} 
+                                        />
+                                    )}
+                                </FormControl>
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Sheet>
+            )}
+
             <FormControl><FormLabel>Assign To</FormLabel>
-                <Select value={`${formData.linked_entity_type}_${formData.linked_entity_id}`} onChange={(e, val) => { const [type, id] = val.split('_'); setFormData({ ...formData, linked_entity_type: type, linked_entity_id: parseInt(id) }); }}>
-                    <Option value={`general_${householdId}`}>🏠 Household</Option>
+                <Select value={`${formData.object_type}_${formData.object_id || 'null'}`} onChange={(e, val) => { const [type, id] = val.split('_'); setFormData({ ...formData, object_type: type, object_id: id === 'null' ? null : parseInt(id) }); }}>
+                    <Option value={`household_null`}>🏠 Household</Option>
                     <Divider>Members</Divider>{members.map(m => <Option key={m.id} value={`member_${m.id}`}>{m.emoji} {m.name}</Option>)}
                     <Divider>Vehicles</Divider>{vehicles.map(v => <Option key={v.id} value={`vehicle_${v.id}`}>{v.emoji || '🚗'} {v.make} {v.model}</Option>)}
                     <Divider>Assets</Divider>{assets.map(a => <Option key={a.id} value={`asset_${a.id}`}>{a.emoji || '📦'} {a.name}</Option>)}
                 </Select>
             </FormControl>
+            
+            <Checkbox label="Adjust for next working day" checked={formData.adjust_for_working_day} onChange={e => setFormData({ ...formData, adjust_for_working_day: e.target.checked })} />
+            
             <Button size="lg" onClick={handleSave} color="primary">{editingId ? 'Save Changes' : 'Create Charge'}</Button>
           </Stack>
         </ModalDialog>

@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix audio notifications and optimize toggle paid performance",
-  "date": "Mon  2 Feb 19:48:53 GMT 2026"
+  "commitMessage": "Add metadata fields to recurring costs and fix ChargesView routing",
+  "date": "Mon  2 Feb 20:01:34 GMT 2026"
 }
