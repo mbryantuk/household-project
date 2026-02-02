@@ -58,7 +58,7 @@ export default function BudgetView() {
   const [savingsPots, setSavingsPots] = useState([]);
 
   // Sections State
-  const [sectionsOpen, setSectionsOpen] = useState({ household: true, wealth: true, skipped: true });
+  const [sectionsOpen, setSectionsOpen] = useState({ bills: true, finance: true, wealth: true, skipped: true });
 
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: 'computedDate', direction: 'asc' });
@@ -255,7 +255,8 @@ export default function BudgetView() {
       if (daysRemaining < 0) daysRemaining = 0;
 
       const groups = {
-          'household': { id: 'household', label: 'Financial Obligations (Household)', items: [], order: 0, emoji: '🏠' },
+          'bills': { id: 'bills', label: 'Household Bills', items: [], order: 0, emoji: '🏠' },
+          'finance': { id: 'finance', label: 'Finance & Debts', items: [], order: 5, emoji: '💳' },
           'wealth': { id: 'wealth', label: 'Savings & Growth', items: [], order: 999, emoji: '📈' }
       };
 
@@ -291,14 +292,15 @@ export default function BudgetView() {
           } else {
               if (targetGroupKey === 'wealth') {
                   groups['wealth'].items.push(expObj);
-              } else if (targetGroupKey === 'household') {
-                  groups['household'].items.push(expObj);
-              } else if (targetGroupKey) {
+              } else if (targetGroupKey === 'household' || !targetGroupKey || targetGroupKey === 'bills' || targetGroupKey === 'finance') {
+                  // AUTO-SPLIT LOGIC for general household items or if explicitly passed as household
+                  const financeCats = ['mortgage', 'loan', 'credit_card', 'vehicle_finance'];
+                  const destKey = financeCats.includes(category) ? 'finance' : 'bills';
+                  groups[destKey].items.push(expObj);
+              } else {
                   const g = groups[targetGroupKey];
                   if (g) g.items.push(expObj);
-                  else groups['household'].items.push(expObj);
-              } else {
-                  groups['household'].items.push(expObj);
+                  else groups['bills'].items.push(expObj);
               }
           }
       };
@@ -333,17 +335,18 @@ export default function BudgetView() {
              datesToAdd.push(getAdjustedDate(charge.day_of_month, charge.adjust_for_working_day, startDate));
           }
 
-          let groupKey = 'household';
+          let groupKey = 'bills';
           let icon = <Receipt />;
           const cat = charge.category_id;
           
-          if (cat === 'mortgage') icon = <Home />;
-          else if (cat === 'loan') icon = <RequestQuote />;
+          if (cat === 'mortgage') { icon = <Home />; groupKey = 'finance'; }
+          else if (cat === 'loan') { icon = <RequestQuote />; groupKey = 'finance'; }
           else if (cat === 'insurance') icon = <Shield />;
           else if (cat === 'subscription') icon = <ShoppingBag />;
           else if (cat?.includes('utility') || cat === 'water' || cat === 'energy') icon = <ElectricBolt />;
           else if (cat?.includes('vehicle')) icon = <DirectionsCar />;
-          else if (cat === 'credit_card') icon = <CreditCard />;
+          else if (cat === 'credit_card') { icon = <CreditCard />; groupKey = 'finance'; }
+          else if (cat === 'vehicle_finance') { groupKey = 'finance'; }
 
           if (charge.object_type === 'member') {
               const m = members.find(mem => String(mem.id) === String(charge.object_id));
@@ -376,7 +379,7 @@ export default function BudgetView() {
           });
       });
 
-      liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit_card', `${cc.card_name} (Bal: ${formatCurrency(cc.current_balance)})`, 0, getAdjustedDate(cc.payment_day || 1, true, startDate), <CreditCard />, 'Credit Card', 'household'));
+      liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit_card', `${cc.card_name} (Bal: ${formatCurrency(cc.current_balance)})`, 0, getAdjustedDate(cc.payment_day || 1, true, startDate), <CreditCard />, 'Credit Card', 'finance'));
 
       // 6. WEALTH items
       liabilities.savings.forEach(s => {

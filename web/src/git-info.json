@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix mortgage term display bug and enhance Brady debt seed data with realistic terms",
-  "date": "Mon  2 Feb 09:34:50 GMT 2026"
+  "commitMessage": "Split budget items into Household Bills and Finance & Debts groups",
+  "date": "Mon  2 Feb 09:40:31 GMT 2026"
 }
