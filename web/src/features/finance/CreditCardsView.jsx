@@ -205,8 +205,17 @@ export default function CreditCardsView() {
         </Grid>
 
         <Modal open={Boolean(selectedCardId)} onClose={() => setCardId(null)}>
-            <ModalDialog sx={{ width: '100%', maxWidth: 500 }}>
-                <DialogTitle>{selectedCardId === 'new' ? 'Add Card' : 'Edit Card'}</DialogTitle>
+            <ModalDialog sx={{ width: '100%', maxWidth: 500, maxHeight: '95vh', overflowY: 'auto' }}>
+                <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
+                    <Box sx={{ position: 'relative' }}>
+                        <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(selectedEmoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => setEmojiPicker(true)}>{selectedEmoji}</Avatar>
+                        <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => setEmojiPicker(true)}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
+                    </Box>
+                    <Box sx={{ flexGrow: 1 }}>
+                        <DialogTitle>{selectedCardId === 'new' ? 'Add Card' : 'Edit Card'}</DialogTitle>
+                        <Typography level="body-sm" color="neutral">Track credit utilization and repayments.</Typography>
+                    </Box>
+                </Box>
                 <DialogContent>
                     <form onSubmit={handleSubmit}>
                         <Stack spacing={2} sx={{ mt: 1 }}>
@@ -251,12 +260,6 @@ export default function CreditCardsView() {
                             />
                         </Grid>
                             </Grid>
-                            <FormControl><FormLabel>Emoji</FormLabel>
-                                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                    <Button variant="outlined" color="neutral" onClick={() => setEmojiPicker(true)} sx={{ minWidth: 48 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(selectedEmoji, isDark) }}>{selectedEmoji}</Avatar></Button>
-                                    <input type="hidden" name="emoji" value={selectedEmoji} />
-                                </Box>
-                            </FormControl>
                             <FormControl><FormLabel>Assign Members</FormLabel>
                                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                                     {members.filter(m => m.type !== 'pet').map(m => {

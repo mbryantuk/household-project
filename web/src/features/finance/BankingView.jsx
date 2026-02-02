@@ -8,6 +8,7 @@ import {
 } from '@mui/joy';
 import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
+import EmojiPicker from '../../components/EmojiPicker';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -26,6 +27,10 @@ export default function BankingView() {
   const [loading, setLoading] = useState(true);
   const [assignItem, setAssignItem] = useState(null); 
   
+  // Emoji State
+  const [emojiPicker, setEmojiPicker] = useState({ open: false, type: null });
+  const [selectedEmoji, setSelectedEmoji] = useState('💰');
+
   const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
 
   useEffect(() => {
@@ -78,10 +83,12 @@ export default function BankingView() {
   useEffect(() => {
       if (selectedAccount) {
           setSelectedMembers(getAssignees(selectedAccount.id).map(m => m.id));
+          setSelectedEmoji(selectedAccount.emoji || '💰');
       } else if (selectedAccountId === 'new') {
           // Default to current user or first adult
           const defaultMember = members.find(m => m.id === currentUser?.id) || members.find(m => m.type !== 'pet');
           setSelectedMembers(defaultMember ? [defaultMember.id] : []);
+          setSelectedEmoji('💰');
       }
   }, [selectedAccount, selectedAccountId, getAssignees, members, currentUser]);
 
@@ -89,6 +96,7 @@ export default function BankingView() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
+    data.emoji = selectedEmoji;
 
     try {
       let itemId = selectedAccountId;
@@ -263,8 +271,17 @@ export default function BankingView() {
 
       {/* EDIT MODAL */}
       <Modal open={Boolean(selectedAccountId)} onClose={() => setAccountId(null)}>
-        <ModalDialog sx={{ maxWidth: 600, width: '100%', overflowY: 'auto' }}>
-            <DialogTitle>{selectedAccountId === 'new' ? 'Add Bank Account' : `Edit ${selectedAccount?.bank_name}`}</DialogTitle>
+        <ModalDialog sx={{ maxWidth: 600, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>
+            <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
+                <Box sx={{ position: 'relative' }}>
+                    <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(selectedEmoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => setEmojiPicker({ open: true, type: 'account' })}>{selectedEmoji}</Avatar>
+                    <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => setEmojiPicker({ open: true, type: 'account' })}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
+                </Box>
+                <Box sx={{ flexGrow: 1 }}>
+                    <DialogTitle>{selectedAccountId === 'new' ? 'Add Bank Account' : `Edit ${selectedAccount?.bank_name}`}</DialogTitle>
+                    <Typography level="body-sm" color="neutral">Track balances, overdrafts, and account holders.</Typography>
+                </Box>
+            </Box>
             <DialogContent>
                 <form onSubmit={handleSubmit}>
                     <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -338,7 +355,7 @@ export default function BankingView() {
                             </FormControl>
                         </Grid>
                     </Grid>
-                    <DialogActions>
+                    <DialogActions sx={{ mt: 2 }}>
                         <Button variant="plain" color="neutral" onClick={() => setAccountId(null)}>Cancel</Button>
                         <Button type="submit" variant="solid">Save Account</Button>
                     </DialogActions>
@@ -377,6 +394,13 @@ export default function BankingView() {
             </DialogActions>
         </ModalDialog>
       </Modal>
+
+      <EmojiPicker 
+        open={emojiPicker.open} 
+        onClose={() => setEmojiPicker({ ...emojiPicker, open: false })} 
+        onEmojiSelect={(emoji) => { setSelectedEmoji(emoji); setEmojiPicker({ ...emojiPicker, open: false }); }} 
+        isDark={isDark} 
+      />
     </Box>
   );
 }

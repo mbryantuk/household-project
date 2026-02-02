@@ -207,8 +207,17 @@ export default function PensionsView() {
 
         {/* MODAL: EDIT/ADD */}
         <Modal open={Boolean(selectedPensionId)} onClose={() => setPensionId(null)}>
-            <ModalDialog sx={{ width: '100%', maxWidth: 500 }}>
-                <DialogTitle>{selectedPensionId === 'new' ? 'Add Pension' : 'Edit Pension'}</DialogTitle>
+            <ModalDialog sx={{ width: '100%', maxWidth: 500, maxHeight: '95vh', overflowY: 'auto' }}>
+                <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
+                    <Box sx={{ position: 'relative' }}>
+                        <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(selectedEmoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => setEmojiPicker(true)}>{selectedEmoji}</Avatar>
+                        <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => setEmojiPicker(true)}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
+                    </Box>
+                    <Box sx={{ flexGrow: 1 }}>
+                        <DialogTitle>{selectedPensionId === 'new' ? 'Add Pension' : 'Edit Pension'}</DialogTitle>
+                        <Typography level="body-sm" color="neutral">Plan for your future retirement.</Typography>
+                    </Box>
+                </Box>
                 <DialogContent>
                     <form onSubmit={handleSubmit}>
                         <Stack spacing={2} sx={{ mt: 1 }}>
@@ -262,16 +271,6 @@ export default function PensionsView() {
                                     />
                                 </Grid>
                             </Grid>
-                            <FormControl>
-                                <FormLabel>Emoji</FormLabel>
-                                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                    <Button variant="outlined" color="neutral" onClick={() => setEmojiPicker(true)} sx={{ minWidth: 48 }}>
-                                        <Avatar size="sm" sx={{ bgcolor: getEmojiColor(selectedEmoji, isDark) }}>{selectedEmoji}</Avatar>
-                                    </Button>
-                                    <input type="hidden" name="emoji" value={selectedEmoji} />
-                                    <Typography level="body-xs" color="neutral">Click icon to change</Typography>
-                                </Box>
-                            </FormControl>
                             <FormControl>
                                 <FormLabel>Assign Members</FormLabel>
                                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>

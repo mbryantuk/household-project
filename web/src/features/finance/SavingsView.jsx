@@ -327,7 +327,16 @@ export default function SavingsView() {
 
         <Modal open={Boolean(selectedAccountId && !selectedPotId)} onClose={() => setAccountId(null)}>
             <ModalDialog sx={{ width: '100%', maxWidth: 500, maxHeight: '95vh', overflowY: 'auto' }}>
-                <DialogTitle>{selectedAccountId === 'new' ? 'Add Savings Account' : 'Edit Account'}</DialogTitle>
+                <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
+                    <Box sx={{ position: 'relative' }}>
+                        <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(selectedEmoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => setEmojiPicker({ open: true, type: 'account' })}>{selectedEmoji}</Avatar>
+                        <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => setEmojiPicker({ open: true, type: 'account' })}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
+                    </Box>
+                    <Box sx={{ flexGrow: 1 }}>
+                        <DialogTitle>{selectedAccountId === 'new' ? 'Add Savings Account' : 'Edit Account'}</DialogTitle>
+                        <Typography level="body-sm" color="neutral">Monitor savings goals and rainy day funds.</Typography>
+                    </Box>
+                </Box>
                 <DialogContent>
                     <form onSubmit={handleAccountSubmit}>
                         <Stack spacing={2} sx={{ mt: 1 }}>
@@ -340,7 +349,7 @@ export default function SavingsView() {
                                 <Grid xs={12} sm={6}><FormControl><FormLabel>Deposit Day</FormLabel><Input name="deposit_day" type="number" min="1" max="31" defaultValue={selectedAccount?.deposit_day} placeholder="e.g. 1" /></FormControl></Grid>
                             </Grid>
                             <FormControl><FormLabel>Account Number (Encrypted)</FormLabel><Input name="account_number" defaultValue={selectedAccount?.account_number} /></FormControl>
-                            <FormControl><FormLabel>Emoji</FormLabel><Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}><Button variant="outlined" color="neutral" onClick={() => setEmojiPicker({ open: true, type: 'account' })} sx={{ minWidth: 48, px: 0 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(selectedEmoji, isDark) }}>{selectedEmoji}</Avatar></Button><input type="hidden" name="emoji" value={selectedEmoji || ''} /><Typography level="body-xs" color="neutral">Click icon to change</Typography></Box></FormControl>
+                            
                             <FormControl><FormLabel>Assign Owners</FormLabel><Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>{members.filter(m => m.type !== 'pet').map(m => { const isSelected = selectedMembers.includes(m.id); return <Chip key={m.id} variant={isSelected ? 'solid' : 'outlined'} color={isSelected ? 'primary' : 'neutral'} onClick={() => setSelectedMembers(prev => prev.includes(m.id) ? prev.filter(id => id !== m.id) : [...prev, m.id])} startDecorator={<Avatar size="sm">{m.emoji}</Avatar>}>{m.name}</Chip> })}</Box></FormControl>
                         </Stack>
                         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

@@ -432,7 +432,7 @@ export default function BudgetView() {
 
           // Entity Filter Check
           if (filterEntity && filterEntity !== 'all') {
-              const [fType, fId] = (filterEntity || '').split(':');
+              const [fType, fId] = (filterEntity || 'household:null').split(':');
               const itemType = object?.type || (type === 'credit_card' ? 'household' : 'household');
               const itemId = String(object?.id || 'null');
               if (fType !== itemType || fId !== itemId) {
@@ -748,7 +748,7 @@ export default function BudgetView() {
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
       const data = Object.fromEntries(formData.entries());
-      const [type, id] = selectedEntity.split(':');
+      const [type, id] = (selectedEntity || 'household:null').split(':');
       
       const payload = {
         name: data.name,

@@ -168,7 +168,7 @@ export default function IncomeView() {
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
     return (
-      <Box>
+      <Box sx={{ overflowX: 'hidden' }}>
         <Box sx={{ 
             mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
             flexWrap: 'wrap', gap: 2 

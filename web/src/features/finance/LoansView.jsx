@@ -190,23 +190,27 @@ export default function LoansView() {
       <Modal open={Boolean(selectedLoanId)} onClose={() => setLoanId(null)}>
         <ModalDialog sx={{ maxWidth: 600, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>
           <ModalClose />
-          <Typography level="h4">{selectedLoanId === 'new' ? 'New Loan' : 'Edit Loan'}</Typography>
+          <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
+                <Box sx={{ position: 'relative' }}>
+                    <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(formData.emoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => setEmojiPickerOpen(true)}>{formData.emoji}</Avatar>
+                    <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => setEmojiPickerOpen(true)}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
+                </Box>
+                <Box sx={{ flexGrow: 1 }}>
+                    <Typography level="h4">{selectedLoanId === 'new' ? 'New Loan' : 'Edit Loan'}</Typography>
+                    <Typography level="body-sm" color="neutral">Track personal loans and debts.</Typography>
+                </Box>
+          </Box>
           <Divider />
           <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
           <Stack spacing={2} sx={{ mt: 2 }}>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-                <IconButton variant="outlined" sx={{ width: 56, height: 56 }} onClick={() => setEmojiPickerOpen(true)}>
-                    <Typography level="h2">{formData.emoji}</Typography>
-                </IconButton>
-                <FormControl required sx={{ flex: 1 }}>
-                    <FormLabel>Lender</FormLabel>
-                    <Input 
-                        name="lender"
-                        value={formData.lender} 
-                        onChange={e => setFormData({ ...formData, lender: e.target.value })} 
-                    />
-                </FormControl>
-            </Box>
+            <FormControl required>
+                <FormLabel>Lender</FormLabel>
+                <Input 
+                    name="lender"
+                    value={formData.lender} 
+                    onChange={e => setFormData({ ...formData, lender: e.target.value })} 
+                />
+            </FormControl>
             <FormControl required>
                 <FormLabel>Loan Type</FormLabel>
                 <Input 
