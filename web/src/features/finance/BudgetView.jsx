@@ -227,7 +227,6 @@ export default function BudgetView() {
   const [actualPay, setActualPay] = useState('');
   const [currentBalance, setCurrentBalance] = useState('');
   const [selectedAccountId, setSelectedAccountId] = useState(null);
-  const [isPayLocked, setIsPayLocked] = useState(true);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -831,9 +830,9 @@ export default function BudgetView() {
     const periods = [];
     let currentPeriod = null;
     
-    const totalDays = cycleData.cycleDuration || 1;
+    const totalDuration = cycleData.cycleDuration || 1;
 
-    drawdownData.forEach((d) => {
+    drawdownData.forEach((d, i) => {
       // Logic: 
       // Red: balance < -overdraftLimit
       // Amber: 0 > balance >= -overdraftLimit
@@ -841,15 +840,16 @@ export default function BudgetView() {
       if (d.balance < -overdraftLimit) severity = 'danger';
       else if (d.balance < 0) severity = 'warning';
 
-      const daysFromStart = differenceInDays(d.date, cycleData.startDate);
-      const pct = Math.min(100, Math.max(0, (daysFromStart / totalDays) * 100));
+      // Use segments: Day i covers from (i/total) to ((i+1)/total)
+      const startPct = (i / totalDuration) * 100;
+      const endPct = ((i + 1) / totalDuration) * 100;
 
       if (severity && (!currentPeriod || currentPeriod.severity !== severity)) {
         if (currentPeriod) periods.push(currentPeriod);
-        currentPeriod = { severity, startPct: pct, startDate: d.date, endDate: d.date, endPct: pct };
+        currentPeriod = { severity, startPct, startDate: d.date, endDate: d.date, endPct };
       } else if (severity && currentPeriod && currentPeriod.severity === severity) {
         currentPeriod.endDate = d.date;
-        currentPeriod.endPct = pct;
+        currentPeriod.endPct = endPct;
       } else if (!severity && currentPeriod) {
         periods.push(currentPeriod);
         currentPeriod = null;
@@ -869,15 +869,23 @@ export default function BudgetView() {
     overdraftPeriods.forEach(p => {
         const colorVar = p.severity === 'danger' ? 'var(--joy-palette-danger-400)' : 'var(--joy-palette-warning-400)';
         
-        // Transition to transparent/softBg before the zone if there's a gap
-        stops.push(`var(--joy-palette-primary-softBg) ${p.startPct}%`);
-        // The zone
+        // Only add a background segment if there is a gap between the last risk zone and this one
+        if (p.startPct > lastPct) {
+            stops.push(`var(--joy-palette-primary-softBg) ${lastPct}%`);
+            stops.push(`var(--joy-palette-primary-softBg) ${p.startPct}%`);
+        }
+        
+        // The risk zone (Warning or Danger)
         stops.push(`${colorVar} ${p.startPct}%`);
         stops.push(`${colorVar} ${p.endPct}%`);
-        // Transition back
-        stops.push(`var(--joy-palette-primary-softBg) ${p.endPct}%`);
         lastPct = p.endPct;
     });
+    
+    // Fill the remainder of the bar with the background color
+    if (lastPct < 100) {
+        stops.push(`var(--joy-palette-primary-softBg) ${lastPct}%`);
+        stops.push(`var(--joy-palette-primary-softBg) 100%`);
+    }
     
     return `linear-gradient(90deg, ${stops.join(', ')})`;
   }, [overdraftPeriods]);
