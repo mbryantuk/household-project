@@ -317,7 +317,7 @@ export default function MortgagesView() {
                                                     <Grid container spacing={1}>
                                                         <Grid xs={4}><Typography level="body-xs" color="neutral">Monthly</Typography><Typography level="body-sm" fontWeight="bold">{formatCurrency(mort.monthly_payment)}</Typography></Grid>
                                                         <Grid xs={4}><Typography level="body-xs" color="neutral">Day</Typography><Typography level="body-sm" fontWeight="bold">{mort.payment_day || '-'}</Typography></Grid>
-                                                        <Grid xs={4}><Typography level="body-xs" color="neutral">{isEquityType ? 'Started' : 'Term'}</Typography><Typography level="body-sm" fontWeight="bold">{isEquityType ? (mort.equity_loan_start_date || 'N/A') : (mort.term_months > 0 ? `${mort.term_years}y ${mort.term_months}m` : `${mort.term_years}y`)}</Typography></Grid>
+                                                        <Grid xs={4}><Typography level="body-xs" color="neutral">{isEquityType ? 'Started' : 'Term'}</Typography><Typography level="body-sm" fontWeight="bold">{isEquityType ? (mort.equity_loan_start_date || 'N/A') : (mort.term_years ? (mort.term_months > 0 ? `${mort.term_years}y ${mort.term_months}m` : `${mort.term_years}y`) : 'N/A')}</Typography></Grid>
                                                     </Grid>
 
                                                     {isEquityType && (

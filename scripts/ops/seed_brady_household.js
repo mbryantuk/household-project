@@ -185,7 +185,8 @@ async function seed() {
         // Mortgage
         const mortRes = await apiRequest('POST', `/api/households/${hhId}/finance/mortgages`, {
             lender: "Nationwide", total_amount: 500000, remaining_balance: 425000, 
-            interest_rate: 3.49, monthly_payment: 1850, payment_day: 1, emoji: "🏠", asset_id: "primary"
+            interest_rate: 3.49, monthly_payment: 1850, payment_day: 1, emoji: "🏠", asset_id: "primary",
+            term_years: 25, repayment_type: "Repayment"
         }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/assignments`, { entity_type: 'finance_mortgages', entity_id: mortRes.data.id, member_id: members.Mike }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/assignments`, { entity_type: 'finance_mortgages', entity_id: mortRes.data.id, member_id: members.Carol }, token);
@@ -193,14 +194,16 @@ async function seed() {
         // Personal Loan
         const loanRes = await apiRequest('POST', `/api/households/${hhId}/finance/loans`, {
             lender: "Barclays", loan_type: "Personal Improvement", total_amount: 25000, 
-            remaining_balance: 12000, monthly_payment: 450, payment_day: 15, emoji: "📝"
+            remaining_balance: 12000, monthly_payment: 450, payment_day: 15, emoji: "📝",
+            start_date: "2023-01-15"
         }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/assignments`, { entity_type: 'loan', entity_id: loanRes.data.id, member_id: members.Mike }, token);
 
         // Car Finance (Tesla)
         const carFinRes = await apiRequest('POST', `/api/households/${hhId}/finance/vehicle-finance`, {
             provider: "Tesla Financial Services", total_amount: 60000, remaining_balance: 35000,
-            interest_rate: 4.9, monthly_payment: 850, payment_day: 7, emoji: "⚡", vehicle_id: v1.data.id
+            interest_rate: 4.9, monthly_payment: 850, payment_day: 7, emoji: "⚡", vehicle_id: v1.data.id,
+            start_date: "2024-01-07", end_date: "2028-01-07"
         }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/assignments`, { entity_type: 'vehicle_finance', entity_id: carFinRes.data.id, member_id: members.Mike }, token);
 
