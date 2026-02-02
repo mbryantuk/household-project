@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix React Hook violation in BudgetView income list",
-  "date": "Mon  2 Feb 14:20:27 GMT 2026"
+  "commitMessage": "UI: Add projected overdraft marker to Days Left progress bar",
+  "date": "Mon  2 Feb 14:29:10 GMT 2026"
 }
