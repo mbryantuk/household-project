@@ -318,7 +318,7 @@ export default function IncomeView() {
                     <Typography level="body-sm" color="neutral">Capture salary details and payment schedules.</Typography>
                 </Box>
             </Box>
-            <DialogContent>
+            <DialogContent sx={{ overflowX: 'hidden' }}>
                 <form onSubmit={handleSubmit}>
                     <Grid container spacing={2} sx={{ mt: 1 }}>
                         <Grid xs={12} md={6}>

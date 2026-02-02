@@ -27,8 +27,33 @@ Every view and every major tabbed section MUST follow this exact structure:
 </Box>
 ```
 
-## 3. Theming Tokens
+## 4. Gold Standard Modal Pattern (Top-Left Avatar)
 
-- **Colors:** Use `var(--joy-palette-...)`.
-- **Spacing:** Use MUI Joy spacing scale.
-- **Rounding:** Standard border radius is `md` (8px).
+All data entry/editing modals MUST follow this structure to ensure consistency and mobile responsiveness.
+
+**Structure:**
+1.  **Header:** Flex row containing the Avatar (EmojiPicker trigger) on the left, and Title/Description on the right.
+2.  **Avatar:** Large (`lg`), interactive, with an absolute positioned 'Edit' badge.
+3.  **Content:** `DialogContent` with `overflowX: 'hidden'` to prevent Grid negative margin scrollbars.
+4.  **Container:** `ModalDialog` with `maxHeight: '95vh'`, `overflowY: 'auto'`, and appropriate `maxWidth`.
+
+**Example:**
+```jsx
+<Modal open={open} onClose={onClose}>
+  <ModalDialog sx={{ maxWidth: 500, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>
+    <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
+        <Box sx={{ position: 'relative' }}>
+            <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(emoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => setPickerOpen(true)}>{emoji}</Avatar>
+            <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => setPickerOpen(true)}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
+        </Box>
+        <Box sx={{ flexGrow: 1 }}>
+            <DialogTitle>{title}</DialogTitle>
+            <Typography level="body-sm" color="neutral">{description}</Typography>
+        </Box>
+    </Box>
+    <DialogContent sx={{ overflowX: 'hidden' }}>
+        {/* Form Content */}
+    </DialogContent>
+  </ModalDialog>
+</Modal>
+```

@@ -14,7 +14,7 @@ import {
   Assignment, WaterDrop, ElectricBolt, AccountBalance as BankIcon, Add, Shield,
   ShoppingBag, ChevronLeft, ChevronRight, Lock, LockOpen, ArrowDropDown, RestartAlt, Receipt,
   DirectionsCar, Person, DeleteOutline, Restore, Sort, Search, ExpandMore, TrendingUp, Block, RemoveCircleOutline, RequestQuote,
-  FilterAlt, GroupWork, CalendarToday, Warning
+  FilterAlt, GroupWork, CalendarToday, Warning, Edit
 } from '@mui/icons-material';
 import {
   format, addMonths, startOfMonth, setDate, differenceInDays,
@@ -23,6 +23,7 @@ import {
 } from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
+import EmojiPicker from '../../components/EmojiPicker';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -216,13 +217,17 @@ export default function BudgetView() {
   const [sortConfig, setSortConfig] = useState({ key: 'computedDate', direction: 'asc' });
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Modals
+  // Modals & Emojis
   const [quickAddOpen, setQuickAddOpen] = useState(false);
   const [adhocIncomeOpen, setAdhocIncomeOpen] = useState(false);
   const [recurringAddOpen, setRecurringAddOpen] = useState(false);
   const [recurringType, setRecurringType] = useState('monthly');
   const [selectedEntity, setSelectedEntity] = useState('household:null');
   const [setupModalOpen, setSetupModalOpen] = useState(false);
+
+  // Emoji Picker State
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState('💰');
 
   const [actualPay, setActualPay] = useState('');
   const [currentBalance, setCurrentBalance] = useState('');
@@ -268,6 +273,18 @@ export default function BudgetView() {
   }, [api, householdId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  const openEmojiPicker = (target) => {
+      if (target === 'quick') setSelectedEmoji('🧾');
+      else if (target === 'adhoc') setSelectedEmoji('💰');
+      else if (target === 'recurring') setSelectedEmoji('🔄');
+      setPickerOpen(true);
+  };
+
+  const handleEmojiSelect = (emoji) => {
+      setSelectedEmoji(emoji);
+      setPickerOpen(false);
+  };
 
   // --- Helper Logic (Date Projection) ---
   const getNextWorkingDay = useCallback((date) => {
@@ -714,7 +731,8 @@ export default function BudgetView() {
         category_id: data.category || 'other',
         object_type: 'household',
         object_id: null,
-        adjust_for_working_day: 1
+        adjust_for_working_day: 1,
+        emoji: selectedEmoji
       };
       try {
           await api.post(`/households/${householdId}/finance/recurring-costs`, payload);
@@ -735,7 +753,8 @@ export default function BudgetView() {
       category_id: 'income',
       object_type: 'household',
       object_id: null,
-      adjust_for_working_day: 1
+      adjust_for_working_day: 1,
+      emoji: selectedEmoji
     };
     try {
         await api.post(`/households/${householdId}/finance/recurring-costs`, payload);
@@ -758,7 +777,8 @@ export default function BudgetView() {
         category_id: data.category || 'other',
         object_type: type,
         object_id: id === 'null' ? null : id,
-        adjust_for_working_day: data.nearest_working_day === "1" ? 1 : 0
+        adjust_for_working_day: data.nearest_working_day === "1" ? 1 : 0,
+        emoji: selectedEmoji
       };
 
       try {
@@ -1184,10 +1204,10 @@ export default function BudgetView() {
                 <Dropdown>
                     <MenuButton variant="solid" color="primary" size="sm" startDecorator={<Add />} endDecorator={<ArrowDropDown />}>Add</MenuButton>
                     <Menu placement="bottom-end" size="sm">
-                        <MenuItem onClick={() => setAdhocIncomeOpen(true)}>Add Adhoc Income</MenuItem>
+                        <MenuItem onClick={() => { openEmojiPicker('adhoc'); setAdhocIncomeOpen(true); }}>Add Adhoc Income</MenuItem>
                         <Divider />
-                        <MenuItem onClick={() => setQuickAddOpen(true)}>Add One-off Expense</MenuItem>
-                        <MenuItem onClick={() => setRecurringAddOpen(true)}>Add Recurring Expense</MenuItem>
+                        <MenuItem onClick={() => { openEmojiPicker('quick'); setQuickAddOpen(true); }}>Add One-off Expense</MenuItem>
+                        <MenuItem onClick={() => { openEmojiPicker('recurring'); setRecurringAddOpen(true); }}>Add Recurring Expense</MenuItem>
                     </Menu>
                 </Dropdown>
             </Box>
@@ -1472,9 +1492,17 @@ export default function BudgetView() {
 
         {/* SETUP MODAL */}
         <Modal open={setupModalOpen}>
-            <ModalDialog sx={{ maxWidth: 500, width: '100%' }}>
-                <DialogTitle>Setup {format(cycleData.budgetLabelDate, 'MMMM')} Budget</DialogTitle>
-                <DialogContent>
+            <ModalDialog sx={{ maxWidth: 500, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>
+                <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
+                    <Box sx={{ position: 'relative' }}>
+                        <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: 'primary.solidBg', fontSize: '2rem' }}>🗓️</Avatar>
+                    </Box>
+                    <Box sx={{ flexGrow: 1 }}>
+                        <DialogTitle>Setup Budget</DialogTitle>
+                        <Typography level="body-sm" color="neutral">{format(cycleData.budgetLabelDate, 'MMMM yyyy')}</Typography>
+                    </Box>
+                </Box>
+                <DialogContent sx={{ overflowX: 'hidden' }}>
                     <Typography>Let's get started. Projected income for this cycle is <b>{formatCurrency(projectedIncomeTotal)}</b>.</Typography>
                     <Stack spacing={2} sx={{ mt: 2 }}>
                         <Button size="lg" variant="solid" color="primary" onClick={() => handleSetupBudget('fresh')}>
@@ -1492,10 +1520,18 @@ export default function BudgetView() {
 
         {/* Adhoc Income Modal */}
         <Modal open={adhocIncomeOpen} onClose={() => setAdhocIncomeOpen(false)}>
-            <ModalDialog sx={{ maxWidth: 400, width: '100%' }}>
-                <DialogTitle startDecorator={<Payments />}>Add Adhoc Income</DialogTitle>
-                <DialogContent>
-                    <Typography level="body-sm" sx={{ mb: 2 }}>Record one-off income like eBay winnings, refunds, or gifts.</Typography>
+            <ModalDialog sx={{ maxWidth: 450, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>
+                <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
+                    <Box sx={{ position: 'relative' }}>
+                        <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(selectedEmoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => openEmojiPicker('adhoc')}>{selectedEmoji}</Avatar>
+                        <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => openEmojiPicker('adhoc')}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
+                    </Box>
+                    <Box sx={{ flexGrow: 1 }}>
+                        <DialogTitle>Add Adhoc Income</DialogTitle>
+                        <Typography level="body-sm" color="neutral">eBay winnings, gifts, or refunds.</Typography>
+                    </Box>
+                </Box>
+                <DialogContent sx={{ overflowX: 'hidden' }}>
                     <form onSubmit={handleAdhocIncome}>
                         <Stack spacing={2}>
                             <FormControl required><FormLabel>Source / Description</FormLabel><Input name="name" autoFocus placeholder="e.g. eBay Refund" /></FormControl>
@@ -1510,9 +1546,18 @@ export default function BudgetView() {
 
         {/* Quick Add */}
         <Modal open={quickAddOpen} onClose={() => setQuickAddOpen(false)}>
-            <ModalDialog sx={{ maxWidth: 400, width: '100%' }}>
-                <DialogTitle>Add One-off Expense</DialogTitle>
-                <DialogContent>
+            <ModalDialog sx={{ maxWidth: 450, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>
+                <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
+                    <Box sx={{ position: 'relative' }}>
+                        <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(selectedEmoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => openEmojiPicker('quick')}>{selectedEmoji}</Avatar>
+                        <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => openEmojiPicker('quick')}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
+                    </Box>
+                    <Box sx={{ flexGrow: 1 }}>
+                        <DialogTitle>Add One-off Expense</DialogTitle>
+                        <Typography level="body-sm" color="neutral">Single transaction for this month.</Typography>
+                    </Box>
+                </Box>
+                <DialogContent sx={{ overflowX: 'hidden' }}>
                     <form onSubmit={handleQuickAdd}>
                         <Stack spacing={2}>
                             <FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus /></FormControl>
@@ -1527,9 +1572,18 @@ export default function BudgetView() {
         
         {/* Recurring Add */}
         <Modal open={recurringAddOpen} onClose={() => setRecurringAddOpen(false)}>
-            <ModalDialog sx={{ maxWidth: 450, width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
-                <DialogTitle>Add Recurring Expense</DialogTitle>
-                <DialogContent>
+            <ModalDialog sx={{ maxWidth: 550, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>
+                 <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
+                    <Box sx={{ position: 'relative' }}>
+                        <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(selectedEmoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => openEmojiPicker('recurring')}>{selectedEmoji}</Avatar>
+                        <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => openEmojiPicker('recurring')}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
+                    </Box>
+                    <Box sx={{ flexGrow: 1 }}>
+                        <DialogTitle>Add Recurring Expense</DialogTitle>
+                        <Typography level="body-sm" color="neutral">Subscriptions, bills, and regular costs.</Typography>
+                    </Box>
+                </Box>
+                <DialogContent sx={{ overflowX: 'hidden' }}>
                     <form onSubmit={handleRecurringAdd}>
                         <Stack spacing={2}>
                             <FormControl>
@@ -1585,6 +1639,13 @@ export default function BudgetView() {
                 </DialogContent>
             </ModalDialog>
         </Modal>
+
+        <EmojiPicker 
+            open={pickerOpen} 
+            onClose={() => setPickerOpen(false)} 
+            onEmojiSelect={handleEmojiSelect} 
+            isDark={isDark} 
+        />
     </Box>
   );
 }
