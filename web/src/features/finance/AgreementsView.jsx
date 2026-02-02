@@ -49,7 +49,7 @@ export default function AgreementsView({ isSubscriptions = false }) {
           const defaultMember = members.find(m => m.type !== 'pet');
           setSelectedMembers(defaultMember ? [defaultMember.id] : []);
       }
-  }, [selectedAgreement, selectedAgreementId, isSubscriptions, getAssignees, currentUser?.id]);
+  }, [selectedAgreement, selectedAgreementId, isSubscriptions, getAssignees, currentUser?.id, members]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);

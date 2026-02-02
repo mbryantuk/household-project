@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   Box, Sheet, Typography, Input, Button, Alert, Link, Checkbox, FormControl, FormLabel, Avatar, IconButton, Stack
 } from '@mui/joy';
@@ -23,14 +23,7 @@ export default function Login({ onLogin }) {
 
   const message = location.state?.message;
 
-  // Auto-advance if we have a remembered email
-  useEffect(() => {
-    if (localStorage.getItem('rememberMe') === 'true' && email && step === 1) {
-       handleLookup();
-    }
-  }, []);
-
-  const handleLookup = async (e) => {
+  const handleLookup = useCallback(async (e) => {
     if (e) e.preventDefault();
     if (!email) return;
     
@@ -50,7 +43,14 @@ export default function Login({ onLogin }) {
     } finally {
         setLoading(false);
     }
-  };
+  }, [email]);
+
+  // Auto-advance if we have a remembered email
+  useEffect(() => {
+    if (localStorage.getItem('rememberMe') === 'true' && email && step === 1) {
+       handleLookup();
+    }
+  }, [email, step, handleLookup]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

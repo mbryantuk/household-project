@@ -51,7 +51,7 @@ export default function PensionsView() {
           const defaultMember = members.find(m => m.type !== 'pet');
           setSelectedMembers(defaultMember ? [defaultMember.id] : []);
       }
-  }, [selectedPension, selectedPensionId, getAssignees, currentUser?.id]);
+  }, [selectedPension, selectedPensionId, getAssignees, currentUser?.id, members]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);

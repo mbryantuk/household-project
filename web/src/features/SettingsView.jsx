@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, TabPanel, Button, Input, 
   FormControl, FormLabel, Stack, Avatar, IconButton, 
@@ -85,11 +85,55 @@ export default function SettingsView({
     skipPurge: true
   });
 
+  // Controlled form state for the modal
+  const [formData, setFormData] = useState({
+      email: '',
+      role: 'member',
+      first_name: '',
+      last_name: '',
+      avatar: '👤'
+  });
+
+  const isAdmin = currentUser?.role === 'admin';
+
   const availableVersions = useMemo(() => {
     const versions = new Set(testResults.map(r => r.version).filter(Boolean));
     versions.add(pkg.version); // Always include current version
     return Array.from(versions).sort((a, b) => b.localeCompare(a, undefined, { numeric: true, sensitivity: 'base' }));
   }, [testResults]);
+
+  const fetchTestResults = useCallback(async () => {
+    setLoadingTests(true);
+    try {
+      const res = await api.get('/admin/test-results');
+      setTestResults(res.data);
+    } catch {
+      showNotification("Failed to fetch test results.", "danger");
+    } finally {
+      setLoadingTests(false);
+    }
+  }, [api, showNotification]);
+
+  const fetchVersionHistory = useCallback(async () => {
+    setLoadingHistory(true);
+    try {
+      const res = await api.get('/admin/version-history');
+      setVersionHistory(res.data);
+    } catch {
+      showNotification("Failed to fetch version history.", "danger");
+    } finally {
+      setLoadingHistory(false);
+    }
+  }, [api, showNotification]);
+
+  const triggerHealthCheck = async () => {
+    try {
+      await api.post('/admin/health-check/trigger', healthOptions);
+      showNotification("Health check started.", "success");
+    } catch (err) {
+      showNotification(err.response?.data?.error || "Failed to start health check.", "danger");
+    }
+  };
 
   useEffect(() => {
     if (activeTab === 6 && isAdmin) {
@@ -98,7 +142,7 @@ export default function SettingsView({
     if (activeTab === 7 && isAdmin) {
       fetchVersionHistory();
     }
-  }, [activeTab]);
+  }, [activeTab, isAdmin, fetchTestResults, fetchVersionHistory]);
 
   // Polling for health status
   useEffect(() => {
@@ -117,40 +161,7 @@ export default function SettingsView({
       interval = setInterval(poll, 2000);
     }
     return () => clearInterval(interval);
-  }, [isHealthModalOpen, healthStatus?.state, api]);
-
-  const fetchTestResults = async () => {
-    setLoadingTests(true);
-    try {
-      const res = await api.get('/admin/test-results');
-      setTestResults(res.data);
-    } catch {
-      showNotification("Failed to fetch test results.", "danger");
-    } finally {
-      setLoadingTests(false);
-    }
-  };
-
-  const fetchVersionHistory = async () => {
-    setLoadingHistory(true);
-    try {
-      const res = await api.get('/admin/version-history');
-      setVersionHistory(res.data);
-    } catch {
-      showNotification("Failed to fetch version history.", "danger");
-    } finally {
-      setLoadingHistory(false);
-    }
-  };
-
-  const triggerHealthCheck = async () => {
-    try {
-      await api.post('/admin/health-check/trigger', healthOptions);
-      showNotification("Health check started.", "success");
-    } catch (err) {
-      showNotification(err.response?.data?.error || "Failed to start health check.", "danger");
-    }
-  };
+  }, [isHealthModalOpen, healthStatus?.state, api, fetchTestResults]);
 
   useEffect(() => {
       if (household) {
@@ -169,17 +180,6 @@ export default function SettingsView({
           }
       }
   }, [household]);
-
-  // Controlled form state for the modal
-  const [formData, setFormData] = useState({
-      email: '',
-      role: 'member',
-      first_name: '',
-      last_name: '',
-      avatar: '👤'
-  });
-
-  const isAdmin = currentUser?.role === 'admin';
 
   const groupedThemes = useMemo(() => {
     const groups = { light: [], dark: [] };

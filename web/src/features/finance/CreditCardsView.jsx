@@ -53,7 +53,7 @@ export default function CreditCardsView() {
           const defaultMember = members.find(m => m.type !== 'pet');
           setSelectedMembers(defaultMember ? [defaultMember.id] : []);
       }
-  }, [selectedCard, selectedCardId, getAssignees, currentUser?.id]);
+  }, [selectedCard, selectedCardId, getAssignees, currentUser?.id, members]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);

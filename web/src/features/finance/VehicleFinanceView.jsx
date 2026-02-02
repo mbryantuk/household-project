@@ -55,7 +55,7 @@ export default function VehicleFinanceView() {
           const defaultMember = members.find(m => m.type !== 'pet');
           setSelectedMembers(defaultMember ? [defaultMember.id] : []);
       }
-  }, [selectedFinance, selectedFinanceId, getAssignees, currentUser?.id]);
+  }, [selectedFinance, selectedFinanceId, getAssignees, currentUser?.id, members]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);

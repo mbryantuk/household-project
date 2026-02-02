@@ -71,7 +71,7 @@ export default function SavingsView() {
       } else if (selectedPotId === 'new') {
           setSelectedEmoji('🎯');
       }
-  }, [selectedAccount, selectedPot, selectedAccountId, selectedPotId, getAssignees, currentUser?.id]);
+  }, [selectedAccount, selectedPot, selectedAccountId, selectedPotId, getAssignees, currentUser?.id, members]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);

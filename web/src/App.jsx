@@ -230,7 +230,7 @@ function AppInner({
         fetchHhDates(household.id);
         fetchHhVehicles(household.id);
     }
-  }, [token, household?.id, fetchHhMembers, fetchHhUsers, fetchHhDates, fetchHhVehicles]);
+  }, [token, household, fetchHhMembers, fetchHhUsers, fetchHhDates, fetchHhVehicles]);
 
   // Automatic Logout on 401/403/Version Mismatch
   useEffect(() => {
