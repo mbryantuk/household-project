@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Rollback v3.2.21 - Reverting BudgetView enhancements",
-  "date": "Mon  2 Feb 13:23:05 GMT 2026"
+  "commitMessage": "Move income to sidebar as cards, fix section borders",
+  "date": "Mon  2 Feb 13:42:10 GMT 2026"
 }

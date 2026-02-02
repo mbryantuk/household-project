@@ -716,6 +716,9 @@ export default function BudgetView() {
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
   if (!cycleData) return <Box sx={{ p: 4, textAlign: 'center' }}><Typography level="h4">No Primary Income Set</Typography><Button sx={{ mt: 2 }} onClick={fetchData}>Refresh</Button></Box>;
 
+  const incomeGroup = cycleData.groupList.find(g => g.id === 'income');
+  const otherGroups = cycleData.groupList.filter(g => g.id !== 'income');
+
   const renderItemRow = (exp) => {
       const rel = getRelativeDateLabel(exp.computedDate);
       return (
@@ -844,21 +847,33 @@ export default function BudgetView() {
       const toggle = () => setSectionsOpen(prev => ({ ...prev, [group.id]: !prev[group.id] }));
       
       return (
-      <Accordion expanded={isOpen} onChange={toggle} variant="outlined" sx={{ borderRadius: 'md', mb: 2 }} key={group.id}>
+      <Accordion 
+          expanded={isOpen} 
+          onChange={toggle} 
+          variant="outlined" 
+          sx={{ 
+              borderRadius: 'md', 
+              mb: 2,
+              boxShadow: 'sm',
+              overflow: 'hidden'
+          }} 
+          key={group.id}
+      >
           <AccordionSummary expandIcon={<ExpandMore />} sx={{ py: { xs: 1.5, sm: 1 } }}>
               <Box sx={{ display: 'flex', flexWrap: { xs: 'wrap', sm: 'nowrap' }, justifyContent: 'space-between', width: '100%', alignItems: 'center', mr: 2, overflow: 'hidden', gap: 1.5 }}>
                   <Typography level="title-lg" sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, flexBasis: { xs: '100%', sm: 'auto' } }}>
-                      <Avatar size="sm" sx={{ bgcolor: group.id === 'income' ? 'success.500' : 'background.level3' }}>{group.emoji}</Avatar> 
+                      <Avatar size="sm" sx={{ bgcolor: 'background.level3' }}>{group.emoji}</Avatar> 
                       <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.label}</Box>
                   </Typography>
                   <Stack direction="row" spacing={2} sx={{ flexShrink: 0, justifyContent: { xs: 'space-between', sm: 'flex-end' }, width: { xs: '100%', sm: 'auto' }, mt: { xs: 1, sm: 0 } }}>
                       <Box sx={{ textAlign: 'center' }}><Typography level="body-xs">Total</Typography><Typography level="body-sm" fontWeight="bold">{formatCurrency(group.total)}</Typography></Box>
-                      <Box sx={{ textAlign: 'center' }}><Typography level="body-xs" color="success">{group.id === 'income' ? 'Received' : 'Paid'}</Typography><Typography level="body-sm" fontWeight="bold" color="success">{formatCurrency(group.paid)}</Typography></Box>
-                      <Box sx={{ textAlign: 'center' }}><Typography level="body-xs" color="danger">{group.id === 'income' ? 'Pending' : 'Unpaid'}</Typography><Typography level="body-sm" fontWeight="bold" color="danger">{formatCurrency(group.unpaid)}</Typography></Box>
+                      <Box sx={{ textAlign: 'center' }}><Typography level="body-xs" color="success">Paid</Typography><Typography level="body-sm" fontWeight="bold" color="success">{formatCurrency(group.paid)}</Typography></Box>
+                      <Box sx={{ textAlign: 'center' }}><Typography level="body-xs" color="danger">Unpaid</Typography><Typography level="body-sm" fontWeight="bold" color="danger">{formatCurrency(group.unpaid)}</Typography></Box>
                   </Stack>
               </Box>
           </AccordionSummary>
-          <AccordionDetails sx={{ p: { xs: 1, sm: 0 } }}>
+          {isOpen && <Divider />}
+          <AccordionDetails sx={{ p: { xs: 1, sm: 0 }, bgcolor: 'background.surface' }}>
               <Box sx={{ display: { xs: 'block', md: 'none' } }}>
                   {group.items.map(renderMobileItem)}
               </Box>
@@ -868,7 +883,8 @@ export default function BudgetView() {
                 sx={{ 
                     '--TableCell-paddingX': '16px',
                     tableLayout: 'fixed',
-                    '& th': { bgcolor: 'background.level1' }
+                    '& th': { bgcolor: 'background.level1' },
+                    '& tr > td': { borderBottom: '1px solid', borderColor: 'divider' }
                 }}
               >
                   <thead>
@@ -890,7 +906,7 @@ export default function BudgetView() {
                           <th onClick={() => requestSort('amount')} style={{ width: 110, textAlign: 'right', cursor: 'pointer' }}>
                               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 0.5 }}>Amount <Sort sx={{ fontSize: '0.8rem', opacity: sortConfig.key === 'amount' ? 1 : 0.3 }} /></Box>
                           </th>
-                          <th style={{ width: 60, textAlign: 'center' }}>{group.id === 'income' ? 'Done' : 'Paid'}</th>
+                          <th style={{ width: 60, textAlign: 'center' }}>Paid</th>
                           <th style={{ width: 60, textAlign: 'center' }}>Skip</th>
                       </tr>
                   </thead>
@@ -985,7 +1001,57 @@ export default function BudgetView() {
         <Grid container spacing={3}>
             <Grid xs={12} md={3}>
                 <Stack spacing={3}>
-                    <Card variant="outlined" sx={{ p: 2 }}>
+                    {/* Income Source Cards */}
+                    {incomeGroup && (
+                        <Box>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                                <Typography level="title-md" startDecorator={<Payments />}>Income Sources</Typography>
+                                <Typography level="body-xs" fontWeight="bold" color="success">{formatCurrency(incomeGroup.total)}</Typography>
+                            </Box>
+                            <Stack spacing={1}>
+                                {incomeGroup.items.map(inc => (
+                                    <Card 
+                                        key={inc.key} 
+                                        variant="outlined" 
+                                        size="sm" 
+                                        sx={{ 
+                                            p: 1.5, 
+                                            display: 'flex', 
+                                            flexDirection: 'row', 
+                                            alignItems: 'center', 
+                                            gap: 1.5,
+                                            boxShadow: 'xs',
+                                            borderColor: inc.isPaid ? 'success.300' : 'divider',
+                                            bgcolor: inc.isPaid ? 'success.softBg' : 'background.surface'
+                                        }}
+                                    >
+                                        <Avatar size="sm" variant="soft" color={inc.isPaid ? 'success' : 'neutral'} sx={{ bgcolor: inc.isPaid ? 'success.solidBg' : undefined, color: inc.isPaid ? '#fff' : undefined }}>
+                                            {inc.icon}
+                                        </Avatar>
+                                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                                            <Typography level="title-sm" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{inc.label}</Typography>
+                                            <Typography level="body-xs" color="neutral">{format(inc.computedDate, 'do MMM')}</Typography>
+                                        </Box>
+                                        <Box sx={{ textAlign: 'right', flexShrink: 0 }}>
+                                            <Typography level="title-sm" fontWeight="bold" color={inc.isPaid ? 'success.700' : 'neutral.700'}>{formatCurrency(inc.amount)}</Typography>
+                                            <Checkbox 
+                                                size="sm" 
+                                                variant="soft"
+                                                color="success"
+                                                checked={inc.isPaid} 
+                                                onChange={() => togglePaid(inc.key, inc.amount)}
+                                                uncheckedIcon={<RadioButtonUnchecked />}
+                                                checkedIcon={<CheckCircle />}
+                                                sx={{ ml: 'auto', mt: 0.5 }}
+                                            />
+                                        </Box>
+                                    </Card>
+                                ))}
+                            </Stack>
+                        </Box>
+                    )}
+
+                    <Card variant="outlined" sx={{ p: 2, boxShadow: 'sm' }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                             <Typography level="title-md" startDecorator={<BankIcon />}>Liquidity Control</Typography>
                             <IconButton size="sm" variant={isPayLocked ? "plain" : "soft"} color={isPayLocked ? "neutral" : "warning"} onClick={() => setIsPayLocked(!isPayLocked)}>{isPayLocked ? <Lock fontSize="small" /> : <LockOpen fontSize="small" />}</IconButton>
@@ -1002,7 +1068,7 @@ export default function BudgetView() {
                         </Stack>
                     </Card>
 
-                    <Card variant="outlined" sx={{ p: 2 }}>
+                    <Card variant="outlined" sx={{ p: 2, boxShadow: 'sm' }}>
                         <Typography level="title-md" startDecorator={<TrendingDown />} sx={{ mb: 2 }}>Drawdown Projection</Typography>
                         
                         <Box sx={{ mb: 2 }}>
@@ -1044,7 +1110,7 @@ export default function BudgetView() {
                         </Typography>
                     </Card>
 
-                    <Card variant="outlined" sx={{ p: 2 }}>
+                    <Card variant="outlined" sx={{ p: 2, boxShadow: 'sm' }}>
                         <Typography level="title-md" startDecorator={<AccountBalanceWallet />} sx={{ mb: 2 }}>Budget Health</Typography>
                         <Stack spacing={1.5}>
                             <Box>
@@ -1060,12 +1126,12 @@ export default function BudgetView() {
                             </Box>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <Typography level="body-xs">Pending Income</Typography>
-                                <Typography level="body-xs" color="success" fontWeight="bold">{formatCurrency(cycleData?.groupList.find(g => g.id === 'income')?.unpaid || 0)}</Typography>
+                                <Typography level="body-xs" color="success" fontWeight="bold">{formatCurrency(incomeGroup?.unpaid || 0)}</Typography>
                             </Box>
                         </Stack>
                     </Card>
 
-                    <Card variant="outlined" sx={{ p: 2 }}>
+                    <Card variant="outlined" sx={{ p: 2, boxShadow: 'sm' }}>
                         <Typography level="title-md" startDecorator={<SavingsIcon />} sx={{ mb: 2 }}>Wealth Tracking</Typography>
                         <Stack spacing={2}>
                             {liabilities.savings.map(acc => (
@@ -1102,7 +1168,7 @@ export default function BudgetView() {
             </Grid>
 
             <Grid xs={12} md={9} sx={{ overflowX: 'hidden' }}>
-                {cycleData.groupList.map(renderSection)}
+                {otherGroups.map(renderSection)}
                 
                 {cycleData.skipped?.length > 0 && (
                         <Accordion expanded={sectionsOpen.skipped} onChange={() => setSectionsOpen(p => ({ ...p, skipped: !p.skipped }))} variant="outlined" sx={{ borderRadius: 'md', mt: 4, borderColor: 'neutral.300', opacity: 0.8 }}>
