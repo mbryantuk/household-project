@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix missing metadata UI in People and Budget views",
-  "date": "Mon  2 Feb 20:59:26 GMT 2026"
+  "commitMessage": "Add household validation redirect, seamless metadata fields, and custom metadata schema settings",
+  "date": "Mon  2 Feb 21:11:43 GMT 2026"
 }

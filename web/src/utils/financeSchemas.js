@@ -42,3 +42,28 @@ export const METADATA_SCHEMAS = {
         { key: 'comments', label: 'Comments', type: 'text' }
     ]
 };
+
+/**
+ * Merges the global schema with household-specific overrides/additions.
+ * @param {Object} householdSchema - The JSON parsed metadata_schema from the household table.
+ * @returns {Object} A fully merged schema object.
+ */
+export const getMergedSchema = (householdSchema) => {
+    if (!householdSchema) return METADATA_SCHEMAS;
+    
+    const merged = { ...METADATA_SCHEMAS };
+    
+    Object.keys(householdSchema).forEach(category => {
+        if (!merged[category]) {
+            merged[category] = householdSchema[category];
+        } else {
+            // Merge fields - household fields with same key override globals
+            const fieldMap = new Map();
+            merged[category].forEach(f => fieldMap.set(f.key, f));
+            householdSchema[category].forEach(f => fieldMap.set(f.key, f));
+            merged[category] = Array.from(fieldMap.values());
+        }
+    });
+    
+    return merged;
+};

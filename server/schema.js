@@ -47,6 +47,7 @@ const GLOBAL_SCHEMA = [
         currency TEXT DEFAULT 'GBP',
         decimals INTEGER DEFAULT 2,
         enabled_modules TEXT DEFAULT '["pets", "vehicles", "meals"]',
+        metadata_schema TEXT,
         auto_backup INTEGER DEFAULT 1,
         backup_retention INTEGER DEFAULT 7,
         is_test INTEGER DEFAULT 0,
@@ -387,6 +388,19 @@ function initializeGlobalSchema(db) {
                 db.run("ALTER TABLE households ADD COLUMN nightly_version_filter TEXT", (err) => {
                     if (err) console.error("Migration failed:", err.message);
                     else console.log("✅ nightly_version_filter column added.");
+                });
+            }
+        });
+
+        // 🛠️ MIGRATION: Add metadata_schema to households
+        db.all("PRAGMA table_info(households)", (err, rows) => {
+            if (err) return console.error("Failed to check households schema", err);
+            const hasMetadataSchema = rows.some(r => r.name === 'metadata_schema');
+            if (!hasMetadataSchema) {
+                console.log("🛠️ Migrating households table: Adding metadata_schema...");
+                db.run("ALTER TABLE households ADD COLUMN metadata_schema TEXT", (err) => {
+                    if (err) console.error("Migration failed:", err.message);
+                    else console.log("✅ metadata_schema column added.");
                 });
             }
         });

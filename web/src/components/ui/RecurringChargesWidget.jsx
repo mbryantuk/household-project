@@ -263,6 +263,7 @@ export default function RecurringChargesWidget({
                     categoryId={formData.category_id} 
                     metadata={formData.metadata} 
                     onChange={(newMeta) => setFormData(prev => ({ ...prev, metadata: newMeta }))}
+                    customSchema={household?.metadata_schema ? JSON.parse(household.metadata_schema) : null}
                 />
 
                 <Button size="lg" onClick={handleSave} variant="solid" sx={{ mt: 2 }}>{editingId ? 'Update Cost' : 'Create Cost'}</Button>

@@ -191,7 +191,7 @@ const IncomeSourceCard = ({ inc, onUpdateAmount, onTogglePaid }) => {
 };
 
 export default function BudgetView() {
-  const { api, id: householdId, isDark, showNotification, members = [], setStatusBarData, confirmAction } = useOutletContext();
+  const { api, id: householdId, isDark, showNotification, members = [], setStatusBarData, confirmAction, household } = useOutletContext();
   const [loading, setLoading] = useState(true);
     const [savingProgress] = useState(new Map());
   const [viewDate, setViewDate] = useState(new Date());
@@ -1716,6 +1716,7 @@ export default function BudgetView() {
                                 categoryId={recurringCategory} 
                                 metadata={recurringMetadata} 
                                 onChange={setRecurringMetadata} 
+                                customSchema={household?.metadata_schema ? JSON.parse(household.metadata_schema) : null}
                             />
 
                             <Checkbox label="Adjust for Working Day (Next)" name="nearest_working_day" defaultChecked value="1" />

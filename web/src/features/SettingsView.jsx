@@ -8,11 +8,13 @@ import {
 import { 
   PersonAdd, Edit, Delete, ExitToApp, ToggleOn, ToggleOff,
   OpenInNew, Info, Verified, Code, Policy, Palette, AddHome, LightMode, DarkMode,
-  ViewModule, CheckCircle, Cancel, Public, ContentCopy, Update, HealthAndSafety, History
+  ViewModule, CheckCircle, Cancel, Public, ContentCopy, Update, HealthAndSafety, History,
+  DynamicForm, Add, Close
 } from '@mui/icons-material';
 import { getEmojiColor, THEMES } from '../theme';
 import EmojiPicker from '../components/EmojiPicker';
 import AppSelect from '../components/ui/AppSelect';
+import { METADATA_SCHEMAS } from '../utils/financeSchemas';
 import pkg from '../../package.json';
 import gitInfo from '../git-info.json';
 
@@ -25,6 +27,55 @@ export default function SettingsView({
   const [isInvite, setIsInvite] = useState(false);
   const [savingUser, setSavingUser] = useState(false);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+
+  // Metadata Schema State
+  const [localMetadataSchema, setLocalMetadataSchema] = useState({});
+  const [activeSchemaCategory, setActiveSchemaCategory] = useState('insurance');
+
+  useEffect(() => {
+    if (household?.metadata_schema) {
+      try {
+        setLocalMetadataSchema(JSON.parse(household.metadata_schema));
+      } catch (e) {
+        setLocalMetadataSchema({});
+      }
+    } else {
+        setLocalMetadataSchema({});
+    }
+  }, [household]);
+
+  const handleSaveMetadataSchema = async () => {
+      try {
+          await onUpdateHousehold({ metadata_schema: JSON.stringify(localMetadataSchema) });
+      } catch {
+          showNotification("Failed to save field configuration.", "danger");
+      }
+  };
+
+  const addFieldToCategory = (cat) => {
+      const newField = { key: `field_${Date.now()}`, label: 'New Field', type: 'text' };
+      const currentFields = localMetadataSchema[cat] || METADATA_SCHEMAS[cat] || [];
+      setLocalMetadataSchema({
+          ...localMetadataSchema,
+          [cat]: [...currentFields, newField]
+      });
+  };
+
+  const removeFieldFromCategory = (cat, key) => {
+      const currentFields = localMetadataSchema[cat] || METADATA_SCHEMAS[cat] || [];
+      setLocalMetadataSchema({
+          ...localMetadataSchema,
+          [cat]: currentFields.filter(f => f.key !== key)
+      });
+  };
+
+  const updateFieldInCategory = (cat, key, updates) => {
+      const currentFields = localMetadataSchema[cat] || METADATA_SCHEMAS[cat] || [];
+      setLocalMetadataSchema({
+          ...localMetadataSchema,
+          [cat]: currentFields.map(f => f.key === key ? { ...f, ...updates } : f)
+      });
+  };
 
   // Custom Theme State
   const [customThemeConfig, setCustomThemeConfig] = useState(() => {
@@ -411,6 +462,7 @@ export default function SettingsView({
             <Tab value={0} variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={getTabStyle(0)}>User Access</Tab>
             <Tab value={1} variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={getTabStyle(1)}>Appearance</Tab>
             <Tab value={2} variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={getTabStyle(2)}>Regional</Tab>
+            <Tab value={8} variant={activeTab === 8 ? 'solid' : 'plain'} color={activeTab === 8 ? 'primary' : 'neutral'} sx={getTabStyle(8)}>Finance Fields</Tab>
             <Tab value={3} variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'} sx={getTabStyle(3)}>Modules</Tab>
             <Tab value={4} variant={activeTab === 4 ? 'solid' : 'plain'} color={activeTab === 4 ? 'primary' : 'neutral'} sx={getTabStyle(4)}>Developers</Tab>
             {isAdmin && <Tab value={6} variant={activeTab === 6 ? 'solid' : 'plain'} color={activeTab === 6 ? 'primary' : 'neutral'} sx={getTabStyle(6)}>Nightly Health</Tab>}
@@ -742,6 +794,132 @@ export default function SettingsView({
                         <ThemeGrid themes={groupedThemes.dark} />
                       </Box>
                     </Stack>
+                </Box>
+            )}
+
+            {activeTab === 8 && (
+                <Box>
+                    <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Box>
+                            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Finance Metadata Fields</Typography>
+                            <Typography level="body-md" color="neutral">Customize the additional fields available when adding recurring costs for this household.</Typography>
+                        </Box>
+                        {isAdmin && (
+                            <Button variant="solid" color="primary" startDecorator={<CheckCircle />} onClick={handleSaveMetadataSchema}>
+                                Save All Fields
+                            </Button>
+                        )}
+                    </Box>
+
+                    <Grid container spacing={3}>
+                        <Grid xs={12} md={4}>
+                            <Typography level="title-sm" sx={{ mb: 1.5, textTransform: 'uppercase', letterSpacing: '1px' }}>Category</Typography>
+                            <Sheet variant="outlined" sx={{ borderRadius: 'md', p: 1, bgcolor: 'background.level1' }}>
+                                <Stack spacing={0.5}>
+                                    {Object.keys(METADATA_SCHEMAS).map(cat => (
+                                        <Button 
+                                            key={cat}
+                                            variant={activeSchemaCategory === cat ? 'soft' : 'plain'}
+                                            color={activeSchemaCategory === cat ? 'primary' : 'neutral'}
+                                            onClick={() => setActiveSchemaCategory(cat)}
+                                            sx={{ justifyContent: 'flex-start', textAlign: 'left', textTransform: 'capitalize' }}
+                                        >
+                                            {cat.replace('_', ' ')}
+                                        </Button>
+                                    ))}
+                                </Stack>
+                            </Sheet>
+                        </Grid>
+
+                        <Grid xs={12} md={8}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                                <Typography level="title-md" textTransform="capitalize" startDecorator={<DynamicForm color="primary" />}>
+                                    {activeSchemaCategory.replace('_', ' ')} Fields
+                                </Typography>
+                                {isAdmin && (
+                                    <Button size="sm" variant="soft" color="primary" startDecorator={<Add />} onClick={() => addFieldToCategory(activeSchemaCategory)}>
+                                        Add Field
+                                    </Button>
+                                )}
+                            </Box>
+
+                            <Stack spacing={2}>
+                                {(localMetadataSchema[activeSchemaCategory] || METADATA_SCHEMAS[activeSchemaCategory] || []).map((field, idx) => (
+                                    <Sheet key={field.key} variant="outlined" sx={{ p: 2, borderRadius: 'md', position: 'relative' }}>
+                                        {isAdmin && (
+                                            <IconButton 
+                                                size="sm" 
+                                                variant="plain" 
+                                                color="danger" 
+                                                sx={{ position: 'absolute', top: 8, right: 8 }}
+                                                onClick={() => removeFieldFromCategory(activeSchemaCategory, field.key)}
+                                            >
+                                                <Close fontSize="small" />
+                                            </IconButton>
+                                        )}
+                                        <Grid container spacing={2}>
+                                            <Grid xs={12} sm={4}>
+                                                <FormControl size="sm">
+                                                    <FormLabel>Label</FormLabel>
+                                                    <Input 
+                                                        value={field.label} 
+                                                        onChange={(e) => updateFieldInCategory(activeSchemaCategory, field.key, { label: e.target.value })}
+                                                        disabled={!isAdmin}
+                                                    />
+                                                </FormControl>
+                                            </Grid>
+                                            <Grid xs={12} sm={4}>
+                                                <FormControl size="sm">
+                                                    <FormLabel>Key (ID)</FormLabel>
+                                                    <Input 
+                                                        value={field.key} 
+                                                        onChange={(e) => updateFieldInCategory(activeSchemaCategory, field.key, { key: e.target.value })}
+                                                        disabled={!isAdmin}
+                                                    />
+                                                </FormControl>
+                                            </Grid>
+                                            <Grid xs={12} sm={4}>
+                                                <FormControl size="sm">
+                                                    <FormLabel>Type</FormLabel>
+                                                    <Select 
+                                                        value={field.type} 
+                                                        onChange={(_e, v) => updateFieldInCategory(activeSchemaCategory, field.key, { type: v })}
+                                                        disabled={!isAdmin}
+                                                    >
+                                                        <Option value="text">Text</Option>
+                                                        <Option value="number">Number</Option>
+                                                        <Option value="date">Date</Option>
+                                                        <Option value="tel">Phone</Option>
+                                                        <Option value="email">Email</Option>
+                                                        <Option value="url">Website</Option>
+                                                        <Option value="select">Dropdown</Option>
+                                                    </Select>
+                                                </FormControl>
+                                            </Grid>
+                                            {field.type === 'select' && (
+                                                <Grid xs={12}>
+                                                    <FormControl size="sm">
+                                                        <FormLabel>Options (Comma separated)</FormLabel>
+                                                        <Input 
+                                                            value={(field.options || []).join(', ')} 
+                                                            onChange={(e) => updateFieldInCategory(activeSchemaCategory, field.key, { options: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
+                                                            placeholder="Option 1, Option 2, Option 3"
+                                                            disabled={!isAdmin}
+                                                        />
+                                                    </FormControl>
+                                                </Grid>
+                                            )}
+                                        </Grid>
+                                    </Sheet>
+                                ))}
+                                {(localMetadataSchema[activeSchemaCategory] || METADATA_SCHEMAS[activeSchemaCategory] || []).length === 0 && (
+                                    <Sheet variant="soft" sx={{ p: 4, borderRadius: 'md', textAlign: 'center' }}>
+                                        <Typography color="neutral">No custom fields defined for this category.</Typography>
+                                    </Sheet>
+                                )}
+                            </Stack>
+                        </Grid>
+                    </Grid>
                 </Box>
             )}
 

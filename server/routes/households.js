@@ -57,7 +57,8 @@ router.put('/households/:id', authenticateToken, requireHouseholdRole('admin'), 
     const { 
         name, address_street, address_city, address_zip,
         date_format, currency, decimals, avatar,
-        auto_backup, backup_retention, enabled_modules
+        auto_backup, backup_retention, enabled_modules,
+        metadata_schema
     } = req.body;
     
     let fields = []; let values = [];
@@ -72,6 +73,7 @@ router.put('/households/:id', authenticateToken, requireHouseholdRole('admin'), 
     if (auto_backup !== undefined) { fields.push('auto_backup = ?'); values.push(auto_backup ? 1 : 0); }
     if (backup_retention !== undefined) { fields.push('backup_retention = ?'); values.push(parseInt(backup_retention)); }
     if (enabled_modules !== undefined) { fields.push('enabled_modules = ?'); values.push(enabled_modules); }
+    if (metadata_schema !== undefined) { fields.push('metadata_schema = ?'); values.push(metadata_schema); }
     
     if (fields.length === 0) return res.status(400).json({ error: "No fields to update" });
     

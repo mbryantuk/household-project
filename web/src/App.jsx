@@ -207,6 +207,19 @@ function AppInner({
     }
   }, [token, fetchHouseholds]);
 
+  // Validate active household existence
+  useEffect(() => {
+    if (token && household && households.length > 0) {
+      const exists = households.find(h => h.id === household.id);
+      if (!exists) {
+        setHousehold(null);
+        localStorage.removeItem('household');
+        navigate('/select-household');
+        showNotification("The selected household is no longer available.", "warning");
+      }
+    }
+  }, [households, household, token, navigate, setHousehold, showNotification]);
+
   // Synchronize user role with active household
   useEffect(() => {
     if (household && households.length > 0) {
