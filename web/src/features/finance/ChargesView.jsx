@@ -103,7 +103,6 @@ export default function ChargesView({ initialTab }) {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCharges();
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchEntities();
   }, [fetchCharges, fetchEntities]);
 

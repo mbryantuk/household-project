@@ -1,5 +1,4 @@
 import fs from 'fs';
-import path from 'path';
 
 const LOG_FILE = '/tmp/brady_lifecycle.log';
 const stepStartTimes = new Map();

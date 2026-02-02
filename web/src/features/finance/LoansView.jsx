@@ -57,6 +57,7 @@ export default function LoansView() {
   }, [api, householdId]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchLoans();
   }, [fetchLoans]);
 
@@ -66,6 +67,7 @@ export default function LoansView() {
 
   useEffect(() => {
     if (selectedLoan) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         lender: selectedLoan.lender || '', 
         loan_type: selectedLoan.loan_type || '',

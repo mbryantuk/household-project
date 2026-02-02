@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { logStep, withTimeout } from './utils/testLogger.js';
+import { logStep } from './utils/testLogger.js';
 import fs from 'fs';
 
 test.describe('Brady Lifecycle Stage 4: Savings Pots & Budget Integration', () => {
@@ -9,7 +9,7 @@ test.describe('Brady Lifecycle Stage 4: Savings Pots & Budget Integration', () =
     try {
         const data = fs.readFileSync('/tmp/brady_context.json', 'utf8');
         context = JSON.parse(data);
-    } catch (e) {
+    } catch {
         console.warn("Context file not found, using defaults for dev testing if applicable.");
         context = { hhId: '1', adminEmail: 'mbryantuk@gmail.com', password: 'password' };
     }

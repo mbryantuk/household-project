@@ -9,7 +9,7 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
     try {
         const data = fs.readFileSync('/tmp/brady_context.json', 'utf8');
         context = JSON.parse(data);
-    } catch (e) {
+    } catch {
         console.warn("Context file not found, using defaults for dev testing if applicable.");
         context = { hhId: '1', adminEmail: 'mbryantuk@gmail.com', password: 'password' };
     }
@@ -111,7 +111,7 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
                 await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 10000 });
                 await expect(page.locator('div[role="alert"]')).toBeVisible({ timeout: 10000 });
                 await logStep(stepName, 'Success!');
-            } catch (err) {
+            } catch {
                 // Ignore missing alert if dialog closed
             }
         } catch (e) {

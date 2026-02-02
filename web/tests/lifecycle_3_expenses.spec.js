@@ -9,7 +9,7 @@ test.describe('Brady Lifecycle Stage 3: Expense Allocation', () => {
     try {
         const data = fs.readFileSync('/tmp/brady_context.json', 'utf8');
         context = JSON.parse(data);
-    } catch (e) {
+    } catch {
         console.warn("Context file not found, using defaults for dev testing if applicable.");
         context = { hhId: '1', adminEmail: 'mbryantuk@gmail.com', password: 'password' };
     }

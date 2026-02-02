@@ -693,7 +693,6 @@ export default function BudgetView() {
   const isOverdrawnRisk = lowestProjected < 0;
   const isLimitRisk = lowestProjected < -overdraftLimit;
 
-  const savingsTotal = useMemo(() => savingsPots.reduce((sum, pot) => sum + (parseFloat(pot.current_amount) || 0), 0), [savingsPots]);
   const trueDisposable = (parseFloat(currentBalance) || 0) - cycleTotals.unpaid + (cycleData?.groupList.find(g => g.id === 'income')?.unpaid || 0);
   
   const selectedTotals = useMemo(() => {
@@ -1153,7 +1152,7 @@ export default function BudgetView() {
             <ModalDialog sx={{ maxWidth: 500, width: '100%' }}>
                 <DialogTitle>Setup {format(cycleData.budgetLabelDate, 'MMMM')} Budget</DialogTitle>
                 <DialogContent>
-                    <Typography>Let's get started. Projected income for this cycle is <b>{formatCurrency(projectedIncome)}</b>.</Typography>
+                    <Typography>Let's get started. Projected income for this cycle is <b>{formatCurrency(projectedIncomeTotal)}</b>.</Typography>
                     <Stack spacing={2} sx={{ mt: 2 }}>
                         <Button size="lg" variant="solid" color="primary" onClick={() => handleSetupBudget('fresh')}>
                             Start Fresh (Balance = Pay)

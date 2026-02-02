@@ -40,6 +40,7 @@ export default function InvestmentsView() {
   }, [api, householdId]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchInvestments();
   }, [fetchInvestments]);
 
@@ -49,6 +50,7 @@ export default function InvestmentsView() {
 
   useEffect(() => {
     if (selectedInvestment) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         name: selectedInvestment.name || '', 
         platform: selectedInvestment.platform || '',

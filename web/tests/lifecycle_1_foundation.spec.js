@@ -35,7 +35,7 @@ test.describe('Brady Lifecycle Stage 1: Foundation', () => {
                     await route.continue({ postData: JSON.stringify(postData) });
                     return;
                 }
-            } catch (e) {}
+            } catch { /* ignore */ }
         }
         await route.continue();
     });
@@ -72,7 +72,7 @@ test.describe('Brady Lifecycle Stage 1: Foundation', () => {
 
     await withTimeout('Mike Login', async () => {
         await page.goto('/login');
-        await page.fill('input[type="email"]', adminEmail);
+        await page.fill('input[type="email"]', registeredAdminEmail);
         await page.click('button:has-text("Next")');
         await page.fill('input[type="password"]', password);
         await page.click('button:has-text("Log In")');
