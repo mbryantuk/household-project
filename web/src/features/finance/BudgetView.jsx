@@ -395,20 +395,37 @@ export default function BudgetView() {
       return HOUSEHOLD_CATS;
   }, [members]);
 
-  const playDing = useCallback(() => {
+  const playFeedback = useCallback((type = 'success') => {
       try {
-          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContext) return;
+          
+          const audioCtx = new AudioContext();
           const oscillator = audioCtx.createOscillator();
           const gainNode = audioCtx.createGain();
+          
           oscillator.type = 'sine';
-          oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
-          oscillator.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.1);
-          gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-          gainNode.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+          const now = audioCtx.currentTime;
+
+          if (type === 'success') {
+              oscillator.frequency.setValueAtTime(880, now);
+              oscillator.frequency.exponentialRampToValueAtTime(1320, now + 0.1);
+          } else {
+              oscillator.frequency.setValueAtTime(660, now);
+              oscillator.frequency.exponentialRampToValueAtTime(330, now + 0.1);
+          }
+
+          // Increased volume for better visibility
+          gainNode.gain.setValueAtTime(0.2, now);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+          
           oscillator.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          oscillator.start();
-          oscillator.stop(audioCtx.currentTime + 0.3);
+          
+          oscillator.start(now);
+          oscillator.stop(now + 0.3);
+
+          setTimeout(() => { audioCtx.close(); }, 350);
       } catch (e) { console.warn("Audio feedback failed", e); }
   }, []);
 
@@ -433,6 +450,14 @@ export default function BudgetView() {
           progressPct = Math.min((differenceInDays(now, startDate) / cycleDuration) * 100, 100);
       }
       if (daysRemaining < 0) daysRemaining = 0;
+
+      // Optimisation: Create a Map for O(1) lookup of progress items
+      const progressMap = new Map();
+      progress.forEach(p => {
+          if (p.cycle_start === cycleKey) {
+              progressMap.set(p.item_key, p);
+          }
+      });
 
       const groups = {
           'bills': { id: 'bills', label: 'Household Bills', items: [], order: 0, emoji: '🏠' },
@@ -467,7 +492,8 @@ export default function BudgetView() {
           }
 
           const key = `${type}_${item.id || 'fixed'}_${format(dateObj, 'ddMM')}`; 
-          const progressItem = progress.find(p => p.item_key === key && p.cycle_start === cycleKey);
+          // O(1) Lookup
+          const progressItem = progressMap.get(key);
           
           if (hidePaid && progressItem?.is_paid === 1) return;
 
@@ -689,14 +715,47 @@ export default function BudgetView() {
   };
 
   const togglePaid = async (itemKey, amount = 0) => {
-      setSavingProgress(true);
+      const currentProgress = [...progress];
+      const existingItemIndex = currentProgress.findIndex(p => p.item_key === itemKey && p.cycle_start === cycleData.cycleKey);
+      const isCurrentlyPaid = existingItemIndex !== -1 && currentProgress[existingItemIndex].is_paid === 1;
+
+      // Optimistic Update
+      let newProgress;
+      if (isCurrentlyPaid) {
+          playFeedback('undo');
+          newProgress = currentProgress.filter((_, i) => i !== existingItemIndex);
+      } else {
+          playFeedback('success');
+          const newItem = { 
+              cycle_start: cycleData.cycleKey, 
+              item_key: itemKey, 
+              is_paid: 1, 
+              actual_amount: amount 
+          };
+          if (existingItemIndex !== -1) {
+              newProgress = [...currentProgress];
+              newProgress[existingItemIndex] = newItem;
+          } else {
+              newProgress = [...currentProgress, newItem];
+          }
+      }
+      setProgress(newProgress);
+
       try {
-          const isCurrentlyPaid = progress.some(p => p.item_key === itemKey && p.cycle_start === cycleData.cycleKey && p.is_paid === 1);
-          if (isCurrentlyPaid) await api.delete(`/households/${householdId}/finance/budget-progress/${cycleData.cycleKey}/${itemKey}`);
-          else { playDing(); await api.post(`/households/${householdId}/finance/budget-progress`, { cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: 1, actual_amount: amount }); }
-          const progRes = await api.get(`/households/${householdId}/finance/budget-progress`);
-          setProgress(progRes.data || []);
-      } catch (err) { console.error("Failed to toggle paid status", err); } finally { setSavingProgress(false); }
+          if (isCurrentlyPaid) {
+              await api.delete(`/households/${householdId}/finance/budget-progress/${cycleData.cycleKey}/${itemKey}`);
+          } else { 
+              await api.post(`/households/${householdId}/finance/budget-progress`, { cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: 1, actual_amount: amount }); 
+          }
+          // Optionally refetch to ensure sync, but optimistic state is usually sufficient for this simple toggle.
+          // const progRes = await api.get(`/households/${householdId}/finance/budget-progress`);
+          // setProgress(progRes.data || []);
+      } catch (err) { 
+          console.error("Failed to toggle paid status", err); 
+          // Revert on error
+          setProgress(currentProgress);
+          showNotification("Failed to update status.", "danger");
+      }
   };
 
   const handleResetCycle = () => {
