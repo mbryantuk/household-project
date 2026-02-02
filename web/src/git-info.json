@@ -1,4 +1,4 @@
 {
-  "commitMessage": "feat: break down savings into pots and add personal savings for Carol",
-  "date": "Mon  2 Feb 10:52:09 GMT 2026"
+  "commitMessage": "fix: resolve BudgetView syntax errors and duplicate export",
+  "date": "Mon  2 Feb 11:00:52 GMT 2026"
 }
