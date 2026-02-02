@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix: UI crash when selecting custom theme with no saved config",
-  "date": "Mon  2 Feb 13:47:31 GMT 2026"
+  "commitMessage": "Fixed income source hiding and added Adhoc Income",
+  "date": "Mon  2 Feb 14:02:32 GMT 2026"
 }

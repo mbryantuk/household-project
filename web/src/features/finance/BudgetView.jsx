@@ -142,6 +142,7 @@ export default function BudgetView() {
 
   // Modals
   const [quickAddOpen, setQuickAddOpen] = useState(false);
+  const [adhocIncomeOpen, setAdhocIncomeOpen] = useState(false);
   const [recurringAddOpen, setRecurringAddOpen] = useState(false);
   const [recurringType, setRecurringType] = useState('monthly');
   const [selectedEntity, setSelectedEntity] = useState('household:null');
@@ -331,7 +332,6 @@ export default function BudgetView() {
       if (daysRemaining < 0) daysRemaining = 0;
 
       const groups = {
-          'income': { id: 'income', label: 'Incomes', items: [], order: -1, emoji: '💰' },
           'bills': { id: 'bills', label: 'Household Bills', items: [], order: 0, emoji: '🏠' },
           'finance': { id: 'finance', label: 'Finance & Debts', items: [], order: 5, emoji: '💳' },
           'wealth': { id: 'wealth', label: 'Savings & Growth', items: [], order: 999, emoji: '📈' }
@@ -345,6 +345,7 @@ export default function BudgetView() {
       };
 
       const skipped = [];
+      const incomesCollected = [];
       const lowerSearch = searchQuery.toLowerCase();
       
       const addExpense = (item, type, label, amount, dateObj, icon, category, targetGroupKey, object = null) => {
@@ -379,6 +380,12 @@ export default function BudgetView() {
           if (progressItem?.is_paid === -1) {
               skipped.push(expObj);
           } else {
+              // Special Case: Incomes go to their own collector
+              if (targetGroupKey === 'income') {
+                  incomesCollected.push(expObj);
+                  return; // Don't add to main groups
+              }
+
               let finalGroupKey = targetGroupKey;
 
               if (groupBy === 'category') {
@@ -399,7 +406,6 @@ export default function BudgetView() {
                   // Standard Split Logic
                   const financeCats = ['mortgage', 'loan', 'credit_card', 'vehicle_finance'];
                   if (targetGroupKey === 'wealth') finalGroupKey = 'wealth';
-                  else if (targetGroupKey === 'income') finalGroupKey = 'income';
                   else finalGroupKey = financeCats.includes(category) ? 'finance' : 'bills';
               }
               
@@ -453,6 +459,7 @@ export default function BudgetView() {
           else if (cat?.includes('utility') || cat === 'water' || cat === 'energy') icon = <ElectricBolt />;
           else if (cat?.includes('vehicle')) icon = <DirectionsCar />;
           else if (cat === 'credit_card') icon = <CreditCard />;
+          else if (cat === 'income') icon = <Payments />;
 
           let objectInfo = null;
           if (charge.object_type === 'member') {
@@ -470,7 +477,7 @@ export default function BudgetView() {
           }
 
           datesToAdd.forEach(d => {
-             addExpense(charge, 'recurring', charge.name, charge.amount, d, icon, charge.category_id, 'bills', objectInfo);
+             addExpense(charge, 'recurring', charge.name, charge.amount, d, icon, charge.category_id, charge.category_id === 'income' ? 'income' : 'bills', objectInfo);
           });
       });
 
@@ -503,7 +510,17 @@ export default function BudgetView() {
           g.unpaid = g.total - g.paid;
       });
 
-      return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, groupList, skipped, budgetLabelDate };
+      incomesCollected.sort(sorter);
+      const incomeGroup = {
+          id: 'income',
+          label: 'Incomes',
+          items: incomesCollected,
+          total: incomesCollected.reduce((sum, i) => sum + i.amount, 0),
+          paid: incomesCollected.filter(i => i.isPaid).reduce((sum, i) => sum + i.amount, 0),
+          unpaid: incomesCollected.reduce((sum, i) => sum + (i.isPaid ? 0 : i.amount), 0)
+      };
+
+      return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, groupList, skipped, budgetLabelDate, incomeGroup };
   }, [incomes, liabilities, progress, viewDate, getPriorWorkingDay, getAdjustedDate, savingsPots, getNextWorkingDay, members, sortConfig, searchQuery, groupBy, filterEntity, hidePaid]);
 
   const currentCycleRecord = useMemo(() => cycles.find(c => c.cycle_start === cycleData?.cycleKey), [cycles, cycleData]);
@@ -522,7 +539,7 @@ export default function BudgetView() {
 
   const projectedIncomeTotal = useMemo(() => {
       if (!cycleData) return 0;
-      return cycleData.groupList.find(g => g.id === 'income')?.total || 0;
+      return cycleData.incomeGroup.total;
   }, [cycleData]);
 
   const handleSetupBudget = async (mode) => {
@@ -619,6 +636,27 @@ export default function BudgetView() {
       } catch { showNotification("Failed.", "danger"); }
   };
 
+  const handleAdhocIncome = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+    const payload = {
+      name: data.name,
+      amount: parseFloat(data.amount) || 0,
+      frequency: 'one_off',
+      start_date: data.start_date,
+      category_id: 'income',
+      object_type: 'household',
+      object_id: null,
+      adjust_for_working_day: 1
+    };
+    try {
+        await api.post(`/households/${householdId}/finance/recurring-costs`, payload);
+        showNotification("Adhoc income added.", "success");
+        fetchData(); setAdhocIncomeOpen(false);
+    } catch { showNotification("Failed.", "danger"); }
+  };
+
   const handleRecurringAdd = async (e) => {
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
@@ -645,7 +683,7 @@ export default function BudgetView() {
 
   const cycleTotals = useMemo(() => {
       if (!cycleData) return { total: 0, paid: 0, unpaid: 0 };
-      const allItems = cycleData.groupList.filter(g => g.id !== 'income').flatMap(g => g.items);
+      const allItems = cycleData.groupList.flatMap(g => g.items);
       const total = allItems.reduce((sum, e) => sum + e.amount, 0);
       const paid = allItems.filter(e => e.isPaid).reduce((sum, e) => sum + e.amount, 0);
       return { total, paid, unpaid: total - paid };
@@ -662,18 +700,18 @@ export default function BudgetView() {
     // Calculate historical balance for graph context (optional, but good for visualization)
     // For simplicity and accuracy, we focus on projecting FROM TODAY based on current balance.
     let runningBalance = parseFloat(currentBalance) || 0;
-    const allItems = cycleData.groupList.flatMap(g => g.items);
+    const allExpenses = cycleData.groupList.flatMap(g => g.items);
+    const allIncomes = cycleData.incomeGroup.items;
     
     return days.map(day => {
-        // If the day is in the past, we show a flat line or estimate (less critical)
         // If the day is Today or Future, we project.
         if (isAfter(day, now) || isSameDay(day, now)) {
             // Subtract items due today that ARE NOT paid yet
-            const expensesDueToday = allItems.filter(e => e.type !== 'income' && isSameDay(e.computedDate, day) && !e.isPaid);
+            const expensesDueToday = allExpenses.filter(e => isSameDay(e.computedDate, day) && !e.isPaid);
             const totalDueToday = expensesDueToday.reduce((sum, i) => sum + i.amount, 0);
             
             // Add income due today that IS NOT paid yet
-            const incomeDueToday = allItems.filter(e => e.type === 'income' && isSameDay(e.computedDate, day) && !e.isPaid);
+            const incomeDueToday = allIncomes.filter(e => isSameDay(e.computedDate, day) && !e.isPaid);
             const totalIncomeToday = incomeDueToday.reduce((sum, i) => sum + i.amount, 0);
             
             runningBalance = runningBalance - totalDueToday + totalIncomeToday;
@@ -693,11 +731,11 @@ export default function BudgetView() {
   const isOverdrawnRisk = lowestProjected < 0;
   const isLimitRisk = lowestProjected < -overdraftLimit;
 
-  const trueDisposable = (parseFloat(currentBalance) || 0) - cycleTotals.unpaid + (cycleData?.groupList.find(g => g.id === 'income')?.unpaid || 0);
+  const trueDisposable = (parseFloat(currentBalance) || 0) - cycleTotals.unpaid + (cycleData?.incomeGroup.unpaid || 0);
   
   const selectedTotals = useMemo(() => {
       if (!selectedKeys.length || !cycleData) return null;
-      const allItems = cycleData.groupList.flatMap(g => g.items);
+      const allItems = [...cycleData.groupList.flatMap(g => g.items), ...cycleData.incomeGroup.items];
       const selected = allItems.filter(e => selectedKeys.includes(e.key));
       const total = selected.reduce((sum, e) => sum + e.amount, 0);
       const paid = selected.filter(e => e.isPaid).reduce((sum, e) => sum + e.amount, 0);
@@ -716,8 +754,8 @@ export default function BudgetView() {
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
   if (!cycleData) return <Box sx={{ p: 4, textAlign: 'center' }}><Typography level="h4">No Primary Income Set</Typography><Button sx={{ mt: 2 }} onClick={fetchData}>Refresh</Button></Box>;
 
-  const incomeGroup = cycleData.groupList.find(g => g.id === 'income');
-  const otherGroups = cycleData.groupList.filter(g => g.id !== 'income');
+  const incomeGroup = cycleData.incomeGroup;
+  const otherGroups = cycleData.groupList;
 
   const renderItemRow = (exp) => {
       const rel = getRelativeDateLabel(exp.computedDate);
@@ -989,8 +1027,10 @@ export default function BudgetView() {
                 <Dropdown>
                     <MenuButton variant="solid" color="primary" size="sm" startDecorator={<Add />} endDecorator={<ArrowDropDown />}>Add</MenuButton>
                     <Menu placement="bottom-end" size="sm">
-                        <MenuItem onClick={() => setQuickAddOpen(true)}>Add One-off</MenuItem>
-                        <MenuItem onClick={() => setRecurringAddOpen(true)}>Add Recurring</MenuItem>
+                        <MenuItem onClick={() => setAdhocIncomeOpen(true)}>Add Adhoc Income</MenuItem>
+                        <Divider />
+                        <MenuItem onClick={() => setQuickAddOpen(true)}>Add One-off Expense</MenuItem>
+                        <MenuItem onClick={() => setRecurringAddOpen(true)}>Add Recurring Expense</MenuItem>
                     </Menu>
                 </Dropdown>
             </Box>
@@ -1047,6 +1087,11 @@ export default function BudgetView() {
                                         </Box>
                                     </Card>
                                 ))}
+                                {incomeGroup.items.length === 0 && (
+                                    <Typography level="body-xs" sx={{ textAlign: 'center', py: 2, fontStyle: 'italic', border: '1px dashed', borderColor: 'divider', borderRadius: 'sm' }}>
+                                        No income records for this cycle.
+                                    </Typography>
+                                )}
                             </Stack>
                         </Box>
                     )}
@@ -1126,7 +1171,7 @@ export default function BudgetView() {
                             </Box>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <Typography level="body-xs">Pending Income</Typography>
-                                <Typography level="body-xs" color="success" fontWeight="bold">{formatCurrency(incomeGroup?.unpaid || 0)}</Typography>
+                                <Typography level="body-xs" color="success" fontWeight="bold">{formatCurrency(incomeGroup.unpaid || 0)}</Typography>
                             </Box>
                         </Stack>
                     </Card>
@@ -1229,6 +1274,24 @@ export default function BudgetView() {
                             </Button>
                         )}
                     </Stack>
+                </DialogContent>
+            </ModalDialog>
+        </Modal>
+
+        {/* Adhoc Income Modal */}
+        <Modal open={adhocIncomeOpen} onClose={() => setAdhocIncomeOpen(false)}>
+            <ModalDialog sx={{ maxWidth: 400, width: '100%' }}>
+                <DialogTitle startDecorator={<Payments />}>Add Adhoc Income</DialogTitle>
+                <DialogContent>
+                    <Typography level="body-sm" sx={{ mb: 2 }}>Record one-off income like eBay winnings, refunds, or gifts.</Typography>
+                    <form onSubmit={handleAdhocIncome}>
+                        <Stack spacing={2}>
+                            <FormControl required><FormLabel>Source / Description</FormLabel><Input name="name" autoFocus placeholder="e.g. eBay Refund" /></FormControl>
+                            <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: '0.01' } }} /></FormControl>
+                            <FormControl required><FormLabel>Date Received</FormLabel><Input name="start_date" type="date" defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
+                            <Button type="submit" fullWidth startDecorator={<Add />}>Add to Income Sources</Button>
+                        </Stack>
+                    </form>
                 </DialogContent>
             </ModalDialog>
         </Modal>

@@ -94,7 +94,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "timedOut",
-                      "duration": 300273,
+                      "duration": 300286,
                       "error": {
                         "message": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m"
@@ -126,7 +126,7 @@
                           "text": "BROWSER LOG: Failed to load resource: the server responded with a status of 401 (Unauthorized)\n"
                         },
                         {
-                          "text": "BROWSER LOG: Login failed: Pt\n"
+                          "text": "BROWSER LOG: Login failed: Nt\n"
                         }
                       ],
                       "stderr": [
@@ -135,7 +135,7 @@
                         }
                       ],
                       "retry": 0,
-                      "startTime": "2026-02-02T13:36:29.336Z",
+                      "startTime": "2026-02-02T13:57:11.305Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -166,8 +166,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-02T13:36:23.853Z",
-    "duration": 306667.034,
+    "startTime": "2026-02-02T13:57:06.777Z",
+    "duration": 305408.078,
     "expected": 0,
     "skipped": 0,
     "unexpected": 1,
