@@ -10,6 +10,7 @@ import { Edit, Delete, Add, Star, StarBorder } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
+import EmojiPicker from '../../components/EmojiPicker';
 import { getNextPayday, getDaysUntil } from '../../utils/dateUtils';
 
 const formatCurrency = (val) => {
@@ -30,6 +31,10 @@ export default function IncomeView() {
   
   const [sortConfig, setSortConfig] = useState({ key: 'employer', direction: 'asc' });
   const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
+  
+  // Emoji State
+  const [selectedEmoji, setSelectedEmoji] = useState('💰');
+  const [emojiPicker, setEmojiPicker] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 900);
@@ -62,6 +67,15 @@ export default function IncomeView() {
   const selectedIncome = useMemo(() => 
     incomeList.find(i => String(i.id) === String(selectedIncomeId)),
   [incomeList, selectedIncomeId]);
+
+  // Sync Emoji State
+  useEffect(() => {
+    if (selectedIncome) {
+        setSelectedEmoji(selectedIncome.emoji || '💰');
+    } else if (selectedIncomeId === 'new') {
+        setSelectedEmoji('💰');
+    }
+  }, [selectedIncome, selectedIncomeId]);
 
   const setIncomeId = (id) => {
     const newParams = new URLSearchParams(location.search);
@@ -104,6 +118,7 @@ export default function IncomeView() {
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     data.is_primary = data.is_primary === "1" ? 1 : 0;
+    data.emoji = selectedEmoji; // Inject selected emoji
 
     try {
       if (selectedIncomeId === 'new') {
@@ -293,7 +308,16 @@ export default function IncomeView() {
 
       <Modal open={Boolean(selectedIncomeId)} onClose={() => setIncomeId(null)}>
         <ModalDialog sx={{ maxWidth: 800, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>
-            <DialogTitle>{selectedIncomeId === 'new' ? 'Add Income Source' : `Edit ${selectedIncome?.employer}`}</DialogTitle>
+            <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
+                <Box sx={{ position: 'relative' }}>
+                    <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(selectedEmoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => setEmojiPicker(true)}>{selectedEmoji}</Avatar>
+                    <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => setEmojiPicker(true)}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
+                </Box>
+                <Box sx={{ flexGrow: 1 }}>
+                    <DialogTitle>{selectedIncomeId === 'new' ? 'Add Income Source' : `Edit ${selectedIncome?.employer}`}</DialogTitle>
+                    <Typography level="body-sm" color="neutral">Capture salary details and payment schedules.</Typography>
+                </Box>
+            </Box>
             <DialogContent>
                 <form onSubmit={handleSubmit}>
                     <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -329,8 +353,7 @@ export default function IncomeView() {
                             <FormControl required><FormLabel>Payment Day</FormLabel><Input name="payment_day" type="number" min="1" max="31" defaultValue={selectedIncome?.payment_day} placeholder="e.g. 25" /></FormControl>
                         </Grid>
                         <Grid xs={12}><FormControl><FormLabel>Add-ons / Bonuses (Description)</FormLabel><Input name="addons" defaultValue={selectedIncome?.addons} placeholder="e.g. 10% annual bonus, stock options..." /></FormControl></Grid>
-                        <Grid xs={12} md={6}><FormControl><FormLabel>Notes</FormLabel><Input name="notes" defaultValue={selectedIncome?.notes} /></FormControl></Grid>
-                        <Grid xs={12} md={6}><FormControl><FormLabel>Emoji</FormLabel><Input name="emoji" defaultValue={selectedIncome?.emoji} /></FormControl></Grid>
+                        <Grid xs={12}><FormControl><FormLabel>Notes</FormLabel><Input name="notes" defaultValue={selectedIncome?.notes} /></FormControl></Grid>
                         <Grid xs={12}>
                             <Stack direction="row" spacing={2}>
                                 <Checkbox label="Primary Paycheck (Drivers Budget Cycle)" name="is_primary" defaultChecked={selectedIncome?.is_primary === 1} value="1" />
@@ -346,6 +369,13 @@ export default function IncomeView() {
             </DialogContent>
         </ModalDialog>
       </Modal>
+
+      <EmojiPicker 
+        open={emojiPicker} 
+        onClose={() => setEmojiPicker(false)} 
+        onEmojiSelect={(emoji) => { setSelectedEmoji(emoji); setEmojiPicker(false); }} 
+        isDark={isDark} 
+      />
     </Box>
   );
 }

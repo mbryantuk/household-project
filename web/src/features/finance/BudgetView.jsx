@@ -431,8 +431,8 @@ export default function BudgetView() {
           if (searchQuery && !label.toLowerCase().includes(lowerSearch) && !category.toLowerCase().includes(lowerSearch)) return;
 
           // Entity Filter Check
-          if (filterEntity !== 'all') {
-              const [fType, fId] = filterEntity.split(':');
+          if (filterEntity && filterEntity !== 'all') {
+              const [fType, fId] = (filterEntity || '').split(':');
               const itemType = object?.type || (type === 'credit_card' ? 'household' : 'household');
               const itemId = String(object?.id || 'null');
               if (fType !== itemType || fId !== itemId) {
