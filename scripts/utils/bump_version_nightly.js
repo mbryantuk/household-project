@@ -18,8 +18,13 @@ const setVersion = (filePath, version) => {
 };
 
 const oldVersion = getVersion('package.json');
-// Remove any existing date suffix (e.g., 3.0.183-20260201 -> 3.0.183)
-const baseVersion = oldVersion.split('-')[0];
+// Remove any existing suffixes (e.g., 3.0.183-20260201 -> 3.0.183)
+let baseVersion = oldVersion.split('-')[0];
+
+// Safety: if baseVersion somehow became 3.2.NaN, fix it
+if (baseVersion.includes('NaN')) {
+  baseVersion = baseVersion.replace('NaN', '1');
+}
 
 const dateSuffix = new Date().toISOString().split('T')[0].replace(/-/g, '');
 const newVersion = `${baseVersion}-${dateSuffix}`;
