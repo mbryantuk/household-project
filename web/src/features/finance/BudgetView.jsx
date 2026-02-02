@@ -29,13 +29,15 @@ const formatCurrency = (val) => {
     return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
-const DrawdownChart = ({ data, limit }) => {
+const DrawdownChart = ({ data, limit, cycleStartDate, cycleEndDate }) => {
     if (!data || data.length === 0) return null;
-    const maxVal = Math.max(...data.map(d => d.balance), 5000);
-    const minVal = Math.min(...data.map(d => d.balance), limit, 0);
+    const maxVal = Math.max(...data.map(d => d.balance), 2000);
+    const minVal = Math.min(...data.map(d => d.balance), limit, -1000);
     const range = maxVal - minVal;
-    const height = 40;
-    const width = 200;
+    const height = 60;
+    const width = 300;
+    
+    const now = startOfDay(new Date());
     
     const points = data.map((d, i) => {
         const x = (i / (data.length - 1)) * width;
@@ -43,22 +45,51 @@ const DrawdownChart = ({ data, limit }) => {
         return `${x},${y}`;
     }).join(' ');
 
-    const limitY = height - ((limit - minVal) / range) * height;
     const zeroY = height - ((0 - minVal) / range) * height;
+    const limitY = height - ((limit - minVal) / range) * height;
+
+    // Find "Today" X position
+    const totalDays = differenceInDays(cycleEndDate, cycleStartDate) || 1;
+    const daysSinceStart = differenceInDays(now, cycleStartDate);
+    const todayX = (Math.max(0, Math.min(daysSinceStart, totalDays)) / totalDays) * width;
 
     return (
-        <Box sx={{ width: '100%', height: height + 10, mt: 1 }}>
+        <Box sx={{ width: '100%', height: height + 20, mt: 1, position: 'relative' }}>
             <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
-                <line x1="0" y1={zeroY} x2={width} y2={zeroY} stroke="var(--joy-palette-neutral-300)" strokeDasharray="2,2" />
-                {limit < 0 && <line x1="0" y1={limitY} x2={width} y2={limitY} stroke="var(--joy-palette-danger-300)" strokeDasharray="4,2" />}
-                <polyline fill="none" stroke="var(--joy-palette-primary-500)" strokeWidth="2" points={points} />
+                <defs>
+                    <linearGradient id="grad-danger" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style={{ stopColor: 'var(--joy-palette-danger-500)', stopOpacity: 0.2 }} />
+                        <stop offset="100%" style={{ stopColor: 'var(--joy-palette-danger-500)', stopOpacity: 0.05 }} />
+                    </linearGradient>
+                </defs>
+                {/* Zero Line */}
+                <line x1="0" y1={zeroY} x2={width} y2={zeroY} stroke="var(--joy-palette-neutral-400)" strokeDasharray="4,2" />
+                {/* Overdraft Limit Line */}
+                {limit < 0 && <line x1="0" y1={limitY} x2={width} y2={limitY} stroke="var(--joy-palette-danger-300)" strokeDasharray="2,2" opacity={0.5} />}
+                
+                {/* Today Marker */}
+                <line x1={todayX} y1="0" x2={todayX} y2={height} stroke="var(--joy-palette-warning-500)" strokeWidth="1" strokeDasharray="2,1" />
+                
+                {/* The Projection Line */}
+                <polyline fill="none" stroke="var(--joy-palette-primary-500)" strokeWidth="2.5" points={points} strokeLinecap="round" strokeLinejoin="round" />
+                
+                {/* Current Point */}
+                {data.length > 0 && (
+                    <circle cx={todayX} cy={height - ((data.find(d => isSameDay(d.date, now))?.balance || data[0].balance - minVal) / range) * height} r="3" fill="var(--joy-palette-warning-500)" />
+                )}
             </svg>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
+                <Typography level="body-xs">{format(cycleStartDate, 'MMM d')}</Typography>
+                <Typography level="body-xs" sx={{ color: 'warning.600', fontWeight: 'bold' }}>Today</Typography>
+                <Typography level="body-xs">{format(cycleEndDate, 'MMM d')}</Typography>
+            </Box>
         </Box>
     );
 };
 
 const getCategoryColor = (cat) => {
     const lower = (cat || '').toLowerCase();
+    if (lower === 'income') return 'success';
     if (lower.includes('saving') || lower.includes('invest') || lower.includes('pension')) return 'success';
     if (lower.includes('bill') || lower.includes('utility') || lower.includes('council') || lower.includes('water') || lower.includes('energy')) return 'warning';
     if (lower.includes('food') || lower.includes('grocer') || lower.includes('dining')) return 'success';
@@ -101,7 +132,7 @@ export default function BudgetView() {
   const [savingsPots, setSavingsPots] = useState([]);
 
   // Sections State
-  const [sectionsOpen, setSectionsOpen] = useState({ bills: true, finance: true, wealth: true, skipped: true });
+  const [sectionsOpen, setSectionsOpen] = useState({ income: true, bills: true, finance: true, wealth: true, skipped: true });
   const [groupBy, setGroupBy] = useState('standard'); // standard, category, object, date
   const [filterEntity, setFilterEntity] = useState('all');
 
@@ -300,6 +331,7 @@ export default function BudgetView() {
       if (daysRemaining < 0) daysRemaining = 0;
 
       const groups = {
+          'income': { id: 'income', label: 'Incomes', items: [], order: -1, emoji: '💰' },
           'bills': { id: 'bills', label: 'Household Bills', items: [], order: 0, emoji: '🏠' },
           'finance': { id: 'finance', label: 'Finance & Debts', items: [], order: 5, emoji: '💳' },
           'wealth': { id: 'wealth', label: 'Savings & Growth', items: [], order: 999, emoji: '📈' }
@@ -367,12 +399,20 @@ export default function BudgetView() {
                   // Standard Split Logic
                   const financeCats = ['mortgage', 'loan', 'credit_card', 'vehicle_finance'];
                   if (targetGroupKey === 'wealth') finalGroupKey = 'wealth';
+                  else if (targetGroupKey === 'income') finalGroupKey = 'income';
                   else finalGroupKey = financeCats.includes(category) ? 'finance' : 'bills';
               }
               
               groups[finalGroupKey].items.push(expObj);
           }
       };
+
+      // --- INCOMES ---
+      incomes.forEach(inc => {
+          const d = getAdjustedDate(inc.payment_day, inc.nearest_working_day === 1, startDate);
+          const member = members.find(m => m.id === inc.member_id);
+          addExpense(inc, 'income', `${inc.employer} Pay`, inc.amount, d, <Payments />, 'income', 'income', member ? { type: 'member', id: member.id, name: member.first_name, emoji: member.emoji } : null);
+      });
 
       // --- CONSOLIDATED RECURRING COSTS ---
       liabilities.recurring_costs.filter(c => c.is_active !== 0).forEach(charge => {
@@ -480,17 +520,14 @@ export default function BudgetView() {
       }
   }, [currentCycleRecord, cycleData, loading]);
 
-  const projectedIncome = useMemo(() => {
+  const projectedIncomeTotal = useMemo(() => {
       if (!cycleData) return 0;
-      return incomes.reduce((sum, inc) => {
-          if (inc.is_active !== 0) return sum + (parseFloat(inc.amount) || 0);
-          return sum;
-      }, 0);
-  }, [incomes, cycleData]);
+      return cycleData.groupList.find(g => g.id === 'income')?.total || 0;
+  }, [cycleData]);
 
   const handleSetupBudget = async (mode) => {
-      let initialPay = projectedIncome;
-      let initialBalance = projectedIncome;
+      let initialPay = projectedIncomeTotal;
+      let initialBalance = projectedIncomeTotal;
       if (mode === 'copy') {
           const sortedCycles = [...cycles].sort((a,b) => b.cycle_start.localeCompare(a.cycle_start));
           const lastRecord = sortedCycles.find(c => c.cycle_start < cycleData.cycleKey);
@@ -608,45 +645,57 @@ export default function BudgetView() {
 
   const cycleTotals = useMemo(() => {
       if (!cycleData) return { total: 0, paid: 0, unpaid: 0 };
-      const allItems = cycleData.groupList.flatMap(g => g.items);
+      const allItems = cycleData.groupList.filter(g => g.id !== 'income').flatMap(g => g.items);
       const total = allItems.reduce((sum, e) => sum + e.amount, 0);
       const paid = allItems.filter(e => e.isPaid).reduce((sum, e) => sum + e.amount, 0);
       return { total, paid, unpaid: total - paid };
   }, [cycleData]);
 
-  const overdraftLimit = 2500; // Hardcoded or fetch from household settings if available
+  const overdraftLimit = 2500; 
 
   const drawdownData = useMemo(() => {
-    if (!cycleData || !currentBalance) return [];
+    if (!cycleData || currentBalance === undefined) return [];
+    
+    const now = startOfDay(new Date());
     const days = eachDayOfInterval({ start: cycleData.startDate, end: cycleData.endDate });
+    
+    // Calculate historical balance for graph context (optional, but good for visualization)
+    // For simplicity and accuracy, we focus on projecting FROM TODAY based on current balance.
     let runningBalance = parseFloat(currentBalance) || 0;
-    const allExpenses = cycleData.groupList.flatMap(g => g.items);
+    const allItems = cycleData.groupList.flatMap(g => g.items);
     
     return days.map(day => {
-        // Subtract items due today that ARE NOT paid yet
-        const itemsDueToday = allExpenses.filter(e => isSameDay(e.computedDate, day) && !e.isPaid);
-        const totalDueToday = itemsDueToday.reduce((sum, i) => sum + i.amount, 0);
+        // If the day is in the past, we show a flat line or estimate (less critical)
+        // If the day is Today or Future, we project.
+        if (isAfter(day, now) || isSameDay(day, now)) {
+            // Subtract items due today that ARE NOT paid yet
+            const expensesDueToday = allItems.filter(e => e.type !== 'income' && isSameDay(e.computedDate, day) && !e.isPaid);
+            const totalDueToday = expensesDueToday.reduce((sum, i) => sum + i.amount, 0);
+            
+            // Add income due today that IS NOT paid yet
+            const incomeDueToday = allItems.filter(e => e.type === 'income' && isSameDay(e.computedDate, day) && !e.isPaid);
+            const totalIncomeToday = incomeDueToday.reduce((sum, i) => sum + i.amount, 0);
+            
+            runningBalance = runningBalance - totalDueToday + totalIncomeToday;
+        }
         
-        // Add income due today that IS NOT paid yet
-        const incomeDueToday = incomes.filter(inc => inc.is_active && parseInt(inc.payment_day) === day.getDate());
-        // Simple logic: if today is income day, assume it adds to balance
-        const totalIncomeToday = incomeDueToday.reduce((sum, i) => sum + parseFloat(i.amount), 0);
-        
-        runningBalance = runningBalance - totalDueToday + totalIncomeToday;
         return { date: day, balance: runningBalance };
     });
-  }, [cycleData, currentBalance, incomes]);
+  }, [cycleData, currentBalance]);
 
   const lowestProjected = useMemo(() => {
-    if (!drawdownData.length) return 0;
-    return Math.min(...drawdownData.map(d => d.balance));
+    const now = startOfDay(new Date());
+    const futureData = drawdownData.filter(d => isAfter(d.date, now) || isSameDay(d.date, now));
+    if (!futureData.length) return 0;
+    return Math.min(...futureData.map(d => d.balance));
   }, [drawdownData]);
 
   const isOverdrawnRisk = lowestProjected < 0;
   const isLimitRisk = lowestProjected < -overdraftLimit;
 
   const savingsTotal = useMemo(() => savingsPots.reduce((sum, pot) => sum + (parseFloat(pot.current_amount) || 0), 0), [savingsPots]);
-  const trueDisposable = (parseFloat(currentBalance) || 0) - cycleTotals.unpaid;
+  const trueDisposable = (parseFloat(currentBalance) || 0) - cycleTotals.unpaid + (cycleData?.groupList.find(g => g.id === 'income')?.unpaid || 0);
+  
   const selectedTotals = useMemo(() => {
       if (!selectedKeys.length || !cycleData) return null;
       const allItems = cycleData.groupList.flatMap(g => g.items);
@@ -800,13 +849,13 @@ export default function BudgetView() {
           <AccordionSummary expandIcon={<ExpandMore />} sx={{ py: { xs: 1.5, sm: 1 } }}>
               <Box sx={{ display: 'flex', flexWrap: { xs: 'wrap', sm: 'nowrap' }, justifyContent: 'space-between', width: '100%', alignItems: 'center', mr: 2, overflow: 'hidden', gap: 1.5 }}>
                   <Typography level="title-lg" sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, flexBasis: { xs: '100%', sm: 'auto' } }}>
-                      <Avatar size="sm">{group.emoji}</Avatar> 
+                      <Avatar size="sm" sx={{ bgcolor: group.id === 'income' ? 'success.500' : 'background.level3' }}>{group.emoji}</Avatar> 
                       <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.label}</Box>
                   </Typography>
                   <Stack direction="row" spacing={2} sx={{ flexShrink: 0, justifyContent: { xs: 'space-between', sm: 'flex-end' }, width: { xs: '100%', sm: 'auto' }, mt: { xs: 1, sm: 0 } }}>
                       <Box sx={{ textAlign: 'center' }}><Typography level="body-xs">Total</Typography><Typography level="body-sm" fontWeight="bold">{formatCurrency(group.total)}</Typography></Box>
-                      <Box sx={{ textAlign: 'center' }}><Typography level="body-xs" color="success">Paid</Typography><Typography level="body-sm" fontWeight="bold" color="success">{formatCurrency(group.paid)}</Typography></Box>
-                      <Box sx={{ textAlign: 'center' }}><Typography level="body-xs" color="danger">Unpaid</Typography><Typography level="body-sm" fontWeight="bold" color="danger">{formatCurrency(group.unpaid)}</Typography></Box>
+                      <Box sx={{ textAlign: 'center' }}><Typography level="body-xs" color="success">{group.id === 'income' ? 'Received' : 'Paid'}</Typography><Typography level="body-sm" fontWeight="bold" color="success">{formatCurrency(group.paid)}</Typography></Box>
+                      <Box sx={{ textAlign: 'center' }}><Typography level="body-xs" color="danger">{group.id === 'income' ? 'Pending' : 'Unpaid'}</Typography><Typography level="body-sm" fontWeight="bold" color="danger">{formatCurrency(group.unpaid)}</Typography></Box>
                   </Stack>
               </Box>
           </AccordionSummary>
@@ -842,7 +891,7 @@ export default function BudgetView() {
                           <th onClick={() => requestSort('amount')} style={{ width: 110, textAlign: 'right', cursor: 'pointer' }}>
                               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 0.5 }}>Amount <Sort sx={{ fontSize: '0.8rem', opacity: sortConfig.key === 'amount' ? 1 : 0.3 }} /></Box>
                           </th>
-                          <th style={{ width: 60, textAlign: 'center' }}>Paid</th>
+                          <th style={{ width: 60, textAlign: 'center' }}>{group.id === 'income' ? 'Done' : 'Paid'}</th>
                           <th style={{ width: 60, textAlign: 'center' }}>Skip</th>
                       </tr>
                   </thead>
@@ -937,49 +986,88 @@ export default function BudgetView() {
         <Grid container spacing={3}>
             <Grid xs={12} md={3}>
                 <Stack spacing={3}>
-                    <Card variant="outlined" sx={{ p: 3 }}><Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}><Typography level="title-lg" startDecorator={<AccountBalanceWallet />}>Budget Entry</Typography><IconButton size="sm" variant={isPayLocked ? "plain" : "soft"} color={isPayLocked ? "neutral" : "warning"} onClick={() => setIsPayLocked(!isPayLocked)}>{isPayLocked ? <Lock fontSize="small" /> : <LockOpen fontSize="small" />}</IconButton></Box>
-                        <Stack spacing={2}><FormControl><FormLabel>Pay (£)</FormLabel><Input type="number" value={actualPay} disabled={isPayLocked} onChange={(e) => setActualPay(e.target.value)} onBlur={(e) => saveCycleData(e.target.value, currentBalance)} slotProps={{ input: { step: '0.01' } }} /></FormControl><FormControl><FormLabel>Balance (£)</FormLabel><Input type="number" value={currentBalance} onChange={(e) => setCurrentBalance(e.target.value)} onBlur={(e) => saveCycleData(actualPay, e.target.value)} slotProps={{ input: { step: '0.01' } }} /></FormControl></Stack>
-                    </Card>
-                    <Card variant="outlined" sx={{ p: { xs: 2, sm: 3 }, boxShadow: 'sm' }}><Typography level="title-lg" startDecorator={<AccountBalanceWallet />} sx={{ mb: 2 }}>Budget Overview</Typography>
-                        <Stack spacing={1} sx={{ mb: 3 }}><Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1 }}><Typography level="body-md" color="neutral">Current Balance</Typography><Typography level="body-md" fontWeight="lg">{formatCurrency(parseFloat(currentBalance) || 0)}</Typography></Box><Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1 }}><Typography level="body-md" color="danger">Left to Pay</Typography><Typography level="body-md" fontWeight="lg" color="danger">- {formatCurrency(cycleTotals.unpaid)}</Typography></Box><Divider /><Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 1, flexWrap: 'wrap', gap: 1 }}><Typography level="title-md">End of Month</Typography><Typography level="h2" color={trueDisposable >= 0 ? 'success' : 'danger'} sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}>{formatCurrency(trueDisposable)}</Typography></Box><Divider sx={{ my: 1 }} /><Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1 }}><Typography level="body-sm" color="neutral">Total Savings</Typography><Typography level="title-md" color="success">{formatCurrency(savingsTotal)}</Typography></Box></Stack>
-                        <Box sx={{ bgcolor: 'background.level1', p: 2, borderRadius: 'md' }}><Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}><Typography level="body-xs" fontWeight="bold">Bills Paid</Typography><Typography level="body-xs">{Math.round((cycleTotals.paid / (cycleTotals.total || 1)) * 100)}%</Typography></Box><LinearProgress determinate value={(cycleTotals.paid / (cycleTotals.total || 1)) * 100} thickness={6} color="success" sx={{ bgcolor: 'background.level2' }} /><Typography level="body-xs" sx={{ mt: 1, textAlign: 'center', color: 'neutral.500' }}>{formatCurrency(cycleTotals.paid)} paid of {formatCurrency(cycleTotals.total)} total</Typography></Box>
-                    </Card>
-                    {/* BUDGET SIDEBAR */}
                     <Card variant="outlined" sx={{ p: 2 }}>
-                        <Typography level="title-md" startDecorator={<BankIcon />} sx={{ mb: 2 }}>Balance Projection</Typography>
-                        <FormControl sx={{ mb: 2 }}>
-                            <FormLabel>Joint Balance (£)</FormLabel>
-                            <Input type="number" value={currentBalance} onChange={(e) => setCurrentBalance(e.target.value)} onBlur={(e) => saveCycleData(actualPay, e.target.value)} />
-                        </FormControl>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                            <Typography level="title-md" startDecorator={<BankIcon />}>Liquidity Control</Typography>
+                            <IconButton size="sm" variant={isPayLocked ? "plain" : "soft"} color={isPayLocked ? "neutral" : "warning"} onClick={() => setIsPayLocked(!isPayLocked)}>{isPayLocked ? <Lock fontSize="small" /> : <LockOpen fontSize="small" />}</IconButton>
+                        </Box>
+                        <Stack spacing={2}>
+                            <FormControl>
+                                <FormLabel sx={{ fontSize: 'xs' }}>Actual Total Pay (£)</FormLabel>
+                                <Input size="sm" type="number" value={actualPay} disabled={isPayLocked} onChange={(e) => setActualPay(e.target.value)} onBlur={(e) => saveCycleData(e.target.value, currentBalance)} />
+                            </FormControl>
+                            <FormControl>
+                                <FormLabel sx={{ fontSize: 'xs' }}>Current Bank Balance (£)</FormLabel>
+                                <Input size="sm" type="number" value={currentBalance} onChange={(e) => setCurrentBalance(e.target.value)} onBlur={(e) => saveCycleData(actualPay, e.target.value)} color="primary" variant="soft" />
+                            </FormControl>
+                        </Stack>
+                    </Card>
+
+                    <Card variant="outlined" sx={{ p: 2 }}>
+                        <Typography level="title-md" startDecorator={<TrendingDown />} sx={{ mb: 2 }}>Drawdown Projection</Typography>
                         
                         <Box sx={{ mb: 2 }}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                <Typography level="body-xs" color="neutral">Lowest Projected</Typography>
+                                <Typography level="body-xs" color="neutral">Lowest Point</Typography>
                                 <Typography level="body-sm" fontWeight="bold" color={isOverdrawnRisk ? 'danger' : 'success'}>{formatCurrency(lowestProjected)}</Typography>
                             </Box>
-                            <DrawdownChart data={drawdownData} limit={-overdraftLimit} />
+                            <DrawdownChart data={drawdownData} limit={-overdraftLimit} cycleStartDate={cycleData.startDate} cycleEndDate={cycleData.endDate} />
                         </Box>
 
                         {isOverdrawnRisk && (
-                            <Alert color={isLimitRisk ? 'danger' : 'warning'} variant="soft" startDecorator={<Warning />} sx={{ mb: 2, '--Alert-padding': '8px' }}>
+                            <Sheet color={isLimitRisk ? 'danger' : 'warning'} variant="soft" sx={{ p: 1, borderRadius: 'sm', mb: 2, display: 'flex', gap: 1, alignItems: 'center' }}>
+                                <Warning sx={{ fontSize: '1rem' }} />
                                 <Typography level="body-xs" fontWeight="bold">
-                                    {isLimitRisk ? 'Overdraft Limit Reached!' : 'Account will drop below zero.'}
+                                    {isLimitRisk ? 'Overdraft Limit Warning!' : 'Temporary deficit projected.'}
                                 </Typography>
-                            </Alert>
+                            </Sheet>
                         )}
 
-                        <Divider sx={{ my: 1 }} />
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
-                            <Typography level="title-sm">Safe to Spend</Typography>
-                            <Typography level="title-lg" color={lowestProjected > 0 ? 'success' : 'danger'}>
-                                {formatCurrency(Math.max(0, lowestProjected))}
-                            </Typography>
-                        </Box>
+                        <Divider sx={{ my: 1.5 }} />
+                        
+                        <Stack spacing={1}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Typography level="body-xs">Safe to Spend Now</Typography>
+                                <Typography level="body-sm" fontWeight="bold" color={lowestProjected > 0 ? 'success' : 'danger'}>
+                                    {formatCurrency(Math.max(0, lowestProjected))}
+                                </Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Typography level="body-xs">End of Cycle</Typography>
+                                <Typography level="body-sm" fontWeight="bold" color={trueDisposable > 0 ? 'success' : 'danger'}>
+                                    {formatCurrency(trueDisposable)}
+                                </Typography>
+                            </Box>
+                        </Stack>
+                        
+                        <Typography level="body-xs" color="neutral" sx={{ mt: 2, fontStyle: 'italic', fontSize: '0.65rem' }}>
+                            * Projection assumes all future income is received on time.
+                        </Typography>
                     </Card>
 
-                    {/* WEALTH SIDEBAR */}
                     <Card variant="outlined" sx={{ p: 2 }}>
-                        <Typography level="title-md" startDecorator={<SavingsIcon />} sx={{ mb: 2 }}>Savings Overview</Typography>
+                        <Typography level="title-md" startDecorator={<AccountBalanceWallet />} sx={{ mb: 2 }}>Budget Health</Typography>
+                        <Stack spacing={1.5}>
+                            <Box>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                    <Typography level="body-xs">Bills Paid</Typography>
+                                    <Typography level="body-xs" fontWeight="bold">{Math.round((cycleTotals.paid / (cycleTotals.total || 1)) * 100)}%</Typography>
+                                </Box>
+                                <LinearProgress determinate value={(cycleTotals.paid / (cycleTotals.total || 1)) * 100} thickness={6} color="success" />
+                            </Box>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Typography level="body-xs">Remaining Outgoings</Typography>
+                                <Typography level="body-xs" color="danger" fontWeight="bold">{formatCurrency(cycleTotals.unpaid)}</Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Typography level="body-xs">Pending Income</Typography>
+                                <Typography level="body-xs" color="success" fontWeight="bold">{formatCurrency(cycleData?.groupList.find(g => g.id === 'income')?.unpaid || 0)}</Typography>
+                            </Box>
+                        </Stack>
+                    </Card>
+
+                    <Card variant="outlined" sx={{ p: 2 }}>
+                        <Typography level="title-md" startDecorator={<SavingsIcon />} sx={{ mb: 2 }}>Wealth Tracking</Typography>
                         <Stack spacing={2}>
                             {liabilities.savings.map(acc => (
                                 <Box key={acc.id}>
@@ -988,7 +1076,7 @@ export default function BudgetView() {
                                         <Typography level="body-xs">{formatCurrency(acc.current_balance)}</Typography>
                                     </Box>
                                     <List size="sm" sx={{ '--ListItem-paddingLeft': '0px' }}>
-                                        {savingsPots.filter(p => p.savings_account_id === acc.id).map(pot => (
+                                        {savingsPots.filter(p => p.savings_id === acc.id).map(pot => (
                                             <ListItem key={pot.id}>
                                                 <ListItemDecorator>{pot.emoji}</ListItemDecorator>
                                                 <ListItemContent>
@@ -1006,9 +1094,6 @@ export default function BudgetView() {
                                                 </ListItemContent>
                                             </ListItem>
                                         ))}
-                                        {savingsPots.filter(p => p.savings_account_id === acc.id).length === 0 && (
-                                            <Typography level="body-xs" color="neutral" sx={{ fontStyle: 'italic' }}>No pots defined.</Typography>
-                                        )}
                                     </List>
                                 </Box>
                             ))}
