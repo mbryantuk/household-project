@@ -26,7 +26,7 @@
     "unmatched": 0,
     "updated": 0
   },
-  "startTime": 1770039888462,
+  "startTime": 1770040206453,
   "success": false,
   "testResults": [
     {
@@ -37,10 +37,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1770039891452,
-        "runtime": 2881,
-        "slow": false,
-        "start": 1770039888571
+        "end": 1770040212579,
+        "runtime": 6020,
+        "slow": true,
+        "start": 1770040206559
       },
       "skipped": false,
       "snapshot": {
@@ -73,7 +73,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 225,
+          "duration": 853,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🔄 Module: Recurring Costs (Consolidated)",
@@ -88,7 +88,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 291,
+          "duration": 896,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 👥 Module: People",
@@ -103,7 +103,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 290,
+          "duration": 998,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🚗 Module: Vehicles",
@@ -118,7 +118,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 366,
+          "duration": 1219,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 💰 Module: Finance (Core)",
@@ -133,7 +133,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 13,
+          "duration": 14,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🍱 Module: Meals",
@@ -155,10 +155,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1770039892831,
-        "runtime": 1324,
+        "end": 1770040214091,
+        "runtime": 1455,
         "slow": false,
-        "start": 1770039891507
+        "start": 1770040212636
       },
       "skipped": false,
       "snapshot": {
@@ -176,7 +176,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 43,
+          "duration": 45,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should measure login speed (Heavy Bcrypt)",
@@ -191,7 +191,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 185,
+          "duration": 208,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should measure GET assets speed (Plain Read)",
@@ -206,7 +206,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 147,
+          "duration": 161,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should measure GET finance savings speed (Decryption Overhead)",
@@ -221,7 +221,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 49,
+          "duration": 51,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should measure POST asset speed (Plain Write)",
@@ -236,7 +236,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 594,
+          "duration": 658,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should handle \"Load\" (Concurrent requests)",
@@ -253,88 +253,15 @@
     {
       "leaks": false,
       "numFailingTests": 0,
-      "numPassingTests": 3,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1770039896929,
-        "runtime": 458,
-        "slow": false,
-        "start": 1770039896471
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/finance_routing.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "💰 Finance Routing Verification"
-          ],
-          "duration": 25,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/pots should not return 404",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "GET /api/households/:id/finance/savings/pots should not return 404"
-        },
-        {
-          "ancestorTitles": [
-            "💰 Finance Routing Verification"
-          ],
-          "duration": 42,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/:itemId should still work for valid items",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 3,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "GET /api/households/:id/finance/savings/:itemId should still work for valid items"
-        },
-        {
-          "ancestorTitles": [
-            "💰 Finance Routing Verification"
-          ],
-          "duration": 20,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/999999 should return 404",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "GET /api/households/:id/finance/savings/999999 should return 404"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
       "numPassingTests": 1,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1770039897743,
-        "runtime": 809,
+        "end": 1770040219087,
+        "runtime": 1071,
         "slow": false,
-        "start": 1770039896934
+        "start": 1770040218016
       },
       "skipped": false,
       "snapshot": {
@@ -352,7 +279,7 @@
           "ancestorTitles": [
             "⚡ SQLite Concurrency Stress"
           ],
-          "duration": 466,
+          "duration": 499,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "⚡ SQLite Concurrency Stress 🧬 WAL Mode Concurrency (20 Parallel Writes)",
@@ -374,10 +301,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1770039898212,
-        "runtime": 464,
+        "end": 1770040220679,
+        "runtime": 1586,
         "slow": false,
-        "start": 1770039897748
+        "start": 1770040219093
       },
       "skipped": false,
       "snapshot": {
@@ -395,7 +322,7 @@
           "ancestorTitles": [
             "🛡️ Advanced System Integrity & Security"
           ],
-          "duration": 42,
+          "duration": 109,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Advanced System Integrity & Security 📅 Friday Rule: Creation with valid payload",
@@ -410,7 +337,7 @@
           "ancestorTitles": [
             "🛡️ Advanced System Integrity & Security"
           ],
-          "duration": 56,
+          "duration": 846,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Advanced System Integrity & Security ♻️ Idempotency: Duplicate creation check",
@@ -425,7 +352,7 @@
           "ancestorTitles": [
             "🛡️ Advanced System Integrity & Security"
           ],
-          "duration": 15,
+          "duration": 16,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Advanced System Integrity & Security 🛑 Security: Path Traversal prevention",
@@ -440,7 +367,7 @@
           "ancestorTitles": [
             "🛡️ Advanced System Integrity & Security"
           ],
-          "duration": 19,
+          "duration": 21,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Advanced System Integrity & Security 💾 Integrity: Backup Trigger",
@@ -462,10 +389,83 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1770039898284,
-        "runtime": 66,
+        "end": 1770040222183,
+        "runtime": 1498,
         "slow": false,
-        "start": 1770039898218
+        "start": 1770040220685
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/finance_routing.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "💰 Finance Routing Verification"
+          ],
+          "duration": 158,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/pots should not return 404",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "GET /api/households/:id/finance/savings/pots should not return 404"
+        },
+        {
+          "ancestorTitles": [
+            "💰 Finance Routing Verification"
+          ],
+          "duration": 789,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/:itemId should still work for valid items",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 3,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "GET /api/households/:id/finance/savings/:itemId should still work for valid items"
+        },
+        {
+          "ancestorTitles": [
+            "💰 Finance Routing Verification"
+          ],
+          "duration": 29,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/999999 should return 404",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "GET /api/households/:id/finance/savings/999999 should return 404"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 3,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1770040222254,
+        "runtime": 58,
+        "slow": false,
+        "start": 1770040222196
       },
       "skipped": false,
       "snapshot": {
@@ -513,7 +513,7 @@
           "ancestorTitles": [
             "Frontend Build Smoke Test"
           ],
-          "duration": 1,
+          "duration": 0,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Frontend Build Smoke Test JS bundle should be referenced",

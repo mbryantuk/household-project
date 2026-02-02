@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Move income to sidebar as cards, fix section borders",
-  "date": "Mon  2 Feb 13:42:10 GMT 2026"
+  "commitMessage": "Fix: UI crash when selecting custom theme with no saved config",
+  "date": "Mon  2 Feb 13:47:31 GMT 2026"
 }

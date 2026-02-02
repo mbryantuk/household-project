@@ -107,7 +107,7 @@ export const THEMES = {
   nord: { name: 'Nord Deep', mode: 'dark', primary: '#88c0d0', bg: '#2e3440', surface: '#3b4252', selection: '#434c5e', text: '#eceff4' },
 
   // --- SPECIAL THEMES ---
-  custom: { name: 'Custom Theme', mode: 'light', isCustom: true }
+  custom: { name: 'Custom Theme', mode: 'light', primary: '#644AC9', bg: '#FFFBEB', surface: '#FFF', selection: '#CFCFDE', text: '#1F1F1F', isCustom: true }
 };
 
 export const getEmojiColor = (emoji, isDark = true) => {
@@ -123,44 +123,45 @@ export const getTotemTheme = (themeId = 'totem', customConfig = null) => {
   let spec = THEMES[themeId] || THEMES.totem;
   
   // Handle Custom Theme Injection
-  if (themeId === 'custom' && customConfig) {
+  if (themeId === 'custom') {
       spec = {
-          ...spec,
-          ...customConfig,
+          ...THEMES.custom,
+          ...(customConfig || {}),
           name: 'Custom Theme'
       };
   }
 
   const isDark = spec.mode === 'dark';
+  const primaryColor = spec.primary || '#644AC9';
 
   return extendTheme({
     colorSchemes: {
       [spec.mode]: {
         palette: {
           background: {
-            body: spec.bg,
-            surface: spec.surface,
+            body: spec.bg || (isDark ? '#0f172a' : '#FFFBEB'),
+            surface: spec.surface || (isDark ? '#1e293b' : '#FFF'),
             level1: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
             level2: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)',
             level3: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.09)',
           },
           text: {
-            primary: spec.text,
+            primary: spec.text || (isDark ? '#f1f5f9' : '#1F1F1F'),
             secondary: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)',
           },
           primary: {
-            solidBg: spec.primary,
-            solidHoverBg: spec.primary,
-            plainColor: spec.primary,
-            outlinedColor: spec.primary,
-            outlinedBorder: spec.primary,
-            softBg: isDark ? 'rgba(255,255,255,0.1)' : `${spec.primary}15`,
+            solidBg: primaryColor,
+            solidHoverBg: primaryColor,
+            plainColor: primaryColor,
+            outlinedColor: primaryColor,
+            outlinedBorder: primaryColor,
+            softBg: isDark ? 'rgba(255,255,255,0.1)' : `${primaryColor}15`,
           },
           neutral: {
-            outlinedBorder: spec.selection,
-            plainColor: spec.text,
+            outlinedBorder: spec.selection || (isDark ? '#334155' : '#CFCFDE'),
+            plainColor: spec.text || (isDark ? '#f1f5f9' : '#1F1F1F'),
           },
-          divider: spec.selection,
+          divider: spec.selection || (isDark ? '#334155' : '#CFCFDE'),
         },
       },
     },
