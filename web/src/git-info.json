@@ -1,4 +1,4 @@
 {
-  "commitMessage": "UI Polish: Category spacing, prominent bank balance, and editable income sources",
-  "date": "Mon  2 Feb 14:09:37 GMT 2026"
+  "commitMessage": "UI: Wrap income labels, lock amount behind edit/save, and cleanup Bank Balance field",
+  "date": "Mon  2 Feb 14:15:28 GMT 2026"
 }
