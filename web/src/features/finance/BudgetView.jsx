@@ -808,16 +808,52 @@ export default function BudgetView() {
 
   const trueDisposable = (parseFloat(currentBalance) || 0) - cycleTotals.unpaid + (cycleData?.incomeGroup.unpaid || 0);
   
-  const overdraftMarkerPct = useMemo(() => {
-    if (!drawdownData.length || !cycleData) return null;
-    const now = startOfDay(new Date());
-    const firstOverdraft = drawdownData.find(d => (isAfter(d.date, now) || isSameDay(d.date, now)) && d.balance < 0);
-    if (!firstOverdraft) return null;
+  const overdraftPeriods = useMemo(() => {
+    if (!drawdownData.length || !cycleData) return [];
+    const periods = [];
+    let currentPeriod = null;
     
     const totalDays = cycleData.cycleDuration || 1;
-    const daysFromStart = differenceInDays(firstOverdraft.date, cycleData.startDate);
-    return Math.min(100, Math.max(0, (daysFromStart / totalDays) * 100));
+
+    drawdownData.forEach((d) => {
+      const isOverdrawn = d.balance < 0;
+      const daysFromStart = differenceInDays(d.date, cycleData.startDate);
+      const pct = Math.min(100, Math.max(0, (daysFromStart / totalDays) * 100));
+
+      if (isOverdrawn && !currentPeriod) {
+        currentPeriod = { startPct: pct, startDate: d.date, endDate: d.date, endPct: pct };
+      } else if (isOverdrawn && currentPeriod) {
+        currentPeriod.endDate = d.date;
+        currentPeriod.endPct = pct;
+      } else if (!isOverdrawn && currentPeriod) {
+        periods.push(currentPeriod);
+        currentPeriod = null;
+      }
+    });
+    
+    if (currentPeriod) periods.push(currentPeriod);
+    return periods;
   }, [drawdownData, cycleData]);
+
+  const overdraftGradient = useMemo(() => {
+    if (overdraftPeriods.length === 0) return 'var(--joy-palette-primary-softBg)';
+    
+    let stops = [];
+    let lastPct = 0;
+    
+    overdraftPeriods.forEach(p => {
+      // Transition to transparent/softBg before the red zone
+      stops.push(`var(--joy-palette-primary-softBg) ${p.startPct}%`);
+      // The red zone
+      stops.push(`var(--joy-palette-danger-400) ${p.startPct}%`);
+      stops.push(`var(--joy-palette-danger-400) ${p.endPct}%`);
+      // Transition back
+      stops.push(`var(--joy-palette-primary-softBg) ${p.endPct}%`);
+      lastPct = p.endPct;
+    });
+    
+    return `linear-gradient(90deg, ${stops.join(', ')})`;
+  }, [overdraftPeriods]);
 
   const selectedTotals = useMemo(() => {
       if (!selectedKeys.length || !cycleData) return null;
@@ -1122,41 +1158,44 @@ export default function BudgetView() {
             </Box>
         </Box>
 
-        <Box sx={{ mb: 2, position: 'relative', pt: overdraftMarkerPct !== null ? 4 : 0 }}>
-            {overdraftMarkerPct !== null && (
-                <Box 
-                    sx={{ 
-                        position: 'absolute', 
-                        left: `${overdraftMarkerPct}%`, 
-                        top: 0, 
-                        transform: 'translateX(-50%)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        zIndex: 2,
-                        transition: 'left 0.3s ease'
-                    }}
-                >
-                    <Tooltip title="Projected Overdraft" variant="solid" color="danger" placement="top">
-                        <Warning color="danger" sx={{ fontSize: '1.4rem', filter: 'drop-shadow(0px 2px 2px rgba(0,0,0,0.2))' }} />
-                    </Tooltip>
-                    <Box 
-                        sx={{ 
-                            width: 0, 
-                            height: 0, 
-                            borderLeft: '6px solid transparent',
-                            borderRight: '6px solid transparent',
-                            borderTop: '8px solid var(--joy-palette-danger-500)',
-                            mt: -0.5
-                        }} 
-                    />
-                </Box>
-            )}
+        <Box sx={{ mb: 2, position: 'relative' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
                 <Typography level="body-xs" fontWeight="bold" sx={{ textTransform: 'uppercase', letterSpacing: '0.1em' }}>Days Left</Typography>
                 <Typography level="body-xs" fontWeight="bold">{cycleData.daysRemaining} days to go</Typography>
             </Box>
-            <LinearProgress determinate value={cycleData.progressPct} thickness={6} variant="soft" color="primary" sx={{ borderRadius: 'sm' }} />
+            <Tooltip 
+                variant="solid"
+                color={overdraftPeriods.length > 0 ? "danger" : "neutral"}
+                placement="top"
+                title={
+                    overdraftPeriods.length > 0 ? (
+                        <Box sx={{ p: 0.5 }}>
+                            <Typography level="title-sm" color="inherit" sx={{ mb: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Warning /> Overdraft Warning
+                            </Typography>
+                            {overdraftPeriods.map((p, i) => (
+                                <Typography key={i} level="body-xs" color="inherit">
+                                    • {format(p.startDate, 'do MMM')} — {format(p.endDate, 'do MMM')}
+                                </Typography>
+                            ))}
+                        </Box>
+                    ) : "No projected overdraft"
+                }
+            >
+                <LinearProgress 
+                    determinate 
+                    value={cycleData.progressPct} 
+                    thickness={8} 
+                    variant="soft" 
+                    color="primary" 
+                    sx={{ 
+                        borderRadius: 'sm',
+                        '--LinearProgress-radius': '4px',
+                        background: overdraftGradient,
+                        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)'
+                    }} 
+                />
+            </Tooltip>
         </Box>
 
         <Grid container spacing={3}>

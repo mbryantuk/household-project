@@ -1,4 +1,4 @@
 {
-  "commitMessage": "UI: Add projected overdraft marker to Days Left progress bar",
-  "date": "Mon  2 Feb 14:29:10 GMT 2026"
+  "commitMessage": "UI: Colorize overdraft periods on Days Left progress bar with date tooltips",
+  "date": "Mon  2 Feb 14:34:48 GMT 2026"
 }
