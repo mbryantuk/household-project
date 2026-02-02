@@ -163,7 +163,7 @@ export default function SavingsView() {
           if (selectedPotId !== 'new') {
               await api.put(`/households/${householdId}/finance/savings/${savingsId}/pots/${selectedPotId}`, data);
           } else {
-              const res = await api.post(`/households/${householdId}/finance/savings/${savingsId}/pots`, data);
+              await api.post(`/households/${householdId}/finance/savings/${savingsId}/pots`, data);
               showNotification("Pot created.", "success");
           }
           await fetchData();

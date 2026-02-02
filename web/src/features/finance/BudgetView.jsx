@@ -19,7 +19,7 @@ import {
 import { 
   format, addMonths, startOfMonth, setDate, differenceInDays, 
   isSameDay, isAfter, startOfDay, isWithinInterval, 
-  parseISO, isValid, addYears, addWeeks, isBefore
+  parseISO, isValid, addYears, addWeeks
 } from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
@@ -626,14 +626,14 @@ export default function BudgetView() {
                   <Typography level="body-sm" fontWeight="bold" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{exp.label}</Typography>
               </Box>
           </td>
+          <td style={{ width: 140 }}>
+              <Chip size="sm" variant="soft" color={getCategoryColor(exp.category)} sx={{ fontSize: '0.65rem', textTransform: 'capitalize' }}>{exp.category.replace('_', ' ')}</Chip>
+          </td>
           <td style={{ width: 160 }}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <Typography level="body-xs" fontWeight="bold">{format(exp.computedDate, 'do MMM')}</Typography>
                   <Typography level="body-xs" color={rel.color}>{rel.label}</Typography>
               </Box>
-          </td>
-          <td style={{ width: 140 }}>
-              <Chip size="sm" variant="soft" color={getCategoryColor(exp.category)} sx={{ fontSize: '0.65rem', textTransform: 'capitalize' }}>{exp.category.replace('_', ' ')}</Chip>
           </td>
           <td style={{ textAlign: 'right', width: 110 }}>
               <Input 
@@ -774,11 +774,11 @@ export default function BudgetView() {
                           <th onClick={() => requestSort('label')} style={{ cursor: 'pointer' }}>
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>Item <Sort sx={{ fontSize: '0.8rem', opacity: sortConfig.key === 'label' ? 1 : 0.3 }} /></Box>
                           </th>
-                          <th onClick={() => requestSort('computedDate')} style={{ width: 160, cursor: 'pointer' }}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>Due Date <Sort sx={{ fontSize: '0.8rem', opacity: sortConfig.key === 'computedDate' ? 1 : 0.3 }} /></Box>
-                          </th>
                           <th onClick={() => requestSort('category')} style={{ width: 140, cursor: 'pointer' }}>
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>Category <Sort sx={{ fontSize: '0.8rem', opacity: sortConfig.key === 'category' ? 1 : 0.3 }} /></Box>
+                          </th>
+                          <th onClick={() => requestSort('computedDate')} style={{ width: 160, cursor: 'pointer' }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>Due Date <Sort sx={{ fontSize: '0.8rem', opacity: sortConfig.key === 'computedDate' ? 1 : 0.3 }} /></Box>
                           </th>
                           <th onClick={() => requestSort('amount')} style={{ width: 110, textAlign: 'right', cursor: 'pointer' }}>
                               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 0.5 }}>Amount <Sort sx={{ fontSize: '0.8rem', opacity: sortConfig.key === 'amount' ? 1 : 0.3 }} /></Box>

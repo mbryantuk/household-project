@@ -41,7 +41,7 @@ export default function PeopleView() {
   // Fetch person if not in members list (e.g. direct link or just created)
   useEffect(() => {
     if (personId && personId !== 'new' && !selectedPerson && !loading) {
-        setLoading(true);
+        Promise.resolve().then(() => setLoading(true));
         api.get(`/households/${householdId}/members/${personId}`)
             .then(res => setLocalPerson(res.data))
             .catch(() => showNotification("Failed to load person.", "danger"))
@@ -61,14 +61,14 @@ export default function PeopleView() {
         emoji: selectedPerson.emoji || '👨',
         notes: selectedPerson.notes || '',
       };
-      setFormData(data);
+      Promise.resolve().then(() => setFormData(data));
     } else if (personId === 'new') {
       const currentType = new URLSearchParams(location.search).get('type') || 'adult';
       const data = {
         first_name: '', middle_name: '', last_name: '',
         type: currentType, alias: '', dob: '', emoji: currentType === 'child' ? '👶' : '👨', notes: '',
       };
-      setFormData(data);
+      Promise.resolve().then(() => setFormData(data));
     }
   }, [selectedPerson, personId, location.search]);
 

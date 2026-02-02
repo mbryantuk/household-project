@@ -218,10 +218,12 @@ function AppInner({
 
   useEffect(() => {
     if (token && household) {
-        setHhMembers([]);
-        setHhUsers([]);
-        setHhDates([]);
-        setHhVehicles([]);
+        Promise.resolve().then(() => {
+            setHhMembers([]);
+            setHhUsers([]);
+            setHhDates([]);
+            setHhVehicles([]);
+        });
 
         fetchHhMembers(household.id);
         fetchHhUsers(household.id);

@@ -34,7 +34,7 @@ export default function PetsView() {
   // Fetch pet if not in members list
   useEffect(() => {
     if (petId && petId !== 'new' && !selectedPet && !loading) {
-        setLoading(true);
+        Promise.resolve().then(() => setLoading(true));
         api.get(`/households/${householdId}/members/${petId}`)
             .then(res => setLocalPet(res.data))
             .catch(() => showNotification("Failed to load pet.", "danger"))
@@ -54,13 +54,13 @@ export default function PetsView() {
         microchip_number: selectedPet.microchip_number || '',
         gender: selectedPet.gender || ''
       };
-      setFormData(data);
+      Promise.resolve().then(() => setFormData(data));
     } else if (petId === 'new') {
       const data = {
         name: '', species: '', breed: '', dob: '', emoji: '🐾', notes: '',
         microchip_number: '', gender: ''
       };
-      setFormData(data);
+      Promise.resolve().then(() => setFormData(data));
     }
   }, [selectedPet, petId]);
 

@@ -107,7 +107,7 @@ export default function IncomeView() {
 
     try {
       if (selectedIncomeId === 'new') {
-        const res = await api.post(`/households/${householdId}/finance/income`, data);
+        await api.post(`/households/${householdId}/finance/income`, data);
         showNotification("Income added.", "success");
         await fetchData();
         setIncomeId(null);

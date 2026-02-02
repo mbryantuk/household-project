@@ -136,7 +136,7 @@ export default function LoansView() {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography level="h2" startDecorator={<RequestQuote />}>Loans</Typography>
-        <Button startDecorator={<Add />} onClick={() => setLoanId('new')}>Add Loan</Button>
+        {isAdmin && <Button startDecorator={<Add />} onClick={() => setLoanId('new')}>Add Loan</Button>}
       </Box>
 
       <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
@@ -172,10 +172,12 @@ export default function LoansView() {
                     </AvatarGroup>
                 </td>
                 <td>
-                  <Box sx={{ display: 'flex', gap: 0.5 }}>
-                    <IconButton size="sm" onClick={() => setLoanId(loan.id)}><Edit /></IconButton>
-                    <IconButton size="sm" color="danger" onClick={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/loans/${loan.id}`).then(() => { fetchLoans(); if (selectedLoanId === String(loan.id)) setLoanId(null); }))}><Delete /></IconButton>
-                  </Box>
+                  {isAdmin && (
+                    <Box sx={{ display: 'flex', gap: 0.5 }}>
+                      <IconButton size="sm" onClick={() => setLoanId(loan.id)}><Edit /></IconButton>
+                      <IconButton size="sm" color="danger" onClick={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/loans/${loan.id}`).then(() => { fetchLoans(); if (selectedLoanId === String(loan.id)) setLoanId(null); }))}><Delete /></IconButton>
+                    </Box>
+                  )}
                 </td>
               </tr>
             ))}

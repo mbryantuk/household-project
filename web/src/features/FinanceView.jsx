@@ -37,13 +37,6 @@ export default function FinanceView() {
   const queryParams = new URLSearchParams(location.search);
   const tabParam = queryParams.get('tab');
   
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 900);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   const viewMap = useMemo(() => ({
     budget: { label: 'Monthly Budget', icon: PieChart, desc: 'Analyze your financial health and spending limits.' },
     income: { label: 'Income Sources', icon: Payments, desc: 'Manage salary, contracting, and other income streams.' },
@@ -58,7 +51,6 @@ export default function FinanceView() {
   }), []);
 
   const activeTabKey = tabParam; // No default on any device to show landing page
-  const activeView = activeTabKey ? viewMap[activeTabKey] : null;
 
   const renderContent = () => {
       if (activeTabKey === 'budget') return <BudgetView />;
