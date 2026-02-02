@@ -5,7 +5,7 @@ import {
   Button, Modal, ModalDialog, DialogTitle, DialogContent, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
   Sheet, Table, Checkbox, LinearProgress, Switch, Accordion, AccordionSummary, AccordionDetails,
-  Dropdown, Menu, MenuButton, MenuItem, Select, Option
+  Dropdown, Menu, MenuButton, MenuItem, Select, Option, List, ListItem, ListItemContent, ListItemDecorator
 } from '@mui/joy';
 import { 
   AccountBalanceWallet, CheckCircle, RadioButtonUnchecked, TrendingDown, 
@@ -631,6 +631,68 @@ export default function BudgetView() {
       </tr>
   );
 
+  const renderMobileItem = (exp) => (
+      <Card 
+        key={exp.key} 
+        variant="soft" 
+        color={selectedKeys.includes(exp.key) ? 'primary' : 'neutral'}
+        sx={{ 
+            p: 1.5, mb: 1, 
+            opacity: exp.isPaid ? 0.6 : 1,
+            position: 'relative'
+        }}
+        onClick={() => handleSelectToggle(exp.key)}
+      >
+          <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
+                <Checkbox 
+                    size="sm" 
+                    checked={selectedKeys.includes(exp.key)} 
+                    onChange={() => handleSelectToggle(exp.key)} 
+                    onClick={(e) => e.stopPropagation()}
+                    sx={{ mt: 0.5 }}
+                />
+                <Avatar size="md" sx={{ bgcolor: getEmojiColor(exp.label || '?', isDark) }}>{exp.icon}</Avatar>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.5 }}>
+                        <Box sx={{ minWidth: 0 }}>
+                            <Typography level="title-sm" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{exp.label}</Typography>
+                            <Typography level="body-xs" color="neutral">{format(exp.computedDate, 'do MMM')}</Typography>
+                        </Box>
+                        <Chip size="sm" variant="soft" color={getCategoryColor(exp.category)} sx={{ fontSize: '0.6rem', textTransform: 'capitalize' }}>{exp.category}</Chip>
+                    </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
+                        <Input 
+                            size="sm" type="number" variant="outlined" 
+                            sx={{ width: 100, textAlign: 'right' }} 
+                            defaultValue={Number(exp.amount).toFixed(2)} 
+                            onBlur={(e) => updateActualAmount(exp.key, e.target.value)} 
+                            onClick={(e) => e.stopPropagation()}
+                            slotProps={{ input: { step: '0.01' } }} 
+                        />
+                        <Stack direction="row" spacing={1}>
+                            <Checkbox 
+                                size="lg" variant="plain" checked={exp.isPaid} 
+                                onChange={() => togglePaid(exp.key, exp.amount)} 
+                                disabled={savingProgress} 
+                                uncheckedIcon={<RadioButtonUnchecked sx={{ fontSize: '1.5rem' }} />} 
+                                checkedIcon={<CheckCircle color="success" sx={{ fontSize: '1.5rem' }} />} 
+                                onClick={(e) => e.stopPropagation()} 
+                                sx={{ minHeight: 44, minWidth: 44 }}
+                            />
+                            <IconButton 
+                                size="sm" variant="plain" color="danger" 
+                                onClick={(e) => { e.stopPropagation(); handleDisableItem(exp.key); }}
+                                sx={{ minHeight: 44, minWidth: 44 }}
+                            >
+                                <Block />
+                            </IconButton>
+                        </Stack>
+                    </Box>
+                </Box>
+          </Box>
+      </Card>
+  );
+
   const renderSection = (group) => {
       const isOpen = sectionsOpen[group.id] ?? true;
       const toggle = () => setSectionsOpen(prev => ({ ...prev, [group.id]: !prev[group.id] }));
@@ -638,20 +700,23 @@ export default function BudgetView() {
       return (
       <Accordion expanded={isOpen} onChange={toggle} variant="outlined" sx={{ borderRadius: 'md', mb: 2 }} key={group.id}>
           <AccordionSummary expandIcon={<ExpandMore />}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', mr: 2, overflow: 'hidden' }}>
-                  <Typography level="title-lg" sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+              <Box sx={{ display: 'flex', flexWrap: { xs: 'wrap', sm: 'nowrap' }, justifyContent: 'space-between', width: '100%', alignItems: 'center', mr: 2, overflow: 'hidden', gap: 1 }}>
+                  <Typography level="title-lg" sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, flexBasis: { xs: '100%', sm: 'auto' } }}>
                       <Avatar size="sm">{group.emoji}</Avatar> 
                       <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.label}</Box>
                   </Typography>
-                  <Stack direction="row" spacing={2} sx={{ ml: 2, flexShrink: 0 }}>
+                  <Stack direction="row" spacing={2} sx={{ flexShrink: 0, justifyContent: { xs: 'space-between', sm: 'flex-end' }, width: { xs: '100%', sm: 'auto' } }}>
                       <Box sx={{ textAlign: 'center' }}><Typography level="body-xs">Total</Typography><Typography level="body-sm" fontWeight="bold">{formatCurrency(group.total)}</Typography></Box>
                       <Box sx={{ textAlign: 'center' }}><Typography level="body-xs" color="success">Paid</Typography><Typography level="body-sm" fontWeight="bold" color="success">{formatCurrency(group.paid)}</Typography></Box>
                       <Box sx={{ textAlign: 'center' }}><Typography level="body-xs" color="danger">Unpaid</Typography><Typography level="body-sm" fontWeight="bold" color="danger">{formatCurrency(group.unpaid)}</Typography></Box>
                   </Stack>
               </Box>
           </AccordionSummary>
-          <AccordionDetails sx={{ p: 0 }}>
-              <Sheet variant="plain" sx={{ borderRadius: 'md', overflow: 'hidden' }}>
+          <AccordionDetails sx={{ p: { xs: 1, sm: 0 } }}>
+              <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+                  {group.items.map(renderMobileItem)}
+              </Box>
+              <Sheet variant="plain" sx={{ borderRadius: 'md', overflow: 'hidden', display: { xs: 'none', md: 'block' } }}>
               <Table 
                 hoverRow 
                 sx={{ 
@@ -691,11 +756,11 @@ export default function BudgetView() {
   return (
     <Box sx={{ userSelect: 'none', pb: 12, overflowX: 'hidden' }}>
         <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'center', md: 'flex-start' } }}>
                 <IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, -1))}><ChevronLeft /></IconButton>
-                <Box>
-                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>{cycleData.label}</Typography>
-                    <Typography level="body-md" color="neutral">{format(cycleData.startDate, 'do MMM')} to {format(cycleData.endDate, 'do MMM')}</Typography>
+                <Box sx={{ textAlign: 'center' }}>
+                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.2rem', sm: '1.5rem' } }}>{cycleData.label}</Typography>
+                    <Typography level="body-xs" color="neutral">{format(cycleData.startDate, 'do MMM')} to {format(cycleData.endDate, 'do MMM')}</Typography>
                 </Box>
                 <IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, 1))}><ChevronRight /></IconButton>
             </Box>
@@ -709,13 +774,13 @@ export default function BudgetView() {
                 sx={{ width: { xs: '100%', sm: 250 } }}
             />
 
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'center', md: 'flex-end' } }}>
                 <FormControl orientation="horizontal" size="sm" sx={{ mr: 1 }}>
                     <FormLabel sx={{ mr: 1 }}>Hide Paid</FormLabel>
                     <Switch checked={hidePaid} onChange={(e) => setHidePaid(e.target.checked)} size="sm" />
                 </FormControl>
                 {currentCycleRecord && (
-                    <Button variant="outlined" color="danger" size="sm" startDecorator={<RestartAlt />} onClick={handleResetCycle} className="hide-mobile">Reset</Button>
+                    <Button variant="outlined" color="danger" size="sm" startDecorator={<RestartAlt />} onClick={handleResetCycle} sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>Reset</Button>
                 )}
                 {selectedKeys.length > 0 && (<Button variant="outlined" color="neutral" size="sm" onClick={() => setSelectedKeys([])}>Clear</Button>)}
                 <Dropdown>
@@ -758,7 +823,7 @@ export default function BudgetView() {
                                     <thead>
                                         <tr>
                                             <th>Item</th>
-                                            <th style={{ width: 140 }}>Category</th>
+                                            <th style={{ width: { xs: 80, sm: 140 } }}>Category</th>
                                             <th style={{ width: 100, textAlign: 'right' }}>Amount</th>
                                             <th style={{ width: 100, textAlign: 'center' }}>Restore</th>
                                         </tr>
@@ -817,7 +882,7 @@ export default function BudgetView() {
                             <FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus /></FormControl>
                             <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: '0.01' } }} /></FormControl>
                             <FormControl required><FormLabel>Charge Date</FormLabel><Input name="start_date" type="date" defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
-                            <Button type="submit">Add to Cycle</Button>
+                            <Button type="submit" fullWidth>Add to Cycle</Button>
                         </Stack>
                     </form>
                 </DialogContent>
@@ -878,7 +943,7 @@ export default function BudgetView() {
                             <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" step="0.01" /></FormControl>
                             <FormControl required><FormLabel>First Charge Date</FormLabel><Input name="start_date" type="date" required defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
                             <Checkbox label="Adjust for Working Day (Next)" name="nearest_working_day" defaultChecked value="1" />
-                            <Button type="submit">Add Recurring Expense</Button>
+                            <Button type="submit" fullWidth>Add Recurring Expense</Button>
                         </Stack>
                     </form>
                 </DialogContent>
