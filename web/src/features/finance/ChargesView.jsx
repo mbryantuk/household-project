@@ -75,6 +75,22 @@ const METADATA_SCHEMAS = {
     vehicle_service: [
         { key: 'garage_name', label: 'Garage Name', type: 'text' },
         { key: 'service_level', label: 'Service Level', type: 'select', options: ['Interim', 'Full', 'Major'] }
+    ],
+    warranty: [
+        { key: 'provider_name', label: 'Provider Name', type: 'text' },
+        { key: 'reference_number', label: 'Reference Number', type: 'text' },
+        { key: 'expiry_date', label: 'Expiry Date', type: 'date' }
+    ],
+    vehicle_mot: [
+        { key: 'test_centre', label: 'Test Centre', type: 'text' },
+        { key: 'expiry_date', label: 'Expiry Date', type: 'date' }
+    ],
+    vehicle_fuel: [
+        { key: 'fuel_type', label: 'Fuel Type', type: 'select', options: ['Petrol', 'Diesel', 'Electric', 'Hybrid', 'LPG'] },
+        { key: 'loyalty_card', label: 'Loyalty Card', type: 'text' }
+    ],
+    other: [
+        { key: 'comments', label: 'Comments', type: 'text' }
     ]
 };
 
@@ -258,7 +274,7 @@ export default function ChargesView({ initialTab }) {
                   {charge.metadata && (
                        <Stack direction="row" spacing={1} sx={{ mt: 0.5 }}>
                            {Object.entries(typeof charge.metadata === 'string' ? JSON.parse(charge.metadata) : charge.metadata)
-                               .filter(([k]) => ['policy_number', 'account_number', 'renewal_date', 'registration'].includes(k))
+                               .filter(([k]) => ['policy_number', 'account_number', 'renewal_date', 'registration', 'expiry_date'].includes(k))
                                .map(([k, v]) => (
                                    <Chip key={k} size="sm" variant="outlined" color="neutral">
                                        {k.replace('_', ' ')}: {v}
@@ -366,6 +382,11 @@ export default function ChargesView({ initialTab }) {
             </FormControl>
             
             <Checkbox label="Adjust for next working day" checked={formData.adjust_for_working_day} onChange={e => setFormData({ ...formData, adjust_for_working_day: e.target.checked })} />
+
+             <FormControl>
+                <FormLabel>Notes</FormLabel>
+                <Input value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} />
+            </FormControl>
             
             <Button size="lg" onClick={handleSave} color="primary">{editingId ? 'Save Changes' : 'Create Charge'}</Button>
           </Stack>

@@ -1,4 +1,4 @@
 {
-  "commitMessage": "v3.2.45 - Revert v3.2.44 (Budget Undo/Redo)",
-  "date": "Mon  2 Feb 20:38:44 GMT 2026"
+  "commitMessage": "Fix: Add missing metadata schemas to Recurring Costs modal",
+  "date": "Mon  2 Feb 20:47:43 GMT 2026"
 }
