@@ -64,7 +64,7 @@
 * **Theming Rules:**
     1.  **NO INLINE COLORS:** Never use hex codes. Use theme tokens.
     2.  **Emoji Styling:** Use `getEmojiColor(emoji, isDark)` for dynamic HSL background generation.
-    3.  **Emoji Picker:** ALWAYS use the shared `EmojiPicker` component with `emojiStyle="native"` to ensure consistency with system-level rendering.
+    3.  **Emoji Picker:** ALWAYS use the shared `EmojiPicker` component with `emojiStyle="google"` to ensure consistent rendering (especially Flags) across OSs.
     3.  **Component Styling:** Use the `sx` prop or `styled()` from `@mui/joy/styles`.
 
 ---

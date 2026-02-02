@@ -1,8 +1,15 @@
 import React from 'react';
-import { Modal, ModalDialog, DialogTitle, DialogContent, Box } from '@mui/joy';
+import { Modal, ModalDialog, DialogTitle, DialogContent, Box, useColorScheme } from '@mui/joy';
 import Picker from 'emoji-picker-react';
 
-export default function EmojiPicker({ open, onClose, onEmojiSelect, title = "Select Emoji", isDark = true }) {
+export default function EmojiPicker({ open, onClose, onEmojiSelect, title = "Select Emoji", isDark }) {
+  const { mode } = useColorScheme();
+
+  // Determine theme: use prop if provided, otherwise sync with MUI mode
+  const currentTheme = isDark !== undefined 
+    ? (isDark ? 'dark' : 'light') 
+    : (mode === 'dark' ? 'dark' : 'light');
+
   return (
     <Modal open={open} onClose={onClose}>
       <ModalDialog 
@@ -19,8 +26,8 @@ export default function EmojiPicker({ open, onClose, onEmojiSelect, title = "Sel
             <Picker
               onEmojiClick={(emojiData) => onEmojiSelect(emojiData.emoji)}
               autoFocusSearch={false}
-              theme={isDark ? 'dark' : 'light'}
-              emojiStyle="native"
+              theme={currentTheme}
+              emojiStyle="google"
               width="100%"
               height="100%"
               lazyLoadEmojis={true}
