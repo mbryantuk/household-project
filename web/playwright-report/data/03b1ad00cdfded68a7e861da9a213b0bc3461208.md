@@ -24,7 +24,7 @@
         - img [ref=e34]
         - textbox "Password" [ref=e36]:
           - /placeholder: Enter password
-          - text: password
+          - text: Password123!
         - button [ref=e38] [cursor=pointer]:
           - img [ref=e39]
     - button "Log In" [ref=e41] [cursor=pointer]

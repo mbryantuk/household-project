@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Enhance dual-income drawdown projection and Safe to Spend logic",
-  "date": "Mon  2 Feb 11:27:30 GMT 2026"
+  "commitMessage": "Fix BudgetView ReferenceError and add dedicated Income sidebar table",
+  "date": "Mon  2 Feb 11:46:29 GMT 2026"
 }

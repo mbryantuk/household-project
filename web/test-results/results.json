@@ -66,25 +66,25 @@
   },
   "suites": [
     {
-      "title": "lifecycle_2_finance.spec.js",
-      "file": "lifecycle_2_finance.spec.js",
+      "title": "lifecycle_2b_drawdown.spec.js",
+      "file": "lifecycle_2b_drawdown.spec.js",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Brady Lifecycle Stage 2: Finance & Fringe",
-          "file": "lifecycle_2_finance.spec.js",
+          "title": "Brady Lifecycle Stage 2b: Dual-Income Drawdown Verification",
+          "file": "lifecycle_2b_drawdown.spec.js",
           "line": 5,
           "column": 6,
           "specs": [
             {
-              "title": "Expand Brady Household Finance (Frontend - Resilience Mode)",
+              "title": "Verify Drawdown Projection with Dual Income",
               "ok": false,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 300000,
+                  "timeout": 90000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
@@ -93,69 +93,57 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 300274,
+                      "status": "failed",
+                      "duration": 31703,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m"
+                        "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n    at /home/matt/household-project/web/tests/lifecycle_2b_drawdown.spec.js:30:16",
+                        "location": {
+                          "file": "/home/matt/household-project/web/tests/lifecycle_2b_drawdown.spec.js",
+                          "column": 16,
+                          "line": 30
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 28 |\u001b[39m     \n \u001b[90m 29 |\u001b[39m     \u001b[90m// Wait for either dashboard or selector\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[36mnew\u001b[39m \u001b[33mRegExp\u001b[39m(\u001b[32m`/household/(${hhId}|selector)`\u001b[39m)\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m30000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m     \n \u001b[90m 32 |\u001b[39m     \u001b[36mif\u001b[39m (page\u001b[33m.\u001b[39murl()\u001b[33m.\u001b[39mincludes(\u001b[32m'selector'\u001b[39m)) {\n \u001b[90m 33 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`a[href*=\"/household/${hhId}/select\"], div:has-text(\"${hhId}\")`\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
-                          "message": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m"
-                        },
-                        {
                           "location": {
-                            "file": "/home/matt/household-project/web/tests/lifecycle_2_finance.spec.js",
+                            "file": "/home/matt/household-project/web/tests/lifecycle_2b_drawdown.spec.js",
                             "column": 16,
-                            "line": 34
+                            "line": 30
                           },
-                          "message": "Error: page.waitForURL: Test timeout of 300000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n\u001b[0m \u001b[90m 32 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m password)\u001b[33m;\u001b[39m\n \u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Log In\")'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 34 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[36mnew\u001b[39m \u001b[33mRegExp\u001b[39m(\u001b[32m`/household/${hhId}/dashboard`\u001b[39m))\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 35 |\u001b[39m     \n \u001b[90m 36 |\u001b[39m     \u001b[90m// --- HELPERS ---\u001b[39m\n \u001b[90m 37 |\u001b[39m     \u001b[36mconst\u001b[39m createFinancialItem \u001b[33m=\u001b[39m \u001b[36masync\u001b[39m (tab\u001b[33m,\u001b[39m addBtnText\u001b[33m,\u001b[39m fillFn) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_2_finance.spec.js:34:16\u001b[22m"
+                          "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n\u001b[0m \u001b[90m 28 |\u001b[39m     \n \u001b[90m 29 |\u001b[39m     \u001b[90m// Wait for either dashboard or selector\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[36mnew\u001b[39m \u001b[33mRegExp\u001b[39m(\u001b[32m`/household/(${hhId}|selector)`\u001b[39m)\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m30000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m     \n \u001b[90m 32 |\u001b[39m     \u001b[36mif\u001b[39m (page\u001b[33m.\u001b[39murl()\u001b[33m.\u001b[39mincludes(\u001b[32m'selector'\u001b[39m)) {\n \u001b[90m 33 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`a[href*=\"/household/${hhId}/select\"], div:has-text(\"${hhId}\")`\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_2b_drawdown.spec.js:30:16\u001b[22m"
                         }
                       ],
-                      "stdout": [
-                        {
-                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: Content is cached for offline use.\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: Failed to load resource: the server responded with a status of 401 (Unauthorized)\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: Login failed: Et\n"
-                        }
-                      ],
-                      "stderr": [
-                        {
-                          "text": "Context file not found, using defaults for dev testing if applicable.\n"
-                        }
-                      ],
+                      "stdout": [],
+                      "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-02T08:48:14.279Z",
+                      "startTime": "2026-02-02T11:36:20.836Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
-                          "path": "/home/matt/household-project/web/test-results/lifecycle_2_finance-Brady--dfbdb-Frontend---Resilience-Mode--chromium/test-failed-1.png"
+                          "path": "/home/matt/household-project/web/test-results/lifecycle_2b_drawdown-Brad-7fd87-Projection-with-Dual-Income-chromium/test-failed-1.png"
                         },
                         {
                           "name": "error-context",
                           "contentType": "text/markdown",
-                          "path": "/home/matt/household-project/web/test-results/lifecycle_2_finance-Brady--dfbdb-Frontend---Resilience-Mode--chromium/error-context.md"
+                          "path": "/home/matt/household-project/web/test-results/lifecycle_2b_drawdown-Brad-7fd87-Projection-with-Dual-Income-chromium/error-context.md"
                         }
-                      ]
+                      ],
+                      "errorLocation": {
+                        "file": "/home/matt/household-project/web/tests/lifecycle_2b_drawdown.spec.js",
+                        "column": 16,
+                        "line": 30
+                      }
                     }
                   ],
                   "status": "unexpected"
                 }
               ],
-              "id": "ac27a2489c48f35ed2af-3cc5441749210b74f483",
-              "file": "lifecycle_2_finance.spec.js",
+              "id": "5521a4437f014318adaa-afb0e0668d27aaee6fb8",
+              "file": "lifecycle_2b_drawdown.spec.js",
               "line": 18,
               "column": 3
             }
@@ -166,8 +154,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-02T08:48:09.010Z",
-    "duration": 306010.195,
+    "startTime": "2026-02-02T11:36:15.994Z",
+    "duration": 36974.025,
     "expected": 0,
     "skipped": 0,
     "unexpected": 1,
