@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Implement Budget Undo/Redo and dynamic metadata fields",
-  "date": "Mon  2 Feb 20:30:41 GMT 2026"
+  "commitMessage": "Add metadata fields to recurring costs and fix ChargesView routing",
+  "date": "Mon  2 Feb 20:01:34 GMT 2026"
 }
