@@ -58,7 +58,7 @@ export default function Login({ onLogin }) {
     setLoading(true);
 
     try {
-      await onLogin(email, password);
+      await onLogin(email, password, rememberMe);
       
       if (rememberMe) {
         localStorage.setItem('rememberedEmail', email);
@@ -142,7 +142,7 @@ export default function Login({ onLogin }) {
 
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
                 <Checkbox 
-                  label="Remember me" 
+                  label="Remember this device" 
                   checked={rememberMe} 
                   onChange={(e) => setRememberMe(e.target.checked)} 
                   size="sm" 

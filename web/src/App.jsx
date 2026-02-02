@@ -143,6 +143,11 @@ function AppInner({
       if (!token) return;
 
       const interval = setInterval(() => {
+          // If "Remember Me" is active, skip idle checks
+          if (localStorage.getItem('persistentSession') === 'true') {
+              return;
+          }
+
           const now = Date.now();
           const diff = now - lastActivity.current;
 
@@ -441,12 +446,19 @@ export default function App() {
   const { spec, isDark } = useMemo(() => getThemeSpec(themeId, customConfig), [themeId, customConfig]);
   const theme = useMemo(() => getTotemTheme(themeId, customConfig), [themeId, customConfig]);
   
-  const login = useCallback(async (email, password) => {
-      const res = await axios.post(`${API_URL}/auth/login`, { email, password });
+  const login = useCallback(async (email, password, rememberMe) => {
+      const res = await axios.post(`${API_URL}/auth/login`, { email, password, rememberMe });
       const { token, role, context, household: hhData, user: userData, system_role } = res.data;
       const fullUser = { ...userData, role, system_role };
       setToken(token); setUser(fullUser);
       localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(fullUser));
+      
+      if (rememberMe) {
+          localStorage.setItem('persistentSession', 'true');
+      } else {
+          localStorage.removeItem('persistentSession');
+      }
+      
       if (userData.theme) setThemeId(userData.theme);
       if (context === 'household') {
         setHousehold(hhData);
@@ -462,6 +474,7 @@ export default function App() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('household');
+    localStorage.removeItem('persistentSession');
     setToken(null); setUser(null); setHousehold(null);
     window.location.href = '/login';
   }, []);

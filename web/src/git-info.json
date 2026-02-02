@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix frontend lint errors and missing useEffect dependencies",
-  "date": "Mon  2 Feb 15:19:47 GMT 2026"
+  "commitMessage": "Added 'Remember this device' persistent login",
+  "date": "Mon  2 Feb 15:35:56 GMT 2026"
 }
