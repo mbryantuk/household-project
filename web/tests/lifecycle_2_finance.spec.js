@@ -28,8 +28,9 @@ test.describe('Brady Lifecycle Stage 2: Finance & Fringe', () => {
 
     await page.goto('/login');
     await page.fill('input[type="email"]', adminEmail);
+    await page.click('button:has-text("Next")');
     await page.fill('input[type="password"]', password);
-    await page.click('button[type="submit"]');
+    await page.click('button:has-text("Log In")');
     await page.waitForURL(new RegExp(`/household/${hhId}/dashboard`));
     
     // --- HELPERS ---

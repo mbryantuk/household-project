@@ -23,9 +23,10 @@ test.describe('Brady Lifecycle Stage 3: Expense Allocation', () => {
     await logStep('Login', 'Authenticating...');
     await page.goto('/login');
     await page.fill('input[type="email"]', adminEmail);
+    await page.click('button:has-text("Next")');
     await page.fill('input[type="password"]', password);
-    await page.click('button[type="submit"]');
-    await page.waitForURL(new RegExp(`/household/${hhId}/dashboard`), { waitUntil: 'domcontentloaded' });
+    await page.click('button:has-text("Log In")');
+    await page.waitForURL(new RegExp(`/household/${hhId}/dashboard`));
 
     // 2. Navigate to Budget
     await logStep('Navigation', 'Going to Budget View...');

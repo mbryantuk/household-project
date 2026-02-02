@@ -71,10 +71,12 @@ test.describe('Brady Lifecycle Stage 1: Foundation', () => {
     });
 
     await withTimeout('Mike Login', async () => {
-        await page.fill('input[type="email"]', registeredAdminEmail);
+        await page.goto('/login');
+        await page.fill('input[type="email"]', adminEmail);
+        await page.click('button:has-text("Next")');
         await page.fill('input[type="password"]', password);
-        await page.click('button[type="submit"]');
-        await page.waitForURL(/.*dashboard/);
+        await page.click('button:has-text("Log In")');
+        await page.waitForURL(new RegExp(`/household/.*`));
     });
 
     const hhId = page.url().match(/\/household\/(\d+)/)[1];
