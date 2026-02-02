@@ -175,11 +175,47 @@ async function seed() {
 
         // 7. FINANCIAL ACCOUNTS
         const bank1 = await apiRequest('POST', `/api/households/${hhId}/finance/current-accounts`, { bank_name: "Wells Fargo", account_name: "Checking", current_balance: 15000 }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "Brady Architecture", amount: 9500, is_primary: 1, payment_day: 1, bank_account_id: bank1.data.id }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "Brady Architecture", amount: 9500, is_primary: 1, payment_day: 1, bank_account_id: bank1.data.id, member_id: members.Mike }, token);
         const savRes = await apiRequest('POST', `/api/households/${hhId}/finance/savings`, { institution: "Ally", account_name: "Joint Savings", current_balance: 55000 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/savings/${savRes.data.id}/pots`, { name: "Hawaii 2026", target_amount: 15000, current_amount: 8000, emoji: "🌋", deposit_day: 1 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/investments`, { name: "Vanguard ETF", platform: "Vanguard", current_value: 152000, monthly_contribution: 500, payment_day: 2 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/pensions`, { provider: "Fidelity", plan_name: "401k", current_value: 420000, monthly_contribution: 1200, payment_day: 1 }, token);
+
+        // 7a. DEBT (Mortgages, Loans, Car Finance, Credit Cards)
+        // Mortgage
+        const mortRes = await apiRequest('POST', `/api/households/${hhId}/finance/mortgages`, {
+            lender: "Nationwide", total_amount: 500000, remaining_balance: 425000, 
+            interest_rate: 3.49, monthly_payment: 1850, payment_day: 1, emoji: "🏠", asset_id: "primary"
+        }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/assignments`, { entity_type: 'finance_mortgages', entity_id: mortRes.data.id, member_id: members.Mike }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/assignments`, { entity_type: 'finance_mortgages', entity_id: mortRes.data.id, member_id: members.Carol }, token);
+
+        // Personal Loan
+        const loanRes = await apiRequest('POST', `/api/households/${hhId}/finance/loans`, {
+            lender: "Barclays", loan_type: "Personal Improvement", total_amount: 25000, 
+            remaining_balance: 12000, monthly_payment: 450, payment_day: 15, emoji: "📝"
+        }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/assignments`, { entity_type: 'loan', entity_id: loanRes.data.id, member_id: members.Mike }, token);
+
+        // Car Finance (Tesla)
+        const carFinRes = await apiRequest('POST', `/api/households/${hhId}/finance/vehicle-finance`, {
+            provider: "Tesla Financial Services", total_amount: 60000, remaining_balance: 35000,
+            interest_rate: 4.9, monthly_payment: 850, payment_day: 7, emoji: "⚡", vehicle_id: v1.data.id
+        }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/assignments`, { entity_type: 'vehicle_finance', entity_id: carFinRes.data.id, member_id: members.Mike }, token);
+
+        // Credit Cards
+        const amexRes = await apiRequest('POST', `/api/households/${hhId}/finance/credit-cards`, {
+            provider: "American Express", card_name: "Platinum", credit_limit: 25000, 
+            current_balance: 4200, apr: 22.9, payment_day: 20, emoji: "💳"
+        }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/assignments`, { entity_type: 'credit_card', entity_id: amexRes.data.id, member_id: members.Mike }, token);
+
+        const visaRes = await apiRequest('POST', `/api/households/${hhId}/finance/credit-cards`, {
+            provider: "Chase", card_name: "Sapphire Reserve", credit_limit: 15000, 
+            current_balance: 1500, apr: 19.9, payment_day: 5, emoji: "💳"
+        }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/assignments`, { entity_type: 'credit_card', entity_id: visaRes.data.id, member_id: members.Carol }, token);
 
         // 8. MEALS
         const recipes = [

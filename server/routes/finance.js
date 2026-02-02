@@ -250,7 +250,85 @@ const handleGetAssignments = (req, res) => {
     });
 };
 
+// ==========================================
+// 💸 VIRTUAL DEBT ROUTES (Mapped to recurring_costs)
+// ==========================================
+
+const handleGetDebtList = (categoryId) => (req, res) => {
+    req.tenantDb.all(`SELECT * FROM recurring_costs WHERE household_id = ? AND category_id = ? AND is_active = 1`, [req.hhId, categoryId], (err, rows) => {
+        closeDb(req);
+        if (err) return res.status(500).json({ error: err.message });
+        res.json((rows || []).map(row => {
+            const meta = row.metadata ? JSON.parse(row.metadata) : {};
+            return {
+                ...row,
+                ...meta,
+                name: row.name,
+                amount: row.amount,
+                // Ensure specific fields expected by frontend are at top level
+                lender: meta.lender || row.name,
+                monthly_payment: row.amount,
+                remaining_balance: meta.remaining_balance || 0,
+                total_amount: meta.total_amount || 0
+            };
+        }));
+    });
+};
+
+const handleCreateDebt = (categoryId) => (req, res) => {
+    const { name, lender, amount, monthly_payment, ...metadata } = req.body;
+    const finalName = name || lender || "Debt Item";
+    const finalAmount = parseFloat(amount || monthly_payment) || 0;
+    const metaStr = JSON.stringify({ lender: lender || finalName, ...metadata });
+
+    req.tenantDb.run(`INSERT INTO recurring_costs (
+        household_id, object_type, category_id, name, amount, frequency, 
+        start_date, day_of_month, adjust_for_working_day, emoji, metadata
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
+        req.hhId, req.body.object_type || 'household', categoryId, finalName, finalAmount, 'monthly',
+        req.body.start_date || null, req.body.payment_day || null, req.body.nearest_working_day || 1, 
+        req.body.emoji || null, metaStr
+    ], function(err) {
+        closeDb(req);
+        if (err) return res.status(500).json({ error: err.message });
+        res.status(201).json({ id: this.lastID, ...req.body });
+    });
+};
+
+const handleUpdateDebt = (categoryId) => (req, res) => {
+    const { name, lender, amount, monthly_payment, ...metadata } = req.body;
+    const finalName = name || lender || "Debt Item";
+    const finalAmount = parseFloat(amount || monthly_payment) || 0;
+    const metaStr = JSON.stringify({ lender: lender || finalName, ...metadata });
+
+    req.tenantDb.run(`UPDATE recurring_costs SET 
+        name = ?, amount = ?, day_of_month = ?, emoji = ?, metadata = ?
+        WHERE id = ? AND household_id = ? AND category_id = ?`, [
+        finalName, finalAmount, req.body.payment_day || null, req.body.emoji || null, metaStr,
+        req.params.itemId, req.hhId, categoryId
+    ], function(err) {
+        closeDb(req);
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Updated" });
+    });
+};
+
 // --- RELATIVE ROUTES (Mounted at /households/:id/finance) ---
+
+router.get('/mortgages', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetDebtList('mortgage'));
+router.post('/mortgages', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateDebt('mortgage'));
+router.put('/mortgages/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateDebt('mortgage'));
+router.delete('/mortgages/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('recurring_costs'));
+
+router.get('/loans', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetDebtList('loan'));
+router.post('/loans', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateDebt('loan'));
+router.put('/loans/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateDebt('loan'));
+router.delete('/loans/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('recurring_costs'));
+
+router.get('/vehicle-finance', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetDebtList('vehicle_finance'));
+router.post('/vehicle-finance', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleCreateDebt('vehicle_finance'));
+router.put('/vehicle-finance/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleUpdateDebt('vehicle_finance'));
+router.delete('/vehicle-finance/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('recurring_costs'));
 
 router.get('/assignments', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, handleGetAssignments);
 router.post('/assignments', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleAssignMember);

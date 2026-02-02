@@ -12,7 +12,7 @@ import {
   Event, Payments, Savings as SavingsIcon, Home, CreditCard, 
   Assignment, WaterDrop, ElectricBolt, AccountBalance, Add, Shield, 
   ShoppingBag, ChevronLeft, ChevronRight, Lock, LockOpen, ArrowDropDown, RestartAlt, Receipt,
-  DirectionsCar, Person, DeleteOutline, Restore, Sort, Search, ExpandMore, TrendingUp, Block, RemoveCircleOutline
+  DirectionsCar, Person, DeleteOutline, Restore, Sort, Search, ExpandMore, TrendingUp, Block, RemoveCircleOutline, RequestQuote
 } from '@mui/icons-material';
 import { 
   format, addMonths, startOfMonth, setDate, differenceInDays, 
@@ -338,10 +338,12 @@ export default function BudgetView() {
           const cat = charge.category_id;
           
           if (cat === 'mortgage') icon = <Home />;
+          else if (cat === 'loan') icon = <RequestQuote />;
           else if (cat === 'insurance') icon = <Shield />;
           else if (cat === 'subscription') icon = <ShoppingBag />;
           else if (cat?.includes('utility') || cat === 'water' || cat === 'energy') icon = <ElectricBolt />;
           else if (cat?.includes('vehicle')) icon = <DirectionsCar />;
+          else if (cat === 'credit_card') icon = <CreditCard />;
 
           if (charge.object_type === 'member') {
               const m = members.find(mem => String(mem.id) === String(charge.object_id));
