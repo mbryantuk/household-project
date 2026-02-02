@@ -132,20 +132,14 @@ async function seed() {
             { n: "Spotify Family", a: 17, c: "subscription", f: "monthly", d: 2, ot: "household" },
             
             // Vehicle Costs (Tesla)
-            { n: "Tesla Finance", a: 850, c: "vehicle_finance", f: "monthly", d: 5, ot: "vehicle", oi: v1.data.id },
             { n: "Tesla Insurance", a: 120, c: "insurance", f: "monthly", d: 7, ot: "vehicle", oi: v1.data.id },
             { n: "Tesla Service Plan", a: 45, c: "vehicle_service", f: "monthly", d: 10, ot: "vehicle", oi: v1.data.id },
             { n: "Tesla Extended Warranty", a: 35, c: "insurance", f: "monthly", d: 10, ot: "vehicle", oi: v1.data.id },
             
             // Vehicle Costs (Rivian)
-            { n: "Rivian Finance", a: 920, c: "vehicle_finance", f: "monthly", d: 15, ot: "vehicle", oi: v2.data.id },
             { n: "Rivian Insurance", a: 135, c: "insurance", f: "monthly", d: 18, ot: "vehicle", oi: v2.data.id },
             { n: "Rivian Service", a: 50, c: "vehicle_service", f: "monthly", d: 14, ot: "vehicle", oi: v2.data.id },
             { n: "Rivian Warranty", a: 40, c: "insurance", f: "monthly", d: 14, ot: "vehicle", oi: v2.data.id },
-            
-            // Mortgage & Loans
-            { n: "Main Mortgage", a: 4800, c: "mortgage", f: "monthly", d: 1, ot: "household", m: { lender: "Standard", term_years: 25 } },
-            { n: "SoFi Loan", a: 450, c: "loan", f: "monthly", d: 10, ot: "household" },
             
             // Adults Fun Money
             { n: "Golf Club (Mike)", a: 150, c: "fun_money", f: "monthly", d: 1, ot: "member", oi: members.Mike },
@@ -157,10 +151,10 @@ async function seed() {
             { n: "Retirement Social (Alice)", a: 100, c: "fun_money", f: "monthly", d: 1, ot: "member", oi: members.Alice },
 
             // Kids Pocket Money
-            { n: "Pocket Money (Peter)", a: 20, c: "pocket_money", f: "monthly", d: 1, ot: "member", oi: members.Peter },
-            { n: "Pocket Money (Jan)", a: 20, c: "pocket_money", f: "monthly", d: 1, ot: "member", oi: members.Jan },
-            { n: "Pocket Money (Bobby)", a: 15, c: "pocket_money", f: "monthly", d: 1, ot: "member", oi: members.Bobby },
-            { n: "Pocket Money (Cindy)", a: 15, c: "pocket_money", f: "monthly", d: 1, ot: "member", oi: members.Cindy },
+            { n: "Pocket Money (Peter)", a: 25, c: "pocket_money", f: "monthly", d: 1, ot: "member", oi: members.Peter },
+            { n: "Pocket Money (Jan)", a: 25, c: "pocket_money", f: "monthly", d: 1, ot: "member", oi: members.Jan },
+            { n: "Pocket Money (Bobby)", a: 20, c: "pocket_money", f: "monthly", d: 1, ot: "member", oi: members.Bobby },
+            { n: "Pocket Money (Cindy)", a: 20, c: "pocket_money", f: "monthly", d: 1, ot: "member", oi: members.Cindy },
 
             // Pet Expenses
             { n: "Dog Food (Tiger)", a: 60, c: "food", f: "monthly", d: 5, ot: "member", oi: members.Tiger },
