@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix versioning logic to handle hyphenated suffixes and prevent NaN",
-  "date": "Mon  2 Feb 09:08:07 GMT 2026"
+  "commitMessage": "Synchronize versioning to 3.2.5",
+  "date": "Mon  2 Feb 09:11:49 GMT 2026"
 }
