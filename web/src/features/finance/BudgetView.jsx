@@ -816,16 +816,23 @@ export default function BudgetView() {
     const totalDays = cycleData.cycleDuration || 1;
 
     drawdownData.forEach((d) => {
-      const isOverdrawn = d.balance < 0;
+      // Logic: 
+      // Red: balance < -overdraftLimit
+      // Amber: 0 > balance >= -overdraftLimit
+      let severity = null;
+      if (d.balance < -overdraftLimit) severity = 'danger';
+      else if (d.balance < 0) severity = 'warning';
+
       const daysFromStart = differenceInDays(d.date, cycleData.startDate);
       const pct = Math.min(100, Math.max(0, (daysFromStart / totalDays) * 100));
 
-      if (isOverdrawn && !currentPeriod) {
-        currentPeriod = { startPct: pct, startDate: d.date, endDate: d.date, endPct: pct };
-      } else if (isOverdrawn && currentPeriod) {
+      if (severity && (!currentPeriod || currentPeriod.severity !== severity)) {
+        if (currentPeriod) periods.push(currentPeriod);
+        currentPeriod = { severity, startPct: pct, startDate: d.date, endDate: d.date, endPct: pct };
+      } else if (severity && currentPeriod && currentPeriod.severity === severity) {
         currentPeriod.endDate = d.date;
         currentPeriod.endPct = pct;
-      } else if (!isOverdrawn && currentPeriod) {
+      } else if (!severity && currentPeriod) {
         periods.push(currentPeriod);
         currentPeriod = null;
       }
@@ -833,7 +840,7 @@ export default function BudgetView() {
     
     if (currentPeriod) periods.push(currentPeriod);
     return periods;
-  }, [drawdownData, cycleData]);
+  }, [drawdownData, cycleData, overdraftLimit]);
 
   const overdraftGradient = useMemo(() => {
     if (overdraftPeriods.length === 0) return 'var(--joy-palette-primary-softBg)';
@@ -842,14 +849,16 @@ export default function BudgetView() {
     let lastPct = 0;
     
     overdraftPeriods.forEach(p => {
-      // Transition to transparent/softBg before the red zone
-      stops.push(`var(--joy-palette-primary-softBg) ${p.startPct}%`);
-      // The red zone
-      stops.push(`var(--joy-palette-danger-400) ${p.startPct}%`);
-      stops.push(`var(--joy-palette-danger-400) ${p.endPct}%`);
-      // Transition back
-      stops.push(`var(--joy-palette-primary-softBg) ${p.endPct}%`);
-      lastPct = p.endPct;
+        const colorVar = p.severity === 'danger' ? 'var(--joy-palette-danger-400)' : 'var(--joy-palette-warning-400)';
+        
+        // Transition to transparent/softBg before the zone if there's a gap
+        stops.push(`var(--joy-palette-primary-softBg) ${p.startPct}%`);
+        // The zone
+        stops.push(`${colorVar} ${p.startPct}%`);
+        stops.push(`${colorVar} ${p.endPct}%`);
+        // Transition back
+        stops.push(`var(--joy-palette-primary-softBg) ${p.endPct}%`);
+        lastPct = p.endPct;
     });
     
     return `linear-gradient(90deg, ${stops.join(', ')})`;
@@ -1165,17 +1174,18 @@ export default function BudgetView() {
             </Box>
             <Tooltip 
                 variant="solid"
-                color={overdraftPeriods.length > 0 ? "danger" : "neutral"}
+                color={overdraftPeriods.some(p => p.severity === 'danger') ? "danger" : overdraftPeriods.length > 0 ? "warning" : "neutral"}
                 placement="top"
                 title={
                     overdraftPeriods.length > 0 ? (
                         <Box sx={{ p: 0.5 }}>
                             <Typography level="title-sm" color="inherit" sx={{ mb: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Warning /> Overdraft Warning
+                                <Warning /> {overdraftPeriods.some(p => p.severity === 'danger') ? "Overdraft Limit Risk" : "Overdraft Buffer Used"}
                             </Typography>
                             {overdraftPeriods.map((p, i) => (
-                                <Typography key={i} level="body-xs" color="inherit">
-                                    • {format(p.startDate, 'do MMM')} — {format(p.endDate, 'do MMM')}
+                                <Typography key={i} level="body-xs" color="inherit" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: p.severity === 'danger' ? 'danger.200' : 'warning.200' }} />
+                                    {format(p.startDate, 'do MMM')} — {format(p.endDate, 'do MMM')}
                                 </Typography>
                             ))}
                         </Box>
