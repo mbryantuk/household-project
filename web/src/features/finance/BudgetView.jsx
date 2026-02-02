@@ -24,6 +24,7 @@ import {
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
 import EmojiPicker from '../../components/EmojiPicker';
+import MetadataFormFields from '../../components/ui/MetadataFormFields';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -223,6 +224,8 @@ export default function BudgetView() {
   const [recurringAddOpen, setRecurringAddOpen] = useState(false);
   const [recurringType, setRecurringType] = useState('monthly');
   const [selectedEntity, setSelectedEntity] = useState('household:null');
+  const [recurringCategory, setRecurringCategory] = useState('other');
+  const [recurringMetadata, setRecurringMetadata] = useState({});
   const [setupModalOpen, setSetupModalOpen] = useState(false);
 
   // Emoji Picker State
@@ -286,6 +289,8 @@ export default function BudgetView() {
 
   const handleOpenRecurring = () => {
       setSelectedEmoji('🔄');
+      setRecurringCategory('other');
+      setRecurringMetadata({});
       setRecurringAddOpen(true);
   };
 
@@ -845,7 +850,8 @@ export default function BudgetView() {
         object_type: type,
         object_id: id === 'null' ? null : id,
         adjust_for_working_day: data.nearest_working_day === "1" ? 1 : 0,
-        emoji: selectedEmoji
+        emoji: selectedEmoji,
+        metadata: recurringMetadata
       };
 
       try {
@@ -1657,7 +1663,12 @@ export default function BudgetView() {
                                 <FormLabel>Assign To</FormLabel>
                                 <Select 
                                     value={selectedEntity} 
-                                    onChange={(e, val) => setSelectedEntity(val)}
+                                    onChange={(e, val) => {
+                                        setSelectedEntity(val);
+                                        const opts = getCategoryOptions(val);
+                                        setRecurringCategory(opts[0]?.value || 'other');
+                                        setRecurringMetadata({});
+                                    }}
                                     placeholder="Select Household, Person, Vehicle..."
                                 >
                                     {entityGroupsOptions.map((group, idx) => [
@@ -1682,7 +1693,8 @@ export default function BudgetView() {
                                     <AppSelect 
                                         label="Category" 
                                         name="category" 
-                                        defaultValue={getCategoryOptions(selectedEntity)[0]?.value} 
+                                        value={recurringCategory}
+                                        onChange={(val) => { setRecurringCategory(val); setRecurringMetadata({}); }}
                                         options={getCategoryOptions(selectedEntity)} 
                                     />
                                 </Grid>
@@ -1699,6 +1711,13 @@ export default function BudgetView() {
                             <FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus placeholder="e.g. Netflix, Car Insurance" /></FormControl>
                             <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" step="0.01" /></FormControl>
                             <FormControl required><FormLabel>First Charge Date</FormLabel><Input name="start_date" type="date" required defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
+                            
+                            <MetadataFormFields 
+                                categoryId={recurringCategory} 
+                                metadata={recurringMetadata} 
+                                onChange={setRecurringMetadata} 
+                            />
+
                             <Checkbox label="Adjust for Working Day (Next)" name="nearest_working_day" defaultChecked value="1" />
                             <Button type="submit" fullWidth>Add Recurring Expense</Button>
                         </Stack>

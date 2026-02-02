@@ -8,6 +8,8 @@ import {
 } from '@mui/joy';
 import { Add, Edit, Delete } from '@mui/icons-material';
 import { format, parseISO } from 'date-fns';
+import MetadataFormFields from '../../components/ui/MetadataFormFields';
+import { METADATA_SCHEMAS } from '../../utils/financeSchemas';
 
 const formatCurrency = (val, currencyCode = 'GBP') => {
     const num = parseFloat(val) || 0;
@@ -48,51 +50,6 @@ const FREQUENCIES = [
   { id: 'yearly', label: 'Yearly' },
   { id: 'one_off', label: 'One-off' }
 ];
-
-const METADATA_SCHEMAS = {
-    insurance: [
-        { key: 'policy_number', label: 'Policy Number', type: 'text' },
-        { key: 'provider_contact', label: 'Provider Phone', type: 'tel' },
-        { key: 'policy_type', label: 'Policy Type', type: 'select', options: ['Contents', 'Building', 'Combined', 'Life', 'Pet', 'Vehicle', 'Travel'] },
-        { key: 'renewal_date', label: 'Renewal Date', type: 'date' }
-    ],
-    utility: [
-        { key: 'account_number', label: 'Account Number', type: 'text' },
-        { key: 'meter_type', label: 'Meter Type', type: 'select', options: ['Standard', 'Smart', 'Prepaid', 'Economy 7'] },
-        { key: 'provider_website', label: 'Provider Website', type: 'url' }
-    ],
-    household_bill: [
-        { key: 'account_number', label: 'Account Number', type: 'text' },
-        { key: 'contract_end_date', label: 'Contract End Date', type: 'date' }
-    ],
-    subscription: [
-        { key: 'login_email', label: 'Login Email', type: 'email' },
-        { key: 'plan_tier', label: 'Plan Tier', type: 'text' }
-    ],
-    vehicle_tax: [
-        { key: 'registration', label: 'Registration Plate', type: 'text' }
-    ],
-    vehicle_service: [
-        { key: 'garage_name', label: 'Garage Name', type: 'text' },
-        { key: 'service_level', label: 'Service Level', type: 'select', options: ['Interim', 'Full', 'Major'] }
-    ],
-    warranty: [
-        { key: 'provider_name', label: 'Provider Name', type: 'text' },
-        { key: 'reference_number', label: 'Reference Number', type: 'text' },
-        { key: 'expiry_date', label: 'Expiry Date', type: 'date' }
-    ],
-    vehicle_mot: [
-        { key: 'test_centre', label: 'Test Centre', type: 'text' },
-        { key: 'expiry_date', label: 'Expiry Date', type: 'date' }
-    ],
-    vehicle_fuel: [
-        { key: 'fuel_type', label: 'Fuel Type', type: 'select', options: ['Petrol', 'Diesel', 'Electric', 'Hybrid', 'LPG'] },
-        { key: 'loyalty_card', label: 'Loyalty Card', type: 'text' }
-    ],
-    other: [
-        { key: 'comments', label: 'Comments', type: 'text' }
-    ]
-};
 
 export default function ChargesView({ initialTab }) {
   const { household, api } = useOutletContext();
@@ -232,10 +189,6 @@ export default function ChargesView({ initialTab }) {
       return type;
   };
 
-  const currentMetadataFields = useMemo(() => {
-      return METADATA_SCHEMAS[formData.category_id] || [];
-  }, [formData.category_id]);
-
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -341,36 +294,11 @@ export default function ChargesView({ initialTab }) {
             </Grid>
 
             {/* Dynamic Metadata Section */}
-            {currentMetadataFields.length > 0 && (
-                <Sheet variant="soft" color="neutral" sx={{ p: 2, borderRadius: 'md' }}>
-                    <Typography level="title-sm" mb={1} textTransform="uppercase" letterSpacing="1px" fontSize="xs">
-                        {CATEGORIES.find(c => c.id === formData.category_id)?.label} Details
-                    </Typography>
-                    <Grid container spacing={2}>
-                        {currentMetadataFields.map(field => (
-                            <Grid xs={field.type === 'select' ? 6 : 6} key={field.key}>
-                                <FormControl>
-                                    <FormLabel>{field.label}</FormLabel>
-                                    {field.type === 'select' ? (
-                                        <Select 
-                                            value={formData.metadata[field.key] || ''} 
-                                            onChange={(e, val) => setFormData(prev => ({ ...prev, metadata: { ...prev.metadata, [field.key]: val } }))}
-                                        >
-                                            {field.options.map(opt => <Option key={opt} value={opt}>{opt}</Option>)}
-                                        </Select>
-                                    ) : (
-                                        <Input 
-                                            type={field.type} 
-                                            value={formData.metadata[field.key] || ''} 
-                                            onChange={e => setFormData(prev => ({ ...prev, metadata: { ...prev.metadata, [field.key]: e.target.value } }))} 
-                                        />
-                                    )}
-                                </FormControl>
-                            </Grid>
-                        ))}
-                    </Grid>
-                </Sheet>
-            )}
+            <MetadataFormFields 
+                categoryId={formData.category_id} 
+                metadata={formData.metadata} 
+                onChange={(newMeta) => setFormData(prev => ({ ...prev, metadata: newMeta }))}
+            />
 
             <FormControl><FormLabel>Assign To</FormLabel>
                 <Select value={`${formData.object_type}_${formData.object_id || 'null'}`} onChange={(e, val) => { const [type, id] = val.split('_'); setFormData({ ...formData, object_type: type, object_id: id === 'null' ? null : parseInt(id) }); }}>

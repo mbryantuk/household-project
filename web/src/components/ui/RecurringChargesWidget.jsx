@@ -13,6 +13,7 @@ import {
 import { format, parseISO } from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../EmojiPicker';
+import MetadataFormFields from './MetadataFormFields';
 
 const formatCurrency = (val, currencyCode = 'GBP') => {
     const num = parseFloat(val) || 0;
@@ -257,6 +258,13 @@ export default function RecurringChargesWidget({
                         </FormControl>
                     </Grid>
                 </Grid>
+
+                <MetadataFormFields 
+                    categoryId={formData.category_id} 
+                    metadata={formData.metadata} 
+                    onChange={(newMeta) => setFormData(prev => ({ ...prev, metadata: newMeta }))}
+                />
+
                 <Button size="lg" onClick={handleSave} variant="solid" sx={{ mt: 2 }}>{editingId ? 'Update Cost' : 'Create Cost'}</Button>
               </Stack>
           </DialogContent>
