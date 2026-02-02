@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { 
-  Box, Typography, Sheet, Tabs, TabList, Tab, CircularProgress, Divider, Grid, Input, Button, Tooltip, IconButton, FormControl, FormLabel, Badge, Stack, Chip, Avatar, Card
+  Box, Typography, Sheet, Tabs, TabList, Tab, CircularProgress, Divider, Grid, Input, Button, Tooltip, IconButton, FormControl, FormLabel, Badge, Stack, Chip, Avatar, Card,
+  Dropdown, Menu, MenuButton, MenuItem
 } from '@mui/joy';
 import { 
-  HomeWork, Payments, Save, ArrowBack, Inventory, DirectionsCar, Add, Groups
+  HomeWork, Payments, Save, ArrowBack, Inventory, DirectionsCar, Add, Groups, ArrowDropDown
 } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
 import { getEmojiColor } from '../theme';
@@ -121,11 +122,23 @@ export default function HouseView() {
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                             <Typography level="title-lg" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Groups /> Residents</Typography>
                             {isAdmin && (
-                                <Stack direction="row" spacing={1}>
-                                    <Button size="sm" variant="soft" startDecorator={<Add />} onClick={() => navigate(`../people/new?type=adult`)}>Add Adult</Button>
-                                    <Button size="sm" variant="soft" color="neutral" startDecorator={<Add />} onClick={() => navigate(`../people/new?type=child`)}>Add Child</Button>
-                                    <Button size="sm" variant="soft" color="warning" startDecorator={<Add />} onClick={() => navigate(`../pets/new`)}>Add Pet</Button>
-                                </Stack>
+                                <Dropdown>
+                                    <MenuButton 
+                                        size="sm" 
+                                        variant="soft" 
+                                        color="primary" 
+                                        startDecorator={<Add />} 
+                                        endDecorator={<ArrowDropDown />}
+                                    >
+                                        Add
+                                    </MenuButton>
+                                    <Menu placement="bottom-end" size="sm" sx={{ zIndex: 10000 }}>
+                                        <MenuItem onClick={() => navigate(`../people/new?type=adult`)}>Add Adult</MenuItem>
+                                        <MenuItem onClick={() => navigate(`../people/new?type=child`)}>Add Child</MenuItem>
+                                        <Divider />
+                                        <MenuItem onClick={() => navigate(`../pets/new`)}>Add Pet</MenuItem>
+                                    </Menu>
+                                </Dropdown>
                             )}
                         </Box>
                         <Grid container spacing={2}>
