@@ -433,11 +433,51 @@ router.delete('/budget-cycles/:cycleStart', authenticateToken, requireHouseholdR
 });
 
 router.post('/budget-cycles', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-    const { cycle_start, actual_pay, current_balance } = req.body;
-    req.tenantDb.run(`INSERT INTO finance_budget_cycles (household_id, cycle_start, actual_pay, current_balance) VALUES (?, ?, ?, ?) ON CONFLICT(household_id, cycle_start) DO UPDATE SET actual_pay = excluded.actual_pay, current_balance = excluded.current_balance`, [req.hhId, cycle_start, actual_pay, current_balance], function(err) {
-        closeDb(req);
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Cycle updated" });
+    const { cycle_start, actual_pay, current_balance, bank_account_id } = req.body;
+    
+    req.tenantDb.serialize(() => {
+        req.tenantDb.run("BEGIN TRANSACTION");
+        
+        // 1. Update/Insert Cycle
+        req.tenantDb.run(`
+            INSERT INTO finance_budget_cycles (household_id, cycle_start, actual_pay, current_balance, bank_account_id) 
+            VALUES (?, ?, ?, ?, ?) 
+            ON CONFLICT(household_id, cycle_start) 
+            DO UPDATE SET 
+                actual_pay = excluded.actual_pay, 
+                current_balance = excluded.current_balance,
+                bank_account_id = excluded.bank_account_id
+        `, [req.hhId, cycle_start, actual_pay, current_balance, bank_account_id], function(err) {
+            if (err) {
+                req.tenantDb.run("ROLLBACK");
+                closeDb(req);
+                return res.status(500).json({ error: err.message });
+            }
+
+            // 2. If bank_account_id is provided, sync the balance to the current account
+            if (bank_account_id) {
+                req.tenantDb.run(
+                    `UPDATE finance_current_accounts SET current_balance = ? WHERE id = ? AND household_id = ?`,
+                    [current_balance, bank_account_id, req.hhId],
+                    (updateErr) => {
+                        if (updateErr) {
+                            req.tenantDb.run("ROLLBACK");
+                            closeDb(req);
+                            return res.status(500).json({ error: updateErr.message });
+                        }
+                        req.tenantDb.run("COMMIT", () => {
+                            closeDb(req);
+                            res.json({ message: "Cycle and bank account updated" });
+                        });
+                    }
+                );
+            } else {
+                req.tenantDb.run("COMMIT", () => {
+                    closeDb(req);
+                    res.json({ message: "Cycle updated" });
+                });
+            }
+        });
     });
 });
 

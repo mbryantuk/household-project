@@ -1,4 +1,4 @@
 {
-  "commitMessage": "UI: Two-tier overdraft visualization (Amber for buffer, Red for limit exceeded)",
-  "date": "Mon  2 Feb 14:39:41 GMT 2026"
+  "commitMessage": "Link budget cycle to bank account and dynamic overdraft logic",
+  "date": "Mon  2 Feb 14:48:42 GMT 2026"
 }

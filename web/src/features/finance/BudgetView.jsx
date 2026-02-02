@@ -199,6 +199,7 @@ export default function BudgetView() {
   const [incomes, setIncomes] = useState([]);
   const [progress, setProgress] = useState([]); 
   const [cycles, setCycles] = useState([]); 
+  const [currentAccounts, setCurrentAccounts] = useState([]);
   
   const [liabilities, setLiabilities] = useState({
       recurring_costs: [], credit_cards: [], pensions: [], vehicles: [], assets: [],
@@ -225,13 +226,14 @@ export default function BudgetView() {
 
   const [actualPay, setActualPay] = useState('');
   const [currentBalance, setCurrentBalance] = useState('');
+  const [selectedAccountId, setSelectedAccountId] = useState(null);
   const [isPayLocked, setIsPayLocked] = useState(true);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const [
-          incRes, progRes, cycleRes, recurringRes, ccRes, pensionRes, potRes, holidayRes, vehRes, assetRes, saveRes, invRes
+          incRes, progRes, cycleRes, recurringRes, ccRes, pensionRes, potRes, holidayRes, vehRes, assetRes, saveRes, invRes, accountRes
       ] = await Promise.all([
           api.get(`/households/${householdId}/finance/income`),
           api.get(`/households/${householdId}/finance/budget-progress`),
@@ -244,12 +246,14 @@ export default function BudgetView() {
           api.get(`/households/${householdId}/vehicles`),
           api.get(`/households/${householdId}/assets`),
           api.get(`/households/${householdId}/finance/savings`),
-          api.get(`/households/${householdId}/finance/investments`)
+          api.get(`/households/${householdId}/finance/investments`),
+          api.get(`/households/${householdId}/finance/current-accounts`)
       ]);
 
       setIncomes(incRes.data || []);
       setProgress(progRes.data || []);
       setCycles(cycleRes.data || []);
+      setCurrentAccounts(accountRes.data || []);
       setLiabilities({
           recurring_costs: recurringRes.data || [],
           credit_cards: ccRes.data || [],
@@ -605,6 +609,7 @@ export default function BudgetView() {
           if (currentCycleRecord) {
               setActualPay(currentCycleRecord.actual_pay);
               setCurrentBalance(currentCycleRecord.current_balance);
+              setSelectedAccountId(currentCycleRecord.bank_account_id || null);
               setSetupModalOpen(false);
           } else {
               setSetupModalOpen(true);
@@ -620,22 +625,30 @@ export default function BudgetView() {
   const handleSetupBudget = async (mode) => {
       let initialPay = projectedIncomeTotal;
       let initialBalance = projectedIncomeTotal;
+      let initialAccountId = null;
+
       if (mode === 'copy') {
           const sortedCycles = [...cycles].sort((a,b) => b.cycle_start.localeCompare(a.cycle_start));
           const lastRecord = sortedCycles.find(c => c.cycle_start < cycleData.cycleKey);
           if (lastRecord) {
               initialPay = lastRecord.actual_pay;
               initialBalance = lastRecord.actual_pay; 
+              initialAccountId = lastRecord.bank_account_id;
           }
       }
-      await saveCycleData(initialPay, initialBalance);
+      await saveCycleData(initialPay, initialBalance, initialAccountId);
       setSetupModalOpen(false);
   };
 
-  const saveCycleData = async (pay, balance) => {
+  const saveCycleData = async (pay, balance, accountId = selectedAccountId) => {
       if (!cycleData) return;
       try {
-          await api.post(`/households/${householdId}/finance/budget-cycles`, { cycle_start: cycleData.cycleKey, actual_pay: parseFloat(pay) || 0, current_balance: parseFloat(balance) || 0 });
+          await api.post(`/households/${householdId}/finance/budget-cycles`, { 
+              cycle_start: cycleData.cycleKey, 
+              actual_pay: parseFloat(pay) || 0, 
+              current_balance: parseFloat(balance) || 0,
+              bank_account_id: accountId
+          });
           const res = await api.get(`/households/${householdId}/finance/budget-cycles`);
           setCycles(res.data || []);
       } catch (err) { console.error("Failed to save cycle data", err); }
@@ -764,7 +777,12 @@ export default function BudgetView() {
       return { total, paid, unpaid: total - paid };
   }, [cycleData]);
 
-  const overdraftLimit = 2500; 
+  const selectedAccount = useMemo(() => 
+    currentAccounts.find(a => a.id === selectedAccountId), 
+    [currentAccounts, selectedAccountId]
+  );
+
+  const overdraftLimit = selectedAccount?.overdraft_limit || 0; 
 
   const drawdownData = useMemo(() => {
     if (!cycleData || currentBalance === undefined) return [];
@@ -1240,6 +1258,43 @@ export default function BudgetView() {
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
                             <Typography level="title-md" startDecorator={<BankIcon />} color="primary">Liquidity Control</Typography>
                         </Box>
+                        
+                        <FormControl sx={{ mb: 2 }}>
+                            <FormLabel sx={{ fontSize: 'xs', fontWeight: 'bold', textTransform: 'uppercase', color: 'primary.700', letterSpacing: '0.05em', mb: 1 }}>Linked Bank Account</FormLabel>
+                            <Select 
+                                value={selectedAccountId} 
+                                onChange={(e, val) => {
+                                    setSelectedAccountId(val);
+                                    const acc = currentAccounts.find(a => a.id === val);
+                                    if (acc) {
+                                        setCurrentBalance(acc.current_balance);
+                                        saveCycleData(actualPay, acc.current_balance, val);
+                                    } else {
+                                        saveCycleData(actualPay, currentBalance, val);
+                                    }
+                                }}
+                                placeholder="Select Account..."
+                                size="sm"
+                                startDecorator={selectedAccount?.emoji || <BankIcon />}
+                                sx={{ bgcolor: 'background.surface' }}
+                            >
+                                <Option value={null}>None (Manual Balance)</Option>
+                                <Divider />
+                                {currentAccounts.map(acc => (
+                                    <Option key={acc.id} value={acc.id}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%', justifyContent: 'space-between' }}>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                {acc.emoji} {acc.account_name}
+                                            </Box>
+                                            <Typography level="body-xs" variant="soft" color="neutral">
+                                                {formatCurrency(acc.current_balance)}
+                                            </Typography>
+                                        </Box>
+                                    </Option>
+                                ))}
+                            </Select>
+                        </FormControl>
+
                         <FormControl>
                             <FormLabel sx={{ fontSize: 'xs', fontWeight: 'bold', textTransform: 'uppercase', color: 'primary.700', letterSpacing: '0.05em', mb: 1 }}>Current Bank Balance</FormLabel>
                             <Input 

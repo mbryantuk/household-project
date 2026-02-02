@@ -329,7 +329,9 @@ const TENANT_SCHEMA = [
         cycle_start DATE, 
         actual_pay REAL,
         current_balance REAL,
-        PRIMARY KEY (household_id, cycle_start)
+        bank_account_id INTEGER,
+        PRIMARY KEY (household_id, cycle_start),
+        FOREIGN KEY(bank_account_id) REFERENCES finance_current_accounts(id) ON DELETE SET NULL
     )`,
     `CREATE TABLE IF NOT EXISTS finance_assignments (
         household_id INTEGER,
@@ -455,7 +457,8 @@ function initializeHouseholdSchema(db) {
             ['finance_savings', 'deposit_amount', 'REAL DEFAULT 0'],
             ['finance_savings', 'deposit_day', 'INTEGER'],
             ['finance_investments', 'monthly_contribution', 'REAL DEFAULT 0'],
-            ['finance_investments', 'payment_day', 'INTEGER']
+            ['finance_investments', 'payment_day', 'INTEGER'],
+            ['finance_budget_cycles', 'bank_account_id', 'INTEGER']
         ];
 
         additionalFinanceCols.forEach(([table, col, type]) => {
