@@ -1,4 +1,4 @@
 {
-  "commitMessage": "UI: Wrap income labels, lock amount behind edit/save, and cleanup Bank Balance field",
-  "date": "Mon  2 Feb 14:15:28 GMT 2026"
+  "commitMessage": "Fix React Hook violation in BudgetView income list",
+  "date": "Mon  2 Feb 14:20:27 GMT 2026"
 }

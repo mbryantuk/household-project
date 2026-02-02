@@ -113,6 +113,81 @@ const getRelativeDateLabel = (date) => {
     return { label: `${Math.abs(diff)} days ago`, color: 'danger' };
 };
 
+const IncomeSourceCard = ({ inc, onUpdateAmount, onTogglePaid }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [tempAmount, setTempAmount] = useState(inc.amount);
+
+    const handleSave = () => {
+        onUpdateAmount(inc.key, tempAmount);
+        setIsEditing(false);
+    };
+
+    return (
+        <Card 
+            key={inc.key} 
+            variant="outlined" 
+            size="sm" 
+            sx={{ 
+                p: 1.5, 
+                display: 'flex', 
+                flexDirection: 'row', 
+                alignItems: 'flex-start', 
+                gap: 1.5,
+                boxShadow: 'xs',
+                borderColor: inc.isPaid ? 'success.300' : 'divider',
+                bgcolor: inc.isPaid ? 'success.softBg' : 'background.surface'
+            }}
+        >
+            <Avatar size="sm" variant="soft" color={inc.isPaid ? 'success' : 'neutral'} sx={{ mt: 0.5, bgcolor: inc.isPaid ? 'success.solidBg' : undefined, color: inc.isPaid ? '#fff' : undefined }}>
+                {inc.icon}
+            </Avatar>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography level="title-sm" sx={{ whiteSpace: 'normal', wordBreak: 'break-word', lineHeight: 1.3 }}>{inc.label}</Typography>
+                <Typography level="body-xs" color="neutral">{format(inc.computedDate, 'do MMM')}</Typography>
+            </Box>
+            <Box sx={{ textAlign: 'right', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5 }}>
+                {isEditing ? (
+                    <Stack direction="row" spacing={0.5} alignItems="center">
+                        <Input 
+                            size="sm" 
+                            type="number" 
+                            variant="outlined" 
+                            autoFocus
+                            value={tempAmount}
+                            onChange={(e) => setTempAmount(e.target.value)}
+                            sx={{ width: 70, fontWeight: 'bold' }}
+                            slotProps={{ input: { step: '0.01', style: { textAlign: 'right', padding: '4px' } } }}
+                        />
+                        <IconButton size="sm" color="success" onClick={handleSave}><CheckCircle sx={{ fontSize: '1.2rem' }} /></IconButton>
+                    </Stack>
+                ) : (
+                    <Stack direction="row" spacing={0.5} alignItems="center">
+                        <Typography level="title-sm" fontWeight="bold" color={inc.isPaid ? 'success.700' : 'neutral.700'}>
+                            {formatCurrency(inc.amount)}
+                        </Typography>
+                        {!inc.isPaid && (
+                            <IconButton size="sm" variant="plain" onClick={() => setIsEditing(true)}>
+                                <Payments sx={{ fontSize: '1rem', opacity: 0.6 }} />
+                            </IconButton>
+                        )}
+                    </Stack>
+                )}
+                
+                <Checkbox 
+                    size="sm" 
+                    variant="soft"
+                    color="success"
+                    checked={inc.isPaid} 
+                    onChange={() => onTogglePaid(inc.key, inc.amount)}
+                    uncheckedIcon={<RadioButtonUnchecked />}
+                    checkedIcon={<CheckCircle />}
+                    sx={{ ml: 'auto' }}
+                />
+            </Box>
+        </Card>
+    );
+};
+
 export default function BudgetView() {
   const { api, id: householdId, isDark, showNotification, members = [], setStatusBarData, confirmAction } = useOutletContext();
   const [loading, setLoading] = useState(true);
@@ -1049,80 +1124,14 @@ export default function BudgetView() {
                                 <Typography level="body-xs" fontWeight="bold" color="success">{formatCurrency(incomeGroup.total)}</Typography>
                             </Box>
                             <Stack spacing={1.5}>
-                                {incomeGroup.items.map(inc => {
-                                    const [isEditing, setIsEditing] = useState(false);
-                                    const [tempAmount, setTempAmount] = useState(inc.amount);
-
-                                    const handleSave = () => {
-                                        updateActualAmount(inc.key, tempAmount);
-                                        setIsEditing(false);
-                                    };
-
-                                    return (
-                                        <Card 
-                                            key={inc.key} 
-                                            variant="outlined" 
-                                            size="sm" 
-                                            sx={{ 
-                                                p: 1.5, 
-                                                display: 'flex', 
-                                                flexDirection: 'row', 
-                                                alignItems: 'flex-start', 
-                                                gap: 1.5,
-                                                boxShadow: 'xs',
-                                                borderColor: inc.isPaid ? 'success.300' : 'divider',
-                                                bgcolor: inc.isPaid ? 'success.softBg' : 'background.surface'
-                                            }}
-                                        >
-                                            <Avatar size="sm" variant="soft" color={inc.isPaid ? 'success' : 'neutral'} sx={{ mt: 0.5, bgcolor: inc.isPaid ? 'success.solidBg' : undefined, color: inc.isPaid ? '#fff' : undefined }}>
-                                                {inc.icon}
-                                            </Avatar>
-                                            <Box sx={{ flex: 1, minWidth: 0 }}>
-                                                <Typography level="title-sm" sx={{ whiteSpace: 'normal', wordBreak: 'break-word', lineHeight: 1.3 }}>{inc.label}</Typography>
-                                                <Typography level="body-xs" color="neutral">{format(inc.computedDate, 'do MMM')}</Typography>
-                                            </Box>
-                                            <Box sx={{ textAlign: 'right', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5 }}>
-                                                {isEditing ? (
-                                                    <Stack direction="row" spacing={0.5} alignItems="center">
-                                                        <Input 
-                                                            size="sm" 
-                                                            type="number" 
-                                                            variant="outlined" 
-                                                            autoFocus
-                                                            value={tempAmount}
-                                                            onChange={(e) => setTempAmount(e.target.value)}
-                                                            sx={{ width: 70, fontWeight: 'bold' }}
-                                                            slotProps={{ input: { step: '0.01', style: { textAlign: 'right', padding: '4px' } } }}
-                                                        />
-                                                        <IconButton size="sm" color="success" onClick={handleSave}><CheckCircle sx={{ fontSize: '1.2rem' }} /></IconButton>
-                                                    </Stack>
-                                                ) : (
-                                                    <Stack direction="row" spacing={0.5} alignItems="center">
-                                                        <Typography level="title-sm" fontWeight="bold" color={inc.isPaid ? 'success.700' : 'neutral.700'}>
-                                                            {formatCurrency(inc.amount)}
-                                                        </Typography>
-                                                        {!inc.isPaid && (
-                                                            <IconButton size="sm" variant="plain" onClick={() => setIsEditing(true)}>
-                                                                <Payments sx={{ fontSize: '1rem', opacity: 0.6 }} />
-                                                            </IconButton>
-                                                        )}
-                                                    </Stack>
-                                                )}
-                                                
-                                                <Checkbox 
-                                                    size="sm" 
-                                                    variant="soft"
-                                                    color="success"
-                                                    checked={inc.isPaid} 
-                                                    onChange={() => togglePaid(inc.key, inc.amount)}
-                                                    uncheckedIcon={<RadioButtonUnchecked />}
-                                                    checkedIcon={<CheckCircle />}
-                                                    sx={{ ml: 'auto' }}
-                                                />
-                                            </Box>
-                                        </Card>
-                                    );
-                                })}
+                                {incomeGroup.items.map(inc => (
+                                    <IncomeSourceCard 
+                                        key={inc.key} 
+                                        inc={inc} 
+                                        onUpdateAmount={updateActualAmount} 
+                                        onTogglePaid={togglePaid} 
+                                    />
+                                ))}
                                 {incomeGroup.items.length === 0 && (
                                     <Typography level="body-xs" sx={{ textAlign: 'center', py: 2, fontStyle: 'italic', border: '1px dashed', borderColor: 'divider', borderRadius: 'sm' }}>
                                         No income records for this cycle.
