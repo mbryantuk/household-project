@@ -177,8 +177,17 @@ async function seed() {
         const bank1 = await apiRequest('POST', `/api/households/${hhId}/finance/current-accounts`, { bank_name: "Wells Fargo", account_name: "Checking", current_balance: 15000 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "Brady Architecture", amount: 9500, is_primary: 1, payment_day: 1, bank_account_id: bank1.data.id, member_id: members.Mike }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "WFH Creative", amount: 4200, is_primary: 0, payment_day: 20, bank_account_id: bank1.data.id, member_id: members.Carol }, token);
+        
+        // Joint Savings with Pots
         const savRes = await apiRequest('POST', `/api/households/${hhId}/finance/savings`, { institution: "Ally", account_name: "Joint Savings", current_balance: 55000 }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/savings/${savRes.data.id}/pots`, { name: "Hawaii 2026", target_amount: 15000, current_amount: 8000, emoji: "🌋", deposit_day: 1 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/savings/${savRes.data.id}/pots`, { name: "Emergency Fund", target_amount: 30000, current_amount: 30000, emoji: "🚨", deposit_day: 1 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/savings/${savRes.data.id}/pots`, { name: "Hawaii 2026", target_amount: 15000, current_amount: 10000, emoji: "🌋", deposit_day: 1 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/savings/${savRes.data.id}/pots`, { name: "House Repairs", target_amount: 10000, current_amount: 5000, emoji: "🔨", deposit_day: 15 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/savings/${savRes.data.id}/pots`, { name: "Car Replacement", target_amount: 20000, current_amount: 10000, emoji: "🚗", deposit_day: 5 }, token);
+
+        // Individual Savings (No Pots)
+        await apiRequest('POST', `/api/households/${hhId}/finance/savings`, { institution: "Marcus", account_name: "Carol's Personal", current_balance: 12500 }, token);
+
         await apiRequest('POST', `/api/households/${hhId}/finance/investments`, { name: "Vanguard ETF", platform: "Vanguard", current_value: 152000, monthly_contribution: 500, payment_day: 2 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/pensions`, { provider: "Fidelity", plan_name: "401k", current_value: 420000, monthly_contribution: 1200, payment_day: 1 }, token);
 
