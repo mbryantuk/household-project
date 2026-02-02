@@ -142,6 +142,7 @@ export default function BudgetView() {
 
   // Modals
   const [quickAddOpen, setQuickAddOpen] = useState(false);
+  const [addIncomeOpen, setAddIncomeOpen] = useState(false);
   const [recurringAddOpen, setRecurringAddOpen] = useState(false);
   const [recurringType, setRecurringType] = useState('monthly');
   const [selectedEntity, setSelectedEntity] = useState('household:null');
@@ -326,7 +327,7 @@ export default function BudgetView() {
       let progressPct = 0;
       let daysRemaining = differenceInDays(endDate, now);
       if (isSameDay(now, startDate) || isAfter(now, startDate)) {
-          progressPct = Math.min((differenceInDays(now, startDate) / cycleDuration) * 100, 100);
+          progressPct = Math.min((differenceInDays(now, startDate) / (cycleDuration || 1)) * 100, 100);
       }
       if (daysRemaining < 0) daysRemaining = 0;
 
@@ -619,6 +620,27 @@ export default function BudgetView() {
       } catch { showNotification("Failed.", "danger"); }
   };
 
+  const handleIncomeAdd = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+    const [, id] = (data.member || 'null').split(':');
+
+    const payload = {
+        employer: data.name,
+        amount: parseFloat(data.amount) || 0,
+        payment_day: format(parseISO(data.payment_date), 'd'),
+        is_primary: 0,
+        member_id: id === 'null' ? null : id,
+        nearest_working_day: 1
+    };
+    try {
+        await api.post(`/households/${householdId}/finance/income`, payload);
+        showNotification("One-off income added.", "success");
+        fetchData(); setAddIncomeOpen(false);
+    } catch { showNotification("Failed to add income.", "danger"); }
+  };
+
   const handleRecurringAdd = async (e) => {
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
@@ -693,6 +715,26 @@ export default function BudgetView() {
   const isOverdrawnRisk = lowestProjected < 0;
   const isLimitRisk = lowestProjected < -overdraftLimit;
 
+  const overdraftMarkers = useMemo(() => {
+    if (!cycleData || !drawdownData.length) return [];
+    const markers = [];
+    let foundOverdraft = false;
+    let foundLimit = false;
+
+    drawdownData.forEach((d, i) => {
+        const pct = (i / (drawdownData.length - 1)) * 100;
+        if (!foundOverdraft && d.balance < 0) {
+            markers.push({ type: 'overdraft', pct, balance: d.balance });
+            foundOverdraft = true;
+        }
+        if (!foundLimit && d.balance < -overdraftLimit) {
+            markers.push({ type: 'limit', pct, balance: d.balance });
+            foundLimit = true;
+        }
+    });
+    return markers;
+  }, [drawdownData, cycleData]);
+
   const trueDisposable = (parseFloat(currentBalance) || 0) - cycleTotals.unpaid + (cycleData?.groupList.find(g => g.id === 'income')?.unpaid || 0);
   
   const selectedTotals = useMemo(() => {
@@ -712,6 +754,18 @@ export default function BudgetView() {
     if (sortConfig.key === key && sortConfig.direction === 'asc') direction = 'desc';
     setSortConfig({ key, direction });
   };
+
+  const DrawdownLine = useMemo(() => {
+    if (!cycleData || !drawdownData.length) return null;
+    const width = 100;
+    const points = drawdownData.map((d, i) => {
+        const x = (i / (drawdownData.length - 1)) * width;
+        const val = Math.max(-overdraftLimit, Math.min(5000, d.balance));
+        const y = 100 - ((val + overdraftLimit) / (5000 + overdraftLimit)) * 100;
+        return `${x},${y}`;
+    }).join(' ');
+    return points;
+  }, [drawdownData, cycleData]);
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
   if (!cycleData) return <Box sx={{ p: 4, textAlign: 'center' }}><Typography level="h4">No Primary Income Set</Typography><Button sx={{ mt: 2 }} onClick={fetchData}>Refresh</Button></Box>;
@@ -844,8 +898,8 @@ export default function BudgetView() {
       const toggle = () => setSectionsOpen(prev => ({ ...prev, [group.id]: !prev[group.id] }));
       
       return (
-      <Accordion expanded={isOpen} onChange={toggle} variant="outlined" sx={{ borderRadius: 'md', mb: 2 }} key={group.id}>
-          <AccordionSummary expandIcon={<ExpandMore />} sx={{ py: { xs: 1.5, sm: 1 } }}>
+      <Accordion expanded={isOpen} onChange={toggle} variant="outlined" sx={{ borderRadius: 'md', mb: 2, bgcolor: 'background.surface' }} key={group.id}>
+          <AccordionSummary expandIcon={<ExpandMore />} sx={{ py: { xs: 1.5, sm: 1 }, borderBottom: isOpen ? '1px solid' : 'none', borderColor: 'divider' }}>
               <Box sx={{ display: 'flex', flexWrap: { xs: 'wrap', sm: 'nowrap' }, justifyContent: 'space-between', width: '100%', alignItems: 'center', mr: 2, overflow: 'hidden', gap: 1.5 }}>
                   <Typography level="title-lg" sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, flexBasis: { xs: '100%', sm: 'auto' } }}>
                       <Avatar size="sm" sx={{ bgcolor: group.id === 'income' ? 'success.500' : 'background.level3' }}>{group.emoji}</Avatar> 
@@ -862,13 +916,16 @@ export default function BudgetView() {
               <Box sx={{ display: { xs: 'block', md: 'none' } }}>
                   {group.items.map(renderMobileItem)}
               </Box>
-              <Sheet variant="plain" sx={{ borderRadius: 'md', overflow: 'hidden', display: { xs: 'none', md: 'block' } }}>
+              <Sheet variant="plain" sx={{ borderRadius: '0 0 md md', overflow: 'hidden', display: { xs: 'none', md: 'block' } }}>
               <Table 
                 hoverRow 
+                borderAxis="bothBetween"
+                variant="plain"
                 sx={{ 
                     '--TableCell-paddingX': '16px',
                     tableLayout: 'fixed',
-                    '& th': { bgcolor: 'background.level1' }
+                    '& th': { bgcolor: 'background.level1', borderBottom: '2px solid', borderColor: 'divider' },
+                    '& td': { borderBottom: '1px solid', borderColor: 'divider' }
                 }}
               >
                   <thead>
@@ -973,14 +1030,83 @@ export default function BudgetView() {
                 <Dropdown>
                     <MenuButton variant="solid" color="primary" size="sm" startDecorator={<Add />} endDecorator={<ArrowDropDown />}>Add</MenuButton>
                     <Menu placement="bottom-end" size="sm">
-                        <MenuItem onClick={() => setQuickAddOpen(true)}>Add One-off</MenuItem>
-                        <MenuItem onClick={() => setRecurringAddOpen(true)}>Add Recurring</MenuItem>
+                        <MenuItem onClick={() => setAddIncomeOpen(true)}>Add One-off Income</MenuItem>
+                        <MenuItem onClick={() => setQuickAddOpen(true)}>Add One-off Expense</MenuItem>
+                        <MenuItem onClick={() => setRecurringAddOpen(true)}>Add Recurring Item</MenuItem>
                     </Menu>
                 </Dropdown>
             </Box>
         </Box>
 
-        <Box sx={{ mb: 2 }}><Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}><Typography level="body-xs" fontWeight="bold" sx={{ textTransform: 'uppercase', letterSpacing: '0.1em' }}>Days Left</Typography><Typography level="body-xs" fontWeight="bold">{cycleData.daysRemaining} days to go</Typography></Box><LinearProgress determinate value={cycleData.progressPct} thickness={6} variant="soft" color="primary" sx={{ borderRadius: 'sm' }} /></Box>
+        <Box sx={{ mb: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
+                <Typography level="body-xs" fontWeight="bold" sx={{ textTransform: 'uppercase', letterSpacing: '0.1em' }}>Cycle Progress & Risks</Typography>
+                <Typography level="body-xs" fontWeight="bold">{cycleData.daysRemaining} days to go</Typography>
+            </Box>
+            <Box sx={{ position: 'relative', height: 24, mb: 1 }}>
+                <LinearProgress 
+                    determinate value={cycleData.progressPct} thickness={16} variant="soft" color="primary" 
+                    sx={{ borderRadius: 'sm', position: 'absolute', width: '100%', top: 4, height: 16 }} 
+                />
+                
+                {/* Drawdown Projection Line Overlay */}
+                <Box sx={{ position: 'absolute', width: '100%', height: 16, top: 4, left: 0, pointerEvents: 'none', opacity: 0.5 }}>
+                    <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <polyline
+                            fill="none"
+                            stroke="var(--joy-palette-primary-700)"
+                            strokeWidth="2"
+                            points={DrawdownLine}
+                            strokeDasharray="1,1"
+                        />
+                    </svg>
+                </Box>
+                
+                {/* Overdraft Markers */}
+                <Box sx={{ position: 'absolute', width: '100%', height: '100%', top: 0, left: 0, pointerEvents: 'none' }}>
+                    {overdraftMarkers.map((m, idx) => (
+                        <Tooltip key={idx} title={m.type === 'limit' ? `Limit Breach Projected (£${m.balance.toFixed(0)})` : `Overdraft Entry Projected (£${m.balance.toFixed(0)})`} variant="solid" color={m.type === 'limit' ? 'danger' : 'warning'}>
+                            <Box sx={{ 
+                                position: 'absolute', 
+                                left: `${m.pct}%`, 
+                                top: 0, 
+                                height: 24,
+                                width: 2,
+                                bgcolor: m.type === 'limit' ? 'danger.500' : 'warning.500',
+                                zIndex: 2,
+                                '&::after': {
+                                    content: '""',
+                                    position: 'absolute',
+                                    top: -4,
+                                    left: -4,
+                                    width: 10,
+                                    height: 10,
+                                    borderRadius: '50%',
+                                    bgcolor: m.type === 'limit' ? 'danger.500' : 'warning.500',
+                                    border: '2px solid white'
+                                }
+                            }} />
+                        </Tooltip>
+                    ))}
+                    
+                    {/* Today Indicator (if not already handled by progress bar) */}
+                    <Box sx={{ 
+                        position: 'absolute', 
+                        left: `${cycleData.progressPct}%`, 
+                        top: 0, 
+                        height: 24, 
+                        width: 3, 
+                        bgcolor: 'primary.500', 
+                        zIndex: 3,
+                        boxShadow: '0 0 8px rgba(0,0,0,0.2)'
+                    }}>
+                        <Box sx={{ position: 'absolute', top: -18, left: -15, width: 30, textAlign: 'center' }}>
+                            <Typography level="body-xs" fontWeight="bold" color="primary">NOW</Typography>
+                        </Box>
+                    </Box>
+                </Box>
+            </Box>
+        </Box>
 
         <Grid container spacing={3}>
             <Grid xs={12} md={3}>
@@ -1178,6 +1304,32 @@ export default function BudgetView() {
                             <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: '0.01' } }} /></FormControl>
                             <FormControl required><FormLabel>Charge Date</FormLabel><Input name="start_date" type="date" defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
                             <Button type="submit" fullWidth>Add to Cycle</Button>
+                        </Stack>
+                    </form>
+                </DialogContent>
+            </ModalDialog>
+        </Modal>
+
+        {/* Add Income */}
+        <Modal open={addIncomeOpen} onClose={() => setAddIncomeOpen(false)}>
+            <ModalDialog sx={{ maxWidth: 400, width: '100%' }}>
+                <DialogTitle>Add One-off Income</DialogTitle>
+                <DialogContent>
+                    <form onSubmit={handleIncomeAdd}>
+                        <Stack spacing={2}>
+                            <FormControl required><FormLabel>Source / Employer</FormLabel><Input name="name" autoFocus placeholder="e.g. Carol Bonus, Selling Bike" /></FormControl>
+                            <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: '0.01' } }} /></FormControl>
+                            <FormControl required><FormLabel>Payment Date</FormLabel><Input name="payment_date" type="date" defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
+                            <FormControl>
+                                <FormLabel>Recipient</FormLabel>
+                                <Select name="member" defaultValue="null">
+                                    <Option value="null">Household (General)</Option>
+                                    {members.filter(m => m.type !== 'pet').map(m => (
+                                        <Option key={m.id} value={`member:${m.id}`}>{m.emoji} {m.name}</Option>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <Button type="submit" fullWidth>Add Income</Button>
                         </Stack>
                     </form>
                 </DialogContent>

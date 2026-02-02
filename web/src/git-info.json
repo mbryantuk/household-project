@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix ReferenceError: projectedIncome is not defined in BudgetView.jsx and resolve lint errors",
-  "date": "Mon  2 Feb 12:54:00 GMT 2026"
+  "commitMessage": "Add One-off Income support, fix budget table lines, and enhance Days Left bar with drawdown projection and overdraft markers",
+  "date": "Mon  2 Feb 13:12:55 GMT 2026"
 }
