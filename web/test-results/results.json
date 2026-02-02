@@ -66,25 +66,25 @@
   },
   "suites": [
     {
-      "title": "lifecycle_2_finance.spec.js",
-      "file": "lifecycle_2_finance.spec.js",
+      "title": "routing_and_auth.spec.js",
+      "file": "routing_and_auth.spec.js",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Brady Lifecycle Stage 2: Finance & Fringe",
-          "file": "lifecycle_2_finance.spec.js",
-          "line": 5,
+          "title": "Authentication & Session Persistence",
+          "file": "routing_and_auth.spec.js",
+          "line": 3,
           "column": 6,
           "specs": [
             {
-              "title": "Expand Brady Household Finance (Frontend - Resilience Mode)",
-              "ok": false,
+              "title": "Multi-stage login flow and session persistence",
+              "ok": true,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 300000,
+                  "timeout": 60000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
@@ -93,70 +93,57 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 300286,
-                      "error": {
-                        "message": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m"
-                      },
-                      "errors": [
-                        {
-                          "message": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m"
-                        },
-                        {
-                          "location": {
-                            "file": "/home/matt/household-project/web/tests/lifecycle_2_finance.spec.js",
-                            "column": 16,
-                            "line": 34
-                          },
-                          "message": "Error: page.waitForURL: Test timeout of 300000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n\u001b[0m \u001b[90m 32 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m password)\u001b[33m;\u001b[39m\n \u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Log In\")'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 34 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[36mnew\u001b[39m \u001b[33mRegExp\u001b[39m(\u001b[32m`/household/${hhId}/dashboard`\u001b[39m))\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 35 |\u001b[39m     \n \u001b[90m 36 |\u001b[39m     \u001b[90m// --- HELPERS ---\u001b[39m\n \u001b[90m 37 |\u001b[39m     \u001b[36mconst\u001b[39m createFinancialItem \u001b[33m=\u001b[39m \u001b[36masync\u001b[39m (tab\u001b[33m,\u001b[39m addBtnText\u001b[33m,\u001b[39m fillFn) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_2_finance.spec.js:34:16\u001b[22m"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: Content is cached for offline use.\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: Failed to load resource: the server responded with a status of 401 (Unauthorized)\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: Login failed: Nt\n"
-                        }
-                      ],
-                      "stderr": [
-                        {
-                          "text": "Context file not found, using defaults for dev testing if applicable.\n"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 5388,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-02T13:57:11.305Z",
+                      "startTime": "2026-02-02T14:06:12.419Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/home/matt/household-project/web/test-results/lifecycle_2_finance-Brady--dfbdb-Frontend---Resilience-Mode--chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/home/matt/household-project/web/test-results/lifecycle_2_finance-Brady--dfbdb-Frontend---Resilience-Mode--chromium/error-context.md"
-                        }
-                      ]
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
-              "id": "ac27a2489c48f35ed2af-3cc5441749210b74f483",
-              "file": "lifecycle_2_finance.spec.js",
-              "line": 18,
+              "id": "fabc22e755468f9ff808-27612d1f2a5c9207a007",
+              "file": "routing_and_auth.spec.js",
+              "line": 20,
+              "column": 3
+            },
+            {
+              "title": "Login lookup for unknown user",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1172,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-02T14:06:18.972Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fabc22e755468f9ff808-76716a9c0f7ff5bfdc51",
+              "file": "routing_and_auth.spec.js",
+              "line": 47,
               "column": 3
             }
           ]
@@ -166,11 +153,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-02T13:57:06.777Z",
-    "duration": 305408.078,
-    "expected": 0,
+    "startTime": "2026-02-02T14:06:08.062Z",
+    "duration": 12208.037,
+    "expected": 2,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 0,
     "flaky": 0
   }
 }

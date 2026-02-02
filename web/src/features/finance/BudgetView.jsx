@@ -899,7 +899,7 @@ export default function BudgetView() {
       >
           <AccordionSummary expandIcon={<ExpandMore />} sx={{ py: { xs: 1.5, sm: 1 } }}>
               <Box sx={{ display: 'flex', flexWrap: { xs: 'wrap', sm: 'nowrap' }, justifyContent: 'space-between', width: '100%', alignItems: 'center', mr: 2, overflow: 'hidden', gap: 1.5 }}>
-                  <Typography level="title-lg" sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, flexBasis: { xs: '100%', sm: 'auto' } }}>
+                  <Typography level="title-lg" sx={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 0, flexBasis: { xs: '100%', sm: 'auto' } }}>
                       <Avatar size="sm" sx={{ bgcolor: 'background.level3' }}>{group.emoji}</Avatar> 
                       <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.label}</Box>
                   </Typography>
@@ -1072,8 +1072,22 @@ export default function BudgetView() {
                                             <Typography level="title-sm" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{inc.label}</Typography>
                                             <Typography level="body-xs" color="neutral">{format(inc.computedDate, 'do MMM')}</Typography>
                                         </Box>
-                                        <Box sx={{ textAlign: 'right', flexShrink: 0 }}>
-                                            <Typography level="title-sm" fontWeight="bold" color={inc.isPaid ? 'success.700' : 'neutral.700'}>{formatCurrency(inc.amount)}</Typography>
+                                        <Box sx={{ textAlign: 'right', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5 }}>
+                                            <Input 
+                                                size="sm" 
+                                                type="number" 
+                                                variant="plain" 
+                                                sx={{ 
+                                                    width: 80, 
+                                                    fontWeight: 'bold', 
+                                                    color: inc.isPaid ? 'success.700' : 'neutral.700',
+                                                    '& input': { textAlign: 'right', p: 0 }
+                                                }} 
+                                                defaultValue={Number(inc.amount).toFixed(2)} 
+                                                onBlur={(e) => updateActualAmount(inc.key, e.target.value)} 
+                                                onClick={(e) => e.stopPropagation()}
+                                                slotProps={{ input: { step: '0.01' } }} 
+                                            />
                                             <Checkbox 
                                                 size="sm" 
                                                 variant="soft"
@@ -1082,7 +1096,7 @@ export default function BudgetView() {
                                                 onChange={() => togglePaid(inc.key, inc.amount)}
                                                 uncheckedIcon={<RadioButtonUnchecked />}
                                                 checkedIcon={<CheckCircle />}
-                                                sx={{ ml: 'auto', mt: 0.5 }}
+                                                sx={{ ml: 'auto' }}
                                             />
                                         </Box>
                                     </Card>
@@ -1096,19 +1110,30 @@ export default function BudgetView() {
                         </Box>
                     )}
 
-                    <Card variant="outlined" sx={{ p: 2, boxShadow: 'sm' }}>
+                    <Card variant="outlined" sx={{ p: 2, boxShadow: 'sm', bgcolor: 'primary.softBg', borderColor: 'primary.200' }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                            <Typography level="title-md" startDecorator={<BankIcon />}>Liquidity Control</Typography>
-                            <IconButton size="sm" variant={isPayLocked ? "plain" : "soft"} color={isPayLocked ? "neutral" : "warning"} onClick={() => setIsPayLocked(!isPayLocked)}>{isPayLocked ? <Lock fontSize="small" /> : <LockOpen fontSize="small" />}</IconButton>
+                            <Typography level="title-md" startDecorator={<BankIcon />} color="primary">Liquidity Control</Typography>
                         </Box>
-                        <Stack spacing={2}>
+                        <Stack spacing={1}>
                             <FormControl>
-                                <FormLabel sx={{ fontSize: 'xs' }}>Actual Total Pay (£)</FormLabel>
-                                <Input size="sm" type="number" value={actualPay} disabled={isPayLocked} onChange={(e) => setActualPay(e.target.value)} onBlur={(e) => saveCycleData(e.target.value, currentBalance)} />
-                            </FormControl>
-                            <FormControl>
-                                <FormLabel sx={{ fontSize: 'xs' }}>Current Bank Balance (£)</FormLabel>
-                                <Input size="sm" type="number" value={currentBalance} onChange={(e) => setCurrentBalance(e.target.value)} onBlur={(e) => saveCycleData(actualPay, e.target.value)} color="primary" variant="soft" />
+                                <FormLabel sx={{ fontSize: 'xs', fontWeight: 'bold', textTransform: 'uppercase', color: 'primary.700', letterSpacing: '0.05em' }}>Current Bank Balance</FormLabel>
+                                <Input 
+                                    size="lg" 
+                                    type="number" 
+                                    value={currentBalance} 
+                                    onChange={(e) => setCurrentBalance(e.target.value)} 
+                                    onBlur={(e) => saveCycleData(actualPay, e.target.value)} 
+                                    color="primary" 
+                                    variant="solid" 
+                                    startDecorator={<Typography level="h3" sx={{ color: 'inherit', opacity: 0.8 }}>£</Typography>}
+                                    sx={{ 
+                                        fontWeight: 'xl', 
+                                        fontSize: '1.75rem',
+                                        boxShadow: 'sm',
+                                        '--Input-focusedHighlight': 'transparent',
+                                        '& input': { textAlign: 'right' }
+                                    }} 
+                                />
                             </FormControl>
                         </Stack>
                     </Card>

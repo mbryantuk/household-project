@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.2.23] - 2026-02-02
+
+### Added
+- **Finance:** Ability to add "Adhoc Income" sources (e.g. eBay winnings, refunds) directly from the Budget view.
+
+### Fixed
+- **Finance:** Resolved issue where Income sources were hidden from the sidebar when changing the budget grouping mode.
+
 ## [3.0.0-alpha.1] - 2026-01-26
 
 ### Architecture
