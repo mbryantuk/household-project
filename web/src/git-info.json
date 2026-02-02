@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Split budget items into Household Bills and Finance & Debts groups",
-  "date": "Mon  2 Feb 09:40:31 GMT 2026"
+  "commitMessage": "Enhance Budget with Due Date column, relative counters, dynamic grouping, and entity filtering",
+  "date": "Mon  2 Feb 09:50:24 GMT 2026"
 }
