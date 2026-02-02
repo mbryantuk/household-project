@@ -3,7 +3,7 @@ import {
   Box, Sheet, Typography, Button, Table, IconButton, 
   Modal, ModalDialog, FormControl, FormLabel, Input, 
   Select, Option, Stack, Chip, Divider, DialogTitle,
-  Tabs, TabList, Tab, Avatar
+  Tabs, TabList, Tab, Avatar, DialogContent, Grid
 } from '@mui/joy';
 import { 
   Add, Edit, Delete, Receipt, Shield, ShoppingBag, ElectricBolt, 
@@ -188,45 +188,81 @@ export default function RecurringChargesWidget({
       </Sheet>
 
       <Modal open={open} onClose={() => setOpen(false)}>
-        <ModalDialog sx={{ maxWidth: 450, width: '100%' }}>
-          <DialogTitle>{editingId ? 'Edit Item' : 'New Item'}</DialogTitle>
-          <Divider />
-          <Stack spacing={2} sx={{ mt: 2 }}>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-                <IconButton variant="outlined" sx={{ width: 56, height: 56 }} onClick={() => setEmojiPickerOpen(true)}>
-                    <Typography level="h2">{formData.emoji}</Typography>
+        <ModalDialog sx={{ maxWidth: 500, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>
+          <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
+            <Box sx={{ position: 'relative' }}>
+                <Avatar 
+                    size="lg" 
+                    sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(formData.emoji), fontSize: '2rem', cursor: 'pointer' }} 
+                    onClick={() => setEmojiPickerOpen(true)}
+                >
+                    {formData.emoji}
+                </Avatar>
+                <IconButton 
+                    size="sm" 
+                    variant="solid" 
+                    color="primary" 
+                    sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} 
+                    onClick={() => setEmojiPickerOpen(true)}
+                >
+                    <Edit sx={{ fontSize: '0.8rem' }} />
                 </IconButton>
-                <FormControl required sx={{ flex: 1 }}>
+            </Box>
+            <Box sx={{ flexGrow: 1, pt: 0.5 }}>
+                <Typography level="title-lg">{editingId ? 'Edit Recurring Cost' : 'Add Recurring Cost'}</Typography>
+                <Typography level="body-sm" color="neutral">Manage this recurring financial obligation.</Typography>
+            </Box>
+          </Box>
+          <Divider />
+          <DialogContent sx={{ overflowX: 'hidden' }}>
+              <Stack spacing={2} sx={{ mt: 1 }}>
+                <FormControl required>
                     <FormLabel>Name</FormLabel>
                     <Input autoFocus value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
                 </FormControl>
-            </Box>
-            
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                <FormControl required><FormLabel>Category</FormLabel>
-                    <Select value={formData.category_id} onChange={(e, v) => setFormData({ ...formData, category_id: v })}>
-                        {segments.map(seg => (
-                            <Option key={seg.id} value={seg.id}>{seg.label}</Option>
-                        ))}
-                    </Select>
-                </FormControl>
-                <FormControl required><FormLabel>Amount</FormLabel><Input type="number" startDecorator={household?.currency === '$' ? '$' : '£'} value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} /></FormControl>
-            </Box>
+                
+                <Grid container spacing={2}>
+                    <Grid xs={12} sm={6}>
+                        <FormControl required>
+                            <FormLabel>Category</FormLabel>
+                            <Select value={formData.category_id} onChange={(e, v) => setFormData({ ...formData, category_id: v })}>
+                                {segments.map(seg => (
+                                    <Option key={seg.id} value={seg.id}>{seg.label}</Option>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12} sm={6}>
+                        <FormControl required>
+                            <FormLabel>Amount</FormLabel>
+                            <Input type="number" startDecorator={household?.currency === '$' ? '$' : '£'} value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} />
+                        </FormControl>
+                    </Grid>
+                </Grid>
 
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                <FormControl required><FormLabel>Frequency</FormLabel>
-                    <Select value={formData.frequency} onChange={(e, v) => setFormData({ ...formData, frequency: v })}>
-                        <Option value="monthly">Monthly</Option><Option value="weekly">Weekly</Option>
-                        <Option value="quarterly">Quarterly</Option><Option value="yearly">Yearly</Option><Option value="one_off">One-off</Option>
-                    </Select>
-                </FormControl>
-                <FormControl required><FormLabel>Start Date</FormLabel><Input type="date" value={formData.start_date} onChange={e => setFormData({ ...formData, start_date: e.target.value })} /></FormControl>
-            </Box>
-            <Button size="lg" onClick={handleSave}>{editingId ? 'Update' : 'Create'}</Button>
-          </Stack>
+                <Grid container spacing={2}>
+                    <Grid xs={12} sm={6}>
+                        <FormControl required>
+                            <FormLabel>Frequency</FormLabel>
+                            <Select value={formData.frequency} onChange={(e, v) => setFormData({ ...formData, frequency: v })}>
+                                <Option value="monthly">Monthly</Option><Option value="weekly">Weekly</Option>
+                                <Option value="quarterly">Quarterly</Option><Option value="yearly">Yearly</Option><Option value="one_off">One-off</Option>
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12} sm={6}>
+                        <FormControl required>
+                            <FormLabel>Start Date</FormLabel>
+                            <Input type="date" value={formData.start_date} onChange={e => setFormData({ ...formData, start_date: e.target.value })} />
+                        </FormControl>
+                    </Grid>
+                </Grid>
+                <Button size="lg" onClick={handleSave} variant="solid" sx={{ mt: 2 }}>{editingId ? 'Update Cost' : 'Create Cost'}</Button>
+              </Stack>
+          </DialogContent>
         </ModalDialog>
       </Modal>
-      <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(e) => { setFormData({ ...formData, emoji: e }); setEmojiPickerOpen(false); }} />
+      <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(e) => { setFormData({ ...formData, emoji: e }); setEmojiPickerOpen(false); }} title="Select Icon" />
     </Box>
   );
 }

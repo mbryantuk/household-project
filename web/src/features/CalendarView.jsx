@@ -6,7 +6,7 @@ import {
   Switch, Grid, Divider, ToggleButtonGroup, Modal, ModalDialog, Textarea, Chip, Avatar
 } from '@mui/joy';
 import { 
-  Add, Delete, Event as EventIcon, Cake, Favorite, Star,
+  Add, Delete, Event as EventIcon, Cake, Favorite, Star, Edit,
   ChevronLeft, ChevronRight, List as ListIcon, CalendarMonth
 } from '@mui/icons-material';
 import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar';
@@ -108,7 +108,7 @@ function TimelineView({ events, onSelectEvent, isDark }) {
                   <Box sx={{ flexGrow: 1 }}>
                     <Typography level="title-md">{event.title}</Typography>
                     <Typography level="body-xs" textColor="neutral.500">
-                        {event.allDay ? 'All Day' : format(event.start, 'h:mm a')} • {format(event.start, 'EEEE, d MMMM yyyy')}
+                        {format(event.start, 'EEEE, d MMMM yyyy')}
                     </Typography>
                   </Box>
   
@@ -139,7 +139,6 @@ export default function CalendarView({ showNotification }) {
   const [view, setView] = useState(CUSTOM_VIEWS.TIMELINE);
 
   // Form State
-  const [isAllDay, setIsAllDay] = useState(true);
   const [recurrence, setRecurrence] = useState('none');
 
   const fetchDates = useCallback(() => {
@@ -177,7 +176,7 @@ export default function CalendarView({ showNotification }) {
       if (!isValid(endDate)) return;
 
       const recurEnd = d.recurrenceend_date ? parseISO(d.recurrenceend_date) : limitDate;
-      const baseEvent = { id: d.id, title: d.title, allDay: Boolean(d.is_all_day), resource: d };
+      const baseEvent = { id: d.id, title: d.title, allDay: true, resource: d };
 
       if (!d.recurrence || d.recurrence === 'none') {
         expandedEvents.push({ ...baseEvent, start: startDate, end: endDate });
@@ -204,7 +203,9 @@ export default function CalendarView({ showNotification }) {
   }, [rawDates]);
 
   const handleSelectSlot = ({ start }) => {
-    setEditingEvent(null); setSelectedEmoji('📅'); setIsAllDay(true); setRecurrence('none');
+    setEditingEvent(null); 
+    setSelectedEmoji('📅'); 
+    setRecurrence('none');
     setEditingEvent({ date: format(start, 'yyyy-MM-dd'), end_date: format(start, 'yyyy-MM-dd') });
     setOpen(true);
   };
@@ -216,7 +217,8 @@ export default function CalendarView({ showNotification }) {
         return;
     }
     setEditingEvent({ ...original, date: original.date ? original.date.split('T')[0] : '', end_date: original.end_date ? original.end_date.split('T')[0] : (original.date ? original.date.split('T')[0] : '') });
-    setSelectedEmoji(original.emoji || '📅'); setIsAllDay(Boolean(original.is_all_day)); setRecurrence(original.recurrence || 'none');
+    setSelectedEmoji(original.emoji || '📅'); 
+    setRecurrence(original.recurrence || 'none');
     setOpen(true);
   };
 
@@ -224,7 +226,9 @@ export default function CalendarView({ showNotification }) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
-    data.emoji = selectedEmoji; data.is_all_day = isAllDay ? 1 : 0; data.recurrence = recurrence;
+    data.emoji = selectedEmoji; 
+    data.is_all_day = 1; 
+    data.recurrence = recurrence;
     const method = editingEvent?.id ? 'put' : 'post';
     const url = editingEvent?.id ? `/households/${householdId}/dates/${editingEvent.id}` : `/households/${householdId}/dates`;
     api[method](url, data).then(() => { setOpen(false); fetchDates(); showNotification(editingEvent?.id ? "Event updated" : "Event created", "success"); }).catch(err => { console.error(err); showNotification("Operation failed", "error"); });
@@ -322,23 +326,44 @@ export default function CalendarView({ showNotification }) {
       </Sheet>
 
       <Modal open={open} onClose={() => setOpen(false)}>
-        <ModalDialog sx={{ maxWidth: 500, width: '100%', p: 0 }}>
-            <DialogTitle sx={{ p: 2, pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              {editingEvent?.id ? 'Edit Event' : 'New Event'}
-              {editingEvent?.id && <IconButton size="sm" variant="plain" color="danger" onClick={handleDelete}><Delete /></IconButton>}
-            </DialogTitle>
+        <ModalDialog sx={{ maxWidth: 500, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>
+            <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
+                <Box sx={{ position: 'relative' }}>
+                    <Avatar 
+                        size="lg" 
+                        sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(selectedEmoji, isDark), fontSize: '2rem', cursor: 'pointer' }} 
+                        onClick={() => setEmojiPickerOpen(true)}
+                    >
+                        {selectedEmoji}
+                    </Avatar>
+                    <IconButton 
+                        size="sm" 
+                        variant="solid" 
+                        color="primary" 
+                        sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} 
+                        onClick={() => setEmojiPickerOpen(true)}
+                    >
+                        <Edit sx={{ fontSize: '0.8rem' }} />
+                    </IconButton>
+                </Box>
+                <Box sx={{ flexGrow: 1, pt: 0.5 }}>
+                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography level="title-lg">{editingEvent?.id ? 'Edit Event' : 'New Event'}</Typography>
+                        {editingEvent?.id && <IconButton size="sm" variant="plain" color="danger" onClick={handleDelete}><Delete /></IconButton>}
+                     </Box>
+                    <Typography level="body-sm" color="neutral">Manage this calendar entry.</Typography>
+                </Box>
+            </Box>
             <Divider />
-            <DialogContent sx={{ p: 2 }}>
+            <DialogContent sx={{ overflowX: 'hidden' }}>
                 <form onSubmit={handleFormSubmit}>
-                    <Stack spacing={2}>
-                        <Box sx={{ display: 'flex', gap: 2 }}>
-                            <Tooltip title="Pick an emoji" variant="soft">
-                                <IconButton onClick={() => setEmojiPickerOpen(true)} variant="outlined" sx={{ width: 48, height: 48 }}><Typography level="h3">{selectedEmoji}</Typography></IconButton>
-                            </Tooltip>
-                            <FormControl required sx={{ flex: 1 }}><FormLabel>Event Title</FormLabel><Input name="title" defaultValue={editingEvent?.title || ''} autoFocus /></FormControl>
-                        </Box>
+                    <Stack spacing={2} sx={{ mt: 1 }}>
+                        <FormControl required>
+                            <FormLabel>Event Title</FormLabel>
+                            <Input name="title" defaultValue={editingEvent?.title || ''} autoFocus />
+                        </FormControl>
+                        
                         <Grid container spacing={2}>
-                            <Grid xs={12}><FormControl orientation="horizontal" sx={{ gap: 1 }}><Switch checked={isAllDay} onChange={e => setIsAllDay(e.target.checked)} /><FormLabel>All-day</FormLabel></FormControl></Grid>
                             <Grid xs={6}><FormControl required><FormLabel>Start Date</FormLabel><Input name="date" type="date" defaultValue={editingEvent?.date || ''} /></FormControl></Grid>
                             <Grid xs={6}><FormControl><FormLabel>End Date</FormLabel><Input name="end_date" type="date" defaultValue={editingEvent?.end_date || ''} /></FormControl></Grid>
                         </Grid>

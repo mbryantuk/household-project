@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { 
   Box, Typography, Sheet, Grid, Input, FormControl, FormLabel, 
-  Select, Option, Button, Chip, IconButton, Avatar, Card, CardContent, 
-  Divider, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Stack, Tabs, TabList, Tab
+  Select, Option, Button, IconButton, Avatar, Card, CardContent, 
+  Divider, Modal, ModalDialog, DialogContent, DialogActions, Stack, Tabs, TabList, Tab, DialogTitle
 } from '@mui/joy';
-import { PersonAdd, Delete, Groups, Edit, ChildCare, Face, Visibility, Payments, Info } from '@mui/icons-material';
+import { PersonAdd, Delete, Edit, ChildCare, Face, Visibility, Payments, Info, Add } from '@mui/icons-material';
 import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
 import { useOutletContext } from 'react-router-dom';
 
@@ -12,10 +12,20 @@ const PET_SPECIES = ['Dog', 'Cat', 'Hamster', 'Rabbit', 'Bird', 'Fish', 'Reptile
 
 export default function MembersView({ members, onAddMember, onRemoveMember, onUpdateMember }) {
   const { api, id: householdId, household, showNotification, confirmAction } = useOutletContext();
-  const [memberType, setMemberType] = useState('adult');
-  const [editMember, setEditMember] = useState(null);
+  
+  // Modal States
+  const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState('add'); // 'add' or 'edit'
+  const [selectedMember, setSelectedMember] = useState(null);
+  
+  // View Modal State
   const [viewMember, setViewMember] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
+
+  // Form State (for reactive avatar)
+  const [formData, setFormData] = useState({
+    type: 'adult', name: '', alias: '', dob: '', gender: 'none', species: 'Dog'
+  });
 
   const getResidentAvatar = (m) => {
     const type = m?.type?.toLowerCase();
@@ -45,7 +55,6 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
           { id: 'other', label: 'Other' }
         ];
     }
-
     const base = [
         { id: 'subscription', label: 'Subscriptions' },
         { id: 'insurance', label: 'Insurance' },
@@ -53,21 +62,43 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
         { id: 'care', label: 'Care & Support' },
         { id: 'other', label: 'Other' }
     ];
-
-    if (type === 'child') {
-        return [{ id: 'pocket_money', label: 'Pocket Money' }, ...base];
-    }
-    
-    // Adult / Viewer
+    if (type === 'child') return [{ id: 'pocket_money', label: 'Pocket Money' }, ...base];
     return [{ id: 'fun_money', label: 'Fun Money' }, ...base];
   };
 
-  const handleEditSubmit = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    onUpdateMember(editMember.id, Object.fromEntries(formData.entries()));
-    setEditMember(null);
+  const handleOpenAdd = () => {
+    setMode('add');
+    setSelectedMember(null);
+    setFormData({ type: 'adult', name: '', alias: '', dob: '', gender: 'none', species: 'Dog' });
+    setOpen(true);
   };
+
+  const handleOpenEdit = (m) => {
+    setMode('edit');
+    setSelectedMember(m);
+    setFormData({
+        type: m.type, name: m.name, alias: m.alias || '', dob: m.dob || '', 
+        gender: m.gender || 'none', species: m.species || 'Dog'
+    });
+    setOpen(true);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const data = { ...formData }; // FormData is already in state
+    if (mode === 'add') {
+        onAddMember(e); 
+    } else {
+        onUpdateMember(selectedMember.id, data);
+    }
+    setOpen(false);
+  };
+
+  // Wrapper for Add to ensure it works with the prop expectation
+  const handleAddSubmitWrapper = (e) => {
+      onAddMember(e);
+      setOpen(false);
+  }
 
   return (
     <Box>
@@ -83,73 +114,11 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
             Manage family members and pets.
           </Typography>
         </Box>
+        <Button startDecorator={<Add />} onClick={handleOpenAdd}>Add Resident</Button>
       </Box>
 
       <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md' }}>
       
-      {/* ADD FORM */}
-      <Sheet variant="soft" sx={{ mb: 4, p: 3, borderRadius: 'sm' }}>
-        <form onSubmit={onAddMember}>
-            <Grid container spacing={2} alignItems="flex-end">
-              <Grid xs={12} sm={4}>
-                <FormControl size="sm">
-                  <FormLabel>Type</FormLabel>
-                  <Select name="type" value={memberType} onChange={(e, v) => setMemberType(v)}>
-                    <Option value="adult">Adult</Option>
-                    <Option value="child">Child</Option>
-                    <Option value="viewer">Viewer</Option>
-                    <Option value="pet">Pet</Option>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid xs={12} sm={8}>
-                  <FormControl size="sm" required>
-                    <FormLabel>Full Name</FormLabel>
-                    <Input name="name" />
-                  </FormControl>
-              </Grid>
-              {memberType !== 'pet' ? (
-                <>
-                  <Grid xs={12} sm={4}>
-                      <FormControl size="sm">
-                        <FormLabel>Alias</FormLabel>
-                        <Input name="alias" />
-                      </FormControl>
-                  </Grid>
-                  <Grid xs={12} sm={4}>
-                      <FormControl size="sm">
-                        <FormLabel>DOB</FormLabel>
-                        <Input name="dob" type="date" />
-                      </FormControl>
-                  </Grid>
-                  <Grid xs={12} sm={4}>
-                    <FormControl size="sm">
-                      <FormLabel>Gender</FormLabel>
-                      <Select name="gender" defaultValue="none">
-                        <Option value="none">Not Specified</Option>
-                        <Option value="male">Male</Option>
-                        <Option value="female">Female</Option>
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                </>
-              ) : (
-                <Grid xs={12} sm={12}>
-                  <FormControl size="sm">
-                    <FormLabel>Species</FormLabel>
-                    <Select name="species" defaultValue="Dog">
-                        {PET_SPECIES.map(s => <Option key={s} value={s}>{s}</Option>)}
-                    </Select>
-                  </FormControl>
-                </Grid>
-              )}
-              <Grid xs={12}>
-                  <Button type="submit" variant="solid" fullWidth startDecorator={<PersonAdd />}>Add Resident</Button>
-              </Grid>
-            </Grid>
-        </form>
-      </Sheet>
-
       {/* LIST */}
       <Grid container spacing={2}>
         {members.map((m) => (
@@ -169,7 +138,7 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
                 </Typography>
               </CardContent>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                <IconButton size="sm" variant="plain" color="neutral" onClick={(e) => { e.stopPropagation(); setEditMember(m); }}><Edit /></IconButton>
+                <IconButton size="sm" variant="plain" color="neutral" onClick={(e) => { e.stopPropagation(); handleOpenEdit(m); }}><Edit /></IconButton>
                 <IconButton size="sm" variant="plain" color="danger" onClick={(e) => { e.stopPropagation(); onRemoveMember(m.id); }}><Delete /></IconButton>
               </Box>
             </Card>
@@ -177,7 +146,7 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
         ))}
       </Grid>
 
-      {/* VIEW MODAL (Member Details & Costs) */}
+      {/* VIEW MODAL */}
       <Modal open={Boolean(viewMember)} onClose={() => setViewMember(null)}>
         <ModalDialog sx={{ maxWidth: 600, width: '100%', p: 0, overflow: 'hidden' }}>
             {viewMember && (
@@ -227,18 +196,35 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
         </ModalDialog>
       </Modal>
 
-      {/* EDIT MODAL */}
-      <Modal open={Boolean(editMember)} onClose={() => setEditMember(null)}>
-        <ModalDialog sx={{ maxWidth: 500, width: '100%' }}>
-            <DialogTitle>Edit Resident</DialogTitle>
-            <DialogContent>
-                <form onSubmit={handleEditSubmit}>
+      {/* ADD / EDIT MODAL (Gold Standard) */}
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <ModalDialog sx={{ maxWidth: 500, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>
+            <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
+                <Box sx={{ position: 'relative' }}>
+                    <Avatar 
+                        size="lg" 
+                        sx={{ '--Avatar-size': '64px', fontSize: '2rem' }}
+                    >
+                        {getResidentAvatar(formData)}
+                    </Avatar>
+                    {/* Note: No interactive edit badge as Emoji is derived from fields, not picked */}
+                </Box>
+                <Box sx={{ flexGrow: 1, pt: 0.5 }}>
+                    <Typography level="title-lg">{mode === 'add' ? 'New Resident' : 'Edit Resident'}</Typography>
+                    <Typography level="body-sm" color="neutral">
+                        {mode === 'add' ? 'Add a person or pet to the household.' : 'Update resident details.'}
+                    </Typography>
+                </Box>
+            </Box>
+            <Divider />
+            <DialogContent sx={{ overflowX: 'hidden' }}>
+                <form onSubmit={mode === 'add' ? handleAddSubmitWrapper : handleSubmit}>
                     <Stack spacing={2} mt={1}>
                         <Grid container spacing={2}>
                           <Grid xs={12} sm={6}>
                             <FormControl size="sm">
                                 <FormLabel>Type</FormLabel>
-                                <Select name="type" defaultValue={editMember?.type}>
+                                <Select name="type" value={formData.type} onChange={(e, v) => setFormData({...formData, type: v})}>
                                     <Option value="adult">Adult</Option>
                                     <Option value="child">Child</Option>
                                     <Option value="viewer">Viewer</Option>
@@ -249,42 +235,48 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
                           <Grid xs={12} sm={6}>
                               <FormControl size="sm" required>
                                 <FormLabel>Name</FormLabel>
-                                <Input name="name" defaultValue={editMember?.name} />
+                                <Input name="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} />
                               </FormControl>
                           </Grid>
-                          <Grid xs={12} sm={6}>
-                              <FormControl size="sm">
-                                <FormLabel>Alias</FormLabel>
-                                <Input name="alias" defaultValue={editMember?.alias} />
-                              </FormControl>
-                          </Grid>
-                          <Grid xs={12} sm={6}>
-                              <FormControl size="sm">
-                                <FormLabel>DOB</FormLabel>
-                                <Input name="dob" type="date" defaultValue={editMember?.dob} />
-                              </FormControl>
-                          </Grid>
-                          <Grid xs={12} sm={6}>
-                             <FormControl size="sm">
-                                <FormLabel>Gender</FormLabel>
-                                <Select name="gender" defaultValue={editMember?.gender || 'none'}>
-                                    <Option value="none">None</Option>
+                          
+                          {formData.type !== 'pet' ? (
+                            <>
+                              <Grid xs={12} sm={6}>
+                                  <FormControl size="sm">
+                                    <FormLabel>Alias</FormLabel>
+                                    <Input name="alias" value={formData.alias} onChange={(e) => setFormData({...formData, alias: e.target.value})} />
+                                  </FormControl>
+                              </Grid>
+                              <Grid xs={12} sm={6}>
+                                  <FormControl size="sm">
+                                    <FormLabel>DOB</FormLabel>
+                                    <Input name="dob" type="date" value={formData.dob} onChange={(e) => setFormData({...formData, dob: e.target.value})} />
+                                  </FormControl>
+                              </Grid>
+                              <Grid xs={12} sm={6}>
+                                <FormControl size="sm">
+                                  <FormLabel>Gender</FormLabel>
+                                  <Select name="gender" value={formData.gender} onChange={(e, v) => setFormData({...formData, gender: v})}>
+                                    <Option value="none">Not Specified</Option>
                                     <Option value="male">Male</Option>
                                     <Option value="female">Female</Option>
-                                </Select>
-                            </FormControl>
-                          </Grid>
-                          <Grid xs={12} sm={6}>
-                            <FormControl size="sm">
+                                  </Select>
+                                </FormControl>
+                              </Grid>
+                            </>
+                          ) : (
+                            <Grid xs={12} sm={6}>
+                              <FormControl size="sm">
                                 <FormLabel>Species</FormLabel>
-                                <Select name="species" defaultValue={editMember?.species || 'Dog'}>
+                                <Select name="species" value={formData.species} onChange={(e, v) => setFormData({...formData, species: v})}>
                                     {PET_SPECIES.map(s => <Option key={s} value={s}>{s}</Option>)}
                                 </Select>
-                            </FormControl>
-                          </Grid>
+                              </FormControl>
+                            </Grid>
+                          )}
                         </Grid>
                         <DialogActions>
-                            <Button variant="plain" color="neutral" onClick={() => setEditMember(null)}>Cancel</Button>
+                            <Button variant="plain" color="neutral" onClick={() => setOpen(false)}>Cancel</Button>
                             <Button type="submit" variant="solid">Save</Button>
                         </DialogActions>
                     </Stack>

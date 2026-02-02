@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix: Prevent Emoji Picker from opening automatically on Budget Add options",
-  "date": "Mon  2 Feb 16:55:56 GMT 2026"
+  "commitMessage": "Standardize modals to Gold Standard (Members, Calendar, RecurringCosts) & remove Calendar time",
+  "date": "Mon  2 Feb 18:42:51 GMT 2026"
 }
