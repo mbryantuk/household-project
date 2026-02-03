@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Flag budget items with amber/red risk based on projected overdraft impact",
-  "date": "Tue  3 Feb 13:52:56 GMT 2026"
+  "commitMessage": "Fix: Real-time risk flagging logic and row highlighting for overdue budget items",
+  "date": "Tue  3 Feb 14:09:09 GMT 2026"
 }

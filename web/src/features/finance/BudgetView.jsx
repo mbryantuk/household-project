@@ -18,7 +18,7 @@ import {
 } from '@mui/icons-material';
 import {
   format, addMonths, startOfMonth, setDate, differenceInDays,
-  isSameDay, isAfter, startOfDay, isWithinInterval,
+  isSameDay, isAfter, isBefore, startOfDay, isWithinInterval,
   parseISO, isValid, addYears, addWeeks, eachDayOfInterval, addDays
 } from 'date-fns';
 import { getEmojiColor } from '../../theme';
@@ -1015,20 +1015,23 @@ export default function BudgetView() {
     const now = startOfDay(new Date());
     const days = eachDayOfInterval({ start: cycleData.startDate, end: cycleData.endDate });
     
-    // Calculate historical balance for graph context (optional, but good for visualization)
-    // For simplicity and accuracy, we focus on projecting FROM TODAY based on current balance.
-    let runningBalance = parseFloat(currentBalance) || 0;
     const allExpenses = cycleData.groupList.flatMap(g => g.items);
     const allIncomes = cycleData.incomeGroup.items;
     
+    // Calculate "Adjusted Start Balance" (Current Balance minus all unpaid items from BEFORE TODAY)
+    const pastUnpaidExpenses = allExpenses.filter(e => isBefore(startOfDay(e.computedDate), now) && !e.isPaid);
+    const pastUnpaidIncomes = allIncomes.filter(e => isBefore(startOfDay(e.computedDate), now) && !e.isPaid);
+    const overdueAdjustment = pastUnpaidIncomes.reduce((s, i) => s + i.amount, 0) - pastUnpaidExpenses.reduce((s, e) => s + e.amount, 0);
+
+    let runningBalance = (parseFloat(currentBalance) || 0) + overdueAdjustment;
+    
     return days.map(day => {
-        // If the day is Today or Future, we project.
+        // We only apply items that occur ON or AFTER Today in the projection loop,
+        // because past items are already handled by the overdueAdjustment.
         if (isAfter(day, now) || isSameDay(day, now)) {
-            // Subtract items due today that ARE NOT paid yet
             const expensesDueToday = allExpenses.filter(e => isSameDay(e.computedDate, day) && !e.isPaid);
             const totalDueToday = expensesDueToday.reduce((sum, i) => sum + i.amount, 0);
             
-            // Add income due today that IS NOT paid yet
             const incomeDueToday = allIncomes.filter(e => isSameDay(e.computedDate, day) && !e.isPaid);
             const totalIncomeToday = incomeDueToday.reduce((sum, i) => sum + i.amount, 0);
             
@@ -1136,34 +1139,50 @@ export default function BudgetView() {
     if (!cycleData || currentBalance === undefined) return new Map();
     
     const now = startOfDay(new Date());
-    let runningBalance = parseFloat(currentBalance) || 0;
-    
-    // Get all items (expenses and incomes) sorted chronologically
+    const allExpenses = cycleData.groupList.flatMap(g => g.items);
+    const allIncomes = cycleData.incomeGroup.items;
+
+    // Get all items sorted chronologically
     const allItems = [
-        ...cycleData.groupList.flatMap(g => g.items.map(i => ({ ...i, isExpense: true }))),
-        ...cycleData.incomeGroup.items.map(i => ({ ...i, isExpense: false }))
+        ...allExpenses.map(i => ({ ...i, isExpense: true })),
+        ...allIncomes.map(i => ({ ...i, isExpense: false }))
     ].sort((a, b) => a.computedDate.getTime() - b.computedDate.getTime());
     
-    const riskMap = new Map();
+    // However, we MUST adjust this starting balance by any unpaid items in the PAST,
+    // because those items are expected to leave/enter the account "now".
+    // Wait, actually, the most consistent way is to simulate the whole cycle 
+    // from the first unpaid item, assuming currentBalance is the anchor for "Today".
     
-    allItems.forEach(item => {
-        // We only project risk for items that are currently unpaid
-        if (!item.isPaid) {
-            if (item.isExpense) {
-                runningBalance -= item.amount;
-                
-                // Determine severity based on balance AFTER this expense
-                let status = null;
-                if (runningBalance < -overdraftLimit) status = 'danger';
-                else if (runningBalance < 0) status = 'warning';
-                
-                // Only flag if it occurs today or in the future
-                if (isAfter(item.computedDate, now) || isSameDay(item.computedDate, now)) {
-                    riskMap.set(item.key, status);
-                }
-            } else {
-                runningBalance += item.amount;
-            }
+    // Let's stick to the Drawdown logic:
+    // Initial = currentBalance + overdueAdjustment.
+    const pastUnpaidExpenses = allExpenses.filter(e => isBefore(startOfDay(e.computedDate), now) && !e.isPaid);
+    const pastUnpaidIncomes = allIncomes.filter(e => isBefore(startOfDay(e.computedDate), now) && !e.isPaid);
+    const overdueAdjustment = pastUnpaidIncomes.reduce((s, i) => s + i.amount, 0) - pastUnpaidExpenses.reduce((s, e) => s + e.amount, 0);
+
+    let simBalance = (parseFloat(currentBalance) || 0) + overdueAdjustment;
+    const riskMap = new Map();
+
+    // Now, iterate through all UNPAID items chronologically.
+    // Items in the past should be flagged if the starting simBalance (after adjustment) is negative.
+    // Items in the future are flagged based on the running balance.
+    const unpaidItems = allItems.filter(i => !i.isPaid);
+
+    unpaidItems.forEach(item => {
+        if (isBefore(startOfDay(item.computedDate), now)) {
+            // Past items: Their impact is already in simBalance, but we flag them if they are causing risk.
+            let status = null;
+            if (simBalance < -overdraftLimit) status = 'danger';
+            else if (simBalance < 0) status = 'warning';
+            riskMap.set(item.key, status);
+        } else {
+            // Today or Future items: Subtract/Add and then check balance.
+            if (item.isExpense) simBalance -= item.amount;
+            else simBalance += item.amount;
+
+            let status = null;
+            if (simBalance < -overdraftLimit) status = 'danger';
+            else if (simBalance < 0) status = 'warning';
+            riskMap.set(item.key, status);
         }
     });
     
@@ -1200,17 +1219,23 @@ export default function BudgetView() {
       const riskStatus = itemRiskStatuses.get(exp.key);
 
       const getBgColor = () => {
-          if (selectedKeys.includes(exp.key)) return 'var(--joy-palette-primary-softBg)';
-          if (riskStatus === 'danger') return 'var(--joy-palette-danger-softBg)';
-          if (riskStatus === 'warning') return 'var(--joy-palette-warning-softBg)';
+          if (selectedKeys.includes(exp.key)) return 'primary.softBg';
+          if (riskStatus === 'danger') return 'danger.softBg';
+          if (riskStatus === 'warning') return 'warning.softBg';
           return 'transparent';
       };
 
       return (
-      <tr 
+      <Box 
+          component="tr"
           key={exp.key} 
           onClick={() => handleSelectToggle(exp.key)}
-          style={{ cursor: 'pointer', backgroundColor: getBgColor(), opacity: exp.isPaid ? 0.6 : 1 }}
+          sx={{ 
+              cursor: 'pointer', 
+              bgcolor: getBgColor(), 
+              opacity: exp.isPaid ? 0.6 : 1,
+              '&:hover': { bgcolor: selectedKeys.includes(exp.key) ? 'primary.softBg' : 'background.level1' }
+          }}
       >
           <td style={{ width: 40, textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
               <Checkbox size="sm" checked={selectedKeys.includes(exp.key)} onChange={() => handleSelectToggle(exp.key)} />
@@ -1260,7 +1285,7 @@ export default function BudgetView() {
                     {isAdhoc ? <DeleteForever fontSize="small" /> : <Block fontSize="small" />}
                 </IconButton>
             </td>
-      </tr>
+      </Box>
       );
   };
 
