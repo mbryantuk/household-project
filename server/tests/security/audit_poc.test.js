@@ -70,7 +70,8 @@ describe('Security Audit Proof of Concept', () => {
     });
 
     it('Tenancy Verification: Viewer of HH 60 cannot access HH 3294', async () => {
-        const token = jwt.sign({ id: 78, email: 'mbryantuk@gmail.com', householdId: 60, role: 'viewer' }, SECRET_KEY);
+        // Use a non-existent or standard user ID that is NOT a system admin
+        const token = jwt.sign({ id: 9999, email: 'regular@user.com', householdId: 60, role: 'viewer', systemRole: 'user' }, SECRET_KEY);
         
         const res = await request(app)
             .get('/households/3294/finance/mortgages')
