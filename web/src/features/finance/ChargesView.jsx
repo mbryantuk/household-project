@@ -241,7 +241,7 @@ export default function ChargesView({ initialTab }) {
                 <td><Chip size="sm" variant="plain" color="neutral" sx={{ textTransform: 'capitalize' }}>{charge.frequency}</Chip></td>
                 <td>
                   <Typography level="body-sm">
-                    {charge.start_date ? format(parseISO(charge.start_date), 'do MMM yyyy') : 'Not set'}
+                    {(charge.start_date && typeof charge.start_date === 'string') ? format(parseISO(charge.start_date), 'do MMM yyyy') : 'Not set'}
                     {charge.adjust_for_working_day && <Chip size="sm" variant="plain" color="primary" sx={{ ml: 1, fontSize: '0.7em' }}>NWD</Chip>}
                   </Typography>
                 </td>

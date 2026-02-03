@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Financial Seed: Resolved version tagging duplication in commit logs",
-  "date": "Tue  3 Feb 14:37:28 GMT 2026"
+  "commitMessage": "Financial Fix: Added null-safety guards for parseISO across budget and calendar components",
+  "date": "Tue  3 Feb 14:54:58 GMT 2026"
 }

@@ -71,7 +71,9 @@ const DrawdownChart = ({ data, limit, cycleStartDate, cycleEndDate, eventsPerDay
                 
                 {/* Event Markers (Tiny Dots at bottom) */}
                 {Array.from(eventsPerDay?.keys() || []).map(dateStr => {
-                    const x = getX(parseISO(dateStr));
+                    const parsed = dateStr ? parseISO(dateStr) : null;
+                    if (!parsed || !isValid(parsed)) return null;
+                    const x = getX(parsed);
                     return <circle key={dateStr} cx={x} cy={height - 5} r="2" fill="var(--joy-palette-neutral-400)" opacity={0.5} />;
                 })}
 
@@ -535,7 +537,7 @@ export default function BudgetView() {
           
           if (hidePaid && progressItem?.is_paid === 1) return;
 
-          const effectiveDate = progressItem?.actual_date ? parseISO(progressItem.actual_date) : dateObj;
+          const effectiveDate = (progressItem?.actual_date && typeof progressItem.actual_date === 'string') ? parseISO(progressItem.actual_date) : dateObj;
 
           const expObj = {
               key, type, label: label || 'Unnamed Item', amount: progressItem?.actual_amount || parseFloat(amount) || 0,
@@ -598,6 +600,7 @@ export default function BudgetView() {
 
       // --- BANK HOLIDAYS ---
       (bankHolidays || []).forEach(hDate => {
+          if (!hDate || typeof hDate !== 'string') return;
           const d = parseISO(hDate);
           if (isValid(d) && isWithinInterval(d, { start: startDate, end: endDate })) {
               addExpense({ id: hDate }, 'holiday', 'Bank Holiday', 0, d, '🏦', 'holiday', 'events');
@@ -630,7 +633,7 @@ export default function BudgetView() {
 
       // --- BIRTHDAYS (Members) ---
       members.forEach(m => {
-          if (!m.dob) return;
+          if (!m.dob || typeof m.dob !== 'string') return;
           const dob = parseISO(m.dob);
           if (!isValid(dob)) return;
           
@@ -648,6 +651,7 @@ export default function BudgetView() {
 
       // --- BIRTHDAYS & EVENTS (Calendar) ---
       (calendarDates || []).forEach(date => {
+          if (!date.date || typeof date.date !== 'string') return;
           const d = parseISO(date.date);
           if (!isValid(d)) return;
           
@@ -673,11 +677,14 @@ export default function BudgetView() {
       liabilities.recurring_costs.filter(c => c.is_active !== 0).forEach(charge => {
           let datesToAdd = [];
           const freq = charge.frequency?.toLowerCase();
-          const anchor = charge.start_date ? parseISO(charge.start_date) : null;
+          const anchor = (charge.start_date && typeof charge.start_date === 'string') ? parseISO(charge.start_date) : null;
           
           if (freq === 'one_off') {
-             const oneOffDate = parseISO(charge.exact_date || charge.start_date);
-             if (isWithinInterval(oneOffDate, { start: startDate, end: endDate })) datesToAdd.push(oneOffDate);
+             const dateStr = charge.exact_date || charge.start_date;
+             if (dateStr && typeof dateStr === 'string') {
+                const oneOffDate = parseISO(dateStr);
+                if (isWithinInterval(oneOffDate, { start: startDate, end: endDate })) datesToAdd.push(oneOffDate);
+             }
           } else if (anchor) {
              let current = startOfDay(anchor);
              while (current < startDate) {

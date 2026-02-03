@@ -166,10 +166,11 @@ export default function RecurringChargesWidget({
           <tbody>
             {filteredCharges.map(c => (
               <tr key={c.id}>
-                <td><Avatar size="sm" sx={{ bgcolor: getEmojiColor(c.emoji) }}>{c.emoji || '💸'}</Avatar></td>
+                <td>
+                    <Avatar size="sm" sx={{ bgcolor: getEmojiColor(c.emoji) }}>{c.emoji || '💸'}</Avatar></td>
                 <td>
                     <Typography level="body-sm" fontWeight="bold">{c.name}</Typography>
-                    <Typography level="body-xs" color="neutral">{c.start_date ? format(parseISO(c.start_date), 'do MMM') : 'No date'}</Typography>
+                    <Typography level="body-xs" color="neutral">{(c.start_date && typeof c.start_date === 'string') ? format(parseISO(c.start_date), 'do MMM') : 'No date'}</Typography>
                 </td>
                 <td><Typography level="body-xs" sx={{ textTransform: 'capitalize' }}>{c.frequency}</Typography></td>
                 <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{formatCurrency(c.amount, household?.currency)}</td>

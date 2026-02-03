@@ -160,7 +160,7 @@ export default function CalendarView({ showNotification }) {
     const limitDate = addYears(new Date(), 2);
 
     rawDates.forEach(d => {
-      if (!d.date) return;
+      if (!d.date || typeof d.date !== 'string') return;
       const startDate = parseISO(d.date);
       if (!isValid(startDate)) return;
 
@@ -172,10 +172,10 @@ export default function CalendarView({ showNotification }) {
         return;
       }
 
-      const endDate = d.end_date ? parseISO(d.end_date) : (d.is_all_day ? startDate : addDays(startDate, 0));
+      const endDate = (d.end_date && typeof d.end_date === 'string') ? parseISO(d.end_date) : (d.is_all_day ? startDate : addDays(startDate, 0));
       if (!isValid(endDate)) return;
 
-      const recurEnd = d.recurrenceend_date ? parseISO(d.recurrenceend_date) : limitDate;
+      const recurEnd = (d.recurrenceend_date && typeof d.recurrenceend_date === 'string') ? parseISO(d.recurrenceend_date) : limitDate;
       const baseEvent = { id: d.id, title: d.title, allDay: true, resource: d };
 
       if (!d.recurrence || d.recurrence === 'none') {
