@@ -1861,16 +1861,16 @@ export default function BudgetView() {
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                                         <Typography level="body-xs" fontWeight="bold">Vehicle Equity</Typography>
                                         <Typography level="body-xs">
-                                            {formatCurrency(liabilities.vehicles.reduce((sum, v) => sum + (v.purchase_value || 0), 0) - (liabilities.vehicle_finance?.reduce((sum, f) => sum + (f.remaining_balance || 0), 0) || 0))}
+                                            {formatCurrency(liabilities.vehicles.reduce((sum, v) => sum + (v.current_value || v.purchase_value || 0), 0) - (liabilities.vehicle_finance?.reduce((sum, f) => sum + (f.remaining_balance || 0), 0) || 0))}
                                         </Typography>
                                     </Box>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5, opacity: 0.7 }}>
-                                        <Typography level="body-xs">Value: {formatCurrency(liabilities.vehicles.reduce((sum, v) => sum + (v.purchase_value || 0), 0))}</Typography>
+                                        <Typography level="body-xs">Value: {formatCurrency(liabilities.vehicles.reduce((sum, v) => sum + (v.current_value || v.purchase_value || 0), 0))}</Typography>
                                         <Typography level="body-xs">Finance: {formatCurrency(liabilities.vehicle_finance?.reduce((sum, f) => sum + (f.remaining_balance || 0), 0) || 0)}</Typography>
                                     </Box>
                                     <LinearProgress 
                                         determinate 
-                                        value={Math.min(100, Math.max(0, (1 - (liabilities.vehicle_finance?.reduce((sum, f) => sum + (f.remaining_balance || 0), 0) || 0) / (liabilities.vehicles.reduce((sum, v) => sum + (v.purchase_value || 0), 0) || 1)) * 100))} 
+                                        value={Math.min(100, Math.max(0, (1 - (liabilities.vehicle_finance?.reduce((sum, f) => sum + (f.remaining_balance || 0), 0) || 0) / (liabilities.vehicles.reduce((sum, v) => sum + (v.current_value || v.purchase_value || 0), 0) || 1)) * 100))} 
                                         size="sm" 
                                         color="warning" 
                                     />

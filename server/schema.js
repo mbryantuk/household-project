@@ -94,6 +94,7 @@ const TENANT_SCHEMA = [
         emoji TEXT,
         purchase_date DATE,
         purchase_value REAL,
+        current_value REAL DEFAULT 0,
         replacement_cost REAL,
         monthly_maintenance_cost REAL,
         depreciation_rate REAL,
@@ -474,7 +475,8 @@ function initializeHouseholdSchema(db) {
             ['finance_savings', 'deposit_day', 'INTEGER'],
             ['finance_investments', 'monthly_contribution', 'REAL DEFAULT 0'],
             ['finance_investments', 'payment_day', 'INTEGER'],
-            ['finance_budget_cycles', 'bank_account_id', 'INTEGER']
+            ['finance_budget_cycles', 'bank_account_id', 'INTEGER'],
+            ['vehicles', 'current_value', 'REAL DEFAULT 0']
         ];
 
         additionalFinanceCols.forEach(([table, col, type]) => {

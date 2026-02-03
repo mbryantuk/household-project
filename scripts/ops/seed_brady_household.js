@@ -107,11 +107,13 @@ async function seed() {
         // 5. VEHICLES
         const v1 = await apiRequest('POST', `/api/households/${hhId}/vehicles`, {
             make: "Tesla", model: "Model S", emoji: "⚡", 
-            mot_due: "2026-11-01", tax_due: "2026-11-01", registration: "BRADY 1"
+            mot_due: "2026-11-01", tax_due: "2026-11-01", registration: "BRADY 1",
+            purchase_value: 85000, current_value: 62000
         }, token);
         const v2 = await apiRequest('POST', `/api/households/${hhId}/vehicles`, {
             make: "Rivian", model: "R1S", emoji: "🔋",
-            mot_due: "2026-08-20", tax_due: "2026-08-20", registration: "BRADY 2"
+            mot_due: "2026-08-20", tax_due: "2026-08-20", registration: "BRADY 2",
+            purchase_value: 95000, current_value: 88000
         }, token);
 
         // 6. CONSOLIDATED RECURRING COSTS
@@ -190,8 +192,8 @@ async function seed() {
         const bank1 = await apiRequest('POST', `/api/households/${hhId}/finance/current-accounts`, { 
             bank_name: "Wells Fargo", 
             account_name: "Checking", 
-            current_balance: 3500,
-            overdraft_limit: 2000 
+            current_balance: 9300,
+            overdraft_limit: 200 
         }, token);
         
         // Mike gets paid late in the month (28th) - but for THIS cycle (starting Jan 28) we assume he was JUST paid
@@ -204,7 +206,7 @@ async function seed() {
         await apiRequest('POST', `/api/households/${hhId}/finance/budget-cycles`, {
             cycle_start: cycleKey,
             actual_pay: 15700,
-            current_balance: 3500,
+            current_balance: 9300,
             bank_account_id: bank1.data.id
         }, token);
 
