@@ -95,8 +95,16 @@ const restoreBackup = (zipFilePath, householdId = null) => {
                 // Safety check: Ensure the zip contains the correct file and nothing else malicious
                 const entries = zip.getEntries();
                 const expectedFile = `household_${householdId}.db`;
-                const hasValidEntry = entries.some(e => e.entryName === expectedFile);
                 
+                // Validate all entries for Zip Slip even in single-tenant mode
+                entries.forEach(entry => {
+                    const fullPath = path.join(DATA_DIR, entry.entryName);
+                    if (!fullPath.startsWith(DATA_DIR)) {
+                        throw new Error(`Malicious zip entry detected: ${entry.entryName}`);
+                    }
+                });
+
+                const hasValidEntry = entries.some(e => e.entryName === expectedFile);
                 if (!hasValidEntry) {
                     return reject(new Error(`Backup does not contain data for household ${householdId}`));
                 }
@@ -104,7 +112,14 @@ const restoreBackup = (zipFilePath, householdId = null) => {
                 // Extract only the specific household DB
                 zip.extractEntryTo(expectedFile, DATA_DIR, false, true);
             } else {
-                // Full Restore
+                // Full Restore - Validate all entries first
+                const entries = zip.getEntries();
+                entries.forEach(entry => {
+                    const fullPath = path.join(DATA_DIR, entry.entryName);
+                    if (!fullPath.startsWith(DATA_DIR)) {
+                        throw new Error(`Malicious zip entry detected: ${entry.entryName}`);
+                    }
+                });
                 zip.extractAllTo(DATA_DIR, true);
             }
             resolve();

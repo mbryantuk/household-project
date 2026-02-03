@@ -7,8 +7,8 @@ const path = require('path');
 const fs = require('fs');
 const { spawn } = require('child_process');
 const { globalDb, getHouseholdDb } = require('../db');
-const SECRET_KEY = 'super_secret_pi_key';
-const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
+const { SECRET_KEY } = require('../config');
+const { authenticateToken, requireHouseholdRole, requireSystemRole } = require('../middleware/auth');
 const { listBackups, createBackup, restoreBackup, BACKUP_DIR, DATA_DIR } = require('../services/backup');
 
 // Upload middleware for full system restores
@@ -31,23 +31,29 @@ const dbRun = (db, sql, params) => new Promise((resolve, reject) => {
 });
 
 // ==========================================
-// 🛡️ HOUSEHOLD BACKUP (Admin Only)
+// 🛡️ HOUSEHOLD BACKUP (System Admin Only)
 // ==========================================
 
-router.get('/backups', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
+router.get('/backups', authenticateToken, requireSystemRole('admin'), (req, res) => {
     listBackups().then(backups => res.json(backups)).catch(err => res.status(500).json({ error: err.message }));
 });
 
-router.post('/backups/trigger', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
+router.post('/backups/trigger', authenticateToken, requireSystemRole('admin'), (req, res) => {
     createBackup().then(filename => res.json({ message: "Backup created", filename })).catch(err => res.status(500).json({ error: err.message }));
 });
 
-router.get('/backups/download/:filename', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
-    const filePath = path.join(BACKUP_DIR, req.params.filename);
+router.get('/backups/download/:filename', authenticateToken, requireSystemRole('admin'), (req, res) => {
+    const filename = req.params.filename;
+    // Prevent Path Traversal
+    if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+        return res.status(403).json({ error: "Invalid filename" });
+    }
+    const filePath = path.join(BACKUP_DIR, filename);
+    if (!fs.existsSync(filePath)) return res.status(404).json({ error: "File not found" });
     res.download(filePath);
 });
 
-router.post('/backups/upload', authenticateToken, requireHouseholdRole('admin'), upload.single('backup'), async (req, res) => {
+router.post('/backups/upload', authenticateToken, requireSystemRole('admin'), upload.single('backup'), async (req, res) => {
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
     try {
         await restoreBackup(req.file.path);
@@ -60,11 +66,13 @@ router.post('/backups/upload', authenticateToken, requireHouseholdRole('admin'),
 });
 
 // ==========================================
-// 🌍 HOUSEHOLD MANAGEMENT (Admin Only)
+// 🌍 HOUSEHOLD MANAGEMENT (Household Admin or System Admin)
 // ==========================================
 
 router.get('/households', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
-    globalDb.all("SELECT * FROM households WHERE id = ?", [req.user.householdId], (err, rows) => {
+    // Only return the household they are admin of, unless system admin
+    const hhId = req.query.id || req.user.householdId;
+    globalDb.all("SELECT * FROM households WHERE id = ?", [hhId], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
@@ -151,7 +159,12 @@ router.get('/users/:userId', authenticateToken, requireHouseholdRole('admin'), a
 
 router.post('/create-user', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
     const { username, password, role, email, first_name, last_name, avatar, householdId } = req.body;
-    const targetHhId = householdId || req.user.householdId;
+    
+    // SECURITY: If not a system admin, they can ONLY add users to their own current household
+    let targetHhId = householdId || req.user.householdId;
+    if (req.user.systemRole !== 'admin' && parseInt(targetHhId) !== parseInt(req.user.householdId)) {
+        return res.status(403).json({ error: "Access denied: You can only add users to your own household." });
+    }
 
     const finalEmail = email || `${username}@example.com`;
 
@@ -239,7 +252,7 @@ const getHealthStatus = () => {
     }
 };
 
-router.post('/health-check/trigger', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
+router.post('/health-check/trigger', authenticateToken, requireSystemRole('admin'), (req, res) => {
     const status = getHealthStatus();
     if (status.state === 'running') {
         return res.status(409).json({ error: "A health check is already in progress." });

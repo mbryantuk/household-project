@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { globalDb } = require('../db');
+const { SECRET_KEY } = require('../config');
 const pkg = require('../package.json');
-const SECRET_KEY = 'super_secret_pi_key';
 
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
@@ -48,7 +48,12 @@ function authenticateToken(req, res, next) {
  */
 function requireHouseholdRole(requiredRole) {
     return (req, res, next) => {
-        const targetIdRaw = req.params.id || req.params.hhId || req.body.householdId || req.query.id || req.query.hhId;
+        // PRIORITIZE path parameters to prevent IDOR via body/query
+        let targetIdRaw = req.params.id || req.params.hhId;
+        if (!targetIdRaw) {
+            targetIdRaw = req.body.householdId || req.query.id || req.query.hhId;
+        }
+        
         const targetHouseholdId = targetIdRaw ? parseInt(targetIdRaw) : null;
         const userHouseholdId = req.user.householdId ? parseInt(req.user.householdId) : null;
         const roles = ['viewer', 'member', 'admin'];
@@ -60,7 +65,7 @@ function requireHouseholdRole(requiredRole) {
             return actualRoleIndex >= requiredRoleIndex;
         };
 
-        // 1. If context matches, we can use the role already on the request (from JWT/DB lookup in authenticateToken)
+        // 1. If context matches, we can use the role already on the request
         if (targetHouseholdId && userHouseholdId === targetHouseholdId) {
             if (hasPermission(req.user.role)) {
                 return next();
@@ -71,11 +76,18 @@ function requireHouseholdRole(requiredRole) {
 
         // 2. If context doesn't match OR is missing, we MUST check the database for the target household
         if (targetHouseholdId) {
+            // Check if it's a cross-household access attempt
+            if (userHouseholdId && userHouseholdId !== targetHouseholdId && req.user.systemRole !== 'admin') {
+                if (process.env.NODE_ENV === 'test') console.log(`RBAC: Blocked cross-household access attempt from HH ${userHouseholdId} to HH ${targetHouseholdId}`);
+                return res.status(403).json({ error: "Access denied: You do not have access to this household" });
+            }
+
             globalDb.get(
                 "SELECT id, name FROM households WHERE id = ?",
                 [targetHouseholdId],
                 (hErr, household) => {
                     if (!household) {
+                        if (process.env.NODE_ENV === 'test') console.log(`RBAC: Household ${targetHouseholdId} not found in globalDb`);
                         return res.status(404).json({ error: `Household #${targetHouseholdId} no longer exists. It may have been purged during cleanup.` });
                     }
 
