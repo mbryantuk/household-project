@@ -373,7 +373,7 @@ export default function BudgetView() {
   }, [members, liabilities]);
 
   const getCategoryOptions = useCallback((entityString) => {
-      const [type, id] = (entityString || 'household:null')?.split(':');
+      const [type, id] = (entityString || 'household:null').split(':');
       
       const HOUSEHOLD_CATS = [
           { value: 'water', label: 'Water' },
@@ -523,7 +523,7 @@ export default function BudgetView() {
 
           // Entity Filter Check
           if (filterEntity && filterEntity !== 'all') {
-              const [fType, fId] = (filterEntity || 'household:null')?.split(':');
+              const [fType, fId] = (filterEntity || 'household:null').split(':');
               const itemType = object?.type || (type === 'credit_card' ? 'household' : 'household');
               const itemId = String(object?.id || 'null');
               if (fType !== itemType || fId !== itemId) {
@@ -975,7 +975,7 @@ export default function BudgetView() {
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
       const data = Object.fromEntries(formData.entries());
-      const [type, id] = (selectedEntity || 'household:null')?.split(':');
+      const [type, id] = (selectedEntity || 'household:null').split(':');
       
       const payload = {
         name: data.name,
@@ -1442,21 +1442,31 @@ export default function BudgetView() {
         </Box>
 
         <Box sx={{ mb: 2, position: 'relative' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography level="body-xs" fontWeight="bold" sx={{ textTransform: 'uppercase', letterSpacing: '0.1em' }}>Days Left</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'flex-end', mb: 1 }}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1 }}>
                     {overdraftRemedy && (
-                        <Typography 
-                            level="body-xs" 
-                            variant="soft" 
-                            color={isLimitRisk ? "danger" : "warning"} 
-                            sx={{ px: 1, borderRadius: 'xs', fontWeight: 'bold' }}
-                        >
-                            Action Required: {formatCurrency(overdraftRemedy.amountToClear)} by {format(overdraftRemedy.deadline, 'do MMM')}
-                        </Typography>
+                        <>
+                            <Typography 
+                                level="body-xs" 
+                                variant="soft" 
+                                color="warning" 
+                                sx={{ px: 1, borderRadius: 'xs', fontWeight: 'bold' }}
+                            >
+                                Action Required: Going into overdraft on {format(overdraftRemedy.deadline, 'do MMM')} and need {formatCurrency(overdraftRemedy.amountToClear)} by {format(overdraftRemedy.deadline, 'do MMM')} to stay positive.
+                            </Typography>
+                            {overdraftRemedy.limitDeadline && (
+                                <Typography 
+                                    level="body-xs" 
+                                    variant="soft" 
+                                    color="danger" 
+                                    sx={{ px: 1, borderRadius: 'xs', fontWeight: 'bold' }}
+                                >
+                                    CRITICAL: {formatCurrency(overdraftRemedy.amountToBuffer)} needed by {format(overdraftRemedy.limitDeadline, 'do MMM')} to avoid bounce.
+                                </Typography>
+                            )}
+                        </>
                     )}
                 </Box>
-                <Typography level="body-xs" fontWeight="bold">{cycleData.daysRemaining} days to go</Typography>
             </Box>
             <Tooltip 
                 variant="solid"

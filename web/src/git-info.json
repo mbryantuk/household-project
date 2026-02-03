@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Finance: Overhaul Budget View - Remove bank balance labels, enable income date overrides, add adhoc deletion, and beautify projection graph.",
-  "date": "Tue  3 Feb 13:09:13 GMT 2026"
+  "commitMessage": "UI: Removed Days Left labels and enhanced Action Required/Critical overdraft messaging in BudgetView",
+  "date": "Tue  3 Feb 13:29:56 GMT 2026"
 }

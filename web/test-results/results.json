@@ -66,25 +66,25 @@
   },
   "suites": [
     {
-      "title": "lifecycle_1_foundation.spec.js",
-      "file": "lifecycle_1_foundation.spec.js",
+      "title": "lifecycle_2_finance.spec.js",
+      "file": "lifecycle_2_finance.spec.js",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Brady Lifecycle Stage 1: Foundation",
-          "file": "lifecycle_1_foundation.spec.js",
-          "line": 6,
+          "title": "Brady Lifecycle Stage 2: Finance & Fringe",
+          "file": "lifecycle_2_finance.spec.js",
+          "line": 5,
           "column": 6,
           "specs": [
             {
-              "title": "Setup Foundation",
-              "ok": true,
+              "title": "Expand Brady Household Finance (Frontend - Resilience Mode)",
+              "ok": false,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 600000,
+                  "timeout": 300000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
@@ -93,198 +93,69 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 22643,
-                      "errors": [],
+                      "status": "timedOut",
+                      "duration": 300268,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/lifecycle_2_finance.spec.js",
+                            "column": 16,
+                            "line": 34
+                          },
+                          "message": "Error: page.waitForURL: Test timeout of 300000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n\u001b[0m \u001b[90m 32 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m password)\u001b[33m;\u001b[39m\n \u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Log In\")'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 34 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[36mnew\u001b[39m \u001b[33mRegExp\u001b[39m(\u001b[32m`/household/${hhId}/dashboard`\u001b[39m))\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 35 |\u001b[39m     \n \u001b[90m 36 |\u001b[39m     \u001b[90m// --- HELPERS ---\u001b[39m\n \u001b[90m 37 |\u001b[39m     \u001b[36mconst\u001b[39m createFinancialItem \u001b[33m=\u001b[39m \u001b[36masync\u001b[39m (tab\u001b[33m,\u001b[39m addBtnText\u001b[33m,\u001b[39m fillFn) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_2_finance.spec.js:34:16\u001b[22m"
+                        }
+                      ],
                       "stdout": [
                         {
-                          "text": "[2026-02-02T22:27:54.492Z] [STEP: Mike Registration] Starting...\n"
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-02T22:27:54.494Z] [STEP: Mike Registration] Attempt 1...\n"
+                          "text": "BROWSER LOG: Content is cached for offline use.\n"
                         },
                         {
-                          "text": "[2026-02-02T22:27:54.968Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-02T22:27:54.969Z] [STEP: BROWSER] Content is cached for offline use.\n"
+                          "text": "BROWSER LOG: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
                         },
                         {
-                          "text": "[2026-02-02T22:27:55.212Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "BROWSER LOG: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
                         },
                         {
-                          "text": "[2026-02-02T22:27:55.590Z] [STEP: Mike Registration] [1.10s] Completed successfully.\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:55.590Z] [STEP: Mike Login] Starting...\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:55.811Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:56.120Z] [STEP: Mike Login] [0.53s] Completed successfully.\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:56.120Z] [STEP: Foundation] Brady Household ID: 3284\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:56.121Z] [STEP: Route Check] Starting...\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:56.122Z] [STEP: Route Check] Checking /dashboard\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:56.540Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:56.577Z] [STEP: BROWSER] Failed to load resource: the server responded with a status of 404 (Not Found)\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:56.578Z] [STEP: BROWSER] Failed to fetch recurring costs $t\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:56.625Z] [STEP: Route Check] Checking /calendar\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:57.035Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:57.117Z] [STEP: Route Check] Checking /house\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:57.532Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:57.592Z] [STEP: Route Check] Checking /meals\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:57.969Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:58.091Z] [STEP: Route Check] Checking /finance\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:58.471Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:58.567Z] [STEP: Route Check] Checking /settings\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:58.952Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:59.025Z] [STEP: Route Check] [2.90s] Completed successfully.\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:59.025Z] [STEP: Grant Lead Architect Access] Starting...\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:27:59.457Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:00.038Z] [STEP: Grant Access] Inviting mbryantuk@gmail.com as Admin\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:00.764Z] [STEP: Grant Lead Architect Access] [1.74s] Completed successfully.\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:00.764Z] [STEP: Invite Family] Starting...\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:00.937Z] [STEP: Invite Family] Inviting Carol (Standard Member)\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:01.159Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:02.124Z] [STEP: Invite Family] Inviting Greg (Viewer (Read-only))\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:03.040Z] [STEP: Invite Family] Inviting Marcia (Viewer (Read-only))\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:03.880Z] [STEP: Invite Family] Inviting Peter (Viewer (Read-only))\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:04.879Z] [STEP: Invite Family] Inviting Jan (Viewer (Read-only))\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:05.830Z] [STEP: Invite Family] Inviting Bobby (Viewer (Read-only))\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:06.677Z] [STEP: Invite Family] Inviting Cindy (Viewer (Read-only))\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:07.588Z] [STEP: Invite Family] [6.82s] Completed successfully.\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:07.588Z] [STEP: Add Residents, Pets, Vehicles & House] Starting...\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:07.730Z] [STEP: Add Residents] Adding Mike (Adult, Age: 40)\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:07.934Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:08.534Z] [STEP: Add Residents] Adding Carol (Adult, Age: 35)\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:08.994Z] [STEP: Add Residents] Adding Alice (Adult, Age: 45)\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:09.426Z] [STEP: Add Residents] Adding Greg (Child, Age: 14)\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:09.845Z] [STEP: Add Residents] Adding Marcia (Child, Age: 13)\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:10.269Z] [STEP: Add Residents] Adding Peter (Child, Age: 11)\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:10.697Z] [STEP: Add Residents] Adding Jan (Child, Age: 10)\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:11.130Z] [STEP: Add Residents] Adding Bobby (Child, Age: 8)\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:11.539Z] [STEP: Add Residents] Adding Cindy (Child, Age: 7)\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:11.978Z] [STEP: Add Residents] Adding Tiger (Pet, Age: 5)\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:12.394Z] [STEP: Add Residents] Adding Fluffy (Pet, Age: 3)\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:12.831Z] [STEP: Add Residents] Adding Vehicle: Chevrolet Kingswood Estate\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:13.278Z] [STEP: Add Residents] Adding Vehicle: Chevrolet Chevelle Wagon\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:13.727Z] [STEP: Add Residents] Setting up Property Details\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:14.428Z] [STEP: Add Residents] Adding Property Assets\n"
-                        },
-                        {
-                          "text": "[2026-02-02T22:28:14.831Z] [STEP: Add Residents, Pets, Vehicles & House] [7.24s] Completed successfully.\n"
+                          "text": "BROWSER LOG: Login failed: Bt\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-02T22:27:52.208Z",
+                      "startTime": "2026-02-03T13:24:27.939Z",
                       "annotations": [],
-                      "attachments": []
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/lifecycle_2_finance-Brady--dfbdb-Frontend---Resilience-Mode--chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/lifecycle_2_finance-Brady--dfbdb-Frontend---Resilience-Mode--chromium/error-context.md"
+                        }
+                      ]
                     }
                   ],
-                  "status": "expected"
+                  "status": "unexpected"
                 }
               ],
-              "id": "1e6f3fac90a232f03b11-e3160800fed256b60c8c",
-              "file": "lifecycle_1_foundation.spec.js",
-              "line": 12,
+              "id": "ac27a2489c48f35ed2af-3cc5441749210b74f483",
+              "file": "lifecycle_2_finance.spec.js",
+              "line": 18,
               "column": 3
             }
           ]
@@ -294,11 +165,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-02T22:27:47.659Z",
-    "duration": 27467.179,
-    "expected": 1,
+    "startTime": "2026-02-03T13:24:23.278Z",
+    "duration": 305340.12,
+    "expected": 0,
     "skipped": 0,
-    "unexpected": 0,
+    "unexpected": 1,
     "flaky": 0
   }
 }

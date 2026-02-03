@@ -212,10 +212,12 @@ function AppInner({
     if (token && household && households.length > 0) {
       const exists = households.find(h => h.id === household.id);
       if (!exists) {
-        setHousehold(null);
-        localStorage.removeItem('household');
-        navigate('/select-household');
-        showNotification("The selected household is no longer available.", "warning");
+        Promise.resolve().then(() => {
+          setHousehold(null);
+          localStorage.removeItem('household');
+          navigate('/select-household');
+          showNotification("The selected household is no longer available.", "warning");
+        });
       }
     }
   }, [households, household, token, navigate, setHousehold, showNotification]);

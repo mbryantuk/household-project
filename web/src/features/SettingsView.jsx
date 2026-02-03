@@ -36,7 +36,7 @@ export default function SettingsView({
     if (household?.metadata_schema) {
       try {
         setLocalMetadataSchema(JSON.parse(household.metadata_schema));
-      } catch (e) {
+      } catch {
         setLocalMetadataSchema({});
       }
     } else {
@@ -844,7 +844,7 @@ export default function SettingsView({
                             </Box>
 
                             <Stack spacing={2}>
-                                {(localMetadataSchema[activeSchemaCategory] || METADATA_SCHEMAS[activeSchemaCategory] || []).map((field, idx) => (
+                                {(localMetadataSchema[activeSchemaCategory] || METADATA_SCHEMAS[activeSchemaCategory] || []).map((field) => (
                                     <Sheet key={field.key} variant="outlined" sx={{ p: 2, borderRadius: 'md', position: 'relative' }}>
                                         {isAdmin && (
                                             <IconButton 
