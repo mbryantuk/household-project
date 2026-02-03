@@ -799,8 +799,7 @@ export default function BudgetView() {
       const isPaid = progressItem ? (progressItem.is_paid || 0) : 0;
       try {
           await api.post(`/households/${householdId}/finance/budget-progress`, { cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: isPaid, actual_amount: parseFloat(amount) || 0 });
-          const progRes = await api.get(`/households/${householdId}/finance/budget-progress`);
-          setProgress(progRes.data || []);
+          fetchData();
       } catch (err) { console.error("Failed to update actual amount", err); }
   };
 
@@ -837,9 +836,7 @@ export default function BudgetView() {
           } else { 
               await api.post(`/households/${householdId}/finance/budget-progress`, { cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: 1, actual_amount: amount }); 
           }
-          // Optionally refetch to ensure sync, but optimistic state is usually sufficient for this simple toggle.
-          // const progRes = await api.get(`/households/${householdId}/finance/budget-progress`);
-          // setProgress(progRes.data || []);
+          fetchData();
       } catch (err) { 
           console.error("Failed to toggle paid status", err); 
           // Revert on error
