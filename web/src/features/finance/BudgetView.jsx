@@ -235,7 +235,7 @@ export default function BudgetView() {
   
   const [liabilities, setLiabilities] = useState({
       recurring_costs: [], credit_cards: [], pensions: [], vehicles: [], assets: [],
-      savings: [], investments: []
+      savings: [], investments: [], mortgages: [], vehicle_finance: [], house_details: {}
   });
   const [savingsPots, setSavingsPots] = useState([]);
   const [calendarDates, setCalendarDates] = useState([]);
@@ -271,7 +271,8 @@ export default function BudgetView() {
     setLoading(true);
     try {
       const [
-          incRes, progRes, cycleRes, recurringRes, ccRes, pensionRes, potRes, holidayRes, vehRes, assetRes, saveRes, invRes, accountRes, dateRes
+          incRes, progRes, cycleRes, recurringRes, ccRes, pensionRes, potRes, holidayRes, vehRes, assetRes, saveRes, invRes, accountRes, dateRes,
+          mortRes, vFinRes, detailRes
       ] = await Promise.all([
           api.get(`/households/${householdId}/finance/income`),
           api.get(`/households/${householdId}/finance/budget-progress`),
@@ -286,7 +287,10 @@ export default function BudgetView() {
           api.get(`/households/${householdId}/finance/savings`),
           api.get(`/households/${householdId}/finance/investments`),
           api.get(`/households/${householdId}/finance/current-accounts`),
-          api.get(`/households/${householdId}/dates`)
+          api.get(`/households/${householdId}/dates`),
+          api.get(`/households/${householdId}/finance/mortgages`),
+          api.get(`/households/${householdId}/finance/vehicle-finance`),
+          api.get(`/households/${householdId}/details`)
       ]);
 
       setIncomes(incRes.data || []);
@@ -300,7 +304,10 @@ export default function BudgetView() {
           vehicles: vehRes.data || [],
           assets: assetRes.data || [],
           savings: saveRes.data || [],
-          investments: invRes.data || []
+          investments: invRes.data || [],
+          mortgages: mortRes.data || [],
+          vehicle_finance: vFinRes.data || [],
+          house_details: detailRes.data || {}
       });
       setSavingsPots(potRes.data || []);
       setBankHolidays(holidayRes.data || []);
@@ -1232,6 +1239,9 @@ export default function BudgetView() {
           return 'transparent';
       };
 
+      const isPot = exp.type === 'pot';
+      const isSavingsDeposit = exp.type === 'savings_deposit';
+
       return (
       <Box 
           component="tr"
@@ -1250,11 +1260,17 @@ export default function BudgetView() {
           <td>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                   <Avatar size="sm" sx={{ bgcolor: getEmojiColor(exp.label || '?', isDark) }}>{exp.icon}</Avatar>
-                  <Typography level="body-sm" fontWeight="bold" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{exp.label}</Typography>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography level="body-sm" fontWeight="bold" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{exp.label}</Typography>
+                    {isPot && <Typography level="body-xs" color="success">Pot Transfer</Typography>}
+                    {isSavingsDeposit && <Typography level="body-xs" color="primary">Savings Account</Typography>}
+                  </Box>
               </Box>
           </td>
           <td style={{ width: 140 }}>
-              <Chip size="sm" variant="soft" color={getCategoryColor(exp.category)} sx={{ fontSize: '0.65rem', textTransform: 'capitalize' }}>{exp.category.replace('_', ' ')}</Chip>
+              <Chip size="sm" variant="soft" color={getCategoryColor(exp.category)} sx={{ fontSize: '0.65rem', textTransform: 'capitalize' }}>
+                {isPot ? 'Pot' : exp.category.replace('_', ' ')}
+              </Chip>
           </td>
           <td style={{ width: 160 }}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -1817,6 +1833,87 @@ export default function BudgetView() {
                     <Card variant="outlined" sx={{ p: 2, boxShadow: 'sm' }}>
                         <Typography level="title-md" startDecorator={<SavingsIcon />} sx={{ mb: 2 }}>Wealth Tracking</Typography>
                         <Stack spacing={2}>
+                            {/* 1. House Equity */}
+                            {liabilities.house_details?.current_valuation > 0 && (
+                                <Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                        <Typography level="body-xs" fontWeight="bold">House Equity</Typography>
+                                        <Typography level="body-xs">
+                                            {formatCurrency(liabilities.house_details.current_valuation - (liabilities.mortgages?.reduce((sum, m) => sum + (m.remaining_balance || 0), 0) || 0))}
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5, opacity: 0.7 }}>
+                                        <Typography level="body-xs">Valuation: {formatCurrency(liabilities.house_details.current_valuation)}</Typography>
+                                        <Typography level="body-xs">Mortgage: {formatCurrency(liabilities.mortgages?.reduce((sum, m) => sum + (m.remaining_balance || 0), 0) || 0)}</Typography>
+                                    </Box>
+                                    <LinearProgress 
+                                        determinate 
+                                        value={Math.min(100, Math.max(0, (1 - (liabilities.mortgages?.reduce((sum, m) => sum + (m.remaining_balance || 0), 0) || 0) / liabilities.house_details.current_valuation) * 100))} 
+                                        size="sm" 
+                                        color="primary" 
+                                    />
+                                </Box>
+                            )}
+
+                            {/* 2. Vehicle Equity */}
+                            {liabilities.vehicles.length > 0 && (
+                                <Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                        <Typography level="body-xs" fontWeight="bold">Vehicle Equity</Typography>
+                                        <Typography level="body-xs">
+                                            {formatCurrency(liabilities.vehicles.reduce((sum, v) => sum + (v.purchase_value || 0), 0) - (liabilities.vehicle_finance?.reduce((sum, f) => sum + (f.remaining_balance || 0), 0) || 0))}
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5, opacity: 0.7 }}>
+                                        <Typography level="body-xs">Value: {formatCurrency(liabilities.vehicles.reduce((sum, v) => sum + (v.purchase_value || 0), 0))}</Typography>
+                                        <Typography level="body-xs">Finance: {formatCurrency(liabilities.vehicle_finance?.reduce((sum, f) => sum + (f.remaining_balance || 0), 0) || 0)}</Typography>
+                                    </Box>
+                                    <LinearProgress 
+                                        determinate 
+                                        value={Math.min(100, Math.max(0, (1 - (liabilities.vehicle_finance?.reduce((sum, f) => sum + (f.remaining_balance || 0), 0) || 0) / (liabilities.vehicles.reduce((sum, v) => sum + (v.purchase_value || 0), 0) || 1)) * 100))} 
+                                        size="sm" 
+                                        color="warning" 
+                                    />
+                                </Box>
+                            )}
+
+                            {/* 3. Pensions */}
+                            {liabilities.pensions.length > 0 && (
+                                <Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                        <Typography level="body-xs" fontWeight="bold">Total Pensions</Typography>
+                                        <Typography level="body-xs">{formatCurrency(liabilities.pensions.reduce((sum, p) => sum + (p.current_value || 0), 0))}</Typography>
+                                    </Box>
+                                    <Stack direction="row" spacing={1} flexWrap="wrap">
+                                        {liabilities.pensions.map(p => (
+                                            <Chip key={p.id} size="sm" variant="soft" color="neutral" sx={{ fontSize: '0.6rem' }}>
+                                                {p.emoji} {p.provider}: {formatCurrency(p.current_value)}
+                                            </Chip>
+                                        ))}
+                                    </Stack>
+                                </Box>
+                            )}
+
+                            {/* 4. Investments */}
+                            {liabilities.investments.length > 0 && (
+                                <Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                        <Typography level="body-xs" fontWeight="bold">Total Investments</Typography>
+                                        <Typography level="body-xs">{formatCurrency(liabilities.investments.reduce((sum, i) => sum + (i.current_value || 0), 0))}</Typography>
+                                    </Box>
+                                    <Stack direction="row" spacing={1} flexWrap="wrap">
+                                        {liabilities.investments.map(i => (
+                                            <Chip key={i.id} size="sm" variant="soft" color="neutral" sx={{ fontSize: '0.6rem' }}>
+                                                {i.emoji} {i.name}: {formatCurrency(i.current_value)}
+                                            </Chip>
+                                        ))}
+                                    </Stack>
+                                </Box>
+                            )}
+
+                            <Divider />
+
+                            {/* 5. Savings & Pots (Original) */}
                             {liabilities.savings.map(acc => (
                                 <Box key={acc.id}>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
@@ -1833,7 +1930,7 @@ export default function BudgetView() {
                                                     </Box>
                                                     <LinearProgress 
                                                         determinate 
-                                                        value={(pot.current_amount / (pot.target_amount || 1)) * 100} 
+                                                        value={Math.min(100, Math.max(0, (pot.current_amount / (pot.target_amount || 1)) * 100))} 
                                                         size="sm" 
                                                         color="success" 
                                                         sx={{ mt: 0.5 }}
