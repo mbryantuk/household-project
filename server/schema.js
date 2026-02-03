@@ -323,6 +323,7 @@ const TENANT_SCHEMA = [
         item_key TEXT,    -- Format: 'type_id' e.g. 'mortgage_5'
         is_paid INTEGER DEFAULT 0,
         actual_amount REAL,
+        actual_date DATE,
         PRIMARY KEY (household_id, cycle_start, item_key)
     )`,
     `CREATE TABLE IF NOT EXISTS finance_budget_cycles (
@@ -462,6 +463,7 @@ function initializeHouseholdSchema(db) {
 
         const additionalFinanceCols = [
             ['finance_budget_progress', 'actual_amount', 'REAL'],
+            ['finance_budget_progress', 'actual_date', 'DATE'],
             ['finance_pensions', 'payment_day', 'INTEGER'],
             ['finance_income', 'nearest_working_day', 'INTEGER DEFAULT 1'],
             ['finance_credit_cards', 'nearest_working_day', 'INTEGER DEFAULT 1'],

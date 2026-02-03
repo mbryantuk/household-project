@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Sync bank balance UI immediately after marking items as paid",
-  "date": "Tue  3 Feb 12:46:11 GMT 2026"
+  "commitMessage": "Finance: Overhaul Budget View - Remove bank balance labels, enable income date overrides, add adhoc deletion, and beautify projection graph.",
+  "date": "Tue  3 Feb 13:09:13 GMT 2026"
 }

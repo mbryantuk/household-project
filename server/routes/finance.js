@@ -482,7 +482,7 @@ router.post('/budget-cycles', authenticateToken, requireHouseholdRole('member'),
 });
 
 router.post('/budget-progress', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-    const { cycle_start, item_key, is_paid, actual_amount } = req.body;
+    const { cycle_start, item_key, is_paid, actual_amount, actual_date } = req.body;
     const newAmount = parseFloat(actual_amount) || 0;
     const newPaid = parseInt(is_paid) || 0;
     
@@ -517,7 +517,14 @@ router.post('/budget-progress', authenticateToken, requireHouseholdRole('member'
 
         req.tenantDb.serialize(() => {
             req.tenantDb.run("BEGIN TRANSACTION");
-            req.tenantDb.run(`INSERT INTO finance_budget_progress (household_id, cycle_start, item_key, is_paid, actual_amount) VALUES (?, ?, ?, ?, ?) ON CONFLICT(household_id, cycle_start, item_key) DO UPDATE SET is_paid = excluded.is_paid, actual_amount = excluded.actual_amount`, [req.hhId, cycle_start, item_key, newPaid, newAmount], (pErr) => {
+            req.tenantDb.run(`INSERT INTO finance_budget_progress (household_id, cycle_start, item_key, is_paid, actual_amount, actual_date) 
+                             VALUES (?, ?, ?, ?, ?, ?) 
+                             ON CONFLICT(household_id, cycle_start, item_key) 
+                             DO UPDATE SET 
+                                is_paid = excluded.is_paid, 
+                                actual_amount = excluded.actual_amount,
+                                actual_date = COALESCE(excluded.actual_date, finance_budget_progress.actual_date)`, 
+                             [req.hhId, cycle_start, item_key, newPaid, newAmount, actual_date], (pErr) => {
                 if (pErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: pErr.message }); }
                 
                 const finalize = () => {

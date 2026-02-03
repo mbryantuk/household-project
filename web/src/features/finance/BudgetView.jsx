@@ -14,7 +14,7 @@ import {
   Assignment, WaterDrop, ElectricBolt, AccountBalance as BankIcon, Add, Shield,
   ShoppingBag, ChevronLeft, ChevronRight, Lock, LockOpen, ArrowDropDown, RestartAlt, Receipt,
   DirectionsCar, Person, DeleteOutline, Restore, Sort, Search, ExpandMore, TrendingUp, Block, RemoveCircleOutline, RequestQuote,
-  FilterAlt, GroupWork, CalendarToday, Warning, Edit
+  FilterAlt, GroupWork, CalendarToday, Warning, Edit, DeleteForever, CalendarMonth
 } from '@mui/icons-material';
 import {
   format, addMonths, startOfMonth, setDate, differenceInDays,
@@ -31,59 +31,85 @@ const formatCurrency = (val) => {
     return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
-const DrawdownChart = ({ data, limit, cycleStartDate, cycleEndDate }) => {
+// --- DRAWDOWN CHART COMPONENT ---
+const DrawdownChart = ({ data, limit, cycleStartDate, cycleEndDate, eventsPerDay }) => {
     if (!data || data.length === 0) return null;
-    const maxVal = Math.max(...data.map(d => d.balance), 2000);
-    const minVal = Math.min(...data.map(d => d.balance), limit, -1000);
+    const maxVal = Math.max(...data.map(d => d.balance), 1000);
+    const minVal = Math.min(...data.map(d => d.balance), limit, -500);
     const range = maxVal - minVal;
-    const height = 60;
-    const width = 300;
+    const height = 100;
+    const width = 400;
     
     const now = startOfDay(new Date());
     
-    const points = data.map((d, i) => {
-        const x = (i / (data.length - 1)) * width;
-        const y = height - ((d.balance - minVal) / range) * height;
-        return `${x},${y}`;
-    }).join(' ');
+    // Scale Helpers
+    const getX = (date) => {
+        const total = differenceInDays(cycleEndDate, cycleStartDate) || 1;
+        const diff = differenceInDays(startOfDay(date), cycleStartDate);
+        return (Math.max(0, Math.min(diff, total)) / total) * width;
+    };
+    const getY = (val) => height - ((val - minVal) / (range || 1)) * height;
 
-    const zeroY = height - ((0 - minVal) / range) * height;
-    const limitY = height - ((limit - minVal) / range) * height;
-
-    // Find "Today" X position
-    const totalDays = differenceInDays(cycleEndDate, cycleStartDate) || 1;
-    const daysSinceStart = differenceInDays(now, cycleStartDate);
-    const todayX = (Math.max(0, Math.min(daysSinceStart, totalDays)) / totalDays) * width;
+    const points = data.map((d) => `${getX(d.date)},${getY(d.balance)}`).join(' ');
+    const zeroY = getY(0);
+    const limitY = getY(limit);
+    const todayX = getX(now);
 
     return (
-        <Box sx={{ width: '100%', height: height + 20, mt: 1, position: 'relative' }}>
-            <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
+        <Box sx={{ width: '100%', mt: 1 }}>
+            <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" style={{ overflow: 'visible' }}>
                 <defs>
-                    <linearGradient id="grad-danger" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" style={{ stopColor: 'var(--joy-palette-danger-500)', stopOpacity: 0.2 }} />
-                        <stop offset="100%" style={{ stopColor: 'var(--joy-palette-danger-500)', stopOpacity: 0.05 }} />
+                    <linearGradient id="chart-area-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style={{ stopColor: 'var(--joy-palette-primary-300)', stopOpacity: 0.1 }} />
+                        <stop offset="100%" style={{ stopColor: 'var(--joy-palette-primary-300)', stopOpacity: 0 }} />
                     </linearGradient>
                 </defs>
-                {/* Zero Line */}
-                <line x1="0" y1={zeroY} x2={width} y2={zeroY} stroke="var(--joy-palette-neutral-400)" strokeDasharray="4,2" />
-                {/* Overdraft Limit Line */}
-                {limit < 0 && <line x1="0" y1={limitY} x2={width} y2={limitY} stroke="var(--joy-palette-danger-300)" strokeDasharray="2,2" opacity={0.5} />}
+
+                {/* Grid Lines */}
+                <line x1="0" y1={zeroY} x2={width} y2={zeroY} stroke="var(--joy-palette-neutral-300)" strokeDasharray="4,2" />
+                {limit < 0 && <line x1="0" y1={limitY} x2={width} y2={limitY} stroke="var(--joy-palette-danger-200)" strokeDasharray="2,2" />}
+                
+                {/* Event Markers (Tiny Dots at bottom) */}
+                {Array.from(eventsPerDay?.keys() || []).map(dateStr => {
+                    const x = getX(parseISO(dateStr));
+                    return <circle key={dateStr} cx={x} cy={height - 5} r="2" fill="var(--joy-palette-neutral-400)" opacity={0.5} />;
+                })}
+
+                {/* Area Fill */}
+                <polyline fill="url(#chart-area-grad)" points={`0,${height} ${points} ${width},${height}`} />
+                
+                {/* Main Line */}
+                <polyline fill="none" stroke="var(--joy-palette-primary-500)" strokeWidth="2" points={points} strokeLinecap="round" strokeLinejoin="round" />
                 
                 {/* Today Marker */}
-                <line x1={todayX} y1="0" x2={todayX} y2={height} stroke="var(--joy-palette-warning-500)" strokeWidth="1" strokeDasharray="2,1" />
+                <line x1={todayX} y1="0" x2={todayX} y2={height} stroke="var(--joy-palette-warning-500)" strokeWidth="1.5" strokeDasharray="3,2" />
                 
-                {/* The Projection Line */}
-                <polyline fill="none" stroke="var(--joy-palette-primary-500)" strokeWidth="2.5" points={points} strokeLinecap="round" strokeLinejoin="round" />
-                
-                {/* Current Point */}
+                {/* Today Focus Point */}
                 {data.length > 0 && (
-                    <circle cx={todayX} cy={height - ((data.find(d => isSameDay(d.date, now))?.balance || data[0].balance - minVal) / range) * height} r="3" fill="var(--joy-palette-warning-500)" />
+                    <circle cx={todayX} cy={getY(data.find(d => isSameDay(d.date, now))?.balance || data[0].balance)} r="4" fill="var(--joy-palette-warning-500)" stroke="#fff" strokeWidth="2" />
                 )}
             </svg>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
-                <Typography level="body-xs">{format(cycleStartDate, 'MMM d')}</Typography>
-                <Typography level="body-xs" sx={{ color: 'warning.600', fontWeight: 'bold' }}>Today</Typography>
-                <Typography level="body-xs">{format(cycleEndDate, 'MMM d')}</Typography>
+
+            {/* Legend / Key */}
+            <Box sx={{ display: 'flex', gap: 2, mt: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Box sx={{ width: 12, height: 2, bgcolor: 'primary.500' }} />
+                    <Typography level="body-xs">Balance Projection</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Box sx={{ width: 12, height: 2, borderBottom: '2px dashed', borderColor: 'neutral.400' }} />
+                    <Typography level="body-xs">Zero Line</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Box sx={{ width: 12, height: 2, borderBottom: '2px dashed', borderColor: 'warning.500' }} />
+                    <Typography level="body-xs">Today</Typography>
+                </Box>
+                {limit < 0 && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <Box sx={{ width: 12, height: 2, borderBottom: '2px dashed', borderColor: 'danger.300' }} />
+                        <Typography level="body-xs">Overdraft Limit</Typography>
+                    </Box>
+                )}
             </Box>
         </Box>
     );
@@ -115,37 +141,37 @@ const getRelativeDateLabel = (date) => {
     return { label: `${Math.abs(diff)} days ago`, color: 'danger' };
 };
 
-const IncomeSourceCard = ({ inc, onUpdateAmount, onTogglePaid }) => {
+const IncomeSourceCard = ({ inc, onUpdate, onDelete }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [tempAmount, setTempAmount] = useState(inc.amount);
+    const [tempDate, setTempDate] = useState(format(inc.computedDate, 'yyyy-MM-dd'));
 
     const handleSave = () => {
-        onUpdateAmount(inc.key, tempAmount);
+        onUpdate(inc.key, tempAmount, tempDate);
         setIsEditing(false);
     };
 
     return (
-        <Card 
-            key={inc.key} 
-            variant="outlined" 
-            size="sm" 
-            sx={{ 
-                p: 1.5, 
-                display: 'flex', 
-                flexDirection: 'row', 
-                alignItems: 'flex-start', 
-                gap: 1.5,
-                boxShadow: 'xs',
-                borderColor: inc.isPaid ? 'success.300' : 'divider',
-                bgcolor: inc.isPaid ? 'success.softBg' : 'background.surface'
-            }}
-        >
+        <Card variant="outlined" size="sm" sx={{ 
+            p: 1.5, display: 'flex', flexDirection: 'row', gap: 1.5,
+            borderColor: inc.isPaid ? 'success.300' : 'divider',
+            bgcolor: inc.isPaid ? 'success.softBg' : 'background.surface',
+            boxShadow: 'xs'
+        }}>
             <Avatar size="sm" variant="soft" color={inc.isPaid ? 'success' : 'neutral'} sx={{ mt: 0.5, bgcolor: inc.isPaid ? 'success.solidBg' : undefined, color: inc.isPaid ? '#fff' : undefined }}>
                 {inc.icon}
             </Avatar>
             <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Typography level="title-sm" sx={{ whiteSpace: 'normal', wordBreak: 'break-word', lineHeight: 1.3 }}>{inc.label}</Typography>
-                <Typography level="body-xs" color="neutral">{format(inc.computedDate, 'do MMM')}</Typography>
+                {isEditing ? (
+                    <Input 
+                        type="date" size="sm" variant="plain" 
+                        value={tempDate} onChange={(e) => setTempDate(e.target.value)}
+                        sx={{ fontSize: 'xs', p: 0, mt: -0.5 }}
+                    />
+                ) : (
+                    <Typography level="body-xs" color="neutral">{format(inc.computedDate, 'do MMM')}</Typography>
+                )}
             </Box>
             <Box sx={{ textAlign: 'right', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5 }}>
                 {isEditing ? (
@@ -169,7 +195,12 @@ const IncomeSourceCard = ({ inc, onUpdateAmount, onTogglePaid }) => {
                         </Typography>
                         {!inc.isPaid && (
                             <IconButton size="sm" variant="plain" onClick={() => setIsEditing(true)}>
-                                <Payments sx={{ fontSize: '1rem', opacity: 0.6 }} />
+                                <CalendarMonth sx={{ fontSize: '1rem', opacity: 0.6 }} />
+                            </IconButton>
+                        )}
+                        {inc.frequency === 'one_off' && (
+                            <IconButton size="sm" variant="plain" color="danger" onClick={(e) => { e.stopPropagation(); onDelete(inc.id); }}>
+                                <DeleteForever sx={{ fontSize: '1rem' }} />
                             </IconButton>
                         )}
                     </Stack>
@@ -180,7 +211,7 @@ const IncomeSourceCard = ({ inc, onUpdateAmount, onTogglePaid }) => {
                     variant="soft"
                     color="success"
                     checked={inc.isPaid} 
-                    onChange={() => onTogglePaid(inc.key, inc.amount)}
+                    onChange={() => onUpdate(inc.key, inc.amount, null, !inc.isPaid)}
                     uncheckedIcon={<RadioButtonUnchecked />}
                     checkedIcon={<CheckCircle />}
                     sx={{ ml: 'auto' }}
@@ -503,13 +534,15 @@ export default function BudgetView() {
 
           const key = `${type}_${item.id || 'fixed'}_${format(dateObj, 'ddMM')}`; 
           // O(1) Lookup
-          const progressItem = progressMap.get(key);
+          const progressItem = progressMap.get(key); 
           
           if (hidePaid && progressItem?.is_paid === 1) return;
 
+          const effectiveDate = progressItem?.actual_date ? parseISO(progressItem.actual_date) : dateObj;
+
           const expObj = {
               key, type, label: label || 'Unnamed Item', amount: progressItem?.actual_amount || parseFloat(amount) || 0,
-              day: dateObj.getDate(), computedDate: dateObj,
+              day: effectiveDate.getDate(), computedDate: effectiveDate,
               icon, category: category || 'other', isPaid: progressItem?.is_paid === 1,
               isDeletable: true,
               id: item.id, object: object || {}, 
@@ -794,11 +827,17 @@ export default function BudgetView() {
       } catch (err) { console.error("Failed to save cycle data", err); }
   };
 
-  const updateActualAmount = async (itemKey, amount) => {
+  const updateActualAmount = async (itemKey, amount, actualDate = null, isPaidOverride = null) => {
       const progressItem = progress.find(p => p.item_key === itemKey && p.cycle_start === cycleData?.cycleKey);
-      const isPaid = progressItem ? (progressItem.is_paid || 0) : 0;
+      const isPaid = isPaidOverride !== null ? (isPaidOverride ? 1 : 0) : (progressItem ? (progressItem.is_paid || 0) : 0);
       try {
-          await api.post(`/households/${householdId}/finance/budget-progress`, { cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: isPaid, actual_amount: parseFloat(amount) || 0 });
+          await api.post(`/households/${householdId}/finance/budget-progress`, { 
+              cycle_start: cycleData.cycleKey, 
+              item_key: itemKey, 
+              is_paid: isPaid, 
+              actual_amount: parseFloat(amount) || 0,
+              actual_date: actualDate
+          });
           fetchData();
       } catch (err) { console.error("Failed to update actual amount", err); }
   };
@@ -855,7 +894,22 @@ export default function BudgetView() {
       });
   };
 
-  const handleDisableItem = (itemKey) => {
+  const handleDeleteRecurringCost = (id) => {
+      confirmAction("Delete Item?", "Permanently remove this item from the database?", async () => {
+          try {
+              await api.delete(`/households/${householdId}/finance/recurring-costs/${id}`);
+              showNotification("Item deleted.", "success");
+              fetchData();
+          } catch { showNotification("Failed.", "danger"); }
+      });
+  };
+
+  const handleDisableItem = (itemKey, frequency = 'monthly', id = null) => {
+      if (frequency === 'one_off' && id) {
+          handleDeleteRecurringCost(id);
+          return;
+      }
+
       confirmAction("Disable Item?", "Remove from this month's budget?", async () => {
           try {
               await api.post(`/households/${householdId}/finance/budget-progress`, { cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: -1, actual_amount: 0 });
@@ -952,7 +1006,7 @@ export default function BudgetView() {
   }, [cycleData]);
 
   const selectedAccount = useMemo(() => 
-    currentAccounts.find(a => a.id === selectedAccountId), 
+    currentAccounts.find(a => a.id === selectedAccountId),
     [currentAccounts, selectedAccountId]
   );
 
@@ -1107,6 +1161,7 @@ export default function BudgetView() {
 
   const renderItemRow = (exp) => {
       const rel = getRelativeDateLabel(exp.computedDate);
+      const isAdhoc = exp.frequency === 'one_off';
       return (
       <tr 
           key={exp.key} 
@@ -1155,17 +1210,19 @@ export default function BudgetView() {
           <td style={{ textAlign: 'center', width: 60 }}>
                 <IconButton 
                     size="sm" variant="plain" color="danger" 
-                    onClick={(e) => { e.stopPropagation(); handleDisableItem(exp.key); }}
+                    onClick={(e) => { e.stopPropagation(); handleDisableItem(exp.key, exp.frequency, exp.id); }}
                     sx={{ '--IconButton-size': '28px' }}
                 >
-                    <Block fontSize="small" />
+                    {isAdhoc ? <DeleteForever fontSize="small" /> : <Block fontSize="small" />}
                 </IconButton>
             </td>
       </tr>
       );
   };
 
-  const renderMobileItem = (exp) => (
+  const renderMobileItem = (exp) => {
+      const isAdhoc = exp.frequency === 'one_off';
+      return (
       <Card 
         key={exp.key} 
         variant="soft" 
@@ -1216,17 +1273,17 @@ export default function BudgetView() {
                             />
                             <IconButton 
                                 size="sm" variant="plain" color="danger" 
-                                onClick={(e) => { e.stopPropagation(); handleDisableItem(exp.key); }}
+                                onClick={(e) => { e.stopPropagation(); handleDisableItem(exp.key, exp.frequency, exp.id); }}
                                 sx={{ minHeight: 44, minWidth: 44 }}
                             >
-                                <Block />
+                                {isAdhoc ? <DeleteForever /> : <Block />}
                             </IconButton>
                         </Stack>
                     </Box>
                 </Box>
           </Box>
       </Card>
-  );
+  )};
 
   const renderSection = (group) => {
       const isOpen = sectionsOpen[group.id] ?? true;
@@ -1293,7 +1350,7 @@ export default function BudgetView() {
                               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 0.5 }}>Amount <Sort sx={{ fontSize: '0.8rem', opacity: sortConfig.key === 'amount' ? 1 : 0.3 }} /></Box>
                           </th>
                           <th style={{ width: 60, textAlign: 'center' }}>Paid</th>
-                          <th style={{ width: 60, textAlign: 'center' }}>Skip</th>
+                          <th style={{ width: 60, textAlign: 'center' }}>Delete / Skip</th>
                       </tr>
                   </thead>
                   <tbody>
@@ -1320,9 +1377,9 @@ export default function BudgetView() {
             
             <Stack direction="row" spacing={1} sx={{ width: { xs: '100%', sm: 'auto' }, flexWrap: 'wrap', gap: 1 }}>
                 <Input 
-                    startDecorator={<Search />} 
-                    placeholder="Search items..." 
-                    size="sm" 
+                    startDecorator={<Search />}
+                    placeholder="Search items..."
+                    size="sm"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     sx={{ width: { xs: '100%', sm: 180 } }}
@@ -1532,8 +1589,8 @@ export default function BudgetView() {
                                     <IncomeSourceCard 
                                         key={inc.key} 
                                         inc={inc} 
-                                        onUpdateAmount={updateActualAmount} 
-                                        onTogglePaid={togglePaid} 
+                                        onUpdate={updateActualAmount} 
+                                        onDelete={handleDeleteRecurringCost} 
                                     />
                                 ))}
                                 {incomeGroup.items.length === 0 && (
@@ -1573,13 +1630,8 @@ export default function BudgetView() {
                                 <Divider />
                                 {currentAccounts.map(acc => (
                                     <Option key={acc.id} value={acc.id}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%', justifyContent: 'space-between' }}>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                {acc.emoji} {acc.account_name}
-                                            </Box>
-                                            <Typography level="body-xs" variant="soft" color="neutral">
-                                                {formatCurrency(acc.current_balance)}
-                                            </Typography>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            {acc.emoji} {acc.account_name}
                                         </Box>
                                     </Option>
                                 ))}
@@ -1616,7 +1668,7 @@ export default function BudgetView() {
                                 <Typography level="body-xs" color="neutral">Lowest Point</Typography>
                                 <Typography level="body-sm" fontWeight="bold" color={isOverdrawnRisk ? 'danger' : 'success'}>{formatCurrency(lowestProjected)}</Typography>
                             </Box>
-                            <DrawdownChart data={drawdownData} limit={-overdraftLimit} cycleStartDate={cycleData.startDate} cycleEndDate={cycleData.endDate} />
+                            <DrawdownChart data={drawdownData} limit={-overdraftLimit} cycleStartDate={cycleData.startDate} cycleEndDate={cycleData.endDate} eventsPerDay={cycleData.eventsPerDay} />
                         </Box>
 
                         {isOverdrawnRisk && (
@@ -1768,11 +1820,11 @@ export default function BudgetView() {
                 <DialogContent sx={{ overflowX: 'hidden' }}>
                     <Typography>Let's get started. Projected income for this cycle is <b>{formatCurrency(projectedIncomeTotal)}</b>.</Typography>
                     <Stack spacing={2} sx={{ mt: 2 }}>
-                        <Button size="lg" variant="solid" color="primary" onClick={() => handleSetupBudget('fresh')}>
+                        <Button size="lg" variant="solid" color="primary" onClick={() => handleSetupBudget('fresh')}> 
                             Start Fresh (Balance = Pay)
                         </Button>
                         {cycles.length > 0 && (
-                            <Button size="lg" variant="soft" color="neutral" onClick={() => handleSetupBudget('copy')}>
+                            <Button size="lg" variant="soft" color="neutral" onClick={() => handleSetupBudget('copy')}> 
                                 Copy Previous Month's Pay Settings
                             </Button>
                         )}
@@ -1889,7 +1941,7 @@ export default function BudgetView() {
                                     />
                                 </Grid>
                                 <Grid xs={6}>
-                                    <AppSelect label="Frequency" value={recurringType} onChange={setRecurringType} options={[
+                                    <AppSelect label="Frequency" value={recurringType} onChange={setRecurringType} options={[ 
                                         { value: 'weekly', label: 'Weekly' },
                                         { value: 'monthly', label: 'Monthly' },
                                         { value: 'quarterly', label: 'Quarterly' },
