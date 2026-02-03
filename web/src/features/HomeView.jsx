@@ -19,6 +19,8 @@ import CalendarWidget from '../components/widgets/CalendarWidget';
 import SavingsWidget from '../components/widgets/SavingsWidget';
 import InvestmentsWidget from '../components/widgets/InvestmentsWidget';
 import PensionsWidget from '../components/widgets/PensionsWidget';
+import WealthWidget from '../components/widgets/WealthWidget';
+import BudgetStatusWidget from '../components/widgets/BudgetStatusWidget';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -35,12 +37,16 @@ const WIDGET_TYPES = {
   savings: { component: SavingsWidget, label: 'Savings Tracker', defaultH: 4, defaultW: 4 },
   invest: { component: InvestmentsWidget, label: 'Investments', defaultH: 4, defaultW: 4 },
   pensions: { component: PensionsWidget, label: 'Pensions', defaultH: 4, defaultW: 4 },
+  wealth: { component: WealthWidget, label: 'Wealth Tracking', defaultH: 7, defaultW: 4 },
+  budget_status: { component: BudgetStatusWidget, label: 'Budget Health', defaultH: 5, defaultW: 4 },
 };
 
 const DEFAULT_LAYOUT = [
-  { i: 'birthdays-1', x: 0, y: 0, w: 6, h: 4, type: 'birthdays' },
-  { i: 'events-1', x: 6, y: 0, w: 6, h: 4, type: 'events' },
-  { i: 'costs-1', x: 0, y: 4, w: 6, h: 4, type: 'costs' },
+  { i: 'budget-1', x: 0, y: 0, w: 4, h: 5, type: 'budget_status' },
+  { i: 'wealth-1', x: 4, y: 0, w: 4, h: 7, type: 'wealth' },
+  { i: 'birthdays-1', x: 8, y: 0, w: 4, h: 4, type: 'birthdays' },
+  { i: 'events-1', x: 0, y: 5, w: 6, h: 4, type: 'events' },
+  { i: 'costs-1', x: 6, y: 5, w: 6, h: 4, type: 'costs' },
 ];
 
 export default function HomeView({ members, household, currentUser, dates, onUpdateProfile, api }) {
