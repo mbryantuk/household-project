@@ -19,7 +19,7 @@ import {
 import {
   format, addMonths, startOfMonth, setDate, differenceInDays,
   isSameDay, isAfter, startOfDay, isWithinInterval,
-  parseISO, isValid, addYears, addWeeks, eachDayOfInterval
+  parseISO, isValid, addYears, addWeeks, eachDayOfInterval, addDays
 } from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
@@ -339,7 +339,7 @@ export default function BudgetView() {
   }, [members, liabilities]);
 
   const getCategoryOptions = useCallback((entityString) => {
-      const [type, id] = (entityString || 'household:null').split(':');
+      const [type, id] = (entityString || 'household:null')?.split(':');
       
       const HOUSEHOLD_CATS = [
           { value: 'water', label: 'Water' },
@@ -487,7 +487,7 @@ export default function BudgetView() {
 
           // Entity Filter Check
           if (filterEntity && filterEntity !== 'all') {
-              const [fType, fId] = (filterEntity || 'household:null').split(':');
+              const [fType, fId] = (filterEntity || 'household:null')?.split(':');
               const itemType = object?.type || (type === 'credit_card' ? 'household' : 'household');
               const itemId = String(object?.id || 'null');
               if (fType !== itemType || fId !== itemId) {
@@ -839,7 +839,7 @@ export default function BudgetView() {
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
       const data = Object.fromEntries(formData.entries());
-      const [type, id] = (selectedEntity || 'household:null').split(':');
+      const [type, id] = (selectedEntity || 'household:null')?.split(':');
       
       const payload = {
         name: data.name,

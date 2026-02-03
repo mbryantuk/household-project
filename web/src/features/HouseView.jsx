@@ -146,7 +146,7 @@ export default function HouseView() {
                                 <Grid xs={6} sm={4} md={3} key={m.id}>
                                     <Card variant="outlined" onClick={() => navigate(m.type === 'pet' ? `../pets/${m.id}` : `../people/${m.id}`)} sx={{ p: 1.5, alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s', '&:hover': { bgcolor: 'background.surface', borderColor: 'primary.outlinedBorder' } }}>
                                         <Avatar size="md" sx={{ bgcolor: getEmojiColor(m.emoji || '👤', isDark), mb: 1 }}>{m.emoji || (m.type === 'pet' ? '🐾' : '👤')}</Avatar>
-                                        <Typography level="title-sm" noWrap>{m.alias || m.name.split(' ')[0]}</Typography>
+                                        <Typography level="title-sm" noWrap>{m.alias || (m.name || '').split(' ')[0]}</Typography>
                                         <Chip size="sm" variant="soft" color={m.type === 'pet' ? 'warning' : 'primary'} sx={{ mt: 0.5, fontSize: '10px', textTransform: 'capitalize' }}>{m.type}</Chip>
                                     </Card>
                                 </Grid>
