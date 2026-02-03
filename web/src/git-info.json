@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix ReferenceError for addDays and null pointer on .split in HouseView and BudgetView",
-  "date": "Tue  3 Feb 12:17:34 GMT 2026"
+  "commitMessage": "Add Birthdays to BudgetView cycle and progress bar",
+  "date": "Tue  3 Feb 12:26:05 GMT 2026"
 }

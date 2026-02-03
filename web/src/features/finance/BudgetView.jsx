@@ -208,9 +208,10 @@ export default function BudgetView() {
       savings: [], investments: []
   });
   const [savingsPots, setSavingsPots] = useState([]);
+  const [calendarDates, setCalendarDates] = useState([]);
 
   // Sections State
-  const [sectionsOpen, setSectionsOpen] = useState({ income: true, bills: true, finance: true, wealth: true, skipped: true });
+  const [sectionsOpen, setSectionsOpen] = useState({ income: true, bills: true, finance: true, wealth: true, skipped: true, birthdays: true });
   const [groupBy, setGroupBy] = useState('standard'); // standard, category, object, date
   const [filterEntity, setFilterEntity] = useState('all');
 
@@ -240,7 +241,7 @@ export default function BudgetView() {
     setLoading(true);
     try {
       const [
-          incRes, progRes, cycleRes, recurringRes, ccRes, pensionRes, potRes, holidayRes, vehRes, assetRes, saveRes, invRes, accountRes
+          incRes, progRes, cycleRes, recurringRes, ccRes, pensionRes, potRes, holidayRes, vehRes, assetRes, saveRes, invRes, accountRes, dateRes
       ] = await Promise.all([
           api.get(`/households/${householdId}/finance/income`),
           api.get(`/households/${householdId}/finance/budget-progress`),
@@ -254,7 +255,8 @@ export default function BudgetView() {
           api.get(`/households/${householdId}/assets`),
           api.get(`/households/${householdId}/finance/savings`),
           api.get(`/households/${householdId}/finance/investments`),
-          api.get(`/households/${householdId}/finance/current-accounts`)
+          api.get(`/households/${householdId}/finance/current-accounts`),
+          api.get(`/households/${householdId}/dates`)
       ]);
 
       setIncomes(incRes.data || []);
@@ -272,6 +274,7 @@ export default function BudgetView() {
       });
       setSavingsPots(potRes.data || []);
       setBankHolidays(holidayRes.data || []);
+      setCalendarDates(dateRes.data || []);
     } catch (err) { console.error("Failed to fetch budget data", err); } finally { setLoading(false); }
   }, [api, householdId]);
 
@@ -465,6 +468,7 @@ export default function BudgetView() {
       });
 
       const groups = {
+          'birthdays': { id: 'birthdays', label: 'Birthdays', items: [], order: -1, emoji: '🎂' },
           'bills': { id: 'bills', label: 'Household Bills', items: [], order: 0, emoji: '🏠' },
           'finance': { id: 'finance', label: 'Finance & Debts', items: [], order: 5, emoji: '💳' },
           'wealth': { id: 'wealth', label: 'Savings & Growth', items: [], order: 999, emoji: '📈' }
@@ -479,6 +483,7 @@ export default function BudgetView() {
 
       const skipped = [];
       const incomesCollected = [];
+      const birthdaysPerDay = new Map(); // For progress bar
       const lowerSearch = searchQuery.toLowerCase();
       
       const addExpense = (item, type, label, amount, dateObj, icon, category, targetGroupKey, object = null) => {
@@ -511,6 +516,12 @@ export default function BudgetView() {
               frequency: item.frequency || 'monthly'
           };
 
+          if (type === 'birthday') {
+              const dayStr = format(dateObj, 'yyyy-MM-dd');
+              if (!birthdaysPerDay.has(dayStr)) birthdaysPerDay.set(dayStr, []);
+              birthdaysPerDay.get(dayStr).push(expObj);
+          }
+
           if (progressItem?.is_paid === -1) {
               skipped.push(expObj);
           } else {
@@ -540,6 +551,7 @@ export default function BudgetView() {
                   // Standard Split Logic
                   const financeCats = ['mortgage', 'loan', 'credit_card', 'vehicle_finance'];
                   if (targetGroupKey === 'wealth') finalGroupKey = 'wealth';
+                  else if (type === 'birthday') finalGroupKey = 'birthdays';
                   else finalGroupKey = financeCats.includes(category) ? 'finance' : 'bills';
               }
               
@@ -552,6 +564,35 @@ export default function BudgetView() {
           const d = getAdjustedDate(inc.payment_day, inc.nearest_working_day === 1, startDate);
           const member = members.find(m => m.id === inc.member_id);
           addExpense(inc, 'income', `${inc.employer} Pay`, inc.amount, d, <Payments />, 'income', 'income', member ? { type: 'member', id: member.id, name: member.first_name, emoji: member.emoji } : null);
+      });
+
+      // --- BIRTHDAYS (Members) ---
+      members.forEach(m => {
+          if (!m.dob) return;
+          const dob = parseISO(m.dob);
+          if (!isValid(dob)) return;
+          
+          // Project birthday into the current cycle's years
+          const yearsToTry = [startDate.getFullYear(), endDate.getFullYear()];
+          const uniqueYears = [...new Set(yearsToTry)];
+          
+          uniqueYears.forEach(year => {
+              const bday = new Date(year, dob.getMonth(), dob.getDate());
+              if (isWithinInterval(bday, { start: startDate, end: endDate })) {
+                  addExpense(m, 'birthday', `${m.alias || m.name}'s Birthday`, 0, bday, '🎂', 'birthday', 'birthdays', { type: 'member', id: m.id, name: m.name, emoji: m.emoji || '👤' });
+              }
+          });
+      });
+
+      // --- BIRTHDAYS & EVENTS (Calendar) ---
+      (calendarDates || []).forEach(date => {
+          const d = parseISO(date.date);
+          if (!isValid(d)) return;
+          if (isWithinInterval(d, { start: startDate, end: endDate })) {
+              if (date.type === 'birthday') {
+                  addExpense(date, 'birthday', date.title, 0, d, '🎂', 'birthday', 'birthdays');
+              }
+          }
       });
 
       // --- CONSOLIDATED RECURRING COSTS ---
@@ -654,8 +695,8 @@ export default function BudgetView() {
           unpaid: incomesCollected.reduce((sum, i) => sum + (i.isPaid ? 0 : i.amount), 0)
       };
 
-      return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, groupList, skipped, budgetLabelDate, incomeGroup };
-  }, [incomes, liabilities, progress, viewDate, getPriorWorkingDay, getAdjustedDate, savingsPots, getNextWorkingDay, members, sortConfig, searchQuery, groupBy, filterEntity, hidePaid]);
+      return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, groupList, skipped, budgetLabelDate, incomeGroup, birthdaysPerDay };
+  }, [incomes, liabilities, progress, viewDate, getPriorWorkingDay, getAdjustedDate, savingsPots, getNextWorkingDay, members, sortConfig, searchQuery, groupBy, filterEntity, hidePaid, calendarDates]);
 
   const currentCycleRecord = useMemo(() => cycles.find(c => c.cycle_start === cycleData?.cycleKey), [cycles, cycleData]);
   
@@ -1378,6 +1419,7 @@ export default function BudgetView() {
                         const tickDate = addDays(cycleData.startDate, i);
                         const leftPct = (i / cycleData.cycleDuration) * 100;
                         const isToday = isSameDay(tickDate, new Date());
+                        const dayBirthdays = cycleData.birthdaysPerDay?.get(format(tickDate, 'yyyy-MM-dd'));
                         
                         return (
                             <Box 
@@ -1396,6 +1438,21 @@ export default function BudgetView() {
                                     alignItems: 'center'
                                 }}
                             >
+                                {dayBirthdays && dayBirthdays.length > 0 && (
+                                    <Tooltip title={dayBirthdays.map(b => b.label).join(', ')}>
+                                        <Typography 
+                                            level="body-xs" 
+                                            sx={{ 
+                                                position: 'absolute', 
+                                                top: -18, 
+                                                fontSize: '1rem',
+                                                pointerEvents: 'auto'
+                                            }}
+                                        >
+                                            🎂
+                                        </Typography>
+                                    </Tooltip>
+                                )}
                                 <Typography 
                                     level="body-xs" 
                                     sx={{ 

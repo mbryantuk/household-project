@@ -72,7 +72,7 @@ async function seed() {
             { n: "Carol", t: "adult", e: "👩", d: "1982-02-14" }, 
             { n: "Greg", t: "adult", e: "👦", d: "2004-10-20" }, 
             { n: "Marcia", t: "adult", e: "👧", d: "2006-08-05" }, 
-            { n: "Peter", t: "child", e: "👦", d: "2008-03-15" }, 
+            { n: "Peter", t: "child", e: "👦", d: "2008-02-10" }, // Updated to Feb 10 for current cycle
             { n: "Jan", t: "child", e: "👧", d: "2011-01-02" }, 
             { n: "Bobby", t: "child", e: "👦", d: "2013-11-23" }, 
             { n: "Cindy", t: "child", e: "👧", d: "2016-07-08" }, 
@@ -175,6 +175,15 @@ async function seed() {
                 metadata: c.m || {}
             }, token);
         }
+
+        // 6a. CALENDAR BIRTHDAYS
+        await apiRequest('POST', `/api/households/${hhId}/dates`, {
+            title: "Grandma's 80th Birthday",
+            date: "2026-02-15",
+            type: "birthday",
+            emoji: "🎂",
+            is_all_day: 1
+        }, token);
 
         // 7. FINANCIAL ACCOUNTS
         // Lower balance and add overdraft limit
