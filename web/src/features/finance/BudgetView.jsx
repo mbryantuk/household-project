@@ -1311,19 +1311,63 @@ export default function BudgetView() {
                     ) : "No projected overdraft"
                 }
             >
-                <LinearProgress 
-                    determinate 
-                    value={cycleData.progressPct} 
-                    thickness={8} 
-                    variant="soft" 
-                    color="primary" 
-                    sx={{ 
-                        borderRadius: 'sm',
-                        '--LinearProgress-radius': '4px',
-                        background: overdraftGradient,
-                        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)'
-                    }} 
-                />
+                <Box sx={{ position: 'relative', pt: 0.5, pb: 2.5 }}>
+                    <LinearProgress 
+                        determinate 
+                        value={cycleData.progressPct} 
+                        thickness={12} 
+                        variant="soft" 
+                        color="primary" 
+                        sx={{ 
+                            borderRadius: 'sm',
+                            '--LinearProgress-radius': '6px',
+                            background: overdraftGradient,
+                            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.15)',
+                            position: 'relative',
+                            zIndex: 1
+                        }} 
+                    />
+                    {/* Day Ticks & Faint Numbers */}
+                    {Array.from({ length: cycleData.cycleDuration + 1 }).map((_, i) => {
+                        const tickDate = addDays(cycleData.startDate, i);
+                        const leftPct = (i / cycleData.cycleDuration) * 100;
+                        const isToday = isSameDay(tickDate, new Date());
+                        
+                        return (
+                            <Box 
+                                key={i} 
+                                sx={{ 
+                                    position: 'absolute', 
+                                    left: `${leftPct}%`, 
+                                    top: 4, 
+                                    height: 16, 
+                                    width: '1px', 
+                                    bgcolor: isToday ? 'primary.solidBg' : 'rgba(0,0,0,0.1)',
+                                    zIndex: 2,
+                                    pointerEvents: 'none',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center'
+                                }}
+                            >
+                                <Typography 
+                                    level="body-xs" 
+                                    sx={{ 
+                                        position: 'absolute', 
+                                        top: 18, 
+                                        fontSize: '0.65rem', 
+                                        color: isToday ? 'primary.700' : 'neutral.500', 
+                                        fontWeight: isToday ? 'bold' : 'normal',
+                                        opacity: i % 2 === 0 ? 0.4 : 0, // Show every 2nd day to avoid crowding
+                                        whiteSpace: 'nowrap'
+                                    }}
+                                >
+                                    {format(tickDate, 'd')}
+                                </Typography>
+                            </Box>
+                        );
+                    })}
+                </Box>
             </Tooltip>
         </Box>
 
