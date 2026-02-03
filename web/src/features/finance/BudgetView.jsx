@@ -468,7 +468,7 @@ export default function BudgetView() {
       });
 
       const groups = {
-          'birthdays': { id: 'birthdays', label: 'Birthdays', items: [], order: -1, emoji: '🎂' },
+          'events': { id: 'events', label: 'Events & Holidays', items: [], order: -1, emoji: '📅' },
           'bills': { id: 'bills', label: 'Household Bills', items: [], order: 0, emoji: '🏠' },
           'finance': { id: 'finance', label: 'Finance & Debts', items: [], order: 5, emoji: '💳' },
           'wealth': { id: 'wealth', label: 'Savings & Growth', items: [], order: 999, emoji: '📈' }
@@ -483,7 +483,7 @@ export default function BudgetView() {
 
       const skipped = [];
       const incomesCollected = [];
-      const birthdaysPerDay = new Map(); // For progress bar
+      const eventsPerDay = new Map(); // For progress bar
       const lowerSearch = searchQuery.toLowerCase();
       
       const addExpense = (item, type, label, amount, dateObj, icon, category, targetGroupKey, object = null) => {
@@ -516,10 +516,10 @@ export default function BudgetView() {
               frequency: item.frequency || 'monthly'
           };
 
-          if (type === 'birthday') {
+          if (['birthday', 'holiday', 'celebration'].includes(type)) {
               const dayStr = format(dateObj, 'yyyy-MM-dd');
-              if (!birthdaysPerDay.has(dayStr)) birthdaysPerDay.set(dayStr, []);
-              birthdaysPerDay.get(dayStr).push(expObj);
+              if (!eventsPerDay.has(dayStr)) eventsPerDay.set(dayStr, []);
+              eventsPerDay.get(dayStr).push(expObj);
           }
 
           if (progressItem?.is_paid === -1) {
@@ -551,7 +551,7 @@ export default function BudgetView() {
                   // Standard Split Logic
                   const financeCats = ['mortgage', 'loan', 'credit_card', 'vehicle_finance'];
                   if (targetGroupKey === 'wealth') finalGroupKey = 'wealth';
-                  else if (type === 'birthday') finalGroupKey = 'birthdays';
+                  else if (['birthday', 'holiday', 'celebration'].includes(type)) finalGroupKey = 'events';
                   else finalGroupKey = financeCats.includes(category) ? 'finance' : 'bills';
               }
               
@@ -564,6 +564,38 @@ export default function BudgetView() {
           const d = getAdjustedDate(inc.payment_day, inc.nearest_working_day === 1, startDate);
           const member = members.find(m => m.id === inc.member_id);
           addExpense(inc, 'income', `${inc.employer} Pay`, inc.amount, d, <Payments />, 'income', 'income', member ? { type: 'member', id: member.id, name: member.first_name, emoji: member.emoji } : null);
+      });
+
+      // --- BANK HOLIDAYS ---
+      (bankHolidays || []).forEach(hDate => {
+          const d = parseISO(hDate);
+          if (isValid(d) && isWithinInterval(d, { start: startDate, end: endDate })) {
+              addExpense({ id: hDate }, 'holiday', 'Bank Holiday', 0, d, '🏦', 'holiday', 'events');
+          }
+      });
+
+      // --- FIXED CELEBRATIONS ---
+      const FIXED_CELEBRATIONS = [
+          { name: 'Valentine\'s Day', month: 2, day: 14, emoji: '❤️' },
+          { name: 'St Patrick\'s Day', month: 3, day: 17, emoji: '☘️' },
+          { name: 'Halloween', month: 10, day: 31, emoji: '🎃' },
+          { name: 'Bonfire Night', month: 11, day: 5, emoji: '🎆' },
+          { name: 'Christmas Eve', month: 12, day: 24, emoji: '🎄' },
+          { name: 'Christmas Day', month: 12, day: 25, emoji: '🎅' },
+          { name: 'Boxing Day', month: 12, day: 26, emoji: '🎁' },
+          { name: 'New Year\'s Eve', month: 12, day: 31, emoji: '🥂' },
+          { name: 'New Year\'s Day', month: 1, day: 1, emoji: '🎆' }
+      ];
+
+      FIXED_CELEBRATIONS.forEach(c => {
+          const yearsToTry = [startDate.getFullYear(), endDate.getFullYear()];
+          const uniqueYears = [...new Set(yearsToTry)];
+          uniqueYears.forEach(year => {
+              const d = new Date(year, c.month - 1, c.day);
+              if (isValid(d) && isWithinInterval(d, { start: startDate, end: endDate })) {
+                  addExpense({ id: `fixed_${c.name}` }, 'celebration', c.name, 0, d, c.emoji, 'celebration', 'events');
+              }
+          });
       });
 
       // --- BIRTHDAYS (Members) ---
@@ -579,7 +611,7 @@ export default function BudgetView() {
           uniqueYears.forEach(year => {
               const bday = new Date(year, dob.getMonth(), dob.getDate());
               if (isWithinInterval(bday, { start: startDate, end: endDate })) {
-                  addExpense(m, 'birthday', `${m.alias || m.name}'s Birthday`, 0, bday, '🎂', 'birthday', 'birthdays', { type: 'member', id: m.id, name: m.name, emoji: m.emoji || '👤' });
+                  addExpense(m, 'birthday', `${m.alias || m.name}'s Birthday`, 0, bday, '🎂', 'birthday', 'events', { type: 'member', id: m.id, name: m.name, emoji: m.emoji || '👤' });
               }
           });
       });
@@ -599,9 +631,11 @@ export default function BudgetView() {
               uniqueYears.forEach(year => {
                   const bday = new Date(year, d.getMonth(), d.getDate());
                   if (isWithinInterval(bday, { start: startDate, end: endDate })) {
-                      addExpense(date, 'birthday', date.title, 0, bday, '🎂', 'birthday', 'birthdays');
+                      addExpense(date, 'birthday', date.title, 0, bday, '🎂', 'birthday', 'events');
                   }
               });
+          } else if (isWithinInterval(d, { start: startDate, end: endDate })) {
+              addExpense(date, 'calendar_event', date.title, 0, d, date.emoji || '📅', date.type || 'other', 'events');
           }
       });
 
@@ -705,8 +739,8 @@ export default function BudgetView() {
           unpaid: incomesCollected.reduce((sum, i) => sum + (i.isPaid ? 0 : i.amount), 0)
       };
 
-      return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, groupList, skipped, budgetLabelDate, incomeGroup, birthdaysPerDay };
-  }, [incomes, liabilities, progress, viewDate, getPriorWorkingDay, getAdjustedDate, savingsPots, getNextWorkingDay, members, sortConfig, searchQuery, groupBy, filterEntity, hidePaid, calendarDates]);
+      return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, groupList, skipped, budgetLabelDate, incomeGroup, eventsPerDay };
+  }, [incomes, liabilities, progress, viewDate, getPriorWorkingDay, getAdjustedDate, savingsPots, getNextWorkingDay, members, sortConfig, searchQuery, groupBy, filterEntity, hidePaid, calendarDates, bankHolidays]);
 
   const currentCycleRecord = useMemo(() => cycles.find(c => c.cycle_start === cycleData?.cycleKey), [cycles, cycleData]);
   
@@ -1408,7 +1442,7 @@ export default function BudgetView() {
                     ) : "No projected overdraft"
                 }
             >
-                <Box sx={{ position: 'relative', pt: 0.5, pb: 2.5 }}>
+                <Box sx={{ position: 'relative', pt: 0.5, pb: 2.5, px: 2 }}>
                     <LinearProgress 
                         determinate 
                         value={cycleData.progressPct} 
@@ -1429,14 +1463,14 @@ export default function BudgetView() {
                         const tickDate = addDays(cycleData.startDate, i);
                         const leftPct = (i / cycleData.cycleDuration) * 100;
                         const isToday = isSameDay(tickDate, new Date());
-                        const dayBirthdays = cycleData.birthdaysPerDay?.get(format(tickDate, 'yyyy-MM-dd'));
+                        const dayEvents = cycleData.eventsPerDay?.get(format(tickDate, 'yyyy-MM-dd'));
                         
                         return (
                             <Box 
                                 key={i} 
                                 sx={{ 
                                     position: 'absolute', 
-                                    left: `${leftPct}%`, 
+                                    left: `calc(${leftPct}% + 16px)`, // Offset for px: 2
                                     top: 4, 
                                     height: 16, 
                                     width: '1px', 
@@ -1448,18 +1482,19 @@ export default function BudgetView() {
                                     alignItems: 'center'
                                 }}
                             >
-                                {dayBirthdays && dayBirthdays.length > 0 && (
-                                    <Tooltip title={dayBirthdays.map(b => b.label).join(', ')}>
+                                {dayEvents && dayEvents.length > 0 && (
+                                    <Tooltip title={dayEvents.map(b => b.label).join(', ')}>
                                         <Typography 
                                             level="body-xs" 
                                             sx={{ 
                                                 position: 'absolute', 
                                                 top: -18, 
                                                 fontSize: '1rem',
-                                                pointerEvents: 'auto'
+                                                pointerEvents: 'auto',
+                                                transform: 'translateX(-50%)'
                                             }}
                                         >
-                                            🎂
+                                            {dayEvents[0].icon}
                                         </Typography>
                                     </Tooltip>
                                 )}
@@ -1472,7 +1507,8 @@ export default function BudgetView() {
                                         color: isToday ? 'primary.700' : 'neutral.500', 
                                         fontWeight: isToday ? 'bold' : 'normal',
                                         opacity: i % 2 === 0 ? 0.4 : 0, // Show every 2nd day to avoid crowding
-                                        whiteSpace: 'nowrap'
+                                        whiteSpace: 'nowrap',
+                                        transform: 'translateX(-50%)'
                                     }}
                                 >
                                     {format(tickDate, 'd')}
