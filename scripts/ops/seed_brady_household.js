@@ -194,17 +194,27 @@ async function seed() {
             overdraft_limit: 2000 
         }, token);
         
-        // Mike gets paid late in the month now
-        await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "Brady Architecture", amount: 9500, is_primary: 1, payment_day: 28, bank_account_id: bank1.data.id, member_id: members.Mike }, token);
+        // Mike gets paid late in the month (28th) - but for THIS cycle (starting Jan 28) we assume he was JUST paid
+        const mikeInc = await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "Brady Architecture", amount: 9500, is_primary: 1, payment_day: 28, bank_account_id: bank1.data.id, member_id: members.Mike }, token);
         // Carol gets paid on the 20th
-        await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "WFH Creative", amount: 4200, is_primary: 0, payment_day: 20, bank_account_id: bank1.data.id, member_id: members.Carol }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "WFH Creative", amount: 6200, is_primary: 0, payment_day: 20, bank_account_id: bank1.data.id, member_id: members.Carol }, token);
         
         // INITIALIZE BUDGET CYCLE
+        const cycleKey = '2026-01-28';
         await apiRequest('POST', `/api/households/${hhId}/finance/budget-cycles`, {
-            cycle_start: '2026-01-28',
-            actual_pay: 13700,
+            cycle_start: cycleKey,
+            actual_pay: 15700,
             current_balance: 3500,
             bank_account_id: bank1.data.id
+        }, token);
+
+        // MARK MIKE'S INCOME AS PAID FOR THIS CYCLE
+        // This ensures the projection starts from the 3500 balance without adding 9500 on top
+        await apiRequest('POST', `/api/households/${hhId}/finance/budget-progress`, {
+            cycle_start: cycleKey,
+            item_key: `income_${mikeInc.data.id}_2801`,
+            is_paid: 1,
+            actual_amount: 9500
         }, token);
 
         // Joint Savings with Pots
