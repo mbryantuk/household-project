@@ -162,7 +162,10 @@ async function seed() {
             { n: "Vet Wellness Plan (Tiger)", a: 25, c: "health", f: "monthly", d: 15, ot: "member", oi: members.Tiger },
             { n: "Cat Food (Fluffy)", a: 40, c: "food", f: "monthly", d: 5, ot: "member", oi: members.Fluffy },
             { n: "Pet Insurance (Fluffy)", a: 30, c: "insurance", f: "monthly", d: 10, ot: "member", oi: members.Fluffy },
-            { n: "Vet Wellness Plan (Fluffy)", a: 20, c: "health", f: "monthly", d: 15, ot: "member", oi: members.Fluffy }
+            { n: "Vet Wellness Plan (Fluffy)", a: 20, c: "health", f: "monthly", d: 15, ot: "member", oi: members.Fluffy },
+
+            // TRIGGER OVERDRAFT (Home Office Expansion)
+            { n: "Home Office Expansion Loan", a: 3200, c: "loan", f: "monthly", d: 10, ot: "household" }
         ];
 
         for (const c of costDefs) {
@@ -174,8 +177,17 @@ async function seed() {
         }
 
         // 7. FINANCIAL ACCOUNTS
-        const bank1 = await apiRequest('POST', `/api/households/${hhId}/finance/current-accounts`, { bank_name: "Wells Fargo", account_name: "Checking", current_balance: 15000 }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "Brady Architecture", amount: 9500, is_primary: 1, payment_day: 1, bank_account_id: bank1.data.id, member_id: members.Mike }, token);
+        // Lower balance and add overdraft limit
+        const bank1 = await apiRequest('POST', `/api/households/${hhId}/finance/current-accounts`, { 
+            bank_name: "Wells Fargo", 
+            account_name: "Checking", 
+            current_balance: 4500,
+            overdraft_limit: 5000 
+        }, token);
+        
+        // Mike gets paid late in the month now
+        await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "Brady Architecture", amount: 9500, is_primary: 1, payment_day: 28, bank_account_id: bank1.data.id, member_id: members.Mike }, token);
+        // Carol gets paid on the 20th
         await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "WFH Creative", amount: 4200, is_primary: 0, payment_day: 20, bank_account_id: bank1.data.id, member_id: members.Carol }, token);
         
         // Joint Savings with Pots
