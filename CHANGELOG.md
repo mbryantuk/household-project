@@ -2,9 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
-## [3.2.52] - 2026-02-03
+## [3.2.55] - 2026-02-03
 ### Patch Changes
 - **Finance:** Adjusted Brady family seed data to simulate a specific overdraft scenario (Balance: £3,500, Overdraft: £2,000).
+- **Finance:** Added explicit budget cycle initialization to seed data to ensure immediate visibility of liquidity projections.
 
 ## [3.2.51] - 2026-02-03
 

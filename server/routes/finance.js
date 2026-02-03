@@ -491,20 +491,28 @@ router.post('/budget-progress', authenticateToken, requireHouseholdRole('member'
         
         const oldPaid = row ? (row.is_paid || 0) : 0;
         const oldAmount = row ? (row.actual_amount || 0) : 0;
-        let delta = 0;
+        let potDelta = 0;
+        let balanceDelta = 0;
         
-        // Logic: Calculate delta if it's a Pot (pot_ID)
-        // If becoming Paid: +newAmount
-        // If becoming Unpaid: -oldAmount
-        // If staying Paid but amount changes: +(newAmount - oldAmount)
+        // 1. Pot Logic (Internal Savings Sync)
         if (item_key.startsWith('pot_')) {
-            if (newPaid && !oldPaid) {
-                delta = newAmount;
-            } else if (!newPaid && oldPaid) {
-                delta = -oldAmount;
-            } else if (newPaid && oldPaid) {
-                delta = newAmount - oldAmount;
-            }
+            if (newPaid && !oldPaid) potDelta = newAmount;
+            else if (!newPaid && oldPaid) potDelta = -oldAmount;
+            else if (newPaid && oldPaid) potDelta = newAmount - oldAmount;
+        }
+
+        // 2. Bank Balance Sync Logic (Budget -> Real World)
+        // If it's a payment (negative impact on balance)
+        // We assume item_key.startsWith('income_') is positive, others are negative
+        const isIncome = item_key.startsWith('income_');
+        const multiplier = isIncome ? 1 : -1;
+
+        if (newPaid && !oldPaid) {
+            balanceDelta = newAmount * multiplier;
+        } else if (!newPaid && oldPaid) {
+            balanceDelta = -oldAmount * multiplier;
+        } else if (newPaid && oldPaid) {
+            balanceDelta = (newAmount - oldAmount) * multiplier;
         }
 
         req.tenantDb.serialize(() => {
@@ -512,19 +520,46 @@ router.post('/budget-progress', authenticateToken, requireHouseholdRole('member'
             req.tenantDb.run(`INSERT INTO finance_budget_progress (household_id, cycle_start, item_key, is_paid, actual_amount) VALUES (?, ?, ?, ?, ?) ON CONFLICT(household_id, cycle_start, item_key) DO UPDATE SET is_paid = excluded.is_paid, actual_amount = excluded.actual_amount`, [req.hhId, cycle_start, item_key, newPaid, newAmount], (pErr) => {
                 if (pErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: pErr.message }); }
                 
-                if (delta !== 0 && item_key.startsWith('pot_')) {
+                const finalize = () => {
+                    // Update the main Budget Cycle Balance and Linked Bank Account if applicable
+                    if (balanceDelta !== 0) {
+                        req.tenantDb.get(`SELECT bank_account_id FROM finance_budget_cycles WHERE household_id = ? AND cycle_start = ?`, [req.hhId, cycle_start], (cycErr, cycle) => {
+                            if (cycErr || !cycle) {
+                                req.tenantDb.run("COMMIT", () => { closeDb(req); res.status(201).json({ message: "Progress saved" }); });
+                                return;
+                            }
+
+                            // Update Cycle Balance
+                            req.tenantDb.run(`UPDATE finance_budget_cycles SET current_balance = current_balance + ? WHERE household_id = ? AND cycle_start = ?`, [balanceDelta, req.hhId, cycle_start], (bcErr) => {
+                                if (bcErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: bcErr.message }); }
+
+                                // Update Bank Account Balance (only if linked)
+                                if (cycle.bank_account_id) {
+                                    req.tenantDb.run(`UPDATE finance_current_accounts SET current_balance = current_balance + ? WHERE id = ? AND household_id = ?`, [balanceDelta, cycle.bank_account_id, req.hhId], (baErr) => {
+                                        if (baErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: baErr.message }); }
+                                        req.tenantDb.run("COMMIT", () => { closeDb(req); res.status(201).json({ message: "Progress saved and bank/cycle synced", balanceDelta }); });
+                                    });
+                                } else {
+                                    req.tenantDb.run("COMMIT", () => { closeDb(req); res.status(201).json({ message: "Progress saved and cycle synced", balanceDelta }); });
+                                }
+                            });
+                        });
+                    } else {
+                        req.tenantDb.run("COMMIT", () => { closeDb(req); res.status(201).json({ message: "Progress saved" }); });
+                    }
+                };
+
+                if (potDelta !== 0 && item_key.startsWith('pot_')) {
                     const potId = item_key.split('_')[1];
-                    // Update Pot Balance
-                    req.tenantDb.run(`UPDATE finance_savings_pots SET current_amount = current_amount + ? WHERE id = ? AND savings_id IN (SELECT id FROM finance_savings WHERE household_id = ?)`, [delta, potId, req.hhId], (potErr) => {
+                    req.tenantDb.run(`UPDATE finance_savings_pots SET current_amount = current_amount + ? WHERE id = ? AND savings_id IN (SELECT id FROM finance_savings WHERE household_id = ?)`, [potDelta, potId, req.hhId], (potErr) => {
                         if (potErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: potErr.message }); }
-                        // Update Parent Savings Account Balance
-                        req.tenantDb.run(`UPDATE finance_savings SET current_balance = current_balance + ? WHERE id = (SELECT savings_id FROM finance_savings_pots WHERE id = ?) AND household_id = ?`, [delta, potId, req.hhId], (savErr) => {
+                        req.tenantDb.run(`UPDATE finance_savings SET current_balance = current_balance + ? WHERE id = (SELECT savings_id FROM finance_savings_pots WHERE id = ?) AND household_id = ?`, [potDelta, potId, req.hhId], (savErr) => {
                             if (savErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: savErr.message }); }
-                            req.tenantDb.run("COMMIT", (cErr) => { closeDb(req); res.status(201).json({ message: "Progress saved and savings updated", delta }); });
+                            finalize();
                         });
                     });
                 } else {
-                    req.tenantDb.run("COMMIT", (cErr) => { closeDb(req); res.status(201).json({ message: "Progress saved" }); });
+                    finalize();
                 }
             });
         });
@@ -538,38 +573,63 @@ router.delete('/budget-progress/:cycleStart/:itemKey', authenticateToken, requir
         
         const oldPaid = row ? (row.is_paid || 0) : 0;
         const oldAmount = row ? (row.actual_amount || 0) : 0;
-        let delta = 0;
+        let potDelta = 0;
+        let balanceDelta = 0;
         
-        // Logic: If we remove a record that was "Paid", we must reverse the balance change
-        if (itemKey.startsWith('pot_') && oldPaid) {
-            delta = -oldAmount;
+        if (oldPaid) {
+            // Reverse balance change
+            const isIncome = itemKey.startsWith('income_');
+            const multiplier = isIncome ? 1 : -1;
+            balanceDelta = -(oldAmount * multiplier);
+
+            if (itemKey.startsWith('pot_')) {
+                potDelta = -oldAmount;
+            }
         }
 
         req.tenantDb.serialize(() => {
             req.tenantDb.run("BEGIN TRANSACTION");
-            const updatePotPromise = new Promise((resolve, reject) => {
-                if (delta !== 0) {
-                    const potId = itemKey.split('_')[1];
-                    req.tenantDb.run(`UPDATE finance_savings_pots SET current_amount = current_amount + ? WHERE id = ? AND savings_id IN (SELECT id FROM finance_savings WHERE household_id = ?)`, [delta, potId, req.hhId], (potErr) => {
-                        if (potErr) return reject(potErr);
-                        req.tenantDb.run(`UPDATE finance_savings SET current_balance = current_balance + ? WHERE id = (SELECT savings_id FROM finance_savings_pots WHERE id = ?) AND household_id = ?`, [delta, potId, req.hhId], (savErr) => {
-                            if (savErr) return reject(savErr);
-                            resolve();
-                        });
-                    });
-                } else {
-                    resolve();
-                }
-            });
 
-            updatePotPromise.then(() => {
+            const finalize = () => {
                 req.tenantDb.run(`DELETE FROM finance_budget_progress WHERE household_id = ? AND cycle_start = ? AND item_key = ?`, [req.hhId, cycleStart, itemKey], (delErr) => {
                     if (delErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: delErr.message }); }
-                    req.tenantDb.run("COMMIT", (cErr) => { closeDb(req); res.json({ message: "Progress removed and savings updated", delta }); });
+                    
+                    if (balanceDelta !== 0) {
+                        req.tenantDb.get(`SELECT bank_account_id FROM finance_budget_cycles WHERE household_id = ? AND cycle_start = ?`, [req.hhId, cycleStart], (cycErr, cycle) => {
+                            if (cycErr || !cycle) {
+                                req.tenantDb.run("COMMIT", () => { closeDb(req); res.json({ message: "Progress removed" }); });
+                                return;
+                            }
+                            req.tenantDb.run(`UPDATE finance_budget_cycles SET current_balance = current_balance + ? WHERE household_id = ? AND cycle_start = ?`, [balanceDelta, req.hhId, cycleStart], (bcErr) => {
+                                if (bcErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: bcErr.message }); }
+                                if (cycle.bank_account_id) {
+                                    req.tenantDb.run(`UPDATE finance_current_accounts SET current_balance = current_balance + ? WHERE id = ? AND household_id = ?`, [balanceDelta, cycle.bank_account_id, req.hhId], (baErr) => {
+                                        if (baErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: baErr.message }); }
+                                        req.tenantDb.run("COMMIT", () => { closeDb(req); res.json({ message: "Progress removed and balances synced", balanceDelta }); });
+                                    });
+                                } else {
+                                    req.tenantDb.run("COMMIT", () => { closeDb(req); res.json({ message: "Progress removed and cycle synced", balanceDelta }); });
+                                }
+                            });
+                        });
+                    } else {
+                        req.tenantDb.run("COMMIT", () => { closeDb(req); res.json({ message: "Progress removed" }); });
+                    }
                 });
-            }).catch(err => {
-                req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: err.message });
-            });
+            };
+
+            if (potDelta !== 0) {
+                const potId = itemKey.split('_')[1];
+                req.tenantDb.run(`UPDATE finance_savings_pots SET current_amount = current_amount + ? WHERE id = ? AND savings_id IN (SELECT id FROM finance_savings WHERE household_id = ?)`, [potDelta, potId, req.hhId], (potErr) => {
+                    if (potErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: potErr.message }); }
+                    req.tenantDb.run(`UPDATE finance_savings SET current_balance = current_balance + ? WHERE id = (SELECT savings_id FROM finance_savings_pots WHERE id = ?) AND household_id = ?`, [potDelta, potId, req.hhId], (savErr) => {
+                        if (savErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: savErr.message }); }
+                        finalize();
+                    });
+                });
+            } else {
+                finalize();
+            }
         });
     });
 });
