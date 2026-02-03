@@ -57,8 +57,8 @@ const DrawdownChart = ({ data, limit, cycleStartDate, cycleEndDate, eventsPerDay
 
     return (
         <Box sx={{ width: '100%', mt: 1 }}>
-            <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" style={{ overflow: 'visible' }}>
-                <defs>
+            <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" style={{ overflow: 'visible' }}>{/*
+                */} <defs>
                     <linearGradient id="chart-area-grad" x1="0%" y1="0%" x2="0%" y2="100%">
                         <stop offset="0%" style={{ stopColor: 'var(--joy-palette-primary-300)', stopOpacity: 0.1 }} />
                         <stop offset="100%" style={{ stopColor: 'var(--joy-palette-primary-300)', stopOpacity: 0 }} />
@@ -158,9 +158,7 @@ const IncomeSourceCard = ({ inc, onUpdate, onDelete }) => {
             bgcolor: inc.isPaid ? 'success.softBg' : 'background.surface',
             boxShadow: 'xs'
         }}>
-            <Avatar size="sm" variant="soft" color={inc.isPaid ? 'success' : 'neutral'} sx={{ mt: 0.5, bgcolor: inc.isPaid ? 'success.solidBg' : undefined, color: inc.isPaid ? '#fff' : undefined }}>
-                {inc.icon}
-            </Avatar>
+            <Avatar size="sm" variant="soft" color={inc.isPaid ? 'success' : 'neutral'} sx={{ mt: 0.5, bgcolor: inc.isPaid ? 'success.solidBg' : undefined, color: inc.isPaid ? '#fff' : undefined }}>{inc.icon}</Avatar>
             <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Typography level="title-sm" sx={{ whiteSpace: 'normal', wordBreak: 'break-word', lineHeight: 1.3 }}>{inc.label}</Typography>
                 {isEditing ? (
@@ -173,8 +171,7 @@ const IncomeSourceCard = ({ inc, onUpdate, onDelete }) => {
                     <Typography level="body-xs" color="neutral">{format(inc.computedDate, 'do MMM')}</Typography>
                 )}
             </Box>
-            <Box sx={{ textAlign: 'right', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5 }}>
-                {isEditing ? (
+            <Box sx={{ textAlign: 'right', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5 }}>{isEditing ? (
                     <Stack direction="row" spacing={0.5} alignItems="center">
                         <Input 
                             size="sm" 
@@ -545,7 +542,7 @@ export default function BudgetView() {
               day: effectiveDate.getDate(), computedDate: effectiveDate,
               icon, category: category || 'other', isPaid: progressItem?.is_paid === 1,
               isDeletable: true,
-              id: item.id, object: object || {}, 
+              id: item.id, object: object || {},
               frequency: item.frequency || 'monthly'
           };
 
@@ -1135,6 +1132,44 @@ export default function BudgetView() {
     return `linear-gradient(90deg, ${stops.join(', ')})`;
   }, [overdraftPeriods]);
 
+  const itemRiskStatuses = useMemo(() => {
+    if (!cycleData || currentBalance === undefined) return new Map();
+    
+    const now = startOfDay(new Date());
+    let runningBalance = parseFloat(currentBalance) || 0;
+    
+    // Get all items (expenses and incomes) sorted chronologically
+    const allItems = [
+        ...cycleData.groupList.flatMap(g => g.items.map(i => ({ ...i, isExpense: true }))),
+        ...cycleData.incomeGroup.items.map(i => ({ ...i, isExpense: false }))
+    ].sort((a, b) => a.computedDate.getTime() - b.computedDate.getTime());
+    
+    const riskMap = new Map();
+    
+    allItems.forEach(item => {
+        // We only project risk for items that are currently unpaid
+        if (!item.isPaid) {
+            if (item.isExpense) {
+                runningBalance -= item.amount;
+                
+                // Determine severity based on balance AFTER this expense
+                let status = null;
+                if (runningBalance < -overdraftLimit) status = 'danger';
+                else if (runningBalance < 0) status = 'warning';
+                
+                // Only flag if it occurs today or in the future
+                if (isAfter(item.computedDate, now) || isSameDay(item.computedDate, now)) {
+                    riskMap.set(item.key, status);
+                }
+            } else {
+                runningBalance += item.amount;
+            }
+        }
+    });
+    
+    return riskMap;
+  }, [cycleData, currentBalance, overdraftLimit]);
+
   const selectedTotals = useMemo(() => {
       if (!selectedKeys.length || !cycleData) return null;
       const allItems = [...cycleData.groupList.flatMap(g => g.items), ...cycleData.incomeGroup.items];
@@ -1162,11 +1197,20 @@ export default function BudgetView() {
   const renderItemRow = (exp) => {
       const rel = getRelativeDateLabel(exp.computedDate);
       const isAdhoc = exp.frequency === 'one_off';
+      const riskStatus = itemRiskStatuses.get(exp.key);
+
+      const getBgColor = () => {
+          if (selectedKeys.includes(exp.key)) return 'var(--joy-palette-primary-softBg)';
+          if (riskStatus === 'danger') return 'var(--joy-palette-danger-softBg)';
+          if (riskStatus === 'warning') return 'var(--joy-palette-warning-softBg)';
+          return 'transparent';
+      };
+
       return (
       <tr 
           key={exp.key} 
           onClick={() => handleSelectToggle(exp.key)}
-          style={{ cursor: 'pointer', backgroundColor: selectedKeys.includes(exp.key) ? 'var(--joy-palette-primary-softBg)' : 'transparent', opacity: exp.isPaid ? 0.6 : 1 }}
+          style={{ cursor: 'pointer', backgroundColor: getBgColor(), opacity: exp.isPaid ? 0.6 : 1 }}
       >
           <td style={{ width: 40, textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
               <Checkbox size="sm" checked={selectedKeys.includes(exp.key)} onChange={() => handleSelectToggle(exp.key)} />
@@ -1222,11 +1266,18 @@ export default function BudgetView() {
 
   const renderMobileItem = (exp) => {
       const isAdhoc = exp.frequency === 'one_off';
+      const riskStatus = itemRiskStatuses.get(exp.key);
+
+      let cardColor = 'neutral';
+      if (selectedKeys.includes(exp.key)) cardColor = 'primary';
+      else if (riskStatus === 'danger') cardColor = 'danger';
+      else if (riskStatus === 'warning') cardColor = 'warning';
+
       return (
       <Card 
         key={exp.key} 
         variant="soft" 
-        color={selectedKeys.includes(exp.key) ? 'primary' : 'neutral'}
+        color={cardColor}
         sx={{ 
             p: 1.5, mb: 1, 
             opacity: exp.isPaid ? 0.6 : 1,
@@ -1586,9 +1637,9 @@ export default function BudgetView() {
 
         <Grid container spacing={3}>
             <Grid xs={12} md={3}>
-                <Stack spacing={3}>
-                    {/* Income Source Cards */}
-                    {incomeGroup && (
+                <Stack spacing={3}>{
+                    /* Income Source Cards */
+                    }                    {incomeGroup && (
                         <Box>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
                                 <Typography level="title-md" startDecorator={<Payments />}>Income Sources</Typography>
@@ -1640,9 +1691,7 @@ export default function BudgetView() {
                                 <Divider />
                                 {currentAccounts.map(acc => (
                                     <Option key={acc.id} value={acc.id}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                            {acc.emoji} {acc.account_name}
-                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>{acc.emoji} {acc.account_name}</Box>
                                     </Option>
                                 ))}
                             </Select>
@@ -1742,8 +1791,7 @@ export default function BudgetView() {
                                         <Typography level="body-xs" fontWeight="bold">{acc.account_name}</Typography>
                                         <Typography level="body-xs">{formatCurrency(acc.current_balance)}</Typography>
                                     </Box>
-                                    <List size="sm" sx={{ '--ListItem-paddingLeft': '0px' }}>
-                                        {savingsPots.filter(p => p.savings_id === acc.id).map(pot => (
+                                    <List size="sm" sx={{ '--ListItem-paddingLeft': '0px' }}>{savingsPots.filter(p => p.savings_id === acc.id).map(pot => (
                                             <ListItem key={pot.id}>
                                                 <ListItemDecorator>{pot.emoji}</ListItemDecorator>
                                                 <ListItemContent>
@@ -1760,8 +1808,7 @@ export default function BudgetView() {
                                                     />
                                                 </ListItemContent>
                                             </ListItem>
-                                        ))}
-                                    </List>
+                                        ))}</List>
                                 </Box>
                             ))}
                         </Stack>
@@ -1922,8 +1969,7 @@ export default function BudgetView() {
                                         setRecurringMetadata({});
                                     }}
                                     placeholder="Select Household, Person, Vehicle..."
-                                >
-                                    {entityGroupsOptions.map((group, idx) => [
+                                >{entityGroupsOptions.map((group, idx) => [
                                         idx > 0 && <Divider key={`div-${idx}`} />,
                                         <Typography level="body-xs" fontWeight="bold" sx={{ px: 1.5, py: 0.5, color: 'primary.500' }} key={`header-${idx}`}>
                                             {group.label}

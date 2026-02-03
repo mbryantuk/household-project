@@ -1,4 +1,4 @@
 {
-  "commitMessage": "UI: Removed Days Left labels and enhanced Action Required/Critical overdraft messaging in BudgetView",
-  "date": "Tue  3 Feb 13:29:56 GMT 2026"
+  "commitMessage": "Flag budget items with amber/red risk based on projected overdraft impact",
+  "date": "Tue  3 Feb 13:52:56 GMT 2026"
 }
