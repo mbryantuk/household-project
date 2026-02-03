@@ -588,10 +588,20 @@ export default function BudgetView() {
       (calendarDates || []).forEach(date => {
           const d = parseISO(date.date);
           if (!isValid(d)) return;
-          if (isWithinInterval(d, { start: startDate, end: endDate })) {
-              if (date.type === 'birthday') {
-                  addExpense(date, 'birthday', date.title, 0, d, '🎂', 'birthday', 'birthdays');
-              }
+          
+          if (date.type === 'birthday') {
+              // Only add if not already linked to a member (to avoid duplicates)
+              if (date.member_id || date.parent_id) return;
+
+              // Project birthday into current cycle years
+              const yearsToTry = [startDate.getFullYear(), endDate.getFullYear()];
+              const uniqueYears = [...new Set(yearsToTry)];
+              uniqueYears.forEach(year => {
+                  const bday = new Date(year, d.getMonth(), d.getDate());
+                  if (isWithinInterval(bday, { start: startDate, end: endDate })) {
+                      addExpense(date, 'birthday', date.title, 0, bday, '🎂', 'birthday', 'birthdays');
+                  }
+              });
           }
       });
 
