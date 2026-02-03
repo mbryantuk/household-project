@@ -190,6 +190,14 @@ async function seed() {
         // Carol gets paid on the 20th
         await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "WFH Creative", amount: 4200, is_primary: 0, payment_day: 20, bank_account_id: bank1.data.id, member_id: members.Carol }, token);
         
+        // INITIALIZE BUDGET CYCLE
+        await apiRequest('POST', `/api/households/${hhId}/finance/budget-cycles`, {
+            cycle_start: '2026-01-28',
+            actual_pay: 13700,
+            current_balance: 3500,
+            bank_account_id: bank1.data.id
+        }, token);
+
         // Joint Savings with Pots
         const savRes = await apiRequest('POST', `/api/households/${hhId}/finance/savings`, { institution: "Ally", account_name: "Joint Savings", current_balance: 55000 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/savings/${savRes.data.id}/pots`, { name: "Emergency Fund", target_amount: 30000, current_amount: 30000, emoji: "🚨", deposit_day: 1 }, token);
