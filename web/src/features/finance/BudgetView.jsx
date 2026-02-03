@@ -1917,15 +1917,21 @@ export default function BudgetView() {
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                                         <Typography level="body-xs" fontWeight="bold" color="danger">Total Loans</Typography>
                                         <Typography level="body-xs" color="danger">
-                                            -{formatCurrency(liabilities.recurring_costs.filter(c => c.category_id === 'loan' && c.is_active).reduce((sum, c) => sum + (c.remaining_balance || 0), 0))}
+                                            -{formatCurrency(liabilities.recurring_costs.filter(c => c.category_id === 'loan' && c.is_active).reduce((sum, c) => {
+                                                const meta = typeof c.metadata === 'string' ? JSON.parse(c.metadata) : (c.metadata || {});
+                                                return sum + (meta.remaining_balance || 0);
+                                            }, 0))}
                                         </Typography>
                                     </Box>
                                     <Stack direction="row" spacing={1} flexWrap="wrap">
-                                        {liabilities.recurring_costs.filter(c => c.category_id === 'loan' && c.is_active).map(c => (
-                                            <Chip key={c.id} size="sm" variant="soft" color="danger" sx={{ fontSize: '0.6rem' }}>
-                                                {c.emoji} {c.name}: {formatCurrency(c.remaining_balance || 0)}
-                                            </Chip>
-                                        ))}
+                                        {liabilities.recurring_costs.filter(c => c.category_id === 'loan' && c.is_active).map(c => {
+                                            const meta = typeof c.metadata === 'string' ? JSON.parse(c.metadata) : (c.metadata || {});
+                                            return (
+                                                <Chip key={c.id} size="sm" variant="soft" color="danger" sx={{ fontSize: '0.6rem' }}>
+                                                    {c.emoji} {c.name}: {formatCurrency(meta.remaining_balance || 0)}
+                                                </Chip>
+                                            );
+                                        })}
                                     </Stack>
                                 </Box>
                             )}
