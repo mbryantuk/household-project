@@ -367,19 +367,36 @@ export default function SavingsView() {
         </Modal>
 
         <Modal open={Boolean(selectedPotId)} onClose={() => setPotId(selectedAccountId, null)}>
-            <ModalDialog sx={{ width: '100%', maxWidth: 400 }}>
-                <DialogTitle>{selectedPotId === 'new' ? 'Create Pot' : 'Edit Pot'}</DialogTitle>
+            <ModalDialog sx={{ width: '100%', maxWidth: 450, maxHeight: '95vh', overflowY: 'auto' }}>
+                <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
+                    <Box sx={{ position: 'relative' }}>
+                        <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(selectedEmoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => setEmojiPicker({ open: true, type: 'pot' })}>{selectedEmoji}</Avatar>
+                        <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => setEmojiPicker({ open: true, type: 'pot' })}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
+                    </Box>
+                    <Box sx={{ flexGrow: 1 }}>
+                        <DialogTitle>{selectedPotId === 'new' ? 'Create Pot' : 'Edit Pot'}</DialogTitle>
+                        <Typography level="body-sm" color="neutral">Allocate funds from your {selectedAccount?.institution} account to specific goals.</Typography>
+                    </Box>
+                </Box>
                 <DialogContent>
                     <form onSubmit={handlePotSubmit}>
-                        <Stack spacing={2} sx={{ mt: 1 }}>
-                            <FormControl required><FormLabel>Pot Name</FormLabel><Input name="name" defaultValue={selectedPot?.name} placeholder="e.g. Holiday Fund" /></FormControl>
+                        <Stack spacing={2}>
+                            <FormControl required><FormLabel>Pot Name</FormLabel><Input name="name" defaultValue={selectedPot?.name} placeholder="e.g. Holiday Fund" autoFocus /></FormControl>
                             <Grid container spacing={2}>
-                                <Grid xs={12} sm={6}><FormControl required><FormLabel>Current Amount (£)</FormLabel><Input name="current_amount" type="number" step="0.01" defaultValue={selectedPot?.current_amount} /></FormControl></Grid>
-                                <Grid xs={12} sm={6}><FormControl><FormLabel>Target Amount (£)</FormLabel><Input name="target_amount" type="number" step="0.01" defaultValue={selectedPot?.target_amount} /></FormControl></Grid>
+                                <Grid xs={12} sm={6}><FormControl required><FormLabel>Current Amount (£)</FormLabel><Input name="current_amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedPot?.current_amount} /></FormControl></Grid>
+                                <Grid xs={12} sm={6}><FormControl><FormLabel>Target Amount (£)</FormLabel><Input name="target_amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedPot?.target_amount} /></FormControl></Grid>
                             </Grid>
-                            <FormControl><FormLabel>Emoji</FormLabel><Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}><Button variant="outlined" color="neutral" onClick={() => setEmojiPicker({ open: true, type: 'pot' })} sx={{ minWidth: 48, px: 0 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(selectedEmoji, isDark) }}>{selectedEmoji}</Avatar></Button><Input type="hidden" name="emoji" value={selectedEmoji || ''} /></Box></FormControl>
+                            <Input type="hidden" name="emoji" value={selectedEmoji || ''} />
                         </Stack>
-                        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 1 }}><Button variant="plain" color="neutral" onClick={() => setPotId(selectedAccountId, null)}>Cancel</Button><Button type="submit" color="primary">Save Pot</Button></Box>
+                        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            {selectedPotId !== 'new' && (
+                                <Button color="danger" variant="soft" onClick={() => handlePotDelete(selectedAccountId, selectedPotId)}>Delete</Button>
+                            )}
+                            <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
+                                <Button variant="plain" color="neutral" onClick={() => setPotId(selectedAccountId, null)}>Cancel</Button>
+                                <Button type="submit" color="primary">Save Pot Details</Button>
+                            </Box>
+                        </Box>
                     </form>
                 </DialogContent>
             </ModalDialog>
