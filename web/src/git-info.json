@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Update vehicle equity tracking with current value support and refine bank balance seeding",
-  "date": "Tue  3 Feb 15:41:09 GMT 2026"
+  "commitMessage": "Add current_value support to vehicles and update seed values",
+  "date": "Tue  3 Feb 15:46:43 GMT 2026"
 }

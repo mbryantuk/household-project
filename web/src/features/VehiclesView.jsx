@@ -280,11 +280,17 @@ export default function VehiclesView() {
                     </Grid>
                     <Grid xs={6} md={3}>
                         <FormControl>
+                            <FormLabel>Current Value (£)</FormLabel>
+                            <Input name="current_value" type="number" defaultValue={selectedVehicle?.current_value} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={6} md={3}>
+                        <FormControl>
                             <FormLabel>Replacement Cost (£)</FormLabel>
                             <Input name="replacement_cost" type="number" defaultValue={selectedVehicle?.replacement_cost} />
                         </FormControl>
                     </Grid>
-                    <Grid xs={6} md={4}>
+                    <Grid xs={6} md={3}>
                         <FormControl>
                             <FormLabel>Annual Depreciation %</FormLabel>
                             <Input name="depreciation_rate" type="number" defaultValue={selectedVehicle?.depreciation_rate} />
