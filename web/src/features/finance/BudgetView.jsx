@@ -1911,9 +1911,52 @@ export default function BudgetView() {
                                 </Box>
                             )}
 
+                            {/* 5. Loans & Other Debts */}
+                            {liabilities.recurring_costs.filter(c => c.category_id === 'loan' && c.is_active).length > 0 && (
+                                <Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                        <Typography level="body-xs" fontWeight="bold" color="danger">Total Loans</Typography>
+                                        <Typography level="body-xs" color="danger">
+                                            -{formatCurrency(liabilities.recurring_costs.filter(c => c.category_id === 'loan' && c.is_active).reduce((sum, c) => sum + (c.remaining_balance || 0), 0))}
+                                        </Typography>
+                                    </Box>
+                                    <Stack direction="row" spacing={1} flexWrap="wrap">
+                                        {liabilities.recurring_costs.filter(c => c.category_id === 'loan' && c.is_active).map(c => (
+                                            <Chip key={c.id} size="sm" variant="soft" color="danger" sx={{ fontSize: '0.6rem' }}>
+                                                {c.emoji} {c.name}: {formatCurrency(c.remaining_balance || 0)}
+                                            </Chip>
+                                        ))}
+                                    </Stack>
+                                </Box>
+                            )}
+
+                            {/* 6. Credit Card Balances */}
+                            {liabilities.credit_cards.length > 0 && (
+                                <Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                        <Typography level="body-xs" fontWeight="bold" color="danger">Credit Card Debt</Typography>
+                                        <Typography level="body-xs" color="danger">
+                                            -{formatCurrency(liabilities.credit_cards.reduce((sum, cc) => sum + (cc.current_balance || 0), 0))}
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                            )}
+
+                            {/* 7. Overdrafts */}
+                            {currentAccounts.some(acc => acc.current_balance < 0) && (
+                                <Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                        <Typography level="body-xs" fontWeight="bold" color="danger">Overdrafts</Typography>
+                                        <Typography level="body-xs" color="danger">
+                                            -{formatCurrency(currentAccounts.reduce((sum, acc) => sum + (acc.current_balance < 0 ? Math.abs(acc.current_balance) : 0), 0))}
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                            )}
+
                             <Divider />
 
-                            {/* 5. Savings & Pots (Original) */}
+                            {/* 8. Savings & Pots (Original) */}
                             {liabilities.savings.map(acc => (
                                 <Box key={acc.id}>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
