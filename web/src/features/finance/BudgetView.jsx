@@ -916,6 +916,22 @@ export default function BudgetView() {
   const isOverdrawnRisk = lowestProjected < 0;
   const isLimitRisk = lowestProjected < -overdraftLimit;
 
+  const overdraftRemedy = useMemo(() => {
+    if (lowestProjected >= 0) return null;
+    
+    // Find the first date it dips below zero
+    const firstDip = drawdownData.find(d => d.balance < 0);
+    // Find the first date it dips below limit
+    const firstLimitDip = drawdownData.find(d => d.balance < -overdraftLimit);
+    
+    return {
+        amountToClear: Math.abs(lowestProjected),
+        amountToBuffer: Math.abs(Math.min(0, lowestProjected + overdraftLimit)),
+        deadline: firstDip ? firstDip.date : null,
+        limitDeadline: firstLimitDip ? firstLimitDip.date : null
+    };
+  }, [lowestProjected, drawdownData, overdraftLimit]);
+
   const trueDisposable = (parseFloat(currentBalance) || 0) - cycleTotals.unpaid + (cycleData?.incomeGroup.unpaid || 0);
   
   const overdraftPeriods = useMemo(() => {
@@ -1288,7 +1304,19 @@ export default function BudgetView() {
 
         <Box sx={{ mb: 2, position: 'relative' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1 }}>
-                <Typography level="body-xs" fontWeight="bold" sx={{ textTransform: 'uppercase', letterSpacing: '0.1em' }}>Days Left</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography level="body-xs" fontWeight="bold" sx={{ textTransform: 'uppercase', letterSpacing: '0.1em' }}>Days Left</Typography>
+                    {overdraftRemedy && (
+                        <Typography 
+                            level="body-xs" 
+                            variant="soft" 
+                            color={isLimitRisk ? "danger" : "warning"} 
+                            sx={{ px: 1, borderRadius: 'xs', fontWeight: 'bold' }}
+                        >
+                            Action Required: {formatCurrency(overdraftRemedy.amountToClear)} by {format(overdraftRemedy.deadline, 'do MMM')}
+                        </Typography>
+                    )}
+                </Box>
                 <Typography level="body-xs" fontWeight="bold">{cycleData.daysRemaining} days to go</Typography>
             </Box>
             <Tooltip 
@@ -1297,10 +1325,28 @@ export default function BudgetView() {
                 placement="top"
                 title={
                     overdraftPeriods.length > 0 ? (
-                        <Box sx={{ p: 0.5 }}>
-                            <Typography level="title-sm" color="inherit" sx={{ mb: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box sx={{ p: 0.5, maxWidth: 280 }}>
+                            <Typography level="title-sm" color="inherit" sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <Warning /> {overdraftPeriods.some(p => p.severity === 'danger') ? "Overdraft Limit Risk" : "Overdraft Buffer Used"}
                             </Typography>
+                            
+                            {overdraftRemedy && (
+                                <Box sx={{ mb: 1.5, p: 1, borderRadius: 'xs', bgcolor: 'rgba(0,0,0,0.2)' }}>
+                                    <Typography level="body-xs" fontWeight="bold" color="inherit">
+                                        Action Required:
+                                    </Typography>
+                                    <Typography level="body-xs" color="inherit">
+                                        Deposit {formatCurrency(overdraftRemedy.amountToClear)} by {format(overdraftRemedy.deadline, 'do MMM')} to stay positive.
+                                    </Typography>
+                                    {overdraftRemedy.limitDeadline && (
+                                        <Typography level="body-xs" color="inherit" sx={{ mt: 0.5, fontWeight: 'bold' }}>
+                                            CRITICAL: {formatCurrency(overdraftRemedy.amountToBuffer)} needed by {format(overdraftRemedy.limitDeadline, 'do MMM')} to avoid bounce.
+                                        </Typography>
+                                    )}
+                                </Box>
+                            )}
+
+                            <Typography level="body-xs" fontWeight="bold" color="inherit" sx={{ mb: 0.5 }}>Risk Periods:</Typography>
                             {overdraftPeriods.map((p, i) => (
                                 <Typography key={i} level="body-xs" color="inherit" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                     <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: p.severity === 'danger' ? 'danger.200' : 'warning.200' }} />
