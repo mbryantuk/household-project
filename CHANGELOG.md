@@ -2,7 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [3.2.23] - 2026-02-02
+## [3.2.52] - 2026-02-03
+### Patch Changes
+- **Finance:** Adjusted Brady family seed data to simulate a specific overdraft scenario (Balance: £3,500, Overdraft: £2,000).
+
+## [3.2.51] - 2026-02-03
+
 
 ### Added
 - **Finance:** Ability to add "Adhoc Income" sources (e.g. eBay winnings, refunds) directly from the Budget view.

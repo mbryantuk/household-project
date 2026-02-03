@@ -181,8 +181,8 @@ async function seed() {
         const bank1 = await apiRequest('POST', `/api/households/${hhId}/finance/current-accounts`, { 
             bank_name: "Wells Fargo", 
             account_name: "Checking", 
-            current_balance: 4500,
-            overdraft_limit: 5000 
+            current_balance: 3500,
+            overdraft_limit: 2000 
         }, token);
         
         // Mike gets paid late in the month now
