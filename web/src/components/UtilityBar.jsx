@@ -13,6 +13,11 @@ import TrendingUp from '@mui/icons-material/TrendingUp';
 import HourglassBottom from '@mui/icons-material/HourglassBottom';
 import CalendarMonth from '@mui/icons-material/CalendarMonth';
 import AccountBalance from '@mui/icons-material/AccountBalance';
+import AttachMoney from '@mui/icons-material/AttachMoney';
+import CreditCard from '@mui/icons-material/CreditCard';
+import ReceiptLong from '@mui/icons-material/ReceiptLong';
+import HomeIcon from '@mui/icons-material/Home';
+import DirectionsCar from '@mui/icons-material/DirectionsCar';
 
 import { useNavigate } from 'react-router-dom';
 import FloatingCalculator from './FloatingCalculator';
@@ -109,11 +114,11 @@ export default function UtilityBar() {
                 
                 <Divider orientation="vertical" sx={{ mx: 0.5, height: '60%' }} />
 
-                <WidgetWrapper id="fincalc" label="Finance Calc" icon={AccountBalance} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <FinancialCalculator isDocked onClose={() => setActiveWidget(null)} isDark={isDark} onPopout={() => handlePopout('fincalc', '/fin-calculator-window')} />
+                <WidgetWrapper id="income" label="Income" icon={AttachMoney} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                    <Box sx={{ p: 2 }}><Typography>Income Widget Placeholder</Typography></Box>
                 </WidgetWrapper>
-                <WidgetWrapper id="tax" label="Tax Tools" icon={Payments} color="warning" width={450} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <TaxCalculator isDocked onClose={() => setActiveWidget(null)} isDark={isDark} onPopout={() => handlePopout('tax', '/tax-window')} />
+                <WidgetWrapper id="accounts" label="Accounts" icon={AccountBalance} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                    <Box sx={{ p: 2 }}><Typography>Current Accounts Placeholder</Typography></Box>
                 </WidgetWrapper>
                 <WidgetWrapper id="savings" label="Savings & Pots" icon={Savings} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <FloatingSavings isDocked onClose={() => setActiveWidget(null)} api={api} householdId={activeHouseholdId} isDark={isDark} onPopout={() => handlePopout('savings', '/savings-window')} />
@@ -123,6 +128,18 @@ export default function UtilityBar() {
                 </WidgetWrapper>
                 <WidgetWrapper id="pensions" label="Pensions" icon={HourglassBottom} color="warning" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <FloatingPensions isDocked onClose={() => setActiveWidget(null)} api={api} householdId={activeHouseholdId} isDark={isDark} onPopout={() => handlePopout('pensions', '/pensions-window')} />
+                </WidgetWrapper>
+                <WidgetWrapper id="credit" label="Credit Cards" icon={CreditCard} color="danger" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                    <Box sx={{ p: 2 }}><Typography>Credit Cards Placeholder</Typography></Box>
+                </WidgetWrapper>
+                <WidgetWrapper id="loans" label="Personal Loans" icon={ReceiptLong} color="danger" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                    <Box sx={{ p: 2 }}><Typography>Loans Placeholder</Typography></Box>
+                </WidgetWrapper>
+                <WidgetWrapper id="mortgage" label="Mortgages" icon={HomeIcon} color="danger" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                    <Box sx={{ p: 2 }}><Typography>Mortgages Placeholder</Typography></Box>
+                </WidgetWrapper>
+                <WidgetWrapper id="carfin" label="Car Finance" icon={DirectionsCar} color="danger" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                    <Box sx={{ p: 2 }}><Typography>Car Finance Placeholder</Typography></Box>
                 </WidgetWrapper>
 
                 <Divider orientation="vertical" sx={{ mx: 0.5, height: '60%' }} />

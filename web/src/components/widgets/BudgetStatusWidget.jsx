@@ -6,7 +6,8 @@ import TrendingDown from '@mui/icons-material/TrendingDown';
 import Speed from '@mui/icons-material/Speed';
 import { 
     format, addMonths, startOfMonth, setDate, 
-    isSameDay, isAfter, isBefore, startOfDay, isWithinInterval, parseISO, addWeeks, addYears, eachDayOfInterval
+    isSameDay, isAfter, isBefore, startOfDay, isWithinInterval, parseISO, addWeeks, addYears, eachDayOfInterval,
+    differenceInDays
 } from 'date-fns';
 import WidgetWrapper from './WidgetWrapper';
 
@@ -79,11 +80,17 @@ export default function BudgetStatusWidget({ api, household }) {
     };
 
     const startDate = getPriorWorkingDay(rawStartDate);
-    const endDate = getPriorWorkingDay(addMonths(rawStartDate, 1));
+    const nextPaydayRaw = setDate(startOfMonth(addMonths(rawStartDate, 1)), payday);
+    const endDate = getPriorWorkingDay(nextPaydayRaw);
     const cycleKey = format(startDate, 'yyyy-MM-dd');
 
+    const daysInCycle = differenceInDays(endDate, startDate);
+    const daysElapsed = differenceInDays(now, startDate);
+    const daysRemaining = Math.max(0, differenceInDays(endDate, now));
+    const cycleProgress = Math.min(100, Math.max(0, (daysElapsed / daysInCycle) * 100));
+
     const currentCycleRecord = Array.isArray(cycles) ? cycles.find(c => c.cycle_start === cycleKey) : null;
-    if (!currentCycleRecord) return { noCycle: true, cycleLabel: format(rawStartDate.getDate() >= 20 ? addMonths(rawStartDate, 1) : rawStartDate, 'MMMM yyyy') };
+    if (!currentCycleRecord) return { noCycle: true, cycleLabel: format(rawStartDate, 'MMMM yyyy'), daysRemaining };
 
     const currentBalance = parseFloat(currentCycleRecord.current_balance) || 0;
     const linkedAccount = Array.isArray(current_accounts) ? current_accounts.find(a => a.id === currentCycleRecord.bank_account_id) : null;
@@ -191,15 +198,17 @@ export default function BudgetStatusWidget({ api, household }) {
 
     const totalToPay = allExpenses.reduce((s, e) => s + e.amount, 0);
     const paidAmount = allExpenses.filter(e => e.isPaid).reduce((s, e) => s + e.amount, 0);
-    const progressPct = (paidAmount / (totalToPay || 1)) * 100;
+    const billsPct = (paidAmount / (totalToPay || 1)) * 100;
     const endOfCycle = runningBalance;
 
     return {
-        lowestPoint, endOfCycle, progressPct, currentBalance, overdraftLimit,
+        lowestPoint, endOfCycle, billsPct, currentBalance, overdraftLimit,
         isOverdrawn: lowestPoint < 0,
         isLimitRisk: lowestPoint < -overdraftLimit,
         unpaidCount: allExpenses.filter(e => !e.isPaid).length,
-        cycleLabel: format(rawStartDate.getDate() >= payday ? rawStartDate : addMonths(rawStartDate, -1), 'MMMM yyyy')
+        cycleLabel: format(startDate, 'MMMM yyyy'),
+        daysRemaining,
+        cycleProgress
     };
 
   }, [financeData]);
@@ -222,9 +231,19 @@ export default function BudgetStatusWidget({ api, household }) {
 
   if (projection.noCycle) return (
     <WidgetWrapper title="Budget Health" icon={<Speed />} color="primary">
-        <Typography level="body-sm" color="neutral" sx={{ textAlign: 'center', mt: 4 }}>
-            Setup required for <b>{projection.cycleLabel}</b> budget.
-        </Typography>
+        <Stack spacing={2}>
+            <Typography level="body-sm" color="neutral" sx={{ textAlign: 'center', mt: 2 }}>
+                Setup required for <b>{projection.cycleLabel}</b> budget.
+            </Typography>
+            <Divider />
+            <Box>
+                <Stack direction="row" justifyContent="space-between" mb={0.5}>
+                    <Typography level="body-xs">Cycle Progress</Typography>
+                    <Typography level="body-xs" fontWeight="bold">{projection.daysRemaining} days to payday</Typography>
+                </Stack>
+                <LinearProgress determinate value={projection.cycleProgress} thickness={8} color="neutral" sx={{ borderRadius: 'xs' }} />
+            </Box>
+        </Stack>
     </WidgetWrapper>
   );
 
@@ -235,16 +254,30 @@ export default function BudgetStatusWidget({ api, household }) {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography level="title-sm">{projection.cycleLabel}</Typography>
             <Chip size="sm" color={projection.isOverdrawn ? 'danger' : 'success'} variant="soft">
-                {projection.isOverdrawn ? 'Overdraft Risk' : 'Healthy'}
+                {projection.isOverdrawn ? (projection.isLimitRisk ? 'Limit Warning' : 'Overdrawn') : 'Healthy'}
             </Chip>
+        </Box>
+
+        <Box>
+            <Stack direction="row" justifyContent="space-between" mb={0.5}>
+                <Typography level="body-xs">Time until Payday</Typography>
+                <Typography level="body-xs" fontWeight="bold">{projection.daysRemaining} days remaining</Typography>
+            </Stack>
+            <LinearProgress 
+                determinate 
+                value={projection.cycleProgress} 
+                thickness={8} 
+                color={projection.isOverdrawn ? 'warning' : 'primary'} 
+                sx={{ borderRadius: 'xs' }} 
+            />
         </Box>
 
         <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                 <Typography level="body-xs">Bills Paid</Typography>
-                <Typography level="body-xs" fontWeight="bold">{Math.round(projection.progressPct)}%</Typography>
+                <Typography level="body-xs" fontWeight="bold">{Math.round(projection.billsPct)}%</Typography>
             </Box>
-            <LinearProgress determinate value={projection.progressPct} thickness={8} color="success" sx={{ borderRadius: 'xs' }} />
+            <LinearProgress determinate value={projection.billsPct} thickness={8} color="success" sx={{ borderRadius: 'xs' }} />
         </Box>
 
         <Divider />
@@ -277,12 +310,6 @@ export default function BudgetStatusWidget({ api, household }) {
                     </Typography>
                 </Sheet>
             )}
-
-            <Box sx={{ bgcolor: 'background.level1', p: 1, borderRadius: 'sm' }}>
-                <Typography level="body-xs" color="neutral" textAlign="center">
-                    <b>{projection.unpaidCount}</b> items remaining to pay.
-                </Typography>
-            </Box>
         </Stack>
       </Stack>
     </WidgetWrapper>

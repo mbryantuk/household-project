@@ -1,4 +1,4 @@
 {
-  "commitMessage": "UI Hotfix: renamed Hub to House, removed People rail, and fixed menu click-away stability.",
-  "date": "Wed  4 Feb 16:57:42 GMT 2026"
+  "commitMessage": "UI Hotfix: Reverted HouseholdSelector, fixed all financial widgets in UtilityBar, and stabilized menu closing logic.",
+  "date": "Wed  4 Feb 17:03:05 GMT 2026"
 }

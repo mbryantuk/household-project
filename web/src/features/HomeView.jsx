@@ -1,12 +1,10 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Box, Typography, Button, Stack, IconButton, Sheet, Menu, MenuItem, Divider } from '@mui/joy';
+import { Box, Typography, Button, Stack, IconButton, Sheet, Menu, MenuItem, Grid, Divider } from '@mui/joy';
 import Add from '@mui/icons-material/Add';
 import Save from '@mui/icons-material/Save';
 import Edit from '@mui/icons-material/Edit';
 import Close from '@mui/icons-material/Close';
 import Settings from '@mui/icons-material/Settings';
-import AddCircleOutline from '@mui/icons-material/AddCircleOutline';
-import RemoveCircleOutline from '@mui/icons-material/RemoveCircleOutline';
 
 import { Responsive } from 'react-grid-layout/legacy';
 import WidthProvider from '../components/helpers/WidthProvider';
@@ -35,10 +33,10 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const WIDGET_TYPES = {
   clock: { component: ClockWidget, label: 'System Clock', defaultH: 4, defaultW: 4 },
-  budget_status: { component: BudgetStatusWidget, label: 'Budget Health', defaultH: 5, defaultW: 4, props: { compact: true } },
-  wealth: { component: WealthWidget, label: 'Wealth Tracking', defaultH: 7, defaultW: 4, props: { variant: 'summary' } },
+  budget_status: { component: BudgetStatusWidget, label: 'Budget Health', defaultH: 5, defaultW: 4 },
+  wealth: { component: WealthWidget, label: 'Wealth Tracking', defaultH: 7, defaultW: 4 },
   birthdays: { component: BirthdaysWidget, label: 'Upcoming Birthdays', defaultH: 4, defaultW: 4 },
-  events: { component: EventsWidget, label: 'Calendar Events', defaultH: 4, defaultW: 4, props: { limit: 1, variant: 'hero' } },
+  events: { component: EventsWidget, label: 'Calendar Events', defaultH: 4, defaultW: 6 },
   costs: { component: HomeRecurringCostsWidget, label: 'Monthly Costs', defaultH: 4, defaultW: 6 },
   vehicles: { component: VehiclesWidget, label: 'Fleet Status', defaultH: 4, defaultW: 4 },
   notes: { component: NotesWidget, label: 'Sticky Note', defaultH: 4, defaultW: 4 },
@@ -52,17 +50,14 @@ const WIDGET_TYPES = {
 };
 
 const DEFAULT_LAYOUT = [
-  // Row 1: The "Pulse"
-  { i: 'budget-1', x: 0, y: 0, w: 4, h: 5, type: 'budget_status' },
-  { i: 'events-1', x: 4, y: 0, w: 4, h: 5, type: 'events' },
-  { i: 'wealth-1', x: 8, y: 0, w: 4, h: 5, type: 'wealth' },
-  // Row 2: Main Stage
+  { i: 'clock-1', x: 0, y: 0, w: 4, h: 4, type: 'clock' },
+  { i: 'budget-1', x: 4, y: 0, w: 4, h: 5, type: 'budget_status' },
+  { i: 'wealth-1', x: 8, y: 0, w: 4, h: 7, type: 'wealth' },
   { i: 'calendar-1', x: 0, y: 5, w: 8, h: 8, type: 'calendar' },
   { i: 'notes-1', x: 8, y: 5, w: 4, h: 8, type: 'notes' },
-  // Row 3: Archive
   { i: 'pensions-1', x: 0, y: 13, w: 4, h: 4, type: 'pensions' },
   { i: 'vehicles-1', x: 4, y: 13, w: 4, h: 4, type: 'vehicles' },
-  { i: 'clock-1', x: 8, y: 13, w: 4, h: 4, type: 'clock' },
+  { i: 'investments-1', x: 8, y: 13, w: 4, h: 4, type: 'invest' },
 ];
 
 export default function HomeView() {
@@ -195,10 +190,7 @@ export default function HomeView() {
           margin={[24, 24]}
       >
           {gridItems.map(item => {
-              const config = WIDGET_TYPES[item.type];
-              const WidgetComponent = config?.component;
-              const extraProps = config?.props || {};
-
+              const WidgetComponent = WIDGET_TYPES[item.type]?.component;
               return (
                   <Box key={item.i} data-grid={{ ...item, static: !isEditing }} sx={{ position: 'relative' }}>
                       {isEditing && (
@@ -211,17 +203,7 @@ export default function HomeView() {
                           </IconButton>
                       )}
                       <ErrorBoundary>
-                          {WidgetComponent ? (
-                            <WidgetComponent 
-                                api={api} 
-                                household={household} 
-                                members={members} 
-                                user={user} 
-                                dates={dates} 
-                                onUpdateProfile={onUpdateProfile}
-                                {...extraProps} 
-                            />
-                          ) : <WidgetSkeleton />}
+                          {WidgetComponent ? <WidgetComponent api={api} household={household} members={members} user={user} dates={dates} onUpdateProfile={onUpdateProfile} /> : <WidgetSkeleton />}
                       </ErrorBoundary>
                   </Box>
               );
@@ -233,7 +215,6 @@ export default function HomeView() {
         open={Boolean(addWidgetAnchor)}
         onClose={() => setAddWidgetAnchor(null)}
         placement="bottom-end"
-        disablePortal={false}
       >
         {Object.entries(WIDGET_TYPES).map(([key, config]) => (
             <MenuItem key={key} onClick={() => handleAddWidget(key)}>{config.label}</MenuItem>
