@@ -4,15 +4,12 @@ import {
   IconButton, Divider, Box, Avatar, Typography, Tooltip, Menu, MenuItem
 } from '@mui/joy';
 import Event from '@mui/icons-material/Event';
-import Groups from '@mui/icons-material/Groups';
 import Pets from '@mui/icons-material/Pets';
 import Inventory2 from '@mui/icons-material/Inventory2';
 import RestaurantMenu from '@mui/icons-material/RestaurantMenu';
 import AccountBalance from '@mui/icons-material/AccountBalance';
 import Close from '@mui/icons-material/Close';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import KeyboardArrowUp from '@mui/icons-material/KeyboardArrowUp';
-import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import PushPin from '@mui/icons-material/PushPin';
 import PushPinOutlined from '@mui/icons-material/PushPinOutlined';
 import HomeWork from '@mui/icons-material/HomeWork';
@@ -23,13 +20,12 @@ import HomeIcon from '@mui/icons-material/Home';
 
 import { useLocation, useNavigate, NavLink } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
-import EmojiPicker from './EmojiPicker';
 import { useHousehold } from '../contexts/HouseholdContext';
 
 const RAIL_WIDTH = 64; 
 const PANEL_WIDTH = 240;
 
-const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, activeCategory, hoveredCategory, onHover, handleNav, isMobile, isPinned }) => {
+const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, activeCategory, hoveredCategory, onHover, handleNav, isMobile }) => {
     const pathMatches = to && location.pathname.includes(to);
     const categoryMatches = activeCategory === category;
     const isHovered = hoveredCategory === category;
@@ -124,7 +120,7 @@ export default function NavSidebar({
   const navigate = useNavigate();
   const { 
     household, members, vehicles, user, isDark, 
-    onUpdateProfile, onLogout, confirmAction 
+    onLogout, confirmAction 
   } = useHousehold();
   
   const [activeCategory, setActiveCategory] = useState(null);
@@ -185,11 +181,6 @@ export default function NavSidebar({
       if (isMobile && onClose) onClose();
   };
 
-  const toggleUserMenu = (event) => {
-    if (userMenuAnchor) setUserMenuAnchor(null);
-    else setUserMenuAnchor(event.currentTarget);
-  };
-
   const currentPanelCategory = (hoveredCategory || (isPinned ? activeCategory : null));
   const showPanel = currentPanelCategory && ['household', 'finance'].includes(currentPanelCategory);
 
@@ -247,19 +238,18 @@ export default function NavSidebar({
                 </Box>
                 
                 <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
-                    <RailIcon icon={<HomeWork />} label="Dashboard" category="dashboard" to="dashboard" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
-                    <RailIcon icon={<HomeIcon />} label="House" category="household" hasSubItems to="house" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
-                    <RailIcon icon={<Event />} label="Calendar" category="calendar" to="calendar" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
+                    <RailIcon icon={<HomeWork />} label="Dashboard" category="dashboard" to="dashboard" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
+                    <RailIcon icon={<HomeIcon />} label="House" category="household" hasSubItems to="house" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
+                    <RailIcon icon={<Event />} label="Calendar" category="calendar" to="calendar" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                 </List>
                 <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
             </Box>
 
             <Box sx={{ width: '100%', flexGrow: 1, overflowY: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
                 <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
-                    <RailIcon icon={<Groups />} label="People" category="household" hasSubItems to="people" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
-                    <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems to="finance" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
+                    <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems to="finance" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                     {enabledModules.includes('meals') && (
-                        <RailIcon icon={<RestaurantMenu />} label="Meals" category="meals" to="meals" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
+                        <RailIcon icon={<RestaurantMenu />} label="Meals" category="meals" to="meals" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                     )}
                 </List>
             </Box>
@@ -280,7 +270,7 @@ export default function NavSidebar({
                     <IconButton 
                         variant="plain" 
                         color="neutral" 
-                        onClick={toggleUserMenu}
+                        onClick={(e) => setUserMenuAnchor(userMenuAnchor ? null : e.currentTarget)}
                         sx={{ p: 0.5, borderRadius: '50%', bgcolor: userMenuAnchor ? 'background.level1' : 'transparent' }}
                     >
                         <Avatar 

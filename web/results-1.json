@@ -84,98 +84,110 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 7399,
+                      "duration": 8687,
                       "error": {
-                        "message": "Error: locator.isVisible: Error: strict mode violation: locator('text=Invitation Sent') resolved to 2 elements:\n    1) <div role=\"presentation\" class=\"MuiSnackbar-root MuiSnackbar-sizeMd MuiSnackbar-colorSuccess MuiSnackbar-variantSoft MuiSnackbar-anchorOriginBottomCenter css-19p7946\">Invitation sent!</div> aka getByText('Invitation sent!')\n    2) <h2 id=\"_r_1l_\" data-first-child=\"\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg MuiDialogTitle-colorSuccess css-lajbs2\">Invitation Sent</h2> aka getByRole('heading', { name: 'Invitation Sent' })\n\nCall log:\n\u001b[2m    - checking visibility of locator('text=Invitation Sent')\u001b[22m\n",
-                        "stack": "Error: locator.isVisible: Error: strict mode violation: locator('text=Invitation Sent') resolved to 2 elements:\n    1) <div role=\"presentation\" class=\"MuiSnackbar-root MuiSnackbar-sizeMd MuiSnackbar-colorSuccess MuiSnackbar-variantSoft MuiSnackbar-anchorOriginBottomCenter css-19p7946\">Invitation sent!</div> aka getByText('Invitation sent!')\n    2) <h2 id=\"_r_1l_\" data-first-child=\"\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg MuiDialogTitle-colorSuccess css-lajbs2\">Invitation Sent</h2> aka getByRole('heading', { name: 'Invitation Sent' })\n\nCall log:\n\u001b[2m    - checking visibility of locator('text=Invitation Sent')\u001b[22m\n\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:114:32\n    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:49:24)\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:94:5",
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Invitation Sent')\nExpected: visible\nError: strict mode violation: locator('text=Invitation Sent') resolved to 2 elements:\n    1) <div role=\"presentation\" class=\"MuiSnackbar-root MuiSnackbar-sizeMd MuiSnackbar-colorSuccess MuiSnackbar-variantSoft MuiSnackbar-anchorOriginBottomCenter css-19p7946\">Invitation sent!</div> aka getByText('Invitation sent!')\n    2) <h2 id=\"_r_1v_\" data-first-child=\"\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg MuiDialogTitle-colorSuccess css-lajbs2\">Invitation Sent</h2> aka getByRole('heading', { name: 'Invitation Sent' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Invitation Sent')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Invitation Sent')\nExpected: visible\nError: strict mode violation: locator('text=Invitation Sent') resolved to 2 elements:\n    1) <div role=\"presentation\" class=\"MuiSnackbar-root MuiSnackbar-sizeMd MuiSnackbar-colorSuccess MuiSnackbar-variantSoft MuiSnackbar-anchorOriginBottomCenter css-19p7946\">Invitation sent!</div> aka getByText('Invitation sent!')\n    2) <h2 id=\"_r_1v_\" data-first-child=\"\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg MuiDialogTitle-colorSuccess css-lajbs2\">Invitation Sent</h2> aka getByRole('heading', { name: 'Invitation Sent' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Invitation Sent')\u001b[22m\n\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:152:64\n    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:49:24)\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:119:5",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js",
-                          "column": 32,
-                          "line": 114
+                          "column": 64,
+                          "line": 152
                         },
-                        "snippet": "\u001b[0m \u001b[90m 112 |\u001b[39m         \u001b[36mawait\u001b[39m expect(modalSuccess\u001b[33m.\u001b[39mor(snackbar)\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 113 |\u001b[39m         \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 114 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[36mawait\u001b[39m modalSuccess\u001b[33m.\u001b[39misVisible()) {\n \u001b[90m     |\u001b[39m                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 115 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Done\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 116 |\u001b[39m         }\n \u001b[90m 117 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m 150 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`li[role=\"option\"]:has-text(\"${member.role}\")`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 151 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Send Invitation\")'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 152 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Invitation Sent'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 153 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Done\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 154 |\u001b[39m         }\n \u001b[90m 155 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js",
-                            "column": 32,
-                            "line": 114
+                            "column": 64,
+                            "line": 152
                           },
-                          "message": "Error: locator.isVisible: Error: strict mode violation: locator('text=Invitation Sent') resolved to 2 elements:\n    1) <div role=\"presentation\" class=\"MuiSnackbar-root MuiSnackbar-sizeMd MuiSnackbar-colorSuccess MuiSnackbar-variantSoft MuiSnackbar-anchorOriginBottomCenter css-19p7946\">Invitation sent!</div> aka getByText('Invitation sent!')\n    2) <h2 id=\"_r_1l_\" data-first-child=\"\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg MuiDialogTitle-colorSuccess css-lajbs2\">Invitation Sent</h2> aka getByRole('heading', { name: 'Invitation Sent' })\n\nCall log:\n\u001b[2m    - checking visibility of locator('text=Invitation Sent')\u001b[22m\n\n\n\u001b[0m \u001b[90m 112 |\u001b[39m         \u001b[36mawait\u001b[39m expect(modalSuccess\u001b[33m.\u001b[39mor(snackbar)\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 113 |\u001b[39m         \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 114 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[36mawait\u001b[39m modalSuccess\u001b[33m.\u001b[39misVisible()) {\n \u001b[90m     |\u001b[39m                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 115 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Done\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 116 |\u001b[39m         }\n \u001b[90m 117 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:114:32\u001b[22m\n\u001b[2m    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:49:24)\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:94:5\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Invitation Sent')\nExpected: visible\nError: strict mode violation: locator('text=Invitation Sent') resolved to 2 elements:\n    1) <div role=\"presentation\" class=\"MuiSnackbar-root MuiSnackbar-sizeMd MuiSnackbar-colorSuccess MuiSnackbar-variantSoft MuiSnackbar-anchorOriginBottomCenter css-19p7946\">Invitation sent!</div> aka getByText('Invitation sent!')\n    2) <h2 id=\"_r_1v_\" data-first-child=\"\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg MuiDialogTitle-colorSuccess css-lajbs2\">Invitation Sent</h2> aka getByRole('heading', { name: 'Invitation Sent' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Invitation Sent')\u001b[22m\n\n\n\u001b[0m \u001b[90m 150 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`li[role=\"option\"]:has-text(\"${member.role}\")`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 151 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Send Invitation\")'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 152 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Invitation Sent'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 153 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Done\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 154 |\u001b[39m         }\n \u001b[90m 155 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:152:64\u001b[22m\n\u001b[2m    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:49:24)\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:119:5\u001b[22m"
                         }
                       ],
                       "stdout": [
                         {
-                          "text": "[2026-02-04T18:45:45.125Z] [STEP: Mike Registration] Starting...\n"
+                          "text": "[2026-02-04T19:02:15.802Z] [STEP: Mike Registration] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:45.128Z] [STEP: Mike Registration] Attempt 1...\n"
+                          "text": "[2026-02-04T19:02:15.806Z] [STEP: Mike Registration] Attempt 1...\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:45.623Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T19:02:16.422Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:45.624Z] [STEP: BROWSER] Content is cached for offline use.\n"
+                          "text": "[2026-02-04T19:02:16.423Z] [STEP: BROWSER] Content is cached for offline use.\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:45.875Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T19:02:16.648Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:46.314Z] [STEP: Mike Registration] [1.19s] Completed successfully.\n"
+                          "text": "[2026-02-04T19:02:17.109Z] [STEP: Mike Registration] [1.31s] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:46.314Z] [STEP: Mike Login] Starting...\n"
+                          "text": "[2026-02-04T19:02:17.109Z] [STEP: Mike Login] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:46.603Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T19:02:17.326Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:46.968Z] [STEP: Mike Login] [0.65s] Completed successfully.\n"
+                          "text": "[2026-02-04T19:02:17.691Z] [STEP: Mike Login] [0.58s] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:46.969Z] [STEP: Foundation] Brady Household ID: 3615\n"
+                          "text": "[2026-02-04T19:02:17.692Z] [STEP: Foundation] Brady Household ID: 3622\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:46.969Z] [STEP: Route Check] Starting...\n"
+                          "text": "[2026-02-04T19:02:17.693Z] [STEP: Route Check] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:46.970Z] [STEP: Route Check] Checking /dashboard\n"
+                          "text": "[2026-02-04T19:02:17.693Z] [STEP: Route Check] Checking /dashboard\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:47.076Z] [STEP: Route Check] Checking /calendar\n"
+                          "text": "[2026-02-04T19:02:17.820Z] [STEP: Route Check] Checking /calendar\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:47.168Z] [STEP: Route Check] Checking /house\n"
+                          "text": "[2026-02-04T19:02:17.933Z] [STEP: Route Check] Checking /house\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:47.283Z] [STEP: Route Check] Checking /meals\n"
+                          "text": "[2026-02-04T19:02:18.046Z] [STEP: Route Check] Checking /meals\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:47.391Z] [STEP: Route Check] Checking /finance\n"
+                          "text": "[2026-02-04T19:02:18.146Z] [STEP: Route Check] Checking /finance\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:47.511Z] [STEP: Route Check] Checking /settings\n"
+                          "text": "[2026-02-04T19:02:18.242Z] [STEP: Route Check] Checking /settings\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:47.603Z] [STEP: Route Check] [0.63s] Completed successfully.\n"
+                          "text": "[2026-02-04T19:02:18.344Z] [STEP: Route Check] [0.65s] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:47.603Z] [STEP: Grant Lead Architect Access] Starting...\n"
+                          "text": "[2026-02-04T19:02:18.344Z] [STEP: Grant Lead Architect Access] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:47.897Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T19:02:18.581Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:49.121Z] [STEP: Grant Access] Inviting mbryantuk@gmail.com as Admin\n"
+                          "text": "[2026-02-04T19:02:19.452Z] [STEP: Grant Access] Inviting mbryantuk@gmail.com as Admin\n"
                         },
                         {
-                          "text": "[2026-02-04T18:45:49.962Z] [STEP: Grant Lead Architect Access] [2.36s] FAILED: locator.isVisible: Error: strict mode violation: locator('text=Invitation Sent') resolved to 2 elements:\n    1) <div role=\"presentation\" class=\"MuiSnackbar-root MuiSnackbar-sizeMd MuiSnackbar-colorSuccess MuiSnackbar-variantSoft MuiSnackbar-anchorOriginBottomCenter css-19p7946\">Invitation sent!</div> aka getByText('Invitation sent!')\n    2) <h2 id=\"_r_1l_\" data-first-child=\"\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg MuiDialogTitle-colorSuccess css-lajbs2\">Invitation Sent</h2> aka getByRole('heading', { name: 'Invitation Sent' })\n\nCall log:\n\u001b[2m    - checking visibility of locator('text=Invitation Sent')\u001b[22m\n"
+                          "text": "[2026-02-04T19:02:20.474Z] [STEP: Grant Lead Architect Access] [2.13s] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:02:20.474Z] [STEP: Invite Family] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:02:20.614Z] [STEP: Invite Family] Inviting Carol (Standard Member)\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:02:20.725Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:02:21.743Z] [STEP: Invite Family] [1.27s] FAILED: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Invitation Sent')\nExpected: visible\nError: strict mode violation: locator('text=Invitation Sent') resolved to 2 elements:\n    1) <div role=\"presentation\" class=\"MuiSnackbar-root MuiSnackbar-sizeMd MuiSnackbar-colorSuccess MuiSnackbar-variantSoft MuiSnackbar-anchorOriginBottomCenter css-19p7946\">Invitation sent!</div> aka getByText('Invitation sent!')\n    2) <h2 id=\"_r_1v_\" data-first-child=\"\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg MuiDialogTitle-colorSuccess css-lajbs2\">Invitation Sent</h2> aka getByRole('heading', { name: 'Invitation Sent' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Invitation Sent')\u001b[22m\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-04T18:45:42.648Z",
+                      "startTime": "2026-02-04T19:02:11.070Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -191,8 +203,8 @@
                       ],
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js",
-                        "column": 32,
-                        "line": 114
+                        "column": 64,
+                        "line": 152
                       }
                     }
                   ],
@@ -211,8 +223,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-04T18:45:40.291Z",
-    "duration": 10200.729,
+    "startTime": "2026-02-04T19:02:08.542Z",
+    "duration": 13789.953000000001,
     "expected": 0,
     "skipped": 0,
     "unexpected": 1,
