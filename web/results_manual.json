@@ -81,7 +81,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "timedOut",
-                      "duration": 60164,
+                      "duration": 60165,
                       "error": {
                         "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
@@ -105,15 +105,15 @@
                       "steps": [
                         {
                           "title": "Register",
-                          "duration": 987
+                          "duration": 1635
                         },
                         {
                           "title": "Login",
-                          "duration": 322
+                          "duration": 300
                         },
                         {
                           "title": "Configure House",
-                          "duration": 58714,
+                          "duration": 58065,
                           "error": {
                             "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n",
                             "stack": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:37:24\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:36:20",
@@ -126,7 +126,7 @@
                           }
                         }
                       ],
-                      "startTime": "2026-02-04T10:04:33.172Z",
+                      "startTime": "2026-02-04T10:05:47.877Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -157,8 +157,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-04T10:04:31.017Z",
-    "duration": 62514.799,
+    "startTime": "2026-02-04T10:05:43.670Z",
+    "duration": 64711.854999999996,
     "expected": 0,
     "skipped": 0,
     "unexpected": 1,

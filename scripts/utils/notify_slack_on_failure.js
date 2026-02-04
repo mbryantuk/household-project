@@ -1,42 +1,15 @@
-const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
+// Try to load dependencies from server/node_modules
+const SERVER_MODULES = path.resolve(__dirname, '../../server/node_modules');
+const axiosModule = require(path.join(SERVER_MODULES, 'axios'));
+const axios = axiosModule.default || axiosModule;
+const FormData = require(path.join(SERVER_MODULES, 'form-data'));
+
 // Configuration
 const FAILURE_CHANNEL_ID = 'C0AD07QPYMS';
-
-async function slackRequest(endpoint, payload) {
-    return new Promise((resolve, reject) => {
-        const body = JSON.stringify(payload);
-        const options = {
-            hostname: 'slack.com',
-            path: `/api/${endpoint}`,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json; charset=utf-8',
-                'Authorization': `Bearer ${process.env.SLACK_BOT_TOKEN}`,
-                'Content-Length': Buffer.byteLength(body)
-            }
-        };
-
-        const req = https.request(options, (res) => {
-            let data = '';
-            res.on('data', (chunk) => data += chunk);
-            res.on('end', () => {
-                try {
-                    const parsed = JSON.parse(data);
-                    if (parsed.ok) resolve(parsed);
-                    else reject(new Error(parsed.error || 'Unknown Slack Error'));
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        });
-        req.on('error', reject);
-        req.write(body);
-        req.end();
-    });
-}
+const SLACK_TOKEN = process.env.SLACK_BOT_TOKEN;
 
 function getSystemVersion() {
     try {
@@ -48,16 +21,36 @@ function getSystemVersion() {
     }
 }
 
+async function uploadFile(filepath, title, channelId, threadTs = null) {
+    if (!fs.existsSync(filepath)) return;
+
+    try {
+        const form = new FormData();
+        form.append('token', SLACK_TOKEN);
+        form.append('channels', channelId);
+        form.append('file', fs.createReadStream(filepath));
+        form.append('title', title);
+        if (threadTs) form.append('thread_ts', threadTs);
+
+        await axios.post('https://slack.com/api/files.upload', form, {
+            headers: form.getHeaders()
+        });
+        console.log(`[SLACK] Uploaded: ${title}`);
+    } catch (err) {
+        console.error(`[SLACK] Upload Failed: ${title}`, err.message);
+    }
+}
+
 async function run() {
     const reportPath = process.argv[2] || path.join(__dirname, '../../web/test-results/results.json');
     
     if (!fs.existsSync(reportPath)) {
-        console.log(`No test report found at ${reportPath}. Skipping Slack notification.`);
+        console.log(`No test report found at ${reportPath}. Skipping.`);
         return;
     }
 
-    if (!process.env.SLACK_BOT_TOKEN) {
-        console.warn("Missing SLACK_BOT_TOKEN. Skipping notification.");
+    if (!SLACK_TOKEN) {
+        console.warn("Missing SLACK_BOT_TOKEN. Skipping.");
         return;
     }
 
@@ -65,97 +58,112 @@ async function run() {
         const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
         const failures = [];
 
-        // DETECT FORMAT
-        if (report.suites) {
-            // PLAYWRIGHT FORMAT
-            report.suites.forEach(suite => {
-                const checkSuite = (s) => {
-                    if (s.specs) {
-                        s.specs.forEach(spec => {
-                            spec.tests.forEach(test => {
-                                if (test.status === 'unexpected' || test.status === 'failed') {
-                                    failures.push({
-                                        title: spec.title,
-                                        file: suite.file,
-                                        error: test.results[0]?.error?.message || 'Unknown Error'
-                                    });
-                                }
+        // Recursive Playwright Suite Walker
+        const checkSuite = (s) => {
+            if (s.specs) {
+                s.specs.forEach(spec => {
+                    spec.tests.forEach(test => {
+                        if (test.status === 'unexpected' || test.status === 'failed') {
+                            const result = test.results[0]; // Get the failed result
+                            failures.push({
+                                title: spec.title,
+                                file: s.file,
+                                error: result?.error?.message || 'Unknown Error',
+                                attachments: result?.attachments || []
                             });
-                        });
-                    }
-                    if (s.suites) s.suites.forEach(checkSuite);
-                };
-                checkSuite(suite);
-            });
+                        }
+                    });
+                });
+            }
+            if (s.suites) s.suites.forEach(checkSuite);
+        };
+
+        if (report.suites) {
+            report.suites.forEach(checkSuite);
         } else if (report.testResults) {
-            // JEST FORMAT
+            // Jest Logic (No screenshots usually, but keeping text)
             report.testResults.forEach(suite => {
                 if (suite.status === 'failed' || suite.numFailingTests > 0) {
                      suite.testResults.forEach(test => {
                          if (test.status === 'failed') {
                              failures.push({
-                                 title: test.fullName || test.title,
+                                 title: test.fullName,
                                  file: suite.testFilePath,
-                                 error: test.failureMessages.join('\n') || 'Unknown Error'
+                                 error: test.failureMessages.join('\n'),
+                                 attachments: []
                              });
                          }
                      });
-                     // Catch suite level errors if no specific test failed but suite did
-                     if (suite.failureMessage && failures.length === 0) {
-                         failures.push({
-                             title: "Suite Failure",
-                             file: suite.testFilePath,
-                             error: suite.failureMessage
-                         });
-                     }
                 }
             });
         }
 
         if (failures.length > 0) {
-            console.log(`Found ${failures.length} failures. Notifying Slack channel ${FAILURE_CHANNEL_ID}...`);
+            console.log(`Found ${failures.length} failures. Notifying Slack...`);
             const version = getSystemVersion();
             
-            const blocks = [
-                {
-                    type: "header",
-                    text: { type: "plain_text", text: "🚨 E2E Test Failures Detected" }
-                },
-                {
-                    type: "section",
-                    text: { type: "mrkdwn", text: `*Version:* v${version}\n*Run ID:* ${Date.now()}\n*Total Failures:* ${failures.length}` }
-                }
-            ];
-
-            failures.slice(0, 5).forEach(f => {
-                blocks.push({
-                    type: "section",
-                    text: { 
-                        type: "mrkdwn", 
-                        text: `*${f.title}*\n> ${f.error.replace(/\n/g, ' ').substring(0, 200)}...` 
-                    }
-                });
-            });
-
-            if (failures.length > 5) {
-                blocks.push({
-                    type: "section",
-                    text: { type: "mrkdwn", text: `...and ${failures.length - 5} more.` }
-                });
-            }
-
-            await slackRequest('chat.postMessage', {
+            // 1. Send Main Alert
+            const mainRes = await axios.post('https://slack.com/api/chat.postMessage', {
                 channel: FAILURE_CHANNEL_ID,
-                blocks: blocks,
-                text: `🚨 ${failures.length} E2E Tests Failed (v${version})!`
-            });
-            console.log("Notification sent.");
-        } else {
-            console.log("No failures found in report.");
+                text: `🚨 *E2E Test Failures Detected* (v${version})`,
+                blocks: [
+                    { type: "header", text: { type: "plain_text", text: "🚨 E2E Test Failures Detected" } },
+                    { type: "section", text: { type: "mrkdwn", text: `*Version:* v${version}\n*Run ID:* ${Date.now()}\n*Total Failures:* ${failures.length}` } }
+                ]
+            }, { headers: { Authorization: `Bearer ${SLACK_TOKEN}` } });
+
+            const threadTs = mainRes.data.ts;
+
+            // 2. Process Failures
+            for (const f of failures.slice(0, 5)) { // Limit to 5
+                // Send Failure Details in Thread
+                await axios.post('https://slack.com/api/chat.postMessage', {
+                    channel: FAILURE_CHANNEL_ID,
+                    thread_ts: threadTs,
+                    text: `*${f.title}*\n\
+\
+\
+${f.error.substring(0, 500)}\
+\
+\
+\
+`
+                }, { headers: { Authorization: `Bearer ${SLACK_TOKEN}` } });
+
+                // Upload Attachments
+                for (const att of f.attachments) {
+                    // Path resolution: Report paths are often relative to project root or test dir
+                    // We assume they are relative to web/ based on playwright config
+                    // Actually, playwright output paths in JSON are often from the root of the project or relative to config.
+                    
+                    // We need to find the file.
+                    // Try resolving relative to the report file location
+                    let safePath = att.path;
+                    if (!fs.existsSync(safePath)) {
+                        // Try resolving from project root/web
+                        safePath = path.resolve(__dirname, '../../web', att.path);
+                    }
+
+                    if (fs.existsSync(safePath)) {
+                        if (att.name === 'error-context' && att.contentType === 'text/markdown') {
+                            const content = fs.readFileSync(safePath, 'utf8');
+                            await axios.post('https://slack.com/api/chat.postMessage', {
+                                channel: FAILURE_CHANNEL_ID,
+                                thread_ts: threadTs,
+                                text: `*Error Context:*
+${content}`
+                            }, { headers: { Authorization: `Bearer ${SLACK_TOKEN}` } });
+                        } else {
+                            await uploadFile(safePath, `Attachment: ${att.name}`, FAILURE_CHANNEL_ID, threadTs);
+                        }
+                    }
+                }
+            }
+            console.log("Slack notification sequence complete.");
         }
 
     } catch (err) {
-        console.error("Failed to process test report or send notification:", err);
+        console.error("Script Error:", err.message);
     }
 }
 

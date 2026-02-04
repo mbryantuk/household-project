@@ -30,10 +30,10 @@
         - generic [ref=e45]:
           - generic [ref=e46]:
             - generic [ref=e47]:
-              - heading "Good morning, Mike" [level=2] [ref=e48]
+              - heading "Good morning, New" [level=2] [ref=e48]
               - paragraph [ref=e49]:
                 - text: Here's what's happening in the
-                - generic [ref=e50]: Brady UI Journey 1770197832519 Household
+                - generic [ref=e50]: Onboard House 1770199548250 Household
                 - text: today.
             - button "Customize" [ref=e52] [cursor=pointer]:
               - img [ref=e54]
@@ -155,6 +155,6 @@
             - generic [ref=e232]: Online
           - button "Log Out" [ref=e233] [cursor=pointer]:
             - img [ref=e234]
-          - button "M" [ref=e237] [cursor=pointer]:
-            - generic [ref=e238]: M
+          - button "N" [ref=e237] [cursor=pointer]:
+            - generic [ref=e238]: "N"
 ```
