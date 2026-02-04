@@ -109,7 +109,7 @@ test.describe('Brady Lifecycle Stage 1: Foundation', () => {
         
         const modalSuccess = page.locator('text=Invitation Sent');
         const snackbar = page.locator('div.MuiSnackbar-root');
-        await expect(modalSuccess.or(snackbar)).toBeVisible({ timeout: 15000 });
+        await expect(modalSuccess.or(snackbar).first()).toBeVisible({ timeout: 15000 });
         
         if (await modalSuccess.isVisible()) {
             await page.click('button:has-text("Done")');

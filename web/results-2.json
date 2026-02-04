@@ -84,7 +84,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "timedOut",
-                      "duration": 300252,
+                      "duration": 300280,
                       "error": {
                         "message": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m"
@@ -125,7 +125,7 @@
                         }
                       ],
                       "retry": 0,
-                      "startTime": "2026-02-04T17:54:50.172Z",
+                      "startTime": "2026-02-04T18:13:58.696Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -156,8 +156,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-04T17:54:48.045Z",
-    "duration": 302657.921,
+    "startTime": "2026-02-04T18:13:56.488Z",
+    "duration": 302786.066,
     "expected": 0,
     "skipped": 0,
     "unexpected": 1,
