@@ -3,14 +3,24 @@ import {
   Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, 
   IconButton, Divider, Box, Avatar, Typography, Tooltip
 } from '@mui/joy';
-import {
-  Event, Groups, Pets, Inventory2, RestaurantMenu, AccountBalance,
-  Close, KeyboardArrowRight, KeyboardArrowUp, KeyboardArrowDown,
-  PersonAdd, ChildCare, PushPin, PushPinOutlined, HomeWork
-} from '@mui/icons-material';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import Event from '@mui/icons-material/Event';
+import Groups from '@mui/icons-material/Groups';
+import Pets from '@mui/icons-material/Pets';
+import Inventory2 from '@mui/icons-material/Inventory2';
+import RestaurantMenu from '@mui/icons-material/RestaurantMenu';
+import AccountBalance from '@mui/icons-material/AccountBalance';
+import Close from '@mui/icons-material/Close';
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import KeyboardArrowUp from '@mui/icons-material/KeyboardArrowUp';
+import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
+import PushPin from '@mui/icons-material/PushPin';
+import PushPinOutlined from '@mui/icons-material/PushPinOutlined';
+import HomeWork from '@mui/icons-material/HomeWork';
+
+import { useLocation, useNavigate, NavLink } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
 import EmojiPicker from './EmojiPicker';
+import { useHousehold } from '../contexts/HouseholdContext';
 
 // Layout Constants
 const RAIL_WIDTH = 64; 
@@ -112,11 +122,11 @@ const GroupHeader = ({ label }) => (
 );
 
 export default function NavSidebar({ 
-    members = [], vehicles = [], isDark, household, onUpdateProfile,
     isMobile = false, onClose
 }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { household, members, vehicles, user, isDark, onUpdateProfile, themeId, onThemeChange, households, onSelectHousehold } = useHousehold();
   
   const [activeCategory, setActiveCategory] = useState(null);
   const [hoveredCategory, setHoveredCategory] = useState(null);
@@ -128,21 +138,21 @@ export default function NavSidebar({
   const sidebarRef = useRef(null);
   const scrollRef = useRef(null);
 
-  // Global Click-Outside Handler
+  // Global Click-Outside Handler (modified to respect pinning)
   useEffect(() => {
     if (isMobile) return;
     
     const handleClickOutside = (event) => {
         if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
-            if (!isPinned) {
-                setHoveredCategory(null);
-            }
+            // ONLY clear hovered category if not pinned.
+            // If pinned, we keep the active panel open.
+            setHoveredCategory(null);
         }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isPinned, isMobile]);
+  }, [isMobile]);
 
   const togglePin = () => {
       const newVal = !isPinned;

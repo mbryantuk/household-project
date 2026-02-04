@@ -1,4 +1,4 @@
 {
-  "commitMessage": "UX: stabilized Quick Action FAB and improved Menu positioning",
-  "date": "Wed  4 Feb 16:02:58 GMT 2026"
+  "commitMessage": "Architectural overhaul: fixed sidebar pinning, implemented HouseholdContext, and added Error Boundaries/Skeletons",
+  "date": "Wed  4 Feb 16:07:40 GMT 2026"
 }

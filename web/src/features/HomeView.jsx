@@ -1,9 +1,13 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback, Suspense } from 'react';
 import { Box, Typography, Button, Stack, IconButton, Sheet, Menu, MenuItem, Checkbox, ListItem, ListItemContent, List } from '@mui/joy';
-import { 
-  Add, Save, Edit, Close, 
-  AddCircleOutline, RemoveCircleOutline, Settings
-} from '@mui/icons-material';
+import Add from '@mui/icons-material/Add';
+import Save from '@mui/icons-material/Save';
+import Edit from '@mui/icons-material/Edit';
+import Close from '@mui/icons-material/Close';
+import AddCircleOutline from '@mui/icons-material/AddCircleOutline';
+import RemoveCircleOutline from '@mui/icons-material/RemoveCircleOutline';
+import Settings from '@mui/icons-material/Settings';
+
 import { Responsive } from 'react-grid-layout/legacy';
 import WidthProvider from '../components/helpers/WidthProvider';
 
@@ -21,6 +25,9 @@ import InvestmentsWidget from '../components/widgets/InvestmentsWidget';
 import PensionsWidget from '../components/widgets/PensionsWidget';
 import WealthWidget from '../components/widgets/WealthWidget';
 import BudgetStatusWidget from '../components/widgets/BudgetStatusWidget';
+
+import ErrorBoundary from '../components/ErrorBoundary';
+import WidgetSkeleton from '../components/ui/WidgetSkeleton';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -328,16 +335,20 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
                         )}
                         
                         <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                            {WidgetComponent ? <WidgetComponent 
-                                dates={dates} 
-                                members={members} 
-                                api={api} 
-                                household={household}
-                                user={currentUser} 
-                                onUpdateProfile={onUpdateProfile}
-                                data={item.data || {}}
-                                onSaveData={(newData) => handleUpdateWidgetData(item.i, newData)}
-                            /> : <Typography color="danger">Error</Typography>}
+                            <ErrorBoundary>
+                                <Suspense fallback={<WidgetSkeleton />}>
+                                    {WidgetComponent ? <WidgetComponent 
+                                        dates={dates} 
+                                        members={members} 
+                                        api={api} 
+                                        household={household}
+                                        user={currentUser} 
+                                        onUpdateProfile={onUpdateProfile}
+                                        data={item.data || {}}
+                                        onSaveData={(newData) => handleUpdateWidgetData(item.i, newData)}
+                                    /> : <Typography color="danger">Error</Typography>}
+                                </Suspense>
+                            </ErrorBoundary>
                         </Box>
                     </Box>
                 );
