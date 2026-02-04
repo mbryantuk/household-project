@@ -46,7 +46,7 @@ export default function HouseholdLayout({
   onSelectHousehold,
   api,
   onUpdateHousehold,
-  members,
+  members = [],
   fetchHhMembers,
   vehicles = [],
   fetchVehicles,
@@ -55,7 +55,7 @@ export default function HouseholdLayout({
   showNotification,
   confirmAction,
   
-  dates,
+  dates = [],
   onDateAdded,
   onUpdateProfile,
   onLogout,

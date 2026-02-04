@@ -11,7 +11,7 @@ import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
 import EmojiPicker from '../components/EmojiPicker';
 
 export default function PetsView() {
-  const { api, id: householdId, household, members, fetchHhMembers, user: currentUser, showNotification, confirmAction } = useOutletContext();
+  const { api, id: householdId, household, members = [], fetchHhMembers, user: currentUser, showNotification, confirmAction } = useOutletContext();
   const { petId } = useParams();
 
   const enabledModules = useMemo(() => {

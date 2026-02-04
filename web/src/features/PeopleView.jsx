@@ -14,7 +14,7 @@ import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
 import EntityGrid from '../components/ui/EntityGrid';
 
 export default function PeopleView() {
-  const { api, id: householdId, household, members, fetchHhMembers, user: currentUser, showNotification, confirmAction } = useOutletContext();
+  const { api, id: householdId, household, members = [], fetchHhMembers, user: currentUser, showNotification, confirmAction } = useOutletContext();
   const { personId } = useParams();
 
   const enabledModules = useMemo(() => {

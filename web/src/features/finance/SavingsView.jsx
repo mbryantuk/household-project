@@ -22,7 +22,7 @@ const formatPercent = (val) => {
 };
 
 export default function SavingsView() {
-  const { api, id: householdId, user: currentUser, isDark, members, showNotification } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, members = [], showNotification } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);

@@ -52,7 +52,7 @@ const FREQUENCIES = [
 ];
 
 export default function ChargesView({ initialTab }) {
-  const { household, api } = useOutletContext();
+  const { household, api, members: contextMembers = [], vehicles: contextVehicles = [], assets: contextAssets = [] } = useOutletContext();
   const householdId = household?.id;
   const [charges, setCharges] = useState([]);
   const [activeTab, setActiveTab] = useState(() => {

@@ -29,7 +29,7 @@ const StatCard = ({ label, value, icon: Icon, color = 'primary' }) => (
     </Card>
 );
 
-const ResidentGroup = ({ title, icon: Icon, members, isDark, navigate }) => {
+const ResidentGroup = ({ title, icon: Icon, members = [], isDark, navigate }) => {
     if (members.length === 0) return null;
     return (
         <Box sx={{ mb: 3 }}>
@@ -72,7 +72,7 @@ const ResidentGroup = ({ title, icon: Icon, members, isDark, navigate }) => {
 };
 
 export default function HouseView() {
-  const { household, members, vehicles, isDark } = useOutletContext();
+  const { household, members = [], vehicles = [], isDark } = useOutletContext();
   const navigate = useNavigate();
 
   const enabledModules = useMemo(() => {
@@ -120,14 +120,14 @@ export default function HouseView() {
                 <Button 
                     variant="outlined" color="neutral" size="sm" 
                     startDecorator={<CalendarMonth />}
-                    onClick={() => navigate(`/household/${household.id}/calendar`)}
+                    onClick={() => navigate(`/household/${household?.id}/calendar`)}
                 >
                     Calendar
                 </Button>
                 <Button 
                     variant="solid" color="primary" size="sm" 
                     startDecorator={<Add />}
-                    onClick={() => navigate(`/household/${household.id}/settings?tab=2`)}
+                    onClick={() => navigate(`/household/${household?.id}/settings?tab=2`)}
                 >
                     Edit House
                 </Button>
