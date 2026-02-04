@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { 
   Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, 
-  IconButton, Divider, Box, Avatar, Typography, Tooltip
+  IconButton, Divider, Box, Avatar, Typography, Tooltip, Menu, MenuItem
 } from '@mui/joy';
 import Event from '@mui/icons-material/Event';
 import Groups from '@mui/icons-material/Groups';
@@ -16,13 +16,16 @@ import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import PushPin from '@mui/icons-material/PushPin';
 import PushPinOutlined from '@mui/icons-material/PushPinOutlined';
 import HomeWork from '@mui/icons-material/HomeWork';
+import SettingsIcon from '@mui/icons-material/Settings';
+import LogoutIcon from '@mui/icons-material/Logout';
+import DownloadIcon from '@mui/icons-material/Download';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 import { useLocation, useNavigate, NavLink } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
 import EmojiPicker from './EmojiPicker';
 import { useHousehold } from '../contexts/HouseholdContext';
 
-// Layout Constants
 const RAIL_WIDTH = 64; 
 const PANEL_WIDTH = 240;
 
@@ -34,18 +37,11 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
     
     const handleClick = () => {
         if (onClick) onClick();
-        else {
-            if (hasSubItems && !isPinned) {
-                onHover(category);
-            }
-            handleNav(to, category, hasSubItems);
-        }
+        else handleNav(to, category, hasSubItems);
     };
 
     const handleMouseEnter = () => {
-        if (!isMobile) {
-            onHover(category);
-        }
+        if (!isMobile) onHover(category);
     };
 
     if (isMobile) {
@@ -122,34 +118,32 @@ const GroupHeader = ({ label }) => (
 );
 
 export default function NavSidebar({ 
-    isMobile = false, onClose
+    isMobile = false, onClose, installPrompt, onInstall
 }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { household, members, vehicles, user, isDark, onUpdateProfile, themeId, onThemeChange, households, onSelectHousehold } = useHousehold();
+  const { 
+    household, members, vehicles, user, isDark, 
+    onUpdateProfile, onLogout, confirmAction 
+  } = useHousehold();
   
   const [activeCategory, setActiveCategory] = useState(null);
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [isPinned, setIsPinned] = useState(localStorage.getItem('nav_pinned') === 'true');
-  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [userMenuAnchor, setUserMenuAnchor] = useState(null);
   const [canScrollUp, setCanScrollUp] = useState(false);
   const [canScrollDown, setCanScrollDown] = useState(false);
   
   const sidebarRef = useRef(null);
   const scrollRef = useRef(null);
 
-  // Global Click-Outside Handler (modified to respect pinning)
   useEffect(() => {
     if (isMobile) return;
-    
     const handleClickOutside = (event) => {
         if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
-            // ONLY clear hovered category if not pinned.
-            // If pinned, we keep the active panel open.
             setHoveredCategory(null);
         }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isMobile]);
@@ -185,21 +179,16 @@ export default function NavSidebar({
   }, [members, vehicles, checkScroll]);
 
   const getCategoryFromPath = useCallback((path) => {
-      if (path.includes('/people')) return 'household';
-      if (path.includes('/pets')) return 'household';
-      if (path.includes('/vehicles')) return 'household';
-      if (path.includes('/house/') || path.endsWith('/house')) return 'household';
-      if (path.includes('/settings')) return 'assets';
-      if (path.includes('/profile')) return 'account';
-      if (path.includes('/dashboard')) return 'dashboard';
+      if (path.includes('/people') || path.includes('/pets') || path.includes('/vehicles') || path.includes('/house')) return 'household';
+      if (path.includes('/finance')) return 'finance';
       if (path.includes('/calendar')) return 'calendar';
       if (path.includes('/meals')) return 'meals';
-      if (path.includes('/finance')) return 'finance';
+      if (path.includes('/dashboard')) return 'dashboard';
       return null;
   }, []);
 
   useEffect(() => {
-      Promise.resolve().then(() => setActiveCategory(getCategoryFromPath(location.pathname)));
+      setActiveCategory(getCategoryFromPath(location.pathname));
   }, [location.pathname, getCategoryFromPath]);
 
   const handleNav = (to, category, hasSubItems) => {
@@ -208,9 +197,7 @@ export default function NavSidebar({
           setHoveredCategory(null);
           if (!hasSubItems && isMobile && onClose) onClose();
       }
-      if (!hasSubItems) {
-          setHoveredCategory(null);
-      }
+      if (!hasSubItems) setHoveredCategory(null);
       setActiveCategory(category);
   };
 
@@ -222,12 +209,17 @@ export default function NavSidebar({
   const currentPanelCategory = (hoveredCategory || (isPinned ? activeCategory : null));
   const showPanel = currentPanelCategory && ['household', 'finance'].includes(currentPanelCategory);
 
-  const sidebarContent = (
+  return (
     <Box 
         ref={sidebarRef}
-        onMouseLeave={() => !isMobile && setHoveredCategory(null)}
-        sx={{ display: 'flex', height: '100dvh', width: '100%', position: 'relative' }}
+        sx={{ 
+            display: isMobile ? 'flex' : { xs: 'none', md: 'flex' },
+            height: '100dvh', zIndex: 2500, position: 'relative',
+            width: isMobile ? '100%' : (isPinned && showPanel ? (RAIL_WIDTH + PANEL_WIDTH) : RAIL_WIDTH),
+            transition: 'width 0.2s', flexShrink: 0
+        }}
     >
+        {/* RAIL SECTION */}
         <Sheet
             sx={{
                 width: isMobile ? '100%' : RAIL_WIDTH,
@@ -236,11 +228,10 @@ export default function NavSidebar({
                 display: 'flex', flexDirection: 'column',
                 justifyContent: 'space-between',
                 alignItems: isMobile ? 'stretch' : 'center',
-                pt: 1.5, pb: 0, 
+                pt: 1.5, pb: 1.5, 
                 bgcolor: 'rgba(255, 255, 255, 0.8)',
                 backdropFilter: 'blur(12px)',
-                zIndex: 2600, 
-                height: '100dvh', overflowY: 'hidden', position: 'relative',
+                zIndex: 2600, height: '100dvh',
                 [theme => theme.getColorSchemeSelector('dark')]: {
                     bgcolor: 'rgba(19, 19, 24, 0.8)',
                     borderColor: 'rgba(255,255,255,0.1)',
@@ -262,7 +253,7 @@ export default function NavSidebar({
                             onClick={() => { navigate('/select-household'); setHoveredCategory(null); }}
                             sx={{ 
                                 bgcolor: getEmojiColor(household?.avatar || '🏠', isDark),
-                                fontSize: '1.5rem', fontWeight: 'bold', boxShadow: 'sm', cursor: 'pointer',
+                                fontSize: '1.5rem', fontWeight: 'bold', cursor: 'pointer',
                                 transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.1)' }
                             }}
                         >
@@ -271,64 +262,94 @@ export default function NavSidebar({
                     </Tooltip>
                 </Box>
                 
-                <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0, mb: 1 }}>
+                <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
+                    <RailIcon icon={<HomeWork />} label="Home" category="dashboard" to="dashboard" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
                     <RailIcon icon={<Event />} label="Calendar" category="calendar" to="calendar" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
                 </List>
-                <Divider sx={{ mb: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
+                <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
             </Box>
 
-            <Box sx={{ width: '100%', flexGrow: 1, position: 'relative', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-                {canScrollUp && !isMobile && (
-                    <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: 20, zIndex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: 'background.surface', opacity: 0.8, pointerEvents: 'none' }}>
-                        <KeyboardArrowUp sx={{ fontSize: '1rem', color: 'primary.plainColor' }} />
-                    </Box>
-                )}
+            <Box sx={{ width: '100%', flexGrow: 1, overflowY: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
+                <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
+                    <RailIcon icon={<Groups />} label="People" category="household" hasSubItems to="people" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
+                    <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems to="finance" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
+                    {enabledModules.includes('meals') && (
+                        <RailIcon icon={<RestaurantMenu />} label="Meals" category="meals" to="meals" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
+                    )}
+                </List>
+            </Box>
+
+            {/* FOOTER SECTION */}
+            <Box sx={{ width: '100%', mt: 'auto', pt: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                <Divider sx={{ width: 40, mb: 1 }} />
                 
-                <Box 
-                    ref={scrollRef}
-                    onScroll={checkScroll}
-                    sx={{ 
-                        width: '100%', flexGrow: 1, overflowY: 'auto',
-                        scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' }
-                    }}
-                >
-                    <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
-                        <RailIcon icon={<HomeWork />} label="Household" category="household" hasSubItems to="house" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
-                        <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems to="finance" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
-                        {enabledModules.includes('meals') && (
-                            <RailIcon icon={<RestaurantMenu />} label="Meals" category="meals" to="meals" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
-                        )}
-                    </List>
-                </Box>
-
-                {canScrollDown && !isMobile && (
-                    <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 20, zIndex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: 'background.surface', opacity: 0.8, pointerEvents: 'none' }}>
-                        <KeyboardArrowDown sx={{ fontSize: '1rem', color: 'primary.plainColor' }} />
-                    </Box>
+                {installPrompt && (
+                    <Tooltip title="Install App" variant="soft" placement="right">
+                        <IconButton variant="soft" color="success" onClick={onInstall} size="sm">
+                            <DownloadIcon />
+                        </IconButton>
+                    </Tooltip>
                 )}
-            </Box>
 
-            <Box sx={{ width: '100%', p: 0, m: 0, flexShrink: 0, pb: 1 }} />
+                <Tooltip title="Account & Settings" variant="soft" placement="right">
+                    <IconButton 
+                        variant="plain" 
+                        color="neutral" 
+                        onClick={(e) => setUserMenuAnchor(e.currentTarget)}
+                        sx={{ p: 0.5, borderRadius: '50%' }}
+                    >
+                        <Avatar 
+                            size="sm" 
+                            sx={{ 
+                                bgcolor: getEmojiColor(user?.avatar || '👤', isDark),
+                                width: 32, height: 32, fontSize: '1rem'
+                            }}
+                        >
+                            {user?.avatar || user?.first_name?.[0]}
+                        </Avatar>
+                    </IconButton>
+                </Tooltip>
+
+                <Menu
+                    anchorEl={userMenuAnchor}
+                    open={Boolean(userMenuAnchor)}
+                    onClose={() => setUserMenuAnchor(null)}
+                    placement="right-end"
+                    sx={{ minWidth: 200, borderRadius: 'md', boxShadow: 'md' }}
+                >
+                    <Box sx={{ px: 2, py: 1.5 }}>
+                        <Typography level="title-sm">{user?.first_name} {user?.last_name}</Typography>
+                        <Typography level="body-xs" color="neutral">{user?.email}</Typography>
+                    </Box>
+                    <Divider />
+                    <MenuItem onClick={() => { navigate('settings'); setUserMenuAnchor(null); }}>
+                        <ListItemDecorator><SettingsIcon /></ListItemDecorator>
+                        Settings
+                    </MenuItem>
+                    <MenuItem onClick={() => { 
+                        setUserMenuAnchor(null);
+                        confirmAction("Log Out", "Are you sure you want to log out?", onLogout);
+                    }}>
+                        <ListItemDecorator><LogoutIcon color="danger" /></ListItemDecorator>
+                        Log Out
+                    </MenuItem>
+                </Menu>
+            </Box>
         </Sheet>
 
+        {/* SUB-PANEL */}
         {showPanel && (
             <Sheet
                 sx={{
                     width: PANEL_WIDTH,
                     position: (isMobile || !isPinned) ? 'absolute' : 'relative',
                     left: (isMobile || !isPinned) ? RAIL_WIDTH : 'auto', 
-                    top: 0,
-                    zIndex: (isMobile || !isPinned) ? 3000 : 2100,
-                    borderRight: '1px solid',
+                    top: 0, zIndex: 2100, borderRight: '1px solid',
                     borderColor: 'rgba(0,0,0,0.08)',
-                    overflow: 'hidden',
-                    transition: isMobile ? 'none' : 'width 0.2s, left 0.2s, transform 0.2s, opacity 0.2s',
-                    display: 'flex', flexDirection: 'column',
                     bgcolor: 'rgba(255, 255, 255, 0.8)',
                     backdropFilter: 'blur(12px)',
-                    whiteSpace: 'nowrap', height: '100dvh',
+                    height: '100dvh', display: 'flex', flexDirection: 'column',
                     boxShadow: (!isPinned && !isMobile) ? '8px 0 24px rgba(0,0,0,0.15)' : 'none',
-                    opacity: 1,
                     [theme => theme.getColorSchemeSelector('dark')]: {
                         bgcolor: 'rgba(19, 19, 24, 0.8)',
                         borderColor: 'rgba(255,255,255,0.1)',
@@ -345,9 +366,6 @@ export default function NavSidebar({
                 <List sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>
                     {currentPanelCategory === 'household' && (
                         <>
-                            <GroupHeader label="Overview" />
-                            <SubItem label="Dashboard" to="house" emoji="🏠" isDark={isDark} onClick={handleSubItemClick} />
-                            <Divider sx={{ my: 1 }} />
                             <GroupHeader label="Residents" />
                             {members.filter(m => m.type !== 'pet').map(m => <SubItem key={m.id} label={m.alias || (m.name || '').split(' ')[0]} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
                             {enabledModules.includes('pets') && (
@@ -358,7 +376,8 @@ export default function NavSidebar({
                                 </>
                             )}
                             <Divider sx={{ my: 1 }} />
-                            <GroupHeader label="Fleet" />
+                            <GroupHeader label="Assets & Fleet" />
+                            <SubItem label="Registry" to="house" emoji="🏠" isDark={isDark} onClick={handleSubItemClick} />
                             {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`vehicles/${v.id}`} emoji={v.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
                         </>
                     )}
@@ -381,18 +400,6 @@ export default function NavSidebar({
                 </List>
             </Sheet>
         )}
-    </Box>
-  );
-
-  return (
-    <Box sx={{ 
-        display: isMobile ? 'flex' : { xs: 'none', md: 'flex' },
-        height: '100dvh', zIndex: 2500, position: 'relative', overflow: 'visible',
-        width: isMobile ? '100%' : (isPinned && showPanel ? (RAIL_WIDTH + PANEL_WIDTH) : RAIL_WIDTH),
-        transition: 'width 0.2s', flexShrink: 0
-    }}>
-        {sidebarContent}
-        <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(emoji) => { onUpdateProfile({ avatar: emoji }); setEmojiPickerOpen(false); }} title="Select Avatar Emoji" isDark={isDark} />
     </Box>
   );
 }
