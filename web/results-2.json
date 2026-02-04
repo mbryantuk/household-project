@@ -84,7 +84,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "timedOut",
-                      "duration": 300253,
+                      "duration": 300248,
                       "error": {
                         "message": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m"
@@ -113,10 +113,10 @@
                           "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "BROWSER LOG: Failed to load resource: the server responded with a status of 503 (Service Unavailable)\n"
+                          "text": "BROWSER LOG: Failed to load resource: the server responded with a status of 401 (Unauthorized)\n"
                         },
                         {
-                          "text": "BROWSER LOG: Login failed: Ft\n"
+                          "text": "BROWSER LOG: Login failed: Ue\n"
                         }
                       ],
                       "stderr": [
@@ -125,7 +125,7 @@
                         }
                       ],
                       "retry": 0,
-                      "startTime": "2026-02-04T12:37:10.296Z",
+                      "startTime": "2026-02-04T17:19:34.842Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -156,8 +156,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-04T12:37:07.784Z",
-    "duration": 303141.693,
+    "startTime": "2026-02-04T17:19:32.560Z",
+    "duration": 302984.51300000004,
     "expected": 0,
     "skipped": 0,
     "unexpected": 1,

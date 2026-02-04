@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Typography, Tabs, TabList, Tab, TabPanel, Sheet, Divider } from '@mui/joy';
 import Person from '@mui/icons-material/Person';
 import Home from '@mui/icons-material/Home';
@@ -13,9 +14,25 @@ import ThemeSettings from './settings/ThemeSettings';
 import AdminSettings from './settings/AdminSettings';
 
 export default function SettingsView() {
-  const [index, setIndex] = useState(0);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = new URLSearchParams(location.search);
+  const tabParam = parseInt(queryParams.get('tab')) || 0;
+
+  const [index, setIndex] = useState(tabParam);
   const { user } = useHousehold();
   const isAdmin = user?.role === 'admin';
+
+  useEffect(() => {
+    if (tabParam !== index) {
+        setIndex(tabParam);
+    }
+  }, [tabParam]);
+
+  const handleTabChange = (e, val) => {
+    setIndex(val);
+    navigate(`?tab=${val}`, { replace: true });
+  };
 
   return (
     <Box sx={{ flex: 1, width: '100%', maxWidth: 1200, mx: 'auto', p: { xs: 1, md: 2 } }}>
@@ -24,7 +41,7 @@ export default function SettingsView() {
       <Tabs 
         orientation="vertical" 
         value={index} 
-        onChange={(e, val) => setIndex(val)}
+        onChange={handleTabChange}
         sx={{ bgcolor: 'transparent' }}
       >
         <Sheet 
