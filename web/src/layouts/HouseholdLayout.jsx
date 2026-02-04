@@ -140,6 +140,11 @@ export default function HouseholdLayout({
       setStatusBarData
   };
 
+  const toggleQuickAction = (event) => {
+    if (quickActionAnchor) setQuickActionAnchor(null);
+    else setQuickActionAnchor(event.currentTarget);
+  };
+
   return (
     <HouseholdProvider value={contextValue}>
         <Box sx={{ 
@@ -216,7 +221,7 @@ export default function HouseholdLayout({
                         variant="solid" 
                         color="primary" 
                         size="lg"
-                        onClick={(e) => setQuickActionAnchor(e.currentTarget)}
+                        onClick={toggleQuickAction}
                         sx={{ 
                             borderRadius: '50%', 
                             width: 56, height: 56, 

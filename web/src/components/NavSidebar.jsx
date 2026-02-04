@@ -185,6 +185,11 @@ export default function NavSidebar({
       if (isMobile && onClose) onClose();
   };
 
+  const toggleUserMenu = (event) => {
+    if (userMenuAnchor) setUserMenuAnchor(null);
+    else setUserMenuAnchor(event.currentTarget);
+  };
+
   const currentPanelCategory = (hoveredCategory || (isPinned ? activeCategory : null));
   const showPanel = currentPanelCategory && ['household', 'finance'].includes(currentPanelCategory);
 
@@ -251,6 +256,7 @@ export default function NavSidebar({
 
             <Box sx={{ width: '100%', flexGrow: 1, overflowY: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
                 <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
+                    <RailIcon icon={<Groups />} label="People" category="household" hasSubItems to="people" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
                     <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems to="finance" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
                     {enabledModules.includes('meals') && (
                         <RailIcon icon={<RestaurantMenu />} label="Meals" category="meals" to="meals" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
@@ -274,8 +280,8 @@ export default function NavSidebar({
                     <IconButton 
                         variant="plain" 
                         color="neutral" 
-                        onClick={(e) => setUserMenuAnchor(e.currentTarget)}
-                        sx={{ p: 0.5, borderRadius: '50%' }}
+                        onClick={toggleUserMenu}
+                        sx={{ p: 0.5, borderRadius: '50%', bgcolor: userMenuAnchor ? 'background.level1' : 'transparent' }}
                     >
                         <Avatar 
                             size="sm" 

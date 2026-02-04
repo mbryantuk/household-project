@@ -25,6 +25,13 @@ import WealthWidget from '../components/widgets/WealthWidget';
 import BudgetStatusWidget from '../components/widgets/BudgetStatusWidget';
 import ClockWidget from '../components/widgets/ClockWidget';
 
+import IncomeWidget from '../components/widgets/IncomeWidget';
+import BankingWidget from '../components/widgets/BankingWidget';
+import CreditCardWidget from '../components/widgets/CreditCardWidget';
+import LoansWidget from '../components/widgets/LoansWidget';
+import MortgageWidget from '../components/widgets/MortgageWidget';
+import VehicleFinanceWidget from '../components/widgets/VehicleFinanceWidget';
+
 import ErrorBoundary from '../components/ErrorBoundary';
 import WidgetSkeleton from '../components/ui/WidgetSkeleton';
 import { useHousehold } from '../contexts/HouseholdContext';
@@ -47,17 +54,40 @@ const WIDGET_TYPES = {
   savings: { component: SavingsWidget, label: 'Savings Tracker', defaultH: 4, defaultW: 4 },
   invest: { component: InvestmentsWidget, label: 'Investments', defaultH: 4, defaultW: 4 },
   pensions: { component: PensionsWidget, label: 'Pensions', defaultH: 4, defaultW: 4 },
+  
+  income: { component: IncomeWidget, label: 'Income', defaultH: 4, defaultW: 4 },
+  banking: { component: BankingWidget, label: 'Banking', defaultH: 4, defaultW: 4 },
+  credit: { component: CreditCardWidget, label: 'Credit Cards', defaultH: 4, defaultW: 4 },
+  loans: { component: LoansWidget, label: 'Loans', defaultH: 4, defaultW: 4 },
+  mortgage: { component: MortgageWidget, label: 'Mortgages', defaultH: 4, defaultW: 4 },
+  carfin: { component: VehicleFinanceWidget, label: 'Car Finance', defaultH: 4, defaultW: 4 },
 };
 
 const DEFAULT_LAYOUT = [
+  // Primary Row
   { i: 'clock-1', x: 0, y: 0, w: 4, h: 4, type: 'clock' },
   { i: 'budget-1', x: 4, y: 0, w: 4, h: 5, type: 'budget_status' },
   { i: 'wealth-1', x: 8, y: 0, w: 4, h: 7, type: 'wealth' },
-  { i: 'calendar-1', x: 0, y: 5, w: 8, h: 8, type: 'calendar' },
-  { i: 'notes-1', x: 8, y: 5, w: 4, h: 8, type: 'notes' },
-  { i: 'pensions-1', x: 0, y: 13, w: 4, h: 4, type: 'pensions' },
-  { i: 'vehicles-1', x: 4, y: 13, w: 4, h: 4, type: 'vehicles' },
-  { i: 'investments-1', x: 8, y: 13, w: 4, h: 4, type: 'invest' },
+  
+  // Finance Row 1
+  { i: 'income-1', x: 0, y: 4, w: 4, h: 4, type: 'income' },
+  { i: 'banking-1', x: 4, y: 5, w: 4, h: 4, type: 'banking' },
+  { i: 'savings-1', x: 8, y: 7, w: 4, h: 4, type: 'savings' },
+
+  // Interaction Row
+  { i: 'calendar-1', x: 0, y: 8, w: 8, h: 8, type: 'calendar' },
+  { i: 'notes-1', x: 8, y: 11, w: 4, h: 8, type: 'notes' },
+
+  // Finance Row 2 (Liabilities)
+  { i: 'credit-1', x: 0, y: 16, w: 4, h: 4, type: 'credit' },
+  { i: 'loans-1', x: 4, y: 16, w: 4, h: 4, type: 'loans' },
+  { i: 'mortgage-1', x: 8, y: 19, w: 4, h: 4, type: 'mortgage' },
+
+  // Archive Row
+  { i: 'pensions-1', x: 0, y: 20, w: 4, h: 4, type: 'pensions' },
+  { i: 'vehicles-1', x: 4, y: 20, w: 4, h: 4, type: 'vehicles' },
+  { i: 'carfin-1', x: 8, y: 23, w: 4, h: 4, type: 'carfin' },
+  { i: 'birthdays-1', x: 0, y: 24, w: 4, h: 4, type: 'birthdays' },
 ];
 
 export default function HomeView() {

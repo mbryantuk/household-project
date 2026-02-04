@@ -28,6 +28,14 @@ import TaxCalculator from './TaxCalculator';
 import FloatingSavings from './FloatingSavings';
 import FloatingInvestments from './FloatingInvestments';
 import FloatingPensions from './FloatingPensions';
+
+import IncomeWidget from './widgets/IncomeWidget';
+import BankingWidget from './widgets/BankingWidget';
+import CreditCardWidget from './widgets/CreditCardWidget';
+import LoansWidget from './widgets/LoansWidget';
+import MortgageWidget from './widgets/MortgageWidget';
+import VehicleFinanceWidget from './widgets/VehicleFinanceWidget';
+
 import { useHousehold } from '../contexts/HouseholdContext';
 
 const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, activeWidget, poppedOut, toggleWidget }) => {
@@ -74,7 +82,7 @@ const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, activeWi
 };
 
 export default function UtilityBar() {
-  const { user, api, dates, onDateAdded, onUpdateProfile, isDark, statusBarData, activeHouseholdId } = useHousehold();
+  const { user, api, dates, onDateAdded, onUpdateProfile, isDark, statusBarData, activeHouseholdId, household } = useHousehold();
   const scrollRef = useRef(null);
   const [activeWidget, setActiveWidget] = useState(null); 
   const [poppedOut, setPoppedOut] = useState({});
@@ -114,11 +122,11 @@ export default function UtilityBar() {
                 
                 <Divider orientation="vertical" sx={{ mx: 0.5, height: '60%' }} />
 
-                <WidgetWrapper id="income" label="Income" icon={AttachMoney} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <Box sx={{ p: 2 }}><Typography>Income Widget Placeholder</Typography></Box>
+                <WidgetWrapper id="income" label="Income" icon={AttachMoney} color="success" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                    <IncomeWidget api={api} household={household} />
                 </WidgetWrapper>
-                <WidgetWrapper id="accounts" label="Accounts" icon={AccountBalance} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <Box sx={{ p: 2 }}><Typography>Current Accounts Placeholder</Typography></Box>
+                <WidgetWrapper id="accounts" label="Banking" icon={AccountBalance} color="success" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                    <BankingWidget api={api} household={household} />
                 </WidgetWrapper>
                 <WidgetWrapper id="savings" label="Savings & Pots" icon={Savings} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <FloatingSavings isDocked onClose={() => setActiveWidget(null)} api={api} householdId={activeHouseholdId} isDark={isDark} onPopout={() => handlePopout('savings', '/savings-window')} />
@@ -129,17 +137,17 @@ export default function UtilityBar() {
                 <WidgetWrapper id="pensions" label="Pensions" icon={HourglassBottom} color="warning" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <FloatingPensions isDocked onClose={() => setActiveWidget(null)} api={api} householdId={activeHouseholdId} isDark={isDark} onPopout={() => handlePopout('pensions', '/pensions-window')} />
                 </WidgetWrapper>
-                <WidgetWrapper id="credit" label="Credit Cards" icon={CreditCard} color="danger" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <Box sx={{ p: 2 }}><Typography>Credit Cards Placeholder</Typography></Box>
+                <WidgetWrapper id="credit" label="Credit Cards" icon={CreditCard} color="danger" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                    <CreditCardWidget api={api} household={household} />
                 </WidgetWrapper>
-                <WidgetWrapper id="loans" label="Personal Loans" icon={ReceiptLong} color="danger" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <Box sx={{ p: 2 }}><Typography>Loans Placeholder</Typography></Box>
+                <WidgetWrapper id="loans" label="Personal Loans" icon={ReceiptLong} color="danger" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                    <LoansWidget api={api} household={household} />
                 </WidgetWrapper>
-                <WidgetWrapper id="mortgage" label="Mortgages" icon={HomeIcon} color="danger" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <Box sx={{ p: 2 }}><Typography>Mortgages Placeholder</Typography></Box>
+                <WidgetWrapper id="mortgage" label="Mortgages" icon={HomeIcon} color="danger" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                    <MortgageWidget api={api} household={household} />
                 </WidgetWrapper>
-                <WidgetWrapper id="carfin" label="Car Finance" icon={DirectionsCar} color="danger" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <Box sx={{ p: 2 }}><Typography>Car Finance Placeholder</Typography></Box>
+                <WidgetWrapper id="carfin" label="Car Finance" icon={DirectionsCar} color="danger" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                    <VehicleFinanceWidget api={api} household={household} />
                 </WidgetWrapper>
 
                 <Divider orientation="vertical" sx={{ mx: 0.5, height: '60%' }} />

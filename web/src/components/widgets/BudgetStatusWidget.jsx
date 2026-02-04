@@ -90,7 +90,7 @@ export default function BudgetStatusWidget({ api, household }) {
     const cycleProgress = Math.min(100, Math.max(0, (daysElapsed / daysInCycle) * 100));
 
     const currentCycleRecord = Array.isArray(cycles) ? cycles.find(c => c.cycle_start === cycleKey) : null;
-    if (!currentCycleRecord) return { noCycle: true, cycleLabel: format(rawStartDate, 'MMMM yyyy'), daysRemaining };
+    if (!currentCycleRecord) return { noCycle: true, cycleLabel: format(rawStartDate, 'MMMM yyyy'), daysRemaining, cycleProgress };
 
     const currentBalance = parseFloat(currentCycleRecord.current_balance) || 0;
     const linkedAccount = Array.isArray(current_accounts) ? current_accounts.find(a => a.id === currentCycleRecord.bank_account_id) : null;
@@ -100,16 +100,6 @@ export default function BudgetStatusWidget({ api, household }) {
     if (Array.isArray(progress)) {
         progress.filter(p => p.cycle_start === cycleKey).forEach(p => progressMap.set(p.item_key, p));
     }
-
-    const getAdjustedDate = (input, useNwd) => {
-        let d = setDate(startOfMonth(new Date(startDate)), parseInt(input) || 1);
-        if (isAfter(startDate, d)) { d = addMonths(d, 1); }
-        if (!useNwd) return d;
-        let nd = new Date(d);
-        const isHoliday = (day) => Array.isArray(bank_holidays) && bank_holidays.includes(format(day, 'yyyy-MM-dd'));
-        while (nd.getDay() === 0 || nd.getDay() === 6 || isHoliday(nd)) { nd.setDate(nd.getDate() + 1); }
-        return nd;
-    };
 
     const allExpenses = [];
     const allIncomes = [];
@@ -159,25 +149,19 @@ export default function BudgetStatusWidget({ api, household }) {
         });
     }
 
-    // Income
+    // Manual Incomes
     incomes.forEach(inc => {
-        const d = getAdjustedDate(inc.payment_day, inc.nearest_working_day === 1);
+        let d = setDate(startOfMonth(new Date(startDate)), parseInt(inc.payment_day) || 1);
+        if (isAfter(startDate, d)) { d = addMonths(d, 1); }
+        if (inc.nearest_working_day === 1) {
+            const isHoliday = (day) => Array.isArray(bank_holidays) && bank_holidays.includes(format(day, 'yyyy-MM-dd'));
+            while (d.getDay() === 0 || d.getDay() === 6 || isHoliday(d)) { d.setDate(d.getDate() + 1); }
+        }
         const key = `income_${inc.id}_${format(d, 'ddMM')}`;
         const prog = progressMap.get(key);
         if (prog?.is_paid === -1) return;
         allIncomes.push({ key, amount: prog?.actual_amount || inc.amount, date: d, isPaid: prog?.is_paid === 1 });
     });
-
-    // Credit Cards
-    if (Array.isArray(credit_cards)) {
-        credit_cards.forEach(cc => {
-            const d = getAdjustedDate(cc.payment_day || 1, true);
-            const key = `credit_card_${cc.id}_${format(d, 'ddMM')}`;
-            const prog = progressMap.get(key);
-            if (prog?.is_paid === -1) return;
-            allExpenses.push({ key, amount: prog?.actual_amount || 0, date: d, isPaid: prog?.is_paid === 1 });
-        });
-    }
 
     const days = eachDayOfInterval({ start: startDate, end: endDate });
     const pastUnpaidExpenses = allExpenses.filter(e => isBefore(startOfDay(e.date), now) && !e.isPaid);
@@ -199,10 +183,9 @@ export default function BudgetStatusWidget({ api, household }) {
     const totalToPay = allExpenses.reduce((s, e) => s + e.amount, 0);
     const paidAmount = allExpenses.filter(e => e.isPaid).reduce((s, e) => s + e.amount, 0);
     const billsPct = (paidAmount / (totalToPay || 1)) * 100;
-    const endOfCycle = runningBalance;
 
     return {
-        lowestPoint, endOfCycle, billsPct, currentBalance, overdraftLimit,
+        lowestPoint, endOfCycle: runningBalance, billsPct, currentBalance, overdraftLimit,
         isOverdrawn: lowestPoint < 0,
         isLimitRisk: lowestPoint < -overdraftLimit,
         unpaidCount: allExpenses.filter(e => !e.isPaid).length,
@@ -226,24 +209,6 @@ export default function BudgetStatusWidget({ api, household }) {
         <Typography level="body-sm" color="neutral" sx={{ textAlign: 'center', mt: 4 }}>
             Set up a primary income source to track budget health.
         </Typography>
-    </WidgetWrapper>
-  );
-
-  if (projection.noCycle) return (
-    <WidgetWrapper title="Budget Health" icon={<Speed />} color="primary">
-        <Stack spacing={2}>
-            <Typography level="body-sm" color="neutral" sx={{ textAlign: 'center', mt: 2 }}>
-                Setup required for <b>{projection.cycleLabel}</b> budget.
-            </Typography>
-            <Divider />
-            <Box>
-                <Stack direction="row" justifyContent="space-between" mb={0.5}>
-                    <Typography level="body-xs">Cycle Progress</Typography>
-                    <Typography level="body-xs" fontWeight="bold">{projection.daysRemaining} days to payday</Typography>
-                </Stack>
-                <LinearProgress determinate value={projection.cycleProgress} thickness={8} color="neutral" sx={{ borderRadius: 'xs' }} />
-            </Box>
-        </Stack>
     </WidgetWrapper>
   );
 
