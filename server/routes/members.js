@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getHouseholdDb } = require('../db');
+const { getHouseholdDb, ensureHouseholdSchema, dbAll } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { encrypt, decrypt } = require('../services/crypto');
 
@@ -8,13 +8,18 @@ const { encrypt, decrypt } = require('../services/crypto');
  * Multi-Tenancy Enforcement for Members:
  */
 
-const useTenantDb = (req, res, next) => {
+const useTenantDb = async (req, res, next) => {
     const hhId = req.params.id;
     if (!hhId) return res.status(400).json({ error: "Household ID required" });
-    const db = getHouseholdDb(hhId);
-    req.tenantDb = db;
-    req.hhId = hhId;
-    next();
+    try {
+        const db = getHouseholdDb(hhId);
+        await ensureHouseholdSchema(db, hhId);
+        req.tenantDb = db;
+        req.hhId = hhId;
+        next();
+    } catch (err) {
+        res.status(500).json({ error: "Database initialization failed: " + err.message });
+    }
 };
 
 const closeDb = (req) => {
@@ -84,10 +89,9 @@ router.get('/households/:id/members/:itemId', authenticateToken, requireHousehol
 });
 
 // 3. ADD MEMBER
-router.post('/households/:id/members', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-    req.tenantDb.all(`PRAGMA table_info(members)`, [], (pErr, cols) => {
-        if (pErr) { closeDb(req); return res.status(500).json({ error: pErr.message }); }
-        
+router.post('/households/:id/members', authenticateToken, requireHouseholdRole('member'), useTenantDb, async (req, res) => {
+    try {
+        const cols = await dbAll(req.tenantDb, `PRAGMA table_info(members)`);
         const validColumns = cols.map(c => c.name);
         
         // Name logic
@@ -100,70 +104,53 @@ router.post('/households/:id/members', authenticateToken, requireHouseholdRole('
             else {
                 req.body.first_name = parts[0];
                 req.body.last_name = parts[parts.length - 1];
-                req.body.middle_name = parts.slice(1, -1).join(' ');
+                req.body.middle_name = parts.slice(1, parts.length - 1).join(' ');
             }
         }
 
         const data = { ...req.body, household_id: req.hhId };
         
         // Encrypt PII
-        if (data.dob) data.dob = encrypt(data.dob);
-        if (data.will_details) data.will_details = encrypt(data.will_details);
-        if (data.life_insurance_provider) data.life_insurance_provider = encrypt(data.life_insurance_provider);
-        
+        if (data.dob) data.dob = encrypt(String(data.dob));
+        if (data.will_details) data.will_details = encrypt(String(data.will_details));
+        if (data.life_insurance_provider) data.life_insurance_provider = encrypt(String(data.life_insurance_provider));
+
         const insertData = {};
         Object.keys(data).forEach(key => {
-            if (validColumns.includes(key) && key !== 'id') {
+            if (validColumns.includes(key)) {
                 insertData[key] = data[key];
             }
         });
 
         const fields = Object.keys(insertData);
+        if (fields.length === 0) { closeDb(req); return res.status(400).json({ error: "No valid fields" }); }
+        
         const placeholders = fields.join(', ');
         const qs = fields.map(() => '?').join(', ');
         const values = Object.values(insertData);
 
-        const sql = `INSERT INTO members (${placeholders}) VALUES (${qs})`;
-
-        req.tenantDb.run(sql, values, function(err) {
-            if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
-            
-            const memberId = this.lastID;
-            const { name, dob, emoji } = data;
-            const rawDob = decrypt(dob);
-
-            if (rawDob) {
-                const birthdaySql = `INSERT INTO dates (household_id, title, date, type, member_id, emoji) VALUES (?, ?, ?, 'birthday', ?, ?)`;
-                req.tenantDb.run(birthdaySql, [req.hhId, `${name}'s Birthday`, rawDob, memberId, emoji || '🎂'], (bErr) => {
-                    closeDb(req);
-                    res.status(201).json({ id: memberId, ...insertData, dob: rawDob });
-                });
-            } else {
-                closeDb(req);
-                res.status(201).json({ id: memberId, ...insertData });
-            }
+        req.tenantDb.run(`INSERT INTO members (${placeholders}) VALUES (${qs})`, values, function(err) {
+            closeDb(req);
+            if (err) return res.status(500).json({ error: err.message });
+            res.status(201).json({ id: this.lastID, ...insertData });
         });
-    });
+    } catch (err) {
+        closeDb(req);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // 4. UPDATE MEMBER
-router.put('/households/:id/members/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-    const itemId = req.params.itemId;
-
-    req.tenantDb.all(`PRAGMA table_info(members)`, [], (pErr, cols) => {
-        if (pErr) { closeDb(req); return res.status(500).json({ error: pErr.message }); }
+router.put('/households/:id/members/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, async (req, res) => {
+    try {
+        const cols = await dbAll(req.tenantDb, `PRAGMA table_info(members)`);
         const validColumns = cols.map(c => c.name);
-
-        if (req.body.first_name || req.body.last_name) {
-            req.body.name = [req.body.first_name, req.body.middle_name, req.body.last_name].filter(Boolean).join(' ');
-        }
-
+        
         const data = { ...req.body };
-
-        // Encrypt PII
-        if (data.dob) data.dob = encrypt(data.dob);
-        if (data.will_details) data.will_details = encrypt(data.will_details);
-        if (data.life_insurance_provider) data.life_insurance_provider = encrypt(data.life_insurance_provider);
+        // Encrypt PII if provided
+        if (data.dob) data.dob = encrypt(String(data.dob));
+        if (data.will_details) data.will_details = encrypt(String(data.will_details));
+        if (data.life_insurance_provider) data.life_insurance_provider = encrypt(String(data.life_insurance_provider));
 
         const updateData = {};
         Object.keys(data).forEach(key => {
@@ -173,58 +160,28 @@ router.put('/households/:id/members/:itemId', authenticateToken, requireHousehol
         });
 
         const fields = Object.keys(updateData);
-        if (fields.length === 0) { closeDb(req); return res.status(400).json({ error: "No valid fields to update" }); }
+        if (fields.length === 0) { closeDb(req); return res.status(400).json({ error: "No valid fields" }); }
 
         const sets = fields.map(f => `${f} = ?`).join(', ');
         const values = Object.values(updateData);
 
-        const sql = `UPDATE members SET ${sets} WHERE id = ? AND household_id = ?`;
-
-        req.tenantDb.run(sql, [...values, itemId, req.hhId], function(err) {
-            if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
-            if (this.changes === 0) { closeDb(req); return res.status(404).json({ error: "Member not found" }); }
-
-            // Sync Birthday
-            const { name, dob, emoji } = data;
-            const rawDob = decrypt(dob);
-
-            if (rawDob || name) {
-                const newTitle = name ? `${name}'s Birthday` : null;
-                
-                req.tenantDb.get(`SELECT id, title FROM dates WHERE member_id = ? AND type = 'birthday' AND household_id = ?`, [itemId, req.hhId], (sErr, row) => {
-                    if (row) {
-                        const updateEmoji = emoji || '🎂';
-                        let updateSql = `UPDATE dates SET emoji = ?`;
-                        let updateParams = [updateEmoji];
-                        if (newTitle) { updateSql += `, title = ?`; updateParams.push(newTitle); }
-                        if (rawDob) { updateSql += `, date = ?`; updateParams.push(rawDob); }
-                        updateSql += ` WHERE id = ?`;
-                        updateParams.push(row.id);
-                        req.tenantDb.run(updateSql, updateParams, () => closeDb(req));
-                    } else if (rawDob && name) {
-                        req.tenantDb.run(`INSERT INTO dates (household_id, title, date, type, member_id, emoji) VALUES (?, ?, ?, 'birthday', ?, ?)`, 
-                            [req.hhId, `${name}'s Birthday`, rawDob, itemId, emoji || '🎂'], () => closeDb(req));
-                    } else {
-                        closeDb(req);
-                    }
-                });
-            } else {
-                closeDb(req);
-            }
+        req.tenantDb.run(`UPDATE members SET ${sets} WHERE id = ? AND household_id = ?`, [...values, req.params.itemId, req.hhId], function(err) {
+            closeDb(req);
+            if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Updated" });
         });
-    });
+    } catch (err) {
+        closeDb(req);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // 5. DELETE MEMBER
 router.delete('/households/:id/members/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     req.tenantDb.run(`DELETE FROM members WHERE id = ? AND household_id = ?`, [req.params.itemId, req.hhId], function(err) {
-        if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
-        // Also delete their birthday
-        req.tenantDb.run(`DELETE FROM dates WHERE member_id = ? AND type = 'birthday' AND household_id = ?`, [req.params.itemId, req.hhId], () => {
-            closeDb(req);
-            res.json({ message: "Deleted" });
-        });
+        closeDb(req);
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Deleted" });
     });
 });
 

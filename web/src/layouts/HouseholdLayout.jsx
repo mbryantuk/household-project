@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Box, IconButton, Drawer, Typography, Sheet, Stack, Badge, Avatar, Tooltip, Menu, MenuItem, ListItemDecorator } from '@mui/joy';
+import { Box, IconButton, Drawer, Typography, Sheet, Stack, Badge, Avatar, Tooltip, Menu, MenuItem, ListItemDecorator, Divider } from '@mui/joy';
 import { 
   Home as HomeIcon, 
   Event as EventIcon, 
