@@ -225,7 +225,7 @@ export default function NavSidebar({
                     <Tooltip title="Dashboard" variant="soft" placement="right">
                         <Avatar 
                             variant="soft" color="primary" size="lg"
-                            onClick={() => { navigate(`household/${household.id}/dashboard`); setHoveredCategory(null); }}
+                            onClick={() => { navigate(`/household/${household.id}/dashboard`); setHoveredCategory(null); }}
                             sx={{ 
                                 bgcolor: getEmojiColor(household?.avatar || '🏠', isDark),
                                 fontSize: '1.5rem', fontWeight: 'bold', cursor: 'pointer',
@@ -238,17 +238,17 @@ export default function NavSidebar({
                 </Box>
                 
                 <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
-                    <RailIcon icon={<HomeIcon />} label="House" category="household" hasSubItems to="house" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
-                    <RailIcon icon={<Event />} label="Calendar" category="calendar" to="calendar" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
+                    <RailIcon icon={<HomeIcon />} label="House" category="household" hasSubItems to={`/household/${household.id}/house`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
+                    <RailIcon icon={<Event />} label="Calendar" category="calendar" to={`/household/${household.id}/calendar`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                 </List>
                 <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
             </Box>
 
             <Box sx={{ width: '100%', flexGrow: 1, overflowY: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
                 <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
-                    <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems to="finance" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
+                    <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems to={`/household/${household.id}/finance`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                     {enabledModules.includes('meals') && (
-                        <RailIcon icon={<RestaurantMenu />} label="Meals" category="meals" to="meals" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
+                        <RailIcon icon={<RestaurantMenu />} label="Meals" category="meals" to={`/household/${household.id}/meals`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                     )}
                 </List>
             </Box>
@@ -296,7 +296,7 @@ export default function NavSidebar({
                         <Typography level="body-xs" color="neutral">{user?.email}</Typography>
                     </Box>
                     <Divider />
-                    <MenuItem onClick={() => { navigate('settings'); setUserMenuAnchor(null); }}>
+                    <MenuItem onClick={() => { navigate(`/household/${household.id}/settings`); setUserMenuAnchor(null); }}>
                         <ListItemDecorator><SettingsIcon /></ListItemDecorator>
                         Settings
                     </MenuItem>
@@ -345,36 +345,36 @@ export default function NavSidebar({
                     {currentPanelCategory === 'household' && (
                         <>
                             <GroupHeader label="Overview" />
-                            <SubItem label="House Hub" to="house" emoji="🏠" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="House Hub" to={`/household/${household.id}/house`} emoji="🏠" isDark={isDark} onClick={handleSubItemClick} />
                             <Divider sx={{ my: 1 }} />
                             <GroupHeader label="Residents" />
-                            {members.filter(m => m.type !== 'pet').map(m => <SubItem key={m.id} label={m.alias || (m.name || '').split(' ')[0]} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
+                            {members.filter(m => m.type !== 'pet').map(m => <SubItem key={m.id} label={m.alias || (m.name || '').split(' ')[0]} to={`/household/${household.id}/people/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
                             {enabledModules.includes('pets') && (
                                 <>
                                     <Divider sx={{ my: 1 }} />
                                     <GroupHeader label="Pets" />
-                                    {members.filter(m => m.type === 'pet').map(m => <SubItem key={m.id} label={m.name} to={`pets/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
+                                    {members.filter(m => m.type === 'pet').map(m => <SubItem key={m.id} label={m.name} to={`/household/${household.id}/pets/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
                                 </>
                             )}
                             <Divider sx={{ my: 1 }} />
                             <GroupHeader label="Fleet" />
-                            {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`vehicles/${v.id}`} emoji={v.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
+                            {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`/household/${household.id}/vehicles/${v.id}`} emoji={v.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
                         </>
                     )}
                     {currentPanelCategory === 'finance' && (
                         <>
-                            <GroupHeader label="Overview" /><SubItem label="Budget" to="finance?tab=budget" emoji="📊" isDark={isDark} onClick={handleSubItemClick} />
+                            <GroupHeader label="Overview" /><SubItem label="Budget" to={`/household/${household.id}/finance?tab=budget`} emoji="📊" isDark={isDark} onClick={handleSubItemClick} />
                             <Divider sx={{ my: 1 }} /><GroupHeader label="Accounts" />
-                            <SubItem label="Income" to="finance?tab=income" emoji="💰" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Banking" to="finance?tab=banking" emoji="🏦" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Savings" to="finance?tab=savings" emoji="🐷" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Investments" to="finance?tab=invest" emoji="📈" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Pensions" to="finance?tab=pensions" emoji="👴" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="Income" to={`/household/${household.id}/finance?tab=income`} emoji="💰" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="Banking" to={`/household/${household.id}/finance?tab=banking`} emoji="🏦" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="Savings" to={`/household/${household.id}/finance?tab=savings`} emoji="🐷" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="Investments" to={`/household/${household.id}/finance?tab=invest`} emoji="📈" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="Pensions" to={`/household/${household.id}/finance?tab=pensions`} emoji="👴" isDark={isDark} onClick={handleSubItemClick} />
                             <Divider sx={{ my: 1 }} /><GroupHeader label="Liabilities" />
-                            <SubItem label="Credit Cards" to="finance?tab=credit" emoji="💳" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Loans" to="finance?tab=loans" emoji="📝" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Car Finance" to="finance?tab=car" emoji="🚗" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Mortgages" to="finance?tab=mortgage" emoji="🏠" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="Credit Cards" to={`/household/${household.id}/finance?tab=credit`} emoji="💳" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="Loans" to={`/household/${household.id}/finance?tab=loans`} emoji="📝" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="Car Finance" to={`/household/${household.id}/finance?tab=car`} emoji="🚗" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="Mortgages" to={`/household/${household.id}/finance?tab=mortgage`} emoji="🏠" isDark={isDark} onClick={handleSubItemClick} />
                         </>
                     )}
                 </List>
