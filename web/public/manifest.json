@@ -1,7 +1,7 @@
 {
-  "short_name": "Keystone",
-  "name": "Keystone App",
-  "description": "The central piece that holds the household structure together.",
+  "short_name": "Mantel",
+  "name": "Mantel: Household Manager",
+  "description": "The center of your household.",
   "icons": [
     {
       "src": "favicon.png",
@@ -17,6 +17,6 @@
   "start_url": ".",
   "display": "standalone",
   "orientation": "any",
-  "theme_color": "#4F46E5",
+  "theme_color": "#374151",
   "background_color": "#FFFBEB"
 }

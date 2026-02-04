@@ -1,6 +1,6 @@
 import { SvgIcon } from '@mui/joy';
 
-export default function KeystoneIcon({ sx, ...props }) {
+export default function MantelIcon({ sx, ...props }) {
   // Actually, Joy provides CSS variables for these:
   const primary = `var(--joy-palette-primary-solidBg)`;
   const secondary = `var(--joy-palette-secondary-solidBg)`;

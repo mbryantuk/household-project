@@ -2,7 +2,7 @@ import { extendTheme } from '@mui/joy/styles';
 
 export const THEMES = {
   // --- LIGHT THEMES ---
-  totem: { name: 'Keystone Classic', mode: 'light', primary: '#644AC9', bg: '#FFFBEB', surface: '#FFF', selection: '#CFCFDE', text: '#1F1F1F' },
+  totem: { name: 'Mantel Classic', mode: 'light', primary: '#644AC9', bg: '#FFFBEB', surface: '#FFF', selection: '#CFCFDE', text: '#1F1F1F' },
   ocean: { name: 'Ocean Breeze', mode: 'light', primary: '#0284c7', bg: '#f0f9ff', surface: '#fff', selection: '#e0f2fe', text: '#0c4a6e' },
   sakura: { name: 'Sakura Blossom', mode: 'light', primary: '#db2777', bg: '#fff1f2', surface: '#fff', selection: '#ffe4e6', text: '#881337' },
   mint: { name: 'Mint Fresh', mode: 'light', primary: '#0d9488', bg: '#f0fdfa', surface: '#fff', selection: '#ccfbf1', text: '#134e4a' },
@@ -119,7 +119,7 @@ export const getEmojiColor = (emoji, isDark = true) => {
   return `hsl(${hue}, ${isDark ? 50 : 70}%, ${isDark ? 25 : 90}%)`;
 };
 
-export const getKeystoneTheme = (themeId = 'totem', customConfig = null) => {
+export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
   let spec = THEMES[themeId] || THEMES.totem;
   
   // Handle Custom Theme Injection

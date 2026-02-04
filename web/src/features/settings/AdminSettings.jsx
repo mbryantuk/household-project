@@ -189,7 +189,7 @@ export default function AdminSettings() {
                 <Grid xs={12} md={6}>
                     <Stack spacing={2}>
                         <Typography level="title-md" startDecorator={<Verified color="primary" />}>The Platform</Typography>
-                        <Typography level="body-sm">KEYSTONE is a multi-tenant household management system designed for absolute data privacy.</Typography>
+                        <Typography level="body-sm">MANTEL is a multi-tenant household management system designed for absolute data privacy.</Typography>
                         <Divider />
                         <Typography level="body-xs" fontWeight="bold">Current Version: v{pkg.version}</Typography>
                         <Typography level="body-xs">Build: {gitInfo.commitMessage || 'Dev'}</Typography>

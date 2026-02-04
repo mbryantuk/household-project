@@ -1,16 +1,18 @@
-# Brand Identity: KEYSTONE
+# Brand Identity: MANTEL
 
-**Core Concept:** The central piece that holds the household structure together.
-**Primary Color:** #4F46E5 (Indigo) - Represents trust and stability.
-**Secondary Color:** #10B981 (Emerald) - Represents growth and finance.
+**Tagline:** *The center of your household.*
 
-## Logo
-A minimalist architectural arch. The central Keystone is solid Indigo.
+## Core Concept
+The mantel is the shelf above the hearth. In a traditional home, it is the centerpiece—the strong, structural shelf where families display what matters most (photos, heirlooms, clocks). It represents stability, warmth, and a place for valuable assets.
 
-## Typography
-- Headings: Inter (Bold, Tight tracking)
-- Numbers: JetBrains Mono or Roboto Mono (for financial data)
+## Visual Language
+* **Vibe:** Solid, Structural, Warm, Premium.
+* **Voice:** "Architectural" but "Domestic". We don't just "track data"; we "support the household."
 
-## Voice
-- Clear, Confident, Structured.
-- Avoids "cute" slang. Uses "Net Worth", "Assets", "Logistics".
+## Color Palette
+* **Primary (Structure):** `#374151` (Warm Charcoal) - Represents the hearth/slate.
+* **Accent (Value):** `#D97706` (Copper/Amber) - Represents warmth and gold/wealth.
+* **Action:** `#4F46E5` (Indigo) - Retained for high-contrast UI buttons.
+
+## Logo Concept
+A stylized, flat line (the shelf) with a semi-circle arch resting on top of it (the hearth/clock), forming a subtle "M" shape.
