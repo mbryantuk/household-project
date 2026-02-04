@@ -129,13 +129,13 @@ export default function UtilityBar() {
                     <BankingWidget api={api} household={household} />
                 </WidgetWrapper>
                 <WidgetWrapper id="savings" label="Savings & Pots" icon={Savings} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <FloatingSavings isDocked onClose={() => setActiveWidget(null)} api={api} householdId={activeHouseholdId} isDark={isDark} onPopout={() => handlePopout('savings', '/savings-window')} />
+                    <FloatingSavings isDocked onClose={() => setActiveWidget(null)} api={api} householdId={household?.id} isDark={isDark} onPopout={() => handlePopout('savings', '/savings-window')} />
                 </WidgetWrapper>
                 <WidgetWrapper id="invest" label="Investments" icon={TrendingUp} color="primary" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <FloatingInvestments isDocked onClose={() => setActiveWidget(null)} api={api} householdId={activeHouseholdId} isDark={isDark} onPopout={() => handlePopout('invest', '/investments-window')} />
+                    <FloatingInvestments isDocked onClose={() => setActiveWidget(null)} api={api} householdId={household?.id} isDark={isDark} onPopout={() => handlePopout('invest', '/investments-window')} />
                 </WidgetWrapper>
                 <WidgetWrapper id="pensions" label="Pensions" icon={HourglassBottom} color="warning" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <FloatingPensions isDocked onClose={() => setActiveWidget(null)} api={api} householdId={activeHouseholdId} isDark={isDark} onPopout={() => handlePopout('pensions', '/pensions-window')} />
+                    <FloatingPensions isDocked onClose={() => setActiveWidget(null)} api={api} householdId={household?.id} isDark={isDark} onPopout={() => handlePopout('pensions', '/pensions-window')} />
                 </WidgetWrapper>
                 <WidgetWrapper id="credit" label="Credit Cards" icon={CreditCard} color="danger" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <CreditCardWidget api={api} household={household} />
