@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
 import { 
     Box, Typography, FormControl, FormLabel, Input, Button, Stack, Avatar, IconButton, 
-    Tooltip, Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, Chip,
+    Tooltip, Sheet, List, ListItem, ListItemContent, Chip,
     Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Select, Option, Grid
 } from '@mui/joy';
 import Edit from '@mui/icons-material/Edit';
 import PersonAdd from '@mui/icons-material/PersonAdd';
-import Delete from '@mui/icons-material/Delete';
-import ExitToApp from '@mui/icons-material/ExitToApp';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 
 import { useHousehold } from '../../contexts/HouseholdContext';
@@ -16,8 +14,7 @@ import EmojiPicker from '../../components/EmojiPicker';
 
 export default function ProfileSettings() {
   const { 
-    user, onUpdateProfile, showNotification, isDark, api, household, 
-    confirmAction, households, onSelectHousehold, onLogout 
+    user, onUpdateProfile, showNotification, isDark, api, household
   } = useHousehold();
 
   // Profile State
@@ -30,7 +27,7 @@ export default function ProfileSettings() {
 
   // Invite State
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  const [inviteData, setInviteData] = useState({ email: '', first_name: '', last_name: '', role: 'member' });
+  const [inviteData, setInviteData] = useState({ email: '', first_name: '', last_name: '', role: 'member', password: '' });
   const [inviting, setInviteLoading] = useState(false);
   const [inviteSuccess, setInviteSuccess] = useState(null);
 
@@ -52,11 +49,14 @@ export default function ProfileSettings() {
     try {
         const res = await api.post(`/households/${household.id}/users`, inviteData);
         showNotification("Invitation sent!", "success");
-        if (res.data.generatedPassword) {
-            setInviteSuccess({ email: inviteData.email, password: res.data.generatedPassword });
+        if (res.data.generatedPassword || inviteData.password) {
+            setInviteSuccess({ 
+                email: inviteData.email, 
+                password: res.data.generatedPassword || inviteData.password 
+            });
         }
         setIsInviteModalOpen(false);
-        setInviteData({ email: '', first_name: '', last_name: '', role: 'member' });
+        setInviteData({ email: '', first_name: '', last_name: '', role: 'member', password: '' });
     } catch (err) {
         showNotification("Failed to send invitation.", "danger");
     } finally {
@@ -159,6 +159,10 @@ export default function ProfileSettings() {
                               <Input name="last_name" value={inviteData.last_name} onChange={(e) => setInviteData({...inviteData, last_name: e.target.value})} />
                           </FormControl>
                       </Stack>
+                      <FormControl>
+                          <FormLabel>Temporary Password (Optional)</FormLabel>
+                          <Input name="password" type="password" value={inviteData.password} onChange={(e) => setInviteData({...inviteData, password: e.target.value})} placeholder="Leave blank to auto-generate" />
+                      </FormControl>
                       <FormControl required>
                           <FormLabel>Role</FormLabel>
                           <Select value={inviteData.role} onChange={(_e, v) => setInviteData({...inviteData, role: v})}>

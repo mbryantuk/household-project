@@ -100,6 +100,7 @@ test.describe('Brady Lifecycle Stage 1: Foundation', () => {
         await page.waitForSelector('input[name="email"]');
         await page.fill('input[name="email"]', 'mbryantuk@gmail.com');
         await page.fill('input[name="first_name"]', 'Matt');
+        await page.fill('input[name="password"]', password);
         
         await page.click('label:has-text("Role") + div button');
         await page.click('li[role="option"]:has-text("Administrator")');
