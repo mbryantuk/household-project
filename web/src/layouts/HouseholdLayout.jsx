@@ -205,9 +205,13 @@ export default function HouseholdLayout({
                         borderRadius: '50%', 
                         width: 56, height: 56, 
                         boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
-                        transition: 'transform 0.2s',
-                        '&:hover': { transform: 'scale(1.1) rotate(90deg)' },
-                        '&:active': { transform: 'scale(0.9)' }
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                        transform: quickActionAnchor ? 'rotate(135deg)' : 'none',
+                        '&:hover': { 
+                            bgcolor: 'primary.solidHoverBg',
+                            boxShadow: '0 6px 24px rgba(0,0,0,0.3)',
+                        },
+                        '&:active': { transform: quickActionAnchor ? 'rotate(135deg) scale(0.95)' : 'scale(0.95)' }
                     }}
                 >
                     <Add sx={{ fontSize: '2rem' }} />
@@ -218,12 +222,22 @@ export default function HouseholdLayout({
                 open={Boolean(quickActionAnchor)}
                 onClose={() => setQuickActionAnchor(null)}
                 placement="top-end"
+                disablePortal={false}
                 variant="outlined"
+                modifiers={[
+                    {
+                      name: 'offset',
+                      options: {
+                        offset: [0, 12],
+                      },
+                    },
+                ]}
                 sx={{ 
                     minWidth: 200, 
                     borderRadius: 'md', 
                     boxShadow: 'lg',
-                    '--ListItem-radius': '8px'
+                    '--ListItem-radius': '8px',
+                    zIndex: 2001
                 }}
             >
                 <Typography level="body-xs" fontWeight="bold" sx={{ px: 2, py: 1, textTransform: 'uppercase', opacity: 0.6 }}>Create New</Typography>
