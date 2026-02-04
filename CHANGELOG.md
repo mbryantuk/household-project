@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [3.2.55] - 2026-02-03
+## [3.2.126] - 2026-02-04
+### Added
+- **Testing:** Migrated the "Brady Bunch" Master Seed into the backend test suite as `brady_seed.test.js`.
+- **Testing:** Ensured the API-driven seed is executed during every backend test run, verifying the entire API surface and providing a consistent testing output.
+- **Testing:** Added `x-bypass-maintenance` header support to registration and login tests to ensure they can run during system maintenance windows.
+
+## [3.2.125] - 2026-02-04
 ### Patch Changes
 - **Finance:** Adjusted Brady family seed data to simulate a specific overdraft scenario (Balance: £3,500, Overdraft: £2,000).
 - **Finance:** Added explicit budget cycle initialization to seed data to ensure immediate visibility of liquidity projections.

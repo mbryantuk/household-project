@@ -83,37 +83,39 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 300285,
+                      "status": "failed",
+                      "duration": 3167,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m"
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h2').filter({ hasText: 'Budget' })\nExpected: visible\nError: strict mode violation: locator('h2').filter({ hasText: 'Budget' }) resolved to 2 elements:\n    1) <h2 class=\"MuiTypography-root MuiTypography-h2 css-1usjgmw\">February 2026 Budget</h2> aka getByText('February 2026 Budget')\n    2) <h2 id=\"_r_64_\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg css-h1z3ma\">Setup Budget</h2> aka getByRole('heading', { name: 'Setup Budget' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('h2').filter({ hasText: 'Budget' })\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h2').filter({ hasText: 'Budget' })\nExpected: visible\nError: strict mode violation: locator('h2').filter({ hasText: 'Budget' }) resolved to 2 elements:\n    1) <h2 class=\"MuiTypography-root MuiTypography-h2 css-1usjgmw\">February 2026 Budget</h2> aka getByText('February 2026 Budget')\n    2) <h2 id=\"_r_64_\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg css-h1z3ma\">Setup Budget</h2> aka getByRole('heading', { name: 'Setup Budget' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('h2').filter({ hasText: 'Budget' })\u001b[22m\n\n    at /home/matt/household-project/web/tests/lifecycle_3_expenses.spec.js:34:61",
+                        "location": {
+                          "file": "/home/matt/household-project/web/tests/lifecycle_3_expenses.spec.js",
+                          "column": 61,
+                          "line": 34
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 32 |\u001b[39m     \u001b[36mawait\u001b[39m logStep(\u001b[32m'Navigation'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'Going to Budget View...'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m`/household/${hhId}/finance?tab=budget`\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'domcontentloaded'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 34 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m\u001b[33m,\u001b[39m { hasText\u001b[33m:\u001b[39m \u001b[32m'Budget'\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 35 |\u001b[39m\n \u001b[90m 36 |\u001b[39m     \u001b[90m// --- Helper: Add Expense ---\u001b[39m\n \u001b[90m 37 |\u001b[39m     \u001b[36mconst\u001b[39m addRecurringExpense \u001b[33m=\u001b[39m \u001b[36masync\u001b[39m (entityLabel\u001b[33m,\u001b[39m category\u001b[33m,\u001b[39m name\u001b[33m,\u001b[39m amount) \u001b[33m=>\u001b[39m {\u001b[0m"
                       },
                       "errors": [
                         {
-                          "message": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m"
-                        },
-                        {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/lifecycle_3_expenses.spec.js",
-                            "column": 16,
-                            "line": 29
+                            "column": 61,
+                            "line": 34
                           },
-                          "message": "Error: page.waitForURL: Test timeout of 300000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n\u001b[0m \u001b[90m 27 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m password)\u001b[33m;\u001b[39m\n \u001b[90m 28 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Log In\")'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 29 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[36mnew\u001b[39m \u001b[33mRegExp\u001b[39m(\u001b[32m`/household/${hhId}/dashboard`\u001b[39m))\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 30 |\u001b[39m\n \u001b[90m 31 |\u001b[39m     \u001b[90m// 2. Navigate to Budget\u001b[39m\n \u001b[90m 32 |\u001b[39m     \u001b[36mawait\u001b[39m logStep(\u001b[32m'Navigation'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'Going to Budget View...'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_3_expenses.spec.js:29:16\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h2').filter({ hasText: 'Budget' })\nExpected: visible\nError: strict mode violation: locator('h2').filter({ hasText: 'Budget' }) resolved to 2 elements:\n    1) <h2 class=\"MuiTypography-root MuiTypography-h2 css-1usjgmw\">February 2026 Budget</h2> aka getByText('February 2026 Budget')\n    2) <h2 id=\"_r_64_\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg css-h1z3ma\">Setup Budget</h2> aka getByRole('heading', { name: 'Setup Budget' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('h2').filter({ hasText: 'Budget' })\u001b[22m\n\n\n\u001b[0m \u001b[90m 32 |\u001b[39m     \u001b[36mawait\u001b[39m logStep(\u001b[32m'Navigation'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'Going to Budget View...'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m`/household/${hhId}/finance?tab=budget`\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'domcontentloaded'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 34 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m\u001b[33m,\u001b[39m { hasText\u001b[33m:\u001b[39m \u001b[32m'Budget'\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 35 |\u001b[39m\n \u001b[90m 36 |\u001b[39m     \u001b[90m// --- Helper: Add Expense ---\u001b[39m\n \u001b[90m 37 |\u001b[39m     \u001b[36mconst\u001b[39m addRecurringExpense \u001b[33m=\u001b[39m \u001b[36masync\u001b[39m (entityLabel\u001b[33m,\u001b[39m category\u001b[33m,\u001b[39m name\u001b[33m,\u001b[39m amount) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_3_expenses.spec.js:34:61\u001b[22m"
                         }
                       ],
                       "stdout": [
                         {
-                          "text": "[2026-02-04T19:40:57.318Z] [STEP: Login] Authenticating...\n"
-                        }
-                      ],
-                      "stderr": [
+                          "text": "[2026-02-04T19:55:35.758Z] [STEP: Login] Authenticating...\n"
+                        },
                         {
-                          "text": "Context file not found, using defaults for dev testing if applicable.\n"
+                          "text": "[2026-02-04T19:55:36.862Z] [STEP: Navigation] Going to Budget View...\n"
                         }
                       ],
+                      "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-04T19:40:57.012Z",
+                      "startTime": "2026-02-04T19:55:35.455Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -126,7 +128,12 @@
                           "contentType": "text/markdown",
                           "path": "/home/matt/household-project/web/test-results/lifecycle_3_expenses-Brady-ebfa5-Household-Personal-Vehicle--chromium/error-context.md"
                         }
-                      ]
+                      ],
+                      "errorLocation": {
+                        "file": "/home/matt/household-project/web/tests/lifecycle_3_expenses.spec.js",
+                        "column": 61,
+                        "line": 34
+                      }
                     }
                   ],
                   "status": "unexpected"
@@ -144,8 +151,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-04T19:40:54.668Z",
-    "duration": 302964.989,
+    "startTime": "2026-02-04T19:55:32.878Z",
+    "duration": 6084.921,
     "expected": 0,
     "skipped": 0,
     "unexpected": 1,

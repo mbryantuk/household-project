@@ -70,7 +70,7 @@
           "specs": [
             {
               "title": "Setup Foundation",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -83,162 +83,172 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 17477,
-                      "error": {
-                        "message": "Error: locator.click: Error: strict mode violation: locator('div').filter({ hasText: 'Residents' }).first().locator('button:has-text(\"Add\")') resolved to 2 elements:\n    1) <button tabindex=\"0\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\" aria-controls=\"_r_t_\" class=\"MuiMenuButton-root MuiMenuButton-variantSoft MuiMenuButton-colorPrimary MuiMenuButton-sizeSm css-cnelx4\">…</button> aka getByRole('button', { name: 'Add', exact: true })\n    2) <button type=\"button\" class=\"MuiButton-root MuiButton-variantSoft MuiButton-colorPrimary MuiButton-sizeSm css-1w23hcy\">…</button> aka getByRole('button', { name: 'Add Vehicle' })\n\nCall log:\n\u001b[2m  - waiting for locator('div').filter({ hasText: 'Residents' }).first().locator('button:has-text(\"Add\")')\u001b[22m\n",
-                        "stack": "Error: locator.click: Error: strict mode violation: locator('div').filter({ hasText: 'Residents' }).first().locator('button:has-text(\"Add\")') resolved to 2 elements:\n    1) <button tabindex=\"0\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\" aria-controls=\"_r_t_\" class=\"MuiMenuButton-root MuiMenuButton-variantSoft MuiMenuButton-colorPrimary MuiMenuButton-sizeSm css-cnelx4\">…</button> aka getByRole('button', { name: 'Add', exact: true })\n    2) <button type=\"button\" class=\"MuiButton-root MuiButton-variantSoft MuiButton-colorPrimary MuiButton-sizeSm css-1w23hcy\">…</button> aka getByRole('button', { name: 'Add Vehicle' })\n\nCall log:\n\u001b[2m  - waiting for locator('div').filter({ hasText: 'Residents' }).first().locator('button:has-text(\"Add\")')\u001b[22m\n\n    at addPerson (/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:172:70)\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:209:15\n    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:49:24)\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:157:5",
-                        "location": {
-                          "file": "/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js",
-                          "column": 70,
-                          "line": 172
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 170 |\u001b[39m             \u001b[90m// 1. Open the \"Add\" dropdown menu in the Residents section\u001b[39m\n \u001b[90m 171 |\u001b[39m             \u001b[36mconst\u001b[39m residentsSection \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'div'\u001b[39m\u001b[33m,\u001b[39m { hasText\u001b[33m:\u001b[39m \u001b[32m'Residents'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 172 |\u001b[39m             \u001b[36mawait\u001b[39m residentsSection\u001b[33m.\u001b[39mlocator(\u001b[32m'button:has-text(\"Add\")'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 173 |\u001b[39m             \n \u001b[90m 174 |\u001b[39m             \u001b[90m// 2. Click the specific menu item (Adult, Child, or Pet)\u001b[39m\n \u001b[90m 175 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`[role=\"menuitem\"]:has-text(\"Add ${type}\")`\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js",
-                            "column": 70,
-                            "line": 172
-                          },
-                          "message": "Error: locator.click: Error: strict mode violation: locator('div').filter({ hasText: 'Residents' }).first().locator('button:has-text(\"Add\")') resolved to 2 elements:\n    1) <button tabindex=\"0\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\" aria-controls=\"_r_t_\" class=\"MuiMenuButton-root MuiMenuButton-variantSoft MuiMenuButton-colorPrimary MuiMenuButton-sizeSm css-cnelx4\">…</button> aka getByRole('button', { name: 'Add', exact: true })\n    2) <button type=\"button\" class=\"MuiButton-root MuiButton-variantSoft MuiButton-colorPrimary MuiButton-sizeSm css-1w23hcy\">…</button> aka getByRole('button', { name: 'Add Vehicle' })\n\nCall log:\n\u001b[2m  - waiting for locator('div').filter({ hasText: 'Residents' }).first().locator('button:has-text(\"Add\")')\u001b[22m\n\n\n\u001b[0m \u001b[90m 170 |\u001b[39m             \u001b[90m// 1. Open the \"Add\" dropdown menu in the Residents section\u001b[39m\n \u001b[90m 171 |\u001b[39m             \u001b[36mconst\u001b[39m residentsSection \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'div'\u001b[39m\u001b[33m,\u001b[39m { hasText\u001b[33m:\u001b[39m \u001b[32m'Residents'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 172 |\u001b[39m             \u001b[36mawait\u001b[39m residentsSection\u001b[33m.\u001b[39mlocator(\u001b[32m'button:has-text(\"Add\")'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 173 |\u001b[39m             \n \u001b[90m 174 |\u001b[39m             \u001b[90m// 2. Click the specific menu item (Adult, Child, or Pet)\u001b[39m\n \u001b[90m 175 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`[role=\"menuitem\"]:has-text(\"Add ${type}\")`\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at addPerson (/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:172:70)\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:209:15\u001b[22m\n\u001b[2m    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:49:24)\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:157:5\u001b[22m"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 32336,
+                      "errors": [],
                       "stdout": [
                         {
-                          "text": "[2026-02-04T19:35:26.040Z] [STEP: Mike Registration] Starting...\n"
+                          "text": "[2026-02-04T19:52:35.266Z] [STEP: Mike Registration] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:26.043Z] [STEP: Mike Registration] Attempt 1...\n"
+                          "text": "[2026-02-04T19:52:35.269Z] [STEP: Mike Registration] Attempt 1...\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:26.737Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T19:52:35.893Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:26.737Z] [STEP: BROWSER] Content is cached for offline use.\n"
+                          "text": "[2026-02-04T19:52:35.895Z] [STEP: BROWSER] Content is cached for offline use.\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:26.998Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T19:52:36.123Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:27.585Z] [STEP: Mike Registration] [1.54s] Completed successfully.\n"
+                          "text": "[2026-02-04T19:52:36.643Z] [STEP: Mike Registration] [1.38s] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:27.585Z] [STEP: Mike Login] Starting...\n"
+                          "text": "[2026-02-04T19:52:36.643Z] [STEP: Mike Login] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:27.926Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T19:52:37.050Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:28.303Z] [STEP: Mike Login] [0.72s] Completed successfully.\n"
+                          "text": "[2026-02-04T19:52:37.522Z] [STEP: Mike Login] [0.88s] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:28.307Z] [STEP: Foundation] Brady Household ID: 3636\n"
+                          "text": "[2026-02-04T19:52:37.522Z] [STEP: Foundation] Brady Household ID: 3643\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:28.307Z] [STEP: Route Check] Starting...\n"
+                          "text": "[2026-02-04T19:52:37.522Z] [STEP: Route Check] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:28.308Z] [STEP: Route Check] Checking /dashboard\n"
+                          "text": "[2026-02-04T19:52:37.523Z] [STEP: Route Check] Checking /dashboard\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:28.435Z] [STEP: Route Check] Checking /calendar\n"
+                          "text": "[2026-02-04T19:52:37.658Z] [STEP: Route Check] Checking /calendar\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:28.548Z] [STEP: Route Check] Checking /house\n"
+                          "text": "[2026-02-04T19:52:37.789Z] [STEP: Route Check] Checking /house\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:28.698Z] [STEP: Route Check] Checking /meals\n"
+                          "text": "[2026-02-04T19:52:37.911Z] [STEP: Route Check] Checking /meals\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:28.843Z] [STEP: Route Check] Checking /finance\n"
+                          "text": "[2026-02-04T19:52:38.290Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:28.947Z] [STEP: Route Check] Checking /settings\n"
+                          "text": "[2026-02-04T19:52:38.358Z] [STEP: Route Check] Checking /finance\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:29.054Z] [STEP: Route Check] [0.75s] Completed successfully.\n"
+                          "text": "[2026-02-04T19:52:38.639Z] [STEP: Route Check] Checking /settings\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:29.054Z] [STEP: Grant Lead Architect Access] Starting...\n"
+                          "text": "[2026-02-04T19:52:38.843Z] [STEP: Route Check] [1.32s] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:29.340Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T19:52:38.843Z] [STEP: Grant Lead Architect Access] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:30.194Z] [STEP: Grant Access] Inviting mbryantuk@gmail.com as Admin\n"
+                          "text": "[2026-02-04T19:52:39.115Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:31.482Z] [STEP: Grant Lead Architect Access] [2.43s] Completed successfully.\n"
+                          "text": "[2026-02-04T19:52:39.894Z] [STEP: Grant Access] Inviting mbryantuk@gmail.com as Admin\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:31.483Z] [STEP: Invite Family] Starting...\n"
+                          "text": "[2026-02-04T19:52:41.162Z] [STEP: Grant Lead Architect Access] [2.32s] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:31.662Z] [STEP: Invite Family] Inviting Carol (Standard Member)\n"
+                          "text": "[2026-02-04T19:52:41.162Z] [STEP: Invite Family] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:31.793Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T19:52:41.325Z] [STEP: Invite Family] Inviting Carol (Standard Member)\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:33.253Z] [STEP: Invite Family] Inviting Greg (Viewer (Read-only))\n"
+                          "text": "[2026-02-04T19:52:41.472Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:34.552Z] [STEP: Invite Family] Inviting Marcia (Viewer (Read-only))\n"
+                          "text": "[2026-02-04T19:52:42.873Z] [STEP: Invite Family] Inviting Greg (Viewer (Read-only))\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:35.855Z] [STEP: Invite Family] Inviting Peter (Viewer (Read-only))\n"
+                          "text": "[2026-02-04T19:52:44.121Z] [STEP: Invite Family] Inviting Marcia (Viewer (Read-only))\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:36.979Z] [STEP: Invite Family] Inviting Jan (Viewer (Read-only))\n"
+                          "text": "[2026-02-04T19:52:45.113Z] [STEP: Invite Family] Inviting Peter (Viewer (Read-only))\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:38.128Z] [STEP: Invite Family] Inviting Bobby (Viewer (Read-only))\n"
+                          "text": "[2026-02-04T19:52:46.362Z] [STEP: Invite Family] Inviting Jan (Viewer (Read-only))\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:39.302Z] [STEP: Invite Family] Inviting Cindy (Viewer (Read-only))\n"
+                          "text": "[2026-02-04T19:52:47.434Z] [STEP: Invite Family] Inviting Bobby (Viewer (Read-only))\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:40.433Z] [STEP: Invite Family] [8.95s] Completed successfully.\n"
+                          "text": "[2026-02-04T19:52:48.509Z] [STEP: Invite Family] Inviting Cindy (Viewer (Read-only))\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:40.433Z] [STEP: Add Residents, Pets, Vehicles & House] Starting...\n"
+                          "text": "[2026-02-04T19:52:49.855Z] [STEP: Invite Family] [8.69s] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:40.619Z] [STEP: Add Residents] Adding Mike (Adult, Age: 40)\n"
+                          "text": "[2026-02-04T19:52:49.855Z] [STEP: Add Residents, Pets, Vehicles & House] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:40.770Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T19:52:49.994Z] [STEP: Add Residents] Adding Mike (Adult, Age: 40)\n"
                         },
                         {
-                          "text": "[2026-02-04T19:35:41.183Z] [STEP: Add Residents, Pets, Vehicles & House] [0.75s] FAILED: locator.click: Error: strict mode violation: locator('div').filter({ hasText: 'Residents' }).first().locator('button:has-text(\"Add\")') resolved to 2 elements:\n    1) <button tabindex=\"0\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\" aria-controls=\"_r_t_\" class=\"MuiMenuButton-root MuiMenuButton-variantSoft MuiMenuButton-colorPrimary MuiMenuButton-sizeSm css-cnelx4\">…</button> aka getByRole('button', { name: 'Add', exact: true })\n    2) <button type=\"button\" class=\"MuiButton-root MuiButton-variantSoft MuiButton-colorPrimary MuiButton-sizeSm css-1w23hcy\">…</button> aka getByRole('button', { name: 'Add Vehicle' })\n\nCall log:\n\u001b[2m  - waiting for locator('div').filter({ hasText: 'Residents' }).first().locator('button:has-text(\"Add\")')\u001b[22m\n"
+                          "text": "[2026-02-04T19:52:50.158Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:52:51.673Z] [STEP: Add Residents] Adding Carol (Adult, Age: 35)\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:52:52.514Z] [STEP: Add Residents] Adding Alice (Adult, Age: 45)\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:52:53.431Z] [STEP: Add Residents] Adding Greg (Child, Age: 14)\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:52:54.475Z] [STEP: Add Residents] Adding Marcia (Child, Age: 13)\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:52:55.490Z] [STEP: Add Residents] Adding Peter (Child, Age: 11)\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:52:56.463Z] [STEP: Add Residents] Adding Jan (Child, Age: 10)\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:52:57.533Z] [STEP: Add Residents] Adding Bobby (Child, Age: 8)\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:52:58.639Z] [STEP: Add Residents] Adding Cindy (Child, Age: 7)\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:52:59.555Z] [STEP: Add Residents] Adding Tiger (Pet, Age: 5)\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:53:00.830Z] [STEP: Add Residents] Adding Fluffy (Pet, Age: 3)\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:53:01.801Z] [STEP: Add Residents] Adding Vehicle: Chevrolet Kingswood Estate\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:53:02.929Z] [STEP: Add Residents] Adding Vehicle: Chevrolet Chevelle Wagon\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:53:03.649Z] [STEP: Add Residents] Setting up Property Details\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:53:04.516Z] [STEP: Add Residents] Adding Property Assets\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:53:05.053Z] [STEP: Add Residents, Pets, Vehicles & House] [15.20s] Completed successfully.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-04T19:35:23.479Z",
+                      "startTime": "2026-02-04T19:52:32.397Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/home/matt/household-project/web/test-results/lifecycle_1_foundation-Bra-8f4d8-Foundation-Setup-Foundation-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/home/matt/household-project/web/test-results/lifecycle_1_foundation-Bra-8f4d8-Foundation-Setup-Foundation-chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js",
-                        "column": 70,
-                        "line": 172
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "1e6f3fac90a232f03b11-e3160800fed256b60c8c",
@@ -253,11 +263,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-04T19:35:20.410Z",
-    "duration": 21059.742000000002,
-    "expected": 0,
+    "startTime": "2026-02-04T19:52:29.482Z",
+    "duration": 35988.896,
+    "expected": 1,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 0,
     "flaky": 0
   }
 }

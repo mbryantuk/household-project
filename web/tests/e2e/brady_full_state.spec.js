@@ -432,14 +432,14 @@ test.describe('Brady Bunch Full System State E2E', () => {
         });
         
         await test.step('Verify Address/Property Type', async () => {
-            await page.click('a[href="/details"]'); // Navigate to details
+            await page.click('a[href*="/house"]'); // Navigate to house hub
             await expect(page.getByText('Brady Residence')).toBeVisible();
             await expect(page.getByText('Spectrum')).toBeVisible();
         });
     });
 
     test('Members & Pets', async ({ page }) => {
-        await page.click('a[href="/members"]');
+        await page.click('a[href*="/house"]');
         
         await test.step('Verify Member Count', async () => {
              await expect(page.getByText('Mike')).toBeVisible();
@@ -453,7 +453,7 @@ test.describe('Brady Bunch Full System State E2E', () => {
     });
 
     test('Assets & Vehicles', async ({ page }) => {
-        await page.click('a[href="/assets"]');
+        await page.click('a[href*="/house"]');
 
         await test.step('Verify Assets', async () => {
             await expect(page.getByText('Samsung 65" TV')).toBeVisible();

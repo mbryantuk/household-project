@@ -1,0 +1,499 @@
+{
+  "config": {
+    "configFile": "/home/matt/household-project/web/playwright.config.js",
+    "rootDir": "/home/matt/household-project/web/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/matt/household-project/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/matt/household-project/web/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "e2e/brady_full_state.spec.js",
+      "file": "e2e/brady_full_state.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Brady Bunch Full System State E2E",
+          "file": "e2e/brady_full_state.spec.js",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Dashboard & House Details",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60246,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/e2e/brady_full_state.spec.js",
+                            "column": 24,
+                            "line": 435
+                          },
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href=\"/details\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 433 |\u001b[39m         \n \u001b[90m 434 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Verify Address/Property Type'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 435 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href=\"/details\"]'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Navigate to details\u001b[39m\n \u001b[90m     |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 436 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Brady Residence'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 437 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Spectrum'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 438 |\u001b[39m         })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:435:24\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:434:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🚀 LAUNCHING E2E SEED: The Brady Bunch (E2E) v3.2.0 [2026-02-04 19:58:19]\n"
+                        },
+                        {
+                          "text": "✅ E2E SEED COMPLETE\n"
+                        },
+                        {
+                          "text": "🧹 MAINTENANCE: Keeping household 3648 for demos.\n"
+                        }
+                      ],
+                      "stderr": [
+                        {
+                          "text": "Could not log in as cleanup user (mbryantuk). Old E2E households may persist.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Verify Valuation",
+                          "duration": 78
+                        },
+                        {
+                          "title": "Verify Address/Property Type",
+                          "duration": 57712,
+                          "error": {
+                            "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href=\"/details\"]')\u001b[22m\n",
+                            "stack": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href=\"/details\"]')\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:435:24\n    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:434:20",
+                            "location": {
+                              "file": "/home/matt/household-project/web/tests/e2e/brady_full_state.spec.js",
+                              "column": 24,
+                              "line": 435
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 433 |\u001b[39m         \n \u001b[90m 434 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Verify Address/Property Type'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 435 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href=\"/details\"]'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Navigate to details\u001b[39m\n \u001b[90m     |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 436 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Brady Residence'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 437 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Spectrum'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 438 |\u001b[39m         })\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-02-04T19:58:19.321Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/e2e-brady_full_state-Brady-69093-E2E-Dashboard-House-Details-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/e2e-brady_full_state-Brady-69093-E2E-Dashboard-House-Details-chromium/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ccab690aca2c80705b5f-326a8851d68ed1a4d7b9",
+              "file": "e2e/brady_full_state.spec.js",
+              "line": 429,
+              "column": 5
+            },
+            {
+              "title": "Members & Pets",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60244,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/e2e/brady_full_state.spec.js",
+                            "column": 20,
+                            "line": 442
+                          },
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href=\"/members\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 440 |\u001b[39m\n \u001b[90m 441 |\u001b[39m     test(\u001b[32m'Members & Pets'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 442 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href=\"/members\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 443 |\u001b[39m         \n \u001b[90m 444 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Verify Member Count'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 445 |\u001b[39m              \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Mike'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:442:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🚀 LAUNCHING E2E SEED: The Brady Bunch (E2E) v3.2.0 [2026-02-04 19:59:23]\n"
+                        },
+                        {
+                          "text": "✅ E2E SEED COMPLETE\n"
+                        },
+                        {
+                          "text": "🧹 MAINTENANCE: Keeping household 3649 for demos.\n"
+                        }
+                      ],
+                      "stderr": [
+                        {
+                          "text": "Could not log in as cleanup user (mbryantuk). Old E2E households may persist.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-04T19:59:23.707Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/e2e-brady_full_state-Brady-9379f-stem-State-E2E-Members-Pets-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/e2e-brady_full_state-Brady-9379f-stem-State-E2E-Members-Pets-chromium/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ccab690aca2c80705b5f-f9e8366a04f9136424bf",
+              "file": "e2e/brady_full_state.spec.js",
+              "line": 441,
+              "column": 5
+            },
+            {
+              "title": "Assets & Vehicles",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60261,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/e2e/brady_full_state.spec.js",
+                            "column": 20,
+                            "line": 456
+                          },
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href=\"/assets\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 454 |\u001b[39m\n \u001b[90m 455 |\u001b[39m     test(\u001b[32m'Assets & Vehicles'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 456 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href=\"/assets\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 457 |\u001b[39m\n \u001b[90m 458 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Verify Assets'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 459 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Samsung 65\" TV'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:456:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🚀 LAUNCHING E2E SEED: The Brady Bunch (E2E) v3.2.0 [2026-02-04 20:00:28]\n"
+                        },
+                        {
+                          "text": "✅ E2E SEED COMPLETE\n"
+                        },
+                        {
+                          "text": "🧹 MAINTENANCE: Keeping household 3650 for demos.\n"
+                        }
+                      ],
+                      "stderr": [
+                        {
+                          "text": "Could not log in as cleanup user (mbryantuk). Old E2E households may persist.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-04T20:00:28.038Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/e2e-brady_full_state-Brady-f9b80-m-State-E2E-Assets-Vehicles-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/e2e-brady_full_state-Brady-f9b80-m-State-E2E-Assets-Vehicles-chromium/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ccab690aca2c80705b5f-a811236586cc50a96fe0",
+              "file": "e2e/brady_full_state.spec.js",
+              "line": 455,
+              "column": 5
+            },
+            {
+              "title": "Finance Dashboard",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60270,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/e2e/brady_full_state.spec.js",
+                            "column": 20,
+                            "line": 470
+                          },
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href=\"/finance\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 468 |\u001b[39m\n \u001b[90m 469 |\u001b[39m     test(\u001b[32m'Finance Dashboard'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 470 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href=\"/finance\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 471 |\u001b[39m\n \u001b[90m 472 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Verify Wealth or Burn'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 473 |\u001b[39m             \u001b[90m// Verify presence of large numbers\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:470:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🚀 LAUNCHING E2E SEED: The Brady Bunch (E2E) v3.2.0 [2026-02-04 20:01:32]\n"
+                        },
+                        {
+                          "text": "✅ E2E SEED COMPLETE\n"
+                        },
+                        {
+                          "text": "🧹 MAINTENANCE: Keeping household 3651 for demos.\n"
+                        }
+                      ],
+                      "stderr": [
+                        {
+                          "text": "Could not log in as cleanup user (mbryantuk). Old E2E households may persist.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-04T20:01:32.641Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/e2e-brady_full_state-Brady-3365e-State-E2E-Finance-Dashboard-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/e2e-brady_full_state-Brady-3365e-State-E2E-Finance-Dashboard-chromium/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ccab690aca2c80705b5f-3d614b8f56e1050b9dba",
+              "file": "e2e/brady_full_state.spec.js",
+              "line": 469,
+              "column": 5
+            },
+            {
+              "title": "Budget Cycle",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 7954,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Jan 28')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Jan 28')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Jan 28')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Jan 28')\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:482:52\n    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:481:20",
+                        "location": {
+                          "file": "/home/matt/household-project/web/tests/e2e/brady_full_state.spec.js",
+                          "column": 52,
+                          "line": 482
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 480 |\u001b[39m\n \u001b[90m 481 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Verify Cycle Start'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 482 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Jan 28'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 483 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 484 |\u001b[39m\n \u001b[90m 485 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Verify Mikes Income Paid'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/e2e/brady_full_state.spec.js",
+                            "column": 52,
+                            "line": 482
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Jan 28')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Jan 28')\u001b[22m\n\n\n\u001b[0m \u001b[90m 480 |\u001b[39m\n \u001b[90m 481 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Verify Cycle Start'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 482 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Jan 28'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 483 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 484 |\u001b[39m\n \u001b[90m 485 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Verify Mikes Income Paid'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:482:52\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:481:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🚀 LAUNCHING E2E SEED: The Brady Bunch (E2E) v3.2.0 [2026-02-04 20:02:36]\n"
+                        },
+                        {
+                          "text": "✅ E2E SEED COMPLETE\n"
+                        },
+                        {
+                          "text": "🧹 MAINTENANCE: Keeping household 3652 for demos.\n"
+                        }
+                      ],
+                      "stderr": [
+                        {
+                          "text": "Could not log in as cleanup user (mbryantuk). Old E2E households may persist.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Verify Cycle Start",
+                          "duration": 5013,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Jan 28')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Jan 28')\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Jan 28')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Jan 28')\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:482:52\n    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:481:20",
+                            "location": {
+                              "file": "/home/matt/household-project/web/tests/e2e/brady_full_state.spec.js",
+                              "column": 52,
+                              "line": 482
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 480 |\u001b[39m\n \u001b[90m 481 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Verify Cycle Start'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 482 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Jan 28'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 483 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 484 |\u001b[39m\n \u001b[90m 485 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Verify Mikes Income Paid'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-02-04T20:02:36.866Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/e2e-brady_full_state-Brady-db495-stem-State-E2E-Budget-Cycle-chromium/test-failed-1.png"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/matt/household-project/web/tests/e2e/brady_full_state.spec.js",
+                        "column": 52,
+                        "line": 482
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ccab690aca2c80705b5f-fd45e656e994b80d89b1",
+              "file": "e2e/brady_full_state.spec.js",
+              "line": 478,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-02-04T19:58:16.497Z",
+    "duration": 270046.29,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 5,
+    "flaky": 0
+  }
+}

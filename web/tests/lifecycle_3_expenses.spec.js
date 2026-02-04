@@ -31,7 +31,7 @@ test.describe('Brady Lifecycle Stage 3: Expense Allocation', () => {
     // 2. Navigate to Budget
     await logStep('Navigation', 'Going to Budget View...');
     await page.goto(`/household/${hhId}/finance?tab=budget`, { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('h2', { hasText: 'Budget' })).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('h2').filter({ hasText: /Budget$/ })).toBeVisible({ timeout: 15000 });
 
     // --- Helper: Add Expense ---
     const addRecurringExpense = async (entityLabel, category, name, amount) => {

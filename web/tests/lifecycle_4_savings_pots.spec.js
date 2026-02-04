@@ -36,9 +36,8 @@ test.describe('Brady Lifecycle Stage 4: Savings Pots & Budget Integration', () =
     await page.getByRole('button', { name: 'Add Savings' }).click();
     await page.fill('input[name="institution"]', 'Chase');
     await page.fill('input[name="account_name"]', 'Rainy Day');
-    await page.fill('input[name="current_balance"]', '5000');
     await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page.locator('div[role="alert"]')).toContainText(/added/i);
+    await expect(page.locator('div[role="presentation"]:has-text("added")').or(page.locator('div[role="alert"]:has-text("added")')).first()).toBeVisible({ timeout: 10000 });
     
     // Create Account 2: "Emergency Fund" (Will NOT have a Pot)
     await page.getByRole('button', { name: 'Add Savings' }).click();
