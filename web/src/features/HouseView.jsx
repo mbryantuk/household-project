@@ -1,244 +1,281 @@
-import React, { useState, useEffect } from 'react';
-import { useOutletContext, useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useState, useMemo } from 'react';
+import { useOutletContext, useNavigate } from 'react-router-dom';
 import { 
-  Box, Typography, Sheet, Divider, Tabs, TabList, Tab, CircularProgress, Grid, Input, Button, Tooltip, IconButton, FormControl, FormLabel, Badge, Stack, Chip, Avatar, Card,
-  Dropdown, Menu, MenuButton, MenuItem
+  Box, Typography, Grid, Card, Avatar, Divider, Stack, 
+  Chip, List, ListItem, ListItemContent, ListItemDecorator, 
+  Button, IconButton, Tooltip, Sheet
 } from '@mui/joy';
 import { 
-  HomeWork, Payments, Save, ArrowBack, Inventory, DirectionsCar, Add, Groups, ArrowDropDown
+  Home, Groups, DirectionsCar, Inventory2, 
+  Wifi, Bolt, WaterDrop, Construction,
+  InfoOutlined, TrendingUp, CalendarMonth,
+  Add, ArrowForward, Pets, ChildCare, Person
 } from '@mui/icons-material';
-import EmojiPicker from '../components/EmojiPicker';
 import { getEmojiColor } from '../theme';
 
-// Feature Components
-import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
-import GeneralDetailView from './GeneralDetailView';
-import AssetsView from './AssetsView';
+const formatCurrency = (val) => (parseFloat(val) || 0).toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });
 
-export default function HouseView() {
-  const { api, id: householdId, onUpdateHousehold, user: currentUser, showNotification, confirmAction, isDark, members = [] } = useOutletContext();
-  const household_data = useOutletContext().household;
-  const isAdmin = currentUser?.role === 'admin';
-  const { houseId, assetId } = useParams();
-  const navigate = useNavigate();
-
-  const location = useLocation();
-  // If houseId is provided, we show the property details tabs. 
-  // Otherwise, we show the Household Hub selector.
-  const [viewMode, setViewMode] = useState(houseId ? 'details' : 'selector'); 
-  const [activeTab, setActiveTab] = useState(assetId ? 3 : 0);
-  const [household, setHousehold] = useState(null);
-  const [vehicles, setVehicles] = useState([]);
-  const [loadingHh, setLoadingHh] = useState(true);
-  const [savingHh, setSavingHh] = useState(false);
-  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
-  const [selectedEmoji, setSelectedEmoji] = useState('🏠');
-
-  useEffect(() => {
-      setViewMode(houseId ? 'details' : 'selector');
-  }, [houseId, assetId]);
-
-  useEffect(() => {
-    if (assetId || location.pathname.includes('/assets')) {
-        setActiveTab(3);
-    }
-  }, [assetId, location.pathname]);
-
-  useEffect(() => {
-    api.get(`/households/${householdId}`)
-      .then(res => {
-        setHousehold(res.data);
-        setSelectedEmoji(res.data.avatar || '🏠');
-      })
-      .catch(err => console.error("Failed to fetch household details", err))
-      .finally(() => setLoadingHh(false));
-
-    api.get(`/households/${householdId}/vehicles`)
-      .then(res => setVehicles(res.data || []))
-      .catch(err => console.error("Failed to fetch vehicles", err));
-  }, [api, householdId]);
-
-  const handleUpdateIdentity = async (e) => {
-    e.preventDefault();
-    setSavingHh(true);
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
-    data.avatar = selectedEmoji;
-    try {
-      await onUpdateHousehold(data);
-      showNotification("Household identity updated.", "success");
-      setHousehold(prev => ({ ...prev, ...data }));
-    } finally {
-      setSavingHh(false);
-    }
-  };
-
-  const houseFields = [
-    { name: 'property_type', label: 'Property Type', half: true },
-    { name: 'construction_year', label: 'Construction Year', type: 'number', half: true },
-    { name: 'tenure', label: 'Tenure', half: true },
-    { name: 'council_tax_band', label: 'Council Tax Band', half: true },
-    { name: 'purchase_price', label: 'Purchase Price (£)', type: 'number', step: 'any', half: true },
-    { name: 'current_valuation', label: 'Property Valuation (£)', type: 'number', step: 'any', half: true },
-    { name: 'broadband_provider', label: 'Broadband Provider', half: true },
-    { name: 'broadband_account', label: 'Broadband Account #', half: true },
-    { name: 'wifi_password', label: 'WiFi Password', half: true },
-    { name: 'smart_home_hub', label: 'Smart Home Hub Type', half: true },
-    { name: 'notes', label: 'General Property Notes', multiline: true, rows: 3 }
-  ];
-
-  if (loadingHh) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
-
-  if (viewMode === 'selector') {
-    return (
-        <Box>
-            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                <Box>
-                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Household Hub</Typography>
-                    <Typography level="body-md" color="neutral">Unified view of your residents, property, and fleet.</Typography>
-                </Box>
+const StatCard = ({ label, value, icon: Icon, color = 'primary' }) => (
+    <Card variant="soft" color={color} size="sm" sx={{ flex: 1, minWidth: 120 }}>
+        <Stack direction="row" spacing={1.5} alignItems="center">
+            <Avatar size="sm" variant="solid" color={color}>
+                <Icon fontSize="small" />
+            </Avatar>
+            <Box>
+                <Typography level="body-xs" fontWeight="bold" sx={{ opacity: 0.8 }}>{label}</Typography>
+                <Typography level="title-md">{value}</Typography>
             </Box>
+        </Stack>
+    </Card>
+);
 
-            <Grid container spacing={3}>
-                {/* 1. HOUSEHOLD IDENTITY CARD */}
-                <Grid xs={12} lg={4}>
-                    <Card variant="outlined" onClick={() => navigate(String(householdId))} sx={{ p: 3, cursor: 'pointer', height: '100%', transition: 'all 0.2s', '&:hover': { bgcolor: 'background.level1', transform: 'translateY(-4px)', boxShadow: 'md' } }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                            <Avatar size="lg" sx={{ bgcolor: getEmojiColor(household?.avatar || '🏠', isDark), '--Avatar-size': '64px', fontSize: '2.5rem' }}>{household?.avatar || '🏠'}</Avatar>
-                            <Box>
-                                <Typography level="title-lg">{household?.name}</Typography>
-                                <Typography level="body-xs" color="neutral">Primary Residence</Typography>
-                            </Box>
-                        </Box>
-                        <Divider sx={{ my: 1 }} />
-                        <Typography level="body-sm" sx={{ opacity: 0.8 }}>{household?.address_street}<br/>{household?.address_city}, {household?.address_zip}</Typography>
-                        <Button variant="plain" size="sm" endDecorator={<HomeWork />} sx={{ mt: 'auto', justifyContent: 'flex-start', p: 0 }}>Manage Property & Assets</Button>
+const ResidentGroup = ({ title, icon: Icon, members, isDark, navigate }) => {
+    if (members.length === 0) return null;
+    return (
+        <Box sx={{ mb: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, px: 1 }}>
+                <Icon fontSize="small" color="primary" />
+                <Typography level="title-sm" textTransform="uppercase" letterSpacing="1px" fontWeight="bold">
+                    {title} <Box component="span" sx={{ opacity: 0.5, ml: 1 }}>({members.length})</Box>
+                </Typography>
+            </Box>
+            <Stack spacing={1}>
+                {members.map(m => (
+                    <Card 
+                        key={m.id} 
+                        variant="outlined" 
+                        onClick={() => navigate(`/household/${m.household_id}/${m.type === 'pet' ? 'pets' : 'people'}/${m.id}`)}
+                        sx={{ 
+                            p: 1, 
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            '&:hover': { bgcolor: 'background.level1', transform: 'translateX(4px)', borderColor: 'primary.300' }
+                        }}
+                    >
+                        <Stack direction="row" spacing={1.5} alignItems="center">
+                            <Avatar size="sm" sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji}</Avatar>
+                            <ListItemContent>
+                                <Typography level="title-sm">{m.alias || m.name}</Typography>
+                                {m.dob && (
+                                    <Typography level="body-xs" sx={{ opacity: 0.6 }}>
+                                        {new Date().getFullYear() - new Date(m.dob).getFullYear()} Years Old
+                                    </Typography>
+                                )}
+                            </ListItemContent>
+                            <ArrowForward sx={{ fontSize: '1rem', opacity: 0.3 }} />
+                        </Stack>
                     </Card>
-                </Grid>
-
-                {/* 2. RESIDENTS SECTION */}
-                <Grid xs={12} lg={8}>
-                    <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', bgcolor: 'background.level1', height: '100%' }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                            <Typography level="title-lg" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Groups /> Residents</Typography>
-                            {isAdmin && (
-                                <Dropdown>
-                                    <MenuButton 
-                                        size="sm" 
-                                        variant="soft" 
-                                        color="primary" 
-                                        startDecorator={<Add />} 
-                                        endDecorator={<ArrowDropDown />}
-                                    >
-                                        Add
-                                    </MenuButton>
-                                    <Menu placement="bottom-end" size="sm" sx={{ zIndex: 10000 }}>
-                                        <MenuItem onClick={() => navigate(`../people/new?type=adult`)}>Add Adult</MenuItem>
-                                        <MenuItem onClick={() => navigate(`../people/new?type=child`)}>Add Child</MenuItem>
-                                        <Divider />
-                                        <MenuItem onClick={() => navigate(`../pets/new`)}>Add Pet</MenuItem>
-                                    </Menu>
-                                </Dropdown>
-                            )}
-                        </Box>
-                        <Grid container spacing={2}>
-                            {members.map(m => (
-                                <Grid xs={6} sm={4} md={3} key={m.id}>
-                                    <Card variant="outlined" onClick={() => navigate(m.type === 'pet' ? `../pets/${m.id}` : `../people/${m.id}`)} sx={{ p: 1.5, alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s', '&:hover': { bgcolor: 'background.surface', borderColor: 'primary.outlinedBorder' } }}>
-                                        <Avatar size="md" sx={{ bgcolor: getEmojiColor(m.emoji || '👤', isDark), mb: 1 }}>{m.emoji || (m.type === 'pet' ? '🐾' : '👤')}</Avatar>
-                                        <Typography level="title-sm" noWrap>{m.alias || (m.name || '').split(' ')[0]}</Typography>
-                                        <Chip size="sm" variant="soft" color={m.type === 'pet' ? 'warning' : 'primary'} sx={{ mt: 0.5, fontSize: '10px', textTransform: 'capitalize' }}>{m.type}</Chip>
-                                    </Card>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </Sheet>
-                </Grid>
-
-                {/* 3. FLEET SECTION */}
-                <Grid xs={12}>
-                    <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', bgcolor: 'background.level1' }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                            <Typography level="title-lg" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><DirectionsCar /> Household Fleet</Typography>
-                            {isAdmin && <Button size="sm" variant="soft" startDecorator={<Add />} onClick={() => navigate(`../vehicles/new`)}>Add Vehicle</Button>}
-                        </Box>
-                        <Grid container spacing={2}>
-                            {vehicles.map(v => (
-                                <Grid xs={12} sm={6} md={4} lg={3} key={v.id}>
-                                    <Card variant="outlined" onClick={() => navigate(`../vehicles/${v.id}`)} sx={{ p: 2, flexDirection: 'row', gap: 2, alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s', bgcolor: 'background.surface', '&:hover': { transform: 'translateY(-2px)', boxShadow: 'sm' } }}>
-                                        <Typography level="h2" sx={{ m: 0 }}>{v.emoji || '🚗'}</Typography>
-                                        <Box>
-                                            <Typography level="title-sm" sx={{ fontWeight: 'bold' }}>{v.make} {v.model}</Typography>
-                                            <Typography level="body-xs" color="neutral">{v.registration}</Typography>
-                                        </Box>
-                                    </Card>
-                                </Grid>
-                            ))}
-                            {vehicles.length === 0 && <Grid xs={12}><Typography level="body-sm" color="neutral" textAlign="center" sx={{ py: 2, border: '1px dashed', borderColor: 'divider', borderRadius: 'sm' }}>No vehicles registered.</Typography></Grid>}
-                        </Grid>
-                    </Sheet>
-                </Grid>
-            </Grid>
+                ))}
+            </Stack>
         </Box>
     );
-  }
+};
 
-  // DETAILS MODE
+export default function HouseView() {
+  const { household, members, vehicles, isDark } = useOutletContext();
+  const navigate = useNavigate();
+
+  const enabledModules = useMemo(() => {
+    try {
+        return household?.enabled_modules ? JSON.parse(household.enabled_modules) : ['pets', 'vehicles', 'meals'];
+    } catch { return ['pets', 'vehicles', 'meals']; }
+  }, [household]);
+
+  // Group Residents
+  const groups = useMemo(() => {
+    return {
+        adults: members.filter(m => m.type === 'adult'),
+        children: members.filter(m => m.type === 'child'),
+        pets: members.filter(m => m.type === 'pet')
+    };
+  }, [members]);
+
+  const assetValue = household?.current_valuation || 0;
+  const purchasePrice = household?.purchase_price || 0;
+  const growth = assetValue - purchasePrice;
+
   return (
-    <Box sx={{ pb: 10 }}>
-      <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
-        <IconButton variant="outlined" color="neutral" onClick={() => navigate('../house')}><ArrowBack /></IconButton>
-        <Box>
-            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>{household?.name || 'Primary Residence'}</Typography>
-            <Typography level="body-md" color="neutral">Manage identity, structure, and recurring financial obligations.</Typography>
-        </Box>
-      </Box>
-      <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'hidden', minHeight: 400 }}>
-        <Tabs value={activeTab} onChange={(_e, v) => setActiveTab(v)} sx={{ bgcolor: 'transparent' }}>
-          <TabList variant="plain" sx={{ p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: 2, mt: 2, overflow: 'auto', '&::-webkit-scrollbar': { display: 'none' }, whiteSpace: 'nowrap' }}>
-            <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}>Identity</Tab>
-            <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><HomeWork sx={{ mr: 1 }}/> General Details</Tab>
-            <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Bills & Costs</Tab>
-            <Tab variant={activeTab === 3 ? 'solid' : 'plain'} color={activeTab === 3 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Inventory sx={{ mr: 1 }}/> Assets</Tab>
-          </TabList>
-          <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
-            {activeTab === 0 && (
+    <Box sx={{ maxWidth: '1400px', mx: 'auto', pb: 8 }}>
+        {/* Header Section: The Property Passport */}
+        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Avatar 
+                    size="lg" 
+                    variant="soft" 
+                    sx={{ 
+                        width: 64, height: 64, fontSize: '2.5rem',
+                        bgcolor: getEmojiColor(household?.avatar || '🏠', isDark)
+                    }}
+                >
+                    {household?.avatar || '🏠'}
+                </Avatar>
                 <Box>
-                    <form onSubmit={handleUpdateIdentity}>
-                    <Grid container spacing={3}>
-                        <Grid xs={12} md={2}>
-                            <IconButton onClick={() => setEmojiPickerOpen(true)} disabled={!isAdmin || savingHh} variant="outlined" sx={{ width: 80, height: 80 }}><Typography level="h1">{selectedEmoji}</Typography></IconButton>
-                        </Grid>
-                        <Grid xs={12} md={10}><FormControl required><FormLabel>Household Name</FormLabel><Input name="name" defaultValue={household?.name} disabled={!isAdmin || savingHh} /></FormControl></Grid>
-                        <Grid xs={12} md={4}><FormControl><FormLabel>Street</FormLabel><Input name="address_street" defaultValue={household?.address_street} disabled={!isAdmin || savingHh} /></FormControl></Grid>
-                        <Grid xs={12} md={4}><FormControl><FormLabel>City</FormLabel><Input name="address_city" defaultValue={household?.address_city} disabled={!isAdmin || savingHh} /></FormControl></Grid>
-                        <Grid xs={12} md={4}><FormControl><FormLabel>Zip / Postcode</FormLabel><Input name="address_zip" defaultValue={household?.address_zip} disabled={!isAdmin || savingHh} /></FormControl></Grid>
-                        {isAdmin && <Grid xs={12}><Button type="submit" variant="solid" startDecorator={savingHh ? <CircularProgress size="sm" /> : <Save />} loading={savingHh}>Save Identity Details</Button></Grid>}
-                    </Grid>
-                    </form>
-                    <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(emoji) => { setSelectedEmoji(emoji); setEmojiPickerOpen(false); }} title="Select Household Emoji" />
+                    <Typography level="h2">{household?.name || 'House Hub'}</Typography>
+                    <Typography level="body-sm" color="neutral" startDecorator={<Home />}>
+                        Built {household?.construction_year || 'N/A'} • {household?.tenure || 'Freehold'}
+                    </Typography>
                 </Box>
-            )}
-            {activeTab === 1 && (
-                <GeneralDetailView 
-                    title="Structural & General Info" 
-                    endpoint="details" 
-                    fields={houseFields} 
-                    computed={[
-                        { 
-                            label: 'Value Increase', 
-                            calculate: (d) => (d.current_valuation || 0) - (d.purchase_price || 0), 
-                            format: 'currency',
-                            color: 'success'
-                        }
-                    ]}
-                />
-            )}
-            {activeTab === 2 && <Box><RecurringChargesWidget api={api} householdId={householdId} household={household_data} entityType="household" entityId={null} segments={[{ id: 'water', label: 'Water' }, { id: 'energy', label: 'Energy' }, { id: 'council', label: 'Council Tax' }, { id: 'waste', label: 'Waste' }, { id: 'utility', label: 'Utilities' }, { id: 'insurance', label: 'Insurance' }, { id: 'subscription', label: 'Subscriptions' }, { id: 'household_bill', label: 'General Bills' }, { id: 'other', label: 'Other' }]} title="Home Recurring Costs" showNotification={showNotification} confirmAction={confirmAction} /></Box>}
-            {activeTab === 3 && <AssetsView />}
-          </Box>
-        </Tabs>
-      </Sheet>
+            </Box>
+            <Stack direction="row" spacing={1}>
+                <Button 
+                    variant="outlined" color="neutral" size="sm" 
+                    startDecorator={<CalendarMonth />}
+                    onClick={() => navigate(`/household/${household.id}/calendar`)}
+                >
+                    Calendar
+                </Button>
+                <Button 
+                    variant="solid" color="primary" size="sm" 
+                    startDecorator={<Add />}
+                    onClick={() => navigate(`/household/${household.id}/settings?tab=2`)}
+                >
+                    Edit House
+                </Button>
+            </Stack>
+        </Box>
+
+        <Grid container spacing={3}>
+            {/* Left Column: Property & Inventory Stats */}
+            <Grid xs={12} md={7} lg={8}>
+                <Stack spacing={3}>
+                    {/* Financial Overview */}
+                    <Card variant="outlined" sx={{ boxShadow: 'sm' }}>
+                        <Typography level="title-md" startDecorator={<TrendingUp color="success" />} sx={{ mb: 2 }}>Market Valuation</Typography>
+                        <Grid container spacing={2}>
+                            <Grid xs={12} sm={4}>
+                                <StatCard label="Current Value" value={formatCurrency(assetValue)} icon={Home} />
+                            </Grid>
+                            <Grid xs={12} sm={4}>
+                                <StatCard label="Purchase Price" value={formatCurrency(purchasePrice)} icon={CalendarMonth} color="neutral" />
+                            </Grid>
+                            <Grid xs={12} sm={4}>
+                                <StatCard 
+                                    label="Estimated Growth" 
+                                    value={(growth >= 0 ? '+' : '') + formatCurrency(growth)} 
+                                    icon={TrendingUp} 
+                                    color={growth >= 0 ? 'success' : 'danger'} 
+                                />
+                            </Grid>
+                        </Grid>
+                    </Card>
+
+                    {/* Technical Specs & Utilities */}
+                    <Grid container spacing={3}>
+                        <Grid xs={12} sm={6}>
+                            <Card variant="outlined" sx={{ height: '100%', boxShadow: 'sm' }}>
+                                <Typography level="title-md" startDecorator={<Wifi color="primary" />} sx={{ mb: 2 }}>Tech & Utilities</Typography>
+                                <List size="sm" sx={{ '--ListItem-paddingLeft': '0px' }}>
+                                    <ListItem>
+                                        <ListItemDecorator><Wifi color="primary" /></ListItemDecorator>
+                                        <ListItemContent>
+                                            <Typography level="body-xs" fontWeight="bold">Broadband</Typography>
+                                            <Typography level="body-sm">{household?.broadband_provider || 'Not Set'}</Typography>
+                                        </ListItemContent>
+                                    </ListItem>
+                                    <ListItem>
+                                        <ListItemDecorator><Bolt color="warning" /></ListItemDecorator>
+                                        <ListItemContent>
+                                            <Typography level="body-xs" fontWeight="bold">Energy Meter</Typography>
+                                            <Typography level="body-sm">{household?.energy_account || 'Not Set'}</Typography>
+                                        </ListItemContent>
+                                    </ListItem>
+                                    <ListItem>
+                                        <ListItemDecorator><WaterDrop color="info" /></ListItemDecorator>
+                                        <ListItemContent>
+                                            <Typography level="body-xs" fontWeight="bold">Water Supply</Typography>
+                                            <Typography level="body-sm">Metered Supply</Typography>
+                                        </ListItemContent>
+                                    </ListItem>
+                                </List>
+                            </Card>
+                        </Grid>
+                        <Grid xs={12} sm={6}>
+                            <Card variant="outlined" sx={{ height: '100%', boxShadow: 'sm' }}>
+                                <Typography level="title-md" startDecorator={<Construction color="neutral" />} sx={{ mb: 2 }}>Inventory Summary</Typography>
+                                <Stack spacing={1.5}>
+                                    {enabledModules.includes('vehicles') && (
+                                        <>
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <Typography level="body-sm" startDecorator={<DirectionsCar />}>Fleet Size</Typography>
+                                                <Chip size="sm" variant="soft" color="primary">{vehicles.length} Vehicles</Chip>
+                                            </Box>
+                                            <Divider />
+                                        </>
+                                    )}
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <Typography level="body-sm" startDecorator={<Inventory2 />}>High Value Assets</Typography>
+                                        <Chip size="sm" variant="soft" color="primary">Linked Records</Chip>
+                                    </Box>
+                                    <Divider />
+                                    <Button 
+                                        variant="plain" size="sm" 
+                                        endDecorator={<ArrowForward />} 
+                                        fullWidth 
+                                        onClick={() => navigate('assets')}
+                                        sx={{ justifyContent: 'space-between', px: 1 }}
+                                    >
+                                        View Full Inventory
+                                    </Button>
+                                </Stack>
+                            </Card>
+                        </Grid>
+                    </Grid>
+                </Stack>
+            </Grid>
+
+            {/* Right Column: Residents (Categorized) */}
+            <Grid xs={12} md={5} lg={4}>
+                <Sheet 
+                    variant="outlined" 
+                    sx={{ 
+                        borderRadius: 'md', p: 2, bgcolor: 'background.surface', boxShadow: 'sm',
+                        height: '100%'
+                    }}
+                >
+                    <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography level="title-lg" startDecorator={<Groups />}>Residents</Typography>
+                        <Tooltip title="Add Resident" variant="soft">
+                            <IconButton size="sm" variant="plain" onClick={() => navigate(`/household/${household.id}/people/new`)}>
+                                <Add />
+                            </IconButton>
+                        </Tooltip>
+                    </Box>
+
+                    <ResidentGroup 
+                        title="Adults" 
+                        icon={Person} 
+                        members={groups.adults} 
+                        isDark={isDark} 
+                        navigate={navigate} 
+                    />
+                    
+                    <ResidentGroup 
+                        title="Children" 
+                        icon={ChildCare} 
+                        members={groups.children} 
+                        isDark={isDark} 
+                        navigate={navigate} 
+                    />
+
+                    {enabledModules.includes('pets') && (
+                        <ResidentGroup 
+                            title="Pets" 
+                            icon={Pets} 
+                            members={groups.pets} 
+                            isDark={isDark} 
+                            navigate={navigate} 
+                        />
+                    )}
+
+                    {members.length === 0 && (
+                        <Box sx={{ textAlign: 'center', py: 4, opacity: 0.5 }}>
+                            <Groups sx={{ fontSize: '3rem', mb: 1 }} />
+                            <Typography level="body-sm">No residents found.</Typography>
+                        </Box>
+                    )}
+                </Sheet>
+            </Grid>
+        </Grid>
     </Box>
   );
 }

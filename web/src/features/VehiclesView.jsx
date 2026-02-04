@@ -25,7 +25,19 @@ const VEHICLE_TYPES = [
 export default function VehiclesView() {
   const { api, id: householdId, household, user: currentUser, showNotification, confirmAction, fetchVehicles: refreshSidebar } = useOutletContext();
   const { vehicleId } = useParams();
-  const navigate = useNavigate();
+
+  const enabledModules = useMemo(() => {
+    try {
+        return household?.enabled_modules ? JSON.parse(household.enabled_modules) : ['pets', 'vehicles', 'meals'];
+    } catch { return ['pets', 'vehicles', 'meals']; }
+  }, [household]);
+
+  useEffect(() => {
+    if (!enabledModules.includes('vehicles')) {
+        navigate(`/household/${householdId}/house`, { replace: true });
+    }
+  }, [enabledModules, navigate, householdId]);
+
   const [activeTab, setActiveTab] = useState(0);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('🚗');

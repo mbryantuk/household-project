@@ -77,7 +77,9 @@ export default function ProfileSettings() {
                         '--Avatar-size': '80px', 
                         fontSize: '2.5rem', 
                         bgcolor: getEmojiColor(avatar, isDark),
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        borderRadius: '50%',
+                        flexShrink: 0
                     }}
                     onClick={() => setEmojiPickerOpen(true)}
                 >

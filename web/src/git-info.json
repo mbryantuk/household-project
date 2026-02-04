@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix home button and sidebar links to use absolute paths to prevent URL nesting",
-  "date": "Wed  4 Feb 20:36:13 GMT 2026"
+  "commitMessage": "Enhance About page, Restore Custom Theme, Fix Avatar shape, and Respect module toggles across UI",
+  "date": "Wed  4 Feb 20:48:51 GMT 2026"
 }

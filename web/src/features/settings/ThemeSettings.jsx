@@ -34,6 +34,9 @@ export default function ThemeSettings() {
   const groupedThemes = useMemo(() => {
     const groups = { light: [], dark: [] };
     Object.entries(THEMES).forEach(([id, spec]) => {
+      // Don't include custom in the grid if we want to show it separately, 
+      // but the user says we "lost" it, so let's ensure it's in the Light group or separate.
+      if (id === 'custom') return;
       groups[spec.mode].push({ id, ...spec });
     });
     return groups;
@@ -81,6 +84,34 @@ export default function ThemeSettings() {
       <Box>
         <Typography level="h4">Appearance</Typography>
         <Typography level="body-sm">Personalize your platform experience</Typography>
+      </Box>
+
+      {/* Special Theme: Custom */}
+      <Box>
+          <Typography level="title-lg" startDecorator={<Palette color="primary" />} sx={{ mb: 2 }}>Laboratory</Typography>
+          <Grid container spacing={2}>
+              <Grid xs={6} sm={4} md={3}>
+                  <Sheet
+                      variant={themeId === 'custom' ? 'solid' : 'outlined'}
+                      color={themeId === 'custom' ? 'primary' : 'neutral'}
+                      onClick={() => onThemeChange('custom')}
+                      sx={{
+                          p: 1.5, borderRadius: 'md', cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          '&:hover': { transform: 'translateY(-2px)', boxShadow: 'sm' },
+                          position: 'relative',
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
+                      }}
+                  >
+                      <Box sx={{ 
+                          display: 'flex', width: '100%', height: 32, borderRadius: 'sm', 
+                          overflow: 'hidden', mb: 1, border: '1px solid rgba(0,0,0,0.1)',
+                          background: `linear-gradient(135deg, ${customThemeConfig.primary} 0%, ${customThemeConfig.bg} 100%)`
+                      }} />
+                      <Typography level="title-sm" sx={{ fontSize: '13px', color: themeId === 'custom' ? 'common.white' : 'text.primary' }}>Custom Theme</Typography>
+                  </Sheet>
+              </Grid>
+          </Grid>
       </Box>
 
       {themeId === 'custom' && (

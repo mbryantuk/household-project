@@ -16,6 +16,13 @@ import EntityGrid from '../components/ui/EntityGrid';
 export default function PeopleView() {
   const { api, id: householdId, household, members, fetchHhMembers, user: currentUser, showNotification, confirmAction } = useOutletContext();
   const { personId } = useParams();
+
+  const enabledModules = useMemo(() => {
+    try {
+        return household?.enabled_modules ? JSON.parse(household.enabled_modules) : ['pets', 'vehicles', 'meals'];
+    } catch { return ['pets', 'vehicles', 'meals']; }
+  }, [household]);
+
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(0);
@@ -143,14 +150,17 @@ export default function PeopleView() {
             items: groupedMembers.children,
             onAdd: isAdmin ? () => navigate('new?type=child') : null,
             addLabel: 'Add Child'
-        },
-        {
+        }
+    ];
+
+    if (enabledModules.includes('pets')) {
+        sections.push({
             title: 'Pets',
             items: groupedMembers.pets,
             onAdd: isAdmin ? () => navigate('new?type=pet') : null, 
             addLabel: 'Add Pet'
-        }
-    ];
+        });
+    }
 
     return (
         <Box>
@@ -282,7 +292,8 @@ export default function PeopleView() {
                         onChange={(v) => setFormData(prev => ({ ...prev, type: v }))}
                         options={[
                             { value: 'adult', label: 'Adult' },
-                            { value: 'child', label: 'Child' }
+                            { value: 'child', label: 'Child' },
+                            ...(enabledModules.includes('pets') ? [{ value: 'pet', label: 'Pet' }] : [])
                         ]}
                     />
                     </Grid>

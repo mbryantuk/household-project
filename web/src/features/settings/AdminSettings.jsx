@@ -186,13 +186,52 @@ export default function AdminSettings() {
 
         <TabPanel value={2}>
             <Grid container spacing={3}>
-                <Grid xs={12} md={6}>
-                    <Stack spacing={2}>
-                        <Typography level="title-md" startDecorator={<Verified color="primary" />}>The Platform</Typography>
-                        <Typography level="body-sm">MANTEL is a multi-tenant household management system designed for absolute data privacy.</Typography>
+                <Grid xs={12} md={7}>
+                    <Stack spacing={3}>
+                        <Box>
+                            <Typography level="title-lg" startDecorator={<Verified color="primary" />}>Totem Household OS</Typography>
+                            <Typography level="body-sm" sx={{ mt: 1 }}>
+                                MANTEL (Totem) is a next-generation household management engine designed for absolute data privacy and multi-tenant isolation.
+                            </Typography>
+                        </Box>
+
                         <Divider />
-                        <Typography level="body-xs" fontWeight="bold">Current Version: v{pkg.version}</Typography>
-                        <Typography level="body-xs">Build: {gitInfo.commitMessage || 'Dev'}</Typography>
+
+                        <Box>
+                            <Typography level="title-sm" sx={{ mb: 1 }}>Credits & Contributions</Typography>
+                            <Typography level="body-xs" sx={{ lineHeight: 1.6 }}>
+                                <b>Lead Architect:</b> Matt Bryant<br />
+                                <b>Framework:</b> MUI Joy UI & React<br />
+                                <b>Core Icons:</b> Google Material Symbols<br />
+                                <b>Database:</b> SQLite (Optimized for Totem V3 Architecture)
+                            </Typography>
+                        </Box>
+
+                        <Box>
+                            <Typography level="title-sm" startDecorator={<Policy color="warning" />} sx={{ mb: 1 }}>Licensing</Typography>
+                            <Typography level="body-xs" sx={{ lineHeight: 1.6 }}>
+                                This software is released under the <b>GNU General Public License v3.0 (GPL-3.0)</b>. 
+                                In accordance with GPL requirements:
+                                <ul style={{ marginTop: '8px', paddingLeft: '20px' }}>
+                                    <li>The full source code for this instance must be made available to users.</li>
+                                    <li>Modified versions must carry prominent notices stating that you changed the files.</li>
+                                    <li>Any work based on this software must also be licensed under GPL-3.0.</li>
+                                </ul>
+                            </Typography>
+                        </Box>
+
+                        <Divider />
+                        
+                        <Stack direction="row" spacing={2} alignItems="center">
+                            <Box>
+                                <Typography level="body-xs" fontWeight="bold">Current Version</Typography>
+                                <Typography level="body-sm">v{pkg.version}</Typography>
+                            </Box>
+                            <Box>
+                                <Typography level="body-xs" fontWeight="bold">Build Signature</Typography>
+                                <Typography level="body-sm" sx={{ fontFamily: 'monospace', opacity: 0.7 }}>{gitInfo.commitHash?.substring(0, 7) || 'DEV'}</Typography>
+                            </Box>
+                        </Stack>
                     </Stack>
                 </Grid>
             </Grid>

@@ -110,7 +110,10 @@ export default function HouseholdSettings() {
 
       {/* Modules Section */}
       <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', bgcolor: 'background.level1' }}>
-          <Typography level="title-md" sx={{ mb: 2 }} startDecorator={<ViewModule color="primary" />}>Feature Modules</Typography>
+          <Typography level="title-md" sx={{ mb: 1 }} startDecorator={<ViewModule color="primary" />}>Feature Modules</Typography>
+          <Typography level="body-xs" color="neutral" sx={{ mb: 3 }}>
+              Disabling a module hides its associated data and prevents new entries. Existing data is preserved.
+          </Typography>
           <Stack spacing={2}>
                 {['pets', 'vehicles', 'meals'].map(mod => (
                     <Box key={mod} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

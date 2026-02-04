@@ -289,7 +289,7 @@ export default function NavSidebar({
                     open={Boolean(userMenuAnchor)}
                     onClose={() => setUserMenuAnchor(null)}
                     placement="right-end"
-                    sx={{ minWidth: 200, borderRadius: 'md', boxShadow: 'md' }}
+                    sx={{ minWidth: 200, borderRadius: 'md', boxShadow: 'md', zIndex: 3500 }}
                 >
                     <Box sx={{ px: 2, py: 1.5 }}>
                         <Typography level="title-sm">{user?.first_name} {user?.last_name}</Typography>

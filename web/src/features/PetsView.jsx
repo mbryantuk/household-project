@@ -13,7 +13,21 @@ import EmojiPicker from '../components/EmojiPicker';
 export default function PetsView() {
   const { api, id: householdId, household, members, fetchHhMembers, user: currentUser, showNotification, confirmAction } = useOutletContext();
   const { petId } = useParams();
+
+  const enabledModules = useMemo(() => {
+    try {
+        return household?.enabled_modules ? JSON.parse(household.enabled_modules) : ['pets', 'vehicles', 'meals'];
+    } catch { return ['pets', 'vehicles', 'meals']; }
+  }, [household]);
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!enabledModules.includes('pets')) {
+        navigate(`/household/${householdId}/house`, { replace: true });
+    }
+  }, [enabledModules, navigate, householdId]);
+
   const [activeTab, setActiveTab] = useState(0);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [loading, setLoading] = useState(false);
