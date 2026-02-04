@@ -217,10 +217,18 @@ export default function UtilityBar({
         variant="soft"
         sx={{
             position: 'relative', width: '100%', minHeight: 40, display: 'flex', alignItems: 'center',
-            bgcolor: 'background.surface', borderTop: '1px solid', borderColor: 'divider', zIndex: 900, 
+            bgcolor: 'rgba(255, 255, 255, 0.8)', 
+            backdropFilter: 'blur(12px)',
+            borderTop: '1px solid', 
+            borderColor: 'rgba(0,0,0,0.08)',
+            zIndex: 900, 
             flexShrink: 0, overflow: 'hidden',
             flexDirection: { xs: 'column', md: 'row' },
-            py: { xs: 1, md: 0 }
+            py: { xs: 1, md: 0 },
+            [theme => theme.getColorSchemeSelector('dark')]: {
+                bgcolor: 'rgba(19, 19, 24, 0.8)',
+                borderColor: 'rgba(255,255,255,0.1)',
+            }
         }}
     >
         <Box sx={{ 

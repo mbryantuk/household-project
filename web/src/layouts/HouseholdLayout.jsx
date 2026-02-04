@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Box, IconButton, Drawer, Typography, Sheet, Stack, Badge, Avatar } from '@mui/joy';
+import { Box, IconButton, Drawer, Typography, Sheet, Stack, Badge, Avatar, Tooltip, Menu, MenuItem, ListItemDecorator } from '@mui/joy';
 import { 
   Home as HomeIcon, 
   Event as EventIcon, 
@@ -13,7 +13,8 @@ import {
   Person as ProfileIcon,
   Download,
   Calculate, Payments, NoteAlt, SwapHoriz, ChevronLeft,
-  RestaurantMenu, Logout, AccountBalance, CalendarMonth
+  RestaurantMenu, Logout, AccountBalance, CalendarMonth, Add,
+  Savings, TrendingUp, AttachMoney, AddCircle
 } from '@mui/icons-material';
 import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
@@ -62,6 +63,9 @@ export default function HouseholdLayout({
   const [activeHousehold, setActiveHousehold] = useState(household);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState('main');
+
+  // Quick Action State
+  const [quickActionAnchor, setQuickActionAnchor] = useState(null);
 
   // Sync local active household with prop from App
   useEffect(() => {
@@ -189,6 +193,64 @@ export default function HouseholdLayout({
             }} />
         </Box>
 
+        {/* Global Quick Action FAB */}
+        <Box sx={{ position: 'fixed', bottom: { xs: 80, md: 60 }, right: 24, zIndex: 2000 }}>
+            <Tooltip title="Quick Action" variant="solid" placement="left">
+                <IconButton 
+                    variant="solid" 
+                    color="primary" 
+                    size="lg"
+                    onClick={(e) => setQuickActionAnchor(e.currentTarget)}
+                    sx={{ 
+                        borderRadius: '50%', 
+                        width: 56, height: 56, 
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
+                        transition: 'transform 0.2s',
+                        '&:hover': { transform: 'scale(1.1) rotate(90deg)' },
+                        '&:active': { transform: 'scale(0.9)' }
+                    }}
+                >
+                    <Add sx={{ fontSize: '2rem' }} />
+                </IconButton>
+            </Tooltip>
+            <Menu
+                anchorEl={quickActionAnchor}
+                open={Boolean(quickActionAnchor)}
+                onClose={() => setQuickActionAnchor(null)}
+                placement="top-end"
+                variant="outlined"
+                sx={{ 
+                    minWidth: 200, 
+                    borderRadius: 'md', 
+                    boxShadow: 'lg',
+                    '--ListItem-radius': '8px'
+                }}
+            >
+                <Typography level="body-xs" fontWeight="bold" sx={{ px: 2, py: 1, textTransform: 'uppercase', opacity: 0.6 }}>Create New</Typography>
+                <MenuItem onClick={() => { navigate('calendar'); setQuickActionAnchor(null); }}>
+                    <ListItemDecorator><CalendarMonth color="danger" /></ListItemDecorator>
+                    Calendar Event
+                </MenuItem>
+                <MenuItem onClick={() => { navigate('finance?tab=budget'); setQuickActionAnchor(null); }}>
+                    <ListItemDecorator><AttachMoney color="success" /></ListItemDecorator>
+                    Expense / Bill
+                </MenuItem>
+                <MenuItem onClick={() => { navigate('tools/notes'); setQuickActionAnchor(null); }}>
+                    <ListItemDecorator><NoteAlt color="warning" /></ListItemDecorator>
+                    Sticky Note
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={() => { navigate('people'); setQuickActionAnchor(null); }}>
+                    <ListItemDecorator><PeopleIcon color="primary" /></ListItemDecorator>
+                    Person
+                </MenuItem>
+                <MenuItem onClick={() => { navigate('house'); setQuickActionAnchor(null); }}>
+                    <ListItemDecorator><AssetsIcon color="neutral" /></ListItemDecorator>
+                    Asset Item
+                </MenuItem>
+            </Menu>
+        </Box>
+
         <Box sx={{ display: { xs: 'none', md: 'block' } }}>
             <UtilityBar 
                 user={user}
@@ -282,7 +344,7 @@ export default function HouseholdLayout({
                                 </Avatar>
                             } 
                             label={hh.name} 
-                            onClick={async () => { await onSelectHousehold(hh); navigate(`/household/${hh.id}`); setDrawerOpen(false); setActiveMenu('main'); }} 
+                            onClick={async () => { await onSelectHousehold(hh); navigate(`/household/${hh.id}/dashboard`); setDrawerOpen(false); setActiveMenu('main'); }} 
                             sx={{ bgcolor: hh.id === activeHousehold?.id ? 'primary.softBg' : 'background.level1' }}
                         />
                     ))

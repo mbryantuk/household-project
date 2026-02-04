@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Box, Typography, Button, Stack, IconButton, Sheet, Menu, MenuItem } from '@mui/joy';
+import { Box, Typography, Button, Stack, IconButton, Sheet, Menu, MenuItem, Checkbox, ListItem, ListItemContent, List } from '@mui/joy';
 import { 
   Add, Save, Edit, Close, 
-  AddCircleOutline, RemoveCircleOutline 
+  AddCircleOutline, RemoveCircleOutline, Settings
 } from '@mui/icons-material';
 import { Responsive } from 'react-grid-layout/legacy';
 import WidthProvider from '../components/helpers/WidthProvider';
@@ -54,7 +54,7 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
   const [page, setPage] = useState(1);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Initialize strictly from Server Props (or Default if missing/empty)
+  // Initialize layout strictly from Server Props (or Default if missing/empty)
   const [layouts, setLayouts] = useState(() => {
     if (currentUser?.dashboard_layout) {
       try {
@@ -78,7 +78,6 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
         const cloud = typeof currentUser.dashboard_layout === 'string' 
           ? JSON.parse(currentUser.dashboard_layout) 
           : currentUser.dashboard_layout;
-        // Use functional update to avoid dependency on 'layouts' and potential loops
         Promise.resolve().then(() => {
             setLayouts(currentLayouts => {
                 if (cloud && JSON.stringify(cloud) !== JSON.stringify(currentLayouts)) {
@@ -266,7 +265,7 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
                     <Button variant="solid" color="primary" loading={isSaving} startDecorator={<Save />} onClick={() => handleSave(false)}>Done</Button>
                 </>
             ) : (
-                <Button variant="plain" color="neutral" startDecorator={<Edit />} onClick={() => setIsEditing(true)}>Customize</Button>
+                <Button variant="plain" color="neutral" startDecorator={<Settings />} onClick={() => setIsEditing(true)}>Customize</Button>
             )}
         </Box>
       </Box>
@@ -371,6 +370,7 @@ export default function HomeView({ members, household, currentUser, dates, onUpd
         onClose={() => setAddWidgetAnchor(null)}
         placement="bottom-end"
         size="sm"
+        sx={{ maxHeight: 400, overflow: 'auto' }}
       >
         {Object.entries(WIDGET_TYPES).map(([key, config]) => (
             <MenuItem key={key} onClick={() => handleAddWidget(key)}>

@@ -222,12 +222,19 @@ export default function NavSidebar({
             sx={{
                 width: isMobile ? '100%' : RAIL_WIDTH,
                 borderRight: isMobile ? 'none' : '1px solid',
-                borderColor: 'divider',
+                borderColor: 'rgba(0,0,0,0.08)',
                 display: 'flex', flexDirection: 'column',
                 justifyContent: 'space-between',
                 alignItems: isMobile ? 'stretch' : 'center',
-                pt: 1.5, pb: 0, bgcolor: 'background.surface', zIndex: 2600, 
-                height: '100dvh', overflowY: 'hidden', position: 'relative'
+                pt: 1.5, pb: 0, 
+                bgcolor: 'rgba(255, 255, 255, 0.8)',
+                backdropFilter: 'blur(12px)',
+                zIndex: 2600, 
+                height: '100dvh', overflowY: 'hidden', position: 'relative',
+                [theme => theme.getColorSchemeSelector('dark')]: {
+                    bgcolor: 'rgba(19, 19, 24, 0.8)',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                }
             }}
         >
             <Box sx={{ width: '100%', flexShrink: 0 }}>
@@ -303,12 +310,19 @@ export default function NavSidebar({
                     top: 0,
                     zIndex: (isMobile || !isPinned) ? 3000 : 2100,
                     borderRight: '1px solid',
-                    borderColor: 'divider', overflow: 'hidden',
+                    borderColor: 'rgba(0,0,0,0.08)',
+                    overflow: 'hidden',
                     transition: isMobile ? 'none' : 'width 0.2s, left 0.2s, transform 0.2s, opacity 0.2s',
                     display: 'flex', flexDirection: 'column',
-                    bgcolor: 'background.surface', whiteSpace: 'nowrap', height: '100dvh',
+                    bgcolor: 'rgba(255, 255, 255, 0.8)',
+                    backdropFilter: 'blur(12px)',
+                    whiteSpace: 'nowrap', height: '100dvh',
                     boxShadow: (!isPinned && !isMobile) ? '8px 0 24px rgba(0,0,0,0.15)' : 'none',
                     opacity: 1,
+                    [theme => theme.getColorSchemeSelector('dark')]: {
+                        bgcolor: 'rgba(19, 19, 24, 0.8)',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                    }
                 }}
             >
                 <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
