@@ -1,4 +1,5 @@
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
@@ -11,6 +12,39 @@ const ADMIN_EMAIL = `mike.brady.${RUN_ID}@test.com`;
 const PASSWORD = "Password123!";
 const PRIMARY_USER = "mbryantuk@gmail.com";
 
+const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
+const FAILURE_CHANNEL_ID = 'C0AD07QPYMS';
+
+function notifySlack(error) {
+    if (!SLACK_BOT_TOKEN) {
+        console.warn("No SLACK_BOT_TOKEN found. Skipping notification.");
+        return Promise.resolve();
+    }
+    return new Promise((resolve, reject) => {
+        const payload = JSON.stringify({
+            channel: FAILURE_CHANNEL_ID,
+            text: `❌ *Seed Failed: ${HOUSEHOLD_NAME}*\n\`\`\`${error.message || JSON.stringify(error)}\`\`\``
+        });
+        const options = {
+            hostname: 'slack.com',
+            path: '/api/chat.postMessage',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SLACK_BOT_TOKEN}`,
+                'Content-Length': Buffer.byteLength(payload)
+            }
+        };
+        const req = https.request(options, (res) => {
+            res.on('data', () => {});
+            res.on('end', resolve);
+        });
+        req.on('error', reject);
+        req.write(payload);
+        req.end();
+    });
+}
+
 function apiRequest(method, urlPath, data = null, token = null) {
     return new Promise((resolve, reject) => {
         const payload = data ? JSON.stringify(data) : '';
@@ -20,7 +54,7 @@ function apiRequest(method, urlPath, data = null, token = null) {
                 'Content-Type': 'application/json',
                 'x-bypass-maintenance': 'true'
             },
-            timeout: 30000
+            timeout: 5000
         };
         if (token) options.headers['Authorization'] = `Bearer ${token}`;
         if (data) options.headers['Content-Length'] = Buffer.byteLength(payload);
@@ -279,6 +313,9 @@ async function seed() {
 
         console.log(`✅ DEFINITIVE SEED COMPLETE: ID ${hhId}`);
         process.exit(0);
-    } catch (err) { console.error("❌ Seed Failed:", err); process.exit(1); }
+    } catch (err) { 
+        console.error("❌ Seed Failed:", err); 
+        notifySlack(err).then(() => process.exit(1));
+    }
 }
 seed();

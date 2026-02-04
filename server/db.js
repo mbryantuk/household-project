@@ -28,7 +28,7 @@ const getHouseholdDb = (householdId) => {
     db.run("PRAGMA synchronous=NORMAL");
     db.run("PRAGMA busy_timeout=10000");
 
-    if (!dbExists || true) {
+    if (!dbExists) {
         initializeHouseholdSchema(db);
     }
     return db;
