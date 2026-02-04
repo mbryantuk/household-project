@@ -10,6 +10,7 @@ const FormData = require(path.join(SERVER_MODULES, 'form-data'));
 // Configuration
 const FAILURE_CHANNEL_ID = 'C0AD07QPYMS';
 const SLACK_TOKEN = process.env.SLACK_BOT_TOKEN;
+const BASE_URL = process.env.BASE_URL || 'http://localhost:4001';
 
 function getSystemVersion() {
     try {
@@ -154,7 +155,19 @@ ${f.error.substring(0, 500)}\
 ${content}`
                             }, { headers: { Authorization: `Bearer ${SLACK_TOKEN}` } });
                         } else {
+                            // Upload file
                             await uploadFile(safePath, `Attachment: ${att.name}`, FAILURE_CHANNEL_ID, threadTs);
+                            
+                            // Generate and send link
+                            if (safePath.includes('/test-results/')) {
+                                const relativePath = safePath.split('/test-results/')[1];
+                                const fileUrl = `${BASE_URL}/test-results/${relativePath}`;
+                                await axios.post('https://slack.com/api/chat.postMessage', {
+                                    channel: FAILURE_CHANNEL_ID,
+                                    thread_ts: threadTs,
+                                    text: `🔗 *View Attachment:* ${fileUrl}`
+                                }, { headers: { Authorization: `Bearer ${SLACK_TOKEN}` } });
+                            }
                         }
                     }
                 }

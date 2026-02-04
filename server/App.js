@@ -106,6 +106,12 @@ app.get('/system/status', (req, res) => {
 
 // FRONTEND SERVING
 const frontendPath = path.resolve(__dirname, '../web/dist');
+const testResultsPath = path.resolve(__dirname, '../web/test-results');
+
+if (fs.existsSync(testResultsPath)) {
+    app.use('/test-results', express.static(testResultsPath));
+}
+
 if (fs.existsSync(frontendPath)) {
     // 1. Static files
     app.use('/assets', express.static(path.join(frontendPath, 'assets')));

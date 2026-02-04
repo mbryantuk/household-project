@@ -1,4 +1,4 @@
 {
-  "commitMessage": "feat(ci): host test failure artifacts on frontend and link in slack alerts",
-  "date": "Wed  4 Feb 10:17:24 GMT 2026"
+  "commitMessage": "Enable web serving of test results and add image links to Slack notifications",
+  "date": "Wed  4 Feb 11:06:34 GMT 2026"
 }
