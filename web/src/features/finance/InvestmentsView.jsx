@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Box, Typography, Button, Sheet, Table, IconButton, 
+  Box, Typography, Button, Sheet, Divider, Table, IconButton, 
   Modal, ModalDialog, ModalClose, FormControl, FormLabel, Input, 
-  Stack, Divider, Avatar
+  Stack, Avatar
 } from '@mui/joy';
 import { Add, Edit, Delete, TrendingUp } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';

@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { 
-  Box, Typography, Sheet, Grid, Input, Button, CircularProgress, 
-  Divider, FormControl, FormLabel, Textarea, Checkbox
+  Box, Typography, Sheet, Divider, Grid, Input, Button, CircularProgress, 
+  FormControl, FormLabel, Textarea, Checkbox
 } from '@mui/joy';
 import { Save } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';

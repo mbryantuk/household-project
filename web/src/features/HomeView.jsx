@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Box, Typography, Button, Stack, IconButton, Sheet, Menu, MenuItem, Grid } from '@mui/joy';
+import { Box, Typography, Button, Stack, IconButton, Sheet, Menu, MenuItem, Divider } from '@mui/joy';
 import Add from '@mui/icons-material/Add';
 import Save from '@mui/icons-material/Save';
 import Edit from '@mui/icons-material/Edit';
@@ -25,6 +25,7 @@ import InvestmentsWidget from '../components/widgets/InvestmentsWidget';
 import PensionsWidget from '../components/widgets/PensionsWidget';
 import WealthWidget from '../components/widgets/WealthWidget';
 import BudgetStatusWidget from '../components/widgets/BudgetStatusWidget';
+import ClockWidget from '../components/widgets/ClockWidget';
 
 import ErrorBoundary from '../components/ErrorBoundary';
 import WidgetSkeleton from '../components/ui/WidgetSkeleton';
@@ -33,28 +34,35 @@ import { useHousehold } from '../contexts/HouseholdContext';
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const WIDGET_TYPES = {
+  clock: { component: ClockWidget, label: 'System Clock', defaultH: 4, defaultW: 4 },
+  budget_status: { component: BudgetStatusWidget, label: 'Budget Health', defaultH: 5, defaultW: 4, props: { compact: true } },
+  wealth: { component: WealthWidget, label: 'Wealth Tracking', defaultH: 7, defaultW: 4, props: { variant: 'summary' } },
   birthdays: { component: BirthdaysWidget, label: 'Upcoming Birthdays', defaultH: 4, defaultW: 4 },
-  events: { component: EventsWidget, label: 'Calendar Events', defaultH: 4, defaultW: 6 },
+  events: { component: EventsWidget, label: 'Calendar Events', defaultH: 4, defaultW: 4, props: { limit: 1, variant: 'hero' } },
   costs: { component: HomeRecurringCostsWidget, label: 'Monthly Costs', defaultH: 4, defaultW: 6 },
   vehicles: { component: VehiclesWidget, label: 'Fleet Status', defaultH: 4, defaultW: 4 },
   notes: { component: NotesWidget, label: 'Sticky Note', defaultH: 4, defaultW: 4 },
   calc: { component: CalculatorWidget, label: 'Calculator', defaultH: 5, defaultW: 4 },
   finance: { component: FinancialWidget, label: 'Finance Tools', defaultH: 6, defaultW: 5 },
   tax: { component: TaxWidget, label: 'Tax Tools', defaultH: 6, defaultW: 5 },
-  calendar: { component: CalendarWidget, label: 'Full Calendar', defaultH: 6, defaultW: 8 },
+  calendar: { component: CalendarWidget, label: 'Full Calendar', defaultH: 8, defaultW: 8 },
   savings: { component: SavingsWidget, label: 'Savings Tracker', defaultH: 4, defaultW: 4 },
   invest: { component: InvestmentsWidget, label: 'Investments', defaultH: 4, defaultW: 4 },
   pensions: { component: PensionsWidget, label: 'Pensions', defaultH: 4, defaultW: 4 },
-  wealth: { component: WealthWidget, label: 'Wealth Tracking', defaultH: 7, defaultW: 4 },
-  budget_status: { component: BudgetStatusWidget, label: 'Budget Health', defaultH: 5, defaultW: 4 },
 };
 
 const DEFAULT_LAYOUT = [
+  // Row 1: The "Pulse"
   { i: 'budget-1', x: 0, y: 0, w: 4, h: 5, type: 'budget_status' },
-  { i: 'wealth-1', x: 4, y: 0, w: 4, h: 7, type: 'wealth' },
-  { i: 'birthdays-1', x: 8, y: 0, w: 4, h: 4, type: 'birthdays' },
-  { i: 'calendar-1', x: 0, y: 5, w: 8, h: 6, type: 'calendar' },
-  { i: 'notes-1', x: 8, y: 5, w: 4, h: 6, type: 'notes' },
+  { i: 'events-1', x: 4, y: 0, w: 4, h: 5, type: 'events' },
+  { i: 'wealth-1', x: 8, y: 0, w: 4, h: 5, type: 'wealth' },
+  // Row 2: Main Stage
+  { i: 'calendar-1', x: 0, y: 5, w: 8, h: 8, type: 'calendar' },
+  { i: 'notes-1', x: 8, y: 5, w: 4, h: 8, type: 'notes' },
+  // Row 3: Archive
+  { i: 'pensions-1', x: 0, y: 13, w: 4, h: 4, type: 'pensions' },
+  { i: 'vehicles-1', x: 4, y: 13, w: 4, h: 4, type: 'vehicles' },
+  { i: 'clock-1', x: 8, y: 13, w: 4, h: 4, type: 'clock' },
 ];
 
 export default function HomeView() {
@@ -65,7 +73,6 @@ export default function HomeView() {
   const [breakpoint, setBreakpoint] = useState('lg');
   const [addWidgetAnchor, setAddWidgetAnchor] = useState(null);
 
-  // Initialize strictly from Server Props (or Default if missing/empty)
   const [layouts, setLayouts] = useState(() => {
     if (user?.dashboard_layout) {
       try {
@@ -143,7 +150,9 @@ export default function HomeView() {
   const handleSave = async () => {
     setIsSaving(true);
     try { 
-        await onUpdateProfile({ dashboard_layout: JSON.stringify(layouts) }); 
+        if (onUpdateProfile) {
+            await onUpdateProfile({ dashboard_layout: JSON.stringify(layouts) }); 
+        }
         setIsEditing(false);
     } catch (err) { console.error("Failed to save layout", err); }
     setIsSaving(false);
@@ -155,8 +164,6 @@ export default function HomeView() {
 
   return (
     <Box sx={{ pb: 10, px: { xs: 1, md: 4 }, pt: 2 }}>
-      
-      {/* HEADER */}
       <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} spacing={2} sx={{ mb: 4 }}>
         <Box>
           <Typography level="h2" sx={{ fontWeight: 'lg' }}>{greeting}, {user?.first_name || 'Friend'}</Typography>
@@ -175,7 +182,6 @@ export default function HomeView() {
         </Box>
       </Stack>
 
-      {/* GRID */}
       <ResponsiveGridLayout
           className="layout"
           layouts={Array.isArray(layouts[page]) ? { lg: layouts[page], md: layouts[page], sm: layouts[page] } : layouts[page]}
@@ -189,7 +195,10 @@ export default function HomeView() {
           margin={[24, 24]}
       >
           {gridItems.map(item => {
-              const WidgetComponent = WIDGET_TYPES[item.type]?.component;
+              const config = WIDGET_TYPES[item.type];
+              const WidgetComponent = config?.component;
+              const extraProps = config?.props || {};
+
               return (
                   <Box key={item.i} data-grid={{ ...item, static: !isEditing }} sx={{ position: 'relative' }}>
                       {isEditing && (
@@ -202,7 +211,17 @@ export default function HomeView() {
                           </IconButton>
                       )}
                       <ErrorBoundary>
-                          {WidgetComponent ? <WidgetComponent api={api} household={household} members={members} user={user} dates={dates} /> : <WidgetSkeleton />}
+                          {WidgetComponent ? (
+                            <WidgetComponent 
+                                api={api} 
+                                household={household} 
+                                members={members} 
+                                user={user} 
+                                dates={dates} 
+                                onUpdateProfile={onUpdateProfile}
+                                {...extraProps} 
+                            />
+                          ) : <WidgetSkeleton />}
                       </ErrorBoundary>
                   </Box>
               );
@@ -214,6 +233,7 @@ export default function HomeView() {
         open={Boolean(addWidgetAnchor)}
         onClose={() => setAddWidgetAnchor(null)}
         placement="bottom-end"
+        disablePortal={false}
       >
         {Object.entries(WIDGET_TYPES).map(([key, config]) => (
             <MenuItem key={key} onClick={() => handleAddWidget(key)}>{config.label}</MenuItem>
