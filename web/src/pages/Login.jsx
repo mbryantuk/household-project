@@ -8,11 +8,13 @@ import axios from 'axios';
 import MantelIcon from '../components/MantelIcon';
 import { getEmojiColor } from '../theme';
 
-export default function Login({ onLogin }) {
+export default function Login({ onLogin, onMfaLogin }) {
   const location = useLocation();
-  const [step, setStep] = useState(1); // 1: Email, 2: Password
+  const [step, setStep] = useState(1); // 1: Email, 2: Password, 3: MFA
   const [email, setEmail] = useState(localStorage.getItem('rememberedEmail') || '');
   const [password, setPassword] = useState('');
+  const [mfaCode, setMfaCode] = useState('');
+  const [preAuthToken, setPreAuthToken] = useState('');
   const [rememberMe, setRememberMe] = useState(localStorage.getItem('rememberMe') === 'true');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -58,8 +60,15 @@ export default function Login({ onLogin }) {
     setLoading(true);
 
     try {
-      await onLogin(email, password, rememberMe);
+      const res = await onLogin(email, password, rememberMe);
       
+      if (res?.mfa_required) {
+          setPreAuthToken(res.preAuthToken);
+          setStep(3);
+          setLoading(false);
+          return;
+      }
+
       if (rememberMe) {
         localStorage.setItem('rememberedEmail', email);
         localStorage.setItem('rememberMe', 'true');
@@ -80,9 +89,22 @@ export default function Login({ onLogin }) {
     }
   };
 
+  const handleMfaSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+        await onMfaLogin(preAuthToken, mfaCode);
+    } catch (err) {
+        setError(err.response?.data?.error || "Invalid verification code.");
+        setLoading(false);
+    }
+  };
+
   const handleBack = () => {
       setStep(1);
       setPassword('');
+      setMfaCode('');
       setUserProfile(null);
       setError('');
   };
@@ -158,7 +180,7 @@ export default function Login({ onLogin }) {
               Next
             </Button>
           </form>
-        ) : (
+        ) : step === 2 ? (
           <form onSubmit={handleSubmit}>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
                 <Box sx={{ position: 'relative', mb: 2 }}>
@@ -215,6 +237,59 @@ export default function Login({ onLogin }) {
               sx={{ borderRadius: 'md' }}
             >
               Log In
+            </Button>
+          </form>
+        ) : (
+          <form onSubmit={handleMfaSubmit}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
+                <Box sx={{ position: 'relative', mb: 2 }}>
+                    <Avatar 
+                        size="lg" 
+                        sx={{ 
+                            '--Avatar-size': '80px', 
+                            fontSize: '2rem', 
+                            bgcolor: 'primary.softBg',
+                            color: 'primary.solidBg',
+                            boxShadow: 'sm'
+                        }}
+                    >
+                        <Security sx={{ fontSize: '2.5rem' }} />
+                    </Avatar>
+                    <IconButton 
+                        size="sm" 
+                        variant="soft" 
+                        color="neutral" 
+                        onClick={() => setStep(2)}
+                        sx={{ position: 'absolute', top: 0, left: -40, borderRadius: '50%' }}
+                    >
+                        <ArrowBack />
+                    </IconButton>
+                </Box>
+                <Typography level="h4" sx={{ mb: 0.5 }}>2-Step Verification</Typography>
+                <Typography level="body-sm" color="neutral" sx={{ textAlign: 'center' }}>
+                    Enter the 6-digit code from your authenticator app.
+                </Typography>
+            </Box>
+
+            <FormControl required sx={{ mb: 4 }}>
+              <FormLabel>Verification Code</FormLabel>
+              <Input 
+                autoFocus
+                placeholder="000000"
+                value={mfaCode} 
+                onChange={e => setMfaCode(e.target.value.replace(/\D/g, '').substring(0, 6))} 
+                disabled={loading}
+                size="lg"
+                slotProps={{ input: { textAlign: 'center', letterSpacing: '0.5em', fontWeight: 'bold' } }}
+              />
+            </FormControl>
+
+            <Button 
+              fullWidth type="submit" variant="solid" size="lg" 
+              loading={loading}
+              sx={{ borderRadius: 'md' }}
+            >
+              Verify
             </Button>
           </form>
         )}

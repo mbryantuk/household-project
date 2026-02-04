@@ -12,6 +12,7 @@ import ProfileSettings from './settings/ProfileSettings';
 import HouseholdSettings from './settings/HouseholdSettings';
 import ThemeSettings from './settings/ThemeSettings';
 import AdminSettings from './settings/AdminSettings';
+import SecuritySettings from './settings/SecuritySettings';
 
 export default function SettingsView() {
   const location = useLocation();
@@ -108,11 +109,7 @@ export default function SettingsView() {
                     <ProfileSettings />
                 </TabPanel>
                 <TabPanel value={1} sx={{ p: 0 }}>
-                    <Box sx={{ textAlign: 'center', py: 10 }}>
-                        <Security sx={{ fontSize: '4rem', opacity: 0.1, mb: 2 }} />
-                        <Typography level="h3">Security Center</Typography>
-                        <Typography color="neutral">Two-factor authentication and session management coming soon.</Typography>
-                    </Box>
+                    <SecuritySettings />
                 </TabPanel>
                 <TabPanel value={2} sx={{ p: 0 }}>
                     <HouseholdSettings />

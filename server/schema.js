@@ -16,7 +16,20 @@ const GLOBAL_SCHEMA = [
         last_household_id INTEGER,
         is_test INTEGER DEFAULT 0,
         is_active INTEGER DEFAULT 1,
+        mfa_enabled INTEGER DEFAULT 0,
+        mfa_secret TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE TABLE IF NOT EXISTS user_sessions (
+        id TEXT PRIMARY KEY,
+        user_id INTEGER,
+        device_info TEXT,
+        ip_address TEXT,
+        user_agent TEXT,
+        last_active DATETIME DEFAULT CURRENT_TIMESTAMP,
+        expires_at DATETIME,
+        is_revoked INTEGER DEFAULT 0,
+        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
     )`,
     `CREATE TABLE IF NOT EXISTS test_results (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -417,6 +430,37 @@ function initializeGlobalSchema(db) {
                     if (err) console.error("Migration failed:", err.message);
                     else console.log("✅ version column added to test_results.");
                 });
+            }
+        });
+
+        // 🛠️ MIGRATION: Add MFA columns to users
+        db.all("PRAGMA table_info(users)", (err, rows) => {
+            if (err) return;
+            if (!rows.some(r => r.name === 'mfa_enabled')) {
+                console.log("🛠️ Migrating users: Adding mfa_enabled...");
+                db.run("ALTER TABLE users ADD COLUMN mfa_enabled INTEGER DEFAULT 0");
+            }
+            if (!rows.some(r => r.name === 'mfa_secret')) {
+                console.log("🛠️ Migrating users: Adding mfa_secret...");
+                db.run("ALTER TABLE users ADD COLUMN mfa_secret TEXT");
+            }
+        });
+
+        // 🛠️ MIGRATION: Ensure user_sessions exists
+        db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='user_sessions'", (err, row) => {
+            if (!row) {
+                console.log("🛠️ Migrating global database: Adding user_sessions table...");
+                db.run(`CREATE TABLE user_sessions (
+                    id TEXT PRIMARY KEY,
+                    user_id INTEGER,
+                    device_info TEXT,
+                    ip_address TEXT,
+                    user_agent TEXT,
+                    last_active DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    expires_at DATETIME,
+                    is_revoked INTEGER DEFAULT 0,
+                    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+                )`);
             }
         });
 

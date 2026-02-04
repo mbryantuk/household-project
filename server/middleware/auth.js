@@ -23,21 +23,43 @@ function authenticateToken(req, res, next) {
                 return res.status(403).json({ error: "Account is inactive or not found." });
             }
 
-            req.user = { ...user, systemRole: row.system_role };
-            const effectiveHhId = user.householdId || row.last_household_id;
-
-            // Always try to fetch household role to ensure req.user.role is populated
-            if (effectiveHhId) {
-                globalDb.get("SELECT role, is_active FROM user_households WHERE user_id = ? AND household_id = ?", [user.id, effectiveHhId], (err, link) => {
-                    if (!err && link && link.is_active) {
-                        req.user.role = link.role;
-                        req.user.householdId = effectiveHhId;
-                    }
-                    next();
+            // Verify Session if SID is present
+            const verifySession = () => {
+                return new Promise((resolve) => {
+                    if (!user.sid) return resolve(true);
+                    globalDb.get("SELECT is_revoked FROM user_sessions WHERE id = ?", [user.sid], (sErr, session) => {
+                        if (sErr || !session || session.is_revoked) return resolve(false);
+                        resolve(true);
+                    });
                 });
-            } else {
-                next();
-            }
+            };
+
+            verifySession().then(isValidSession => {
+                if (!isValidSession) {
+                    return res.status(401).json({ error: "Session has been revoked or expired." });
+                }
+
+                // Update Last Active (Fire and Forget)
+                if (user.sid) {
+                    globalDb.run("UPDATE user_sessions SET last_active = CURRENT_TIMESTAMP WHERE id = ?", [user.sid]);
+                }
+
+                req.user = { ...user, systemRole: row.system_role };
+                const effectiveHhId = user.householdId || row.last_household_id;
+
+                // Always try to fetch household role to ensure req.user.role is populated
+                if (effectiveHhId) {
+                    globalDb.get("SELECT role, is_active FROM user_households WHERE user_id = ? AND household_id = ?", [user.id, effectiveHhId], (err, link) => {
+                        if (!err && link && link.is_active) {
+                            req.user.role = link.role;
+                            req.user.householdId = effectiveHhId;
+                        }
+                        next();
+                    });
+                } else {
+                    next();
+                }
+            });
         });
     });
 }
