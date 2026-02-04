@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getHouseholdDb } = require('../db');
+const { getHouseholdDb, dbAll } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 
 const { encrypt, decrypt } = require('../services/crypto');
@@ -62,10 +62,9 @@ const handleGetSingle = (table) => (req, res) => {
     });
 };
 
-const handleUpdateSingle = (table) => (req, res) => {
-    req.tenantDb.all(`PRAGMA table_info(${table})`, [], (pErr, cols) => {
-        if (pErr) { closeDb(req); return res.status(500).json({ error: pErr.message }); }
-        
+const handleUpdateSingle = (table) => async (req, res) => {
+    try {
+        const cols = await dbAll(req.tenantDb, `PRAGMA table_info(${table})`);
         const validColumns = cols.map(c => c.name);
         const data = encryptPayload({ ...req.body, household_id: req.hhId });
         
@@ -77,7 +76,10 @@ const handleUpdateSingle = (table) => (req, res) => {
         });
 
         const fields = Object.keys(updateData);
-        if (fields.length === 0) { closeDb(req); return res.status(400).json({ error: "No valid fields" }); }
+        if (fields.length === 0) { 
+            closeDb(req); 
+            return res.status(400).json({ error: "No valid fields" }); 
+        }
 
         const placeholders = fields.join(', ');
         const qs = fields.map(() => '?').join(', ');
@@ -91,7 +93,10 @@ const handleUpdateSingle = (table) => (req, res) => {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: this.changes > 0 ? "Updated" : "Created" });
         });
-    });
+    } catch (err) {
+        closeDb(req);
+        res.status(500).json({ error: err.message });
+    }
 };
 
 const handleGetList = (table) => (req, res) => {

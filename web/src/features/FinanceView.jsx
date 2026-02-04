@@ -1,11 +1,14 @@
 import React, { useMemo } from 'react';
 import { useLocation, useNavigate, useOutletContext } from 'react-router-dom';
-import { Box, Typography, Sheet, Grid, Card, Avatar, IconButton } from '@mui/joy';
+import { Box, Typography, Sheet, Grid, Card, IconButton } from '@mui/joy';
 import { 
   Payments, AccountBalance, Savings, CreditCard, RequestQuote, Home, 
   TrendingUp, HourglassBottom, PieChart, ArrowBack, ChevronRight, 
   DirectionsCar
 } from '@mui/icons-material';
+
+import AppHeader from '../components/ui/AppHeader';
+import AppAvatar from '../components/ui/AppAvatar';
 
 import IncomeView from './finance/IncomeView';
 import BankingView from './finance/BankingView';
@@ -17,18 +20,6 @@ import LoansView from './finance/LoansView';
 import MortgagesView from './finance/MortgagesView';
 import VehicleFinanceView from './finance/VehicleFinanceView';
 import BudgetView from './finance/BudgetView';
-import { getEmojiColor } from '../theme';
-
-const ComingSoonPlaceholder = ({ title, icon }) => {
-  const IconComponent = icon;
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '400px', gap: 2, color: 'neutral.400' }}>
-      <IconComponent sx={{ fontSize: 64, opacity: 0.5 }} />
-      <Typography level="h3" sx={{ color: 'inherit' }}>{title}</Typography>
-      <Typography level="body-md">Coming Soon</Typography>
-    </Box>
-  );
-};
 
 export default function FinanceView() {
   const location = useLocation();
@@ -50,7 +41,7 @@ export default function FinanceView() {
     car: { label: 'Car Finance', icon: DirectionsCar, desc: 'Track loans and leases for your fleet.' }
   }), []);
 
-  const activeTabKey = tabParam; // No default on any device to show landing page
+  const activeTabKey = tabParam;
 
   const renderContent = () => {
       if (activeTabKey === 'budget') return <BudgetView />;
@@ -66,14 +57,13 @@ export default function FinanceView() {
       return null;
   };
 
-  // Selector view (LANDING PAGE) for all devices when no tab is selected
   if (!activeTabKey) {
     return (
       <Box>
-        <Box sx={{ mb: 4 }}>
-          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Financial Matrix</Typography>
-          <Typography level="body-md" color="neutral">Select a domain to manage your household wealth and liabilities.</Typography>
-        </Box>
+        <AppHeader 
+          title="Financial Matrix" 
+          description="Select a domain to manage your household wealth and liabilities." 
+        />
         <Grid container spacing={3}>
           {Object.entries(viewMap).map(([key, config]) => (
             <Grid xs={12} sm={6} md={4} lg={3} key={key}>
@@ -87,15 +77,14 @@ export default function FinanceView() {
                     '&:active': { transform: 'translateY(0)' }
                 }}
               >
-                <Avatar 
+                <AppAvatar 
                     size="lg" 
-                    sx={{ 
-                        bgcolor: getEmojiColor(config.label ? config.label[0] : '?', isDark),
-                        '--Avatar-size': '64px'
-                    }}
+                    emoji={config.label ? config.label[0] : '?'}
+                    isDark={isDark}
+                    sx={{ '--Avatar-size': '64px' }}
                 >
                     <config.icon sx={{ fontSize: '2rem' }} />
-                </Avatar>
+                </AppAvatar>
                 <Box sx={{ textAlign: 'center' }}>
                   <Typography level="title-lg" sx={{ fontWeight: 'lg' }}>{config.label}</Typography>
                   <Typography level="body-xs" sx={{ mt: 1, opacity: 0.7 }}>{config.desc}</Typography>
@@ -108,7 +97,6 @@ export default function FinanceView() {
     );
   }
 
-  // Active Tab view
   return (
     <Box sx={{ width: '100%' }}>
         <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>

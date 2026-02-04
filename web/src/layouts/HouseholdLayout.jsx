@@ -19,6 +19,19 @@ import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
 import { getEmojiColor } from '../theme';
 
+const ROUTE_META = {
+  dashboard: { title: 'Dashboard' },
+  calendar: { title: 'Calendar' },
+  people: { title: 'People' },
+  pets: { title: 'Pets' },
+  house: { title: 'Asset Registry' },
+  vehicles: { title: 'Vehicles' },
+  finance: { title: 'Finance' },
+  meals: { title: 'Meal Planner' },
+  settings: { title: 'Settings' },
+  profile: { title: 'Profile' }
+};
+
 export default function HouseholdLayout({
   households = [],
   onSelectHousehold,
@@ -81,26 +94,14 @@ export default function HouseholdLayout({
       navigate('/');
     }
   }, [id, households, onSelectHousehold, navigate, household, activeHousehold]);
+
   const isTabActive = (path) => location.pathname.includes(path);
 
   const pageTitle = useMemo(() => {
     const path = location.pathname;
     const parts = path.split('/');
     const section = parts[3];
-
-    switch(section) {
-        case 'dashboard': return 'Dashboard';
-        case 'calendar': return 'Calendar';
-        case 'people': return 'People';
-        case 'pets': return 'Pets';
-        case 'house': return 'Asset Registry';
-        case 'vehicles': return 'Vehicles';
-        case 'finance': return 'Finance';
-        case 'meals': return 'Meal Planner';
-        case 'settings': return 'Settings';
-        case 'profile': return 'Profile';
-        default: return activeHousehold?.name || 'TOTEM';
-    }
+    return ROUTE_META[section]?.title || activeHousehold?.name || 'TOTEM';
   }, [location.pathname, activeHousehold]);
 
   return (
@@ -234,24 +235,18 @@ export default function HouseholdLayout({
             </Stack>
             
             <Stack 
-                alignItems="center" spacing={0.5} onClick={() => navigate('calendar')} 
+                alignItems="center" spacing={0.5} onClick={() => { setActiveMenu('switch'); setDrawerOpen(true); }}
                 sx={{ flex: 1, cursor: 'pointer', transition: 'transform 0.2s', '&:active': { transform: 'scale(0.95)' } }}
             >
-                <EventIcon sx={{ color: isTabActive('calendar') ? 'primary.plainColor' : 'neutral.plainColor' }} />
-                <Typography level="body-xs" sx={{ color: isTabActive('calendar') ? 'primary.plainColor' : 'neutral.plainColor', fontWeight: isTabActive('calendar') ? 'bold' : 'normal' }}>Calendar</Typography>
+                <SwapHoriz sx={{ color: 'neutral.plainColor' }} />
+                <Typography level="body-xs" color="neutral">Switch</Typography>
             </Stack>
 
             <Stack 
-                alignItems="center" spacing={0.5} onClick={() => setDrawerOpen(true)} 
+                alignItems="center" spacing={0.5} onClick={() => { setActiveMenu('main'); setDrawerOpen(true); }}
                 sx={{ flex: 1, cursor: 'pointer', transition: 'transform 0.2s', '&:active': { transform: 'scale(0.95)' } }}
             >
-                <Badge 
-                    color="danger" variant="solid" size="sm" invisible={!installPrompt}
-                    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                    slotProps={{ badge: { sx: { top: 0, right: -4 } } }}
-                >
-                    <MoreIcon sx={{ color: drawerOpen ? 'primary.plainColor' : 'neutral.plainColor' }} />
-                </Badge>
+                <MoreIcon sx={{ color: drawerOpen ? 'primary.plainColor' : 'neutral.plainColor' }} />
                 <Typography level="body-xs" sx={{ color: drawerOpen ? 'primary.plainColor' : 'neutral.plainColor', fontWeight: drawerOpen ? 'bold' : 'normal' }}>Menu</Typography>
             </Stack>
         </Sheet>
@@ -270,9 +265,9 @@ export default function HouseholdLayout({
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
                 {activeMenu === 'main' ? (
                     <>
-                        <MenuTile icon={<HomeIcon />} label="Household" to="house" onClick={() => setDrawerOpen(false)} />
-                        <MenuTile icon={<AccountBalance />} label="Finance" to="finance" onClick={() => setDrawerOpen(false)} />
-                        <MenuTile icon={<RestaurantMenu />} label="Meals" to="meals" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<HomeIcon />} label="Household" to="house" onClick={() => setDrawerOpen(false)} navigate={navigate} location={location} />
+                        <MenuTile icon={<AccountBalance />} label="Finance" to="finance" onClick={() => setDrawerOpen(false)} navigate={navigate} location={location} />
+                        <MenuTile icon={<RestaurantMenu />} label="Meals" to="meals" onClick={() => setDrawerOpen(false)} navigate={navigate} location={location} />
                     </>
                 ) : (
                     households.map(hh => (
@@ -289,22 +284,24 @@ export default function HouseholdLayout({
                             label={hh.name} 
                             onClick={async () => { await onSelectHousehold(hh); navigate(`/household/${hh.id}`); setDrawerOpen(false); setActiveMenu('main'); }} 
                             sx={{ bgcolor: hh.id === activeHousehold?.id ? 'primary.softBg' : 'background.level1' }}
+                            navigate={navigate}
+                            location={location}
                         />
                     ))
                 )}
-                {activeMenu === 'switch' && <MenuTile icon={<ChevronLeft />} label="Back" onClick={() => setActiveMenu('main')} />}
+                {activeMenu === 'switch' && <MenuTile icon={<ChevronLeft />} label="Back" onClick={() => setActiveMenu('main')} navigate={navigate} location={location} />}
             </Box>
 
             {activeMenu === 'main' && (
                 <>
                     <Typography level="title-lg" sx={{ mt: 2, mb: 1 }}>Tools</Typography>
                     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
-                        <MenuTile icon={<NoteAlt />} label="Notes" to="tools/notes" onClick={() => setDrawerOpen(false)} />
-                        <MenuTile icon={<Calculate />} label="Calc" to="tools/calculator" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<NoteAlt />} label="Notes" to="tools/notes" onClick={() => setDrawerOpen(false)} navigate={navigate} location={location} />
+                        <MenuTile icon={<Calculate />} label="Calc" to="tools/calculator" onClick={() => setDrawerOpen(false)} navigate={navigate} location={location} />
                         
-                        <MenuTile icon={<AccountBalance />} label="Finance" to="tools/finance" onClick={() => setDrawerOpen(false)} />
-                        <MenuTile icon={<Payments />} label="Tax" to="tools/tax" onClick={() => setDrawerOpen(false)} />
-                        <MenuTile icon={<CalendarMonth />} label="Cal" to="tools/calendar" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<AccountBalance />} label="Finance" to="tools/finance" onClick={() => setDrawerOpen(false)} navigate={navigate} location={location} />
+                        <MenuTile icon={<Payments />} label="Tax" to="tools/tax" onClick={() => setDrawerOpen(false)} navigate={navigate} location={location} />
+                        <MenuTile icon={<CalendarMonth />} label="Cal" to="tools/calendar" onClick={() => setDrawerOpen(false)} navigate={navigate} location={location} />
                     </Box>
 
                     <Typography level="title-lg" sx={{ mt: 2, mb: 1 }}>Admin</Typography>
@@ -315,13 +312,18 @@ export default function HouseholdLayout({
                                 label="Install" 
                                 onClick={() => { onInstall(); setDrawerOpen(false); }} 
                                 sx={{ bgcolor: 'success.softBg', color: 'success.plainColor' }}
+                                navigate={navigate}
+                                location={location}
                             />
                         )}
-                        <MenuTile icon={<SettingsIcon />} label="Settings" to="settings" onClick={() => setDrawerOpen(false)} />
-                        <MenuTile icon={<ProfileIcon />} label="Profile" to="profile" onClick={() => setDrawerOpen(false)} />
-                        {households.length > 1 && (
-                            <MenuTile icon={<SwapHoriz />} label="Switch" onClick={() => setActiveMenu('switch')} />
-                        )}
+                        <MenuTile 
+                            icon={<SettingsIcon />} 
+                            label="Settings" 
+                            to="settings" 
+                            onClick={() => setDrawerOpen(false)} 
+                            navigate={navigate}
+                            location={location}
+                        />
                         <MenuTile 
                             icon={<Logout />} 
                             label="Logout" 
@@ -330,6 +332,8 @@ export default function HouseholdLayout({
                                 confirmAction("Log Out", "Are you sure you want to log out?", onLogout);
                             }} 
                             sx={{ bgcolor: 'danger.softBg', color: 'danger.plainColor' }} 
+                            navigate={navigate}
+                            location={location}
                         />
                     </Box>
                 </>
@@ -338,17 +342,17 @@ export default function HouseholdLayout({
       </Drawer>
     </Box>
   );
+}
 
-  function MenuTile({ icon, label, to, onClick, sx = {} }) {
-      const isActive = to && location.pathname.includes(to);
-      return (
-          <Stack 
-            alignItems="center" spacing={1} onClick={() => { if (to) navigate(to); onClick(); }}
-            sx={{ p: 2, borderRadius: 'xl', bgcolor: isActive ? 'primary.softBg' : 'background.level1', cursor: 'pointer', transition: 'all 0.2s', '&:active': { transform: 'scale(0.95)', bgcolor: 'primary.softBg' }, ...sx }}
-          >
-              <Box sx={{ color: isActive ? 'primary.solidBg' : 'neutral.plainColor' }}>{icon}</Box>
-              <Typography level="body-sm" sx={{ fontWeight: isActive ? 'bold' : 'normal' }}>{label}</Typography>
-          </Stack>
-      );
-  }
+function MenuTile({ icon, label, to, onClick, sx = {}, navigate, location }) {
+    const isActive = to && location.pathname.includes(to);
+    return (
+        <Stack 
+          alignItems="center" spacing={1} onClick={() => { if (to) navigate(to); onClick(); }}
+          sx={{ p: 2, borderRadius: 'xl', bgcolor: isActive ? 'primary.softBg' : 'background.level1', cursor: 'pointer', transition: 'all 0.2s', '&:active': { transform: 'scale(0.95)', bgcolor: 'primary.softBg' }, ...sx }}
+        >
+            <Box sx={{ color: isActive ? 'primary.solidBg' : 'neutral.plainColor' }}>{icon}</Box>
+            <Typography level="body-sm" sx={{ fontWeight: isActive ? 'bold' : 'normal' }}>{label}</Typography>
+        </Stack>
+    );
 }

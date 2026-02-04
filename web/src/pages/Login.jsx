@@ -6,7 +6,7 @@ import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { ArrowBack, Visibility, VisibilityOff, Email, Lock } from '@mui/icons-material';
 import axios from 'axios';
 import TotemIcon from '../components/TotemIcon';
-import { getEmojiColor } from '../utils/themes';
+import { getEmojiColor } from '../theme';
 
 export default function Login({ onLogin }) {
   const location = useLocation();
