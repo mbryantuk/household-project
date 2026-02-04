@@ -150,3 +150,26 @@ Every feature or maintenance pass MUST satisfy the following gates before deploy
 6.  **Database Cleardown (Manual):**
     * **Command:** `cd server && npm run test:tidy`
     * **Purpose:** Safely removes all test users, test households (keeping only the most recent), and orphan `.db` files while maintaining access for `mbryantuk@gmail.com`.
+
+
+## 5. MANDATORY TESTING GATES (The "Definition of Done")
+
+You are FORBIDDEN from marking a task as "Complete" until the following pipelines pass. You must proactively create/update tests for every new feature.
+
+### A. The Backend Gate (Node/SQLite)
+* **Trigger:** Any change to `server/routes`, `server/models`, or database schema.
+* **Requirement:** 1. You MUST create/update a matching `*.spec.js` file in `server/tests/`.
+    2. You MUST run `npm test` and confirm 100% pass rate.
+    3. **Tenancy Check:** You MUST verify that `household_id` isolation still holds (User A cannot see User B's data).
+
+### B. The Frontend Gate (Vue/Vite)
+* **Trigger:** Any change to `web/src/components` or `web/src/pages`.
+* **Requirement:**
+    1. **Unit:** Create a `.spec.js` for complex logic using Vitest.
+    2. **Smoke:** If adding a new page, add a routing check to `web/tests/smoke.spec.js`.
+    3. **UI Standard:** Verify the component uses `components/ui/` wrappers and Theme Tokens.
+
+### C. The Deployment Gate
+* **Trigger:** When asked to "Deploy" or "Finish".
+* **Action:** You must explicitly instruct the user to run the verification suite:
+    > "Verification Required: Please run `./scripts/ops/nightly_suite.sh` and confirm all lights are green."

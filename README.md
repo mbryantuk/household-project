@@ -89,3 +89,10 @@ The system includes a comprehensive multi-tier testing suite:
 *   **Tenant Isolation:** Data isolation at the database file level.
 *   **Context Enforcement:** Middleware enforcement of household context for every API request.
 *   **Zero Leakage:** No cross-tenant data leakages (Verified via Automated Isolation Tests).
+
+## 📚 Documentation
+
+For deeper technical details, please refer to the internal documentation:
+
+*   **[Database Schema](docs/SCHEMA.md):** Detailed breakdown of Global vs. Tenant tables and field types.
+*   **[Solution Architecture](docs/ARCHITECTURE.md):** High-level topology, security patterns, and frontend/backend design.
