@@ -2,10 +2,23 @@ import React, { useState, useEffect, useRef, useLayoutEffect, useCallback } from
 import { 
   Box, IconButton, Tooltip, Sheet, Typography, Button, Divider, Avatar, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, Chip, Stack
 } from '@mui/joy';
-import { 
-  Calculate, NoteAlt, CalendarMonth, OpenInNew, KeyboardArrowDown, Logout, Wifi, Download, Edit, Settings, ChevronLeft, ChevronRight, Payments,
-  Savings, TrendingUp, HourglassBottom
-} from '@mui/icons-material';
+import Calculate from '@mui/icons-material/Calculate';
+import NoteAlt from '@mui/icons-material/NoteAlt';
+import CalendarMonth from '@mui/icons-material/CalendarMonth';
+import OpenInNew from '@mui/icons-material/OpenInNew';
+import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
+import Logout from '@mui/icons-material/Logout';
+import Wifi from '@mui/icons-material/Wifi';
+import Download from '@mui/icons-material/Download';
+import Edit from '@mui/icons-material/Edit';
+import Settings from '@mui/icons-material/Settings';
+import ChevronLeft from '@mui/icons-material/ChevronLeft';
+import ChevronRight from '@mui/icons-material/ChevronRight';
+import Payments from '@mui/icons-material/Payments';
+import Savings from '@mui/icons-material/Savings';
+import TrendingUp from '@mui/icons-material/TrendingUp';
+import HourglassBottom from '@mui/icons-material/HourglassBottom';
+
 import { useNavigate } from 'react-router-dom';
 import FloatingCalculator from './FloatingCalculator';
 import FloatingCalendar from './FloatingCalendar';
@@ -16,6 +29,7 @@ import FloatingSavings from './FloatingSavings';
 import FloatingInvestments from './FloatingInvestments';
 import FloatingPensions from './FloatingPensions';
 import { getEmojiColor } from '../theme';
+import { useHousehold } from '../contexts/HouseholdContext';
 import pkg from '../../package.json';
 import gitInfo from '../git-info.json';
 
@@ -101,13 +115,13 @@ const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, showLabe
     );
 };
 
-export default function UtilityBar({
-    user, api, dates, onDateAdded, onUpdateProfile, isDark, onLogout,
-    households = [], onSelectHousehold, onInstall, canInstall, confirmAction,
-    activeHouseholdId,
-    statusBarData
-}) {
+export default function UtilityBar() {
   const navigate = useNavigate();
+  const { 
+    user, api, dates, onDateAdded, onUpdateProfile, isDark, onLogout,
+    households, onSelectHousehold, activeHouseholdId, statusBarData, confirmAction 
+  } = useHousehold();
+
   const scrollRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -116,7 +130,7 @@ export default function UtilityBar({
     if (scrollRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
       setCanScrollLeft(scrollLeft > 5);
-      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 5);
+      setCanScrollRight(scrollWidth - (scrollLeft + clientWidth) > 5);
     }
   }, []);
 
@@ -136,7 +150,6 @@ export default function UtilityBar({
       const resizeObserver = new ResizeObserver(checkScroll);
       resizeObserver.observe(el);
 
-      // Force multiple checks as items might render/re-flow
       const timer1 = setTimeout(checkScroll, 100);
       const timer2 = setTimeout(checkScroll, 1000);
       
@@ -238,15 +251,6 @@ export default function UtilityBar({
             gap: { xs: 1, md: 0 },
             minWidth: 0
         }}>
-            {/* Left Hint Gradient - Desktop Only */}
-            {!isMobile && canScrollLeft && (
-                <Box sx={{ 
-                    position: 'absolute', left: 0, zIndex: 5, height: '100%', width: 60,
-                    pointerEvents: 'none',
-                    background: 'linear-gradient(to right, var(--joy-palette-background-surface) 30%, transparent)'
-                }} />
-            )}
-            
             {!isMobile && canScrollLeft && (
                 <Box sx={{ 
                     position: 'absolute', left: 0, zIndex: 6, height: '100%', display: 'flex', alignItems: 'center',
@@ -295,15 +299,6 @@ export default function UtilityBar({
                 </WidgetWrapper>
             </Box>
 
-            {/* Right Hint Gradient - Desktop Only */}
-            {!isMobile && canScrollRight && (
-                <Box sx={{ 
-                    position: 'absolute', right: 0, zIndex: 5, height: '100%', width: 60,
-                    pointerEvents: 'none',
-                    background: 'linear-gradient(to left, var(--joy-palette-background-surface) 30%, transparent)'
-                }} />
-            )}
-
             {!isMobile && canScrollRight && (
                 <Box sx={{ 
                     position: 'absolute', right: 0, zIndex: 6, height: '100%', display: 'flex', alignItems: 'center',
@@ -335,18 +330,6 @@ export default function UtilityBar({
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 2, borderRight: '1px solid', borderColor: 'divider', height: '100%', bgcolor: 'primary.softBg' }}>
                     <Typography level="body-xs" fontWeight="bold">Selected: {statusBarData.count}</Typography>
                     <Typography level="body-xs">Total: <b>{formatCurrency(statusBarData.total)}</b></Typography>
-                    
-                    {statusBarData.paid > 0 && statusBarData.unpaid > 0 ? (
-                        <>
-                            <Divider orientation="vertical" sx={{ mx: 0.5, height: '60%' }} />
-                            <Typography level="body-xs" color="success">Paid: <b>{formatCurrency(statusBarData.paid)}</b></Typography>
-                            <Typography level="body-xs" color="danger">Unpaid: <b>{formatCurrency(statusBarData.unpaid)}</b></Typography>
-                        </>
-                    ) : statusBarData.paid > 0 ? (
-                        <Chip size="sm" variant="soft" color="success" sx={{ fontSize: '10px', fontWeight: 'bold' }}>ALL PAID</Chip>
-                    ) : statusBarData.unpaid > 0 ? (
-                        <Chip size="sm" variant="soft" color="danger" sx={{ fontSize: '10px', fontWeight: 'bold' }}>ALL UNPAID</Chip>
-                    ) : null}
                 </Box>
             )}
 
@@ -355,14 +338,6 @@ export default function UtilityBar({
                 <Typography level="body-xs">Online</Typography>
             </Box>
             
-            {canInstall && (
-                <Tooltip title="Install App" variant="soft">
-                    <IconButton size="sm" variant="plain" color="success" onClick={onInstall} sx={{ height: '100%', borderRadius: 0, px: 1.5 }}>
-                        <Download fontSize="small" />
-                    </IconButton>
-                </Tooltip>
-            )}
-
             <Tooltip title="Log Out" variant="soft">
                 <IconButton 
                     size="sm" 
@@ -401,15 +376,9 @@ export default function UtilityBar({
                 <Box sx={{ overflowY: 'auto', flexGrow: 1, maxHeight: 'calc(100vh - 200px)' }}>
                     <List size="sm" sx={{ p: 1 }}>
                         <ListItem>
-                            <ListItemButton onClick={() => { navigate('profile'); closeWidget(); }}>
-                                <ListItemDecorator><Edit fontSize="small" /></ListItemDecorator>
-                                <ListItemContent>Edit Profile</ListItemContent>
-                            </ListItemButton>
-                        </ListItem>
-                        <ListItem>
-                            <ListItemButton onClick={() => { navigate('settings'); closeWidget(); }}>
+                            <ListItemButton onClick={() => { navigate(`/household/${activeHouseholdId}/settings`); closeWidget(); }}>
                                 <ListItemDecorator><Settings fontSize="small" /></ListItemDecorator>
-                                <ListItemContent>Household Settings</ListItemContent>
+                                <ListItemContent>Settings</ListItemContent>
                             </ListItemButton>
                         </ListItem>
                     </List>
@@ -419,7 +388,7 @@ export default function UtilityBar({
                     </Divider>
 
                     <List size="sm" sx={{ '--ListItem-radius': '0px', p: 0 }}>
-                        {households.map(hh => (
+                        {(households || []).map(hh => (
                             <ListItem key={hh.id}>
                                 <ListItemButton selected={hh.id === user?.default_household_id} onClick={async () => { await onSelectHousehold(hh); navigate(`/household/${hh.id}/dashboard`); closeWidget(); }}>
                                     <ListItemDecorator>
@@ -440,9 +409,7 @@ export default function UtilityBar({
 
                     <Divider sx={{ my: 1 }} />
                     <Box sx={{ p: 1.5, display: 'flex', justifyContent: 'center', opacity: 0.5 }}>
-                        <Tooltip title={gitInfo.commitMessage || "Unknown"} variant="soft" size="sm">
-                            <Typography level="body-xs">Totem v{pkg.version}</Typography>
-                        </Tooltip>
+                        <Typography level="body-xs">Totem v{pkg.version}</Typography>
                     </Box>
                 </Box>
             </WidgetWrapper>
