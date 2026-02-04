@@ -84,74 +84,98 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 4955,
+                      "duration": 7399,
                       "error": {
-                        "message": "Error: page.goto: Navigation to \"http://localhost:4001/household/3608/dashboard\" is interrupted by another navigation to \"http://localhost:4001/household/3608/dashboard\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/household/3608/dashboard\", waiting until \"load\"\u001b[22m\n",
-                        "stack": "Error: page.goto: Navigation to \"http://localhost:4001/household/3608/dashboard\" is interrupted by another navigation to \"http://localhost:4001/household/3608/dashboard\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/household/3608/dashboard\", waiting until \"load\"\u001b[22m\n\n    at fn (/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:89:24)\n    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:49:44)\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:85:11",
+                        "message": "Error: locator.isVisible: Error: strict mode violation: locator('text=Invitation Sent') resolved to 2 elements:\n    1) <div role=\"presentation\" class=\"MuiSnackbar-root MuiSnackbar-sizeMd MuiSnackbar-colorSuccess MuiSnackbar-variantSoft MuiSnackbar-anchorOriginBottomCenter css-19p7946\">Invitation sent!</div> aka getByText('Invitation sent!')\n    2) <h2 id=\"_r_1l_\" data-first-child=\"\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg MuiDialogTitle-colorSuccess css-lajbs2\">Invitation Sent</h2> aka getByRole('heading', { name: 'Invitation Sent' })\n\nCall log:\n\u001b[2m    - checking visibility of locator('text=Invitation Sent')\u001b[22m\n",
+                        "stack": "Error: locator.isVisible: Error: strict mode violation: locator('text=Invitation Sent') resolved to 2 elements:\n    1) <div role=\"presentation\" class=\"MuiSnackbar-root MuiSnackbar-sizeMd MuiSnackbar-colorSuccess MuiSnackbar-variantSoft MuiSnackbar-anchorOriginBottomCenter css-19p7946\">Invitation sent!</div> aka getByText('Invitation sent!')\n    2) <h2 id=\"_r_1l_\" data-first-child=\"\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg MuiDialogTitle-colorSuccess css-lajbs2\">Invitation Sent</h2> aka getByRole('heading', { name: 'Invitation Sent' })\n\nCall log:\n\u001b[2m    - checking visibility of locator('text=Invitation Sent')\u001b[22m\n\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:114:32\n    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:49:24)\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:94:5",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js",
-                          "column": 24,
-                          "line": 89
+                          "column": 32,
+                          "line": 114
                         },
-                        "snippet": "\u001b[0m \u001b[90m 87 |\u001b[39m         \u001b[36mfor\u001b[39m (\u001b[36mconst\u001b[39m route \u001b[36mof\u001b[39m routes) {\n \u001b[90m 88 |\u001b[39m             logStep(\u001b[32m'Route Check'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m`Checking /${route}`\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 89 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m`/household/${hhId}/${route}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 90 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'body'\u001b[39m))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoContainText(\u001b[32m'404'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         }\n \u001b[90m 92 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m 112 |\u001b[39m         \u001b[36mawait\u001b[39m expect(modalSuccess\u001b[33m.\u001b[39mor(snackbar)\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 113 |\u001b[39m         \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 114 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[36mawait\u001b[39m modalSuccess\u001b[33m.\u001b[39misVisible()) {\n \u001b[90m     |\u001b[39m                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 115 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Done\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 116 |\u001b[39m         }\n \u001b[90m 117 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js",
-                            "column": 24,
-                            "line": 89
+                            "column": 32,
+                            "line": 114
                           },
-                          "message": "Error: page.goto: Navigation to \"http://localhost:4001/household/3608/dashboard\" is interrupted by another navigation to \"http://localhost:4001/household/3608/dashboard\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/household/3608/dashboard\", waiting until \"load\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 87 |\u001b[39m         \u001b[36mfor\u001b[39m (\u001b[36mconst\u001b[39m route \u001b[36mof\u001b[39m routes) {\n \u001b[90m 88 |\u001b[39m             logStep(\u001b[32m'Route Check'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m`Checking /${route}`\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 89 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m`/household/${hhId}/${route}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 90 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'body'\u001b[39m))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoContainText(\u001b[32m'404'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         }\n \u001b[90m 92 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at fn (/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:89:24)\u001b[22m\n\u001b[2m    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:49:44)\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:85:11\u001b[22m"
+                          "message": "Error: locator.isVisible: Error: strict mode violation: locator('text=Invitation Sent') resolved to 2 elements:\n    1) <div role=\"presentation\" class=\"MuiSnackbar-root MuiSnackbar-sizeMd MuiSnackbar-colorSuccess MuiSnackbar-variantSoft MuiSnackbar-anchorOriginBottomCenter css-19p7946\">Invitation sent!</div> aka getByText('Invitation sent!')\n    2) <h2 id=\"_r_1l_\" data-first-child=\"\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg MuiDialogTitle-colorSuccess css-lajbs2\">Invitation Sent</h2> aka getByRole('heading', { name: 'Invitation Sent' })\n\nCall log:\n\u001b[2m    - checking visibility of locator('text=Invitation Sent')\u001b[22m\n\n\n\u001b[0m \u001b[90m 112 |\u001b[39m         \u001b[36mawait\u001b[39m expect(modalSuccess\u001b[33m.\u001b[39mor(snackbar)\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 113 |\u001b[39m         \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 114 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[36mawait\u001b[39m modalSuccess\u001b[33m.\u001b[39misVisible()) {\n \u001b[90m     |\u001b[39m                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 115 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Done\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 116 |\u001b[39m         }\n \u001b[90m 117 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:114:32\u001b[22m\n\u001b[2m    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:49:24)\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:94:5\u001b[22m"
                         }
                       ],
                       "stdout": [
                         {
-                          "text": "[2026-02-04T18:29:46.370Z] [STEP: Mike Registration] Starting...\n"
+                          "text": "[2026-02-04T18:45:45.125Z] [STEP: Mike Registration] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T18:29:46.374Z] [STEP: Mike Registration] Attempt 1...\n"
+                          "text": "[2026-02-04T18:45:45.128Z] [STEP: Mike Registration] Attempt 1...\n"
                         },
                         {
-                          "text": "[2026-02-04T18:29:46.987Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T18:45:45.623Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T18:29:46.988Z] [STEP: BROWSER] Content is cached for offline use.\n"
+                          "text": "[2026-02-04T18:45:45.624Z] [STEP: BROWSER] Content is cached for offline use.\n"
                         },
                         {
-                          "text": "[2026-02-04T18:29:47.264Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T18:45:45.875Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T18:29:47.887Z] [STEP: Mike Registration] [1.52s] Completed successfully.\n"
+                          "text": "[2026-02-04T18:45:46.314Z] [STEP: Mike Registration] [1.19s] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-02-04T18:29:47.888Z] [STEP: Mike Login] Starting...\n"
+                          "text": "[2026-02-04T18:45:46.314Z] [STEP: Mike Login] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T18:29:48.205Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T18:45:46.603Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T18:29:48.565Z] [STEP: Mike Login] [0.68s] Completed successfully.\n"
+                          "text": "[2026-02-04T18:45:46.968Z] [STEP: Mike Login] [0.65s] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-02-04T18:29:48.566Z] [STEP: Foundation] Brady Household ID: 3608\n"
+                          "text": "[2026-02-04T18:45:46.969Z] [STEP: Foundation] Brady Household ID: 3615\n"
                         },
                         {
-                          "text": "[2026-02-04T18:29:48.566Z] [STEP: Route Check] Starting...\n"
+                          "text": "[2026-02-04T18:45:46.969Z] [STEP: Route Check] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T18:29:48.567Z] [STEP: Route Check] Checking /dashboard\n"
+                          "text": "[2026-02-04T18:45:46.970Z] [STEP: Route Check] Checking /dashboard\n"
                         },
                         {
-                          "text": "[2026-02-04T18:29:48.649Z] [STEP: Route Check] [0.08s] FAILED: page.goto: Navigation to \"http://localhost:4001/household/3608/dashboard\" is interrupted by another navigation to \"http://localhost:4001/household/3608/dashboard\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/household/3608/dashboard\", waiting until \"load\"\u001b[22m\n"
+                          "text": "[2026-02-04T18:45:47.076Z] [STEP: Route Check] Checking /calendar\n"
                         },
                         {
-                          "text": "[2026-02-04T18:29:48.978Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T18:45:47.168Z] [STEP: Route Check] Checking /house\n"
+                        },
+                        {
+                          "text": "[2026-02-04T18:45:47.283Z] [STEP: Route Check] Checking /meals\n"
+                        },
+                        {
+                          "text": "[2026-02-04T18:45:47.391Z] [STEP: Route Check] Checking /finance\n"
+                        },
+                        {
+                          "text": "[2026-02-04T18:45:47.511Z] [STEP: Route Check] Checking /settings\n"
+                        },
+                        {
+                          "text": "[2026-02-04T18:45:47.603Z] [STEP: Route Check] [0.63s] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-02-04T18:45:47.603Z] [STEP: Grant Lead Architect Access] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-02-04T18:45:47.897Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-02-04T18:45:49.121Z] [STEP: Grant Access] Inviting mbryantuk@gmail.com as Admin\n"
+                        },
+                        {
+                          "text": "[2026-02-04T18:45:49.962Z] [STEP: Grant Lead Architect Access] [2.36s] FAILED: locator.isVisible: Error: strict mode violation: locator('text=Invitation Sent') resolved to 2 elements:\n    1) <div role=\"presentation\" class=\"MuiSnackbar-root MuiSnackbar-sizeMd MuiSnackbar-colorSuccess MuiSnackbar-variantSoft MuiSnackbar-anchorOriginBottomCenter css-19p7946\">Invitation sent!</div> aka getByText('Invitation sent!')\n    2) <h2 id=\"_r_1l_\" data-first-child=\"\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg MuiDialogTitle-colorSuccess css-lajbs2\">Invitation Sent</h2> aka getByRole('heading', { name: 'Invitation Sent' })\n\nCall log:\n\u001b[2m    - checking visibility of locator('text=Invitation Sent')\u001b[22m\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-04T18:29:43.665Z",
+                      "startTime": "2026-02-04T18:45:42.648Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -167,8 +191,8 @@
                       ],
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js",
-                        "column": 24,
-                        "line": 89
+                        "column": 32,
+                        "line": 114
                       }
                     }
                   ],
@@ -187,8 +211,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-04T18:29:41.051Z",
-    "duration": 8132.676000000001,
+    "startTime": "2026-02-04T18:45:40.291Z",
+    "duration": 10200.729,
     "expected": 0,
     "skipped": 0,
     "unexpected": 1,

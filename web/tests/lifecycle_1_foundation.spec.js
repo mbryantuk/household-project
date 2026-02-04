@@ -111,7 +111,7 @@ test.describe('Brady Lifecycle Stage 1: Foundation', () => {
         const snackbar = page.locator('div.MuiSnackbar-root');
         await expect(modalSuccess.or(snackbar).first()).toBeVisible({ timeout: 15000 });
         
-        if (await modalSuccess.isVisible()) {
+        if (await modalSuccess.first().isVisible()) {
             await page.click('button:has-text("Done")');
         }
     });
