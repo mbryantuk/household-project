@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Architectural overhaul: fixed sidebar pinning, implemented HouseholdContext, and added Error Boundaries/Skeletons",
-  "date": "Wed  4 Feb 16:07:40 GMT 2026"
+  "commitMessage": "Architectural upgrade: implemented TanStack Query, lazy loading, and professional data layer hooks",
+  "date": "Wed  4 Feb 16:12:03 GMT 2026"
 }

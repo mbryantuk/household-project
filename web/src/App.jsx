@@ -1,12 +1,13 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef, lazy, Suspense } from 'react';
 import axios from 'axios';
 import { 
   Box, CssVarsProvider, Button, 
   Snackbar, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions,
-  GlobalStyles, useColorScheme, Typography
+  GlobalStyles, useColorScheme, Typography, CircularProgress
 } from '@mui/joy';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import CssBaseline from '@mui/joy/CssBaseline';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import pkg from '../package.json';
 
 // Theme and Local Components
@@ -27,23 +28,41 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import HouseholdSelector from './pages/HouseholdSelector';
 
-// Features
-import HomeView from './features/HomeView';
-import SettingsView from './features/SettingsView';
-import MealPlannerView from './features/MealPlannerView';
-import CalendarView from './features/CalendarView';
-import PeopleView from './features/PeopleView';
-import HouseView from './features/HouseView';
-import PetsView from './features/PetsView';
-import VehiclesView from './features/VehiclesView';
-import ProfileView from './features/ProfileView';
-import FinanceView from './features/FinanceView';
+// Lazy Loaded Features
+const HomeView = lazy(() => import('./features/HomeView'));
+const SettingsView = lazy(() => import('./features/SettingsView'));
+const MealPlannerView = lazy(() => import('./features/MealPlannerView'));
+const CalendarView = lazy(() => import('./features/CalendarView'));
+const PeopleView = lazy(() => import('./features/PeopleView'));
+const HouseView = lazy(() => import('./features/HouseView'));
+const PetsView = lazy(() => import('./features/PetsView'));
+const VehiclesView = lazy(() => import('./features/VehiclesView'));
+const ProfileView = lazy(() => import('./features/ProfileView'));
+const FinanceView = lazy(() => import('./features/FinanceView'));
 
 const API_BASE = window.location.origin;
 const API_URL = `${API_BASE}/api`;
 
 const IDLE_WARNING_MS = 60 * 60 * 1000; // 1 Hour
 const IDLE_LOGOUT_MS = 120 * 60 * 1000;  // 2 Hours
+
+// Standard Page Loader
+const PageLoader = () => (
+  <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
+    <CircularProgress size="lg" />
+  </Box>
+);
+
+// Global Query Client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 1000 * 60 * 5, // 5 minutes
+    },
+  },
+});
 
 function AppInner({ 
     themeId, setThemeId, user, setUser, token, setToken, household, setHousehold, 
@@ -354,62 +373,64 @@ function AppInner({
           '.rbc-toolbar button:hover, .rbc-toolbar button:active, .rbc-toolbar button.rbc-active': { backgroundColor: `${spec.selection} !important`, color: `${spec.text} !important` }
       }} />
 
-      <Routes>
-        <Route path="/login" element={!token ? <Login onLogin={login} /> : <Navigate to="/" />} />
-        <Route path="/register" element={!token ? <Register /> : <Navigate to="/" />} />
-        <Route path="/calculator" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
-        <Route path="/fin-calculator-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FinancialCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
-        <Route path="/tax-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><TaxCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
-        <Route path="/calendar-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingCalendar isPopout={true} onClose={() => window.close()} dates={hhDates} api={authAxios} householdId={household?.id} currentUser={user} onDateAdded={() => household && fetchHhDates(household.id)} /></Box>} />
-        <Route path="/savings-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingSavings isPopout={true} onClose={() => window.close()} api={authAxios} householdId={household?.id} isDark={isDark} /></Box>} />
-        <Route path="/investments-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingInvestments isPopout={true} onClose={() => window.close()} api={authAxios} householdId={household?.id} isDark={isDark} /></Box>} />
-        <Route path="/pensions-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingPensions isPopout={true} onClose={() => window.close()} api={authAxios} householdId={household?.id} isDark={isDark} /></Box>} />
-        <Route path="/note-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><PostItNote isPopout={true} onClose={() => window.close()} user={user} onUpdateProfile={handleUpdateProfile} /></Box>} />
-        
-        <Route element={token ? <RootLayout context={{ api: authAxios, user, showNotification, confirmAction }} /> : <Navigate to="/login" />}>
-          <Route index element={household ? <Navigate to={`/household/${household.id}/dashboard`} /> : <Navigate to="/select-household" />} />
-          <Route path="select-household" element={<HouseholdSelector api={authAxios} currentUser={user} onLogout={logout} showNotification={showNotification} onSelectHousehold={handleSelectHousehold} />} />
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+            <Route path="/login" element={!token ? <Login onLogin={login} /> : <Navigate to="/" />} />
+            <Route path="/register" element={!token ? <Register /> : <Navigate to="/" />} />
+            <Route path="/calculator" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
+            <Route path="/fin-calculator-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FinancialCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
+            <Route path="/tax-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><TaxCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
+            <Route path="/calendar-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingCalendar isPopout={true} onClose={() => window.close()} dates={hhDates} api={authAxios} householdId={household?.id} currentUser={user} onDateAdded={() => household && fetchHhDates(household.id)} /></Box>} />
+            <Route path="/savings-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingSavings isPopout={true} onClose={() => window.close()} api={authAxios} householdId={household?.id} isDark={isDark} /></Box>} />
+            <Route path="/investments-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingInvestments isPopout={true} onClose={() => window.close()} api={authAxios} householdId={household?.id} isDark={isDark} /></Box>} />
+            <Route path="/pensions-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingPensions isPopout={true} onClose={() => window.close()} api={authAxios} householdId={household?.id} isDark={isDark} /></Box>} />
+            <Route path="/note-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><PostItNote isPopout={true} onClose={() => window.close()} user={user} onUpdateProfile={handleUpdateProfile} /></Box>} />
+            
+            <Route element={token ? <RootLayout context={{ api: authAxios, user, showNotification, confirmAction }} /> : <Navigate to="/login" />}>
+            <Route index element={household ? <Navigate to={`/household/${household.id}/dashboard`} /> : <Navigate to="/select-household" />} />
+            <Route path="select-household" element={<HouseholdSelector api={authAxios} currentUser={user} onLogout={logout} showNotification={showNotification} onSelectHousehold={handleSelectHousehold} />} />
 
-          <Route path="household/:id" element={<HouseholdLayout 
-              households={households} onSelectHousehold={handleSelectHousehold} api={authAxios} onUpdateHousehold={handleUpdateHouseholdSettings}
-              members={hhMembers} fetchHhMembers={fetchHhMembers} vehicles={hhVehicles} fetchVehicles={fetchHhVehicles}
-              user={user} isDark={isDark} showNotification={showNotification} confirmAction={confirmAction}
-              dates={hhDates} onDateAdded={() => household && fetchHhDates(household.id)}
-              onUpdateProfile={handleUpdateProfile} onLogout={logout}
-              themeId={themeId} onThemeChange={(newId) => handleUpdateProfile({ theme: newId })}
-              installPrompt={installPrompt} onInstall={handleInstall} household={household}
-            />}>
-                <Route index element={<Navigate to="dashboard" replace />} />
-                <Route path="dashboard" element={<HomeView household={household} members={hhMembers} currentUser={user} dates={hhDates} onUpdateProfile={handleUpdateProfile} api={authAxios} />} />
-                <Route path="calendar" element={<CalendarView showNotification={showNotification} confirmAction={confirmAction} />} />
-                <Route path="people/:personId" element={<PeopleView />} /><Route path="people" element={<PeopleView />} />
-                <Route path="pets/:petId" element={<PetsView />} /><Route path="pets" element={<PetsView />} />
-                <Route path="house/:houseId/assets/:assetId" element={<HouseView />} />
-                <Route path="house/:houseId/assets" element={<HouseView />} />
-                <Route path="house/:houseId" element={<HouseView />} />
-                <Route path="house" element={<HouseView />} />
-                <Route path="vehicles/:vehicleId" element={<VehiclesView />} /><Route path="vehicles" element={<VehiclesView />} />
-                <Route path="profile" element={<ProfileView />} />
-                <Route path="meals" element={<MealPlannerView />} />
-                <Route path="finance" element={<FinanceView />} />
-                <Route path="settings" element={<SettingsView 
-                    household={household} users={hhUsers} currentUser={user} api={authAxios}
-                    onUpdateHousehold={handleUpdateHouseholdSettings} themeId={themeId}
-                    onThemeChange={(newId) => handleUpdateProfile({ theme: newId })}
-                    showNotification={showNotification} confirmAction={confirmAction} fetchHhUsers={fetchHhUsers}
-                    onUpdateProfile={handleUpdateProfile}
-                />} />
-                <Route path="tools/notes" element={<Box sx={{ height: '100%' }}><PostItNote isPopout={true} onClose={() => navigate(-1)} user={user} onUpdateProfile={handleUpdateProfile} /></Box>} />
-                <Route path="tools/calculator" element={<Box sx={{ height: '100%' }}><FloatingCalculator isPopout={true} onClose={() => navigate(-1)} isDark={isDark} /></Box>} />
-                <Route path="tools/finance" element={<Box sx={{ height: '100%' }}><FinancialCalculator isPopout={true} onClose={() => navigate(-1)} isDark={isDark} /></Box>} />
-                <Route path="tools/tax" element={<Box sx={{ height: '100%' }}><TaxCalculator isPopout={true} onClose={() => navigate(-1)} isDark={isDark} /></Box>} />
-                <Route path="tools/savings" element={<Box sx={{ height: '100%' }}><FloatingSavings isPopout={true} onClose={() => navigate(-1)} api={authAxios} householdId={household?.id} isDark={isDark} /></Box>} />
-                <Route path="tools/investments" element={<Box sx={{ height: '100%' }}><FloatingInvestments isPopout={true} onClose={() => navigate(-1)} api={authAxios} householdId={household?.id} isDark={isDark} /></Box>} />
-                <Route path="tools/pensions" element={<Box sx={{ height: '100%' }}><FloatingPensions isPopout={true} onClose={() => navigate(-1)} api={authAxios} householdId={household?.id} isDark={isDark} /></Box>} />
-                <Route path="tools/calendar" element={<Box sx={{ height: '100%' }}><FloatingCalendar isPopout={true} onClose={() => navigate(-1)} dates={hhDates} api={authAxios} householdId={household?.id} currentUser={user} onDateAdded={() => household && fetchHhDates(household.id)} isDark={isDark} /></Box>} />
-          </Route>
-        </Route>
-      </Routes>
+            <Route path="household/:id" element={<HouseholdLayout 
+                households={households} onSelectHousehold={handleSelectHousehold} api={authAxios} onUpdateHousehold={handleUpdateHouseholdSettings}
+                members={hhMembers} fetchHhMembers={fetchHhMembers} vehicles={hhVehicles} fetchVehicles={fetchHhVehicles}
+                user={user} isDark={isDark} showNotification={showNotification} confirmAction={confirmAction}
+                dates={hhDates} onDateAdded={() => household && fetchHhDates(household.id)}
+                onUpdateProfile={handleUpdateProfile} onLogout={logout}
+                themeId={themeId} onThemeChange={(newId) => handleUpdateProfile({ theme: newId })}
+                installPrompt={installPrompt} onInstall={handleInstall} household={household}
+                />}>
+                    <Route index element={<Navigate to="dashboard" replace />} />
+                    <Route path="dashboard" element={<HomeView household={household} members={hhMembers} currentUser={user} dates={hhDates} onUpdateProfile={handleUpdateProfile} api={authAxios} />} />
+                    <Route path="calendar" element={<CalendarView showNotification={showNotification} confirmAction={confirmAction} />} />
+                    <Route path="people/:personId" element={<PeopleView />} /><Route path="people" element={<PeopleView />} />
+                    <Route path="pets/:petId" element={<PetsView />} /><Route path="pets" element={<PetsView />} />
+                    <Route path="house/:houseId/assets/:assetId" element={<HouseView />} />
+                    <Route path="house/:houseId/assets" element={<HouseView />} />
+                    <Route path="house/:houseId" element={<HouseView />} />
+                    <Route path="house" element={<HouseView />} />
+                    <Route path="vehicles/:vehicleId" element={<VehiclesView />} /><Route path="vehicles" element={<VehiclesView />} />
+                    <Route path="profile" element={<ProfileView />} />
+                    <Route path="meals" element={<MealPlannerView />} />
+                    <Route path="finance" element={<FinanceView />} />
+                    <Route path="settings" element={<SettingsView 
+                        household={household} users={hhUsers} currentUser={user} api={authAxios}
+                        onUpdateHousehold={handleUpdateHouseholdSettings} themeId={themeId}
+                        onThemeChange={(newId) => handleUpdateProfile({ theme: newId })}
+                        showNotification={showNotification} confirmAction={confirmAction} fetchHhUsers={fetchHhUsers}
+                        onUpdateProfile={handleUpdateProfile}
+                    />} />
+                    <Route path="tools/notes" element={<Box sx={{ height: '100%' }}><PostItNote isPopout={true} onClose={() => navigate(-1)} user={user} onUpdateProfile={handleUpdateProfile} /></Box>} />
+                    <Route path="tools/calculator" element={<Box sx={{ height: '100%' }}><FloatingCalculator isPopout={true} onClose={() => navigate(-1)} isDark={isDark} /></Box>} />
+                    <Route path="tools/finance" element={<Box sx={{ height: '100%' }}><FinancialCalculator isPopout={true} onClose={() => navigate(-1)} isDark={isDark} /></Box>} />
+                    <Route path="tools/tax" element={<Box sx={{ height: '100%' }}><TaxCalculator isPopout={true} onClose={() => navigate(-1)} isDark={isDark} /></Box>} />
+                    <Route path="tools/savings" element={<Box sx={{ height: '100%' }}><FloatingSavings isPopout={true} onClose={() => navigate(-1)} api={authAxios} householdId={household?.id} isDark={isDark} /></Box>} />
+                    <Route path="tools/investments" element={<Box sx={{ height: '100%' }}><FloatingInvestments isPopout={true} onClose={() => navigate(-1)} api={authAxios} householdId={household?.id} isDark={isDark} /></Box>} />
+                    <Route path="tools/pensions" element={<Box sx={{ height: '100%' }}><FloatingPensions isPopout={true} onClose={() => navigate(-1)} api={authAxios} householdId={household?.id} isDark={isDark} /></Box>} />
+                    <Route path="tools/calendar" element={<Box sx={{ height: '100%' }}><FloatingCalendar isPopout={true} onClose={() => navigate(-1)} dates={hhDates} api={authAxios} householdId={household?.id} currentUser={user} onDateAdded={() => household && fetchHhDates(household.id)} isDark={isDark} /></Box>} />
+                </Route>
+            </Route>
+        </Routes>
+      </Suspense>
 
       <Snackbar open={notification.open} autoHideDuration={4000} onClose={hideNotification} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} variant="soft" color={notification.severity} sx={{ zIndex: 3000, bottom: '50px !important' }}>
         {notification.message}
@@ -496,17 +517,19 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <CssVarsProvider theme={theme} defaultMode={spec.mode} disableNestedContext>
-        <CssBaseline />
-        <AppInner 
-            themeId={themeId} setThemeId={setThemeId} 
-            user={user} setUser={setUser} 
-            token={token} setToken={setToken} 
-            household={household} setHousehold={setHousehold}
-            logout={logout} login={login}
-            spec={spec} isDark={isDark}
-        />
-      </CssVarsProvider>
+      <QueryClientProvider client={queryClient}>
+        <CssVarsProvider theme={theme} defaultMode={spec.mode} disableNestedContext>
+            <CssBaseline />
+            <AppInner 
+                themeId={themeId} setThemeId={setThemeId} 
+                user={user} setUser={setUser} 
+                token={token} setToken={setToken} 
+                household={household} setHousehold={setHousehold}
+                logout={logout} login={login}
+                spec={spec} isDark={isDark}
+            />
+        </CssVarsProvider>
+      </QueryClientProvider>
     </BrowserRouter>
   );
 }
