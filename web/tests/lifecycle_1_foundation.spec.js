@@ -149,7 +149,7 @@ test.describe('Brady Lifecycle Stage 1: Foundation', () => {
             await page.click('label:has-text("Role") + div button');
             await page.click(`li[role="option"]:has-text("${member.role}")`);
             await page.click('button:has-text("Send Invitation")');
-            await expect(page.locator('text=Invitation Sent')).toBeVisible();
+            await expect(page.locator('h2:has-text("Invitation Sent")')).toBeVisible();
             await page.click('button:has-text("Done")');
         }
     });
