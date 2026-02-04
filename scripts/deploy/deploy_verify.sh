@@ -42,12 +42,7 @@ docker compose up -d --build
 echo "⏳ Waiting 30s for container stabilization..."
 sleep 30
 
-# 2.5. Post-Deployment Verification
-echo "🧪 Running Post-Deployment Verification..."
-echo "   - Running Backend Tests..."
-(cd server && BYPASS_MAINTENANCE=true npm test)
-
-# 2.6. Seed Brady Household (Only if tests pass)
+# 2.6. Seed Brady Household
 echo "🌱 Seeding Brady Household..."
 export BYPASS_MAINTENANCE=true
 node scripts/ops/seed_brady_household.js

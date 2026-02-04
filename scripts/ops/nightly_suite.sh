@@ -1,8 +1,6 @@
 #!/bin/bash
 # scripts/ops/nightly_suite.sh
-# Brady Lifecycle Test Orchestrator (2-Stage Version)
-
-set -e
+# Brady Lifecycle Test Orchestrator (Non-Blocking Version)
 
 # Flags
 SKIP_DOCKER=false
@@ -13,6 +11,7 @@ SKIP_EMAIL=false
 VERSION_FILTER=""
 export RUN_ID="RUN_$(date +%s)"
 export LOG_FILE="/tmp/brady_lifecycle.log"
+EXIT_CODE=0
 
 # Initialize Log
 echo "=== NIGHTLY RUN $RUN_ID STARTED ===" > $LOG_FILE
@@ -44,7 +43,7 @@ done
 
 cd "$PROJECT_ROOT"
 
-CURRENT_VERSION=$(grep '"version":' package.json | head -1 | awk -F: '{ print $2 }' | sed 's/[", ]//g')
+CURRENT_VERSION=$(grep '"version":' package.json | head -1 | awk -F: '{ print $2 }' | sed 's/[ ", ]//g')
 if [ -n "$VERSION_FILTER" ] && [ "$CURRENT_VERSION" != "$VERSION_FILTER" ]; then
     echo "⏭️  Skipping Nightly Suite: Version mismatch."
     exit 0
@@ -64,7 +63,10 @@ fi
 # 1. Refresh Containers
 if [ "$SKIP_DOCKER" = false ] && [ "$IS_CONTAINER" = false ]; then
     echo "🚀 [1/6] Refreshing containers..."
-    docker compose up -d --build > /dev/null 2>&1
+    if ! docker compose up -d --build > /dev/null 2>&1; then
+        echo "❌ Docker Compose Failed. Aborting."
+        exit 1
+    fi
     echo "✅ Containers ready."
 fi
 
@@ -79,7 +81,9 @@ if [ "$SKIP_BACKEND" = false ]; then
     else
         echo "   🔴 Backend: FAILED"
         cd "$PROJECT_ROOT"
+        node scripts/utils/notify_slack_on_failure.js "$PROJECT_ROOT/server/test-report.json" || true
         node scripts/ops/record_test_results.js backend "failure" || true
+        EXIT_CODE=1
     fi
 fi
 
@@ -88,57 +92,73 @@ echo "🧹 Physical cleanup of test databases..."
 rm -f /tmp/brady_context.json
 find "$PROJECT_ROOT/server/data" -name "household_*.db*" ! -name "household_60.db*" -delete
 
-# 3. Brady Lifecycle
+# 3. Frontend Tests
 if [ "$SKIP_FRONTEND" = true ]; then
     echo "⏭️  [3/6] Skipping Frontend Tests."
 else
-    echo "🌐 [3/6] Running Brady Lifecycle (RunID: $RUN_ID)..."
+    echo "🌐 [3/6] Running Frontend Test Suite (RunID: $RUN_ID)..."
     cd "$PROJECT_ROOT/web"
     
-    # STAGE 1: FOUNDATION
-    echo "   📍 Stage 1: Brady Foundation & Page Checks..."
-    if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-1.json npx playwright test tests/lifecycle_1_foundation.spec.js --reporter=list,json; then
-        echo "   🟢 Stage 1: SUCCESS"
-        cd "$PROJECT_ROOT"
-        node scripts/ops/record_test_results.js frontend_lifecycle_1 "success" || true
-
-        # STAGE 2: FINANCE
-        cd "$PROJECT_ROOT/web"
-        echo "   📍 Stage 2: Finance & Fringe Data..."
-        if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-2.json npx playwright test tests/lifecycle_2_finance.spec.js --reporter=list,json; then
-            echo "   🟢 Stage 2: SUCCESS"
+    # Helper to run verify
+    run_stage() {
+        NAME=$1
+        CMD=$2
+        REPORT=$3
+        KEY=$4
+        echo "   📍 Running $NAME..."
+        if eval "$CMD"; then
+            echo "   🟢 $NAME: SUCCESS"
             cd "$PROJECT_ROOT"
-            node scripts/ops/record_test_results.js frontend_lifecycle_2 "success" || true
-
-            # STAGE 3: ADVANCED FINANCE
-            cd "$PROJECT_ROOT/web"
-            echo "   📍 Stage 3: Advanced Finance (Expenses & Pots)..."
-            if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-3.json npx playwright test tests/lifecycle_3_expenses.spec.js --reporter=list,json; then
-                if CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-4.json npx playwright test tests/lifecycle_4_savings_pots.spec.js --reporter=list,json; then
-                    echo "   🟢 Stage 3: SUCCESS"
-                    cd "$PROJECT_ROOT"
-                    node scripts/ops/record_test_results.js frontend_lifecycle_3 "success" || true
-                else
-                    echo "   🔴 Stage 3 (Pots): FAILED"
-                    cd "$PROJECT_ROOT"
-                    node scripts/ops/record_test_results.js frontend_lifecycle_3 "failure" || true
-                fi
-            else
-                echo "   🔴 Stage 3 (Expenses): FAILED"
-                cd "$PROJECT_ROOT"
-                node scripts/ops/record_test_results.js frontend_lifecycle_3 "failure" || true
-            fi
+            node scripts/ops/record_test_results.js "$KEY" "success" || true
         else
-            echo "   🔴 Stage 2: FAILED"
+            echo "   🔴 $NAME: FAILED"
             cd "$PROJECT_ROOT"
-            node scripts/ops/record_test_results.js frontend_lifecycle_2 "failure" || true
+            node scripts/utils/notify_slack_on_failure.js "$REPORT" || true
+            node scripts/ops/record_test_results.js "$KEY" "failure" || true
+            EXIT_CODE=1
         fi
-    else
-        echo "   🔴 Stage 1: FAILED"
-        echo "   ⏭️  Stage 2: SKIPPED"
-        cd "$PROJECT_ROOT"
-        node scripts/ops/record_test_results.js frontend_lifecycle_1 "failure" || true
-    fi
+        cd "$PROJECT_ROOT/web"
+    }
+
+    # STAGE 1: FOUNDATION
+    run_stage "Stage 1: Foundation" \
+        "CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-1.json npx playwright test tests/lifecycle_1_foundation.spec.js --reporter=list,json" \
+        "$PROJECT_ROOT/web/results-1.json" \
+        "frontend_lifecycle_1"
+
+    # STAGE 2: FINANCE
+    run_stage "Stage 2: Finance" \
+        "CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-2.json npx playwright test tests/lifecycle_2_finance.spec.js --reporter=list,json" \
+        "$PROJECT_ROOT/web/results-2.json" \
+        "frontend_lifecycle_2"
+
+    # STAGE 3: ADVANCED FINANCE (Expenses)
+    run_stage "Stage 3a: Expenses" \
+        "CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-3.json npx playwright test tests/lifecycle_3_expenses.spec.js --reporter=list,json" \
+        "$PROJECT_ROOT/web/results-3.json" \
+        "frontend_lifecycle_3a"
+
+    # STAGE 3: ADVANCED FINANCE (Pots)
+    run_stage "Stage 3b: Savings Pots" \
+        "CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-4.json npx playwright test tests/lifecycle_4_savings_pots.spec.js --reporter=list,json" \
+        "$PROJECT_ROOT/web/results-4.json" \
+        "frontend_lifecycle_3b"
+
+    # STAGE 4: INDEPENDENT UI FLOWS
+    # We run all files in tests/e2e/ui/
+    # We treat them as a single "UI Verification" stage for high-level reporting, or split?
+    # User asked for "all front end flows have an individual test".
+    # Playwright can run folder and report individual tests.
+    run_stage "Stage 4: UI Flow Verification (Onboarding, Members, Assets, Finance)" \
+        "CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-ui.json npx playwright test tests/e2e/ui/ --reporter=list,json" \
+        "$PROJECT_ROOT/web/results-ui.json" \
+        "frontend_ui_flows"
+
+    # DEMO SEED CHECK (Optional, but ensures the demo script works)
+    run_stage "Stage 5: Demo Seed Integrity (Brady)" \
+        "CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-demo.json npx playwright test tests/e2e/brady_full_state.spec.js --reporter=list,json" \
+        "$PROJECT_ROOT/web/results-demo.json" \
+        "frontend_demo_seed"
 fi
 
 # 4. Cleanup
@@ -163,4 +183,10 @@ if [ "$SKIP_PURGE" = false ] && [ "$IS_CONTAINER" = false ]; then
     echo "✅ Reclaimed space."
 fi
 
-echo "🏁 Health Check Complete."
+if [ $EXIT_CODE -ne 0 ]; then
+    echo "❌ One or more tests failed. Nightly Suite FAILED."
+else
+    echo "🏁 Health Check Complete. All Systems Green."
+fi
+
+exit $EXIT_CODE

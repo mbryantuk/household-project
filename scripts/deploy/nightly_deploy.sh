@@ -34,22 +34,21 @@ docker compose up -d --build
 echo "⏳ Waiting 30s for container stabilization..."
 sleep 30
 
-# 2.5. Post-Deployment Verification
-echo "🧪 Running Post-Deployment Verification..."
-echo "   - Running Backend Tests..."
-# Capture test result
+# 2.5. Comprehensive Test Verification
+echo "🧪 Running Nightly Test Suite..."
 set +e
-(cd server && BYPASS_MAINTENANCE=true npm test)
+./scripts/ops/nightly_suite.sh --skip-docker --skip-purge
 TEST_EXIT_CODE=$?
 set -e
 
-if [ $TEST_EXIT_CODE -eq 0 ]; then
-    TEST_RESULT="PASS"
-else
-    TEST_RESULT="FAIL"
+if [ $TEST_EXIT_CODE -ne 0 ]; then
+    echo "❌ Nightly Tests Failed. Aborting build commit."
+    # Still disable maintenance mode so system isn't locked
+    rm -f server/data/upgrading.lock
+    exit 1
 fi
 
-# 2.6. Seed Brady Household (API Coverage)
+# 2.6. Seed Brady Household
 echo "🌱 Seeding Brady Household..."
 export BYPASS_MAINTENANCE=true
 node scripts/ops/seed_brady_household.js
@@ -58,7 +57,7 @@ unset BYPASS_MAINTENANCE
 # 3. Commit & Push
 echo "💾 Committing changes..."
 git add .
-git commit -m "nightly: v$NEW_VERSION - $COMMIT_MESSAGE [Tests: $TEST_RESULT]"
+git commit -m "nightly: v$NEW_VERSION - $COMMIT_MESSAGE [Tests: PASS]"
 CURRENT_BRANCH=$(git branch --show-current)
 git push origin "$CURRENT_BRANCH"
 

@@ -1,14 +1,15 @@
 {
   "name": "household-web",
   "private": true,
-  "version": "3.2.83",
+  "version": "3.2.84",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test:smoke": "npx playwright test"
+    "test:smoke": "npx playwright test",
+    "test:unit": "vitest"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -36,6 +37,11 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "vitest": "^2.1.8",
+    "jsdom": "^25.0.1",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/dom": "^10.4.0"
   }
 }
