@@ -228,7 +228,7 @@ router.delete('/users/:userId', authenticateToken, requireHouseholdRole('admin')
 // 🧪 TEST MONITORING (Admin Only)
 // ==========================================
 
-router.get('/test-results', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
+router.get('/test-results', authenticateToken, requireSystemRole('admin'), (req, res) => {
     globalDb.all("SELECT * FROM test_results ORDER BY created_at DESC LIMIT 100", [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
@@ -307,7 +307,7 @@ router.post('/health-check/trigger', authenticateToken, requireSystemRole('admin
     res.json({ message: "Health check triggered." });
 });
 
-router.get('/health-check/status', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
+router.get('/health-check/status', authenticateToken, requireSystemRole('admin'), (req, res) => {
     const status = getHealthStatus();
     let logs = '';
     if (fs.existsSync(HEALTH_LOG)) {
@@ -320,7 +320,7 @@ router.get('/health-check/status', authenticateToken, requireHouseholdRole('admi
 // 🚀 VERSION HISTORY
 // ==========================================
 
-router.get('/version-history', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
+router.get('/version-history', authenticateToken, requireSystemRole('admin'), (req, res) => {
     globalDb.all("SELECT * FROM version_history ORDER BY created_at DESC LIMIT 50", [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);

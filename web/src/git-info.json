@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Final architectural fix: fixed PRAGMA table_info reliability in details route",
-  "date": "Wed  4 Feb 15:29:57 GMT 2026"
+  "commitMessage": "Final architectural fix: established reliable async tenant DB initialization",
+  "date": "Wed  4 Feb 15:48:23 GMT 2026"
 }

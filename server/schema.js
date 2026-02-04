@@ -436,118 +436,45 @@ function initializeGlobalSchema(db) {
 }
 
 function initializeHouseholdSchema(db) {
-    db.serialize(() => {
-        TENANT_SCHEMA.forEach(sql => {
-            db.run(sql, (err) => {
-                if (err && !err.message.includes('already exists')) {
-                    console.error("Household Schema Init Error:", err.message);
-                }
-            });
-        });
+    return new Promise((resolve, reject) => {
+        db.serialize(() => {
+            TENANT_SCHEMA.forEach((sql, index) => {
+                db.run(sql, (err) => {
+                    if (err && !err.message.includes('already exists')) {
+                        console.error("Household Schema Init Error:", err.message);
+                    }
+                    if (index === TENANT_SCHEMA.length - 1) {
+                        // After last base table, run migrations
+                        const additionalFinanceCols = [
+                            ['finance_budget_progress', 'actual_amount', 'REAL'],
+                            ['finance_budget_progress', 'actual_date', 'DATE'],
+                            ['finance_pensions', 'payment_day', 'INTEGER'],
+                            ['finance_income', 'nearest_working_day', 'INTEGER DEFAULT 1'],
+                            ['finance_credit_cards', 'nearest_working_day', 'INTEGER DEFAULT 1'],
+                            ['finance_pensions', 'nearest_working_day', 'INTEGER DEFAULT 1'],
+                            ['house_details', 'purchase_price', 'REAL DEFAULT 0'],
+                            ['house_details', 'current_valuation', 'REAL DEFAULT 0'],
+                            ['finance_savings', 'deposit_amount', 'REAL DEFAULT 0'],
+                            ['finance_savings', 'deposit_day', 'INTEGER'],
+                            ['finance_investments', 'monthly_contribution', 'REAL DEFAULT 0'],
+                            ['finance_investments', 'payment_day', 'INTEGER'],
+                            ['finance_budget_cycles', 'bank_account_id', 'INTEGER'],
+                            ['vehicles', 'current_value', 'REAL DEFAULT 0']
+                        ];
 
-        // 🛠️ MIGRATION: Ensure new finance columns exist
-        const financeIncomeCols = [
-            ['member_id', 'INTEGER'], 
-            ['bank_account_id', 'INTEGER'], 
-            ['employer', 'TEXT'], 
-            ['role', 'TEXT'], 
-            ['employment_type', 'TEXT'],
-            ['work_type', 'TEXT'], 
-            ['gross_annual_salary', 'REAL'], 
-            ['addons', 'TEXT'],
-            ['is_primary', 'INTEGER DEFAULT 0']
-        ];
-        
-        financeIncomeCols.forEach(([col, type]) => {
-            db.run(`ALTER TABLE finance_income ADD COLUMN ${col} ${type}`, () => {});
-        });
+                        let migrationsDone = 0;
+                        if (additionalFinanceCols.length === 0) resolve();
 
-        const additionalFinanceCols = [
-            ['finance_budget_progress', 'actual_amount', 'REAL'],
-            ['finance_budget_progress', 'actual_date', 'DATE'],
-            ['finance_pensions', 'payment_day', 'INTEGER'],
-            ['finance_income', 'nearest_working_day', 'INTEGER DEFAULT 1'],
-            ['finance_credit_cards', 'nearest_working_day', 'INTEGER DEFAULT 1'],
-            ['finance_pensions', 'nearest_working_day', 'INTEGER DEFAULT 1'],
-            ['house_details', 'purchase_price', 'REAL DEFAULT 0'],
-            ['house_details', 'current_valuation', 'REAL DEFAULT 0'],
-            ['finance_savings', 'deposit_amount', 'REAL DEFAULT 0'],
-            ['finance_savings', 'deposit_day', 'INTEGER'],
-            ['finance_investments', 'monthly_contribution', 'REAL DEFAULT 0'],
-            ['finance_investments', 'payment_day', 'INTEGER'],
-            ['finance_budget_cycles', 'bank_account_id', 'INTEGER'],
-            ['vehicles', 'current_value', 'REAL DEFAULT 0']
-        ];
-
-        additionalFinanceCols.forEach(([table, col, type]) => {
-            db.run(`ALTER TABLE ${table} ADD COLUMN ${col} ${type}`, () => {});
-        });
-
-        // 🛠️ COMPREHENSIVE MIGRATION TO recurring_costs
-        const legacyTables = [
-            { name: 'finance_recurring_charges', type: 'charge' },
-            { name: 'water_accounts', type: 'water' },
-            { name: 'energy_accounts', type: 'energy' },
-            { name: 'council_accounts', type: 'council' },
-            { name: 'waste_collections', type: 'waste' },
-            { name: 'vehicle_finance', type: 'vehicle_finance' },
-            { name: 'vehicle_insurance', type: 'vehicle_insurance' },
-            { name: 'vehicle_service_plans', type: 'vehicle_service' },
-            { name: 'finance_loans', type: 'loan' },
-            { name: 'finance_agreements', type: 'agreement' },
-            { name: 'finance_mortgages', type: 'mortgage' }
-        ];
-
-        legacyTables.forEach(table => {
-            db.get(`SELECT name FROM sqlite_master WHERE type='table' AND name='${table.name}'`, (err, row) => {
-                if (row) {
-                    console.log(`🛠️ Migrating ${table.name} to recurring_costs...`);
-                    db.all(`SELECT * FROM ${table.name}`, (err, rows) => {
-                        if (rows && rows.length > 0) {
-                            rows.forEach(r => {
-                                let object_type = 'household';
-                                let object_id = null;
-                                let category_id = table.type;
-                                let metadata = {};
-                                let amount = r.amount || r.monthly_amount || r.monthly_payment || r.premium || r.monthly_cost || 0;
-                                let frequency = r.frequency || 'monthly';
-                                let start_date = r.start_date || r.purchase_date || r.date || null;
-                                let day_of_month = r.payment_day || r.day_of_month || null;
-                                let name = r.name || r.provider || r.authority_name || r.lender || r.bin_type || r.agreement_name || 'Legacy Cost';
-                                let emoji = r.emoji || null;
-                                let notes = r.notes || null;
-
-                                // Specialized Mapping
-                                if (table.name.startsWith('vehicle_')) {
-                                    object_type = 'vehicle';
-                                    object_id = r.vehicle_id;
-                                } else if (table.name === 'finance_recurring_charges') {
-                                    object_type = r.linked_entity_type || 'household';
-                                    object_id = r.linked_entity_id;
-                                    category_id = r.segment;
+                        additionalFinanceCols.forEach(([table, col, type]) => {
+                            db.run(`ALTER TABLE ${table} ADD COLUMN ${col} ${type}`, () => {
+                                migrationsDone++;
+                                if (migrationsDone === additionalFinanceCols.length) {
+                                    resolve();
                                 }
-
-                                // Collect Metadata
-                                Object.keys(r).forEach(key => {
-                                    if (!['id', 'household_id', 'amount', 'monthly_amount', 'monthly_payment', 'premium', 'monthly_cost', 'frequency', 'start_date', 'payment_day', 'day_of_month', 'name', 'provider', 'authority_name', 'lender', 'bin_type', 'agreement_name', 'emoji', 'notes', 'vehicle_id', 'linked_entity_type', 'linked_entity_id'].includes(key)) {
-                                        metadata[key] = r[key];
-                                    }
-                                });
-
-                                db.run(`INSERT INTO recurring_costs (
-                                    household_id, object_type, object_id, category_id, name, amount, frequency, 
-                                    start_date, day_of_month, emoji, notes, metadata
-                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
-                                    r.household_id, object_type, object_id, category_id, name, amount, frequency,
-                                    start_date, day_of_month, emoji, notes, JSON.stringify(metadata)
-                                ]);
                             });
-                        }
-                        // Drop Table after migration
-                        console.log(`✅ ${table.name} migrated. Dropping legacy table.`);
-                        db.run(`DROP TABLE ${table.name}`);
-                    });
-                }
+                        });
+                    }
+                });
             });
         });
     });

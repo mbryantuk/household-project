@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getHouseholdDb, dbAll } = require('../db');
+const { getHouseholdDb, ensureHouseholdSchema, dbAll } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 
 const { encrypt, decrypt } = require('../services/crypto');
@@ -9,13 +9,18 @@ const { encrypt, decrypt } = require('../services/crypto');
  * Multi-Tenancy Enforcement:
  */
 
-const useTenantDb = (req, res, next) => {
+const useTenantDb = async (req, res, next) => {
     const hhId = req.params.id;
     if (!hhId) return res.status(400).json({ error: "Household ID required" });
-    const db = getHouseholdDb(hhId);
-    req.tenantDb = db;
-    req.hhId = hhId;
-    next();
+    try {
+        const db = getHouseholdDb(hhId);
+        await ensureHouseholdSchema(db, hhId);
+        req.tenantDb = db;
+        req.hhId = hhId;
+        next();
+    } catch (err) {
+        res.status(500).json({ error: "Database initialization failed: " + err.message });
+    }
 };
 
 const closeDb = (req) => {

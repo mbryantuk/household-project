@@ -9,10 +9,9 @@ if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 const globalDb = new sqlite3.Database(path.join(DATA_DIR, 'global.db'), (err) => {
     if (err) console.error("Global DB connection error:", err.message);
     else {
-        // Optimization for concurrent access
         globalDb.run("PRAGMA journal_mode=WAL");
         globalDb.run("PRAGMA synchronous=NORMAL");
-        globalDb.run("PRAGMA busy_timeout=10000"); // Wait up to 10s if locked
+        globalDb.run("PRAGMA busy_timeout=10000");
         console.log("Connected to Global SQLite database (Optimized).");
         initializeGlobalSchema(globalDb);
     }
@@ -20,21 +19,23 @@ const globalDb = new sqlite3.Database(path.join(DATA_DIR, 'global.db'), (err) =>
 
 const getHouseholdDb = (householdId) => {
     const dbPath = path.join(DATA_DIR, `household_${householdId}.db`);
-    const dbExists = fs.existsSync(dbPath);
     const db = new sqlite3.Database(dbPath);
-    
-    // Apply optimizations to every tenant connection
     db.run("PRAGMA journal_mode=WAL");
     db.run("PRAGMA synchronous=NORMAL");
     db.run("PRAGMA busy_timeout=10000");
-
-    if (!dbExists) {
-        initializeHouseholdSchema(db);
-    }
     return db;
 };
 
-// Unified Database Helpers (Promises)
+const ensureHouseholdSchema = async (db, householdId) => {
+    // Check if a standard table exists
+    const row = await dbGet(db, "SELECT name FROM sqlite_master WHERE type='table' AND name='members'");
+    if (!row) {
+        console.log(`[DB] Initializing schema for household ${householdId}...`);
+        await initializeHouseholdSchema(db);
+        console.log(`[DB] Schema ready for household ${householdId}.`);
+    }
+};
+
 const dbGet = (db, query, params = []) => new Promise((resolve, reject) => {
     db.get(query, params, (err, row) => err ? reject(err) : resolve(row));
 });
@@ -47,10 +48,4 @@ const dbRun = (db, query, params = []) => new Promise((resolve, reject) => {
     db.run(query, params, function(err) { err ? reject(err) : resolve({ id: this.lastID, changes: this.changes }); });
 });
 
-async function bootstrap(db) {
-    return new Promise((resolve) => {
-        resolve();
-    });
-}
-
-module.exports = { globalDb, getHouseholdDb, bootstrap, dbGet, dbAll, dbRun };
+module.exports = { globalDb, getHouseholdDb, ensureHouseholdSchema, dbGet, dbAll, dbRun };

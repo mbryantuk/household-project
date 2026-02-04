@@ -265,9 +265,9 @@ export default function HouseholdLayout({
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
                 {activeMenu === 'main' ? (
                     <>
-                        <MenuTile icon={<HomeIcon />} label="Household" to="house" onClick={() => setDrawerOpen(false)} navigate={navigate} location={location} />
-                        <MenuTile icon={<AccountBalance />} label="Finance" to="finance" onClick={() => setDrawerOpen(false)} navigate={navigate} location={location} />
-                        <MenuTile icon={<RestaurantMenu />} label="Meals" to="meals" onClick={() => setDrawerOpen(false)} navigate={navigate} location={location} />
+                        <MenuTile icon={<HomeIcon />} label="Household" to="house" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<AccountBalance />} label="Finance" to="finance" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<RestaurantMenu />} label="Meals" to="meals" onClick={() => setDrawerOpen(false)} />
                     </>
                 ) : (
                     households.map(hh => (
@@ -284,24 +284,22 @@ export default function HouseholdLayout({
                             label={hh.name} 
                             onClick={async () => { await onSelectHousehold(hh); navigate(`/household/${hh.id}`); setDrawerOpen(false); setActiveMenu('main'); }} 
                             sx={{ bgcolor: hh.id === activeHousehold?.id ? 'primary.softBg' : 'background.level1' }}
-                            navigate={navigate}
-                            location={location}
                         />
                     ))
                 )}
-                {activeMenu === 'switch' && <MenuTile icon={<ChevronLeft />} label="Back" onClick={() => setActiveMenu('main')} navigate={navigate} location={location} />}
+                {activeMenu === 'switch' && <MenuTile icon={<ChevronLeft />} label="Back" onClick={() => setActiveMenu('main')} />}
             </Box>
 
             {activeMenu === 'main' && (
                 <>
                     <Typography level="title-lg" sx={{ mt: 2, mb: 1 }}>Tools</Typography>
                     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
-                        <MenuTile icon={<NoteAlt />} label="Notes" to="tools/notes" onClick={() => setDrawerOpen(false)} navigate={navigate} location={location} />
-                        <MenuTile icon={<Calculate />} label="Calc" to="tools/calculator" onClick={() => setDrawerOpen(false)} navigate={navigate} location={location} />
+                        <MenuTile icon={<NoteAlt />} label="Notes" to="tools/notes" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<Calculate />} label="Calc" to="tools/calculator" onClick={() => setDrawerOpen(false)} />
                         
-                        <MenuTile icon={<AccountBalance />} label="Finance" to="tools/finance" onClick={() => setDrawerOpen(false)} navigate={navigate} location={location} />
-                        <MenuTile icon={<Payments />} label="Tax" to="tools/tax" onClick={() => setDrawerOpen(false)} navigate={navigate} location={location} />
-                        <MenuTile icon={<CalendarMonth />} label="Cal" to="tools/calendar" onClick={() => setDrawerOpen(false)} navigate={navigate} location={location} />
+                        <MenuTile icon={<AccountBalance />} label="Finance" to="tools/finance" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<Payments />} label="Tax" to="tools/tax" onClick={() => setDrawerOpen(false)} />
+                        <MenuTile icon={<CalendarMonth />} label="Cal" to="tools/calendar" onClick={() => setDrawerOpen(false)} />
                     </Box>
 
                     <Typography level="title-lg" sx={{ mt: 2, mb: 1 }}>Admin</Typography>
@@ -312,8 +310,6 @@ export default function HouseholdLayout({
                                 label="Install" 
                                 onClick={() => { onInstall(); setDrawerOpen(false); }} 
                                 sx={{ bgcolor: 'success.softBg', color: 'success.plainColor' }}
-                                navigate={navigate}
-                                location={location}
                             />
                         )}
                         <MenuTile 
@@ -321,8 +317,6 @@ export default function HouseholdLayout({
                             label="Settings" 
                             to="settings" 
                             onClick={() => setDrawerOpen(false)} 
-                            navigate={navigate}
-                            location={location}
                         />
                         <MenuTile 
                             icon={<Logout />} 
@@ -332,8 +326,6 @@ export default function HouseholdLayout({
                                 confirmAction("Log Out", "Are you sure you want to log out?", onLogout);
                             }} 
                             sx={{ bgcolor: 'danger.softBg', color: 'danger.plainColor' }} 
-                            navigate={navigate}
-                            location={location}
                         />
                     </Box>
                 </>
@@ -344,11 +336,15 @@ export default function HouseholdLayout({
   );
 }
 
-function MenuTile({ icon, label, to, onClick, sx = {}, navigate, location }) {
+function MenuTile({ icon, label, to, onClick, sx = {} }) {
+    const navigate = useNavigate();
+    const location = useLocation();
     const isActive = to && location.pathname.includes(to);
+    
     return (
         <Stack 
-          alignItems="center" spacing={1} onClick={() => { if (to) navigate(to); onClick(); }}
+          alignItems="center" spacing={1} 
+          onClick={() => { if (to) navigate(to); if (onClick) onClick(); }}
           sx={{ p: 2, borderRadius: 'xl', bgcolor: isActive ? 'primary.softBg' : 'background.level1', cursor: 'pointer', transition: 'all 0.2s', '&:active': { transform: 'scale(0.95)', bgcolor: 'primary.softBg' }, ...sx }}
         >
             <Box sx={{ color: isActive ? 'primary.solidBg' : 'neutral.plainColor' }}>{icon}</Box>
