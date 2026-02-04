@@ -222,10 +222,10 @@ export default function NavSidebar({
                 )}
 
                 <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'center' }}>
-                    <Tooltip title="Switch Household" variant="soft" placement="right">
+                    <Tooltip title="Dashboard" variant="soft" placement="right">
                         <Avatar 
                             variant="soft" color="primary" size="lg"
-                            onClick={() => { navigate('/select-household'); setHoveredCategory(null); }}
+                            onClick={() => { navigate(`household/${household.id}/dashboard`); setHoveredCategory(null); }}
                             sx={{ 
                                 bgcolor: getEmojiColor(household?.avatar || '🏠', isDark),
                                 fontSize: '1.5rem', fontWeight: 'bold', cursor: 'pointer',
@@ -238,7 +238,6 @@ export default function NavSidebar({
                 </Box>
                 
                 <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
-                    <RailIcon icon={<HomeWork />} label="Dashboard" category="dashboard" to="dashboard" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                     <RailIcon icon={<HomeIcon />} label="House" category="household" hasSubItems to="house" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                     <RailIcon icon={<Event />} label="Calendar" category="calendar" to="calendar" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                 </List>
@@ -300,6 +299,10 @@ export default function NavSidebar({
                     <MenuItem onClick={() => { navigate('settings'); setUserMenuAnchor(null); }}>
                         <ListItemDecorator><SettingsIcon /></ListItemDecorator>
                         Settings
+                    </MenuItem>
+                    <MenuItem onClick={() => { navigate('/select-household'); setUserMenuAnchor(null); }}>
+                        <ListItemDecorator><HomeWork /></ListItemDecorator>
+                        Switch Household
                     </MenuItem>
                     <MenuItem onClick={() => { 
                         setUserMenuAnchor(null);

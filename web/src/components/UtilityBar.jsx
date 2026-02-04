@@ -165,10 +165,6 @@ export default function UtilityBar() {
                     <Typography level="body-xs">Total: <b>{formatCurrency(statusBarData.total)}</b></Typography>
                 </Stack>
             )}
-            <Box sx={{ display: { xs: 'none', lg: 'flex' }, alignItems: 'center', gap: 0.5, opacity: 0.7 }}>
-                <Wifi fontSize="small" color="success" />
-                <Typography level="body-xs">Online</Typography>
-            </Box>
         </Box>
     </Sheet>
   );

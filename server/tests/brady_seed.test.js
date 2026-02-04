@@ -229,13 +229,45 @@ describe('👪 Master Seed: The Brady Bunch', () => {
 
         // 9. MEALS
         const recipes = [
-            { n: "Meatloaf", e: "🍞", t: "dinner" }, { n: "Spaghetti", e: "🍝", t: "dinner" }, { n: "Tacos", e: "🌮", t: "dinner" }
+            { n: "Meatloaf", e: "🍞", t: "dinner" }, { n: "Spaghetti", e: "🍝", t: "dinner" }, { n: "Tacos", e: "🌮", t: "dinner" },
+            { n: "Chicken Roast", e: "🍗", t: "dinner" }, { n: "Fish & Chips", e: "🐟", t: "dinner" }, { n: "Burger Night", e: "🍔", t: "dinner" },
+            { n: "Pizza Party", e: "🍕", t: "dinner" }
         ];
+        const mealIds = [];
         for (const r of recipes) { 
-            await request(app)
+            const mRes = await request(app)
                 .post(`/api/households/${hhId}/meals`)
                 .set('Authorization', `Bearer ${token}`)
                 .send({ name: r.n, emoji: r.e, category: r.t }); 
+            mealIds.push(mRes.body.id);
+        }
+
+        // 10. MEAL PLANS (1 Year from Jan 01, 2026)
+        console.log("🥘 Generating 365 days of meal plans...");
+        const startDate = new Date('2026-01-01');
+        const adultIds = [members.Mike, members.Carol, members.Alice];
+        
+        // We'll use a batch-like approach (looping through days)
+        // To avoid 365 individual await request(app) calls which might be slow, 
+        // but since we're in a test environment and want to be sure of order, we'll do them sequentially or in small chunks.
+        for (let i = 0; i < 365; i++) {
+            const currentDate = new Date(startDate);
+            currentDate.setDate(startDate.getDate() + i);
+            const dateStr = currentDate.toISOString().split('T')[0];
+            
+            // Assign a dinner for the family (using one of the adults as the "owner")
+            const mealId = mealIds[i % mealIds.length];
+            const memberId = adultIds[i % adultIds.length];
+            
+            await request(app)
+                .post(`/api/households/${hhId}/meal-plans`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({ 
+                    date: dateStr, 
+                    member_id: memberId, 
+                    meal_id: mealId, 
+                    type: 'dinner' 
+                });
         }
 
         console.log(`✅ Master Seed Test Complete: ID ${hhId}`);
