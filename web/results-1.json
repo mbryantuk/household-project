@@ -84,110 +84,140 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 9785,
+                      "duration": 17477,
                       "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Invitation Sent')\nExpected: visible\nError: strict mode violation: locator('text=Invitation Sent') resolved to 2 elements:\n    1) <div role=\"presentation\" class=\"MuiSnackbar-root MuiSnackbar-sizeMd MuiSnackbar-colorSuccess MuiSnackbar-variantSoft MuiSnackbar-anchorOriginBottomCenter css-19p7946\">Invitation sent!</div> aka getByText('Invitation sent!')\n    2) <h2 id=\"_r_1m_\" data-first-child=\"\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg MuiDialogTitle-colorSuccess css-lajbs2\">Invitation Sent</h2> aka getByRole('heading', { name: 'Invitation Sent' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Invitation Sent')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Invitation Sent')\nExpected: visible\nError: strict mode violation: locator('text=Invitation Sent') resolved to 2 elements:\n    1) <div role=\"presentation\" class=\"MuiSnackbar-root MuiSnackbar-sizeMd MuiSnackbar-colorSuccess MuiSnackbar-variantSoft MuiSnackbar-anchorOriginBottomCenter css-19p7946\">Invitation sent!</div> aka getByText('Invitation sent!')\n    2) <h2 id=\"_r_1m_\" data-first-child=\"\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg MuiDialogTitle-colorSuccess css-lajbs2\">Invitation Sent</h2> aka getByRole('heading', { name: 'Invitation Sent' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Invitation Sent')\u001b[22m\n\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:152:64\n    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:49:24)\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:119:5",
+                        "message": "Error: locator.click: Error: strict mode violation: locator('div').filter({ hasText: 'Residents' }).first().locator('button:has-text(\"Add\")') resolved to 2 elements:\n    1) <button tabindex=\"0\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\" aria-controls=\"_r_t_\" class=\"MuiMenuButton-root MuiMenuButton-variantSoft MuiMenuButton-colorPrimary MuiMenuButton-sizeSm css-cnelx4\">…</button> aka getByRole('button', { name: 'Add', exact: true })\n    2) <button type=\"button\" class=\"MuiButton-root MuiButton-variantSoft MuiButton-colorPrimary MuiButton-sizeSm css-1w23hcy\">…</button> aka getByRole('button', { name: 'Add Vehicle' })\n\nCall log:\n\u001b[2m  - waiting for locator('div').filter({ hasText: 'Residents' }).first().locator('button:has-text(\"Add\")')\u001b[22m\n",
+                        "stack": "Error: locator.click: Error: strict mode violation: locator('div').filter({ hasText: 'Residents' }).first().locator('button:has-text(\"Add\")') resolved to 2 elements:\n    1) <button tabindex=\"0\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\" aria-controls=\"_r_t_\" class=\"MuiMenuButton-root MuiMenuButton-variantSoft MuiMenuButton-colorPrimary MuiMenuButton-sizeSm css-cnelx4\">…</button> aka getByRole('button', { name: 'Add', exact: true })\n    2) <button type=\"button\" class=\"MuiButton-root MuiButton-variantSoft MuiButton-colorPrimary MuiButton-sizeSm css-1w23hcy\">…</button> aka getByRole('button', { name: 'Add Vehicle' })\n\nCall log:\n\u001b[2m  - waiting for locator('div').filter({ hasText: 'Residents' }).first().locator('button:has-text(\"Add\")')\u001b[22m\n\n    at addPerson (/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:172:70)\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:209:15\n    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:49:24)\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:157:5",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js",
-                          "column": 64,
-                          "line": 152
+                          "column": 70,
+                          "line": 172
                         },
-                        "snippet": "\u001b[0m \u001b[90m 150 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`li[role=\"option\"]:has-text(\"${member.role}\")`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 151 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Send Invitation\")'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 152 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Invitation Sent'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 153 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Done\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 154 |\u001b[39m         }\n \u001b[90m 155 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m 170 |\u001b[39m             \u001b[90m// 1. Open the \"Add\" dropdown menu in the Residents section\u001b[39m\n \u001b[90m 171 |\u001b[39m             \u001b[36mconst\u001b[39m residentsSection \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'div'\u001b[39m\u001b[33m,\u001b[39m { hasText\u001b[33m:\u001b[39m \u001b[32m'Residents'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 172 |\u001b[39m             \u001b[36mawait\u001b[39m residentsSection\u001b[33m.\u001b[39mlocator(\u001b[32m'button:has-text(\"Add\")'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 173 |\u001b[39m             \n \u001b[90m 174 |\u001b[39m             \u001b[90m// 2. Click the specific menu item (Adult, Child, or Pet)\u001b[39m\n \u001b[90m 175 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`[role=\"menuitem\"]:has-text(\"Add ${type}\")`\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js",
-                            "column": 64,
-                            "line": 152
+                            "column": 70,
+                            "line": 172
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Invitation Sent')\nExpected: visible\nError: strict mode violation: locator('text=Invitation Sent') resolved to 2 elements:\n    1) <div role=\"presentation\" class=\"MuiSnackbar-root MuiSnackbar-sizeMd MuiSnackbar-colorSuccess MuiSnackbar-variantSoft MuiSnackbar-anchorOriginBottomCenter css-19p7946\">Invitation sent!</div> aka getByText('Invitation sent!')\n    2) <h2 id=\"_r_1m_\" data-first-child=\"\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg MuiDialogTitle-colorSuccess css-lajbs2\">Invitation Sent</h2> aka getByRole('heading', { name: 'Invitation Sent' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Invitation Sent')\u001b[22m\n\n\n\u001b[0m \u001b[90m 150 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`li[role=\"option\"]:has-text(\"${member.role}\")`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 151 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Send Invitation\")'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 152 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Invitation Sent'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 153 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Done\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 154 |\u001b[39m         }\n \u001b[90m 155 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:152:64\u001b[22m\n\u001b[2m    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:49:24)\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:119:5\u001b[22m"
+                          "message": "Error: locator.click: Error: strict mode violation: locator('div').filter({ hasText: 'Residents' }).first().locator('button:has-text(\"Add\")') resolved to 2 elements:\n    1) <button tabindex=\"0\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\" aria-controls=\"_r_t_\" class=\"MuiMenuButton-root MuiMenuButton-variantSoft MuiMenuButton-colorPrimary MuiMenuButton-sizeSm css-cnelx4\">…</button> aka getByRole('button', { name: 'Add', exact: true })\n    2) <button type=\"button\" class=\"MuiButton-root MuiButton-variantSoft MuiButton-colorPrimary MuiButton-sizeSm css-1w23hcy\">…</button> aka getByRole('button', { name: 'Add Vehicle' })\n\nCall log:\n\u001b[2m  - waiting for locator('div').filter({ hasText: 'Residents' }).first().locator('button:has-text(\"Add\")')\u001b[22m\n\n\n\u001b[0m \u001b[90m 170 |\u001b[39m             \u001b[90m// 1. Open the \"Add\" dropdown menu in the Residents section\u001b[39m\n \u001b[90m 171 |\u001b[39m             \u001b[36mconst\u001b[39m residentsSection \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'div'\u001b[39m\u001b[33m,\u001b[39m { hasText\u001b[33m:\u001b[39m \u001b[32m'Residents'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 172 |\u001b[39m             \u001b[36mawait\u001b[39m residentsSection\u001b[33m.\u001b[39mlocator(\u001b[32m'button:has-text(\"Add\")'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 173 |\u001b[39m             \n \u001b[90m 174 |\u001b[39m             \u001b[90m// 2. Click the specific menu item (Adult, Child, or Pet)\u001b[39m\n \u001b[90m 175 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`[role=\"menuitem\"]:has-text(\"Add ${type}\")`\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at addPerson (/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:172:70)\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:209:15\u001b[22m\n\u001b[2m    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:49:24)\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:157:5\u001b[22m"
                         }
                       ],
                       "stdout": [
                         {
-                          "text": "[2026-02-04T19:18:43.772Z] [STEP: Mike Registration] Starting...\n"
+                          "text": "[2026-02-04T19:35:26.040Z] [STEP: Mike Registration] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:43.775Z] [STEP: Mike Registration] Attempt 1...\n"
+                          "text": "[2026-02-04T19:35:26.043Z] [STEP: Mike Registration] Attempt 1...\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:44.449Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T19:35:26.737Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:44.450Z] [STEP: BROWSER] Content is cached for offline use.\n"
+                          "text": "[2026-02-04T19:35:26.737Z] [STEP: BROWSER] Content is cached for offline use.\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:44.696Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T19:35:26.998Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:45.239Z] [STEP: Mike Registration] [1.47s] Completed successfully.\n"
+                          "text": "[2026-02-04T19:35:27.585Z] [STEP: Mike Registration] [1.54s] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:45.240Z] [STEP: Mike Login] Starting...\n"
+                          "text": "[2026-02-04T19:35:27.585Z] [STEP: Mike Login] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:45.547Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T19:35:27.926Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:45.984Z] [STEP: Mike Login] [0.74s] Completed successfully.\n"
+                          "text": "[2026-02-04T19:35:28.303Z] [STEP: Mike Login] [0.72s] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:45.984Z] [STEP: Foundation] Brady Household ID: 3629\n"
+                          "text": "[2026-02-04T19:35:28.307Z] [STEP: Foundation] Brady Household ID: 3636\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:45.985Z] [STEP: Route Check] Starting...\n"
+                          "text": "[2026-02-04T19:35:28.307Z] [STEP: Route Check] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:45.985Z] [STEP: Route Check] Checking /dashboard\n"
+                          "text": "[2026-02-04T19:35:28.308Z] [STEP: Route Check] Checking /dashboard\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:46.100Z] [STEP: Route Check] Checking /calendar\n"
+                          "text": "[2026-02-04T19:35:28.435Z] [STEP: Route Check] Checking /calendar\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:46.210Z] [STEP: Route Check] Checking /house\n"
+                          "text": "[2026-02-04T19:35:28.548Z] [STEP: Route Check] Checking /house\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:46.315Z] [STEP: Route Check] Checking /meals\n"
+                          "text": "[2026-02-04T19:35:28.698Z] [STEP: Route Check] Checking /meals\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:46.420Z] [STEP: Route Check] Checking /finance\n"
+                          "text": "[2026-02-04T19:35:28.843Z] [STEP: Route Check] Checking /finance\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:46.524Z] [STEP: Route Check] Checking /settings\n"
+                          "text": "[2026-02-04T19:35:28.947Z] [STEP: Route Check] Checking /settings\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:46.619Z] [STEP: Route Check] [0.63s] Completed successfully.\n"
+                          "text": "[2026-02-04T19:35:29.054Z] [STEP: Route Check] [0.75s] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:46.620Z] [STEP: Grant Lead Architect Access] Starting...\n"
+                          "text": "[2026-02-04T19:35:29.054Z] [STEP: Grant Lead Architect Access] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:46.894Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T19:35:29.340Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:47.831Z] [STEP: Grant Access] Inviting mbryantuk@gmail.com as Admin\n"
+                          "text": "[2026-02-04T19:35:30.194Z] [STEP: Grant Access] Inviting mbryantuk@gmail.com as Admin\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:49.299Z] [STEP: Grant Lead Architect Access] [2.68s] Completed successfully.\n"
+                          "text": "[2026-02-04T19:35:31.482Z] [STEP: Grant Lead Architect Access] [2.43s] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:49.299Z] [STEP: Invite Family] Starting...\n"
+                          "text": "[2026-02-04T19:35:31.483Z] [STEP: Invite Family] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:49.501Z] [STEP: Invite Family] Inviting Carol (Standard Member)\n"
+                          "text": "[2026-02-04T19:35:31.662Z] [STEP: Invite Family] Inviting Carol (Standard Member)\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:49.652Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T19:35:31.793Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T19:18:50.807Z] [STEP: Invite Family] [1.51s] FAILED: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Invitation Sent')\nExpected: visible\nError: strict mode violation: locator('text=Invitation Sent') resolved to 2 elements:\n    1) <div role=\"presentation\" class=\"MuiSnackbar-root MuiSnackbar-sizeMd MuiSnackbar-colorSuccess MuiSnackbar-variantSoft MuiSnackbar-anchorOriginBottomCenter css-19p7946\">Invitation sent!</div> aka getByText('Invitation sent!')\n    2) <h2 id=\"_r_1m_\" data-first-child=\"\" class=\"MuiDialogTitle-root MuiDialogTitle-title-lg MuiDialogTitle-colorSuccess css-lajbs2\">Invitation Sent</h2> aka getByRole('heading', { name: 'Invitation Sent' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Invitation Sent')\u001b[22m\n"
+                          "text": "[2026-02-04T19:35:33.253Z] [STEP: Invite Family] Inviting Greg (Viewer (Read-only))\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:35:34.552Z] [STEP: Invite Family] Inviting Marcia (Viewer (Read-only))\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:35:35.855Z] [STEP: Invite Family] Inviting Peter (Viewer (Read-only))\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:35:36.979Z] [STEP: Invite Family] Inviting Jan (Viewer (Read-only))\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:35:38.128Z] [STEP: Invite Family] Inviting Bobby (Viewer (Read-only))\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:35:39.302Z] [STEP: Invite Family] Inviting Cindy (Viewer (Read-only))\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:35:40.433Z] [STEP: Invite Family] [8.95s] Completed successfully.\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:35:40.433Z] [STEP: Add Residents, Pets, Vehicles & House] Starting...\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:35:40.619Z] [STEP: Add Residents] Adding Mike (Adult, Age: 40)\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:35:40.770Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[2026-02-04T19:35:41.183Z] [STEP: Add Residents, Pets, Vehicles & House] [0.75s] FAILED: locator.click: Error: strict mode violation: locator('div').filter({ hasText: 'Residents' }).first().locator('button:has-text(\"Add\")') resolved to 2 elements:\n    1) <button tabindex=\"0\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\" aria-controls=\"_r_t_\" class=\"MuiMenuButton-root MuiMenuButton-variantSoft MuiMenuButton-colorPrimary MuiMenuButton-sizeSm css-cnelx4\">…</button> aka getByRole('button', { name: 'Add', exact: true })\n    2) <button type=\"button\" class=\"MuiButton-root MuiButton-variantSoft MuiButton-colorPrimary MuiButton-sizeSm css-1w23hcy\">…</button> aka getByRole('button', { name: 'Add Vehicle' })\n\nCall log:\n\u001b[2m  - waiting for locator('div').filter({ hasText: 'Residents' }).first().locator('button:has-text(\"Add\")')\u001b[22m\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-04T19:18:40.816Z",
+                      "startTime": "2026-02-04T19:35:23.479Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -203,8 +233,8 @@
                       ],
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js",
-                        "column": 64,
-                        "line": 152
+                        "column": 70,
+                        "line": 172
                       }
                     }
                   ],
@@ -223,8 +253,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-04T19:18:37.836Z",
-    "duration": 13599.472,
+    "startTime": "2026-02-04T19:35:20.410Z",
+    "duration": 21059.742000000002,
     "expected": 0,
     "skipped": 0,
     "unexpected": 1,

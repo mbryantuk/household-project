@@ -169,7 +169,7 @@ test.describe('Brady Lifecycle Stage 1: Foundation', () => {
             
             // 1. Open the "Add" dropdown menu in the Residents section
             const residentsSection = page.locator('div', { hasText: 'Residents' }).first();
-            await residentsSection.locator('button:has-text("Add")').click();
+            await residentsSection.getByRole('button', { name: 'Add', exact: true }).click();
             
             // 2. Click the specific menu item (Adult, Child, or Pet)
             await page.click(`[role="menuitem"]:has-text("Add ${type}")`);

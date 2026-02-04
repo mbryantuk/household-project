@@ -84,7 +84,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "timedOut",
-                      "duration": 300283,
+                      "duration": 300285,
                       "error": {
                         "message": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m"
@@ -104,7 +104,7 @@
                       ],
                       "stdout": [
                         {
-                          "text": "[2026-02-04T19:24:08.770Z] [STEP: Login] Authenticating...\n"
+                          "text": "[2026-02-04T19:40:57.318Z] [STEP: Login] Authenticating...\n"
                         }
                       ],
                       "stderr": [
@@ -113,7 +113,7 @@
                         }
                       ],
                       "retry": 0,
-                      "startTime": "2026-02-04T19:24:08.388Z",
+                      "startTime": "2026-02-04T19:40:57.012Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -144,8 +144,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-04T19:24:05.941Z",
-    "duration": 303145.71499999997,
+    "startTime": "2026-02-04T19:40:54.668Z",
+    "duration": 302964.989,
     "expected": 0,
     "skipped": 0,
     "unexpected": 1,
