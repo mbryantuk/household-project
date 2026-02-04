@@ -1,7 +1,7 @@
 {
-  "short_name": "TOTEM",
-  "name": "TOTEM Household Management",
-  "description": "Comprehensive 30+ Theme powered Household Management",
+  "short_name": "Keystone",
+  "name": "Keystone App",
+  "description": "The central piece that holds the household structure together.",
   "icons": [
     {
       "src": "favicon.png",
@@ -17,6 +17,6 @@
   "start_url": ".",
   "display": "standalone",
   "orientation": "any",
-  "theme_color": "#644AC9",
+  "theme_color": "#4F46E5",
   "background_color": "#FFFBEB"
 }

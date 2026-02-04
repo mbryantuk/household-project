@@ -1,14 +1,10 @@
 import { useState } from 'react';
 import { Box, Typography, Tabs, TabList, Tab, TabPanel, Sheet, Divider } from '@mui/joy';
-import { 
-  Person, 
-  Home, 
-  Palette, 
-  Security, 
-  Settings as SettingsIcon,
-  Groups,
-  DynamicForm
-} from '@mui/icons-material';
+import Person from '@mui/icons-material/Person';
+import Home from '@mui/icons-material/Home';
+import Palette from '@mui/icons-material/Palette';
+import Security from '@mui/icons-material/Security';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 import { useHousehold } from '../contexts/HouseholdContext';
 import ProfileSettings from './settings/ProfileSettings';
@@ -25,93 +21,94 @@ export default function SettingsView() {
     <Box sx={{ flex: 1, width: '100%', maxWidth: 1200, mx: 'auto', p: { xs: 1, md: 2 } }}>
       <Typography level="h2" sx={{ mb: 4, fontWeight: 'lg' }}>Control Center</Typography>
 
-      <Sheet 
-        variant="outlined" 
-        sx={{ 
-          borderRadius: 'md', 
-          display: 'flex', 
-          flexDirection: { xs: 'column', md: 'row' },
-          minHeight: 600,
-          overflow: 'hidden',
-          boxShadow: 'sm'
-        }}
+      <Tabs 
+        orientation="vertical" 
+        value={index} 
+        onChange={(e, val) => setIndex(val)}
+        sx={{ bgcolor: 'transparent' }}
       >
-        {/* Navigation Sidebar */}
-        <Box sx={{ 
-          width: { xs: '100%', md: 250 }, 
-          bgcolor: 'background.level1',
-          borderRight: { md: '1px solid' },
-          borderColor: 'divider'
-        }}>
-          <Tabs 
-            orientation="vertical" 
-            value={index} 
-            onChange={(e, val) => setIndex(val)}
-            sx={{ height: '100%', bgcolor: 'transparent' }}
-          >
-            <TabList 
-                variant="plain" 
-                sx={{ 
-                    p: 2, gap: 0.5, 
-                    width: '100%',
-                    '--ListItem-radius': '8px',
-                    '& .MuiTab-root': {
-                        justifyContent: 'flex-start',
-                        py: 1.5
-                    }
-                }}
-            >
-              <Typography level="title-xs" sx={{ mb: 1, px: 1, color: 'neutral.500', fontWeight: 'bold', letterSpacing: '1px' }}>ACCOUNT</Typography>
-              <Tab variant="plain" color="neutral">
-                <Person sx={{ mr: 2 }} /> Profile
-              </Tab>
-              <Tab variant="plain" color="neutral">
-                <Security sx={{ mr: 2 }} /> Security
-              </Tab>
+        <Sheet 
+            variant="outlined" 
+            sx={{ 
+            borderRadius: 'md', 
+            display: 'flex', 
+            flexDirection: { xs: 'column', md: 'row' },
+            minHeight: 600,
+            overflow: 'hidden',
+            boxShadow: 'sm',
+            width: '100%'
+            }}
+        >
+            {/* Navigation Sidebar */}
+            <Box sx={{ 
+            width: { xs: '100%', md: 250 }, 
+            bgcolor: 'background.level1',
+            borderRight: { md: '1px solid' },
+            borderColor: 'divider'
+            }}>
+                <TabList 
+                    variant="plain" 
+                    sx={{ 
+                        p: 2, gap: 0.5, 
+                        width: '100%',
+                        '--ListItem-radius': '8px',
+                        '& .MuiTab-root': {
+                            justifyContent: 'flex-start',
+                            py: 1.5
+                        }
+                    }}
+                >
+                <Typography level="title-xs" sx={{ mb: 1, px: 1, color: 'neutral.500', fontWeight: 'bold', letterSpacing: '1px' }}>ACCOUNT</Typography>
+                <Tab variant="plain" color="neutral">
+                    <Person sx={{ mr: 2 }} /> Profile
+                </Tab>
+                <Tab variant="plain" color="neutral">
+                    <Security sx={{ mr: 2 }} /> Security
+                </Tab>
 
-              <Typography level="title-xs" sx={{ mt: 3, mb: 1, px: 1, color: 'neutral.500', fontWeight: 'bold', letterSpacing: '1px' }}>HOUSEHOLD</Typography>
-              <Tab variant="plain" color="neutral">
-                <Home sx={{ mr: 2 }} /> General
-              </Tab>
-              <Tab variant="plain" color="neutral">
-                <Palette sx={{ mr: 2 }} /> Appearance
-              </Tab>
-              
-              {isAdmin && (
-                  <>
-                    <Typography level="title-xs" sx={{ mt: 3, mb: 1, px: 1, color: 'neutral.500', fontWeight: 'bold', letterSpacing: '1px' }}>SYSTEM</Typography>
-                    <Tab variant="plain" color="neutral">
-                        <SettingsIcon sx={{ mr: 2 }} /> Admin Tools
-                    </Tab>
-                  </>
-              )}
-            </TabList>
-          </Tabs>
-        </Box>
-
-        {/* Content Area */}
-        <Box sx={{ flex: 1, p: { xs: 2, md: 4 }, bgcolor: 'background.surface', overflowY: 'auto' }}>
-          <TabPanel value={0} sx={{ p: 0 }}>
-            <ProfileSettings />
-          </TabPanel>
-          <TabPanel value={1} sx={{ p: 0 }}>
-            <Box sx={{ textAlign: 'center', py: 10 }}>
-                <Security sx={{ fontSize: '4rem', opacity: 0.1, mb: 2 }} />
-                <Typography level="h3">Security Center</Typography>
-                <Typography color="neutral">Two-factor authentication and session management coming soon.</Typography>
+                <Typography level="title-xs" sx={{ mt: 3, mb: 1, px: 1, color: 'neutral.500', fontWeight: 'bold', letterSpacing: '1px' }}>HOUSEHOLD</Typography>
+                <Tab variant="plain" color="neutral">
+                    <Home sx={{ mr: 2 }} /> General
+                </Tab>
+                <Tab variant="plain" color="neutral">
+                    <Palette sx={{ mr: 2 }} /> Appearance
+                </Tab>
+                
+                {isAdmin && (
+                    <>
+                        <Typography level="title-xs" sx={{ mt: 3, mb: 1, px: 1, color: 'neutral.500', fontWeight: 'bold', letterSpacing: '1px' }}>SYSTEM</Typography>
+                        <Tab variant="plain" color="neutral">
+                            <SettingsIcon sx={{ mr: 2 }} /> Admin Tools
+                        </Tab>
+                    </>
+                )}
+                </TabList>
             </Box>
-          </TabPanel>
-          <TabPanel value={2} sx={{ p: 0 }}>
-            <HouseholdSettings />
-          </TabPanel>
-          <TabPanel value={3} sx={{ p: 0 }}>
-            <ThemeSettings />
-          </TabPanel>
-          <TabPanel value={4} sx={{ p: 0 }}>
-            <AdminSettings />
-          </TabPanel>
-        </Box>
-      </Sheet>
+
+            {/* Content Area */}
+            <Box sx={{ flex: 1, p: { xs: 2, md: 4 }, bgcolor: 'background.surface', overflowY: 'auto' }}>
+                <TabPanel value={0} sx={{ p: 0 }}>
+                    <ProfileSettings />
+                </TabPanel>
+                <TabPanel value={1} sx={{ p: 0 }}>
+                    <Box sx={{ textAlign: 'center', py: 10 }}>
+                        <Security sx={{ fontSize: '4rem', opacity: 0.1, mb: 2 }} />
+                        <Typography level="h3">Security Center</Typography>
+                        <Typography color="neutral">Two-factor authentication and session management coming soon.</Typography>
+                    </Box>
+                </TabPanel>
+                <TabPanel value={2} sx={{ p: 0 }}>
+                    <HouseholdSettings />
+                </TabPanel>
+                <TabPanel value={3} sx={{ p: 0 }}>
+                    <ThemeSettings />
+                </TabPanel>
+                <TabPanel value={4} sx={{ p: 0 }}>
+                    <AdminSettings />
+                </TabPanel>
+            </Box>
+        </Sheet>
+      </Tabs>
     </Box>
   );
 }

@@ -109,7 +109,7 @@ export default function UtilityBar() {
   };
 
   const handlePopout = (widget, url) => {
-      popoutRefs.current[widget] = window.open(url, `Totem${widget}`, 'width=450,height=600');
+      popoutRefs.current[widget] = window.open(url, `Keystone${widget}`, 'width=450,height=600');
       setPoppedOut(prev => ({ ...prev, [widget]: true }));
       setActiveWidget(null);
   };

@@ -11,7 +11,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import pkg from '../package.json';
 
 // Theme and Local Components
-import { getTotemTheme, getThemeSpec, THEMES } from './theme';
+import { getKeystoneTheme, getThemeSpec, THEMES } from './theme';
 import FloatingCalculator from './components/FloatingCalculator';
 import FloatingCalendar from './components/FloatingCalendar';
 import FloatingSavings from './components/FloatingSavings';
@@ -480,7 +480,7 @@ export default function App() {
   }, [user?.custom_theme]);
 
   const { spec, isDark } = useMemo(() => getThemeSpec(themeId, customConfig), [themeId, customConfig]);
-  const theme = useMemo(() => getTotemTheme(themeId, customConfig), [themeId, customConfig]);
+  const theme = useMemo(() => getKeystoneTheme(themeId, customConfig), [themeId, customConfig]);
   
   const login = useCallback(async (email, password, rememberMe) => {
       const res = await axios.post(`${API_URL}/auth/login`, { email, password, rememberMe });

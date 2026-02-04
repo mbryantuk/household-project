@@ -113,7 +113,7 @@ export default function HouseholdLayout({
     const path = location.pathname;
     const parts = path.split('/');
     const section = parts[3];
-    return ROUTE_META[section]?.title || activeHousehold?.name || 'TOTEM';
+    return ROUTE_META[section]?.title || activeHousehold?.name || 'KEYSTONE';
   }, [location.pathname, activeHousehold]);
 
   const contextValue = {
