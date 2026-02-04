@@ -86,7 +86,7 @@ test.describe('Brady Lifecycle Stage 1: Foundation', () => {
         const routes = ['dashboard', 'calendar', 'house', 'meals', 'finance', 'settings'];
         for (const route of routes) {
             logStep('Route Check', `Checking /${route}`);
-            await page.goto(`/household/${hhId}/${route}`);
+            await page.goto(`/household/${hhId}/${route}`, { waitUntil: 'commit' });
             await expect(page.locator('body')).not.toContainText('404');
         }
     });
