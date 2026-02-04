@@ -84,7 +84,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 67654,
+                      "duration": 67078,
                       "error": {
                         "message": "Error: Failed - Timeout: Step \"Grant Lead Architect Access\" exceeded 60s without progressing.",
                         "stack": "Error: Failed - Timeout: Step \"Grant Lead Architect Access\" exceeded 60s without progressing.\n    at Timeout.<anonymous> (/home/matt/household-project/web/tests/utils/testLogger.js:44:20)",
@@ -107,107 +107,108 @@
                       ],
                       "stdout": [
                         {
-                          "text": "[2026-02-04T17:18:22.328Z] [STEP: Mike Registration] Starting...\n"
+                          "text": "[2026-02-04T17:36:21.590Z] [STEP: Mike Registration] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:22.331Z] [STEP: Mike Registration] Attempt 1...\n"
+                          "text": "[2026-02-04T17:36:21.596Z] [STEP: Mike Registration] Attempt 1...\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:22.923Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T17:36:22.150Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:22.925Z] [STEP: BROWSER] Content is cached for offline use.\n"
+                          "text": "[2026-02-04T17:36:22.152Z] [STEP: BROWSER] Content is cached for offline use.\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:23.135Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T17:36:22.392Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:23.653Z] [STEP: Mike Registration] [1.32s] Completed successfully.\n"
+                          "text": "[2026-02-04T17:36:22.835Z] [STEP: Mike Registration] [1.25s] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:23.653Z] [STEP: Mike Login] Starting...\n"
+                          "text": "[2026-02-04T17:36:22.839Z] [STEP: Mike Login] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:23.973Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T17:36:23.122Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:24.339Z] [STEP: Mike Login] [0.69s] Completed successfully.\n"
+                          "text": "[2026-02-04T17:36:23.486Z] [STEP: Mike Login] [0.65s] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:24.344Z] [STEP: Foundation] Brady Household ID: 3580\n"
+                          "text": "[2026-02-04T17:36:23.486Z] [STEP: Foundation] Brady Household ID: 3587\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:24.344Z] [STEP: Route Check] Starting...\n"
+                          "text": "[2026-02-04T17:36:23.487Z] [STEP: Route Check] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:24.344Z] [STEP: Route Check] Checking /dashboard\n"
+                          "text": "[2026-02-04T17:36:23.488Z] [STEP: Route Check] Checking /dashboard\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:24.717Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T17:36:23.817Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:24.834Z] [STEP: Route Check] Checking /calendar\n"
+                          "text": "[2026-02-04T17:36:23.904Z] [STEP: Route Check] Checking /calendar\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:25.276Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T17:36:24.648Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:25.380Z] [STEP: Route Check] Checking /house\n"
+                          "text": "[2026-02-04T17:36:24.761Z] [STEP: Route Check] Checking /house\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:25.972Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T17:36:25.033Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:26.053Z] [STEP: Route Check] Checking /meals\n"
+                          "text": "[2026-02-04T17:36:25.150Z] [STEP: Route Check] Checking /meals\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:26.413Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T17:36:25.522Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:26.481Z] [STEP: Route Check] Checking /finance\n"
+                          "text": "[2026-02-04T17:36:25.565Z] [STEP: Route Check] Checking /finance\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:26.896Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T17:36:25.842Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:27.017Z] [STEP: Route Check] Checking /settings\n"
+                          "text": "[2026-02-04T17:36:25.942Z] [STEP: Route Check] Checking /settings\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:27.480Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T17:36:26.216Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:27.539Z] [STEP: Route Check] [3.19s] Completed successfully.\n"
+                          "text": "[2026-02-04T17:36:26.278Z] [STEP: Route Check] [2.79s] Completed successfully.\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:27.540Z] [STEP: Grant Lead Architect Access] Starting...\n"
+                          "text": "[2026-02-04T17:36:26.278Z] [STEP: Grant Lead Architect Access] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:27.920Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-04T17:36:26.386Z] [STEP: BROWSER_ERROR] Grid is not defined\n"
                         },
                         {
-                          "text": "[2026-02-04T17:18:28.662Z] [STEP: Grant Access] Inviting mbryantuk@gmail.com as Admin\n"
+                          "text": "[2026-02-04T17:36:26.616Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T17:19:27.540Z] [STEP: Grant Lead Architect Access] [60.00s] ERROR: Failed - Timeout: Step \"Grant Lead Architect Access\" exceeded 60s without progressing.\n"
+                          "text": "[2026-02-04T17:36:26.734Z] [STEP: BROWSER_ERROR] Grid is not defined\n"
                         },
                         {
-                          "text": "[2026-02-04T17:19:27.541Z] [STEP: Grant Lead Architect Access] [60.00s] FAILED: Failed - Timeout: Step \"Grant Lead Architect Access\" exceeded 60s without progressing.\n"
+                          "text": "[2026-02-04T17:36:27.246Z] [STEP: Grant Access] Inviting mbryantuk@gmail.com as Admin\n"
+                        },
+                        {
+                          "text": "[2026-02-04T17:37:26.278Z] [STEP: Grant Lead Architect Access] [60.00s] ERROR: Failed - Timeout: Step \"Grant Lead Architect Access\" exceeded 60s without progressing.\n"
+                        },
+                        {
+                          "text": "[2026-02-04T17:37:26.279Z] [STEP: Grant Lead Architect Access] [60.00s] FAILED: Failed - Timeout: Step \"Grant Lead Architect Access\" exceeded 60s without progressing.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-04T17:18:19.462Z",
+                      "startTime": "2026-02-04T17:36:18.728Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
                           "path": "/home/matt/household-project/web/test-results/lifecycle_1_foundation-Bra-8f4d8-Foundation-Setup-Foundation-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/home/matt/household-project/web/test-results/lifecycle_1_foundation-Bra-8f4d8-Foundation-Setup-Foundation-chromium/error-context.md"
                         }
                       ],
                       "errorLocation": {
@@ -232,8 +233,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-04T17:18:17.287Z",
-    "duration": 70570.77200000001,
+    "startTime": "2026-02-04T17:36:15.728Z",
+    "duration": 70793.501,
     "expected": 0,
     "skipped": 0,
     "unexpected": 1,

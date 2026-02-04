@@ -1,4 +1,4 @@
 {
-  "commitMessage": "E2E Fix: restored URL sync for Settings tabs and invitation logic in ProfileSettings",
-  "date": "Wed  4 Feb 17:30:41 GMT 2026"
+  "commitMessage": "Hotfix: fixed missing Grid import in ProfileSettings causing E2E failure",
+  "date": "Wed  4 Feb 17:48:10 GMT 2026"
 }
