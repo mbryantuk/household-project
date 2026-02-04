@@ -1,90 +1,224 @@
-import { Box, Typography, Grid, Stack, Button } from '@mui/joy';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { Box, Typography, Button, Stack, IconButton, Sheet, Menu, MenuItem, Grid } from '@mui/joy';
 import Add from '@mui/icons-material/Add';
-import Tune from '@mui/icons-material/Tune';
-import { useHousehold } from '../contexts/HouseholdContext';
+import Save from '@mui/icons-material/Save';
+import Edit from '@mui/icons-material/Edit';
+import Close from '@mui/icons-material/Close';
+import Settings from '@mui/icons-material/Settings';
+import AddCircleOutline from '@mui/icons-material/AddCircleOutline';
+import RemoveCircleOutline from '@mui/icons-material/RemoveCircleOutline';
 
-// Import existing widgets
+import { Responsive } from 'react-grid-layout/legacy';
+import WidthProvider from '../components/helpers/WidthProvider';
+
+import BirthdaysWidget from '../components/widgets/BirthdaysWidget';
+import EventsWidget from '../components/widgets/EventsWidget';
+import HomeRecurringCostsWidget from '../components/widgets/HomeRecurringCostsWidget';
+import VehiclesWidget from '../components/widgets/VehiclesWidget';
+import NotesWidget from '../components/widgets/NotesWidget';
+import CalculatorWidget from '../components/widgets/CalculatorWidget';
+import FinancialWidget from '../components/widgets/FinancialWidget';
+import TaxWidget from '../components/widgets/TaxWidget';
+import CalendarWidget from '../components/widgets/CalendarWidget';
+import SavingsWidget from '../components/widgets/SavingsWidget';
+import InvestmentsWidget from '../components/widgets/InvestmentsWidget';
+import PensionsWidget from '../components/widgets/PensionsWidget';
 import WealthWidget from '../components/widgets/WealthWidget';
 import BudgetStatusWidget from '../components/widgets/BudgetStatusWidget';
-import CalendarWidget from '../components/widgets/CalendarWidget';
-import NotesWidget from '../components/widgets/NotesWidget';
-import VehiclesWidget from '../components/widgets/VehiclesWidget';
-import PensionsWidget from '../components/widgets/PensionsWidget';
-import EventsWidget from '../components/widgets/EventsWidget';
-import ErrorBoundary from '../components/ErrorBoundary';
 
-const GridItem = ({ children, sx = {} }) => (
-  <Box sx={{ height: '100%', minHeight: 0, ...sx }}>
-    <ErrorBoundary>{children}</ErrorBoundary>
-  </Box>
-);
+import ErrorBoundary from '../components/ErrorBoundary';
+import WidgetSkeleton from '../components/ui/WidgetSkeleton';
+import { useHousehold } from '../contexts/HouseholdContext';
+
+const ResponsiveGridLayout = WidthProvider(Responsive);
+
+const WIDGET_TYPES = {
+  birthdays: { component: BirthdaysWidget, label: 'Upcoming Birthdays', defaultH: 4, defaultW: 4 },
+  events: { component: EventsWidget, label: 'Calendar Events', defaultH: 4, defaultW: 6 },
+  costs: { component: HomeRecurringCostsWidget, label: 'Monthly Costs', defaultH: 4, defaultW: 6 },
+  vehicles: { component: VehiclesWidget, label: 'Fleet Status', defaultH: 4, defaultW: 4 },
+  notes: { component: NotesWidget, label: 'Sticky Note', defaultH: 4, defaultW: 4 },
+  calc: { component: CalculatorWidget, label: 'Calculator', defaultH: 5, defaultW: 4 },
+  finance: { component: FinancialWidget, label: 'Finance Tools', defaultH: 6, defaultW: 5 },
+  tax: { component: TaxWidget, label: 'Tax Tools', defaultH: 6, defaultW: 5 },
+  calendar: { component: CalendarWidget, label: 'Full Calendar', defaultH: 6, defaultW: 8 },
+  savings: { component: SavingsWidget, label: 'Savings Tracker', defaultH: 4, defaultW: 4 },
+  invest: { component: InvestmentsWidget, label: 'Investments', defaultH: 4, defaultW: 4 },
+  pensions: { component: PensionsWidget, label: 'Pensions', defaultH: 4, defaultW: 4 },
+  wealth: { component: WealthWidget, label: 'Wealth Tracking', defaultH: 7, defaultW: 4 },
+  budget_status: { component: BudgetStatusWidget, label: 'Budget Health', defaultH: 5, defaultW: 4 },
+};
+
+const DEFAULT_LAYOUT = [
+  { i: 'budget-1', x: 0, y: 0, w: 4, h: 5, type: 'budget_status' },
+  { i: 'wealth-1', x: 4, y: 0, w: 4, h: 7, type: 'wealth' },
+  { i: 'birthdays-1', x: 8, y: 0, w: 4, h: 4, type: 'birthdays' },
+  { i: 'calendar-1', x: 0, y: 5, w: 8, h: 6, type: 'calendar' },
+  { i: 'notes-1', x: 8, y: 5, w: 4, h: 6, type: 'notes' },
+];
 
 export default function HomeView() {
-  const { user, household, api, members, dates, onUpdateProfile } = useHousehold();
-  const dateStr = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+  const { members, household, user, dates, onUpdateProfile, api } = useHousehold();
+  const [isEditing, setIsEditing] = useState(false);
+  const [page, setPage] = useState(1);
+  const [isSaving, setIsSaving] = useState(false);
+  const [breakpoint, setBreakpoint] = useState('lg');
+  const [addWidgetAnchor, setAddWidgetAnchor] = useState(null);
 
+  // Initialize strictly from Server Props (or Default if missing/empty)
+  const [layouts, setLayouts] = useState(() => {
+    if (user?.dashboard_layout) {
+      try {
+        const cloud = typeof user.dashboard_layout === 'string' 
+          ? JSON.parse(user.dashboard_layout) 
+          : user.dashboard_layout;
+        if (cloud && Object.keys(cloud).length > 0) return cloud;
+      } catch (err) { console.error("Cloud Layout Parse Error", err); }
+    }
+    return { 1: DEFAULT_LAYOUT };
+  });
+
+  const currentItems = useMemo(() => {
+    const pageLayout = layouts[page] || { lg: [], md: [], sm: [] };
+    if (Array.isArray(pageLayout)) return pageLayout;
+    return pageLayout[breakpoint] || pageLayout.lg || [];
+  }, [layouts, page, breakpoint]);
+
+  const gridItems = useMemo(() => currentItems.map(item => ({ ...item, static: !isEditing })), [currentItems, isEditing]);
+
+  const handleLayoutChange = (currentLayout, allLayouts) => {
+    if (!isEditing) return;
+    setLayouts(prev => {
+        const pageLayouts = prev[page] || { lg: [], md: [], sm: [] };
+        const updated = {};
+        Object.keys(allLayouts).forEach(bp => {
+            updated[bp] = allLayouts[bp].map(l => {
+                let existing = null;
+                if (Array.isArray(pageLayouts)) {
+                    existing = pageLayouts.find(i => i.i === l.i);
+                } else {
+                    existing = (pageLayouts[bp] || pageLayouts.lg || pageLayouts.md || pageLayouts.sm || []).find(i => i.i === l.i);
+                }
+                return { ...existing, ...l };
+            });
+        });
+        return { ...prev, [page]: updated };
+    });
+  };
+
+  const handleAddWidget = (type) => {
+    const config = WIDGET_TYPES[type];
+    const newId = `${type}-${Date.now()}`;
+    const newItem = {
+        i: newId, x: (currentItems.length * 4) % 12, y: Infinity, w: config.defaultW, h: config.defaultH, type: type,
+        data: {}
+    };
+    
+    setLayouts(prev => {
+        const pageLayouts = prev[page] || { lg: [], md: [], sm: [] };
+        const updated = {};
+        ['lg', 'md', 'sm', 'xs', 'xxs'].forEach(bp => {
+            const base = Array.isArray(pageLayouts) ? pageLayouts : (pageLayouts[bp] || pageLayouts.lg || []);
+            updated[bp] = [...base, newItem];
+        });
+        return { ...prev, [page]: updated };
+    });
+    setAddWidgetAnchor(null);
+  };
+
+  const handleRemoveWidget = (id) => {
+      setLayouts(prev => {
+          const pageLayouts = prev[page];
+          if (Array.isArray(pageLayouts)) {
+              return { ...prev, [page]: pageLayouts.filter(i => i.i !== id) };
+          }
+          const updated = {};
+          Object.keys(pageLayouts).forEach(bp => {
+              updated[bp] = pageLayouts[bp].filter(i => i.i !== id);
+          });
+          return { ...prev, [page]: updated };
+      });
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try { 
+        await onUpdateProfile({ dashboard_layout: JSON.stringify(layouts) }); 
+        setIsEditing(false);
+    } catch (err) { console.error("Failed to save layout", err); }
+    setIsSaving(false);
+  };
+
+  const dateStr = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
   const hour = new Date().getHours();
-  let greeting = "Good evening";
-  if (hour < 12) greeting = "Good morning";
-  else if (hour < 17) greeting = "Good afternoon";
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
-    <Box sx={{ maxWidth: 1600, mx: 'auto', width: '100%', display: 'flex', flexDirection: 'column', gap: 3, p: { xs: 1, md: 2 } }}>
+    <Box sx={{ pb: 10, px: { xs: 1, md: 4 }, pt: 2 }}>
       
-      {/* 1. Header Section */}
-      <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} spacing={2}>
+      {/* HEADER */}
+      <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} spacing={2} sx={{ mb: 4 }}>
         <Box>
           <Typography level="h2" sx={{ fontWeight: 'lg' }}>{greeting}, {user?.first_name || 'Friend'}</Typography>
           <Typography level="body-md" color="neutral">{dateStr} • {household?.name}</Typography>
         </Box>
-        <Stack direction="row" spacing={1}>
-           <Button variant="outlined" startDecorator={<Tune />} size="sm">Customize</Button>
-           <Button startDecorator={<Add />} size="sm">Quick Add</Button>
-        </Stack>
+        
+        <Box sx={{ display: 'flex', gap: 1 }}>
+            {isEditing ? (
+                <>
+                    <Button variant="soft" startDecorator={<Add />} onClick={(e) => setAddWidgetAnchor(e.currentTarget)}>Add Widget</Button>
+                    <Button variant="solid" color="primary" loading={isSaving} startDecorator={<Save />} onClick={handleSave}>Save Layout</Button>
+                </>
+            ) : (
+                <Button variant="plain" color="neutral" startDecorator={<Settings />} onClick={() => setIsEditing(true)}>Customize</Button>
+            )}
+        </Box>
       </Stack>
 
-      {/* 2. The Bento Grid */}
-      <Grid container spacing={2}>
-        
-        {/* Priority 1: Money Status (Budget) */}
-        <Grid xs={12} md={4}>
-           <GridItem><BudgetStatusWidget compact api={api} household={household} /></GridItem>
-        </Grid>
+      {/* GRID */}
+      <ResponsiveGridLayout
+          className="layout"
+          layouts={Array.isArray(layouts[page]) ? { lg: layouts[page], md: layouts[page], sm: layouts[page] } : layouts[page]}
+          breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+          cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
+          rowHeight={60}
+          isDraggable={isEditing}
+          isResizable={isEditing}
+          onLayoutChange={handleLayoutChange}
+          onBreakpointChange={setBreakpoint}
+          margin={[24, 24]}
+      >
+          {gridItems.map(item => {
+              const WidgetComponent = WIDGET_TYPES[item.type]?.component;
+              return (
+                  <Box key={item.i} data-grid={{ ...item, static: !isEditing }} sx={{ position: 'relative' }}>
+                      {isEditing && (
+                          <IconButton 
+                              size="sm" variant="solid" color="danger"
+                              onClick={() => handleRemoveWidget(item.i)}
+                              sx={{ position: 'absolute', top: -14, right: -14, zIndex: 100, borderRadius: '50%' }}
+                          >
+                              <Close fontSize="small" />
+                          </IconButton>
+                      )}
+                      <ErrorBoundary>
+                          {WidgetComponent ? <WidgetComponent api={api} household={household} members={members} user={user} dates={dates} /> : <WidgetSkeleton />}
+                      </ErrorBoundary>
+                  </Box>
+              );
+          })}
+      </ResponsiveGridLayout>
 
-        {/* Priority 2: Immediate Schedule (Next Event) */}
-        <Grid xs={12} md={4}>
-           <GridItem><EventsWidget limit={1} variant="hero" dates={dates} members={members} /></GridItem>
-        </Grid>
-
-        {/* Priority 3: Total Wealth Snapshot */}
-        <Grid xs={12} md={4}>
-           <GridItem><WealthWidget variant="summary" api={api} household={household} /></GridItem>
-        </Grid>
-
-        {/* 3. The "Main Stage" - Deep Interaction */}
-        <Grid xs={12} lg={8} sx={{ minHeight: 400 }}>
-           <GridItem><CalendarWidget dates={dates} members={members} api={api} household={household} /></GridItem>
-        </Grid>
-
-        {/* 4. The "Sidekick" - Quick Lists */}
-        <Grid xs={12} lg={4}>
-           <Stack spacing={2} sx={{ height: '100%' }}>
-              <Box sx={{ flex: 1 }}><NotesWidget user={user} onUpdateProfile={onUpdateProfile} /></Box>
-           </Stack>
-        </Grid>
-
-        {/* 5. The "Archive" - Slow Moving Data */}
-        <Grid xs={12} md={6} lg={4}>
-           <GridItem><PensionsWidget api={api} household={household} /></GridItem>
-        </Grid>
-        <Grid xs={12} md={6} lg={4}>
-           <GridItem><VehiclesWidget api={api} household={household} /></GridItem>
-        </Grid>
-        <Grid xs={12} md={6} lg={4}>
-           <GridItem><NotesWidget title="Quick Pad" /></GridItem>
-        </Grid>
-
-      </Grid>
+      <Menu
+        anchorEl={addWidgetAnchor}
+        open={Boolean(addWidgetAnchor)}
+        onClose={() => setAddWidgetAnchor(null)}
+        placement="bottom-end"
+      >
+        {Object.entries(WIDGET_TYPES).map(([key, config]) => (
+            <MenuItem key={key} onClick={() => handleAddWidget(key)}>{config.label}</MenuItem>
+        ))}
+      </Menu>
     </Box>
   );
 }

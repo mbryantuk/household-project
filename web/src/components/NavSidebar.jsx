@@ -19,7 +19,7 @@ import HomeWork from '@mui/icons-material/HomeWork';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DownloadIcon from '@mui/icons-material/Download';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import HomeIcon from '@mui/icons-material/Home';
 
 import { useLocation, useNavigate, NavLink } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
@@ -131,11 +131,8 @@ export default function NavSidebar({
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [isPinned, setIsPinned] = useState(localStorage.getItem('nav_pinned') === 'true');
   const [userMenuAnchor, setUserMenuAnchor] = useState(null);
-  const [canScrollUp, setCanScrollUp] = useState(false);
-  const [canScrollDown, setCanScrollDown] = useState(false);
   
   const sidebarRef = useRef(null);
-  const scrollRef = useRef(null);
 
   useEffect(() => {
     if (isMobile) return;
@@ -159,24 +156,6 @@ export default function NavSidebar({
           return household?.enabled_modules ? JSON.parse(household.enabled_modules) : ['pets', 'vehicles', 'meals'];
       } catch { return ['pets', 'vehicles', 'meals']; }
   }, [household]);
-
-  const checkScroll = useCallback(() => {
-    if (scrollRef.current) {
-        const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-        setCanScrollUp(scrollTop > 10);
-        setCanScrollDown(scrollTop + clientHeight < scrollHeight - 10);
-    }
-  }, []);
-
-  useEffect(() => {
-    checkScroll();
-    const timer = setTimeout(checkScroll, 500); 
-    window.addEventListener('resize', checkScroll);
-    return () => {
-        clearTimeout(timer);
-        window.removeEventListener('resize', checkScroll);
-    };
-  }, [members, vehicles, checkScroll]);
 
   const getCategoryFromPath = useCallback((path) => {
       if (path.includes('/people') || path.includes('/pets') || path.includes('/vehicles') || path.includes('/house')) return 'household';
@@ -263,7 +242,8 @@ export default function NavSidebar({
                 </Box>
                 
                 <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
-                    <RailIcon icon={<HomeWork />} label="Home" category="dashboard" to="dashboard" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
+                    <RailIcon icon={<HomeWork />} label="Dashboard" category="dashboard" to="dashboard" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
+                    <RailIcon icon={<HomeIcon />} label="Hub" category="household" hasSubItems to="house" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
                     <RailIcon icon={<Event />} label="Calendar" category="calendar" to="calendar" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
                 </List>
                 <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
@@ -281,7 +261,7 @@ export default function NavSidebar({
 
             {/* FOOTER SECTION */}
             <Box sx={{ width: '100%', mt: 'auto', pt: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                <Divider sx={{ width: 40, mb: 1 }} />
+                <Box sx={{ width: '100%', px: 1.5 }}><Divider sx={{ mb: 1 }} /></Box>
                 
                 {installPrompt && (
                     <Tooltip title="Install App" variant="soft" placement="right">
@@ -366,6 +346,9 @@ export default function NavSidebar({
                 <List sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>
                     {currentPanelCategory === 'household' && (
                         <>
+                            <GroupHeader label="Hub" />
+                            <SubItem label="Overview" to="house" emoji="🏠" isDark={isDark} onClick={handleSubItemClick} />
+                            <Divider sx={{ my: 1 }} />
                             <GroupHeader label="Residents" />
                             {members.filter(m => m.type !== 'pet').map(m => <SubItem key={m.id} label={m.alias || (m.name || '').split(' ')[0]} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
                             {enabledModules.includes('pets') && (
@@ -377,7 +360,8 @@ export default function NavSidebar({
                             )}
                             <Divider sx={{ my: 1 }} />
                             <GroupHeader label="Assets & Fleet" />
-                            <SubItem label="Registry" to="house" emoji="🏠" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="Property Details" to="house" emoji="📑" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="Asset Registry" to="house" emoji="📦" isDark={isDark} onClick={handleSubItemClick} />
                             {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`vehicles/${v.id}`} emoji={v.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
                         </>
                     )}

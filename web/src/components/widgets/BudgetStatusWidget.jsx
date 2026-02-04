@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Box, Typography, Stack, LinearProgress, CircularProgress, Tooltip, Sheet, Chip } from '@mui/joy';
-import { AccountBalanceWallet, Warning, TrendingDown, Payments, Speed } from '@mui/icons-material';
+import { Box, Typography, Stack, LinearProgress, CircularProgress, Tooltip, Sheet, Chip, Divider } from '@mui/joy';
+import AccountBalanceWallet from '@mui/icons-material/AccountBalanceWallet';
+import Warning from '@mui/icons-material/Warning';
+import TrendingDown from '@mui/icons-material/TrendingDown';
+import Speed from '@mui/icons-material/Speed';
 import { 
     format, addMonths, startOfMonth, setDate, 
     isSameDay, isAfter, isBefore, startOfDay, isWithinInterval, parseISO, addWeeks, addYears, eachDayOfInterval
@@ -26,23 +29,23 @@ export default function BudgetStatusWidget({ api, household }) {
       const [
           incRes, progRes, cycleRes, recurringRes, ccRes, accountRes, holidayRes
       ] = await Promise.all([
-          api.get(`/households/${household.id}/finance/income`),
-          api.get(`/households/${household.id}/finance/budget-progress`),
-          api.get(`/households/${household.id}/finance/budget-cycles`),
-          api.get(`/households/${household.id}/finance/recurring-costs`),
-          api.get(`/households/${household.id}/finance/credit-cards`),
-          api.get(`/households/${household.id}/finance/current-accounts`),
-          api.get(`/system/holidays`)
+          api.get(`/households/${household.id}/finance/income`).catch(() => ({ data: [] })),
+          api.get(`/households/${household.id}/finance/budget-progress`).catch(() => ({ data: [] })),
+          api.get(`/households/${household.id}/finance/budget-cycles`).catch(() => ({ data: [] })),
+          api.get(`/households/${household.id}/finance/recurring-costs`).catch(() => ({ data: [] })),
+          api.get(`/households/${household.id}/finance/credit-cards`).catch(() => ({ data: [] })),
+          api.get(`/households/${household.id}/finance/current-accounts`).catch(() => ({ data: [] })),
+          api.get(`/system/holidays`).catch(() => ({ data: [] }))
       ]);
 
       setFinanceData({
-          incomes: incRes.data || [],
-          progress: progRes.data || [],
-          cycles: cycleRes.data || [],
-          recurring_costs: recurringRes.data || [],
-          credit_cards: ccRes.data || [],
-          current_accounts: accountRes.data || [],
-          bank_holidays: holidayRes.data || []
+          incomes: incRes?.data || [],
+          progress: progRes?.data || [],
+          cycles: cycleRes?.data || [],
+          recurring_costs: recurringRes?.data || [],
+          credit_cards: ccRes?.data || [],
+          current_accounts: accountRes?.data || [],
+          bank_holidays: holidayRes?.data || []
       });
     } catch (err) {
       console.error("Failed to fetch budget status data", err);
@@ -55,21 +58,22 @@ export default function BudgetStatusWidget({ api, household }) {
     fetchData();
   }, [fetchData]);
 
-  // Projection Logic (Simplified from BudgetView)
   const projection = useMemo(() => {
     const { incomes, recurring_costs, credit_cards, progress, cycles, current_accounts, bank_holidays } = financeData;
+    
+    if (!incomes || incomes.length === 0) return null;
     
     const primaryIncome = incomes.find(i => i.is_primary === 1) || incomes.find(i => i.payment_day > 0);
     if (!primaryIncome) return null;
 
     const now = startOfDay(new Date());
-    const payday = parseInt(primaryIncome.payment_day);
+    const payday = parseInt(primaryIncome.payment_day) || 1;
     let rawStartDate = now.getDate() >= payday ? setDate(startOfMonth(now), payday) : setDate(startOfMonth(addMonths(now, -1)), payday);
     
     const getPriorWorkingDay = (date) => {
         let d = new Date(date);
         const isWeekend = (day) => day.getDay() === 0 || day.getDay() === 6;
-        const isHoliday = (day) => bank_holidays.includes(format(day, 'yyyy-MM-dd'));
+        const isHoliday = (day) => Array.isArray(bank_holidays) && bank_holidays.includes(format(day, 'yyyy-MM-dd'));
         while (isWeekend(d) || isHoliday(d)) { d.setDate(d.getDate() - 1); }
         return d;
     };
@@ -78,21 +82,25 @@ export default function BudgetStatusWidget({ api, household }) {
     const endDate = getPriorWorkingDay(addMonths(rawStartDate, 1));
     const cycleKey = format(startDate, 'yyyy-MM-dd');
 
-    const currentCycleRecord = cycles.find(c => c.cycle_start === cycleKey);
+    const currentCycleRecord = Array.isArray(cycles) ? cycles.find(c => c.cycle_start === cycleKey) : null;
     if (!currentCycleRecord) return { noCycle: true, cycleLabel: format(rawStartDate.getDate() >= 20 ? addMonths(rawStartDate, 1) : rawStartDate, 'MMMM yyyy') };
 
     const currentBalance = parseFloat(currentCycleRecord.current_balance) || 0;
-    const overdraftLimit = current_accounts.find(a => a.id === currentCycleRecord.bank_account_id)?.overdraft_limit || 0;
+    const linkedAccount = Array.isArray(current_accounts) ? current_accounts.find(a => a.id === currentCycleRecord.bank_account_id) : null;
+    const overdraftLimit = linkedAccount?.overdraft_limit || 0;
 
     const progressMap = new Map();
-    progress.filter(p => p.cycle_start === cycleKey).forEach(p => progressMap.set(p.item_key, p));
+    if (Array.isArray(progress)) {
+        progress.filter(p => p.cycle_start === cycleKey).forEach(p => progressMap.set(p.item_key, p));
+    }
 
     const getAdjustedDate = (input, useNwd) => {
-        let d = setDate(startOfMonth(new Date(startDate)), parseInt(input));
+        let d = setDate(startOfMonth(new Date(startDate)), parseInt(input) || 1);
         if (isAfter(startDate, d)) { d = addMonths(d, 1); }
         if (!useNwd) return d;
         let nd = new Date(d);
-        while (nd.getDay() === 0 || nd.getDay() === 6 || bank_holidays.includes(format(nd, 'yyyy-MM-dd'))) { nd.setDate(nd.getDate() + 1); }
+        const isHoliday = (day) => Array.isArray(bank_holidays) && bank_holidays.includes(format(day, 'yyyy-MM-dd'));
+        while (nd.getDay() === 0 || nd.getDay() === 6 || isHoliday(nd)) { nd.setDate(nd.getDate() + 1); }
         return nd;
     };
 
@@ -100,46 +108,49 @@ export default function BudgetStatusWidget({ api, household }) {
     const allIncomes = [];
 
     // Recurring Costs
-    recurring_costs.filter(c => c.is_active !== 0).forEach(charge => {
-        let datesToAdd = [];
-        const freq = charge.frequency?.toLowerCase();
-        const anchor = charge.start_date ? parseISO(charge.start_date) : null;
-        
-        if (freq === 'one_off') {
-            const d = parseISO(charge.exact_date || charge.start_date);
-            if (isWithinInterval(d, { start: startDate, end: endDate })) datesToAdd.push(d);
-        } else if (anchor) {
-            let current = startOfDay(anchor);
-            while (current < startDate) {
-                if (freq === 'weekly') current = addWeeks(current, 1);
-                else if (freq === 'monthly') current = addMonths(current, 1);
-                else if (freq === 'quarterly') current = addMonths(current, 3);
-                else if (freq === 'yearly') current = addYears(current, 1);
-                else break;
-            }
-            while (isWithinInterval(current, { start: startDate, end: endDate })) {
-                let d = new Date(current);
-                if (charge.adjust_for_working_day) {
-                    while (d.getDay() === 0 || d.getDay() === 6 || bank_holidays.includes(format(d, 'yyyy-MM-dd'))) { d.setDate(d.getDate() + 1); }
+    if (Array.isArray(recurring_costs)) {
+        recurring_costs.filter(c => c.is_active !== 0).forEach(charge => {
+            let datesToAdd = [];
+            const freq = charge.frequency?.toLowerCase();
+            const anchor = charge.start_date ? parseISO(charge.start_date) : null;
+            
+            if (freq === 'one_off') {
+                const d = parseISO(charge.exact_date || charge.start_date);
+                if (d && isWithinInterval(d, { start: startDate, end: endDate })) datesToAdd.push(d);
+            } else if (anchor) {
+                let current = startOfDay(anchor);
+                while (current < startDate) {
+                    if (freq === 'weekly') current = addWeeks(current, 1);
+                    else if (freq === 'monthly') current = addMonths(current, 1);
+                    else if (freq === 'quarterly') current = addMonths(current, 3);
+                    else if (freq === 'yearly') current = addYears(current, 1);
+                    else break;
                 }
-                datesToAdd.push(d);
-                if (freq === 'weekly') current = addWeeks(current, 1);
-                else if (freq === 'monthly') current = addMonths(current, 1);
-                else if (freq === 'quarterly') current = addMonths(current, 3);
-                else if (freq === 'yearly') current = addYears(current, 1);
-                else break;
+                while (isWithinInterval(current, { start: startDate, end: endDate })) {
+                    let d = new Date(current);
+                    if (charge.adjust_for_working_day) {
+                        const isHoliday = (day) => Array.isArray(bank_holidays) && bank_holidays.includes(format(day, 'yyyy-MM-dd'));
+                        while (d.getDay() === 0 || d.getDay() === 6 || isHoliday(d)) { d.setDate(d.getDate() + 1); }
+                    }
+                    datesToAdd.push(d);
+                    if (freq === 'weekly') current = addWeeks(current, 1);
+                    else if (freq === 'monthly') current = addMonths(current, 1);
+                    else if (freq === 'quarterly') current = addMonths(current, 3);
+                    else if (freq === 'yearly') current = addYears(current, 1);
+                    else break;
+                }
             }
-        }
 
-        datesToAdd.forEach(d => {
-            const key = `recurring_${charge.id}_${format(d, 'ddMM')}`;
-            const prog = progressMap.get(key);
-            if (prog?.is_paid === -1) return;
-            const item = { key, amount: prog?.actual_amount || charge.amount, date: d, isPaid: prog?.is_paid === 1 };
-            if (charge.category_id === 'income') allIncomes.push(item);
-            else allExpenses.push(item);
+            datesToAdd.forEach(d => {
+                const key = `recurring_${charge.id}_${format(d, 'ddMM')}`;
+                const prog = progressMap.get(key);
+                if (prog?.is_paid === -1) return;
+                const item = { key, amount: prog?.actual_amount || charge.amount, date: d, isPaid: prog?.is_paid === 1 };
+                if (charge.category_id === 'income') allIncomes.push(item);
+                else allExpenses.push(item);
+            });
         });
-    });
+    }
 
     // Income
     incomes.forEach(inc => {
@@ -151,13 +162,15 @@ export default function BudgetStatusWidget({ api, household }) {
     });
 
     // Credit Cards
-    credit_cards.forEach(cc => {
-        const d = getAdjustedDate(cc.payment_day || 1, true);
-        const key = `credit_card_${cc.id}_${format(d, 'ddMM')}`;
-        const prog = progressMap.get(key);
-        if (prog?.is_paid === -1) return;
-        allExpenses.push({ key, amount: prog?.actual_amount || 0, date: d, isPaid: prog?.is_paid === 1 });
-    });
+    if (Array.isArray(credit_cards)) {
+        credit_cards.forEach(cc => {
+            const d = getAdjustedDate(cc.payment_day || 1, true);
+            const key = `credit_card_${cc.id}_${format(d, 'ddMM')}`;
+            const prog = progressMap.get(key);
+            if (prog?.is_paid === -1) return;
+            allExpenses.push({ key, amount: prog?.actual_amount || 0, date: d, isPaid: prog?.is_paid === 1 });
+        });
+    }
 
     const days = eachDayOfInterval({ start: startDate, end: endDate });
     const pastUnpaidExpenses = allExpenses.filter(e => isBefore(startOfDay(e.date), now) && !e.isPaid);
@@ -186,7 +199,7 @@ export default function BudgetStatusWidget({ api, household }) {
         isOverdrawn: lowestPoint < 0,
         isLimitRisk: lowestPoint < -overdraftLimit,
         unpaidCount: allExpenses.filter(e => !e.isPaid).length,
-        cycleLabel: format(rawStartDate.getDate() >= 20 ? addMonths(rawStartDate, 1) : rawStartDate, 'MMMM yyyy')
+        cycleLabel: format(rawStartDate.getDate() >= payday ? rawStartDate : addMonths(rawStartDate, -1), 'MMMM yyyy')
     };
 
   }, [financeData]);

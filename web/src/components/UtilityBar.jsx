@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useLayoutEffect, useCallback } from 'react';
 import { 
-  Box, IconButton, Tooltip, Sheet, Typography, Divider, Chip
+  Box, IconButton, Tooltip, Sheet, Typography, Divider, Chip, Stack
 } from '@mui/joy';
 import Wifi from '@mui/icons-material/Wifi';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
@@ -12,8 +12,7 @@ import Savings from '@mui/icons-material/Savings';
 import TrendingUp from '@mui/icons-material/TrendingUp';
 import HourglassBottom from '@mui/icons-material/HourglassBottom';
 import CalendarMonth from '@mui/icons-material/CalendarMonth';
-import OpenInNew from '@mui/icons-material/OpenInNew';
-import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
+import AccountBalance from '@mui/icons-material/AccountBalance';
 
 import { useNavigate } from 'react-router-dom';
 import FloatingCalculator from './FloatingCalculator';
@@ -26,9 +25,8 @@ import FloatingInvestments from './FloatingInvestments';
 import FloatingPensions from './FloatingPensions';
 import { useHousehold } from '../contexts/HouseholdContext';
 
-const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, showLabel = true, variant = "plain", activeWidget, poppedOut, toggleWidget }) => {
+const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, activeWidget, poppedOut, toggleWidget }) => {
     const isOpen = activeWidget === id && !poppedOut[id];
-    const isPopped = poppedOut[id];
     const buttonRef = useRef(null);
     const [leftPos, setLeftPos] = useState(0);
 
@@ -57,13 +55,15 @@ const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, showLabe
                   display: 'flex', flexDirection: 'column', overflow: 'hidden'
               }}>{children}</Box>
           )}
-          <IconButton 
-              ref={buttonRef} variant={isOpen ? "solid" : variant} color={isOpen ? color : "neutral"} 
-              onClick={() => toggleWidget(id)}
-              sx={{ height: 44, width: 44, borderRadius: 0, transition: 'all 0.2s' }}
-          >
-              {renderIcon()}
-          </IconButton>
+          <Tooltip title={label} variant="soft">
+            <IconButton 
+                ref={buttonRef} variant={isOpen ? "solid" : "plain"} color={isOpen ? color : "neutral"} 
+                onClick={() => toggleWidget(id)}
+                sx={{ height: 44, width: 44, borderRadius: 0, transition: 'all 0.2s' }}
+            >
+                {renderIcon()}
+            </IconButton>
+          </Tooltip>
       </Box>
     );
 };
@@ -71,35 +71,9 @@ const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, showLabe
 export default function UtilityBar() {
   const { user, api, dates, onDateAdded, onUpdateProfile, isDark, statusBarData, activeHouseholdId } = useHousehold();
   const scrollRef = useRef(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
   const [activeWidget, setActiveWidget] = useState(null); 
   const [poppedOut, setPoppedOut] = useState({});
   const popoutRefs = useRef({});
-
-  const checkScroll = useCallback(() => {
-    if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      setCanScrollLeft(scrollLeft > 5);
-      setCanScrollRight(scrollWidth - (scrollLeft + clientWidth) > 5);
-    }
-  }, []);
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (el) {
-      checkScroll();
-      el.addEventListener('scroll', checkScroll);
-      window.addEventListener('resize', checkScroll);
-      const resizeObserver = new ResizeObserver(checkScroll);
-      resizeObserver.observe(el);
-      return () => {
-        el.removeEventListener('scroll', checkScroll);
-        window.removeEventListener('resize', checkScroll);
-        resizeObserver.disconnect();
-      };
-    }
-  }, [checkScroll]);
 
   const formatCurrency = (val) => (parseFloat(val) || 0).toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });
 
@@ -129,15 +103,30 @@ export default function UtilityBar() {
                 <WidgetWrapper id="notes" label="Notes" icon={NoteAlt} color="warning" width={320} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <PostItNote isDocked onClose={() => setActiveWidget(null)} user={user} onUpdateProfile={onUpdateProfile} onPopout={() => handlePopout('notes', '/note-window')} />
                 </WidgetWrapper>
-                <WidgetWrapper id="calc" label="Calc" icon={Calculate} color="primary" width={300} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                <WidgetWrapper id="calc" label="Calculator" icon={Calculate} color="primary" width={300} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <FloatingCalculator isDocked onClose={() => setActiveWidget(null)} isDark={isDark} onPopout={() => handlePopout('calc', '/calculator')} />
                 </WidgetWrapper>
-                <WidgetWrapper id="fincalc" label="Finance" icon={Payments} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                
+                <Divider orientation="vertical" sx={{ mx: 0.5, height: '60%' }} />
+
+                <WidgetWrapper id="fincalc" label="Finance Calc" icon={AccountBalance} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <FinancialCalculator isDocked onClose={() => setActiveWidget(null)} isDark={isDark} onPopout={() => handlePopout('fincalc', '/fin-calculator-window')} />
                 </WidgetWrapper>
-                <WidgetWrapper id="savings" label="Savings" icon={Savings} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                <WidgetWrapper id="tax" label="Tax Tools" icon={Payments} color="warning" width={450} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                    <TaxCalculator isDocked onClose={() => setActiveWidget(null)} isDark={isDark} onPopout={() => handlePopout('tax', '/tax-window')} />
+                </WidgetWrapper>
+                <WidgetWrapper id="savings" label="Savings & Pots" icon={Savings} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <FloatingSavings isDocked onClose={() => setActiveWidget(null)} api={api} householdId={activeHouseholdId} isDark={isDark} onPopout={() => handlePopout('savings', '/savings-window')} />
                 </WidgetWrapper>
+                <WidgetWrapper id="invest" label="Investments" icon={TrendingUp} color="primary" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                    <FloatingInvestments isDocked onClose={() => setActiveWidget(null)} api={api} householdId={activeHouseholdId} isDark={isDark} onPopout={() => handlePopout('invest', '/investments-window')} />
+                </WidgetWrapper>
+                <WidgetWrapper id="pensions" label="Pensions" icon={HourglassBottom} color="warning" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                    <FloatingPensions isDocked onClose={() => setActiveWidget(null)} api={api} householdId={activeHouseholdId} isDark={isDark} onPopout={() => handlePopout('pensions', '/pensions-window')} />
+                </WidgetWrapper>
+
+                <Divider orientation="vertical" sx={{ mx: 0.5, height: '60%' }} />
+
                 <WidgetWrapper id="calendar" label="Calendar" icon={CalendarMonth} color="danger" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                      <FloatingCalendar isDocked onClose={() => setActiveWidget(null)} dates={dates} api={api} householdId={activeHouseholdId} currentUser={user} onDateAdded={onDateAdded} isDark={isDark} onPopout={() => handlePopout('calendar', '/calendar-window')} />
                 </WidgetWrapper>
