@@ -33,7 +33,7 @@ const ROUTE_META = {
   calendar: { title: 'Calendar' },
   people: { title: 'People' },
   pets: { title: 'Pets' },
-  house: { title: 'Asset Registry' },
+  house: { title: 'House' },
   vehicles: { title: 'Vehicles' },
   finance: { title: 'Finance' },
   meals: { title: 'Meal Planner' },
@@ -149,7 +149,7 @@ export default function HouseholdLayout({
             bgcolor: 'background.body'
         }}>
         
-        <NavSidebar />
+        <NavSidebar installPrompt={installPrompt} onInstall={onInstall} />
 
         <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0, height: '100%', position: 'relative', overflow: 'hidden' }}>
             
@@ -282,22 +282,7 @@ export default function HouseholdLayout({
             </Box>
 
             <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-                <UtilityBar 
-                    user={user}
-                    api={api}
-                    dates={dates}
-                    onDateAdded={onDateAdded}
-                    onUpdateProfile={onUpdateProfile}
-                    isDark={isDark}
-                    onLogout={onLogout}
-                    households={households}
-                    onSelectHousehold={onSelectHousehold}
-                    canInstall={!!installPrompt}
-                    onInstall={onInstall}
-                    confirmAction={confirmAction}
-                    activeHouseholdId={id}
-                    statusBarData={statusBarData} 
-                />
+                <UtilityBar />
             </Box>
 
             <Sheet
@@ -396,14 +381,6 @@ export default function HouseholdLayout({
 
                         <Typography level="title-lg" sx={{ mt: 2, mb: 1 }}>Admin</Typography>
                         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
-                            {installPrompt && (
-                                <MenuTile 
-                                    icon={<Download />} 
-                                    label="Install" 
-                                    onClick={() => { onInstall(); setDrawerOpen(false); }} 
-                                    sx={{ bgcolor: 'success.softBg', color: 'success.plainColor' }}
-                                />
-                            )}
                             <MenuTile 
                                 icon={<SettingsIcon />} 
                                 label="Settings" 

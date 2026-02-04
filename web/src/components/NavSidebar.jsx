@@ -243,7 +243,7 @@ export default function NavSidebar({
                 
                 <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
                     <RailIcon icon={<HomeWork />} label="Dashboard" category="dashboard" to="dashboard" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
-                    <RailIcon icon={<HomeIcon />} label="Hub" category="household" hasSubItems to="house" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
+                    <RailIcon icon={<HomeIcon />} label="House" category="household" hasSubItems to="house" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
                     <RailIcon icon={<Event />} label="Calendar" category="calendar" to="calendar" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
                 </List>
                 <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
@@ -251,7 +251,6 @@ export default function NavSidebar({
 
             <Box sx={{ width: '100%', flexGrow: 1, overflowY: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
                 <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
-                    <RailIcon icon={<Groups />} label="People" category="household" hasSubItems to="people" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
                     <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems to="finance" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
                     {enabledModules.includes('meals') && (
                         <RailIcon icon={<RestaurantMenu />} label="Meals" category="meals" to="meals" location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} isPinned={isPinned} />
@@ -346,8 +345,8 @@ export default function NavSidebar({
                 <List sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>
                     {currentPanelCategory === 'household' && (
                         <>
-                            <GroupHeader label="Hub" />
-                            <SubItem label="Overview" to="house" emoji="🏠" isDark={isDark} onClick={handleSubItemClick} />
+                            <GroupHeader label="Overview" />
+                            <SubItem label="House Hub" to="house" emoji="🏠" isDark={isDark} onClick={handleSubItemClick} />
                             <Divider sx={{ my: 1 }} />
                             <GroupHeader label="Residents" />
                             {members.filter(m => m.type !== 'pet').map(m => <SubItem key={m.id} label={m.alias || (m.name || '').split(' ')[0]} to={`people/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
@@ -359,9 +358,7 @@ export default function NavSidebar({
                                 </>
                             )}
                             <Divider sx={{ my: 1 }} />
-                            <GroupHeader label="Assets & Fleet" />
-                            <SubItem label="Property Details" to="house" emoji="📑" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Asset Registry" to="house" emoji="📦" isDark={isDark} onClick={handleSubItemClick} />
+                            <GroupHeader label="Fleet" />
                             {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`vehicles/${v.id}`} emoji={v.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
                         </>
                     )}
