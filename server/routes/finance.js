@@ -281,7 +281,7 @@ const handleGetDebtList = (categoryId) => (req, res) => {
 };
 
 const handleCreateDebt = (categoryId) => (req, res) => {
-    const { name, lender, provider, amount, monthly_payment, ...metadata } = req.body;
+    const { name, lender, provider, amount, monthly_payment, financial_profile_id, bank_account_id, ...metadata } = req.body;
     const finalName = name || lender || provider || "Debt Item";
     const finalAmount = parseFloat(amount || monthly_payment) || 0;
     const metaStr = JSON.stringify({ lender: lender || provider || finalName, ...metadata });
@@ -296,11 +296,13 @@ const handleCreateDebt = (categoryId) => (req, res) => {
 
     req.tenantDb.run(`INSERT INTO recurring_costs (
         household_id, object_type, object_id, category_id, name, amount, frequency, 
-        start_date, day_of_month, adjust_for_working_day, emoji, metadata
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
+        start_date, day_of_month, adjust_for_working_day, emoji, metadata, 
+        financial_profile_id, bank_account_id
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
         req.hhId, objectType, objectId, categoryId, finalName, finalAmount, 'monthly',
         req.body.start_date || null, req.body.payment_day || null, req.body.nearest_working_day || 1, 
-        req.body.emoji || null, metaStr
+        req.body.emoji || null, metaStr,
+        financial_profile_id || null, bank_account_id || null
     ], function(err) {
         closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
@@ -309,7 +311,7 @@ const handleCreateDebt = (categoryId) => (req, res) => {
 };
 
 const handleUpdateDebt = (categoryId) => (req, res) => {
-    const { name, lender, provider, amount, monthly_payment, ...metadata } = req.body;
+    const { name, lender, provider, amount, monthly_payment, financial_profile_id, bank_account_id, ...metadata } = req.body;
     const finalName = name || lender || provider || "Debt Item";
     const finalAmount = parseFloat(amount || monthly_payment) || 0;
     const metaStr = JSON.stringify({ lender: lender || provider || finalName, ...metadata });
@@ -324,10 +326,10 @@ const handleUpdateDebt = (categoryId) => (req, res) => {
 
     req.tenantDb.run(`UPDATE recurring_costs SET 
         name = ?, amount = ?, day_of_month = ?, emoji = ?, metadata = ?,
-        object_type = ?, object_id = ?
+        object_type = ?, object_id = ?, financial_profile_id = ?, bank_account_id = ?
         WHERE id = ? AND household_id = ? AND category_id = ?`, [
         finalName, finalAmount, req.body.payment_day || null, req.body.emoji || null, metaStr,
-        objectType, objectId,
+        objectType, objectId, financial_profile_id || null, bank_account_id || null,
         req.params.itemId, req.hhId, categoryId
     ], function(err) {
         closeDb(req);

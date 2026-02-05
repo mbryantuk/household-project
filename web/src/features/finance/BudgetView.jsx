@@ -25,6 +25,7 @@ import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
 import EmojiPicker from '../../components/EmojiPicker';
 import MetadataFormFields from '../../components/ui/MetadataFormFields';
+import FinancialProfileSelector from '../../components/ui/FinancialProfileSelector';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -245,6 +246,7 @@ export default function BudgetView() {
   const [groupBy, setGroupBy] = useState('standard'); // standard, category, object, date
   const [filterEntity, setFilterEntity] = useState('all');
   const [filterAccount, setFilterAccount] = useState('all');
+  const [filterProfile, setFilterProfile] = useState('');
 
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: 'computedDate', direction: 'asc' });
@@ -543,6 +545,15 @@ export default function BudgetView() {
           if (filterAccount && filterAccount !== 'all') {
              const accountId = item.bank_account_id;
              if (String(accountId || 'null') !== String(filterAccount)) return;
+          }
+
+          // Profile Filter Check
+          if (filterProfile) {
+             const profileId = item.financial_profile_id;
+             // If item has no profile (legacy), maybe show it or hide? 
+             // Logic: If filter is set, show matching. If item is null, only show if filter is null (which shouldn't happen with default)
+             // Ideally everything has a profile now due to backfill.
+             if (profileId && String(profileId) !== String(filterProfile)) return;
           }
 
           const key = `${type}_${item.id || 'fixed'}_${format(dateObj, 'ddMM')}`; 
@@ -959,6 +970,7 @@ export default function BudgetView() {
         object_id: null,
         adjust_for_working_day: 1,
         bank_account_id: data.bank_account_id || null,
+        financial_profile_id: data.financial_profile_id || null,
         emoji: selectedEmoji
       };
       try {
@@ -982,6 +994,7 @@ export default function BudgetView() {
       object_id: null,
       adjust_for_working_day: 1,
       bank_account_id: data.bank_account_id || null,
+      financial_profile_id: data.financial_profile_id || null,
       emoji: selectedEmoji
     };
     try {
@@ -1007,6 +1020,7 @@ export default function BudgetView() {
         object_id: id === 'null' ? null : id,
         adjust_for_working_day: data.nearest_working_day === "1" ? 1 : 0,
         bank_account_id: data.bank_account_id || null,
+        financial_profile_id: data.financial_profile_id || null,
         emoji: selectedEmoji,
         metadata: recurringMetadata
       };
@@ -1529,6 +1543,14 @@ export default function BudgetView() {
                         </Option>
                     ))}
                 </Select>
+
+                <Box sx={{ width: { xs: '100%', sm: 180 } }}>
+                    <FinancialProfileSelector 
+                        value={filterProfile} 
+                        onChange={setFilterProfile} 
+                        label={null} 
+                    />
+                </Box>
 
                 <Select 
                     size="sm" 
@@ -2127,6 +2149,7 @@ export default function BudgetView() {
                                     ))}
                                 </Select>
                             </FormControl>
+                            <FinancialProfileSelector name="financial_profile_id" required />
                             <Button type="submit" fullWidth startDecorator={<Add />}>Add to Income Sources</Button>
                         </Stack>
                     </form>
@@ -2166,6 +2189,7 @@ export default function BudgetView() {
                                     ))}
                                 </Select>
                             </FormControl>
+                            <FinancialProfileSelector name="financial_profile_id" required />
                             <Button type="submit" fullWidth>Add to Cycle</Button>
                         </Stack>
                     </form>
@@ -2254,6 +2278,8 @@ export default function BudgetView() {
                                     ))}
                                 </Select>
                             </FormControl>
+
+                            <FinancialProfileSelector name="financial_profile_id" required />
 
                             <MetadataFormFields 
                                 categoryId={recurringCategory} 

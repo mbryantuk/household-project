@@ -14,6 +14,7 @@ import { format, parseISO } from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../EmojiPicker';
 import MetadataFormFields from './MetadataFormFields';
+import FinancialProfileSelector from './FinancialProfileSelector';
 
 const formatCurrency = (val, currencyCode = 'GBP') => {
     const num = parseFloat(val) || 0;
@@ -70,7 +71,7 @@ export default function RecurringChargesWidget({
   const [formData, setFormData] = useState({
     name: '', amount: '', category_id: segments[0]?.id || 'other',
     frequency: 'monthly', start_date: format(new Date(), 'yyyy-MM-dd'),
-    adjust_for_working_day: true, bank_account_id: null, notes: '', emoji: '💸', metadata: {}
+    adjust_for_working_day: true, bank_account_id: null, financial_profile_id: null, notes: '', emoji: '💸', metadata: {}
   });
 
   const fetchData = useCallback(async () => {
@@ -104,6 +105,7 @@ export default function RecurringChargesWidget({
       frequency: 'monthly', start_date: format(new Date(), 'yyyy-MM-dd'),
       adjust_for_working_day: true, 
       bank_account_id: accounts.length > 0 ? accounts[0].id : null, 
+      financial_profile_id: null,
       notes: '', emoji: '💸', metadata: {}
     });
   };
@@ -115,6 +117,7 @@ export default function RecurringChargesWidget({
       frequency: charge.frequency, start_date: charge.start_date || format(new Date(), 'yyyy-MM-dd'),
       adjust_for_working_day: !!charge.adjust_for_working_day, 
       bank_account_id: charge.bank_account_id || (accounts.length > 0 ? accounts[0].id : null),
+      financial_profile_id: charge.financial_profile_id || null,
       notes: charge.notes || '',
       emoji: charge.emoji || '💸', metadata: charge.metadata || {}
     });
@@ -285,6 +288,12 @@ export default function RecurringChargesWidget({
                         </FormControl>
                     </Grid>
                 </Grid>
+
+                <FinancialProfileSelector 
+                    value={formData.financial_profile_id} 
+                    onChange={(val) => setFormData({ ...formData, financial_profile_id: val })}
+                    required
+                />
 
                 <MetadataFormFields 
                     categoryId={formData.category_id} 

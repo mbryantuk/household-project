@@ -81,14 +81,14 @@ router.post('/', authenticateToken, requireHouseholdRole('member'), useTenantDb,
     const { 
         object_type, object_id, category_id, name, amount, frequency, 
         start_date, day_of_month, month_of_year, day_of_week,
-        adjust_for_working_day, bank_account_id, emoji, notes, metadata 
+        adjust_for_working_day, bank_account_id, financial_profile_id, emoji, notes, metadata 
     } = req.body;
 
     const sql = `INSERT INTO recurring_costs (
         household_id, object_type, object_id, category_id, name, amount, frequency, 
         start_date, day_of_month, month_of_year, day_of_week,
-        adjust_for_working_day, bank_account_id, emoji, notes, metadata
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        adjust_for_working_day, bank_account_id, financial_profile_id, emoji, notes, metadata
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     const processedMetadata = processMetadata(metadata, true);
 
@@ -96,7 +96,7 @@ router.post('/', authenticateToken, requireHouseholdRole('member'), useTenantDb,
         req.hhId, object_type || 'household', object_id || null, category_id, name, amount, frequency || 'monthly', 
         start_date || null, day_of_month || null, month_of_year || null, day_of_week || null,
         adjust_for_working_day !== undefined ? adjust_for_working_day : 1, 
-        bank_account_id || null,
+        bank_account_id || null, financial_profile_id || null,
         emoji || null, notes || null, processedMetadata
     ];
 
@@ -112,13 +112,13 @@ router.put('/:itemId', authenticateToken, requireHouseholdRole('member'), useTen
     const { 
         object_type, object_id, category_id, name, amount, frequency, 
         start_date, day_of_month, month_of_year, day_of_week,
-        adjust_for_working_day, bank_account_id, emoji, notes, metadata, is_active 
+        adjust_for_working_day, bank_account_id, financial_profile_id, emoji, notes, metadata, is_active 
     } = req.body;
 
     const sql = `UPDATE recurring_costs SET 
         object_type = ?, object_id = ?, category_id = ?, name = ?, amount = ?, frequency = ?, 
         start_date = ?, day_of_month = ?, month_of_year = ?, day_of_week = ?,
-        adjust_for_working_day = ?, bank_account_id = ?, emoji = ?, notes = ?, metadata = ?, is_active = ?
+        adjust_for_working_day = ?, bank_account_id = ?, financial_profile_id = ?, emoji = ?, notes = ?, metadata = ?, is_active = ?
         WHERE id = ? AND household_id = ?`;
 
     const processedMetadata = processMetadata(metadata, true);
@@ -126,7 +126,7 @@ router.put('/:itemId', authenticateToken, requireHouseholdRole('member'), useTen
     const params = [
         object_type, object_id, category_id, name, amount, frequency, 
         start_date, day_of_month, month_of_year, day_of_week,
-        adjust_for_working_day, bank_account_id, emoji, notes, processedMetadata, is_active !== undefined ? is_active : 1,
+        adjust_for_working_day, bank_account_id, financial_profile_id, emoji, notes, processedMetadata, is_active !== undefined ? is_active : 1,
         req.params.itemId, req.hhId
     ];
 

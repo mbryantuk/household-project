@@ -215,6 +215,14 @@ const TENANT_SCHEMA = [
         current_valuation REAL DEFAULT 0
     )`,
     // FINANCE TABLES
+    `CREATE TABLE IF NOT EXISTS finance_profiles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        name TEXT,
+        is_default INTEGER DEFAULT 0,
+        emoji TEXT DEFAULT '💰',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
     `CREATE TABLE IF NOT EXISTS finance_income (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
@@ -504,7 +512,14 @@ function initializeHouseholdSchema(db) {
                             ['finance_investments', 'payment_day', 'INTEGER'],
                             ['finance_budget_cycles', 'bank_account_id', 'INTEGER'],
                             ['vehicles', 'current_value', 'REAL DEFAULT 0'],
-                            ['recurring_costs', 'bank_account_id', 'INTEGER']
+                            ['recurring_costs', 'bank_account_id', 'INTEGER'],
+                            ['finance_income', 'financial_profile_id', 'INTEGER'],
+                            ['finance_current_accounts', 'financial_profile_id', 'INTEGER'],
+                            ['finance_savings', 'financial_profile_id', 'INTEGER'],
+                            ['finance_credit_cards', 'financial_profile_id', 'INTEGER'],
+                            ['finance_pensions', 'financial_profile_id', 'INTEGER'],
+                            ['finance_investments', 'financial_profile_id', 'INTEGER'],
+                            ['recurring_costs', 'financial_profile_id', 'INTEGER']
                         ];
 
                         let migrationsDone = 0;
@@ -514,6 +529,26 @@ function initializeHouseholdSchema(db) {
                             db.run(`ALTER TABLE ${table} ADD COLUMN ${col} ${type}`, () => {
                                 migrationsDone++;
                                 if (migrationsDone === additionalFinanceCols.length) {
+                                    // 🛠️ MIGRATION: Ensure Default Profile Exists and Backfill
+                                    db.get("SELECT id FROM finance_profiles WHERE is_default = 1", (err, row) => {
+                                        if (!row) {
+                                            console.log("🛠️ Migrating: Creating Default Financial Profile...");
+                                            db.run("INSERT INTO finance_profiles (household_id, name, is_default, emoji) VALUES (?, ?, 1, ?)", [1, "Joint Finances", "💰"], function(err) {
+                                                if (!err && this.lastID) {
+                                                    const defaultProfileId = this.lastID;
+                                                    console.log(`✅ Default Profile Created (ID: ${defaultProfileId}). Backfilling data...`);
+                                                    const tables = [
+                                                        'finance_income', 'finance_current_accounts', 'finance_savings', 
+                                                        'finance_credit_cards', 'finance_pensions', 'finance_investments', 
+                                                        'recurring_costs'
+                                                    ];
+                                                    tables.forEach(t => {
+                                                        db.run(`UPDATE ${t} SET financial_profile_id = ? WHERE financial_profile_id IS NULL`, [defaultProfileId]);
+                                                    });
+                                                }
+                                            });
+                                        }
+                                    });
                                     resolve();
                                 }
                             });

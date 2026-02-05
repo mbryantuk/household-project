@@ -22,6 +22,7 @@ const calendarRoutes = require('./routes/calendar');
 const detailsRoutes = require('./routes/details');
 const mealRoutes = require('./routes/meals');
 const financeRoutes = require('./routes/finance');
+const financeProfileRoutes = require('./routes/finance_profiles');
 
 const { createBackup, cleanOldBackups } = require('./services/backup');
 
@@ -74,6 +75,7 @@ app.use((req, res, next) => {
 const allRouters = [
     { path: '/auth', router: authRoutes },
     { path: '/admin', router: adminRoutes },
+    { path: '/households/:id/finance/profiles', router: financeProfileRoutes },
     { path: '/households/:id/finance', router: financeRoutes },
     { path: '/', router: householdRoutes },
     { path: '/', router: memberRoutes },
