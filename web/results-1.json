@@ -10,18 +10,14 @@
     "grep": {},
     "grepInvert": null,
     "maxFailures": 0,
-    "metadata": {
-      "actualWorkers": 1
-    },
+    "metadata": {},
     "preserveOutput": "always",
     "projects": [
       {
         "outputDir": "/home/matt/household-project/web/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "chromium",
         "name": "chromium",
         "testDir": "/home/matt/household-project/web/tests",
@@ -54,168 +50,19 @@
     "workers": 2,
     "webServer": null
   },
-  "suites": [
+  "suites": [],
+  "errors": [
     {
-      "title": "lifecycle_1_foundation.spec.js",
-      "file": "lifecycle_1_foundation.spec.js",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Brady Lifecycle Stage 1: Foundation",
-          "file": "lifecycle_1_foundation.spec.js",
-          "line": 6,
-          "column": 6,
-          "specs": [
-            {
-              "title": "Setup Foundation",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 600000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 52963,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/.*login/\u001b[39m\nReceived string:  \u001b[31m\"http://localhost:4001/register\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    19 × unexpected value \"http://localhost:4001/register\"\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/.*login/\u001b[39m\nReceived string:  \u001b[31m\"http://localhost:4001/register\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    19 × unexpected value \"http://localhost:4001/register\"\u001b[22m\n\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:61:36\n    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:49:24)\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:43:5",
-                        "location": {
-                          "file": "/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js",
-                          "column": 36,
-                          "line": 61
-                        },
-                        "snippet": "  59 |             \n  60 |             try {\n> 61 |                 await expect(page).toHaveURL(/.*login/, { timeout: 15000 });\n     |                                    ^\n  62 |                 success = true;\n  63 |                 registeredAdminEmail = attemptEmail;\n  64 |             } catch (err) {"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js",
-                            "column": 36,
-                            "line": 61
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/.*login/\u001b[39m\nReceived string:  \u001b[31m\"http://localhost:4001/register\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    19 × unexpected value \"http://localhost:4001/register\"\u001b[22m\n\n\n  59 |             \n  60 |             try {\n> 61 |                 await expect(page).toHaveURL(/.*login/, { timeout: 15000 });\n     |                                    ^\n  62 |                 success = true;\n  63 |                 registeredAdminEmail = attemptEmail;\n  64 |             } catch (err) {\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:61:36\n    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:49:24)\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:43:5"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "[2026-02-05T00:04:11.684Z] [STEP: Mike Registration] Starting...\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:04:11.687Z] [STEP: Mike Registration] Attempt 1...\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:04:12.119Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:04:12.119Z] [STEP: BROWSER] Content is cached for offline use.\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:04:12.296Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:04:12.566Z] [STEP: API_ERROR] http://localhost:4001/auth/register returned 503\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:04:12.566Z] [STEP: BROWSER] Failed to load resource: the server responded with a status of 503 (Service Unavailable)\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:04:12.569Z] [STEP: BROWSER] Registration error: He\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:04:27.574Z] [STEP: Mike Registration] [15.89s] Attempt 1 FAILED. Page Error: System Upgrade in Progress\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:04:29.579Z] [STEP: Mike Registration] Attempt 2...\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:04:29.766Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:04:29.994Z] [STEP: API_ERROR] http://localhost:4001/auth/register returned 503\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:04:29.998Z] [STEP: BROWSER] Failed to load resource: the server responded with a status of 503 (Service Unavailable)\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:04:30.003Z] [STEP: BROWSER] Registration error: He\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:04:44.999Z] [STEP: Mike Registration] [33.31s] Attempt 2 FAILED. Page Error: System Upgrade in Progress\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:04:47.002Z] [STEP: Mike Registration] Attempt 3...\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:04:47.197Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:04:47.420Z] [STEP: API_ERROR] http://localhost:4001/auth/register returned 503\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:04:47.421Z] [STEP: BROWSER] Failed to load resource: the server responded with a status of 503 (Service Unavailable)\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:04:47.421Z] [STEP: BROWSER] Registration error: He\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:05:02.426Z] [STEP: Mike Registration] [50.74s] Attempt 3 FAILED. Page Error: System Upgrade in Progress\n"
-                        },
-                        {
-                          "text": "[2026-02-05T00:05:02.426Z] [STEP: Mike Registration] [50.74s] FAILED: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/.*login/\u001b[39m\nReceived string:  \u001b[31m\"http://localhost:4001/register\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    19 × unexpected value \"http://localhost:4001/register\"\u001b[22m\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-02-05T00:04:09.476Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/home/matt/household-project/web/test-results/lifecycle_1_foundation-Bra-8f4d8-Foundation-Setup-Foundation-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/home/matt/household-project/web/test-results/lifecycle_1_foundation-Bra-8f4d8-Foundation-Setup-Foundation-chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js",
-                        "column": 36,
-                        "line": 61
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "1e6f3fac90a232f03b11-e3160800fed256b60c8c",
-              "file": "lifecycle_1_foundation.spec.js",
-              "line": 12,
-              "column": 3
-            }
-          ]
-        }
-      ]
+      "message": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments.",
+      "stack": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments."
     }
   ],
-  "errors": [],
   "stats": {
-    "startTime": "2026-02-05T00:04:07.537Z",
-    "duration": 55090.651,
+    "startTime": "2026-02-05T14:59:05.574Z",
+    "duration": 34.47699999999986,
     "expected": 0,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 0,
     "flaky": 0
   }
 }

@@ -83,39 +83,42 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 1,
+                      "status": "timedOut",
+                      "duration": 60218,
                       "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at createTestUserAndHousehold (/home/matt/household-project/web/tests/utils/e2e_setup.js:20:25)\n    at /home/matt/household-project/web/tests/e2e/ui/assets.spec.js:8:17",
-                        "location": {
-                          "file": "/home/matt/household-project/web/tests/utils/e2e_setup.js",
-                          "column": 25,
-                          "line": 20
-                        },
-                        "snippet": "   at utils/e2e_setup.js:20\n\n  18 |         }\n  19 |     });\n> 20 |     expect(regRes.ok()).toBeTruthy();\n     |                         ^\n  21 |\n  22 |     // 2. Login to get token\n  23 |     const loginRes = await request.post('/api/auth/login', {"
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
                       },
                       "errors": [
                         {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
                           "location": {
-                            "file": "/home/matt/household-project/web/tests/utils/e2e_setup.js",
-                            "column": 25,
-                            "line": 20
+                            "file": "/home/matt/household-project/web/tests/e2e/ui/assets.spec.js",
+                            "column": 20,
+                            "line": 21
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n   at utils/e2e_setup.js:20\n\n  18 |         }\n  19 |     });\n> 20 |     expect(regRes.ok()).toBeTruthy();\n     |                         ^\n  21 |\n  22 |     // 2. Login to get token\n  23 |     const loginRes = await request.post('/api/auth/login', {\n    at createTestUserAndHousehold (/home/matt/household-project/web/tests/utils/e2e_setup.js:20:25)\n    at /home/matt/household-project/web/tests/e2e/ui/assets.spec.js:8:17"
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\u001b[2m    - waiting for\" http://localhost:4001/household/3683/dashboard\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://localhost:4001/household/3683/dashboard\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a new asset'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${creds.householdName}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Assets\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/assets.spec.js:21:20\u001b[22m"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-05T00:18:30.886Z",
+                      "startTime": "2026-02-05T14:59:21.823Z",
                       "annotations": [],
-                      "attachments": [],
-                      "errorLocation": {
-                        "file": "/home/matt/household-project/web/tests/utils/e2e_setup.js",
-                        "column": 25,
-                        "line": 20
-                      }
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/e2e-ui-assets-UI-Flow-Assets-User-can-add-a-new-asset-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/e2e-ui-assets-UI-Flow-Assets-User-can-add-a-new-asset-chromium/error-context.md"
+                        }
+                      ]
                     }
                   ],
                   "status": "unexpected"
@@ -158,39 +161,42 @@
                     {
                       "workerIndex": 1,
                       "parallelIndex": 1,
-                      "status": "failed",
-                      "duration": 1,
+                      "status": "timedOut",
+                      "duration": 60235,
                       "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at createTestUserAndHousehold (/home/matt/household-project/web/tests/utils/e2e_setup.js:20:25)\n    at /home/matt/household-project/web/tests/e2e/ui/finance.spec.js:8:17",
-                        "location": {
-                          "file": "/home/matt/household-project/web/tests/utils/e2e_setup.js",
-                          "column": 25,
-                          "line": 20
-                        },
-                        "snippet": "   at utils/e2e_setup.js:20\n\n  18 |         }\n  19 |     });\n> 20 |     expect(regRes.ok()).toBeTruthy();\n     |                         ^\n  21 |\n  22 |     // 2. Login to get token\n  23 |     const loginRes = await request.post('/api/auth/login', {"
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
                       },
                       "errors": [
                         {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
                           "location": {
-                            "file": "/home/matt/household-project/web/tests/utils/e2e_setup.js",
-                            "column": 25,
-                            "line": 20
+                            "file": "/home/matt/household-project/web/tests/e2e/ui/finance.spec.js",
+                            "column": 20,
+                            "line": 21
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n   at utils/e2e_setup.js:20\n\n  18 |         }\n  19 |     });\n> 20 |     expect(regRes.ok()).toBeTruthy();\n     |                         ^\n  21 |\n  22 |     // 2. Login to get token\n  23 |     const loginRes = await request.post('/api/auth/login', {\n    at createTestUserAndHousehold (/home/matt/household-project/web/tests/utils/e2e_setup.js:20:25)\n    at /home/matt/household-project/web/tests/e2e/ui/finance.spec.js:8:17"
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\u001b[2m    - waiting for\" http://localhost:4001/household/3684/dashboard\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://localhost:4001/household/3684/dashboard\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a recurring cost'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${creds.householdName}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Bills & Costs\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 24 |\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/finance.spec.js:21:20\u001b[22m"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-05T00:18:30.680Z",
+                      "startTime": "2026-02-05T14:59:21.962Z",
                       "annotations": [],
-                      "attachments": [],
-                      "errorLocation": {
-                        "file": "/home/matt/household-project/web/tests/utils/e2e_setup.js",
-                        "column": 25,
-                        "line": 20
-                      }
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/e2e-ui-finance-UI-Flow-Finance-User-can-add-a-recurring-cost-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/e2e-ui-finance-UI-Flow-Finance-User-can-add-a-recurring-cost-chromium/error-context.md"
+                        }
+                      ]
                     }
                   ],
                   "status": "unexpected"
@@ -232,40 +238,43 @@
                   "results": [
                     {
                       "workerIndex": 2,
-                      "parallelIndex": 1,
-                      "status": "failed",
-                      "duration": 1,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60185,
                       "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at createTestUserAndHousehold (/home/matt/household-project/web/tests/utils/e2e_setup.js:20:25)\n    at /home/matt/household-project/web/tests/e2e/ui/members.spec.js:8:17",
-                        "location": {
-                          "file": "/home/matt/household-project/web/tests/utils/e2e_setup.js",
-                          "column": 25,
-                          "line": 20
-                        },
-                        "snippet": "   at utils/e2e_setup.js:20\n\n  18 |         }\n  19 |     });\n> 20 |     expect(regRes.ok()).toBeTruthy();\n     |                         ^\n  21 |\n  22 |     // 2. Login to get token\n  23 |     const loginRes = await request.post('/api/auth/login', {"
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
                       },
                       "errors": [
                         {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
                           "location": {
-                            "file": "/home/matt/household-project/web/tests/utils/e2e_setup.js",
-                            "column": 25,
-                            "line": 20
+                            "file": "/home/matt/household-project/web/tests/e2e/ui/members.spec.js",
+                            "column": 20,
+                            "line": 21
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n   at utils/e2e_setup.js:20\n\n  18 |         }\n  19 |     });\n> 20 |     expect(regRes.ok()).toBeTruthy();\n     |                         ^\n  21 |\n  22 |     // 2. Login to get token\n  23 |     const loginRes = await request.post('/api/auth/login', {\n    at createTestUserAndHousehold (/home/matt/household-project/web/tests/utils/e2e_setup.js:20:25)\n    at /home/matt/household-project/web/tests/e2e/ui/members.spec.js:8:17"
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\u001b[2m    - waiting for\" http://localhost:4001/household/3685/dashboard\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://localhost:4001/household/3685/dashboard\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a new member'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'People & Residents'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[90m// Add Member\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/members.spec.js:21:20\u001b[22m"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-05T00:18:32.928Z",
+                      "startTime": "2026-02-05T15:00:25.906Z",
                       "annotations": [],
-                      "attachments": [],
-                      "errorLocation": {
-                        "file": "/home/matt/household-project/web/tests/utils/e2e_setup.js",
-                        "column": 25,
-                        "line": 20
-                      }
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/e2e-ui-members-UI-Flow-Members-User-can-add-a-new-member-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/e2e-ui-members-UI-Flow-Members-User-can-add-a-new-member-chromium/error-context.md"
+                        }
+                      ]
                     }
                   ],
                   "status": "unexpected"
@@ -307,27 +316,24 @@
                   "results": [
                     {
                       "workerIndex": 3,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 6026,
+                      "parallelIndex": 1,
+                      "status": "timedOut",
+                      "duration": 60182,
                       "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/login/\u001b[39m\nReceived string:  \u001b[31m\"http://localhost:4001/register\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 5000ms\u001b[22m\n\u001b[2m    9 × unexpected value \"http://localhost:4001/register\"\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/login/\u001b[39m\nReceived string:  \u001b[31m\"http://localhost:4001/register\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 5000ms\u001b[22m\n\u001b[2m    9 × unexpected value \"http://localhost:4001/register\"\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:21:32\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:11:9",
-                        "location": {
-                          "file": "/home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js",
-                          "column": 32,
-                          "line": 21
-                        },
-                        "snippet": "  19 |             await page.click('button[type=\"submit\"]');\n  20 |             \n> 21 |             await expect(page).toHaveURL(/\\/login/);\n     |                                ^\n  22 |             await expect(page.getByText('Registration successful')).toBeVisible();\n  23 |         });\n  24 |"
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
                       },
                       "errors": [
                         {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js",
-                            "column": 32,
-                            "line": 21
+                            "column": 24,
+                            "line": 37
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/login/\u001b[39m\nReceived string:  \u001b[31m\"http://localhost:4001/register\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 5000ms\u001b[22m\n\u001b[2m    9 × unexpected value \"http://localhost:4001/register\"\u001b[22m\n\n\n  19 |             await page.click('button[type=\"submit\"]');\n  20 |             \n> 21 |             await expect(page).toHaveURL(/\\/login/);\n     |                                ^\n  22 |             await expect(page.getByText('Registration successful')).toBeVisible();\n  23 |         });\n  24 |\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:21:32\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:11:9"
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 35 |\u001b[39m         \u001b[90m// 3. Configure House Details\u001b[39m\n \u001b[90m 36 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Configure House'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[32m'Household Hub'\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${HOUSE_NAME}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 40 |\u001b[39m             \u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:37:24\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:36:20\u001b[22m"
                         }
                       ],
                       "stdout": [],
@@ -336,20 +342,28 @@
                       "steps": [
                         {
                           "title": "Register",
-                          "duration": 5837,
+                          "duration": 1853
+                        },
+                        {
+                          "title": "Login",
+                          "duration": 643
+                        },
+                        {
+                          "title": "Configure House",
+                          "duration": 57586,
                           "error": {
-                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/login/\u001b[39m\nReceived string:  \u001b[31m\"http://localhost:4001/register\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 5000ms\u001b[22m\n\u001b[2m    9 × unexpected value \"http://localhost:4001/register\"\u001b[22m\n",
-                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/login/\u001b[39m\nReceived string:  \u001b[31m\"http://localhost:4001/register\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 5000ms\u001b[22m\n\u001b[2m    9 × unexpected value \"http://localhost:4001/register\"\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:21:32\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:11:9",
+                            "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n",
+                            "stack": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:37:24\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:36:20",
                             "location": {
                               "file": "/home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js",
-                              "column": 32,
-                              "line": 21
+                              "column": 24,
+                              "line": 37
                             },
-                            "snippet": "  19 |             await page.click('button[type=\"submit\"]');\n  20 |             \n> 21 |             await expect(page).toHaveURL(/\\/login/);\n     |                                ^\n  22 |             await expect(page.getByText('Registration successful')).toBeVisible();\n  23 |         });\n  24 |"
+                            "snippet": "\u001b[0m \u001b[90m 35 |\u001b[39m         \u001b[90m// 3. Configure House Details\u001b[39m\n \u001b[90m 36 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Configure House'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[32m'Household Hub'\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${HOUSE_NAME}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 40 |\u001b[39m             \u001b[0m"
                           }
                         }
                       ],
-                      "startTime": "2026-02-05T00:18:33.089Z",
+                      "startTime": "2026-02-05T15:00:25.933Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -362,12 +376,7 @@
                           "contentType": "text/markdown",
                           "path": "/home/matt/household-project/web/test-results/e2e-ui-onboarding-UI-Flow--be0c3-configure-household-details-chromium/error-context.md"
                         }
-                      ],
-                      "errorLocation": {
-                        "file": "/home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js",
-                        "column": 32,
-                        "line": 21
-                      }
+                      ]
                     }
                   ],
                   "status": "unexpected"
@@ -385,8 +394,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-05T00:18:28.345Z",
-    "duration": 10954.672,
+    "startTime": "2026-02-05T14:59:19.132Z",
+    "duration": 127641.248,
     "expected": 0,
     "skipped": 0,
     "unexpected": 4,

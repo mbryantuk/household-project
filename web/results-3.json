@@ -10,18 +10,14 @@
     "grep": {},
     "grepInvert": null,
     "maxFailures": 0,
-    "metadata": {
-      "actualWorkers": 1
-    },
+    "metadata": {},
     "preserveOutput": "always",
     "projects": [
       {
         "outputDir": "/home/matt/household-project/web/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "chromium",
         "name": "chromium",
         "testDir": "/home/matt/household-project/web/tests",
@@ -54,101 +50,19 @@
     "workers": 2,
     "webServer": null
   },
-  "suites": [
+  "suites": [],
+  "errors": [
     {
-      "title": "lifecycle_3_expenses.spec.js",
-      "file": "lifecycle_3_expenses.spec.js",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Brady Lifecycle Stage 3: Expense Allocation",
-          "file": "lifecycle_3_expenses.spec.js",
-          "line": 5,
-          "column": 6,
-          "specs": [
-            {
-              "title": "Create & Verify Expenses (Household, Personal, Vehicle)",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 300000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 300269,
-                      "error": {
-                        "message": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m"
-                      },
-                      "errors": [
-                        {
-                          "message": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m"
-                        },
-                        {
-                          "location": {
-                            "file": "/home/matt/household-project/web/tests/lifecycle_3_expenses.spec.js",
-                            "column": 16,
-                            "line": 29
-                          },
-                          "message": "Error: page.waitForURL: Test timeout of 300000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n  27 |     await page.fill('input[type=\"password\"]', password);\n  28 |     await page.click('button:has-text(\"Log In\")');\n> 29 |     await page.waitForURL(new RegExp(`/household/${hhId}/dashboard`));\n     |                ^\n  30 |\n  31 |     // 2. Navigate to Budget\n  32 |     await logStep('Navigation', 'Going to Budget View...');\n    at /home/matt/household-project/web/tests/lifecycle_3_expenses.spec.js:29:16"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "[2026-02-05T00:10:16.189Z] [STEP: Login] Authenticating...\n"
-                        }
-                      ],
-                      "stderr": [
-                        {
-                          "text": "Context file not found, using defaults for dev testing if applicable.\n"
-                        }
-                      ],
-                      "retry": 0,
-                      "startTime": "2026-02-05T00:10:15.984Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/home/matt/household-project/web/test-results/lifecycle_3_expenses-Brady-ebfa5-Household-Personal-Vehicle--chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/home/matt/household-project/web/test-results/lifecycle_3_expenses-Brady-ebfa5-Household-Personal-Vehicle--chromium/error-context.md"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "7d580214907b99676b43-53afdbfeaa06d7d6c8ce",
-              "file": "lifecycle_3_expenses.spec.js",
-              "line": 18,
-              "column": 3
-            }
-          ]
-        }
-      ]
+      "message": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments.",
+      "stack": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments."
     }
   ],
-  "errors": [],
   "stats": {
-    "startTime": "2026-02-05T00:10:14.119Z",
-    "duration": 302363.852,
+    "startTime": "2026-02-05T14:59:12.329Z",
+    "duration": 27.304000000000087,
     "expected": 0,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 0,
     "flaky": 0
   }
 }

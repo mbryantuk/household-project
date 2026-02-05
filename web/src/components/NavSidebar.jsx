@@ -1,31 +1,24 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { 
   Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, 
-  IconButton, Divider, Box, Avatar, Typography, Tooltip, Menu, MenuItem
+  IconButton, Divider, Box, Avatar, Typography, Tooltip, Menu, MenuItem, Accordion, AccordionSummary, AccordionDetails, Modal, ModalDialog, DialogTitle, DialogContent, FormControl, FormLabel, Input, Button, DialogActions
 } from '@mui/joy';
-import Event from '@mui/icons-material/Event';
-import Pets from '@mui/icons-material/Pets';
-import Inventory2 from '@mui/icons-material/Inventory2';
-import RestaurantMenu from '@mui/icons-material/RestaurantMenu';
-import AccountBalance from '@mui/icons-material/AccountBalance';
-import Close from '@mui/icons-material/Close';
-import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import PushPin from '@mui/icons-material/PushPin';
-import PushPinOutlined from '@mui/icons-material/PushPinOutlined';
-import HomeWork from '@mui/icons-material/HomeWork';
-import SettingsIcon from '@mui/icons-material/Settings';
-import LogoutIcon from '@mui/icons-material/Logout';
-import DownloadIcon from '@mui/icons-material/Download';
-import HomeIcon from '@mui/icons-material/Home';
+import { 
+  Event, Pets, Inventory2, RestaurantMenu, AccountBalance, Close, 
+  KeyboardArrowRight, PushPin, PushPinOutlined, HomeWork, Settings as SettingsIcon, 
+  Logout as LogoutIcon, Download as DownloadIcon, Home as HomeIcon, ExpandMore, Add, CheckCircle
+} from '@mui/icons-material';
 
-import { useLocation, useNavigate, NavLink } from 'react-router-dom';
+import { useLocation, useNavigate, NavLink, useSearchParams } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
 import { useHousehold } from '../contexts/HouseholdContext';
+import EmojiPicker from './EmojiPicker';
 
 const RAIL_WIDTH = 64; 
-const PANEL_WIDTH = 240;
+const PANEL_WIDTH = 260; // Increased slightly for accordion
 
 const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, activeCategory, hoveredCategory, onHover, handleNav, isMobile }) => {
+    // ... (unchanged)
     const pathMatches = to && location.pathname.includes(to);
     const categoryMatches = activeCategory === category;
     const isHovered = hoveredCategory === category;
@@ -113,13 +106,113 @@ const GroupHeader = ({ label }) => (
     </ListItem>
 );
 
+// --- NEW COMPONENT: Profile Accordion ---
+const FinanceProfileAccordion = ({ householdId, api, isDark, onSelect, currentProfileId }) => {
+    const [profiles, setProfiles] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [createOpen, setCreateOpen] = useState(false);
+    const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+    const [newProfileName, setNewProfileName] = useState('');
+    const [newProfileEmoji, setNewProfileEmoji] = useState('💰');
+
+    const fetchProfiles = useCallback(async () => {
+        try {
+            const res = await api.get(`/households/${householdId}/finance/profiles`);
+            setProfiles(res.data || []);
+            // If no profile selected, default to the one marked default
+            if (!currentProfileId && res.data.length > 0) {
+                const def = res.data.find(p => p.is_default) || res.data[0];
+                onSelect(def.id);
+            }
+        } catch (err) { console.error("Failed to fetch profiles", err); } finally { setLoading(false); }
+    }, [api, householdId, currentProfileId, onSelect]);
+
+    useEffect(() => { fetchProfiles(); }, [fetchProfiles]);
+
+    const handleCreate = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await api.post(`/households/${householdId}/finance/profiles`, {
+                name: newProfileName, emoji: newProfileEmoji, is_default: false
+            });
+            setProfiles(prev => [...prev, res.data]);
+            onSelect(res.data.id);
+            setCreateOpen(false);
+            setNewProfileName('');
+            setNewProfileEmoji('💰');
+        } catch (err) { alert("Failed to create profile: " + err.message); }
+    };
+
+    const activeProfile = profiles.find(p => String(p.id) === String(currentProfileId));
+
+    return (
+        <Box sx={{ mb: 1 }}>
+            <Accordion variant="outlined" defaultExpanded sx={{ borderRadius: 'sm', bgcolor: 'background.surface' }}>
+                <AccordionSummary expandIcon={<ExpandMore />} sx={{ minHeight: 48 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
+                        <Avatar size="sm" sx={{ bgcolor: getEmojiColor(activeProfile?.emoji || '💰', isDark) }}>{activeProfile?.emoji || '💰'}</Avatar>
+                        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                            <Typography level="title-sm" noWrap>{activeProfile?.name || 'Loading...'}</Typography>
+                            <Typography level="body-xs" color="neutral">Active Profile</Typography>
+                        </Box>
+                    </Box>
+                </AccordionSummary>
+                <AccordionDetails sx={{ p: 0 }}>
+                    <Box sx={{ p: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: 'background.level1', borderBottom: '1px solid', borderColor: 'divider' }}>
+                        <Typography level="body-xs" fontWeight="bold" sx={{ px: 1 }}>SWITCH PROFILE</Typography>
+                        <IconButton size="sm" variant="plain" color="primary" onClick={() => setCreateOpen(true)}><Add /></IconButton>
+                    </Box>
+                    <List size="sm" sx={{ maxHeight: 200, overflowY: 'auto' }}>
+                        {profiles.map(p => (
+                            <ListItem key={p.id}>
+                                <ListItemButton 
+                                    selected={String(p.id) === String(currentProfileId)} 
+                                    onClick={() => onSelect(p.id)}
+                                    sx={{ borderRadius: 'sm' }}
+                                >
+                                    <ListItemDecorator>{p.emoji}</ListItemDecorator>
+                                    <ListItemContent>{p.name}</ListItemContent>
+                                    {String(p.id) === String(currentProfileId) && <CheckCircle color="primary" sx={{ fontSize: '1rem' }} />}
+                                </ListItemButton>
+                            </ListItem>
+                        ))}
+                    </List>
+                </AccordionDetails>
+            </Accordion>
+
+            <Modal open={createOpen} onClose={() => setCreateOpen(false)}>
+                <ModalDialog>
+                    <DialogTitle>Create Financial Profile</DialogTitle>
+                    <DialogContent>
+                        <form onSubmit={handleCreate}>
+                            <Box sx={{ display: 'flex', gap: 2, mt: 2, mb: 2 }}>
+                                <IconButton variant="outlined" onClick={() => setEmojiPickerOpen(true)} sx={{ width: 48, height: 48, fontSize: '1.5rem' }}>{newProfileEmoji}</IconButton>
+                                <FormControl required sx={{ flexGrow: 1 }}>
+                                    <FormLabel>Profile Name</FormLabel>
+                                    <Input value={newProfileName} onChange={e => setNewProfileName(e.target.value)} autoFocus placeholder="e.g. Joint, Business..." />
+                                </FormControl>
+                            </Box>
+                            <DialogActions>
+                                <Button variant="plain" color="neutral" onClick={() => setCreateOpen(false)}>Cancel</Button>
+                                <Button type="submit">Create Profile</Button>
+                            </DialogActions>
+                        </form>
+                    </DialogContent>
+                </ModalDialog>
+            </Modal>
+            <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(e) => { setNewProfileEmoji(e); setEmojiPickerOpen(false); }} isDark={isDark} />
+        </Box>
+    );
+};
+
 export default function NavSidebar({ 
     isMobile = false, onClose, installPrompt, onInstall
 }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { 
-    household, members, vehicles, user, isDark, 
+    household, members, vehicles, user, isDark, api,
     onLogout, confirmAction 
   } = useHousehold();
   
@@ -168,6 +261,7 @@ export default function NavSidebar({
 
   const handleNav = (to, category, hasSubItems) => {
       if (to) {
+          // Preserve query params if navigating within finance? No, usually reset.
           navigate(to);
           setHoveredCategory(null);
           if (!hasSubItems && isMobile && onClose) onClose();
@@ -179,6 +273,21 @@ export default function NavSidebar({
   const handleSubItemClick = () => {
       setHoveredCategory(null);
       if (isMobile && onClose) onClose();
+  };
+
+  // Helper to append profile ID to sub-item links
+  const getFinanceLink = (tab) => {
+      const profileId = searchParams.get('financial_profile_id');
+      let link = `/household/${household.id}/finance?tab=${tab}`;
+      if (profileId) link += `&financial_profile_id=${profileId}`;
+      return link;
+  };
+
+  const handleProfileSelect = (id) => {
+      setSearchParams(prev => {
+          prev.set('financial_profile_id', id);
+          return prev;
+      });
   };
 
   const currentPanelCategory = (hoveredCategory || (isPinned ? activeCategory : null));
@@ -363,18 +472,28 @@ export default function NavSidebar({
                     )}
                     {currentPanelCategory === 'finance' && (
                         <>
-                            <GroupHeader label="Overview" /><SubItem label="Budget" to={`/household/${household.id}/finance?tab=budget`} emoji="📊" isDark={isDark} onClick={handleSubItemClick} />
+                            <Box sx={{ px: 1, mb: 2 }}>
+                                <FinanceProfileAccordion 
+                                    householdId={household.id} 
+                                    api={api} 
+                                    isDark={isDark}
+                                    currentProfileId={searchParams.get('financial_profile_id')}
+                                    onSelect={handleProfileSelect}
+                                />
+                            </Box>
+                            
+                            <GroupHeader label="Overview" /><SubItem label="Budget" to={getFinanceLink('budget')} emoji="📊" isDark={isDark} onClick={handleSubItemClick} />
                             <Divider sx={{ my: 1 }} /><GroupHeader label="Accounts" />
-                            <SubItem label="Income" to={`/household/${household.id}/finance?tab=income`} emoji="💰" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Banking" to={`/household/${household.id}/finance?tab=banking`} emoji="🏦" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Savings" to={`/household/${household.id}/finance?tab=savings`} emoji="🐷" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Investments" to={`/household/${household.id}/finance?tab=invest`} emoji="📈" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Pensions" to={`/household/${household.id}/finance?tab=pensions`} emoji="👴" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="Income" to={getFinanceLink('income')} emoji="💰" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="Banking" to={getFinanceLink('banking')} emoji="🏦" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="Savings" to={getFinanceLink('savings')} emoji="🐷" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="Investments" to={getFinanceLink('invest')} emoji="📈" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="Pensions" to={getFinanceLink('pensions')} emoji="👴" isDark={isDark} onClick={handleSubItemClick} />
                             <Divider sx={{ my: 1 }} /><GroupHeader label="Liabilities" />
-                            <SubItem label="Credit Cards" to={`/household/${household.id}/finance?tab=credit`} emoji="💳" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Loans" to={`/household/${household.id}/finance?tab=loans`} emoji="📝" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Car Finance" to={`/household/${household.id}/finance?tab=car`} emoji="🚗" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Mortgages" to={`/household/${household.id}/finance?tab=mortgage`} emoji="🏠" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="Credit Cards" to={getFinanceLink('credit')} emoji="💳" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="Loans" to={getFinanceLink('loans')} emoji="📝" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="Car Finance" to={getFinanceLink('car')} emoji="🚗" isDark={isDark} onClick={handleSubItemClick} />
+                            <SubItem label="Mortgages" to={getFinanceLink('mortgage')} emoji="🏠" isDark={isDark} onClick={handleSubItemClick} />
                         </>
                     )}
                 </List>

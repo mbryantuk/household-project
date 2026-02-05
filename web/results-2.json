@@ -10,18 +10,14 @@
     "grep": {},
     "grepInvert": null,
     "maxFailures": 0,
-    "metadata": {
-      "actualWorkers": 1
-    },
+    "metadata": {},
     "preserveOutput": "always",
     "projects": [
       {
         "outputDir": "/home/matt/household-project/web/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "chromium",
         "name": "chromium",
         "testDir": "/home/matt/household-project/web/tests",
@@ -54,113 +50,19 @@
     "workers": 2,
     "webServer": null
   },
-  "suites": [
+  "suites": [],
+  "errors": [
     {
-      "title": "lifecycle_2_finance.spec.js",
-      "file": "lifecycle_2_finance.spec.js",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Brady Lifecycle Stage 2: Finance & Fringe",
-          "file": "lifecycle_2_finance.spec.js",
-          "line": 5,
-          "column": 6,
-          "specs": [
-            {
-              "title": "Expand Brady Household Finance (Frontend - Resilience Mode)",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 300000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 300313,
-                      "error": {
-                        "message": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m"
-                      },
-                      "errors": [
-                        {
-                          "message": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m"
-                        },
-                        {
-                          "location": {
-                            "file": "/home/matt/household-project/web/tests/lifecycle_2_finance.spec.js",
-                            "column": 16,
-                            "line": 34
-                          },
-                          "message": "Error: page.waitForURL: Test timeout of 300000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n  32 |     await page.fill('input[type=\"password\"]', password);\n  33 |     await page.click('button:has-text(\"Log In\")');\n> 34 |     await page.waitForURL(new RegExp(`/household/${hhId}/dashboard`));\n     |                ^\n  35 |     \n  36 |     // --- HELPERS ---\n  37 |     const createFinancialItem = async (tab, addBtnText, fillFn) => {\n    at /home/matt/household-project/web/tests/lifecycle_2_finance.spec.js:34:16"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: Content is cached for offline use.\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: Failed to load resource: the server responded with a status of 503 (Service Unavailable)\n"
-                        },
-                        {
-                          "text": "BROWSER LOG: Login failed: He\n"
-                        }
-                      ],
-                      "stderr": [
-                        {
-                          "text": "Context file not found, using defaults for dev testing if applicable.\n"
-                        }
-                      ],
-                      "retry": 0,
-                      "startTime": "2026-02-05T00:05:09.035Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/home/matt/household-project/web/test-results/lifecycle_2_finance-Brady--dfbdb-Frontend---Resilience-Mode--chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/home/matt/household-project/web/test-results/lifecycle_2_finance-Brady--dfbdb-Frontend---Resilience-Mode--chromium/error-context.md"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "ac27a2489c48f35ed2af-3cc5441749210b74f483",
-              "file": "lifecycle_2_finance.spec.js",
-              "line": 18,
-              "column": 3
-            }
-          ]
-        }
-      ]
+      "message": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments.",
+      "stack": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments."
     }
   ],
-  "errors": [],
   "stats": {
-    "startTime": "2026-02-05T00:05:07.043Z",
-    "duration": 302517.906,
+    "startTime": "2026-02-05T14:59:08.988Z",
+    "duration": 24.38700000000017,
     "expected": 0,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 0,
     "flaky": 0
   }
 }

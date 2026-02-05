@@ -120,37 +120,12 @@ else
         cd "$PROJECT_ROOT/web"
     }
 
-    # STAGE 1: FOUNDATION
-    run_stage "Stage 1: Foundation" \
-        "CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-1.json npx playwright test tests/lifecycle_1_foundation.spec.js --reporter=list,json" \
-        "$PROJECT_ROOT/web/results-1.json" \
-        "frontend_lifecycle_1"
-
-    # STAGE 2: FINANCE
-    run_stage "Stage 2: Finance" \
-        "CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-2.json npx playwright test tests/lifecycle_2_finance.spec.js --reporter=list,json" \
-        "$PROJECT_ROOT/web/results-2.json" \
-        "frontend_lifecycle_2"
-
-    # STAGE 3: ADVANCED FINANCE (Expenses)
-    run_stage "Stage 3a: Expenses" \
-        "CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-3.json npx playwright test tests/lifecycle_3_expenses.spec.js --reporter=list,json" \
-        "$PROJECT_ROOT/web/results-3.json" \
-        "frontend_lifecycle_3a"
-
-    # STAGE 3: ADVANCED FINANCE (Pots)
-    run_stage "Stage 3b: Savings Pots" \
-        "CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-4.json npx playwright test tests/lifecycle_4_savings_pots.spec.js --reporter=list,json" \
-        "$PROJECT_ROOT/web/results-4.json" \
-        "frontend_lifecycle_3b"
-
+    # STAGE 1-3: Legacy Lifecycle Tests (Removed/Missing)
+    # run_stage "Stage 1: Foundation" ...
+    
     # STAGE 4: INDEPENDENT UI FLOWS
-    # We run all files in tests/e2e/ui/
-    # We treat them as a single "UI Verification" stage for high-level reporting, or split?
-    # User asked for "all front end flows have an individual test".
-    # Playwright can run folder and report individual tests.
     run_stage "Stage 4: UI Flow Verification (Onboarding, Members, Assets, Finance)" \
-        "CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-ui.json npx playwright test tests/e2e/ui/ --reporter=list,json" \
+        "CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-ui.json npx playwright test tests/e2e/ui/ tests/smoke.spec.js --reporter=list,json" \
         "$PROJECT_ROOT/web/results-ui.json" \
         "frontend_ui_flows"
 

@@ -85,6 +85,20 @@ async function seed() {
         await apiRequest('POST', `/api/households/${hhId}/select`, {}, token);
         await apiRequest('POST', `/api/households/${hhId}/users`, { email: PRIMARY_USER, role: 'admin', first_name: 'Matt', password: PASSWORD }, token);
 
+        // 1b. FINANCIAL PROFILE
+        let profileId;
+        const profilesRes = await apiRequest('GET', `/api/households/${hhId}/finance/profiles`, null, token);
+        if (profilesRes.data && profilesRes.data.length > 0) {
+            profileId = profilesRes.data[0].id;
+            console.log(`Using existing profile: ${profileId}`);
+        } else {
+            const profRes = await apiRequest('POST', `/api/households/${hhId}/finance/profiles`, {
+                name: "Joint Finances", emoji: "💰", is_default: true
+            }, token);
+            profileId = profRes.data.id;
+            console.log(`Created profile: ${profileId}`);
+        }
+
         // 2. HOUSE DETAILS (Valuation & Tech)
         await apiRequest('PUT', `/api/households/${hhId}/details`, {
             purchase_price: 61000,
@@ -157,7 +171,8 @@ async function seed() {
             account_name: "Joint Checking", 
             current_balance: 9300,
             overdraft_limit: 200,
-            emoji: "🏦"
+            emoji: "🏦",
+            financial_profile_id: profileId
         }, token);
 
         const bank2 = await apiRequest('POST', `/api/households/${hhId}/finance/current-accounts`, { 
@@ -165,7 +180,8 @@ async function seed() {
             account_name: "Bills Account", 
             current_balance: 1500,
             overdraft_limit: 0,
-            emoji: "💳"
+            emoji: "💳",
+            financial_profile_id: profileId
         }, token);
         
         const mainBankId = bank1.data.id;
@@ -232,7 +248,8 @@ async function seed() {
                 name: c.n, amount: c.a, category_id: c.c, frequency: c.f, 
                 day_of_month: c.d, object_type: c.ot, object_id: c.oi || null,
                 bank_account_id: c.ba,
-                metadata: c.m || {}
+                metadata: c.m || {},
+                financial_profile_id: profileId
             }, token);
         }
 
@@ -247,9 +264,9 @@ async function seed() {
 
         
         // Mike gets paid late in the month (28th) - but for THIS cycle (starting Jan 28) we assume he was JUST paid
-        const mikeInc = await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "Brady Architecture", amount: 9500, is_primary: 1, payment_day: 28, bank_account_id: mainBankId, member_id: members.Mike }, token);
+        const mikeInc = await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "Brady Architecture", amount: 9500, is_primary: 1, payment_day: 28, bank_account_id: mainBankId, member_id: members.Mike, financial_profile_id: profileId }, token);
         // Carol gets paid on the 20th
-        await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "WFH Creative", amount: 6200, is_primary: 0, payment_day: 20, bank_account_id: mainBankId, member_id: members.Carol }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "WFH Creative", amount: 6200, is_primary: 0, payment_day: 20, bank_account_id: mainBankId, member_id: members.Carol, financial_profile_id: profileId }, token);
         
         // INITIALIZE BUDGET CYCLE
         const cycleKey = '2026-01-28';
@@ -257,7 +274,8 @@ async function seed() {
             cycle_start: cycleKey,
             actual_pay: 15700,
             current_balance: 9300,
-            bank_account_id: mainBankId
+            bank_account_id: mainBankId,
+            financial_profile_id: profileId
         }, token);
 
         // MARK MIKE'S INCOME AS PAID FOR THIS CYCLE
@@ -266,28 +284,29 @@ async function seed() {
             cycle_start: cycleKey,
             item_key: `income_${mikeInc.data.id}_2801`,
             is_paid: 1,
-            actual_amount: 9500
+            actual_amount: 9500,
+            financial_profile_id: profileId
         }, token);
 
         // Joint Savings with Pots
-        const savRes = await apiRequest('POST', `/api/households/${hhId}/finance/savings`, { institution: "Ally", account_name: "Joint Savings", current_balance: 55000 }, token);
+        const savRes = await apiRequest('POST', `/api/households/${hhId}/finance/savings`, { institution: "Ally", account_name: "Joint Savings", current_balance: 55000, financial_profile_id: profileId }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/savings/${savRes.data.id}/pots`, { name: "Emergency Fund", target_amount: 30000, current_amount: 30000, emoji: "🚨", deposit_day: 1 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/savings/${savRes.data.id}/pots`, { name: "Hawaii 2026", target_amount: 15000, current_amount: 10000, emoji: "🌋", deposit_day: 1 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/savings/${savRes.data.id}/pots`, { name: "House Repairs", target_amount: 10000, current_amount: 5000, emoji: "🔨", deposit_day: 15 }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/savings/${savRes.data.id}/pots`, { name: "Car Replacement", target_amount: 20000, current_amount: 10000, emoji: "🚗", deposit_day: 5 }, token);
 
         // Individual Savings (No Pots)
-        await apiRequest('POST', `/api/households/${hhId}/finance/savings`, { institution: "Marcus", account_name: "Carol's Personal", current_balance: 12500 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/savings`, { institution: "Marcus", account_name: "Carol's Personal", current_balance: 12500, financial_profile_id: profileId }, token);
 
-        await apiRequest('POST', `/api/households/${hhId}/finance/investments`, { name: "Vanguard ETF", platform: "Vanguard", current_value: 152000, monthly_contribution: 500, payment_day: 2 }, token);
-        await apiRequest('POST', `/api/households/${hhId}/finance/pensions`, { provider: "Fidelity", plan_name: "401k", current_value: 420000, monthly_contribution: 1200, payment_day: 1 }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/investments`, { name: "Vanguard ETF", platform: "Vanguard", current_value: 152000, monthly_contribution: 500, payment_day: 2, financial_profile_id: profileId }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/pensions`, { provider: "Fidelity", plan_name: "401k", current_value: 420000, monthly_contribution: 1200, payment_day: 1, financial_profile_id: profileId }, token);
 
         // 7a. DEBT (Mortgages, Loans, Car Finance, Credit Cards)
         // Mortgage
         const mortRes = await apiRequest('POST', `/api/households/${hhId}/finance/mortgages`, {
             lender: "Nationwide", total_amount: 500000, remaining_balance: 425000, 
             interest_rate: 3.49, monthly_payment: 1850, payment_day: 1, emoji: "🏠", asset_id: "primary",
-            term_years: 25, repayment_type: "Repayment"
+            term_years: 25, repayment_type: "Repayment", financial_profile_id: profileId
         }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/assignments`, { entity_type: 'finance_mortgages', entity_id: mortRes.data.id, member_id: members.Mike }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/assignments`, { entity_type: 'finance_mortgages', entity_id: mortRes.data.id, member_id: members.Carol }, token);
@@ -296,7 +315,7 @@ async function seed() {
         const loanRes = await apiRequest('POST', `/api/households/${hhId}/finance/loans`, {
             lender: "Barclays", loan_type: "Personal Improvement", total_amount: 25000, 
             remaining_balance: 12000, monthly_payment: 450, payment_day: 15, emoji: "📝",
-            start_date: "2023-01-15"
+            start_date: "2023-01-15", financial_profile_id: profileId
         }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/assignments`, { entity_type: 'loan', entity_id: loanRes.data.id, member_id: members.Mike }, token);
 
@@ -304,20 +323,20 @@ async function seed() {
         const carFinRes = await apiRequest('POST', `/api/households/${hhId}/finance/vehicle-finance`, {
             provider: "Tesla Financial Services", total_amount: 60000, remaining_balance: 35000,
             interest_rate: 4.9, monthly_payment: 850, payment_day: 7, emoji: "⚡", vehicle_id: v1.data.id,
-            start_date: "2024-01-07", end_date: "2028-01-07"
+            start_date: "2024-01-07", end_date: "2028-01-07", financial_profile_id: profileId
         }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/assignments`, { entity_type: 'vehicle_finance', entity_id: carFinRes.data.id, member_id: members.Mike }, token);
 
         // Credit Cards
         const amexRes = await apiRequest('POST', `/api/households/${hhId}/finance/credit-cards`, {
             provider: "American Express", card_name: "Platinum", credit_limit: 25000, 
-            current_balance: 4200, apr: 22.9, payment_day: 20, emoji: "💳"
+            current_balance: 4200, apr: 22.9, payment_day: 20, emoji: "💳", financial_profile_id: profileId
         }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/assignments`, { entity_type: 'credit_card', entity_id: amexRes.data.id, member_id: members.Mike }, token);
 
         const visaRes = await apiRequest('POST', `/api/households/${hhId}/finance/credit-cards`, {
             provider: "Chase", card_name: "Sapphire Reserve", credit_limit: 15000, 
-            current_balance: 1500, apr: 19.9, payment_day: 5, emoji: "💳"
+            current_balance: 1500, apr: 19.9, payment_day: 5, emoji: "💳", financial_profile_id: profileId
         }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/assignments`, { entity_type: 'credit_card', entity_id: visaRes.data.id, member_id: members.Carol }, token);
 
