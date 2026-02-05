@@ -61,7 +61,15 @@ const decryptRow = (row) => {
 // ==========================================
 
 const handleGetList = (table) => (req, res) => {
-    req.tenantDb.all(`SELECT * FROM ${table} WHERE household_id = ?`, [req.hhId], (err, rows) => {
+    let sql = `SELECT * FROM ${table} WHERE household_id = ?`;
+    const params = [req.hhId];
+    
+    if (req.query.financial_profile_id) {
+        sql += ` AND financial_profile_id = ?`;
+        params.push(req.query.financial_profile_id);
+    }
+
+    req.tenantDb.all(sql, params, (err, rows) => {
         closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json((rows || []).map(decryptRow));
@@ -412,7 +420,13 @@ router.post('/categories', authenticateToken, requireHouseholdRole('member'), us
 router.delete('/categories/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, handleDeleteItem('finance_budget_categories'));
 
 router.get('/budget-progress', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
-    req.tenantDb.all(`SELECT * FROM finance_budget_progress WHERE household_id = ?`, [req.hhId], (err, rows) => {
+    let sql = `SELECT * FROM finance_budget_progress WHERE household_id = ?`;
+    const params = [req.hhId];
+    if (req.query.financial_profile_id) {
+        sql += ` AND financial_profile_id = ?`;
+        params.push(req.query.financial_profile_id);
+    }
+    req.tenantDb.all(sql, params, (err, rows) => {
         closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows || []);
@@ -420,7 +434,13 @@ router.get('/budget-progress', authenticateToken, requireHouseholdRole('viewer')
 });
 
 router.get('/budget-cycles', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
-    req.tenantDb.all(`SELECT * FROM finance_budget_cycles WHERE household_id = ?`, [req.hhId], (err, rows) => {
+    let sql = `SELECT * FROM finance_budget_cycles WHERE household_id = ?`;
+    const params = [req.hhId];
+    if (req.query.financial_profile_id) {
+        sql += ` AND financial_profile_id = ?`;
+        params.push(req.query.financial_profile_id);
+    }
+    req.tenantDb.all(sql, params, (err, rows) => {
         closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows || []);
@@ -429,10 +449,22 @@ router.get('/budget-cycles', authenticateToken, requireHouseholdRole('viewer'), 
 
 router.delete('/budget-cycles/:cycleStart', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     const { cycleStart } = req.params;
+    const { financial_profile_id } = req.query; 
+    
+    let sqlCycle = `DELETE FROM finance_budget_cycles WHERE household_id = ? AND cycle_start = ?`;
+    let sqlProg = `DELETE FROM finance_budget_progress WHERE household_id = ? AND cycle_start = ?`;
+    const params = [req.hhId, cycleStart];
+
+    if (financial_profile_id) {
+        sqlCycle += ` AND financial_profile_id = ?`;
+        sqlProg += ` AND financial_profile_id = ?`;
+        params.push(financial_profile_id);
+    }
+
     req.tenantDb.serialize(() => {
         req.tenantDb.run("BEGIN TRANSACTION");
-        req.tenantDb.run(`DELETE FROM finance_budget_cycles WHERE household_id = ? AND cycle_start = ?`, [req.hhId, cycleStart]);
-        req.tenantDb.run(`DELETE FROM finance_budget_progress WHERE household_id = ? AND cycle_start = ?`, [req.hhId, cycleStart], (err) => {
+        req.tenantDb.run(sqlCycle, params);
+        req.tenantDb.run(sqlProg, params, (err) => {
             if (err) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: err.message }); }
             req.tenantDb.run("COMMIT", () => { closeDb(req); res.json({ message: "Cycle reset" }); });
         });
@@ -440,21 +472,21 @@ router.delete('/budget-cycles/:cycleStart', authenticateToken, requireHouseholdR
 });
 
 router.post('/budget-cycles', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-    const { cycle_start, actual_pay, current_balance, bank_account_id } = req.body;
+    const { cycle_start, actual_pay, current_balance, bank_account_id, financial_profile_id } = req.body;
     
     req.tenantDb.serialize(() => {
         req.tenantDb.run("BEGIN TRANSACTION");
         
         // 1. Update/Insert Cycle
         req.tenantDb.run(`
-            INSERT INTO finance_budget_cycles (household_id, cycle_start, actual_pay, current_balance, bank_account_id) 
-            VALUES (?, ?, ?, ?, ?) 
-            ON CONFLICT(household_id, cycle_start) 
+            INSERT INTO finance_budget_cycles (household_id, financial_profile_id, cycle_start, actual_pay, current_balance, bank_account_id) 
+            VALUES (?, ?, ?, ?, ?, ?) 
+            ON CONFLICT(household_id, financial_profile_id, cycle_start) 
             DO UPDATE SET 
                 actual_pay = excluded.actual_pay, 
                 current_balance = excluded.current_balance,
                 bank_account_id = excluded.bank_account_id
-        `, [req.hhId, cycle_start, actual_pay, current_balance, bank_account_id], function(err) {
+        `, [req.hhId, financial_profile_id, cycle_start, actual_pay, current_balance, bank_account_id], function(err) {
             if (err) {
                 req.tenantDb.run("ROLLBACK");
                 closeDb(req);
@@ -489,11 +521,11 @@ router.post('/budget-cycles', authenticateToken, requireHouseholdRole('member'),
 });
 
 router.post('/budget-progress', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-    const { cycle_start, item_key, is_paid, actual_amount, actual_date } = req.body;
+    const { cycle_start, item_key, is_paid, actual_amount, actual_date, financial_profile_id } = req.body;
     const newAmount = parseFloat(actual_amount) || 0;
     const newPaid = parseInt(is_paid) || 0;
     
-    req.tenantDb.get(`SELECT is_paid, actual_amount FROM finance_budget_progress WHERE household_id = ? AND cycle_start = ? AND item_key = ?`, [req.hhId, cycle_start, item_key], (err, row) => {
+    req.tenantDb.get(`SELECT is_paid, actual_amount FROM finance_budget_progress WHERE household_id = ? AND financial_profile_id = ? AND cycle_start = ? AND item_key = ?`, [req.hhId, financial_profile_id, cycle_start, item_key], (err, row) => {
         if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
         
         const oldPaid = row ? (row.is_paid || 0) : 0;
@@ -524,27 +556,27 @@ router.post('/budget-progress', authenticateToken, requireHouseholdRole('member'
 
         req.tenantDb.serialize(() => {
             req.tenantDb.run("BEGIN TRANSACTION");
-            req.tenantDb.run(`INSERT INTO finance_budget_progress (household_id, cycle_start, item_key, is_paid, actual_amount, actual_date) 
-                             VALUES (?, ?, ?, ?, ?, ?) 
-                             ON CONFLICT(household_id, cycle_start, item_key) 
+            req.tenantDb.run(`INSERT INTO finance_budget_progress (household_id, financial_profile_id, cycle_start, item_key, is_paid, actual_amount, actual_date) 
+                             VALUES (?, ?, ?, ?, ?, ?, ?) 
+                             ON CONFLICT(household_id, financial_profile_id, cycle_start, item_key) 
                              DO UPDATE SET 
                                 is_paid = excluded.is_paid, 
                                 actual_amount = excluded.actual_amount,
                                 actual_date = COALESCE(excluded.actual_date, finance_budget_progress.actual_date)`, 
-                             [req.hhId, cycle_start, item_key, newPaid, newAmount, actual_date], (pErr) => {
+                             [req.hhId, financial_profile_id, cycle_start, item_key, newPaid, newAmount, actual_date], (pErr) => {
                 if (pErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: pErr.message }); }
                 
                 const finalize = () => {
                     // Update the main Budget Cycle Balance and Linked Bank Account if applicable
                     if (balanceDelta !== 0) {
-                        req.tenantDb.get(`SELECT bank_account_id FROM finance_budget_cycles WHERE household_id = ? AND cycle_start = ?`, [req.hhId, cycle_start], (cycErr, cycle) => {
+                        req.tenantDb.get(`SELECT bank_account_id FROM finance_budget_cycles WHERE household_id = ? AND financial_profile_id = ? AND cycle_start = ?`, [req.hhId, financial_profile_id, cycle_start], (cycErr, cycle) => {
                             if (cycErr || !cycle) {
                                 req.tenantDb.run("COMMIT", () => { closeDb(req); res.status(201).json({ message: "Progress saved" }); });
                                 return;
                             }
 
                             // Update Cycle Balance
-                            req.tenantDb.run(`UPDATE finance_budget_cycles SET current_balance = current_balance + ? WHERE household_id = ? AND cycle_start = ?`, [balanceDelta, req.hhId, cycle_start], (bcErr) => {
+                            req.tenantDb.run(`UPDATE finance_budget_cycles SET current_balance = current_balance + ? WHERE household_id = ? AND financial_profile_id = ? AND cycle_start = ?`, [balanceDelta, req.hhId, financial_profile_id, cycle_start], (bcErr) => {
                                 if (bcErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: bcErr.message }); }
 
                                 // Update Bank Account Balance (only if linked)
@@ -582,7 +614,9 @@ router.post('/budget-progress', authenticateToken, requireHouseholdRole('member'
 
 router.delete('/budget-progress/:cycleStart/:itemKey', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     const { cycleStart, itemKey } = req.params;
-    req.tenantDb.get(`SELECT is_paid, actual_amount FROM finance_budget_progress WHERE household_id = ? AND cycle_start = ? AND item_key = ?`, [req.hhId, cycleStart, itemKey], (err, row) => {
+    const { financial_profile_id } = req.query;
+
+    req.tenantDb.get(`SELECT is_paid, actual_amount FROM finance_budget_progress WHERE household_id = ? AND financial_profile_id = ? AND cycle_start = ? AND item_key = ?`, [req.hhId, financial_profile_id, cycleStart, itemKey], (err, row) => {
         if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
         
         const oldPaid = row ? (row.is_paid || 0) : 0;
@@ -605,16 +639,16 @@ router.delete('/budget-progress/:cycleStart/:itemKey', authenticateToken, requir
             req.tenantDb.run("BEGIN TRANSACTION");
 
             const finalize = () => {
-                req.tenantDb.run(`DELETE FROM finance_budget_progress WHERE household_id = ? AND cycle_start = ? AND item_key = ?`, [req.hhId, cycleStart, itemKey], (delErr) => {
+                req.tenantDb.run(`DELETE FROM finance_budget_progress WHERE household_id = ? AND financial_profile_id = ? AND cycle_start = ? AND item_key = ?`, [req.hhId, financial_profile_id, cycleStart, itemKey], (delErr) => {
                     if (delErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: delErr.message }); }
                     
                     if (balanceDelta !== 0) {
-                        req.tenantDb.get(`SELECT bank_account_id FROM finance_budget_cycles WHERE household_id = ? AND cycle_start = ?`, [req.hhId, cycleStart], (cycErr, cycle) => {
+                        req.tenantDb.get(`SELECT bank_account_id FROM finance_budget_cycles WHERE household_id = ? AND financial_profile_id = ? AND cycle_start = ?`, [req.hhId, financial_profile_id, cycleStart], (cycErr, cycle) => {
                             if (cycErr || !cycle) {
                                 req.tenantDb.run("COMMIT", () => { closeDb(req); res.json({ message: "Progress removed" }); });
                                 return;
                             }
-                            req.tenantDb.run(`UPDATE finance_budget_cycles SET current_balance = current_balance + ? WHERE household_id = ? AND cycle_start = ?`, [balanceDelta, req.hhId, cycleStart], (bcErr) => {
+                            req.tenantDb.run(`UPDATE finance_budget_cycles SET current_balance = current_balance + ? WHERE household_id = ? AND financial_profile_id = ? AND cycle_start = ?`, [balanceDelta, req.hhId, financial_profile_id, cycleStart], (bcErr) => {
                                 if (bcErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: bcErr.message }); }
                                 if (cycle.bank_account_id) {
                                     req.tenantDb.run(`UPDATE finance_current_accounts SET current_balance = current_balance + ? WHERE id = ? AND household_id = ?`, [balanceDelta, cycle.bank_account_id, req.hhId], (baErr) => {

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useLocation, useNavigate, useOutletContext } from 'react-router-dom';
 import { Box, Typography, Sheet, Grid, Card, IconButton } from '@mui/joy';
 import { 
@@ -20,13 +20,40 @@ import LoansView from './finance/LoansView';
 import MortgagesView from './finance/MortgagesView';
 import VehicleFinanceView from './finance/VehicleFinanceView';
 import BudgetView from './finance/BudgetView';
+import FinancialProfileSelector from '../components/ui/FinancialProfileSelector';
 
 export default function FinanceView() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isDark } = useOutletContext();
+  const { isDark, api, id: householdId, showNotification } = useOutletContext();
   const queryParams = new URLSearchParams(location.search);
   const tabParam = queryParams.get('tab');
+  
+  const [profiles, setProfiles] = useState([]);
+  const [selectedProfileId, setSelectedProfileId] = useState(null);
+
+  useEffect(() => {
+    api.get(`/households/${householdId}/finance/profiles`)
+       .then(res => {
+          setProfiles(res.data);
+          if (res.data.length > 0) {
+              const def = res.data.find(p => p.is_default) || res.data[0];
+              setSelectedProfileId(def.id);
+          }
+       })
+       .catch(err => console.error("Failed to fetch profiles", err));
+  }, [api, householdId]);
+
+  const handleCreateProfile = async (data) => {
+      try {
+          const res = await api.post(`/households/${householdId}/finance/profiles`, data);
+          setProfiles(prev => [...prev, res.data]);
+          setSelectedProfileId(res.data.id);
+          showNotification("Profile created", "success");
+      } catch (err) {
+          showNotification("Failed to create profile: " + err.message, "danger");
+      }
+  };
   
   const viewMap = useMemo(() => ({
     budget: { label: 'Monthly Budget', icon: PieChart, desc: 'Analyze your financial health and spending limits.' },
@@ -44,26 +71,42 @@ export default function FinanceView() {
   const activeTabKey = tabParam;
 
   const renderContent = () => {
-      if (activeTabKey === 'budget') return <BudgetView />;
-      if (activeTabKey === 'income') return <IncomeView />;
-      if (activeTabKey === 'banking') return <BankingView />;
-      if (activeTabKey === 'savings') return <SavingsView />;
-      if (activeTabKey === 'invest') return <InvestmentsView />;
-      if (activeTabKey === 'pensions') return <PensionsView />;
-      if (activeTabKey === 'credit') return <CreditCardsView />;
-      if (activeTabKey === 'loans') return <LoansView />;
-      if (activeTabKey === 'mortgage') return <MortgagesView />;
-      if (activeTabKey === 'car') return <VehicleFinanceView />;
+      if (!selectedProfileId) return null; // Wait for profile
+      const props = { financialProfileId: selectedProfileId };
+
+      if (activeTabKey === 'budget') return <BudgetView {...props} />;
+      if (activeTabKey === 'income') return <IncomeView {...props} />;
+      if (activeTabKey === 'banking') return <BankingView {...props} />;
+      if (activeTabKey === 'savings') return <SavingsView {...props} />;
+      if (activeTabKey === 'invest') return <InvestmentsView {...props} />;
+      if (activeTabKey === 'pensions') return <PensionsView {...props} />;
+      if (activeTabKey === 'credit') return <CreditCardsView {...props} />;
+      if (activeTabKey === 'loans') return <LoansView {...props} />;
+      if (activeTabKey === 'mortgage') return <MortgagesView {...props} />;
+      if (activeTabKey === 'car') return <VehicleFinanceView {...props} />;
       return null;
   };
+
+  const ProfileSelector = () => (
+      <FinancialProfileSelector 
+        profiles={profiles} 
+        selectedProfileId={selectedProfileId} 
+        onSelect={setSelectedProfileId} 
+        onCreate={handleCreateProfile}
+        isDark={isDark}
+      />
+  );
 
   if (!activeTabKey) {
     return (
       <Box>
-        <AppHeader 
-          title="Financial Matrix" 
-          description="Select a domain to manage your household wealth and liabilities." 
-        />
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+            <AppHeader 
+            title="Financial Matrix" 
+            description="Select a domain to manage your household wealth and liabilities." 
+            />
+            <ProfileSelector />
+        </Box>
         <Grid container spacing={3}>
           {Object.entries(viewMap).map(([key, config]) => (
             <Grid xs={12} sm={6} md={4} lg={3} key={key}>
@@ -99,11 +142,14 @@ export default function FinanceView() {
 
   return (
     <Box sx={{ width: '100%' }}>
-        <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <IconButton variant="outlined" color="neutral" onClick={() => navigate('.')}>
-            <ArrowBack />
-          </IconButton>
-          <Typography level="title-lg" sx={{ ml: 1 }}>Back to Overview</Typography>
+        <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <IconButton variant="outlined" color="neutral" onClick={() => navigate('.')}>
+                <ArrowBack />
+            </IconButton>
+            <Typography level="title-lg" sx={{ ml: 1 }}>Back to Overview</Typography>
+          </Box>
+          <ProfileSelector />
         </Box>
         {renderContent()}
     </Box>

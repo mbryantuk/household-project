@@ -20,7 +20,7 @@ const formatPercent = (val) => {
     return num.toFixed(2) + '%';
 };
 
-export default function CreditCardsView() {
+export default function CreditCardsView({ financialProfileId }) {
   const { api, id: householdId, user: currentUser, isDark, members, showNotification } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
@@ -56,16 +56,17 @@ export default function CreditCardsView() {
   }, [selectedCard, selectedCardId, getAssignees, currentUser?.id, members]);
 
   const fetchData = useCallback(async () => {
+    if (!financialProfileId) return;
     setLoading(true);
     try {
       const [res, assRes] = await Promise.all([
-          api.get(`/households/${householdId}/finance/credit-cards`),
+          api.get(`/households/${householdId}/finance/credit-cards?financial_profile_id=${financialProfileId}`),
           api.get(`/households/${householdId}/finance/assignments?entity_type=finance_credit_cards`)
       ]);
       setCards(res.data || []);
       setAssignments(assRes.data || []);
     } catch (err) { console.error("Failed to fetch cards", err); } finally { setLoading(false); }
-  }, [api, householdId]);
+  }, [api, householdId, financialProfileId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -81,6 +82,7 @@ export default function CreditCardsView() {
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     data.emoji = selectedEmoji;
+    data.financial_profile_id = financialProfileId;
     try {
       let itemId = selectedCardId;
       if (selectedCardId === 'new') {

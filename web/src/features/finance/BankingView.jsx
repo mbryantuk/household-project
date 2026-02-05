@@ -15,7 +15,7 @@ const formatCurrency = (val) => {
     return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
-export default function BankingView() {
+export default function BankingView({ financialProfileId }) {
   const { api, id: householdId, user: currentUser, isDark, members, showNotification } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
@@ -48,10 +48,11 @@ export default function BankingView() {
   }, [assignments, members]);
 
   const fetchData = useCallback(async () => {
+    if (!financialProfileId) return;
     setLoading(true);
     try {
       const [accRes, assRes] = await Promise.all([
-          api.get(`/households/${householdId}/finance/current-accounts`),
+          api.get(`/households/${householdId}/finance/current-accounts?financial_profile_id=${financialProfileId}`),
           api.get(`/households/${householdId}/finance/assignments?entity_type=current_account`)
       ]);
       setAccounts(accRes.data || []);
@@ -61,7 +62,7 @@ export default function BankingView() {
     } finally {
       setLoading(false);
     }
-  }, [api, householdId]);
+  }, [api, householdId, financialProfileId]);
 
   useEffect(() => {
     fetchData();
@@ -97,6 +98,7 @@ export default function BankingView() {
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     data.emoji = selectedEmoji;
+    data.financial_profile_id = financialProfileId;
 
     try {
       let itemId = selectedAccountId;

@@ -68,6 +68,10 @@ router.get('/', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, 
         sql += ` AND category_id = ?`;
         params.push(req.query.category_id);
     }
+    if (req.query.financial_profile_id) {
+        sql += ` AND financial_profile_id = ?`;
+        params.push(req.query.financial_profile_id);
+    }
 
     req.tenantDb.all(sql, params, (err, rows) => {
         closeDb(req);

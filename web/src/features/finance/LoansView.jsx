@@ -17,7 +17,7 @@ const formatCurrency = (val, currencyCode = 'GBP') => {
     } catch { return `£${num.toFixed(2)}`; }
 };
 
-export default function LoansView() {
+export default function LoansView({ financialProfileId }) {
   const { api, id: householdId, user: currentUser, household, showNotification, confirmAction, isDark, members } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
@@ -45,16 +45,16 @@ export default function LoansView() {
   const getAssignees = useCallback((itemId) => assignments.filter(a => a.entity_id === itemId).map(a => members.find(m => m.id === a.member_id)).filter(Boolean), [assignments, members]);
 
   const fetchLoans = useCallback(async () => {
-    if (!householdId) return;
+    if (!householdId || !financialProfileId) return;
     try {
       const [lRes, assRes] = await Promise.all([
-          api.get(`/households/${householdId}/finance/loans`),
+          api.get(`/households/${householdId}/finance/loans?financial_profile_id=${financialProfileId}`),
           api.get(`/households/${householdId}/finance/assignments?entity_type=loan`)
       ]);
       setLoans(lRes.data || []);
       setAssignments(assRes.data || []);
     } catch (err) { console.error(err); }
-  }, [api, householdId]);
+  }, [api, householdId, financialProfileId]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -109,6 +109,7 @@ export default function LoansView() {
       
       const payload = {
           ...formData,
+          financial_profile_id: financialProfileId,
           total_amount: parseFloat(formData.total_amount) || 0,
           remaining_balance: parseFloat(formData.remaining_balance) || 0,
           monthly_payment: parseFloat(formData.monthly_payment) || 0,

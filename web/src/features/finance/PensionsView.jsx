@@ -15,7 +15,7 @@ const formatCurrency = (val) => {
     return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
-export default function PensionsView() {
+export default function PensionsView({ financialProfileId }) {
   const { api, id: householdId, user: currentUser, isDark, members, showNotification } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
@@ -54,10 +54,11 @@ export default function PensionsView() {
   }, [selectedPension, selectedPensionId, getAssignees, currentUser?.id, members]);
 
   const fetchData = useCallback(async () => {
+    if (!financialProfileId) return;
     setLoading(true);
     try {
       const [penRes, assRes] = await Promise.all([
-          api.get(`/households/${householdId}/finance/pensions`),
+          api.get(`/households/${householdId}/finance/pensions?financial_profile_id=${financialProfileId}`),
           api.get(`/households/${householdId}/finance/assignments?entity_type=finance_pensions`)
       ]);
       setPensions(penRes.data || []);
@@ -67,7 +68,7 @@ export default function PensionsView() {
     } finally {
       setLoading(false);
     }
-  }, [api, householdId]);
+  }, [api, householdId, financialProfileId]);
 
   useEffect(() => {
     fetchData();
@@ -85,6 +86,7 @@ export default function PensionsView() {
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     data.emoji = selectedEmoji;
+    data.financial_profile_id = financialProfileId;
     
     try {
       let itemId = selectedPensionId;

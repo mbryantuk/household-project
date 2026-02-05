@@ -21,7 +21,7 @@ const formatPercent = (val) => {
     return num.toFixed(2) + '%';
 };
 
-export default function MortgagesView() {
+export default function MortgagesView({ financialProfileId }) {
   const { api, id: householdId, user: currentUser, isDark, members = [], household, showNotification } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
@@ -61,10 +61,11 @@ export default function MortgagesView() {
   }, [selectedMortgage, selectedMortgageId, activeType, getAssignees, members]);
 
   const fetchData = useCallback(async () => {
+    if (!financialProfileId) return;
     setLoading(true);
     try {
       const [mRes, assRes, assetRes, detRes] = await Promise.all([
-          api.get(`/households/${householdId}/finance/mortgages`),
+          api.get(`/households/${householdId}/finance/mortgages?financial_profile_id=${financialProfileId}`),
           api.get(`/households/${householdId}/finance/assignments?entity_type=finance_mortgages`),
           api.get(`/households/${householdId}/assets`),
           api.get(`/households/${householdId}/details`)
@@ -78,7 +79,7 @@ export default function MortgagesView() {
     } finally {
       setLoading(false);
     }
-  }, [api, householdId]);
+  }, [api, householdId, financialProfileId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -105,7 +106,11 @@ export default function MortgagesView() {
     try {
       let itemId = selectedMortgageId;
       if (selectedMortgageId === 'new') {
-        const res = await api.post(`/households/${householdId}/finance/mortgages`, { ...data, mortgage_type: activeType });
+        const res = await api.post(`/households/${householdId}/finance/mortgages`, { 
+            ...data, 
+            mortgage_type: activeType,
+            financial_profile_id: financialProfileId 
+        });
         itemId = res.data.id;
         showNotification("Mortgage/Equity loan added.", "success");
       } else {

@@ -21,7 +21,7 @@ const formatPercent = (val) => {
     return num.toFixed(2) + '%';
 };
 
-export default function SavingsView() {
+export default function SavingsView({ financialProfileId }) {
   const { api, id: householdId, user: currentUser, isDark, members = [], showNotification } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
@@ -74,10 +74,11 @@ export default function SavingsView() {
   }, [selectedAccount, selectedPot, selectedAccountId, selectedPotId, getAssignees, currentUser?.id, members]);
 
   const fetchData = useCallback(async () => {
+    if (!financialProfileId) return;
     setLoading(true);
     try {
       const [accRes, assRes] = await Promise.all([
-          api.get(`/households/${householdId}/finance/savings`),
+          api.get(`/households/${householdId}/finance/savings?financial_profile_id=${financialProfileId}`),
           api.get(`/households/${householdId}/finance/assignments?entity_type=finance_savings`)
       ]);
       const accs = accRes.data || [];
@@ -93,7 +94,7 @@ export default function SavingsView() {
       }));
       setPots(potsMap);
     } catch (err) { console.error("Failed to fetch savings data", err); } finally { setLoading(false); }
-  }, [api, householdId]);
+  }, [api, householdId, financialProfileId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -118,6 +119,7 @@ export default function SavingsView() {
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     data.emoji = selectedEmoji;
+    data.financial_profile_id = financialProfileId;
     
     try {
       let accountId = selectedAccountId;

@@ -16,7 +16,7 @@ const formatCurrency = (val) => {
     return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
-export default function AgreementsView({ isSubscriptions = false }) {
+export default function AgreementsView({ isSubscriptions = false, financialProfileId }) {
   const { api, id: householdId, user: currentUser, isDark, members, showNotification } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
@@ -52,16 +52,17 @@ export default function AgreementsView({ isSubscriptions = false }) {
   }, [selectedAgreement, selectedAgreementId, isSubscriptions, getAssignees, currentUser?.id, members]);
 
   const fetchData = useCallback(async () => {
+    if (!financialProfileId) return;
     setLoading(true);
     try {
       const [res, assRes] = await Promise.all([
-          api.get(`/households/${householdId}/finance/agreements`),
+          api.get(`/households/${householdId}/finance/agreements?financial_profile_id=${financialProfileId}`),
           api.get(`/households/${householdId}/finance/assignments?entity_type=finance_agreements`)
       ]);
       setItems(res.data || []);
       setAssignments(assRes.data || []);
     } catch (err) { console.error("Failed to fetch agreements", err); } finally { setLoading(false); }
-  }, [api, householdId]);
+  }, [api, householdId, financialProfileId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -80,6 +81,7 @@ export default function AgreementsView({ isSubscriptions = false }) {
     
     // Tag as subscription if in sub mode
     if (isSubscriptions) data.notes = (data.notes || '') + ' [SUB]';
+    data.financial_profile_id = financialProfileId;
 
     try {
       let itemId = selectedAgreementId;

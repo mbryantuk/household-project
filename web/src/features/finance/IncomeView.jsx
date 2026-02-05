@@ -18,7 +18,7 @@ const formatCurrency = (val) => {
     return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
-export default function IncomeView() {
+export default function IncomeView({ financialProfileId }) {
   const { api, id: householdId, user: currentUser, isDark, members, showNotification } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
@@ -45,11 +45,12 @@ export default function IncomeView() {
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'member';
 
   const fetchData = useCallback(async () => {
+    if (!financialProfileId) return;
     setLoading(true);
     try {
       const [incRes, bankRes] = await Promise.all([
-          api.get(`/households/${householdId}/finance/income`),
-          api.get(`/households/${householdId}/finance/current-accounts`)
+          api.get(`/households/${householdId}/finance/income?financial_profile_id=${financialProfileId}`),
+          api.get(`/households/${householdId}/finance/current-accounts?financial_profile_id=${financialProfileId}`)
       ]);
       setIncomeList(incRes.data || []);
       setBankAccounts(bankRes.data || []);
@@ -58,7 +59,7 @@ export default function IncomeView() {
     } finally {
       setLoading(false);
     }
-  }, [api, householdId]);
+  }, [api, householdId, financialProfileId]);
 
   useEffect(() => {
     fetchData();
@@ -119,6 +120,7 @@ export default function IncomeView() {
     const data = Object.fromEntries(formData.entries());
     data.is_primary = data.is_primary === "1" ? 1 : 0;
     data.emoji = selectedEmoji; // Inject selected emoji
+    data.financial_profile_id = financialProfileId; // Inject profile ID
 
     try {
       if (selectedIncomeId === 'new') {

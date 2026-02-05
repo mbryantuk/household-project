@@ -5,16 +5,15 @@ import {
   Button, Modal, ModalDialog, DialogTitle, DialogContent, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
   Sheet, Table, Checkbox, LinearProgress, Switch, Accordion, AccordionSummary, AccordionDetails,
-  Dropdown, Menu, MenuButton, MenuItem, Select, Option, List, ListItem, ListItemContent, ListItemDecorator,
-  Tooltip
+  Dropdown, Menu, MenuButton, MenuItem, Select, Option, Tooltip
 } from '@mui/joy';
 import {
   AccountBalanceWallet, CheckCircle, RadioButtonUnchecked, TrendingDown,
-  Event, Payments, Savings as SavingsIcon, Home, CreditCard,
-  Assignment, WaterDrop, ElectricBolt, AccountBalance as BankIcon, Add, Shield,
-  ShoppingBag, ChevronLeft, ChevronRight, Lock, LockOpen, ArrowDropDown, RestartAlt, Receipt,
-  DirectionsCar, Person, DeleteOutline, Restore, Sort, Search, ExpandMore, TrendingUp, Block, RemoveCircleOutline, RequestQuote,
-  FilterAlt, GroupWork, CalendarToday, Warning, Edit, DeleteForever, CalendarMonth
+  Payments, Savings as SavingsIcon, Home, CreditCard,
+  Assignment, ElectricBolt, AccountBalance as BankIcon, Add, Shield,
+  ShoppingBag, ChevronLeft, ChevronRight, ArrowDropDown, RestartAlt, Receipt,
+  DirectionsCar, DeleteForever, Sort, Search, ExpandMore, TrendingUp, Block, RequestQuote,
+  FilterAlt, GroupWork, Warning, CalendarMonth
 } from '@mui/icons-material';
 import {
   format, addMonths, startOfMonth, setDate, differenceInDays,
@@ -25,7 +24,6 @@ import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
 import EmojiPicker from '../../components/EmojiPicker';
 import MetadataFormFields from '../../components/ui/MetadataFormFields';
-import FinancialProfileSelector from '../../components/ui/FinancialProfileSelector';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -221,7 +219,7 @@ const IncomeSourceCard = ({ inc, onUpdate, onDelete }) => {
     );
 };
 
-export default function BudgetView() {
+export default function BudgetView({ financialProfileId }) {
   const { api, id: householdId, isDark, showNotification, members = [], setStatusBarData, confirmAction, household } = useOutletContext();
   const [loading, setLoading] = useState(true);
     const [savingProgress] = useState(new Map());
@@ -246,7 +244,6 @@ export default function BudgetView() {
   const [groupBy, setGroupBy] = useState('standard'); // standard, category, object, date
   const [filterEntity, setFilterEntity] = useState('all');
   const [filterAccount, setFilterAccount] = useState('all');
-  const [filterProfile, setFilterProfile] = useState('');
 
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: 'computedDate', direction: 'asc' });
@@ -271,28 +268,30 @@ export default function BudgetView() {
   const [selectedAccountId, setSelectedAccountId] = useState(null);
 
   const fetchData = useCallback(async () => {
+    if (!financialProfileId) return;
     setLoading(true);
     try {
-      const [
+      const q = `?financial_profile_id=${financialProfileId}`;
+      const [ 
           incRes, progRes, cycleRes, recurringRes, ccRes, pensionRes, potRes, holidayRes, vehRes, assetRes, saveRes, invRes, accountRes, dateRes,
           mortRes, vFinRes, detailRes
       ] = await Promise.all([
-          api.get(`/households/${householdId}/finance/income`),
-          api.get(`/households/${householdId}/finance/budget-progress`),
-          api.get(`/households/${householdId}/finance/budget-cycles`),
-          api.get(`/households/${householdId}/finance/recurring-costs`),
-          api.get(`/households/${householdId}/finance/credit-cards`),
-          api.get(`/households/${householdId}/finance/pensions`),
-          api.get(`/households/${householdId}/finance/savings/pots`),
+          api.get(`/households/${householdId}/finance/income${q}`),
+          api.get(`/households/${householdId}/finance/budget-progress${q}`),
+          api.get(`/households/${householdId}/finance/budget-cycles${q}`),
+          api.get(`/households/${householdId}/finance/recurring-costs${q}`),
+          api.get(`/households/${householdId}/finance/credit-cards${q}`),
+          api.get(`/households/${householdId}/finance/pensions${q}`),
+          api.get(`/households/${householdId}/finance/savings/pots${q}`), // Should ideally filter by savings that belong to profile
           api.get(`/system/holidays`),
           api.get(`/households/${householdId}/vehicles`),
           api.get(`/households/${householdId}/assets`),
-          api.get(`/households/${householdId}/finance/savings`),
-          api.get(`/households/${householdId}/finance/investments`),
-          api.get(`/households/${householdId}/finance/current-accounts`),
+          api.get(`/households/${householdId}/finance/savings${q}`),
+          api.get(`/households/${householdId}/finance/investments${q}`),
+          api.get(`/households/${householdId}/finance/current-accounts${q}`),
           api.get(`/households/${householdId}/dates`),
-          api.get(`/households/${householdId}/finance/mortgages`),
-          api.get(`/households/${householdId}/finance/vehicle-finance`),
+          api.get(`/households/${householdId}/finance/mortgages${q}`),
+          api.get(`/households/${householdId}/finance/vehicle-finance${q}`),
           api.get(`/households/${householdId}/details`)
       ]);
 
@@ -312,11 +311,12 @@ export default function BudgetView() {
           vehicle_finance: vFinRes.data || [],
           house_details: detailRes.data || {}
       });
+      // Filter pots client side if needed, but for now assume savings accounts are filtered so pots are relevant
       setSavingsPots(potRes.data || []);
       setBankHolidays(holidayRes.data || []);
       setCalendarDates(dateRes.data || []);
     } catch (err) { console.error("Failed to fetch budget data", err); } finally { setLoading(false); }
-  }, [api, householdId]);
+  }, [api, householdId, financialProfileId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -547,18 +547,9 @@ export default function BudgetView() {
              if (String(accountId || 'null') !== String(filterAccount)) return;
           }
 
-          // Profile Filter Check
-          if (filterProfile) {
-             const profileId = item.financial_profile_id;
-             // If item has no profile (legacy), maybe show it or hide? 
-             // Logic: If filter is set, show matching. If item is null, only show if filter is null (which shouldn't happen with default)
-             // Ideally everything has a profile now due to backfill.
-             if (profileId && String(profileId) !== String(filterProfile)) return;
-          }
-
-          const key = `${type}_${item.id || 'fixed'}_${format(dateObj, 'ddMM')}`; 
+          const key = `${type}_${item.id || 'fixed'}_${format(dateObj, 'ddMM')}`;
           // O(1) Lookup
-          const progressItem = progressMap.get(key); 
+          const progressItem = progressMap.get(key);
           
           if (hidePaid && progressItem?.is_paid === 1) return;
 
@@ -802,7 +793,7 @@ export default function BudgetView() {
       };
 
       return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, groupList, skipped, budgetLabelDate, incomeGroup, eventsPerDay };
-  }, [incomes, liabilities, progress, viewDate, getPriorWorkingDay, getAdjustedDate, savingsPots, getNextWorkingDay, members, sortConfig, searchQuery, groupBy, filterEntity, hidePaid, calendarDates, bankHolidays]);
+  }, [incomes, liabilities, progress, viewDate, getPriorWorkingDay, getAdjustedDate, savingsPots, getNextWorkingDay, members, sortConfig, searchQuery, groupBy, filterEntity, hidePaid, calendarDates, bankHolidays, financialProfileId]);
 
   const currentCycleRecord = useMemo(() => cycles.find(c => c.cycle_start === cycleData?.cycleKey), [cycles, cycleData]);
   
@@ -849,9 +840,10 @@ export default function BudgetView() {
               cycle_start: cycleData.cycleKey, 
               actual_pay: parseFloat(pay) || 0, 
               current_balance: parseFloat(balance) || 0,
-              bank_account_id: accountId
+              bank_account_id: accountId,
+              financial_profile_id: financialProfileId
           });
-          const res = await api.get(`/households/${householdId}/finance/budget-cycles`);
+          const res = await api.get(`/households/${householdId}/finance/budget-cycles?financial_profile_id=${financialProfileId}`);
           setCycles(res.data || []);
       } catch (err) { console.error("Failed to save cycle data", err); }
   };
@@ -865,7 +857,8 @@ export default function BudgetView() {
               item_key: itemKey, 
               is_paid: isPaid, 
               actual_amount: parseFloat(amount) || 0,
-              actual_date: actualDate
+              actual_date: actualDate,
+              financial_profile_id: financialProfileId
           });
           fetchData();
       } catch (err) { console.error("Failed to update actual amount", err); }
@@ -900,9 +893,9 @@ export default function BudgetView() {
 
       try {
           if (isCurrentlyPaid) {
-              await api.delete(`/households/${householdId}/finance/budget-progress/${cycleData.cycleKey}/${itemKey}`);
+              await api.delete(`/households/${householdId}/finance/budget-progress/${cycleData.cycleKey}/${itemKey}?financial_profile_id=${financialProfileId}`);
           } else { 
-              await api.post(`/households/${householdId}/finance/budget-progress`, { cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: 1, actual_amount: amount }); 
+              await api.post(`/households/${householdId}/finance/budget-progress`, { cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: 1, actual_amount: amount, financial_profile_id: financialProfileId }); 
           }
           fetchData();
       } catch (err) { 
@@ -916,7 +909,7 @@ export default function BudgetView() {
   const handleResetCycle = () => {
       confirmAction("Reset Month?", "Are you sure? This clears progress.", async () => {
           try {
-              await api.delete(`/households/${householdId}/finance/budget-cycles/${cycleData.cycleKey}`);
+              await api.delete(`/households/${householdId}/finance/budget-cycles/${cycleData.cycleKey}?financial_profile_id=${financialProfileId}`);
               showNotification("Budget cycle reset.", "success");
               fetchData();
           } catch { showNotification("Failed to reset cycle.", "danger"); }
@@ -941,7 +934,7 @@ export default function BudgetView() {
 
       confirmAction("Disable Item?", "Remove from this month's budget?", async () => {
           try {
-              await api.post(`/households/${householdId}/finance/budget-progress`, { cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: -1, actual_amount: 0 });
+              await api.post(`/households/${householdId}/finance/budget-progress`, { cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: -1, actual_amount: 0, financial_profile_id: financialProfileId });
               showNotification("Item skipped.", "success");
               fetchData();
           } catch { showNotification("Failed.", "danger"); }
@@ -950,7 +943,7 @@ export default function BudgetView() {
 
   const handleRestoreItem = async (itemKey) => {
       try {
-          await api.delete(`/households/${householdId}/finance/budget-progress/${cycleData.cycleKey}/${itemKey}`);
+          await api.delete(`/households/${householdId}/finance/budget-progress/${cycleData.cycleKey}/${itemKey}?financial_profile_id=${financialProfileId}`);
           showNotification("Item restored.", "success");
           fetchData();
       } catch { showNotification("Failed.", "danger"); }
@@ -970,7 +963,7 @@ export default function BudgetView() {
         object_id: null,
         adjust_for_working_day: 1,
         bank_account_id: data.bank_account_id || null,
-        financial_profile_id: data.financial_profile_id || null,
+        financial_profile_id: financialProfileId || null,
         emoji: selectedEmoji
       };
       try {
@@ -994,7 +987,7 @@ export default function BudgetView() {
       object_id: null,
       adjust_for_working_day: 1,
       bank_account_id: data.bank_account_id || null,
-      financial_profile_id: data.financial_profile_id || null,
+      financial_profile_id: financialProfileId || null,
       emoji: selectedEmoji
     };
     try {
@@ -1020,7 +1013,7 @@ export default function BudgetView() {
         object_id: id === 'null' ? null : id,
         adjust_for_working_day: data.nearest_working_day === "1" ? 1 : 0,
         bank_account_id: data.bank_account_id || null,
-        financial_profile_id: data.financial_profile_id || null,
+        financial_profile_id: financialProfileId || null,
         emoji: selectedEmoji,
         metadata: recurringMetadata
       };
@@ -1305,7 +1298,7 @@ export default function BudgetView() {
           <td style={{ textAlign: 'right', width: 110 }}>
               <Input 
                   size="sm" type="number" variant="soft" 
-                  sx={{ width: 100, textAlign: 'right', '& input': { textAlign: 'right' } }} 
+                  sx={{ width: 100, textAlign: 'right', '& input': { textAlign: 'right' } }}
                   defaultValue={Number(exp.amount).toFixed(2)} 
                   onBlur={(e) => updateActualAmount(exp.key, e.target.value)} 
                   onClick={(e) => e.stopPropagation()}
@@ -1320,7 +1313,7 @@ export default function BudgetView() {
                   uncheckedIcon={<RadioButtonUnchecked sx={{ fontSize: '1.2rem' }} />} 
                   checkedIcon={<CheckCircle color="success" sx={{ fontSize: '1.2rem' }} />} 
                   onClick={(e) => e.stopPropagation()} 
-                  sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }} 
+                  sx={{ bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }}
               />
           </td>
           <td style={{ textAlign: 'center', width: 60 }}>
@@ -1544,14 +1537,6 @@ export default function BudgetView() {
                     ))}
                 </Select>
 
-                <Box sx={{ width: { xs: '100%', sm: 180 } }}>
-                    <FinancialProfileSelector 
-                        value={filterProfile} 
-                        onChange={setFilterProfile} 
-                        label={null} 
-                    />
-                </Box>
-
                 <Select 
                     size="sm" 
                     value={groupBy} 
@@ -1734,9 +1719,8 @@ export default function BudgetView() {
 
         <Grid container spacing={3}>
             <Grid xs={12} md={3}>
-                <Stack spacing={3}>{
-                    /* Income Source Cards */
-                    }                    {incomeGroup && (
+                <Stack spacing={3}>{/* Income Source Cards */}
+                    {incomeGroup && (
                         <Box>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
                                 <Typography level="title-md" startDecorator={<Payments />}>Income Sources</Typography>
@@ -1998,298 +1982,162 @@ export default function BudgetView() {
                             )}
 
                             {/* 7. Overdrafts */}
-                            {currentAccounts.some(acc => acc.current_balance < 0) && (
+                            {lowestProjected < 0 && (
                                 <Box>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                        <Typography level="body-xs" fontWeight="bold" color="danger">Overdrafts</Typography>
+                                        <Typography level="body-xs" fontWeight="bold" color="danger">Projected Overdraft</Typography>
                                         <Typography level="body-xs" color="danger">
-                                            -{formatCurrency(currentAccounts.reduce((sum, acc) => sum + (acc.current_balance < 0 ? Math.abs(acc.current_balance) : 0), 0))}
+                                            {formatCurrency(lowestProjected)}
                                         </Typography>
                                     </Box>
+                                    <Typography level="body-xs" color="neutral">Peak deficit this month.</Typography>
                                 </Box>
                             )}
-
-                            <Divider />
-
-                            {/* 8. Savings & Pots (Original) */}
-                            {liabilities.savings.map(acc => (
-                                <Box key={acc.id}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                        <Typography level="body-xs" fontWeight="bold">{acc.account_name}</Typography>
-                                        <Typography level="body-xs">{formatCurrency(acc.current_balance)}</Typography>
-                                    </Box>
-                                    <List size="sm" sx={{ '--ListItem-paddingLeft': '0px' }}>{savingsPots.filter(p => p.savings_id === acc.id).map(pot => (
-                                            <ListItem key={pot.id}>
-                                                <ListItemDecorator>{pot.emoji}</ListItemDecorator>
-                                                <ListItemContent>
-                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                                                        <Typography level="body-xs">{pot.name}</Typography>
-                                                        <Typography level="body-xs" fontWeight="bold">{formatCurrency(pot.current_amount)}</Typography>
-                                                    </Box>
-                                                    <LinearProgress 
-                                                        determinate 
-                                                        value={Math.min(100, Math.max(0, (pot.current_amount / (pot.target_amount || 1)) * 100))} 
-                                                        size="sm" 
-                                                        color="success" 
-                                                        sx={{ mt: 0.5 }}
-                                                    />
-                                                </ListItemContent>
-                                            </ListItem>
-                                        ))}</List>
-                                </Box>
-                            ))}
                         </Stack>
                     </Card>
                 </Stack>
             </Grid>
 
-            <Grid xs={12} md={9} sx={{ overflowX: 'hidden' }}>
-                {otherGroups.map(renderSection)}
+            {/* Main Content: Expense Groups */}
+            <Grid xs={12} md={9}>
+                {cycleData.groupList.map(renderSection)}
+                {cycleData.groupList.length === 0 && (
+                    <Box sx={{ textAlign: 'center', py: 8, opacity: 0.5 }}>
+                        <Typography level="h4">No expenses found.</Typography>
+                        <Typography>Add recurring costs or transactions to build your budget.</Typography>
+                    </Box>
+                )}
                 
-                {cycleData.skipped?.length > 0 && (
-                        <Accordion expanded={sectionsOpen.skipped} onChange={() => setSectionsOpen(p => ({ ...p, skipped: !p.skipped }))} variant="outlined" sx={{ borderRadius: 'md', mt: 4, borderColor: 'neutral.300', opacity: 0.8 }}>
-                            <AccordionSummary expandIcon={<ExpandMore />}>
-                                <Typography level="title-md" color="neutral" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <RemoveCircleOutline /> Skipped Items ({cycleData.skipped.length})
-                                </Typography>
-                            </AccordionSummary>
-                            <AccordionDetails sx={{ p: 0 }}>
-                                <Sheet sx={{ overflowX: 'auto', borderRadius: 'md' }}>
-                                    <Table hoverRow sx={{ tableLayout: 'fixed', minWidth: { xs: 400, sm: '100%' } }}>
-                                        <thead>
-                                            <tr>
-                                                <th>Item</th>
-                                                <th sx={{ width: { xs: 80, sm: 140 } }}>Category</th>
-                                                <th sx={{ width: 100, textAlign: 'right' }}>Amount</th>
-                                                <th sx={{ width: 100, textAlign: 'center' }}>Restore</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {cycleData.skipped.map(exp => (
-                                                <tr key={exp.key} style={{ opacity: 0.6 }}>
-                                                    <td>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                            <Avatar size="sm" sx={{ width: 20, height: 20, fontSize: '0.65rem' }}>{exp.icon}</Avatar>
-                                                            <Typography level="body-xs" sx={{ textDecoration: 'line-through', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{exp.label}</Typography>
-                                                        </Box>
-                                                    </td>
-                                                    <td><Chip size="sm" variant="soft" color="neutral" sx={{ fontSize: '0.6rem' }}>{exp.category}</Chip></td>
-                                                    <td sx={{ textAlign: 'right' }}><Typography level="body-xs">{formatCurrency(exp.amount)}</Typography></td>
-                                                    <td sx={{ textAlign: 'center' }}>
-                                                        <Button size="sm" variant="plain" color="primary" startDecorator={<Restore />} onClick={() => handleRestoreItem(exp.key)}>Restore</Button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </Table>
-                                </Sheet>
-                            </AccordionDetails>
-                        </Accordion>
-                    )}
+                {cycleData.skipped.length > 0 && (
+                    <Accordion variant="soft" sx={{ borderRadius: 'md', mt: 4, bgcolor: 'background.level1' }}>
+                        <AccordionSummary expandIcon={<ExpandMore />}><Typography level="title-sm">Skipped Items ({cycleData.skipped.length})</Typography></AccordionSummary>
+                        <AccordionDetails>
+                            <Stack spacing={1}>
+                                {cycleData.skipped.map(item => (
+                                    <Box key={item.key} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1 }}>
+                                        <Typography level="body-sm" sx={{ textDecoration: 'line-through', opacity: 0.7 }}>{item.label}</Typography>
+                                        <Button size="sm" variant="plain" startDecorator={<Restore />} onClick={() => handleRestoreItem(item.key)}>Restore</Button>
+                                    </Box>
+                                ))}
+                            </Stack>
+                        </AccordionDetails>
+                    </Accordion>
+                )}
             </Grid>
         </Grid>
 
-        {/* SETUP MODAL */}
-        <Modal open={setupModalOpen}>
-            <ModalDialog sx={{ maxWidth: 500, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>
-                <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
-                    <Box sx={{ position: 'relative' }}>
-                        <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: 'primary.solidBg', fontSize: '2rem' }}>🗓️</Avatar>
-                    </Box>
-                    <Box sx={{ flexGrow: 1 }}>
-                        <DialogTitle>Setup Budget</DialogTitle>
-                        <Typography level="body-sm" color="neutral">{format(cycleData.budgetLabelDate, 'MMMM yyyy')}</Typography>
-                    </Box>
-                </Box>
-                <DialogContent sx={{ overflowX: 'hidden' }}>
-                    <Typography>Let's get started. Projected income for this cycle is <b>{formatCurrency(projectedIncomeTotal)}</b>.</Typography>
-                    <Stack spacing={2} sx={{ mt: 2 }}>
+        {/* --- MODALS --- */}
+        <Modal open={setupModalOpen} onClose={() => {}}>
+            <ModalDialog>
+                <DialogTitle>Budget Setup: {cycleData.label}</DialogTitle>
+                <DialogContent>
+                    <Typography level="body-sm" sx={{ mb: 2 }}>
+                        New budget cycle detected ({format(cycleData.startDate, 'do MMM')}). How should we start?
+                    </Typography>
+                    <Stack spacing={2}>
                         <Button size="lg" variant="solid" color="primary" onClick={() => handleSetupBudget('fresh')}> 
-                            Start Fresh (Balance = Pay)
+                            Start Fresh (Zero Balance)
                         </Button>
-                        {cycles.length > 0 && (
-                            <Button size="lg" variant="soft" color="neutral" onClick={() => handleSetupBudget('copy')}> 
-                                Copy Previous Month's Pay Settings
-                            </Button>
-                        )}
+                        <Button size="lg" variant="soft" color="neutral" onClick={() => handleSetupBudget('copy')}> 
+                            Copy Last Month's Balance
+                        </Button>
+                        <Divider>OR</Divider>
+                        <Typography level="body-xs">Auto-set to projected income:</Typography>
+                        <Button size="lg" variant="outlined" color="success" onClick={() => handleSetupBudget('income')}> 
+                            Set to {formatCurrency(projectedIncomeTotal)}
+                        </Button>
                     </Stack>
+                </DialogContent>
+            </ModalDialog>
+        </Modal>
+
+        {/* Quick Add Modal */}
+        <Modal open={quickAddOpen} onClose={() => setQuickAddOpen(false)}>
+            <ModalDialog>
+                <DialogTitle>Add One-off Expense</DialogTitle>
+                <DialogContent>
+                    <form onSubmit={handleQuickAdd}>
+                        <Stack spacing={2}>
+                            <FormControl required><FormLabel>Item Name</FormLabel><Input name="name" autoFocus /></FormControl>
+                            <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" step="0.01" /></FormControl>
+                            <FormControl required><FormLabel>Date</FormLabel><Input name="start_date" type="date" defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
+                            <AppSelect label="Category" name="category" defaultValue="other" options={getCategoryOptions()} />
+                            <FormControl><FormLabel>Paid From</FormLabel><AppSelect name="bank_account_id" options={currentAccounts.map(a => ({ value: a.id, label: a.account_name }))} /></FormControl>
+                            <Button type="submit">Add Expense</Button>
+                        </Stack>
+                    </form>
                 </DialogContent>
             </ModalDialog>
         </Modal>
 
         {/* Adhoc Income Modal */}
         <Modal open={adhocIncomeOpen} onClose={() => setAdhocIncomeOpen(false)}>
-            <ModalDialog sx={{ maxWidth: 450, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>
-                <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
-                    <Box sx={{ position: 'relative' }}>
-                        <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(selectedEmoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => setPickerOpen(true)}>{selectedEmoji}</Avatar>
-                        <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => setPickerOpen(true)}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
-                    </Box>
-                    <Box sx={{ flexGrow: 1 }}>
-                        <DialogTitle>Add Adhoc Income</DialogTitle>
-                        <Typography level="body-sm" color="neutral">eBay winnings, gifts, or refunds.</Typography>
-                    </Box>
-                </Box>
-                <DialogContent sx={{ overflowX: 'hidden' }}>
+            <ModalDialog>
+                <DialogTitle>Add Adhoc Income</DialogTitle>
+                <DialogContent>
                     <form onSubmit={handleAdhocIncome}>
                         <Stack spacing={2}>
-                            <FormControl required><FormLabel>Source / Description</FormLabel><Input name="name" autoFocus placeholder="e.g. eBay Refund" /></FormControl>
-                            <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: '0.01' } }} /></FormControl>
+                            <FormControl required><FormLabel>Source / Description</FormLabel><Input name="name" autoFocus /></FormControl>
+                            <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" step="0.01" /></FormControl>
                             <FormControl required><FormLabel>Date Received</FormLabel><Input name="start_date" type="date" defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
-                            <FormControl required={currentAccounts.length > 0}>
-                                <FormLabel>Bank Account</FormLabel>
-                                <Select 
-                                    name="bank_account_id" 
-                                    placeholder={currentAccounts.length === 0 ? "No accounts available" : "Select Account"}
-                                    disabled={currentAccounts.length === 0}
-                                    defaultValue={currentAccounts.length > 0 ? currentAccounts[0].id : null}
-                                >
-                                    {currentAccounts.map(acc => (
-                                        <Option key={acc.id} value={acc.id}>{acc.emoji} {acc.account_name}</Option>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                            <FinancialProfileSelector name="financial_profile_id" required />
-                            <Button type="submit" fullWidth startDecorator={<Add />}>Add to Income Sources</Button>
+                            <FormControl><FormLabel>Deposit To</FormLabel><AppSelect name="bank_account_id" options={currentAccounts.map(a => ({ value: a.id, label: a.account_name }))} /></FormControl>
+                            <Button type="submit" color="success">Add Income</Button>
                         </Stack>
                     </form>
                 </DialogContent>
             </ModalDialog>
         </Modal>
 
-        {/* Quick Add */}
-        <Modal open={quickAddOpen} onClose={() => setQuickAddOpen(false)}>
-            <ModalDialog sx={{ maxWidth: 450, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>
-                <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
-                    <Box sx={{ position: 'relative' }}>
-                        <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(selectedEmoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => setPickerOpen(true)}>{selectedEmoji}</Avatar>
-                        <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => setPickerOpen(true)}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
-                    </Box>
-                    <Box sx={{ flexGrow: 1 }}>
-                        <DialogTitle>Add One-off Expense</DialogTitle>
-                        <Typography level="body-sm" color="neutral">Single transaction for this month.</Typography>
-                    </Box>
-                </Box>
-                <DialogContent sx={{ overflowX: 'hidden' }}>
-                    <form onSubmit={handleQuickAdd}>
-                        <Stack spacing={2}>
-                            <FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus /></FormControl>
-                            <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: '0.01' } }} /></FormControl>
-                            <FormControl required><FormLabel>Charge Date</FormLabel><Input name="start_date" type="date" defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
-                            <FormControl required={currentAccounts.length > 0}>
-                                <FormLabel>Bank Account</FormLabel>
-                                <Select 
-                                    name="bank_account_id" 
-                                    placeholder={currentAccounts.length === 0 ? "No accounts available" : "Select Account"}
-                                    disabled={currentAccounts.length === 0}
-                                    defaultValue={currentAccounts.length > 0 ? currentAccounts[0].id : null}
-                                >
-                                    {currentAccounts.map(acc => (
-                                        <Option key={acc.id} value={acc.id}>{acc.emoji} {acc.account_name}</Option>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                            <FinancialProfileSelector name="financial_profile_id" required />
-                            <Button type="submit" fullWidth>Add to Cycle</Button>
-                        </Stack>
-                    </form>
-                </DialogContent>
-            </ModalDialog>
-        </Modal>
-        
-        {/* Recurring Add */}
+        {/* Recurring Modal */}
         <Modal open={recurringAddOpen} onClose={() => setRecurringAddOpen(false)}>
-            <ModalDialog sx={{ maxWidth: 550, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>
-                 <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
-                    <Box sx={{ position: 'relative' }}>
-                        <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(selectedEmoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => setPickerOpen(true)}>{selectedEmoji}</Avatar>
-                        <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => setPickerOpen(true)}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
-                    </Box>
-                    <Box sx={{ flexGrow: 1 }}>
-                        <DialogTitle>Add Recurring Expense</DialogTitle>
-                        <Typography level="body-sm" color="neutral">Subscriptions, bills, and regular costs.</Typography>
-                    </Box>
-                </Box>
-                <DialogContent sx={{ overflowX: 'hidden' }}>
+            <ModalDialog sx={{ maxWidth: 600, width: '100%', overflow: 'auto' }}>
+                <DialogTitle>Add Recurring Expense</DialogTitle>
+                <DialogContent>
                     <form onSubmit={handleRecurringAdd}>
                         <Stack spacing={2}>
-                            <FormControl>
-                                <FormLabel>Assign To</FormLabel>
-                                <Select 
-                                    value={selectedEntity} 
-                                    onChange={(e, val) => {
-                                        setSelectedEntity(val);
-                                        const opts = getCategoryOptions(val);
-                                        setRecurringCategory(opts[0]?.value || 'other');
-                                        setRecurringMetadata({});
-                                    }}
-                                    placeholder="Select Household, Person, Vehicle..."
-                                >{entityGroupsOptions.map((group, idx) => [
-                                        idx > 0 && <Divider key={`div-${idx}`} />,
-                                        <Typography level="body-xs" fontWeight="bold" sx={{ px: 1.5, py: 0.5, color: 'primary.500' }} key={`header-${idx}`}>
-                                            {group.label}
-                                        </Typography>,
-                                        ...group.options.map(opt => (
-                                            <Option key={opt.value} value={opt.value}>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                    <Avatar size="sm" sx={{ width: 20, height: 20, fontSize: '12px' }}>{opt.emoji}</Avatar>
-                                                    {opt.label}
-                                                </Box>
-                                            </Option>
-                                        ))
-                                    ])}
-                                </Select>
-                            </FormControl>
-
                             <Grid container spacing={2}>
-                                <Grid xs={6}>
-                                    <AppSelect 
-                                        label="Category" 
-                                        name="category" 
-                                        value={recurringCategory}
-                                        onChange={(val) => { setRecurringCategory(val); setRecurringMetadata({}); }}
-                                        options={getCategoryOptions(selectedEntity)} 
-                                    />
+                                <Grid xs={12} sm={6}>
+                                    <FormControl required><FormLabel>Name</FormLabel><Input name="name" /></FormControl>
                                 </Grid>
-                                <Grid xs={6}>
-                                    <AppSelect label="Frequency" value={recurringType} onChange={setRecurringType} options={[ 
-                                        { value: 'weekly', label: 'Weekly' },
-                                        { value: 'monthly', label: 'Monthly' },
-                                        { value: 'quarterly', label: 'Quarterly' },
-                                        { value: 'yearly', label: 'Yearly' }
-                                    ]} />
+                                <Grid xs={12} sm={6}>
+                                    <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" step="0.01" /></FormControl>
+                                </Grid>
+                            </Grid>
+                            
+                            <Grid container spacing={2}>
+                                <Grid xs={12} sm={6}>
+                                    <AppSelect label="Frequency" value={recurringType} onChange={setRecurringType} options={[{ value: 'monthly', label: 'Monthly' }, { value: 'weekly', label: 'Weekly' }, { value: 'quarterly', label: 'Quarterly' }, { value: 'yearly', label: 'Yearly' }]} />
+                                </Grid>
+                                <Grid xs={12} sm={6}>
+                                    <FormControl required><FormLabel>Start Date</FormLabel><Input name="start_date" type="date" defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
                                 </Grid>
                             </Grid>
 
-                            <FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus placeholder="e.g. Netflix, Car Insurance" /></FormControl>
-                            <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" step="0.01" /></FormControl>
-                            <FormControl required><FormLabel>First Charge Date</FormLabel><Input name="start_date" type="date" required defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
-                            
-                            <FormControl required={currentAccounts.length > 0}>
-                                <FormLabel>Bank Account</FormLabel>
-                                <Select 
-                                    name="bank_account_id" 
-                                    placeholder={currentAccounts.length === 0 ? "No accounts available" : "Select Account"}
-                                    disabled={currentAccounts.length === 0}
-                                    defaultValue={currentAccounts.length > 0 ? currentAccounts[0].id : null}
-                                >
-                                    {currentAccounts.map(acc => (
-                                        <Option key={acc.id} value={acc.id}>{acc.emoji} {acc.account_name}</Option>
-                                    ))}
-                                </Select>
-                            </FormControl>
-
-                            <FinancialProfileSelector name="financial_profile_id" required />
-
-                            <MetadataFormFields 
-                                categoryId={recurringCategory} 
-                                metadata={recurringMetadata} 
-                                onChange={setRecurringMetadata} 
-                                customSchema={household?.metadata_schema ? JSON.parse(household.metadata_schema) : null}
+                            <AppSelect 
+                                label="Link to Entity (Optional)" 
+                                value={selectedEntity} 
+                                onChange={(val) => { setSelectedEntity(val); setRecurringCategory(getCategoryOptions(val)[0]?.value || 'other'); }}
+                                options={entityGroupsOptions} 
                             />
 
-                            <Checkbox label="Adjust for Working Day (Next)" name="nearest_working_day" defaultChecked value="1" />
-                            <Button type="submit" fullWidth>Add Recurring Expense</Button>
+                            <AppSelect 
+                                label="Category" 
+                                name="category" 
+                                value={recurringCategory} 
+                                onChange={setRecurringCategory} 
+                                options={getCategoryOptions(selectedEntity)} 
+                            />
+
+                            <MetadataFormFields category={recurringCategory} metadata={recurringMetadata} onChange={setRecurringMetadata} />
+
+                            <FormControl>
+                                <Checkbox label="Adjust for weekends (Nearest Working Day)" name="nearest_working_day" defaultChecked value="1" />
+                            </FormControl>
+
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+                                <Button variant="plain" color="neutral" onClick={() => setRecurringAddOpen(false)}>Cancel</Button>
+                                <Button type="submit">Save Recurring</Button>
+                            </Box>
                         </Stack>
                     </form>
                 </DialogContent>

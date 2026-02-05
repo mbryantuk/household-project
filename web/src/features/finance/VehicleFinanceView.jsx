@@ -21,7 +21,7 @@ const formatPercent = (val) => {
     return num.toFixed(2) + '%';
 };
 
-export default function VehicleFinanceView() {
+export default function VehicleFinanceView({ financialProfileId }) {
   const { api, id: householdId, user: currentUser, isDark, members, showNotification } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
@@ -58,10 +58,11 @@ export default function VehicleFinanceView() {
   }, [selectedFinance, selectedFinanceId, getAssignees, currentUser?.id, members]);
 
   const fetchData = useCallback(async () => {
+    if (!financialProfileId) return;
     setLoading(true);
     try {
       const [res, vRes, assRes] = await Promise.all([
-          api.get(`/households/${householdId}/finance/vehicle-finance`),
+          api.get(`/households/${householdId}/finance/vehicle-finance?financial_profile_id=${financialProfileId}`),
           api.get(`/households/${householdId}/vehicles`),
           api.get(`/households/${householdId}/finance/assignments?entity_type=vehicle_finance`)
       ]);
@@ -69,7 +70,7 @@ export default function VehicleFinanceView() {
       setVehicles(vRes.data || []);
       setAssignments(assRes.data || []);
     } catch (err) { console.error("Failed to fetch car finance", err); } finally { setLoading(false); }
-  }, [api, householdId]);
+  }, [api, householdId, financialProfileId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -85,6 +86,7 @@ export default function VehicleFinanceView() {
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     data.emoji = selectedEmoji;
+    data.financial_profile_id = financialProfileId;
     try {
       let itemId = selectedFinanceId;
       if (selectedFinanceId === 'new') {

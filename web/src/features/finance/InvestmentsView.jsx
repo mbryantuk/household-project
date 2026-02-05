@@ -17,7 +17,7 @@ const formatCurrency = (val, currencyCode = 'GBP') => {
     } catch { return `£${num.toFixed(2)}`; }
 };
 
-export default function InvestmentsView() {
+export default function InvestmentsView({ financialProfileId }) {
   const { api, id: householdId, household, showNotification, confirmAction, isDark } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
@@ -32,12 +32,12 @@ export default function InvestmentsView() {
   });
 
   const fetchInvestments = useCallback(async () => {
-    if (!householdId) return;
+    if (!householdId || !financialProfileId) return;
     try {
-      const res = await api.get(`/households/${householdId}/finance/investments`);
+      const res = await api.get(`/households/${householdId}/finance/investments?financial_profile_id=${financialProfileId}`);
       setInvestments(res.data || []);
     } catch (err) { console.error(err); }
-  }, [api, householdId]);
+  }, [api, householdId, financialProfileId]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -79,6 +79,7 @@ export default function InvestmentsView() {
       
       const payload = {
           ...formData,
+          financial_profile_id: financialProfileId,
           current_value: parseFloat(formData.current_value) || 0,
           total_invested: parseFloat(formData.total_invested) || 0
       };

@@ -124,7 +124,21 @@ export default function RecurringChargesWidget({
     setOpen(true);
   };
 
-  const handleSave = async () => {
+    const filteredAccounts = useMemo(() => {
+        if (!formData.financial_profile_id) return accounts;
+        return accounts.filter(a => String(a.financial_profile_id) === String(formData.financial_profile_id));
+    }, [accounts, formData.financial_profile_id]);
+
+    useEffect(() => {
+        if (filteredAccounts.length === 1 && !formData.bank_account_id) {
+            setFormData(prev => ({ ...prev, bank_account_id: filteredAccounts[0].id }));
+        } else if (filteredAccounts.length > 0 && formData.bank_account_id && !filteredAccounts.find(a => a.id === formData.bank_account_id)) {
+             // If selected account is no longer valid for this profile, clear it
+             setFormData(prev => ({ ...prev, bank_account_id: null }));
+        }
+    }, [filteredAccounts, formData.bank_account_id]);
+
+    const handleSave = async () => {
       if (!formData.bank_account_id && accounts.length > 0) {
           showNotification("Please select a bank account.", "warning");
           return;
@@ -253,15 +267,15 @@ export default function RecurringChargesWidget({
                         </FormControl>
                     </Grid>
                     <Grid xs={12} sm={4}>
-                        <FormControl required={accounts.length > 0}>
+                        <FormControl required={filteredAccounts.length > 0}>
                             <FormLabel>Bank Account</FormLabel>
                             <Select 
                                 value={formData.bank_account_id} 
                                 onChange={(e, v) => setFormData({ ...formData, bank_account_id: v })}
-                                placeholder={accounts.length === 0 ? "No accounts available" : "Select Account"}
-                                disabled={accounts.length === 0}
+                                placeholder={filteredAccounts.length === 0 ? "No accounts available" : "Select Account"}
+                                disabled={filteredAccounts.length === 0}
                             >
-                                {accounts.map(acc => (
+                                {filteredAccounts.map(acc => (
                                     <Option key={acc.id} value={acc.id}>
                                         {acc.emoji} {acc.account_name}
                                     </Option>

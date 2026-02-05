@@ -341,20 +341,22 @@ const TENANT_SCHEMA = [
     )`,
     `CREATE TABLE IF NOT EXISTS finance_budget_progress (
         household_id INTEGER,
+        financial_profile_id INTEGER,
         cycle_start DATE, -- The payday date starting this cycle
         item_key TEXT,    -- Format: 'type_id' e.g. 'mortgage_5'
         is_paid INTEGER DEFAULT 0,
         actual_amount REAL,
         actual_date DATE,
-        PRIMARY KEY (household_id, cycle_start, item_key)
+        PRIMARY KEY (household_id, financial_profile_id, cycle_start, item_key)
     )`,
     `CREATE TABLE IF NOT EXISTS finance_budget_cycles (
         household_id INTEGER,
+        financial_profile_id INTEGER,
         cycle_start DATE, 
         actual_pay REAL,
         current_balance REAL,
         bank_account_id INTEGER,
-        PRIMARY KEY (household_id, cycle_start),
+        PRIMARY KEY (household_id, financial_profile_id, cycle_start),
         FOREIGN KEY(bank_account_id) REFERENCES finance_current_accounts(id) ON DELETE SET NULL
     )`,
     `CREATE TABLE IF NOT EXISTS finance_assignments (
@@ -544,6 +546,55 @@ function initializeHouseholdSchema(db) {
                                                     ];
                                                     tables.forEach(t => {
                                                         db.run(`UPDATE ${t} SET financial_profile_id = ? WHERE financial_profile_id IS NULL`, [defaultProfileId]);
+                                                    });
+
+                                                    // 🛠️ MIGRATION: Recreate Budget Tables for Multi-Profile PK
+                                                    db.all("PRAGMA table_info(finance_budget_cycles)", (err, info) => {
+                                                        if (!info.some(c => c.name === 'financial_profile_id')) {
+                                                            console.log("🛠️ Migrating: Recreating Budget Tables for Multi-Profile...");
+                                                            db.serialize(() => {
+                                                                db.all("SELECT * FROM finance_budget_cycles", [], (err, oldCycles) => {
+                                                                    db.all("SELECT * FROM finance_budget_progress", [], (err, oldProgress) => {
+                                                                        db.run("DROP TABLE IF EXISTS finance_budget_cycles");
+                                                                        db.run("DROP TABLE IF EXISTS finance_budget_progress");
+                                                                        
+                                                                        db.run(`CREATE TABLE IF NOT EXISTS finance_budget_progress (
+                                                                            household_id INTEGER,
+                                                                            financial_profile_id INTEGER,
+                                                                            cycle_start DATE,
+                                                                            item_key TEXT,
+                                                                            is_paid INTEGER DEFAULT 0,
+                                                                            actual_amount REAL,
+                                                                            actual_date DATE,
+                                                                            PRIMARY KEY (household_id, financial_profile_id, cycle_start, item_key)
+                                                                        )`);
+                                                                        db.run(`CREATE TABLE IF NOT EXISTS finance_budget_cycles (
+                                                                            household_id INTEGER,
+                                                                            financial_profile_id INTEGER,
+                                                                            cycle_start DATE, 
+                                                                            actual_pay REAL,
+                                                                            current_balance REAL,
+                                                                            bank_account_id INTEGER,
+                                                                            PRIMARY KEY (household_id, financial_profile_id, cycle_start),
+                                                                            FOREIGN KEY(bank_account_id) REFERENCES finance_current_accounts(id) ON DELETE SET NULL
+                                                                        )`);
+
+                                                                        if (oldCycles && oldCycles.length > 0) {
+                                                                            const stmtCyc = db.prepare("INSERT INTO finance_budget_cycles (household_id, financial_profile_id, cycle_start, actual_pay, current_balance, bank_account_id) VALUES (?, ?, ?, ?, ?, ?)");
+                                                                            oldCycles.forEach(c => stmtCyc.run(c.household_id, defaultProfileId, c.cycle_start, c.actual_pay, c.current_balance, c.bank_account_id));
+                                                                            stmtCyc.finalize();
+                                                                        }
+
+                                                                        if (oldProgress && oldProgress.length > 0) {
+                                                                            const stmtProg = db.prepare("INSERT INTO finance_budget_progress (household_id, financial_profile_id, cycle_start, item_key, is_paid, actual_amount, actual_date) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                                                                            oldProgress.forEach(p => stmtProg.run(p.household_id, defaultProfileId, p.cycle_start, p.item_key, p.is_paid, p.actual_amount, p.actual_date));
+                                                                            stmtProg.finalize();
+                                                                        }
+                                                                        console.log("✅ Budget Tables Migrated.");
+                                                                    });
+                                                                });
+                                                            });
+                                                        }
                                                     });
                                                 }
                                             });
