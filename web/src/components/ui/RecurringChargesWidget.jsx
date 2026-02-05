@@ -60,6 +60,7 @@ export default function RecurringChargesWidget({
     title = "Costs & Expenses", showNotification, confirmAction
 }) {
   const [charges, setCharges] = useState([]);
+  const [accounts, setAccounts] = useState([]);
   const [activeTab, setActiveTab] = useState(0);
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -69,25 +70,25 @@ export default function RecurringChargesWidget({
   const [formData, setFormData] = useState({
     name: '', amount: '', category_id: segments[0]?.id || 'other',
     frequency: 'monthly', start_date: format(new Date(), 'yyyy-MM-dd'),
-    adjust_for_working_day: true, notes: '', emoji: '💸', metadata: {}
+    adjust_for_working_day: true, bank_account_id: null, notes: '', emoji: '💸', metadata: {}
   });
 
-  const fetchCharges = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     if (!householdId) return;
     setLoading(true);
     try {
-      // Use the new consolidated recurring-costs endpoint
-      const res = await api.get(`/households/${householdId}/finance/recurring-costs`, {
-        params: {
-          object_type: entityType,
-          object_id: entityId
-        }
-      });
-      setCharges(res.data);
+      const [chargeRes, accRes] = await Promise.all([
+          api.get(`/households/${householdId}/finance/recurring-costs`, {
+            params: { object_type: entityType, object_id: entityId }
+          }),
+          api.get(`/households/${householdId}/finance/current-accounts`)
+      ]);
+      setCharges(chargeRes.data);
+      setAccounts(accRes.data || []);
     } catch (err) { console.error(err); } finally { setLoading(false); }
   }, [api, householdId, entityType, entityId]);
 
-  useEffect(() => { fetchCharges(); }, [fetchCharges]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const currentSegmentId = segments[activeTab]?.id || 'other';
   const filteredCharges = useMemo(() => charges.filter(c => {
@@ -101,7 +102,9 @@ export default function RecurringChargesWidget({
     setFormData({
       name: '', amount: '', category_id: currentSegmentId,
       frequency: 'monthly', start_date: format(new Date(), 'yyyy-MM-dd'),
-      adjust_for_working_day: true, notes: '', emoji: '💸', metadata: {}
+      adjust_for_working_day: true, 
+      bank_account_id: accounts.length > 0 ? accounts[0].id : null, 
+      notes: '', emoji: '💸', metadata: {}
     });
   };
 
@@ -110,13 +113,19 @@ export default function RecurringChargesWidget({
     setFormData({
       name: charge.name, amount: charge.amount, category_id: charge.category_id || 'other',
       frequency: charge.frequency, start_date: charge.start_date || format(new Date(), 'yyyy-MM-dd'),
-      adjust_for_working_day: !!charge.adjust_for_working_day, notes: charge.notes || '',
+      adjust_for_working_day: !!charge.adjust_for_working_day, 
+      bank_account_id: charge.bank_account_id || (accounts.length > 0 ? accounts[0].id : null),
+      notes: charge.notes || '',
       emoji: charge.emoji || '💸', metadata: charge.metadata || {}
     });
     setOpen(true);
   };
 
   const handleSave = async () => {
+      if (!formData.bank_account_id && accounts.length > 0) {
+          showNotification("Please select a bank account.", "warning");
+          return;
+      }
       try {
           const url = editingId 
             ? `/households/${householdId}/finance/recurring-costs/${editingId}` 
@@ -130,7 +139,7 @@ export default function RecurringChargesWidget({
 
           await api[editingId ? 'put' : 'post'](url, payload);
           showNotification(editingId ? "Updated." : "Created.", "success");
-          setOpen(false); setEditingId(null); fetchCharges();
+          setOpen(false); setEditingId(null); fetchData();
       } catch { showNotification("Error saving.", "danger"); }
   };
 
@@ -224,7 +233,7 @@ export default function RecurringChargesWidget({
                 </FormControl>
                 
                 <Grid container spacing={2}>
-                    <Grid xs={12} sm={6}>
+                    <Grid xs={12} sm={4}>
                         <FormControl required>
                             <FormLabel>Category</FormLabel>
                             <Select value={formData.category_id} onChange={(e, v) => setFormData({ ...formData, category_id: v })}>
@@ -234,10 +243,27 @@ export default function RecurringChargesWidget({
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid xs={12} sm={6}>
+                    <Grid xs={12} sm={4}>
                         <FormControl required>
                             <FormLabel>Amount</FormLabel>
                             <Input type="number" startDecorator={household?.currency === '$' ? '$' : '£'} value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} />
+                        </FormControl>
+                    </Grid>
+                    <Grid xs={12} sm={4}>
+                        <FormControl required={accounts.length > 0}>
+                            <FormLabel>Bank Account</FormLabel>
+                            <Select 
+                                value={formData.bank_account_id} 
+                                onChange={(e, v) => setFormData({ ...formData, bank_account_id: v })}
+                                placeholder={accounts.length === 0 ? "No accounts available" : "Select Account"}
+                                disabled={accounts.length === 0}
+                            >
+                                {accounts.map(acc => (
+                                    <Option key={acc.id} value={acc.id}>
+                                        {acc.emoji} {acc.account_name}
+                                    </Option>
+                                ))}
+                            </Select>
                         </FormControl>
                     </Grid>
                 </Grid>

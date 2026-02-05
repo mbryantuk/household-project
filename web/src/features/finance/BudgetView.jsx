@@ -244,6 +244,7 @@ export default function BudgetView() {
   const [sectionsOpen, setSectionsOpen] = useState({ income: true, bills: true, finance: true, wealth: true, skipped: true, birthdays: true });
   const [groupBy, setGroupBy] = useState('standard'); // standard, category, object, date
   const [filterEntity, setFilterEntity] = useState('all');
+  const [filterAccount, setFilterAccount] = useState('all');
 
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: 'computedDate', direction: 'asc' });
@@ -536,6 +537,12 @@ export default function BudgetView() {
                   // If it's a direct recurring cost, check its object_type/id
                   if (item.object_type !== fType || String(item.object_id || 'null') !== fId) return;
               }
+          }
+
+          // Account Filter Check
+          if (filterAccount && filterAccount !== 'all') {
+             const accountId = item.bank_account_id;
+             if (String(accountId || 'null') !== String(filterAccount)) return;
           }
 
           const key = `${type}_${item.id || 'fixed'}_${format(dateObj, 'ddMM')}`; 
@@ -951,6 +958,7 @@ export default function BudgetView() {
         object_type: 'household',
         object_id: null,
         adjust_for_working_day: 1,
+        bank_account_id: data.bank_account_id || null,
         emoji: selectedEmoji
       };
       try {
@@ -973,6 +981,7 @@ export default function BudgetView() {
       object_type: 'household',
       object_id: null,
       adjust_for_working_day: 1,
+      bank_account_id: data.bank_account_id || null,
       emoji: selectedEmoji
     };
     try {
@@ -997,6 +1006,7 @@ export default function BudgetView() {
         object_type: type,
         object_id: id === 'null' ? null : id,
         adjust_for_working_day: data.nearest_working_day === "1" ? 1 : 0,
+        bank_account_id: data.bank_account_id || null,
         emoji: selectedEmoji,
         metadata: recurringMetadata
       };
@@ -1501,6 +1511,23 @@ export default function BudgetView() {
                             </Option>
                         ))
                     ])}
+                </Select>
+
+                <Select 
+                    size="sm" 
+                    value={filterAccount} 
+                    onChange={(e, val) => setFilterAccount(val)}
+                    placeholder="All Accounts"
+                    startDecorator={<AccountBalanceWallet />}
+                    sx={{ width: { xs: '100%', sm: 160 } }}
+                >
+                    <Option value="all">All Accounts</Option>
+                    <Divider />
+                    {currentAccounts.map(acc => (
+                        <Option key={acc.id} value={String(acc.id)}>
+                            {acc.emoji} {acc.account_name}
+                        </Option>
+                    ))}
                 </Select>
 
                 <Select 
@@ -2087,6 +2114,19 @@ export default function BudgetView() {
                             <FormControl required><FormLabel>Source / Description</FormLabel><Input name="name" autoFocus placeholder="e.g. eBay Refund" /></FormControl>
                             <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: '0.01' } }} /></FormControl>
                             <FormControl required><FormLabel>Date Received</FormLabel><Input name="start_date" type="date" defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
+                            <FormControl required={currentAccounts.length > 0}>
+                                <FormLabel>Bank Account</FormLabel>
+                                <Select 
+                                    name="bank_account_id" 
+                                    placeholder={currentAccounts.length === 0 ? "No accounts available" : "Select Account"}
+                                    disabled={currentAccounts.length === 0}
+                                    defaultValue={currentAccounts.length > 0 ? currentAccounts[0].id : null}
+                                >
+                                    {currentAccounts.map(acc => (
+                                        <Option key={acc.id} value={acc.id}>{acc.emoji} {acc.account_name}</Option>
+                                    ))}
+                                </Select>
+                            </FormControl>
                             <Button type="submit" fullWidth startDecorator={<Add />}>Add to Income Sources</Button>
                         </Stack>
                     </form>
@@ -2113,6 +2153,19 @@ export default function BudgetView() {
                             <FormControl required><FormLabel>Name</FormLabel><Input name="name" autoFocus /></FormControl>
                             <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" slotProps={{ input: { step: '0.01' } }} /></FormControl>
                             <FormControl required><FormLabel>Charge Date</FormLabel><Input name="start_date" type="date" defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
+                            <FormControl required={currentAccounts.length > 0}>
+                                <FormLabel>Bank Account</FormLabel>
+                                <Select 
+                                    name="bank_account_id" 
+                                    placeholder={currentAccounts.length === 0 ? "No accounts available" : "Select Account"}
+                                    disabled={currentAccounts.length === 0}
+                                    defaultValue={currentAccounts.length > 0 ? currentAccounts[0].id : null}
+                                >
+                                    {currentAccounts.map(acc => (
+                                        <Option key={acc.id} value={acc.id}>{acc.emoji} {acc.account_name}</Option>
+                                    ))}
+                                </Select>
+                            </FormControl>
                             <Button type="submit" fullWidth>Add to Cycle</Button>
                         </Stack>
                     </form>
@@ -2188,6 +2241,20 @@ export default function BudgetView() {
                             <FormControl required><FormLabel>Amount (£)</FormLabel><Input name="amount" type="number" step="0.01" /></FormControl>
                             <FormControl required><FormLabel>First Charge Date</FormLabel><Input name="start_date" type="date" required defaultValue={format(new Date(), 'yyyy-MM-dd')} /></FormControl>
                             
+                            <FormControl required={currentAccounts.length > 0}>
+                                <FormLabel>Bank Account</FormLabel>
+                                <Select 
+                                    name="bank_account_id" 
+                                    placeholder={currentAccounts.length === 0 ? "No accounts available" : "Select Account"}
+                                    disabled={currentAccounts.length === 0}
+                                    defaultValue={currentAccounts.length > 0 ? currentAccounts[0].id : null}
+                                >
+                                    {currentAccounts.map(acc => (
+                                        <Option key={acc.id} value={acc.id}>{acc.emoji} {acc.account_name}</Option>
+                                    ))}
+                                </Select>
+                            </FormControl>
+
                             <MetadataFormFields 
                                 categoryId={recurringCategory} 
                                 metadata={recurringMetadata} 

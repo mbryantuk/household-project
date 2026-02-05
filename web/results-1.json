@@ -70,7 +70,7 @@
           "specs": [
             {
               "title": "Setup Foundation",
-              "ok": true,
+              "ok": false,
               "tags": [],
               "tests": [
                 {
@@ -83,172 +83,120 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 32336,
-                      "errors": [],
+                      "status": "failed",
+                      "duration": 52963,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/.*login/\u001b[39m\nReceived string:  \u001b[31m\"http://localhost:4001/register\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    19 × unexpected value \"http://localhost:4001/register\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/.*login/\u001b[39m\nReceived string:  \u001b[31m\"http://localhost:4001/register\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    19 × unexpected value \"http://localhost:4001/register\"\u001b[22m\n\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:61:36\n    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:49:24)\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:43:5",
+                        "location": {
+                          "file": "/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js",
+                          "column": 36,
+                          "line": 61
+                        },
+                        "snippet": "  59 |             \n  60 |             try {\n> 61 |                 await expect(page).toHaveURL(/.*login/, { timeout: 15000 });\n     |                                    ^\n  62 |                 success = true;\n  63 |                 registeredAdminEmail = attemptEmail;\n  64 |             } catch (err) {"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js",
+                            "column": 36,
+                            "line": 61
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/.*login/\u001b[39m\nReceived string:  \u001b[31m\"http://localhost:4001/register\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    19 × unexpected value \"http://localhost:4001/register\"\u001b[22m\n\n\n  59 |             \n  60 |             try {\n> 61 |                 await expect(page).toHaveURL(/.*login/, { timeout: 15000 });\n     |                                    ^\n  62 |                 success = true;\n  63 |                 registeredAdminEmail = attemptEmail;\n  64 |             } catch (err) {\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:61:36\n    at withTimeout (/home/matt/household-project/web/tests/utils/testLogger.js:49:24)\n    at /home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js:43:5"
+                        }
+                      ],
                       "stdout": [
                         {
-                          "text": "[2026-02-04T19:52:35.266Z] [STEP: Mike Registration] Starting...\n"
+                          "text": "[2026-02-05T00:04:11.684Z] [STEP: Mike Registration] Starting...\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:35.269Z] [STEP: Mike Registration] Attempt 1...\n"
+                          "text": "[2026-02-05T00:04:11.687Z] [STEP: Mike Registration] Attempt 1...\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:35.893Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-05T00:04:12.119Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:35.895Z] [STEP: BROWSER] Content is cached for offline use.\n"
+                          "text": "[2026-02-05T00:04:12.119Z] [STEP: BROWSER] Content is cached for offline use.\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:36.123Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-05T00:04:12.296Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:36.643Z] [STEP: Mike Registration] [1.38s] Completed successfully.\n"
+                          "text": "[2026-02-05T00:04:12.566Z] [STEP: API_ERROR] http://localhost:4001/auth/register returned 503\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:36.643Z] [STEP: Mike Login] Starting...\n"
+                          "text": "[2026-02-05T00:04:12.566Z] [STEP: BROWSER] Failed to load resource: the server responded with a status of 503 (Service Unavailable)\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:37.050Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-05T00:04:12.569Z] [STEP: BROWSER] Registration error: He\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:37.522Z] [STEP: Mike Login] [0.88s] Completed successfully.\n"
+                          "text": "[2026-02-05T00:04:27.574Z] [STEP: Mike Registration] [15.89s] Attempt 1 FAILED. Page Error: System Upgrade in Progress\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:37.522Z] [STEP: Foundation] Brady Household ID: 3643\n"
+                          "text": "[2026-02-05T00:04:29.579Z] [STEP: Mike Registration] Attempt 2...\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:37.522Z] [STEP: Route Check] Starting...\n"
+                          "text": "[2026-02-05T00:04:29.766Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:37.523Z] [STEP: Route Check] Checking /dashboard\n"
+                          "text": "[2026-02-05T00:04:29.994Z] [STEP: API_ERROR] http://localhost:4001/auth/register returned 503\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:37.658Z] [STEP: Route Check] Checking /calendar\n"
+                          "text": "[2026-02-05T00:04:29.998Z] [STEP: BROWSER] Failed to load resource: the server responded with a status of 503 (Service Unavailable)\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:37.789Z] [STEP: Route Check] Checking /house\n"
+                          "text": "[2026-02-05T00:04:30.003Z] [STEP: BROWSER] Registration error: He\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:37.911Z] [STEP: Route Check] Checking /meals\n"
+                          "text": "[2026-02-05T00:04:44.999Z] [STEP: Mike Registration] [33.31s] Attempt 2 FAILED. Page Error: System Upgrade in Progress\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:38.290Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-05T00:04:47.002Z] [STEP: Mike Registration] Attempt 3...\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:38.358Z] [STEP: Route Check] Checking /finance\n"
+                          "text": "[2026-02-05T00:04:47.197Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:38.639Z] [STEP: Route Check] Checking /settings\n"
+                          "text": "[2026-02-05T00:04:47.420Z] [STEP: API_ERROR] http://localhost:4001/auth/register returned 503\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:38.843Z] [STEP: Route Check] [1.32s] Completed successfully.\n"
+                          "text": "[2026-02-05T00:04:47.421Z] [STEP: BROWSER] Failed to load resource: the server responded with a status of 503 (Service Unavailable)\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:38.843Z] [STEP: Grant Lead Architect Access] Starting...\n"
+                          "text": "[2026-02-05T00:04:47.421Z] [STEP: BROWSER] Registration error: He\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:39.115Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[2026-02-05T00:05:02.426Z] [STEP: Mike Registration] [50.74s] Attempt 3 FAILED. Page Error: System Upgrade in Progress\n"
                         },
                         {
-                          "text": "[2026-02-04T19:52:39.894Z] [STEP: Grant Access] Inviting mbryantuk@gmail.com as Admin\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:41.162Z] [STEP: Grant Lead Architect Access] [2.32s] Completed successfully.\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:41.162Z] [STEP: Invite Family] Starting...\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:41.325Z] [STEP: Invite Family] Inviting Carol (Standard Member)\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:41.472Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:42.873Z] [STEP: Invite Family] Inviting Greg (Viewer (Read-only))\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:44.121Z] [STEP: Invite Family] Inviting Marcia (Viewer (Read-only))\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:45.113Z] [STEP: Invite Family] Inviting Peter (Viewer (Read-only))\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:46.362Z] [STEP: Invite Family] Inviting Jan (Viewer (Read-only))\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:47.434Z] [STEP: Invite Family] Inviting Bobby (Viewer (Read-only))\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:48.509Z] [STEP: Invite Family] Inviting Cindy (Viewer (Read-only))\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:49.855Z] [STEP: Invite Family] [8.69s] Completed successfully.\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:49.855Z] [STEP: Add Residents, Pets, Vehicles & House] Starting...\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:49.994Z] [STEP: Add Residents] Adding Mike (Adult, Age: 40)\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:50.158Z] [STEP: BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:51.673Z] [STEP: Add Residents] Adding Carol (Adult, Age: 35)\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:52.514Z] [STEP: Add Residents] Adding Alice (Adult, Age: 45)\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:53.431Z] [STEP: Add Residents] Adding Greg (Child, Age: 14)\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:54.475Z] [STEP: Add Residents] Adding Marcia (Child, Age: 13)\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:55.490Z] [STEP: Add Residents] Adding Peter (Child, Age: 11)\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:56.463Z] [STEP: Add Residents] Adding Jan (Child, Age: 10)\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:57.533Z] [STEP: Add Residents] Adding Bobby (Child, Age: 8)\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:58.639Z] [STEP: Add Residents] Adding Cindy (Child, Age: 7)\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:52:59.555Z] [STEP: Add Residents] Adding Tiger (Pet, Age: 5)\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:53:00.830Z] [STEP: Add Residents] Adding Fluffy (Pet, Age: 3)\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:53:01.801Z] [STEP: Add Residents] Adding Vehicle: Chevrolet Kingswood Estate\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:53:02.929Z] [STEP: Add Residents] Adding Vehicle: Chevrolet Chevelle Wagon\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:53:03.649Z] [STEP: Add Residents] Setting up Property Details\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:53:04.516Z] [STEP: Add Residents] Adding Property Assets\n"
-                        },
-                        {
-                          "text": "[2026-02-04T19:53:05.053Z] [STEP: Add Residents, Pets, Vehicles & House] [15.20s] Completed successfully.\n"
+                          "text": "[2026-02-05T00:05:02.426Z] [STEP: Mike Registration] [50.74s] FAILED: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/.*login/\u001b[39m\nReceived string:  \u001b[31m\"http://localhost:4001/register\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    19 × unexpected value \"http://localhost:4001/register\"\u001b[22m\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-04T19:52:32.397Z",
+                      "startTime": "2026-02-05T00:04:09.476Z",
                       "annotations": [],
-                      "attachments": []
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/lifecycle_1_foundation-Bra-8f4d8-Foundation-Setup-Foundation-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/lifecycle_1_foundation-Bra-8f4d8-Foundation-Setup-Foundation-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/matt/household-project/web/tests/lifecycle_1_foundation.spec.js",
+                        "column": 36,
+                        "line": 61
+                      }
                     }
                   ],
-                  "status": "expected"
+                  "status": "unexpected"
                 }
               ],
               "id": "1e6f3fac90a232f03b11-e3160800fed256b60c8c",
@@ -263,11 +211,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-04T19:52:29.482Z",
-    "duration": 35988.896,
-    "expected": 1,
+    "startTime": "2026-02-05T00:04:07.537Z",
+    "duration": 55090.651,
+    "expected": 0,
     "skipped": 0,
-    "unexpected": 0,
+    "unexpected": 1,
     "flaky": 0
   }
 }

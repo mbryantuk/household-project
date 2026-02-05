@@ -503,7 +503,8 @@ function initializeHouseholdSchema(db) {
                             ['finance_investments', 'monthly_contribution', 'REAL DEFAULT 0'],
                             ['finance_investments', 'payment_day', 'INTEGER'],
                             ['finance_budget_cycles', 'bank_account_id', 'INTEGER'],
-                            ['vehicles', 'current_value', 'REAL DEFAULT 0']
+                            ['vehicles', 'current_value', 'REAL DEFAULT 0'],
+                            ['recurring_costs', 'bank_account_id', 'INTEGER']
                         ];
 
                         let migrationsDone = 0;

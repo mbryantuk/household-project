@@ -150,64 +150,88 @@ async function seed() {
             purchase_value: 95000, current_value: 88000
         }, token);
 
+        // 7. FINANCIAL ACCOUNTS
+        // Lower balance and add overdraft limit
+        const bank1 = await apiRequest('POST', `/api/households/${hhId}/finance/current-accounts`, { 
+            bank_name: "Wells Fargo", 
+            account_name: "Joint Checking", 
+            current_balance: 9300,
+            overdraft_limit: 200,
+            emoji: "🏦"
+        }, token);
+
+        const bank2 = await apiRequest('POST', `/api/households/${hhId}/finance/current-accounts`, { 
+            bank_name: "Chase", 
+            account_name: "Bills Account", 
+            current_balance: 1500,
+            overdraft_limit: 0,
+            emoji: "💳"
+        }, token);
+        
+        const mainBankId = bank1.data.id;
+        const billsBankId = bank2.data.id;
+
         // 6. CONSOLIDATED RECURRING COSTS
         const costDefs = [
-            // Household Utility/Tax/Insurance
-            { n: "Council Tax", a: 280, c: "council", f: "monthly", d: 1, ot: "household" },
-            { n: "LA Water", a: 45, c: "water", f: "monthly", d: 15, ot: "household", m: { meter_serial: "H2O-555", supply_type: "metered" } },
-            { n: "Pacific Power", a: 250, c: "energy", f: "monthly", d: 20, ot: "household", m: { account_number: "ELEC-222" } },
-            { n: "Home Insurance", a: 65, c: "insurance", f: "monthly", d: 12, ot: "household", m: { policy_number: "H-9988-77", provider: "State Farm" } },
-            { n: "Life Insurance (Mike)", a: 40, c: "insurance", f: "monthly", d: 1, ot: "member", oi: members.Mike },
-            { n: "Life Insurance (Carol)", a: 35, c: "insurance", f: "monthly", d: 1, ot: "member", oi: members.Carol },
-            { n: "Home Emergency Cover", a: 15, c: "insurance", f: "monthly", d: 15, ot: "household" },
+            // Household Utility/Tax/Insurance (Paid from Bills Account)
+            { n: "Council Tax", a: 280, c: "council", f: "monthly", d: 1, ot: "household", ba: billsBankId },
+            { n: "LA Water", a: 45, c: "water", f: "monthly", d: 15, ot: "household", m: { meter_serial: "H2O-555", supply_type: "metered" }, ba: billsBankId },
+            { n: "Pacific Power", a: 250, c: "energy", f: "monthly", d: 20, ot: "household", m: { account_number: "ELEC-222" }, ba: billsBankId },
+            { n: "Home Insurance", a: 65, c: "insurance", f: "monthly", d: 12, ot: "household", m: { policy_number: "H-9988-77", provider: "State Farm" }, ba: billsBankId },
             
-            // Subscriptions & Tech
-            { n: "Netflix Premium", a: 18, c: "subscription", f: "monthly", d: 20, ot: "household" },
-            { n: "Disney+", a: 12, c: "subscription", f: "monthly", d: 5, ot: "household" },
-            { n: "Amazon Prime", a: 10, c: "subscription", f: "monthly", d: 14, ot: "household" },
-            { n: "Spotify Family", a: 17, c: "subscription", f: "monthly", d: 2, ot: "household" },
+            // Life Insurance (Paid from Main)
+            { n: "Life Insurance (Mike)", a: 40, c: "insurance", f: "monthly", d: 1, ot: "member", oi: members.Mike, ba: mainBankId },
+            { n: "Life Insurance (Carol)", a: 35, c: "insurance", f: "monthly", d: 1, ot: "member", oi: members.Carol, ba: mainBankId },
+            { n: "Home Emergency Cover", a: 15, c: "insurance", f: "monthly", d: 15, ot: "household", ba: billsBankId },
             
-            // Vehicle Costs (Tesla)
-            { n: "Tesla Insurance", a: 120, c: "insurance", f: "monthly", d: 7, ot: "vehicle", oi: v1.data.id },
-            { n: "Tesla Service Plan", a: 45, c: "vehicle_service", f: "monthly", d: 10, ot: "vehicle", oi: v1.data.id },
-            { n: "Tesla Extended Warranty", a: 35, c: "insurance", f: "monthly", d: 10, ot: "vehicle", oi: v1.data.id },
+            // Subscriptions & Tech (Main)
+            { n: "Netflix Premium", a: 18, c: "subscription", f: "monthly", d: 20, ot: "household", ba: mainBankId },
+            { n: "Disney+", a: 12, c: "subscription", f: "monthly", d: 5, ot: "household", ba: mainBankId },
+            { n: "Amazon Prime", a: 10, c: "subscription", f: "monthly", d: 14, ot: "household", ba: mainBankId },
+            { n: "Spotify Family", a: 17, c: "subscription", f: "monthly", d: 2, ot: "household", ba: mainBankId },
             
-            // Vehicle Costs (Rivian)
-            { n: "Rivian Insurance", a: 135, c: "insurance", f: "monthly", d: 18, ot: "vehicle", oi: v2.data.id },
-            { n: "Rivian Service", a: 50, c: "vehicle_service", f: "monthly", d: 14, ot: "vehicle", oi: v2.data.id },
-            { n: "Rivian Warranty", a: 40, c: "insurance", f: "monthly", d: 14, ot: "vehicle", oi: v2.data.id },
+            // Vehicle Costs (Tesla) - Main
+            { n: "Tesla Insurance", a: 120, c: "insurance", f: "monthly", d: 7, ot: "vehicle", oi: v1.data.id, ba: mainBankId },
+            { n: "Tesla Service Plan", a: 45, c: "vehicle_service", f: "monthly", d: 10, ot: "vehicle", oi: v1.data.id, ba: mainBankId },
+            { n: "Tesla Extended Warranty", a: 35, c: "insurance", f: "monthly", d: 10, ot: "vehicle", oi: v1.data.id, ba: mainBankId },
             
-            // Adults Fun Money
-            { n: "Golf Club (Mike)", a: 150, c: "fun_money", f: "monthly", d: 1, ot: "member", oi: members.Mike },
-            { n: "Gym & Spa (Mike)", a: 85, c: "fun_money", f: "monthly", d: 5, ot: "member", oi: members.Mike },
-            { n: "Yoga & Pilates (Carol)", a: 120, c: "fun_money", f: "monthly", d: 3, ot: "member", oi: members.Carol },
-            { n: "Book Club & Coffee (Carol)", a: 40, c: "fun_money", f: "monthly", d: 7, ot: "member", oi: members.Carol },
-            { n: "College Social (Greg)", a: 200, c: "fun_money", f: "monthly", d: 1, ot: "member", oi: members.Greg },
-            { n: "University Fund (Marcia)", a: 200, c: "fun_money", f: "monthly", d: 1, ot: "member", oi: members.Marcia },
-            { n: "Retirement Social (Alice)", a: 100, c: "fun_money", f: "monthly", d: 1, ot: "member", oi: members.Alice },
+            // Vehicle Costs (Rivian) - Main
+            { n: "Rivian Insurance", a: 135, c: "insurance", f: "monthly", d: 18, ot: "vehicle", oi: v2.data.id, ba: mainBankId },
+            { n: "Rivian Service", a: 50, c: "vehicle_service", f: "monthly", d: 14, ot: "vehicle", oi: v2.data.id, ba: mainBankId },
+            { n: "Rivian Warranty", a: 40, c: "insurance", f: "monthly", d: 14, ot: "vehicle", oi: v2.data.id, ba: mainBankId },
+            
+            // Adults Fun Money - Main
+            { n: "Golf Club (Mike)", a: 150, c: "fun_money", f: "monthly", d: 1, ot: "member", oi: members.Mike, ba: mainBankId },
+            { n: "Gym & Spa (Mike)", a: 85, c: "fun_money", f: "monthly", d: 5, ot: "member", oi: members.Mike, ba: mainBankId },
+            { n: "Yoga & Pilates (Carol)", a: 120, c: "fun_money", f: "monthly", d: 3, ot: "member", oi: members.Carol, ba: mainBankId },
+            { n: "Book Club & Coffee (Carol)", a: 40, c: "fun_money", f: "monthly", d: 7, ot: "member", oi: members.Carol, ba: mainBankId },
+            { n: "College Social (Greg)", a: 200, c: "fun_money", f: "monthly", d: 1, ot: "member", oi: members.Greg, ba: mainBankId },
+            { n: "University Fund (Marcia)", a: 200, c: "fun_money", f: "monthly", d: 1, ot: "member", oi: members.Marcia, ba: mainBankId },
+            { n: "Retirement Social (Alice)", a: 100, c: "fun_money", f: "monthly", d: 1, ot: "member", oi: members.Alice, ba: mainBankId },
 
-            // Kids Pocket Money
-            { n: "Pocket Money (Peter)", a: 25, c: "pocket_money", f: "monthly", d: 1, ot: "member", oi: members.Peter },
-            { n: "Pocket Money (Jan)", a: 25, c: "pocket_money", f: "monthly", d: 1, ot: "member", oi: members.Jan },
-            { n: "Pocket Money (Bobby)", a: 20, c: "pocket_money", f: "monthly", d: 1, ot: "member", oi: members.Bobby },
-            { n: "Pocket Money (Cindy)", a: 20, c: "pocket_money", f: "monthly", d: 1, ot: "member", oi: members.Cindy },
+            // Kids Pocket Money - Main
+            { n: "Pocket Money (Peter)", a: 25, c: "pocket_money", f: "monthly", d: 1, ot: "member", oi: members.Peter, ba: mainBankId },
+            { n: "Pocket Money (Jan)", a: 25, c: "pocket_money", f: "monthly", d: 1, ot: "member", oi: members.Jan, ba: mainBankId },
+            { n: "Pocket Money (Bobby)", a: 20, c: "pocket_money", f: "monthly", d: 1, ot: "member", oi: members.Bobby, ba: mainBankId },
+            { n: "Pocket Money (Cindy)", a: 20, c: "pocket_money", f: "monthly", d: 1, ot: "member", oi: members.Cindy, ba: mainBankId },
 
-            // Pet Expenses
-            { n: "Dog Food (Tiger)", a: 60, c: "food", f: "monthly", d: 5, ot: "member", oi: members.Tiger },
-            { n: "Pet Insurance (Tiger)", a: 45, c: "insurance", f: "monthly", d: 10, ot: "member", oi: members.Tiger },
-            { n: "Vet Wellness Plan (Tiger)", a: 25, c: "health", f: "monthly", d: 15, ot: "member", oi: members.Tiger },
-            { n: "Cat Food (Fluffy)", a: 40, c: "food", f: "monthly", d: 5, ot: "member", oi: members.Fluffy },
-            { n: "Pet Insurance (Fluffy)", a: 30, c: "insurance", f: "monthly", d: 10, ot: "member", oi: members.Fluffy },
-            { n: "Vet Wellness Plan (Fluffy)", a: 20, c: "health", f: "monthly", d: 15, ot: "member", oi: members.Fluffy },
+            // Pet Expenses - Main
+            { n: "Dog Food (Tiger)", a: 60, c: "food", f: "monthly", d: 5, ot: "member", oi: members.Tiger, ba: mainBankId },
+            { n: "Pet Insurance (Tiger)", a: 45, c: "insurance", f: "monthly", d: 10, ot: "member", oi: members.Tiger, ba: mainBankId },
+            { n: "Vet Wellness Plan (Tiger)", a: 25, c: "health", f: "monthly", d: 15, ot: "member", oi: members.Tiger, ba: mainBankId },
+            { n: "Cat Food (Fluffy)", a: 40, c: "food", f: "monthly", d: 5, ot: "member", oi: members.Fluffy, ba: mainBankId },
+            { n: "Pet Insurance (Fluffy)", a: 30, c: "insurance", f: "monthly", d: 10, ot: "member", oi: members.Fluffy, ba: mainBankId },
+            { n: "Vet Wellness Plan (Fluffy)", a: 20, c: "health", f: "monthly", d: 15, ot: "member", oi: members.Fluffy, ba: mainBankId },
 
             // TRIGGER OVERDRAFT (Home Office Expansion)
-            { n: "Home Office Expansion Loan", a: 3200, c: "loan", f: "monthly", d: 10, ot: "household" }
+            { n: "Home Office Expansion Loan", a: 3200, c: "loan", f: "monthly", d: 10, ot: "household", ba: mainBankId }
         ];
 
         for (const c of costDefs) {
             await apiRequest('POST', `/api/households/${hhId}/finance/recurring-costs`, {
                 name: c.n, amount: c.a, category_id: c.c, frequency: c.f, 
                 day_of_month: c.d, object_type: c.ot, object_id: c.oi || null,
+                bank_account_id: c.ba,
                 metadata: c.m || {}
             }, token);
         }
@@ -221,19 +245,11 @@ async function seed() {
             is_all_day: 1
         }, token);
 
-        // 7. FINANCIAL ACCOUNTS
-        // Lower balance and add overdraft limit
-        const bank1 = await apiRequest('POST', `/api/households/${hhId}/finance/current-accounts`, { 
-            bank_name: "Wells Fargo", 
-            account_name: "Checking", 
-            current_balance: 9300,
-            overdraft_limit: 200 
-        }, token);
         
         // Mike gets paid late in the month (28th) - but for THIS cycle (starting Jan 28) we assume he was JUST paid
-        const mikeInc = await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "Brady Architecture", amount: 9500, is_primary: 1, payment_day: 28, bank_account_id: bank1.data.id, member_id: members.Mike }, token);
+        const mikeInc = await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "Brady Architecture", amount: 9500, is_primary: 1, payment_day: 28, bank_account_id: mainBankId, member_id: members.Mike }, token);
         // Carol gets paid on the 20th
-        await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "WFH Creative", amount: 6200, is_primary: 0, payment_day: 20, bank_account_id: bank1.data.id, member_id: members.Carol }, token);
+        await apiRequest('POST', `/api/households/${hhId}/finance/income`, { employer: "WFH Creative", amount: 6200, is_primary: 0, payment_day: 20, bank_account_id: mainBankId, member_id: members.Carol }, token);
         
         // INITIALIZE BUDGET CYCLE
         const cycleKey = '2026-01-28';
@@ -241,7 +257,7 @@ async function seed() {
             cycle_start: cycleKey,
             actual_pay: 15700,
             current_balance: 9300,
-            bank_account_id: bank1.data.id
+            bank_account_id: mainBankId
         }, token);
 
         // MARK MIKE'S INCOME AS PAID FOR THIS CYCLE

@@ -4,6 +4,13 @@ module.exports = {
   moduleNameMapper: {
     '@scalar/express-api-reference': '<rootDir>/tests/scalar-mock.js'
   },
+  setupFiles: ['<rootDir>/tests/setup.js'],
+  transform: {
+    '^.+\\.jsx?$': 'babel-jest',
+  },
+  transformIgnorePatterns: [
+    '/node_modules/(?!(@scure|otplib|qrcode|ua-parser-js)/)'
+  ],
   globalTeardown: '<rootDir>/tests/teardown.js',
   reporters: [
     'default',
