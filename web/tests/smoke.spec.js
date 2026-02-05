@@ -42,4 +42,15 @@ test.describe('Core UI Smoke Tests', () => {
         await page.click('a[href*="/meals"]');
         await expect(page.locator('h2')).toContainText('Meal Planner');
     });
+
+    test('Avatar Menu: Opens Sidebar Panel', async ({ page }) => {
+        // Click Avatar (Footer)
+        await page.locator('button:has(.MuiAvatar-root)').last().click();
+        
+        // Verify Sidebar Panel content (Account Header)
+        await expect(page.getByText('Account', { exact: true }).first()).toBeVisible();
+        await expect(page.getByText('Settings')).toBeVisible();
+        await expect(page.getByText('Switch Household')).toBeVisible();
+        await expect(page.getByText('Log Out')).toBeVisible();
+    });
 });

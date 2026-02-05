@@ -374,12 +374,21 @@ export default function NavSidebar({
                     </Tooltip>
                 )}
 
-                <Tooltip title="Account & Settings" variant="soft" placement="right">
+                <Tooltip title={isMobile ? "Account" : "Account & Settings"} variant="soft" placement="right">
                     <IconButton 
                         variant="plain" 
-                        color="neutral" 
-                        onClick={(e) => setUserMenuAnchor(userMenuAnchor ? null : e.currentTarget)}
-                        sx={{ p: 0.5, borderRadius: '50%', bgcolor: userMenuAnchor ? 'background.level1' : 'transparent' }}
+                        color={hoveredCategory === 'account' ? 'primary' : 'neutral'}
+                        onClick={(e) => {
+                            if (isMobile) {
+                                setUserMenuAnchor(userMenuAnchor ? null : e.currentTarget);
+                            } else {
+                                setHoveredCategory(hoveredCategory === 'account' ? null : 'account');
+                            }
+                        }}
+                        sx={{ 
+                            p: 0.5, borderRadius: '50%', 
+                            bgcolor: (userMenuAnchor || hoveredCategory === 'account') ? 'background.level1' : 'transparent' 
+                        }}
                     >
                         <Avatar 
                             size="sm" 
@@ -393,34 +402,37 @@ export default function NavSidebar({
                     </IconButton>
                 </Tooltip>
 
-                <Menu
-                    anchorEl={userMenuAnchor}
-                    open={Boolean(userMenuAnchor)}
-                    onClose={() => setUserMenuAnchor(null)}
-                    placement="right-end"
-                    sx={{ minWidth: 200, borderRadius: 'md', boxShadow: 'md', zIndex: 3500 }}
-                >
-                    <Box sx={{ px: 2, py: 1.5 }}>
-                        <Typography level="title-sm">{user?.first_name} {user?.last_name}</Typography>
-                        <Typography level="body-xs" color="neutral">{user?.email}</Typography>
-                    </Box>
-                    <Divider />
-                    <MenuItem onClick={() => { navigate(`/household/${household.id}/settings`); setUserMenuAnchor(null); }}>
-                        <ListItemDecorator><SettingsIcon /></ListItemDecorator>
-                        Settings
-                    </MenuItem>
-                    <MenuItem onClick={() => { navigate('/select-household'); setUserMenuAnchor(null); }}>
-                        <ListItemDecorator><HomeWork /></ListItemDecorator>
-                        Switch Household
-                    </MenuItem>
-                    <MenuItem onClick={() => { 
-                        setUserMenuAnchor(null);
-                        confirmAction("Log Out", "Are you sure you want to log out?", onLogout);
-                    }}>
-                        <ListItemDecorator><LogoutIcon color="danger" /></ListItemDecorator>
-                        Log Out
-                    </MenuItem>
-                </Menu>
+                {/* Mobile Menu */}
+                {isMobile && (
+                    <Menu
+                        anchorEl={userMenuAnchor}
+                        open={Boolean(userMenuAnchor)}
+                        onClose={() => setUserMenuAnchor(null)}
+                        placement="top-end"
+                        sx={{ minWidth: 200, borderRadius: 'md', boxShadow: 'md', zIndex: 3500 }}
+                    >
+                        <Box sx={{ px: 2, py: 1.5 }}>
+                            <Typography level="title-sm">{user?.first_name} {user?.last_name}</Typography>
+                            <Typography level="body-xs" color="neutral">{user?.email}</Typography>
+                        </Box>
+                        <Divider />
+                        <MenuItem onClick={() => { navigate(`/household/${household.id}/settings`); setUserMenuAnchor(null); }}>
+                            <ListItemDecorator><SettingsIcon /></ListItemDecorator>
+                            Settings
+                        </MenuItem>
+                        <MenuItem onClick={() => { navigate('/select-household'); setUserMenuAnchor(null); }}>
+                            <ListItemDecorator><HomeWork /></ListItemDecorator>
+                            Switch Household
+                        </MenuItem>
+                        <MenuItem onClick={() => { 
+                            setUserMenuAnchor(null);
+                            confirmAction("Log Out", "Are you sure you want to log out?", onLogout);
+                        }}>
+                            <ListItemDecorator><LogoutIcon color="danger" /></ListItemDecorator>
+                            Log Out
+                        </MenuItem>
+                    </Menu>
+                )}
             </Box>
         </Sheet>
 
@@ -443,60 +455,88 @@ export default function NavSidebar({
                     }
                 }}
             >
-                <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography level="title-md" textTransform="uppercase" letterSpacing="1px">{currentPanelCategory}</Typography>
-                    <IconButton size="sm" variant={isPinned ? "solid" : "plain"} color={isPinned ? "primary" : "neutral"} onClick={togglePin}>
-                        {isPinned ? <PushPin /> : <PushPinOutlined />}
-                    </IconButton>
-                </Box>
-                
-                <List sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>
-                    {currentPanelCategory === 'household' && (
-                        <>
-                            <GroupHeader label="Overview" />
-                            <SubItem label="House Hub" to={`/household/${household.id}/house`} emoji="🏠" isDark={isDark} onClick={handleSubItemClick} />
-                            <Divider sx={{ my: 1 }} />
-                            <GroupHeader label="Residents" />
-                            {members.filter(m => m.type !== 'pet').map(m => <SubItem key={m.id} label={m.alias || (m.name || '').split(' ')[0]} to={`/household/${household.id}/people/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
-                            {enabledModules.includes('pets') && (
-                                <>
-                                    <Divider sx={{ my: 1 }} />
-                                    <GroupHeader label="Pets" />
-                                    {members.filter(m => m.type === 'pet').map(m => <SubItem key={m.id} label={m.name} to={`/household/${household.id}/pets/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
-                                </>
-                            )}
-                            <Divider sx={{ my: 1 }} />
-                            <GroupHeader label="Fleet" />
-                            {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`/household/${household.id}/vehicles/${v.id}`} emoji={v.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
-                        </>
-                    )}
-                    {currentPanelCategory === 'finance' && (
-                        <>
-                            <Box sx={{ px: 1, mb: 2 }}>
-                                <FinanceProfileAccordion 
-                                    householdId={household.id} 
-                                    api={api} 
-                                    isDark={isDark}
-                                    currentProfileId={searchParams.get('financial_profile_id')}
-                                    onSelect={handleProfileSelect}
-                                />
+                {currentPanelCategory === 'account' ? (
+                    <>
+                        <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+                            <Typography level="title-md">Account</Typography>
+                        </Box>
+                        <Box sx={{ p: 2 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                                <Avatar size="lg" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark) }}>
+                                    {user?.avatar || user?.first_name?.[0]}
+                                </Avatar>
+                                <Box>
+                                    <Typography level="title-sm">{user?.first_name} {user?.last_name}</Typography>
+                                    <Typography level="body-xs" color="neutral">{user?.email}</Typography>
+                                </Box>
                             </Box>
-                            
-                            <GroupHeader label="Overview" /><SubItem label="Budget" to={getFinanceLink('budget')} emoji="📊" isDark={isDark} onClick={handleSubItemClick} />
-                            <Divider sx={{ my: 1 }} /><GroupHeader label="Accounts" />
-                            <SubItem label="Income" to={getFinanceLink('income')} emoji="💰" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Banking" to={getFinanceLink('banking')} emoji="🏦" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Savings" to={getFinanceLink('savings')} emoji="🐷" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Investments" to={getFinanceLink('invest')} emoji="📈" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Pensions" to={getFinanceLink('pensions')} emoji="👴" isDark={isDark} onClick={handleSubItemClick} />
-                            <Divider sx={{ my: 1 }} /><GroupHeader label="Liabilities" />
-                            <SubItem label="Credit Cards" to={getFinanceLink('credit')} emoji="💳" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Loans" to={getFinanceLink('loans')} emoji="📝" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Car Finance" to={getFinanceLink('car')} emoji="🚗" isDark={isDark} onClick={handleSubItemClick} />
-                            <SubItem label="Mortgages" to={getFinanceLink('mortgage')} emoji="🏠" isDark={isDark} onClick={handleSubItemClick} />
-                        </>
-                    )}
-                </List>
+                        </Box>
+                        
+                        <List sx={{ mt: 'auto', p: 1 }}>
+                            <Divider sx={{ mb: 1 }} />
+                            <SubItem label="Settings" onClick={() => handleNav(`/household/${household.id}/settings`, 'settings')} emoji="⚙️" isDark={isDark} />
+                            <SubItem label="Switch Household" onClick={() => handleNav('/select-household', 'switch')} emoji="🔄" isDark={isDark} />
+                            <SubItem label="Log Out" onClick={() => confirmAction("Log Out", "Are you sure?", onLogout)} emoji="🚪" isDark={isDark} />
+                        </List>
+                    </>
+                ) : (
+                    <>
+                    <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography level="title-md" textTransform="uppercase" letterSpacing="1px">{currentPanelCategory}</Typography>
+                        <IconButton size="sm" variant={isPinned ? "solid" : "plain"} color={isPinned ? "primary" : "neutral"} onClick={togglePin}>
+                            {isPinned ? <PushPin /> : <PushPinOutlined />}
+                        </IconButton>
+                    </Box>
+                    
+                    <List sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>
+                        {currentPanelCategory === 'household' && (
+                            <>
+                                <GroupHeader label="Overview" />
+                                <SubItem label="House Hub" to={`/household/${household.id}/house`} emoji="🏠" isDark={isDark} onClick={handleSubItemClick} />
+                                <Divider sx={{ my: 1 }} />
+                                <GroupHeader label="Residents" />
+                                {members.filter(m => m.type !== 'pet').map(m => <SubItem key={m.id} label={m.alias || (m.name || '').split(' ')[0]} to={`/household/${household.id}/people/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
+                                {enabledModules.includes('pets') && (
+                                    <>
+                                        <Divider sx={{ my: 1 }} />
+                                        <GroupHeader label="Pets" />
+                                        {members.filter(m => m.type === 'pet').map(m => <SubItem key={m.id} label={m.name} to={`/household/${household.id}/pets/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
+                                    </>
+                                )}
+                                <Divider sx={{ my: 1 }} />
+                                <GroupHeader label="Fleet" />
+                                {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`/household/${household.id}/vehicles/${v.id}`} emoji={v.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
+                            </>
+                        )}
+                        {currentPanelCategory === 'finance' && (
+                            <>
+                                <Box sx={{ px: 1, mb: 2 }}>
+                                    <FinanceProfileAccordion 
+                                        householdId={household.id} 
+                                        api={api} 
+                                        isDark={isDark}
+                                        currentProfileId={searchParams.get('financial_profile_id')}
+                                        onSelect={handleProfileSelect}
+                                    />
+                                </Box>
+                                
+                                <GroupHeader label="Overview" /><SubItem label="Budget" to={getFinanceLink('budget')} emoji="📊" isDark={isDark} onClick={handleSubItemClick} />
+                                <Divider sx={{ my: 1 }} /><GroupHeader label="Accounts" />
+                                <SubItem label="Income" to={getFinanceLink('income')} emoji="💰" isDark={isDark} onClick={handleSubItemClick} />
+                                <SubItem label="Banking" to={getFinanceLink('banking')} emoji="🏦" isDark={isDark} onClick={handleSubItemClick} />
+                                <SubItem label="Savings" to={getFinanceLink('savings')} emoji="🐷" isDark={isDark} onClick={handleSubItemClick} />
+                                <SubItem label="Investments" to={getFinanceLink('invest')} emoji="📈" isDark={isDark} onClick={handleSubItemClick} />
+                                <SubItem label="Pensions" to={getFinanceLink('pensions')} emoji="👴" isDark={isDark} onClick={handleSubItemClick} />
+                                <Divider sx={{ my: 1 }} /><GroupHeader label="Liabilities" />
+                                <SubItem label="Credit Cards" to={getFinanceLink('credit')} emoji="💳" isDark={isDark} onClick={handleSubItemClick} />
+                                <SubItem label="Loans" to={getFinanceLink('loans')} emoji="📝" isDark={isDark} onClick={handleSubItemClick} />
+                                <SubItem label="Car Finance" to={getFinanceLink('car')} emoji="🚗" isDark={isDark} onClick={handleSubItemClick} />
+                                <SubItem label="Mortgages" to={getFinanceLink('mortgage')} emoji="🏠" isDark={isDark} onClick={handleSubItemClick} />
+                            </>
+                        )}
+                    </List>
+                    </>
+                )}
             </Sheet>
         )}
     </Box>
