@@ -508,20 +508,9 @@ export default function NavSidebar({
                                 {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`/household/${household.id}/vehicles/${v.id}`} emoji={v.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
                             </>
                         )}
-                        {currentPanelCategory === 'finance' && (
-                            <>
-                                <Box sx={{ px: 1, mb: 2 }}>
-                                    <FinanceProfileAccordion 
-                                        householdId={household.id} 
-                                        api={api} 
-                                        isDark={isDark}
-                                        currentProfileId={searchParams.get('financial_profile_id')}
-                                        onSelect={handleProfileSelect}
-                                    />
-                                </Box>
-                                
-                                <GroupHeader label="Overview" /><SubItem label="Budget" to={getFinanceLink('budget')} emoji="📊" isDark={isDark} onClick={handleSubItemClick} />
-                                <Divider sx={{ my: 1 }} /><GroupHeader label="Accounts" />
+                                            {currentPanelCategory === 'finance' && (
+                                                <>
+                                                    <GroupHeader label="Overview" /><SubItem label="Budget" to={getFinanceLink('budget')} emoji="📊" isDark={isDark} onClick={handleSubItemClick} />                                <Divider sx={{ my: 1 }} /><GroupHeader label="Accounts" />
                                 <SubItem label="Income" to={getFinanceLink('income')} emoji="💰" isDark={isDark} onClick={handleSubItemClick} />
                                 <SubItem label="Banking" to={getFinanceLink('banking')} emoji="🏦" isDark={isDark} onClick={handleSubItemClick} />
                                 <SubItem label="Savings" to={getFinanceLink('savings')} emoji="🐷" isDark={isDark} onClick={handleSubItemClick} />

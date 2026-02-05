@@ -8,23 +8,30 @@ import { Box, Typography } from '@mui/joy';
  * @param {string} description - The sub-heading description (body-md)
  * @param {object} sx - Additional styles for the container
  */
-export default function AppHeader({ title, description, sx = {}, ...props }) {
+export default function AppHeader({ title, description, endDecorator, sx = {}, ...props }) {
   return (
-    <Box sx={{ mb: 4, ...sx }} {...props}>
-      <Typography 
-        level="h2" 
-        sx={{ 
-          fontWeight: 'lg', 
-          mb: 0.5, 
-          fontSize: '1.5rem' 
-        }}
-      >
-        {title}
-      </Typography>
-      {description && (
-        <Typography level="body-md" color="neutral">
-          {description}
+    <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 2, ...sx }} {...props}>
+      <Box>
+        <Typography 
+          level="h2" 
+          sx={{ 
+            fontWeight: 'lg', 
+            mb: 0.5, 
+            fontSize: '1.5rem' 
+          }}
+        >
+          {title}
         </Typography>
+        {description && (
+          <Typography level="body-md" color="neutral">
+            {description}
+          </Typography>
+        )}
+      </Box>
+      {endDecorator && (
+        <Box sx={{ flexShrink: 0 }}>
+            {endDecorator}
+        </Box>
       )}
     </Box>
   );
