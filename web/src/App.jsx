@@ -43,6 +43,24 @@ const FinanceView = lazy(() => import('./features/FinanceView'));
 const API_BASE = window.location.origin;
 const API_URL = `${API_BASE}/api`;
 
+// Global Axios Interceptor for default instance
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.config?.url?.includes('/errors/report')) return Promise.reject(error);
+
+    const errorData = {
+      message: `Global Axios Error: ${error.message}`,
+      status: error.response?.status,
+      url: window.location.href,
+      api_path: error.config?.url,
+      timestamp: new Date().toISOString()
+    };
+    axios.post(`${API_URL}/errors/report`, errorData).catch(() => {});
+    return Promise.reject(error);
+  }
+);
+
 const IDLE_WARNING_MS = 60 * 60 * 1000; // 1 Hour
 const IDLE_LOGOUT_MS = 120 * 60 * 1000;  // 2 Hours
 
