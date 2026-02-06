@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Aesthetic Audit: Standardized theme to Mantel #374151, introduced AppTable with StatusBar, and removed inline hex colors.",
-  "date": "Fri  6 Feb 15:40:21 GMT 2026"
+  "commitMessage": "Moved Budget Health and Wealth Tracking widgets to persistent Utility Bar and removed them from BudgetView sidebar",
+  "date": "Fri  6 Feb 16:38:29 GMT 2026"
 }

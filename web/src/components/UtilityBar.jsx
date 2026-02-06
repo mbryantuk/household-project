@@ -18,6 +18,7 @@ import CreditCard from '@mui/icons-material/CreditCard';
 import ReceiptLong from '@mui/icons-material/ReceiptLong';
 import HomeIcon from '@mui/icons-material/Home';
 import DirectionsCar from '@mui/icons-material/DirectionsCar';
+import Speed from '@mui/icons-material/Speed';
 
 import { useNavigate } from 'react-router-dom';
 import FloatingCalculator from './FloatingCalculator';
@@ -35,6 +36,8 @@ import CreditCardWidget from './widgets/CreditCardWidget';
 import LoansWidget from './widgets/LoansWidget';
 import MortgageWidget from './widgets/MortgageWidget';
 import VehicleFinanceWidget from './widgets/VehicleFinanceWidget';
+import BudgetStatusWidget from './widgets/BudgetStatusWidget';
+import WealthWidget from './widgets/WealthWidget';
 
 import { useHousehold } from '../contexts/HouseholdContext';
 
@@ -148,6 +151,15 @@ export default function UtilityBar() {
                 </WidgetWrapper>
                 <WidgetWrapper id="carfin" label="Car Finance" icon={DirectionsCar} color="danger" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <VehicleFinanceWidget api={api} household={household} />
+                </WidgetWrapper>
+
+                <Divider orientation="vertical" sx={{ mx: 0.5, height: '60%' }} />
+
+                <WidgetWrapper id="budget" label="Budget Health" icon={Speed} color="primary" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                    <BudgetStatusWidget api={api} household={household} />
+                </WidgetWrapper>
+                <WidgetWrapper id="wealth" label="Wealth Tracking" icon={Savings} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
+                    <WealthWidget api={api} household={household} />
                 </WidgetWrapper>
 
                 <Divider orientation="vertical" sx={{ mx: 0.5, height: '60%' }} />
