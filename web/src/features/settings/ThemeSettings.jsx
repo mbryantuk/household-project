@@ -12,14 +12,15 @@ export default function ThemeSettings() {
 
   // Custom Theme State
   const [customThemeConfig, setCustomThemeConfig] = useState(() => {
+    const DEFAULT_MANTEL = { mode: 'light', primary: '#374151', bg: '#F9FAFB', surface: '#FFF', selection: '#E5E7EB', text: '#111827' };
     if (user?.custom_theme) {
       try {
         return typeof user.custom_theme === 'string' 
           ? JSON.parse(user.custom_theme) 
           : user.custom_theme;
-      } catch { return { mode: 'light', primary: '#644AC9', bg: '#FFFBEB', surface: '#FFF', selection: '#CFCFDE', text: '#1F1F1F' }; }
+      } catch { return DEFAULT_MANTEL; }
     }
-    return { mode: 'light', primary: '#644AC9', bg: '#FFFBEB', surface: '#FFF', selection: '#CFCFDE', text: '#1F1F1F' };
+    return DEFAULT_MANTEL;
   });
 
   const handleSaveCustomTheme = async () => {

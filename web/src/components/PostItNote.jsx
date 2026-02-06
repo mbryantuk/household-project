@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Sheet, IconButton, Input, Typography, Box, List, ListItem, ListItemButton, Checkbox, ListItemContent } from '@mui/joy';
 import { Close, Delete, DragIndicator, OpenInNew, Add, Minimize } from '@mui/icons-material';
 
-const YELLOW = '#fff740';
+// STYLED: Adhere to "NO INLINE COLORS" rule using theme tokens.
+const STICKY_BG = 'var(--joy-palette-warning-softBg)';
+const STICKY_BORDER = 'var(--joy-palette-warning-outlinedBorder)';
 
 export default function PostItNote({ onClose, user, onUpdateProfile, onPopout, isPopout = false, isDocked = false }) {
   const [notes, setNotes] = useState(() => {
@@ -85,14 +87,15 @@ export default function PostItNote({ onClose, user, onUpdateProfile, onPopout, i
         top: (isPopout || isDocked) ? 0 : pos.y,
         width: (isPopout || isDocked) ? '100%' : 320,
         height: (isPopout || isDocked) ? '100%' : 450,
-        bgcolor: YELLOW,
+        bgcolor: STICKY_BG,
         color: 'neutral.900',
         zIndex: 1300,
         boxShadow: 'lg',
         display: 'flex',
         flexDirection: 'column',
         borderRadius: isPopout || isDocked ? 0 : 'sm',
-        border: '1px solid #e0d040',
+        border: '1px solid',
+        borderColor: STICKY_BORDER,
         opacity: isPopout || isDocked ? 1 : (isFocused ? 1 : 0.6),
         transition: 'opacity 0.2s, transform 0.2s'
       }}

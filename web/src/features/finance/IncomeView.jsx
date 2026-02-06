@@ -4,12 +4,13 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  Sheet, Table, Checkbox, Tooltip
+  Checkbox, Tooltip
 } from '@mui/joy';
 import { Edit, Delete, Add, Star, StarBorder } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
+import AppTable from '../../components/ui/AppTable';
 import EmojiPicker from '../../components/EmojiPicker';
 import { getNextPayday, getDaysUntil } from '../../utils/dateUtils';
 
@@ -29,7 +30,6 @@ export default function IncomeView({ financialProfileId }) {
   const [bankAccounts, setBankAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  const [sortConfig, setSortConfig] = useState({ key: 'employer', direction: 'asc' });
   const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
   
   // Emoji State
@@ -85,34 +85,110 @@ export default function IncomeView({ financialProfileId }) {
     navigate(`?${newParams.toString()}`, { replace: true });
   };
 
-  const processedData = useMemo(() => incomeList
-    .sort((a, b) => {
-        if (a.is_primary && !b.is_primary) return -1;
-        if (!a.is_primary && b.is_primary) return 1;
-        const valA = a[sortConfig.key] || '';
-        const valB = b[sortConfig.key] || '';
-        if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
-        if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
-        return 0;
-    }), [incomeList, sortConfig]);
+  const getMemberName = useCallback((id) => {
+      const m = members.find(m => m.id === parseInt(id));
+      return m ? (m.alias || m.name) : 'Unassigned';
+  }, [members]);
 
-  const handleSort = (key) => {
-      setSortConfig(prev => ({
-          key,
-          direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
-      }));
-  };
+  const getBankName = useCallback((id) => {
+      const b = bankAccounts.find(b => b.id === parseInt(id));
+      return b ? (b.bank_name + ' ' + b.account_name) : '-';
+  }, [bankAccounts]);
 
-  const SortableHeader = ({ label, field, width }) => (
-      <th style={{ width, cursor: 'pointer', userSelect: 'none', height: '44px' }} onClick={() => handleSort(field)}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              {label}
-              {sortConfig.key === field && (
-                  <Typography level="body-xs">{sortConfig.direction === 'asc' ? '▲' : '▼'}</Typography>
-              )}
-          </Box>
-      </th>
-  );
+  // DATA GRID COLUMNS
+  const columns = useMemo(() => [
+    { 
+        field: 'emoji', 
+        headerName: '', 
+        width: 60,
+        renderCell: (params) => (
+            <Avatar size="sm" sx={{ bgcolor: getEmojiColor(params.value || (params.row.employer||'?')[0], isDark) }}>
+                {params.value || (params.row.employer||'?')[0]}
+            </Avatar>
+        )
+    },
+    { 
+        field: 'employer', 
+        headerName: 'Employer / Source', 
+        flex: 1,
+        renderCell: (params) => (
+            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography level="body-md" sx={{ fontWeight: 'lg' }}>{params.value}</Typography>
+                    {params.row.is_primary === 1 && <Chip size="sm" color="primary" variant="solid" startDecorator={<Star sx={{ fontSize: '0.8rem' }}/>}>PRIMARY</Chip>}
+                </Box>
+                <Typography level="body-xs" color="neutral">{getBankName(params.row.bank_account_id)}</Typography>
+            </Box>
+        )
+    },
+    { field: 'role', headerName: 'Role', width: 150 },
+    { 
+        field: 'employment_type', 
+        headerName: 'Type', 
+        width: 120,
+        renderCell: (params) => (
+            <Stack direction="row" spacing={0.5} sx={{ height: '100%', alignItems: 'center' }}>
+                <Chip size="sm" variant="soft">{params.value}</Chip>
+                {params.row.work_type === 'part_time' && <Chip size="sm" color="warning">PT</Chip>}
+            </Stack>
+        )
+    },
+    { 
+        field: 'gross_annual_salary', 
+        headerName: 'Gross (Ann)', 
+        width: 130,
+        valueFormatter: (params) => params ? formatCurrency(params) : '-'
+    },
+    { 
+        field: 'amount', 
+        headerName: 'Net (Pay)', 
+        width: 130,
+        renderCell: (params) => (
+            <Typography fontWeight="bold" color="success" sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                {formatCurrency(params.value)}
+            </Typography>
+        )
+    },
+    { field: 'frequency', headerName: 'Freq', width: 100 },
+    { 
+        field: 'next_payday', 
+        headerName: 'Next Payday', 
+        width: 150,
+        renderCell: (params) => {
+            const nextPayDate = getNextPayday(params.row.payment_day);
+            if (!nextPayDate) return '-';
+            return (
+                <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}>
+                    <Chip size="sm" variant="outlined" color="primary">
+                        {format(nextPayDate, 'EEE do MMM')}
+                    </Chip>
+                    <Typography level="body-xs" color="neutral" sx={{ ml: 0.5 }}>
+                        {getDaysUntil(nextPayDate)} days
+                    </Typography>
+                </Box>
+            );
+        }
+    },
+    { 
+        field: 'member_id', 
+        headerName: 'Assignee', 
+        width: 130,
+        valueGetter: (params) => getMemberName(params)
+    },
+    {
+        field: 'actions',
+        headerName: 'Actions',
+        width: 100,
+        sortable: false,
+        filterable: false,
+        renderCell: (params) => (
+            <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end', alignItems: 'center', height: '100%' }}>
+                <IconButton size="sm" variant="plain" onClick={() => setIncomeId(params.row.id)}><Edit /></IconButton>
+                <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(params.row.id)}><Delete /></IconButton>
+            </Box>
+        )
+    }
+  ], [isDark, getBankName, getMemberName]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -157,16 +233,6 @@ export default function IncomeView({ financialProfileId }) {
     }
   };
 
-  const getMemberName = useCallback((id) => {
-      const m = members.find(m => m.id === parseInt(id));
-      return m ? (m.alias || m.name) : 'Unassigned';
-  }, [members]);
-
-  const getBankName = useCallback((id) => {
-      const b = bankAccounts.find(b => b.id === parseInt(id));
-      return b ? (b.bank_name + ' ' + b.account_name) : '-';
-  }, [bankAccounts]);
-
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
     return (
@@ -194,86 +260,16 @@ export default function IncomeView({ financialProfileId }) {
         </Box>
 
       {!isMobile ? (
-        <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto', flexGrow: 1 }}>
-            <Table hoverRow stickyHeader>
-                <thead>
-                    <tr>
-                        <th style={{ width: 50, height: '44px' }}></th>
-                        <SortableHeader label="Employer / Source" field="employer" />
-                        <SortableHeader label="Role" field="role" />
-                        <SortableHeader label="Type" field="employment_type" width={120} />
-                        <SortableHeader label="Gross (Ann)" field="gross_annual_salary" width={150} />
-                        <SortableHeader label="Net (Pay)" field="amount" width={150} />
-                        <SortableHeader label="Frequency" field="frequency" width={100} />
-                        <th style={{ width: 120 }}>Next Payday</th>
-                        <SortableHeader label="Assignee" field="member_id" width={150} />
-                        {isAdmin && <th style={{ textAlign: 'right', width: 100 }}>Actions</th>}
-                    </tr>
-                </thead>
-                <tbody>
-                    {processedData.map((row) => {
-                        const nextPayDate = getNextPayday(row.payment_day);
-                        return (
-                        <tr key={row.id}>
-                            <td style={{ height: '56px' }}>
-                                <Avatar size="sm" sx={{ bgcolor: getEmojiColor(row.emoji || (row.employer||'?')[0], isDark) }}>
-                                    {row.emoji || (row.employer||'?')[0]}
-                                </Avatar>
-                            </td>
-                            <td>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Typography level="body-md" sx={{ fontWeight: 'lg' }}>{row.employer}</Typography>
-                                    {row.is_primary === 1 && <Chip size="sm" color="primary" variant="solid" startDecorator={<Star sx={{ fontSize: '0.8rem' }}/>}>PRIMARY</Chip>}
-                                </Box>
-                                <Typography level="body-xs" color="neutral">{getBankName(row.bank_account_id)}</Typography>
-                            </td>
-                            <td>{row.role}</td>
-                            <td>
-                                <Stack direction="row" spacing={0.5}>
-                                    <Chip size="sm" variant="soft">{row.employment_type}</Chip>
-                                    {row.work_type === 'part_time' && <Chip size="sm" color="warning">PT</Chip>}
-                                </Stack>
-                            </td>
-                            <td>{row.gross_annual_salary ? formatCurrency(row.gross_annual_salary) : '-'}</td>
-                            <td>
-                                <Typography fontWeight="bold" color="success">{formatCurrency(row.amount)}</Typography>
-                            </td>
-                            <td>{row.frequency}</td>
-                            <td>
-                                {nextPayDate ? (
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                                        <Chip size="sm" variant="outlined" color="primary">
-                                            {format(nextPayDate, 'EEE do MMM')}
-                                        </Chip>
-                                        <Typography level="body-xs" color="neutral" sx={{ ml: 0.5 }}>
-                                            {getDaysUntil(nextPayDate)} days
-                                        </Typography>
-                                    </Box>
-                                ) : '-'}
-                            </td>
-                            <td>{getMemberName(row.member_id)}</td>
-                            {isAdmin && (
-                                <td style={{ textAlign: 'right' }}>
-                                    <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-                                        {!row.is_primary && (
-                                            <Tooltip title="Set as Primary Payday">
-                                                <IconButton size="sm" variant="plain" onClick={() => setPrimaryDirect(row)}><StarBorder /></IconButton>
-                                            </Tooltip>
-                                        )}
-                                        <IconButton size="sm" variant="plain" onClick={() => setIncomeId(row.id)} sx={{ minHeight: '44px', minWidth: '44px' }}><Edit /></IconButton>
-                                        <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(row.id)} sx={{ minHeight: '44px', minWidth: '44px' }}><Delete /></IconButton>
-                                    </Box>
-                                </td>
-                            )}
-                        </tr>
-                        );
-                    })}
-                </tbody>
-            </Table>
-        </Sheet>
+        <AppTable 
+            rows={incomeList} 
+            columns={columns} 
+            sumField="amount" 
+            sumLabel="Monthly Net Pay"
+            loading={loading}
+        />
       ) : (
         <Grid container spacing={2}>
-            {processedData.map(a => {
+            {incomeList.map(a => {
                 const nextPayDate = getNextPayday(a.payment_day);
                 return (
                 <Grid xs={12} key={a.id}>

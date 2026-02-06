@@ -2,7 +2,8 @@ import { extendTheme } from '@mui/joy/styles';
 
 export const THEMES = {
   // --- LIGHT THEMES ---
-  totem: { name: 'Mantel Classic', mode: 'light', primary: '#644AC9', bg: '#FFFBEB', surface: '#FFF', selection: '#CFCFDE', text: '#1F1F1F' },
+  totem: { name: 'Mantel', mode: 'light', primary: '#374151', bg: '#F9FAFB', surface: '#FFF', selection: '#E5E7EB', text: '#111827' },
+  mantel_warm: { name: 'Mantel Warm', mode: 'light', primary: '#D97706', bg: '#FFFBEB', surface: '#FFF', selection: '#FEF3C7', text: '#78350F' },
   ocean: { name: 'Ocean Breeze', mode: 'light', primary: '#0284c7', bg: '#f0f9ff', surface: '#fff', selection: '#e0f2fe', text: '#0c4a6e' },
   sakura: { name: 'Sakura Blossom', mode: 'light', primary: '#db2777', bg: '#fff1f2', surface: '#fff', selection: '#ffe4e6', text: '#881337' },
   mint: { name: 'Mint Fresh', mode: 'light', primary: '#0d9488', bg: '#f0fdfa', surface: '#fff', selection: '#ccfbf1', text: '#134e4a' },
@@ -68,7 +69,7 @@ export const THEMES = {
   galaxy: { name: 'Galaxy Quest', mode: 'dark', primary: '#8b5cf6', bg: '#1e1b4b', surface: '#312e81', selection: '#3730a3', text: '#eef2ff' },
   mars: { name: 'Mars Rover', mode: 'dark', primary: '#fb923c', bg: '#431407', surface: '#7c2d12', selection: '#9a3412', text: '#fff7ed' },
   vampire: { name: 'Vampire Night', mode: 'dark', primary: '#e11d48', bg: '#4c0519', surface: '#881337', selection: '#9f1239', text: '#fff1f2' },
-  blueprint: { name: 'Architect Blueprint', mode: 'dark', primary: '#3b82f6', bg: '#172554', surface: '#1e3a8a', selection: '#1e40af', text: '#dbeafe' },
+  blueprint: { name: 'Blueprint', mode: 'dark', primary: '#3b82f6', bg: '#172554', surface: '#1e3a8a', selection: '#1e40af', text: '#dbeafe' },
   toxic: { name: 'Toxic Waste', mode: 'dark', primary: '#bef264', bg: '#022c22', surface: '#064e3b', selection: '#14532d', text: '#dcfce7' },
   nebula: { name: 'Nebula', mode: 'dark', primary: '#f472b6', bg: '#1e1b4b', surface: '#312e81', selection: '#4338ca', text: '#fdf2f8' },
   abyss: { name: 'Ocean Depths', mode: 'dark', primary: '#06b6d4', bg: '#083344', surface: '#164e63', selection: '#155e75', text: '#ecfeff' },
@@ -107,7 +108,7 @@ export const THEMES = {
   nord: { name: 'Nord Deep', mode: 'dark', primary: '#88c0d0', bg: '#2e3440', surface: '#3b4252', selection: '#434c5e', text: '#eceff4' },
 
   // --- SPECIAL THEMES ---
-  custom: { name: 'Custom Theme', mode: 'light', primary: '#644AC9', bg: '#FFFBEB', surface: '#FFF', selection: '#CFCFDE', text: '#1F1F1F', isCustom: true }
+  custom: { name: 'Custom Theme', mode: 'light', primary: '#374151', bg: '#F9FAFB', surface: '#FFF', selection: '#E5E7EB', text: '#111827', isCustom: true }
 };
 
 export const getEmojiColor = (emoji, isDark = true) => {
@@ -132,21 +133,21 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
   }
 
   const isDark = spec.mode === 'dark';
-  const primaryColor = spec.primary || '#644AC9';
+  const primaryColor = spec.primary || '#374151';
 
   return extendTheme({
     colorSchemes: {
       [spec.mode]: {
         palette: {
           background: {
-            body: spec.bg || (isDark ? '#0f172a' : '#FFFBEB'),
+            body: spec.bg || (isDark ? '#0f172a' : '#F9FAFB'),
             surface: spec.surface || (isDark ? '#1e293b' : '#FFF'),
             level1: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
             level2: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)',
             level3: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.09)',
           },
           text: {
-            primary: spec.text || (isDark ? '#f1f5f9' : '#1F1F1F'),
+            primary: spec.text || (isDark ? '#f1f5f9' : '#111827'),
             secondary: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)',
           },
           primary: {
@@ -158,10 +159,10 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
             softBg: isDark ? 'rgba(255,255,255,0.1)' : `${primaryColor}15`,
           },
           neutral: {
-            outlinedBorder: spec.selection || (isDark ? '#334155' : '#CFCFDE'),
-            plainColor: spec.text || (isDark ? '#f1f5f9' : '#1F1F1F'),
+            outlinedBorder: spec.selection || (isDark ? '#334155' : '#E5E7EB'),
+            plainColor: spec.text || (isDark ? '#f1f5f9' : '#111827'),
           },
-          divider: spec.selection || (isDark ? '#334155' : '#CFCFDE'),
+          divider: spec.selection || (isDark ? '#334155' : '#E5E7EB'),
         },
       },
     },

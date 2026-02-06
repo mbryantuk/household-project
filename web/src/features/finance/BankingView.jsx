@@ -4,11 +4,12 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  Sheet, Table, AvatarGroup
+  AvatarGroup
 } from '@mui/joy';
 import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
+import AppTable from '../../components/ui/AppTable';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -140,7 +141,6 @@ export default function BankingView({ financialProfileId }) {
     }
   };
 
-  // Assignment Logic
   const handleAssignMember = async (memberId) => {
       try {
           await api.post(`/households/${householdId}/finance/assignments`, {
@@ -148,7 +148,6 @@ export default function BankingView({ financialProfileId }) {
               entity_id: assignItem.id,
               member_id: memberId
           });
-          // Refresh assignments only
           const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=current_account`);
           setAssignments(assRes.data || []);
       } catch (err) { console.error("Assignment failed", err); }
@@ -157,16 +156,93 @@ export default function BankingView({ financialProfileId }) {
   const handleUnassignMember = async (memberId) => {
       try {
           await api.delete(`/households/${householdId}/finance/assignments/current_account/${assignItem.id}/${memberId}`);
-          // Refresh assignments only
           const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=current_account`);
           setAssignments(assRes.data || []);
       } catch (err) { console.error("Removal failed", err); }
   };
 
+  // DATA GRID COLUMNS
+  const columns = useMemo(() => [
+    { 
+        field: 'emoji', 
+        headerName: '', 
+        width: 60,
+        renderCell: (params) => (
+            <Avatar size="sm" sx={{ bgcolor: getEmojiColor(params.value || (params.row.bank_name||'?')[0], isDark) }}>
+                {params.value || (params.row.bank_name||'?')[0]}
+            </Avatar>
+        )
+    },
+    { 
+        field: 'bank_name', 
+        headerName: 'Bank / Name', 
+        flex: 1,
+        renderCell: (params) => (
+            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}>
+                <Typography level="body-md" sx={{ fontWeight: 'lg' }}>{params.value}</Typography>
+                <Typography level="body-xs" color="neutral">{params.row.account_name}</Typography>
+            </Box>
+        )
+    },
+    { field: 'sort_code', headerName: 'Sort Code', width: 120, valueFormatter: (params) => params || '??-??-??' },
+    { 
+        field: 'account_number', 
+        headerName: 'Account No.', 
+        width: 150,
+        valueFormatter: (params) => params ? `•••• ${params.slice(-4)}` : '••••'
+    },
+    { 
+        field: 'overdraft_limit', 
+        headerName: 'Overdraft', 
+        width: 130,
+        valueFormatter: (params) => params ? formatCurrency(params) : '-'
+    },
+    { 
+        field: 'current_balance', 
+        headerName: 'Balance', 
+        width: 150,
+        renderCell: (params) => (
+            <Typography fontWeight="bold" color={params.value < 0 ? 'danger' : 'success'} sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                {formatCurrency(params.value)}
+            </Typography>
+        )
+    },
+    { 
+        field: 'holders', 
+        headerName: 'Holders', 
+        width: 150,
+        renderCell: (params) => (
+            <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                <AvatarGroup size="sm" sx={{ '--AvatarGroup-gap': '-4px' }}>
+                    {getAssignees(params.row.id).map(m => (
+                        <Avatar key={m.id} sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji || m.name[0]}</Avatar>
+                    ))}
+                    {isAdmin && (
+                        <IconButton size="sm" onClick={() => setAssignItem(params.row)} sx={{ borderRadius: '50%' }}><GroupAdd fontSize="small" /></IconButton>
+                    )}
+                </AvatarGroup>
+            </Box>
+        )
+    },
+    {
+        field: 'actions',
+        headerName: 'Actions',
+        width: 100,
+        sortable: false,
+        filterable: false,
+        renderCell: (params) => (
+            <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end', alignItems: 'center', height: '100%' }}>
+                <IconButton size="sm" variant="plain" onClick={() => setAccountId(params.row.id)}><Edit /></IconButton>
+                <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(params.row.id)}><Delete /></IconButton>
+            </Box>
+        )
+    }
+  ], [isDark, getAssignees, isAdmin]);
+
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
     return (
-      <Box>
+      <Box sx={{ overflowX: 'hidden' }}>
         <Box sx={{ 
             mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
             flexWrap: 'wrap', gap: 2 
@@ -188,61 +264,13 @@ export default function BankingView({ financialProfileId }) {
         </Box>
 
       {!isMobile ? (
-        <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto', flexGrow: 1 }}>
-            <Table hoverRow stickyHeader>
-                <thead>
-                    <tr>
-                        <th style={{ width: 50 }}></th>
-                        <th>Bank / Name</th>
-                        <th>Sort Code</th>
-                        <th>Account No.</th>
-                        <th>Overdraft</th>
-                        <th>Balance</th>
-                        <th>Holders</th>
-                        {isAdmin && <th style={{ textAlign: 'right', width: 120 }}>Actions</th>}
-                    </tr>
-                </thead>
-                <tbody>
-                    {accounts.map((row) => (
-                        <tr key={row.id}>
-                            <td>
-                                <Avatar size="sm" sx={{ bgcolor: getEmojiColor(row.emoji || (row.bank_name||'?')[0], isDark) }}>
-                                    {row.emoji || (row.bank_name||'?')[0]}
-                                </Avatar>
-                            </td>
-                            <td>
-                                <Typography level="body-md" sx={{ fontWeight: 'lg' }}>{row.bank_name}</Typography>
-                                <Typography level="body-xs" color="neutral">{row.account_name}</Typography>
-                            </td>
-                            <td>{row.sort_code || '??-??-??'}</td>
-                            <td>{row.account_number ? `•••• ${row.account_number.slice(-4)}` : '••••'}</td>
-                            <td>{row.overdraft_limit ? formatCurrency(row.overdraft_limit) : '-'}</td>
-                            <td>
-                                <Typography fontWeight="bold" color={row.current_balance < 0 ? 'danger' : 'success'}>
-                                    {formatCurrency(row.current_balance)}
-                                </Typography>
-                            </td>
-                            <td>
-                                <AvatarGroup size="sm" sx={{ '--AvatarGroup-gap': '-4px' }}>
-                                    {getAssignees(row.id).map(m => (
-                                        <Avatar key={m.id} sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji || m.name[0]}</Avatar>
-                                    ))}
-                                    {isAdmin && (
-                                        <IconButton size="sm" onClick={() => setAssignItem(row)} sx={{ borderRadius: '50%' }}><GroupAdd fontSize="small" /></IconButton>
-                                    )}
-                                </AvatarGroup>
-                            </td>
-                            {isAdmin && (
-                                <td style={{ textAlign: 'right' }}>
-                                    <IconButton size="sm" variant="plain" onClick={() => setAccountId(row.id)}><Edit /></IconButton>
-                                    <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(row.id)}><Delete /></IconButton>
-                                </td>
-                            )}
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
-        </Sheet>
+        <AppTable 
+            rows={accounts} 
+            columns={columns} 
+            sumField="current_balance" 
+            sumLabel="Total Balance"
+            loading={loading}
+        />
       ) : (
         <Grid container spacing={2}>
             {accounts.map(a => (

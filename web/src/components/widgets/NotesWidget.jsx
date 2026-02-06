@@ -3,7 +3,9 @@ import { Sheet, IconButton, List, ListItem, ListItemButton, Checkbox, ListItemCo
 import { NoteAlt, Add, Delete, ChevronLeft } from '@mui/icons-material';
 import WidgetWrapper from './WidgetWrapper';
 
-const YELLOW = '#fff740';
+// STYLED: Adhere to "NO INLINE COLORS" rule using theme tokens.
+const STICKY_BG = 'var(--joy-palette-warning-softBg)';
+const STICKY_TEXT = 'var(--joy-palette-warning-plainColor)'; // Joy usually maps warning to dark text in light mode
 
 export default function NotesWidget({ user, onUpdateProfile }) {
   const [notes, setNotes] = useState(() => {
@@ -17,7 +19,6 @@ export default function NotesWidget({ user, onUpdateProfile }) {
 
   const [activeNoteId, setActiveNoteId] = useState(null);
 
-  // Sync if user prop updates (e.g. from server)
   useEffect(() => {
       try {
           const parsed = JSON.parse(user?.sticky_note);
@@ -29,7 +30,6 @@ export default function NotesWidget({ user, onUpdateProfile }) {
       }
   }, [user?.sticky_note, notes]);
 
-  // Debounce save
   useEffect(() => {
       const timer = setTimeout(() => {
           const json = JSON.stringify(notes);
@@ -48,7 +48,7 @@ export default function NotesWidget({ user, onUpdateProfile }) {
 
   return (
     <WidgetWrapper title="Sticky Note" icon={<NoteAlt />} color="warning">
-      <Sheet sx={{ bgcolor: YELLOW, height: '100%', m: -1, display: 'flex', flexDirection: 'column' }}>
+      <Sheet sx={{ bgcolor: STICKY_BG, height: '100%', m: -1, display: 'flex', flexDirection: 'column' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
             {activeNoteId ? (
                 <IconButton size="sm" variant="plain" onClick={() => setActiveNoteId(null)} sx={{ color: 'neutral.900' }}>
