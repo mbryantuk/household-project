@@ -2,7 +2,15 @@ import { extendTheme } from '@mui/joy/styles';
 
 export const THEMES = {
   // --- LIGHT THEMES ---
-  totem: { name: 'Mantel Classic', mode: 'light', primary: '#644AC9', bg: '#FFFBEB', surface: '#FFF', selection: '#CFCFDE', text: '#1F1F1F' },
+  totem: { 
+    name: 'Mantel Classic', 
+    mode: 'light', 
+    primary: '#374151', // UPDATED: Warm Charcoal (Hearth)
+    bg: '#FFFBEB',      // Cream/Warm White
+    surface: '#FFF', 
+    selection: '#E5E7EB', 
+    text: '#1F2937'     // Slate 800
+  },
   ocean: { name: 'Ocean Breeze', mode: 'light', primary: '#0284c7', bg: '#f0f9ff', surface: '#fff', selection: '#e0f2fe', text: '#0c4a6e' },
   sakura: { name: 'Sakura Blossom', mode: 'light', primary: '#db2777', bg: '#fff1f2', surface: '#fff', selection: '#ffe4e6', text: '#881337' },
   mint: { name: 'Mint Fresh', mode: 'light', primary: '#0d9488', bg: '#f0fdfa', surface: '#fff', selection: '#ccfbf1', text: '#134e4a' },

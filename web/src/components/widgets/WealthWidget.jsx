@@ -91,20 +91,20 @@ export default function WealthWidget({ api, household }) {
   }, [houseEquity, vehicleEquity, totalPensions, totalInvestments, data, totalLoans, totalCreditCards, totalOverdrafts]);
 
   if (loading) return (
-    <WidgetWrapper title="Wealth Tracking" icon={<SavingsIcon />} color="success">
+    <WidgetWrapper title="Wealth Tracking" icon={<SavingsIcon />} color="warning">
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-            <CircularProgress size="sm" />
+            <CircularProgress size="sm" color="warning" />
         </Box>
     </WidgetWrapper>
   );
 
   return (
-    <WidgetWrapper title="Wealth Tracking" icon={<SavingsIcon />} color="success">
+    <WidgetWrapper title="Wealth Tracking" icon={<SavingsIcon />} color="warning">
       <Stack spacing={2} sx={{ overflowY: 'auto', pr: 1 }}>
         
-        <Box sx={{ textAlign: 'center', py: 1.5, bgcolor: 'success.softBg', borderRadius: 'md', border: '1px solid', borderColor: 'success.200' }}>
-            <Typography level="body-xs" color="success" textTransform="uppercase" fontWeight="bold">Net Worth Estimate</Typography>
-            <Typography level="h2" color="success" sx={{ my: 0.5 }}>{formatCurrency(netWorth)}</Typography>
+        <Box sx={{ textAlign: 'center', py: 1.5, bgcolor: 'warning.softBg', borderRadius: 'md', border: '1px solid', borderColor: 'warning.200' }}>
+            <Typography level="body-xs" color="warning" textTransform="uppercase" fontWeight="bold">Net Worth Estimate</Typography>
+            <Typography level="h2" color="warning" sx={{ my: 0.5 }}>{formatCurrency(netWorth)}</Typography>
             <Typography level="body-xs" color="neutral">Assets minus all Liabilities</Typography>
         </Box>
 
@@ -212,7 +212,7 @@ export default function WealthWidget({ api, household }) {
                             </Box>
                             <Stack direction="row" spacing={0.5} flexWrap="wrap">
                                 {data.savings_pots.filter(p => p.savings_id === acc.id).map(pot => (
-                                    <Chip key={pot.id} size="sm" variant="soft" color="success" sx={{ fontSize: '0.6rem', height: '18px', '--Chip-paddingInline': '6px' }}>
+                                    <Chip key={pot.id} size="sm" variant="soft" color="warning" sx={{ fontSize: '0.6rem', height: '18px', '--Chip-paddingInline': '6px' }}>
                                         {pot.emoji} {formatCurrency(pot.current_amount)}
                                     </Chip>
                                 ))}
