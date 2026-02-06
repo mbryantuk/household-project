@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Implement automatic frontend error reporting to Vibe Kanban",
-  "date": "Fri  6 Feb 16:14:55 GMT 2026"
+  "commitMessage": "Fix Vibe Kanban connection from Docker container using host.docker.internal",
+  "date": "Fri  6 Feb 16:24:53 GMT 2026"
 }

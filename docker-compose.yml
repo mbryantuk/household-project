@@ -6,6 +6,8 @@ services:
     container_name: totem-app
     ports:
       - "4001:4001"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       # Map the host data folder to the container's data folder
       - /home/matt/household-project/server/data:/app/server/data

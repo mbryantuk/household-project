@@ -336,7 +336,31 @@ function AppInner({
                     navigate('/select-household');
                     showNotification("The selected household is no longer available.", "warning");
                 }
+            } else {
+                // Unexpected API Error - Report it
+                const errorData = {
+                    message: `API Error ${status}: ${data?.error || error.message}`,
+                    stack: error.stack,
+                    url: window.location.href,
+                    timestamp: new Date().toISOString(),
+                    user: user?.email,
+                    household_id: household?.id,
+                    api_path: error.config?.url,
+                    api_method: error.config?.method
+                };
+                axios.post(`${API_URL}/errors/report`, errorData).catch(() => {});
             }
+        } else {
+            // Network error or other non-response error
+            const errorData = {
+                message: `Network/Request Error: ${error.message}`,
+                stack: error.stack,
+                url: window.location.href,
+                timestamp: new Date().toISOString(),
+                user: user?.email,
+                household_id: household?.id
+            };
+            axios.post(`${API_URL}/errors/report`, errorData).catch(() => {});
         }
         return Promise.reject(error);
       }
