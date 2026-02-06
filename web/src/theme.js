@@ -107,6 +107,10 @@ export const THEMES = {
   oceanic: { name: 'Oceanic Next', mode: 'dark', primary: '#6699cc', bg: '#1b2b34', surface: '#343d46', selection: '#4f5b66', text: '#d8dee9' },
   nord: { name: 'Nord Deep', mode: 'dark', primary: '#88c0d0', bg: '#2e3440', surface: '#3b4252', selection: '#434c5e', text: '#eceff4' },
 
+  // --- SIGNATURE THEMES ---
+  platinum: { name: 'Mantel Platinum', mode: 'light', primary: '#18181b', bg: '#fbfcfd', surface: '#FFF', selection: '#f4f4f5', text: '#09090b', isPremium: true },
+  obsidian: { name: 'Mantel Obsidian', mode: 'dark', primary: '#f4f4f5', bg: '#09090b', surface: '#18181b', selection: '#27272a', text: '#fafafa', isPremium: true },
+
   // --- SPECIAL THEMES ---
   custom: { name: 'Custom Theme', mode: 'light', primary: '#374151', bg: '#F9FAFB', surface: '#FFF', selection: '#E5E7EB', text: '#111827', isCustom: true }
 };
@@ -133,9 +137,25 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
   }
 
   const isDark = spec.mode === 'dark';
+  const isPremium = spec.isPremium === true;
   const primaryColor = spec.primary || '#374151';
 
   return extendTheme({
+    fontFamily: {
+        body: '"DM Sans", var(--joy-fontFamily-fallback)',
+        display: isPremium ? '"DM Serif Display", serif' : '"DM Sans", var(--joy-fontFamily-fallback)',
+    },
+    radius: {
+        sm: '4px',
+        md: '8px',
+        lg: '12px',
+        xl: '16px',
+    },
+    shadow: {
+        sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+    },
     colorSchemes: {
       [spec.mode]: {
         palette: {
@@ -152,7 +172,7 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
           },
           primary: {
             solidBg: primaryColor,
-            solidHoverBg: primaryColor,
+            solidHoverBg: isPremium ? (isDark ? '#ffffff' : '#000000') : primaryColor,
             plainColor: primaryColor,
             outlinedColor: primaryColor,
             outlinedBorder: primaryColor,
@@ -171,8 +191,14 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
         styleOverrides: {
           root: ({ ownerState }) => ({
              ...(ownerState.level === 'h2' && {
-               fontSize: '1.5rem',
-               fontWeight: 700,
+               fontFamily: 'var(--joy-fontFamily-display)',
+               fontSize: '1.75rem',
+               fontWeight: isPremium ? 400 : 700,
+               letterSpacing: isPremium ? '-0.02em' : 'normal',
+             }),
+             ...(ownerState.level === 'h1' && {
+                fontFamily: 'var(--joy-fontFamily-display)',
+                fontWeight: isPremium ? 400 : 800,
              }),
           }),
         },
@@ -182,14 +208,32 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
           root: {
             backgroundColor: 'var(--joy-palette-background-surface)',
             borderColor: 'var(--joy-palette-divider)',
+            boxShadow: 'var(--joy-shadow-sm)',
+            borderRadius: 'var(--joy-radius-md)',
+            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+            '&:hover': {
+                boxShadow: 'var(--joy-shadow-md)',
+            }
           },
         },
+      },
+      JoyButton: {
+        styleOverrides: {
+            root: ({ ownerState }) => ({
+                borderRadius: 'var(--joy-radius-md)',
+                fontWeight: 600,
+                ...(ownerState.variant === 'solid' && isPremium && {
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                })
+            })
+        }
       },
       JoySheet: {
         styleOverrides: {
           root: ({ ownerState }) => ({
             ...(ownerState.variant === 'outlined' && {
                 borderColor: 'var(--joy-palette-divider)',
+                borderRadius: 'var(--joy-radius-md)',
             }),
           }),
         },

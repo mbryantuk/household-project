@@ -33,12 +33,16 @@ export default function ThemeSettings() {
   };
 
   const groupedThemes = useMemo(() => {
-    const groups = { light: [], dark: [] };
+    const groups = { light: [], dark: [], signature: [] };
     Object.entries(THEMES).forEach(([id, spec]) => {
-      // Don't include custom in the grid if we want to show it separately, 
-      // but the user says we "lost" it, so let's ensure it's in the Light group or separate.
+      // Don't include custom in the grid if we want to show it separately
       if (id === 'custom') return;
-      groups[spec.mode].push({ id, ...spec });
+      
+      if (spec.isPremium) {
+        groups.signature.push({ id, ...spec });
+      } else {
+        groups[spec.mode].push({ id, ...spec });
+      }
     });
     return groups;
   }, []);
@@ -56,7 +60,11 @@ export default function ThemeSettings() {
                         transition: 'all 0.2s',
                         '&:hover': { transform: 'translateY(-2px)', boxShadow: 'sm' },
                         position: 'relative',
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+                        ...(spec.isPremium && {
+                            borderWidth: themeId === spec.id ? '2px' : '1px',
+                            borderColor: themeId === spec.id ? 'primary.solidBg' : 'divider',
+                        })
                     }}
                 >
                     <Box sx={{ 
@@ -70,7 +78,21 @@ export default function ThemeSettings() {
                         <Tooltip title="Selection" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.selection }} /></Tooltip>
                         <Tooltip title="Text" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.text }} /></Tooltip>
                     </Box>
-                    <Typography level="title-sm" noWrap sx={{ fontSize: '13px', color: themeId === spec.id ? 'common.white' : 'text.primary', width: '100%' }}>{spec.name}</Typography>
+                    <Typography level="title-sm" noWrap sx={{ 
+                        fontSize: '13px', 
+                        color: themeId === spec.id ? 'common.white' : 'text.primary', 
+                        width: '100%',
+                        ...(spec.isPremium && { fontWeight: 700 })
+                    }}>{spec.name}</Typography>
+                    {spec.isPremium && (
+                        <Typography level="body-xs" sx={{ 
+                            fontSize: '10px', 
+                            textTransform: 'uppercase', 
+                            letterSpacing: '0.05em',
+                            opacity: 0.7,
+                            color: themeId === spec.id ? 'common.white' : 'text.secondary'
+                        }}>Signature</Typography>
+                    )}
                     {themeId === spec.id && (
                         <Palette sx={{ position: 'absolute', top: 6, right: 6, fontSize: '0.7rem', color: 'common.white' }} />
                     )}
@@ -84,8 +106,17 @@ export default function ThemeSettings() {
     <Stack spacing={4}>
       <Box>
         <Typography level="h4">Appearance</Typography>
-        <Typography level="body-sm">Personalize your platform experience</Typography>
+        <Typography level="body-sm">Personalize your platform experience with architectural precision.</Typography>
       </Box>
+
+      {/* Signature Section */}
+      <Box>
+        <Typography level="title-lg" startDecorator={<Palette color="warning" />} sx={{ mb: 2 }}>Signature Designs</Typography>
+        <Typography level="body-sm" sx={{ mb: 2 }}>High-fidelity UI styles with editorial typography and refined depth.</Typography>
+        <ThemeGrid themes={groupedThemes.signature} />
+      </Box>
+
+      <Divider />
 
       {/* Special Theme: Custom */}
       <Box>

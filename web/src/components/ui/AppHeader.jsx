@@ -15,9 +15,7 @@ export default function AppHeader({ title, description, endDecorator, sx = {}, .
         <Typography 
           level="h2" 
           sx={{ 
-            fontWeight: 'lg', 
-            mb: 0.5, 
-            fontSize: '1.5rem' 
+            mb: 0.5
           }}
         >
           {title}

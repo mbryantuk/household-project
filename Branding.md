@@ -14,5 +14,16 @@ The mantel is the shelf above the hearth. In a traditional home, it is the cente
 * **Accent (Value):** `#D97706` (Copper/Amber) - Represents warmth and gold/wealth.
 * **Action:** `#4F46E5` (Indigo) - Retained for high-contrast UI buttons.
 
+## UI Styles
+### 1. The Architectural Standard (Default)
+Clean, functional, and structural. Uses Slate/Charcoal and White. Focused on clarity and stability.
+
+### 2. Premium Architectural (Signature)
+Editorial-grade UI for high-end households.
+* **Themes:** `Mantel Platinum` (Light), `Mantel Obsidian` (Dark).
+* **Typography:** Uses serif fonts (*DM Serif Display*) for headings to evoke a "Premium Ledger" or "Editorial" feel.
+* **Depth:** Subtle glassmorphism, soft layering with refined shadows, and generous whitespace.
+* **Materials:** Zinc-based palettes with high-contrast accents.
+
 ## Logo Concept
 A stylized, flat line (the shelf) with a semi-circle arch resting on top of it (the hearth/clock), forming a subtle "M" shape.
