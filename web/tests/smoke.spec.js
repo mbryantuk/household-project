@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('Core UI Smoke Tests', () => {
     const ADMIN_EMAIL = 'mbryantuk@gmail.com';
@@ -52,5 +52,16 @@ test.describe('Core UI Smoke Tests', () => {
         await expect(page.getByText('Settings')).toBeVisible();
         await expect(page.getByText('Switch Household')).toBeVisible();
         await expect(page.getByText('Log Out')).toBeVisible();
+    });
+
+    test('Utility Bar: Persistent Widgets', async ({ page }) => {
+        // Budget Health
+        await page.locator('button[aria-label="Budget Health"]').click();
+        await expect(page.locator('text=Budget Health')).toBeVisible();
+        await page.locator('button[aria-label="Budget Health"]').click(); // Close
+
+        // Wealth Tracking
+        await page.locator('button[aria-label="Wealth Tracking"]').click();
+        await expect(page.locator('text=Wealth Tracking')).toBeVisible();
     });
 });
