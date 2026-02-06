@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.2.148] - 2026-02-06
+### Aesthetic Audit
+- **Theming:** Updated the 'Totem' default theme to use the correct Brand Primary Color (`#374151` Warm Charcoal) instead of the legacy Indigo.
+- **UI:** Refactored `WealthWidget` to use the 'Warning' (Amber/Gold) palette, aligning with the brand's "Value = Copper" identity.
+
 ## [3.2.126] - 2026-02-04
 ### Added
 - **Testing:** Migrated the "Brady Bunch" Master Seed into the backend test suite as `brady_seed.test.js`.
