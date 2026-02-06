@@ -7,6 +7,7 @@ const path = require('path');
 const cron = require('node-cron');
 const { apiReference } = require('@scalar/express-api-reference');
 const swaggerDocument = require('./swagger.json');
+const { globalDb } = require('./db');
 
 // Import unified database instance
 const { SECRET_KEY } = require('./config');

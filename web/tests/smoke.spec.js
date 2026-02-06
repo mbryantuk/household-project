@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('Core UI Smoke Tests', () => {
     const ADMIN_EMAIL = 'mbryantuk@gmail.com';
@@ -14,22 +14,32 @@ test.describe('Core UI Smoke Tests', () => {
     });
 
     test('Financial Profiles: Sidebar Accordion and Switching', async ({ page }) => {
-        // Navigate to Finance
         await page.click('a[href*="/finance"]');
         await page.waitForURL('**/finance**');
 
-        // Check if Sidebar Accordion exists
         const accordion = page.locator('text=SWITCH PROFILE');
         await expect(accordion).toBeVisible();
 
-        // Create a New Profile
-        await page.click('button:has-text("Add")'); // Inside accordion
+        await page.click('button:has-text("Add")');
         await page.fill('input[placeholder*="e.g. Joint"]', 'Smoke Test Profile');
         await page.click('button:has-text("Create Profile")');
 
-        // Verify it was created and selected
         await expect(page.locator('text=Smoke Test Profile')).toBeVisible();
         await expect(page).toHaveURL(/.*financial_profile_id=.*/);
+    });
+
+    test('Budget Tracker: Renders New Layout', async ({ page }) => {
+        await page.click('a[href*="/finance"]');
+        await page.waitForURL('**/finance**');
+        
+        // Check for new Summary Row items
+        await expect(page.locator('text=Liquidity')).toBeVisible();
+        await expect(page.locator('text=Income')).toBeVisible();
+        await expect(page.locator('text=Disposable')).toBeVisible();
+
+        // Check for bottom bar buttons
+        await expect(page.locator('button:has-text("Projection")')).toBeVisible();
+        await expect(page.locator('button:has-text("Wealth")')).toBeVisible();
     });
 
     test('Core Navigation: House Hub, Calendar, Meals', async ({ page }) => {
@@ -44,12 +54,11 @@ test.describe('Core UI Smoke Tests', () => {
     });
 
     test('Avatar Menu: Opens Sidebar Panel', async ({ page }) => {
-        // Click Avatar (Footer)
         await page.locator('button:has(.MuiAvatar-root)').last().click();
         
-        // Verify Sidebar Panel content (Account Header)
         await expect(page.getByText('Account', { exact: true }).first()).toBeVisible();
-        await expect(page.getByText('Settings')).toBeVisible();
+        // Use more specific selector for Settings to avoid ambiguity
+        await expect(page.getByRole('button', { name: /Settings/i })).toBeVisible();
         await expect(page.getByText('Switch Household')).toBeVisible();
         await expect(page.getByText('Log Out')).toBeVisible();
     });
