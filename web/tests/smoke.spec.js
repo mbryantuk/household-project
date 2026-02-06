@@ -28,7 +28,7 @@ test.describe('Core UI Smoke Tests', () => {
         await expect(page).toHaveURL(/.*financial_profile_id=.*/);
     });
 
-    test('Budget Tracker: Renders New Layout', async ({ page }) => {
+    test('Budget Tracker: Renders New Layout and Integrated Tray', async ({ page }) => {
         await page.getByRole('button', { name: 'Finance' }).click();
         await page.waitForURL('**/finance**');
         
@@ -37,9 +37,17 @@ test.describe('Core UI Smoke Tests', () => {
         await expect(page.locator('text=Income')).toBeVisible();
         await expect(page.locator('text=Disposable')).toBeVisible();
 
-        // Check for bottom bar buttons
-        await expect(page.locator('button:has-text("Projection")')).toBeVisible();
-        await expect(page.locator('button:has-text("Wealth")')).toBeVisible();
+        // Check for control bar buttons
+        await expect(page.getByRole('button', { name: 'Projection' })).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Wealth' })).toBeVisible();
+        
+        // Test tray expansion
+        await page.getByRole('button', { name: 'Projection' }).click();
+        await expect(page.locator('text=Drawdown Projection')).toBeVisible();
+        
+        // Close tray
+        await page.getByRole('button', { name: 'Projection' }).click();
+        await expect(page.locator('text=Drawdown Projection')).not.toBeVisible();
     });
 
     test('Core Navigation: House Hub, Calendar, Meals', async ({ page }) => {
