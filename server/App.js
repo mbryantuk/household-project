@@ -23,6 +23,7 @@ const detailsRoutes = require('./routes/details');
 const mealRoutes = require('./routes/meals');
 const financeRoutes = require('./routes/finance');
 const financeProfileRoutes = require('./routes/finance_profiles');
+const errorRoutes = require('./routes/errors');
 
 const { createBackup, cleanOldBackups } = require('./services/backup');
 
@@ -77,6 +78,7 @@ const allRouters = [
     { path: '/admin', router: adminRoutes },
     { path: '/households/:id/finance/profiles', router: financeProfileRoutes },
     { path: '/households/:id/finance', router: financeRoutes },
+    { path: '/errors', router: errorRoutes },
     { path: '/', router: householdRoutes },
     { path: '/', router: memberRoutes },
     { path: '/', router: calendarRoutes },

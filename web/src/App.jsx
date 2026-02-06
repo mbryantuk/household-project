@@ -187,7 +187,40 @@ function AppInner({
       lastActivity.current = Date.now();
       setIsIdleWarning(false);
   };
-  // ------------------------
+  useEffect(() => {
+    const handleError = (error) => {
+      // Avoid infinite loops if reporting itself fails
+      if (error?.reported) return;
+      
+      const errorData = {
+        message: error.message || 'Unknown Error',
+        stack: error.stack,
+        url: window.location.href,
+        timestamp: new Date().toISOString(),
+        user: user?.email,
+        household_id: household?.id
+      };
+      
+      // Mark as reported
+      if (typeof error === 'object') error.reported = true;
+
+      // Send to backend via plain axios to avoid auth interceptor issues during early bootstrap or auth errors
+      axios.post(`${API_URL}/errors/report`, errorData).catch(() => {
+          // Silent fail for error reporting to prevent infinite error loops
+      });
+    };
+
+    const errorListener = (event) => handleError(event.error || { message: event.message });
+    const rejectionListener = (event) => handleError(event.reason || { message: 'Unhandled Rejection' });
+
+    window.addEventListener('error', errorListener);
+    window.addEventListener('unhandledrejection', rejectionListener);
+
+    return () => {
+      window.removeEventListener('error', errorListener);
+      window.removeEventListener('unhandledrejection', rejectionListener);
+    };
+  }, [user, household]);
 
   // Data Fetching
   const fetchHouseholds = useCallback(async () => {
