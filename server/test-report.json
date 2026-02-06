@@ -1,8 +1,8 @@
 {
-  "numFailedTestSuites": 0,
-  "numFailedTests": 0,
-  "numPassedTestSuites": 8,
-  "numPassedTests": 27,
+  "numFailedTestSuites": 4,
+  "numFailedTests": 13,
+  "numPassedTestSuites": 4,
+  "numPassedTests": 14,
   "numPendingTestSuites": 0,
   "numPendingTests": 0,
   "numRuntimeErrorTestSuites": 0,
@@ -26,343 +26,21 @@
     "unmatched": 0,
     "updated": 0
   },
-  "startTime": 1770303518745,
+  "startTime": 1770336223806,
   "success": false,
   "testResults": [
     {
       "leaks": false,
       "numFailingTests": 0,
-      "numPassingTests": 6,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1770303523148,
-        "runtime": 4244,
-        "slow": false,
-        "start": 1770303518904
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/security/api_coverage_and_rbac.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "🛡️ Comprehensive Backend API & RBAC Verification"
-          ],
-          "duration": 11,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🔑 Authentication Profile",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "🔑 Authentication Profile"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Comprehensive Backend API & RBAC Verification"
-          ],
-          "duration": 291,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🔄 Module: Recurring Costs (Consolidated)",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 8,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "🔄 Module: Recurring Costs (Consolidated)"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Comprehensive Backend API & RBAC Verification"
-          ],
-          "duration": 304,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 👥 Module: People",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 9,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "👥 Module: People"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Comprehensive Backend API & RBAC Verification"
-          ],
-          "duration": 382,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🚗 Module: Vehicles",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 9,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "🚗 Module: Vehicles"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Comprehensive Backend API & RBAC Verification"
-          ],
-          "duration": 442,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 💰 Module: Finance (Core)",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 17,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "💰 Module: Finance (Core)"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Comprehensive Backend API & RBAC Verification"
-          ],
-          "duration": 13,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🍱 Module: Meals",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "🍱 Module: Meals"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
-      "numPassingTests": 3,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1770303523910,
-        "runtime": 691,
-        "slow": false,
-        "start": 1770303523219
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/finance_routing.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "💰 Finance Routing Verification"
-          ],
-          "duration": 59,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/pots should not return 404",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "GET /api/households/:id/finance/savings/pots should not return 404"
-        },
-        {
-          "ancestorTitles": [
-            "💰 Finance Routing Verification"
-          ],
-          "duration": 180,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/:itemId should still work for valid items",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 3,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "GET /api/households/:id/finance/savings/:itemId should still work for valid items"
-        },
-        {
-          "ancestorTitles": [
-            "💰 Finance Routing Verification"
-          ],
-          "duration": 8,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/999999 should return 404",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "GET /api/households/:id/finance/savings/999999 should return 404"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
       "numPassingTests": 1,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1770303524967,
-        "runtime": 1048,
-        "slow": false,
-        "start": 1770303523919
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/performance/concurrency.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "⚡ SQLite Concurrency Stress"
-          ],
-          "duration": 592,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "⚡ SQLite Concurrency Stress 🧬 WAL Mode Concurrency (20 Parallel Writes)",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "🧬 WAL Mode Concurrency (20 Parallel Writes)"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
-      "numPassingTests": 4,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1770303525756,
-        "runtime": 746,
-        "slow": false,
-        "start": 1770303525010
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/security/advanced_integrity.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "🛡️ Advanced System Integrity & Security"
-          ],
-          "duration": 53,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Advanced System Integrity & Security 📅 Friday Rule: Creation with valid payload",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "📅 Friday Rule: Creation with valid payload"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Advanced System Integrity & Security"
-          ],
-          "duration": 250,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Advanced System Integrity & Security ♻️ Idempotency: Duplicate creation check",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "♻️ Idempotency: Duplicate creation check"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Advanced System Integrity & Security"
-          ],
-          "duration": 26,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Advanced System Integrity & Security 🛑 Security: Path Traversal prevention",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 3,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "🛑 Security: Path Traversal prevention"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Advanced System Integrity & Security"
-          ],
-          "duration": 25,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Advanced System Integrity & Security 💾 Integrity: Backup Trigger",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "💾 Integrity: Backup Trigger"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
-      "numPassingTests": 1,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1770303534957,
-        "runtime": 9194,
+        "end": 1770336236121,
+        "runtime": 12176,
         "slow": true,
-        "start": 1770303525763
+        "start": 1770336223945
       },
       "skipped": false,
       "snapshot": {
@@ -380,7 +58,7 @@
           "ancestorTitles": [
             "👪 Master Seed: The Brady Bunch"
           ],
-          "duration": 8992,
+          "duration": 10642,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "👪 Master Seed: The Brady Bunch Should successfully seed the entire Brady Bunch household via API",
@@ -396,16 +74,158 @@
     },
     {
       "leaks": false,
+      "numFailingTests": 6,
+      "numPassingTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1770336236624,
+        "runtime": 462,
+        "slow": false,
+        "start": 1770336236162
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/security/api_coverage_and_rbac.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "🛡️ Comprehensive Backend API & RBAC Verification"
+          ],
+          "duration": 0,
+          "failureDetails": [
+            {}
+          ],
+          "failureMessages": [
+            "TypeError: Cannot read properties of undefined (reading 'default_household_id')\n    at Object.default_household_id (/home/matt/household-project/server/tests/security/api_coverage_and_rbac.test.js:55:40)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🔑 Authentication Profile",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "failed",
+          "title": "🔑 Authentication Profile"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Comprehensive Backend API & RBAC Verification"
+          ],
+          "duration": 0,
+          "failureDetails": [
+            {}
+          ],
+          "failureMessages": [
+            "TypeError: Cannot read properties of undefined (reading 'default_household_id')\n    at Object.default_household_id (/home/matt/household-project/server/tests/security/api_coverage_and_rbac.test.js:55:40)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🔄 Module: Recurring Costs (Consolidated)",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "failed",
+          "title": "🔄 Module: Recurring Costs (Consolidated)"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Comprehensive Backend API & RBAC Verification"
+          ],
+          "duration": 0,
+          "failureDetails": [
+            {}
+          ],
+          "failureMessages": [
+            "TypeError: Cannot read properties of undefined (reading 'default_household_id')\n    at Object.default_household_id (/home/matt/household-project/server/tests/security/api_coverage_and_rbac.test.js:55:40)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 👥 Module: People",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "failed",
+          "title": "👥 Module: People"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Comprehensive Backend API & RBAC Verification"
+          ],
+          "duration": 0,
+          "failureDetails": [
+            {}
+          ],
+          "failureMessages": [
+            "TypeError: Cannot read properties of undefined (reading 'default_household_id')\n    at Object.default_household_id (/home/matt/household-project/server/tests/security/api_coverage_and_rbac.test.js:55:40)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🚗 Module: Vehicles",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "failed",
+          "title": "🚗 Module: Vehicles"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Comprehensive Backend API & RBAC Verification"
+          ],
+          "duration": 1,
+          "failureDetails": [
+            {}
+          ],
+          "failureMessages": [
+            "TypeError: Cannot read properties of undefined (reading 'default_household_id')\n    at Object.default_household_id (/home/matt/household-project/server/tests/security/api_coverage_and_rbac.test.js:55:40)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 💰 Module: Finance (Core)",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "failed",
+          "title": "💰 Module: Finance (Core)"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Comprehensive Backend API & RBAC Verification"
+          ],
+          "duration": 0,
+          "failureDetails": [
+            {}
+          ],
+          "failureMessages": [
+            "TypeError: Cannot read properties of undefined (reading 'default_household_id')\n    at Object.default_household_id (/home/matt/household-project/server/tests/security/api_coverage_and_rbac.test.js:55:40)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🍱 Module: Meals",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "failed",
+          "title": "🍱 Module: Meals"
+        }
+      ],
+      "failureMessage": "  ● 🛡️ Comprehensive Backend API & RBAC Verification › 🔑 Authentication Profile\n\n    TypeError: Cannot read properties of undefined (reading 'default_household_id')\n\n      53 |         tokens.admin = lAdmin.body.token;\n      54 |         \n    > 55 |         householdId = lAdmin.body.user.default_household_id;\n         |                                        ^\n      56 |         if (!householdId) {\n      57 |             const hList = await request(app).get('/api/auth/my-households').set('Authorization', `Bearer ${tokens.admin}`);\n      58 |             householdId = hList.body[0]?.id;\n\n      at Object.default_household_id (tests/security/api_coverage_and_rbac.test.js:55:40)\n\n  ● 🛡️ Comprehensive Backend API & RBAC Verification › 🔄 Module: Recurring Costs (Consolidated)\n\n    TypeError: Cannot read properties of undefined (reading 'default_household_id')\n\n      53 |         tokens.admin = lAdmin.body.token;\n      54 |         \n    > 55 |         householdId = lAdmin.body.user.default_household_id;\n         |                                        ^\n      56 |         if (!householdId) {\n      57 |             const hList = await request(app).get('/api/auth/my-households').set('Authorization', `Bearer ${tokens.admin}`);\n      58 |             householdId = hList.body[0]?.id;\n\n      at Object.default_household_id (tests/security/api_coverage_and_rbac.test.js:55:40)\n\n  ● 🛡️ Comprehensive Backend API & RBAC Verification › 👥 Module: People\n\n    TypeError: Cannot read properties of undefined (reading 'default_household_id')\n\n      53 |         tokens.admin = lAdmin.body.token;\n      54 |         \n    > 55 |         householdId = lAdmin.body.user.default_household_id;\n         |                                        ^\n      56 |         if (!householdId) {\n      57 |             const hList = await request(app).get('/api/auth/my-households').set('Authorization', `Bearer ${tokens.admin}`);\n      58 |             householdId = hList.body[0]?.id;\n\n      at Object.default_household_id (tests/security/api_coverage_and_rbac.test.js:55:40)\n\n  ● 🛡️ Comprehensive Backend API & RBAC Verification › 🚗 Module: Vehicles\n\n    TypeError: Cannot read properties of undefined (reading 'default_household_id')\n\n      53 |         tokens.admin = lAdmin.body.token;\n      54 |         \n    > 55 |         householdId = lAdmin.body.user.default_household_id;\n         |                                        ^\n      56 |         if (!householdId) {\n      57 |             const hList = await request(app).get('/api/auth/my-households').set('Authorization', `Bearer ${tokens.admin}`);\n      58 |             householdId = hList.body[0]?.id;\n\n      at Object.default_household_id (tests/security/api_coverage_and_rbac.test.js:55:40)\n\n  ● 🛡️ Comprehensive Backend API & RBAC Verification › 💰 Module: Finance (Core)\n\n    TypeError: Cannot read properties of undefined (reading 'default_household_id')\n\n      53 |         tokens.admin = lAdmin.body.token;\n      54 |         \n    > 55 |         householdId = lAdmin.body.user.default_household_id;\n         |                                        ^\n      56 |         if (!householdId) {\n      57 |             const hList = await request(app).get('/api/auth/my-households').set('Authorization', `Bearer ${tokens.admin}`);\n      58 |             householdId = hList.body[0]?.id;\n\n      at Object.default_household_id (tests/security/api_coverage_and_rbac.test.js:55:40)\n\n  ● 🛡️ Comprehensive Backend API & RBAC Verification › 🍱 Module: Meals\n\n    TypeError: Cannot read properties of undefined (reading 'default_household_id')\n\n      53 |         tokens.admin = lAdmin.body.token;\n      54 |         \n    > 55 |         householdId = lAdmin.body.user.default_household_id;\n         |                                        ^\n      56 |         if (!householdId) {\n      57 |             const hList = await request(app).get('/api/auth/my-households').set('Authorization', `Bearer ${tokens.admin}`);\n      58 |             householdId = hList.body[0]?.id;\n\n      at Object.default_household_id (tests/security/api_coverage_and_rbac.test.js:55:40)\n"
+    },
+    {
+      "leaks": false,
       "numFailingTests": 0,
       "numPassingTests": 5,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1770303537339,
-        "runtime": 2374,
+        "end": 1770336237696,
+        "runtime": 1064,
         "slow": false,
-        "start": 1770303534965
+        "start": 1770336236632
       },
       "skipped": false,
       "snapshot": {
@@ -423,7 +243,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 42,
+          "duration": 26,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should measure login speed (Heavy Bcrypt)",
@@ -438,7 +258,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 160,
+          "duration": 151,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should measure GET assets speed (Plain Read)",
@@ -453,7 +273,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 142,
+          "duration": 128,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should measure GET finance savings speed (Decryption Overhead)",
@@ -468,7 +288,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 46,
+          "duration": 39,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should measure POST asset speed (Plain Write)",
@@ -483,7 +303,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 665,
+          "duration": 511,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should handle \"Load\" (Concurrent requests)",
@@ -499,16 +319,261 @@
     },
     {
       "leaks": false,
+      "numFailingTests": 1,
+      "numPassingTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1770336240745,
+        "runtime": 221,
+        "slow": false,
+        "start": 1770336240524
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/performance/concurrency.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "⚡ SQLite Concurrency Stress"
+          ],
+          "duration": 0,
+          "failureDetails": [
+            {}
+          ],
+          "failureMessages": [
+            "TypeError: Cannot read properties of undefined (reading 'default_household_id')\n    at Object.default_household_id (/home/matt/household-project/server/tests/performance/concurrency.test.js:17:39)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "fullName": "⚡ SQLite Concurrency Stress 🧬 WAL Mode Concurrency (20 Parallel Writes)",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "failed",
+          "title": "🧬 WAL Mode Concurrency (20 Parallel Writes)"
+        }
+      ],
+      "failureMessage": "  ● ⚡ SQLite Concurrency Stress › 🧬 WAL Mode Concurrency (20 Parallel Writes)\n\n    TypeError: Cannot read properties of undefined (reading 'default_household_id')\n\n      15 |         const login = await request(app).post('/api/auth/login').send({ email: ADMIN_EMAIL, password: PASSWORD });\n      16 |         token = login.body.token;\n    > 17 |         householdId = login.body.user.default_household_id;\n         |                                       ^\n      18 |         \n      19 |         if (!householdId) {\n      20 |             const hList = await request(app).get('/api/auth/my-households').set('Authorization', `Bearer ${token}`);\n\n      at Object.default_household_id (tests/performance/concurrency.test.js:17:39)\n"
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 4,
+      "numPassingTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1770336240935,
+        "runtime": 185,
+        "slow": false,
+        "start": 1770336240750
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/security/advanced_integrity.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "🛡️ Advanced System Integrity & Security"
+          ],
+          "duration": 0,
+          "failureDetails": [
+            {}
+          ],
+          "failureMessages": [
+            "TypeError: Cannot read properties of undefined (reading 'default_household_id')\n    at Object.default_household_id (/home/matt/household-project/server/tests/security/advanced_integrity.test.js:19:39)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "fullName": "🛡️ Advanced System Integrity & Security 📅 Friday Rule: Creation with valid payload",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "failed",
+          "title": "📅 Friday Rule: Creation with valid payload"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Advanced System Integrity & Security"
+          ],
+          "duration": 0,
+          "failureDetails": [
+            {}
+          ],
+          "failureMessages": [
+            "TypeError: Cannot read properties of undefined (reading 'default_household_id')\n    at Object.default_household_id (/home/matt/household-project/server/tests/security/advanced_integrity.test.js:19:39)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "fullName": "🛡️ Advanced System Integrity & Security ♻️ Idempotency: Duplicate creation check",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "failed",
+          "title": "♻️ Idempotency: Duplicate creation check"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Advanced System Integrity & Security"
+          ],
+          "duration": 1,
+          "failureDetails": [
+            {}
+          ],
+          "failureMessages": [
+            "TypeError: Cannot read properties of undefined (reading 'default_household_id')\n    at Object.default_household_id (/home/matt/household-project/server/tests/security/advanced_integrity.test.js:19:39)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "fullName": "🛡️ Advanced System Integrity & Security 🛑 Security: Path Traversal prevention",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "failed",
+          "title": "🛑 Security: Path Traversal prevention"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Advanced System Integrity & Security"
+          ],
+          "duration": 0,
+          "failureDetails": [
+            {}
+          ],
+          "failureMessages": [
+            "TypeError: Cannot read properties of undefined (reading 'default_household_id')\n    at Object.default_household_id (/home/matt/household-project/server/tests/security/advanced_integrity.test.js:19:39)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "fullName": "🛡️ Advanced System Integrity & Security 💾 Integrity: Backup Trigger",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "failed",
+          "title": "💾 Integrity: Backup Trigger"
+        }
+      ],
+      "failureMessage": "  ● 🛡️ Advanced System Integrity & Security › 📅 Friday Rule: Creation with valid payload\n\n    TypeError: Cannot read properties of undefined (reading 'default_household_id')\n\n      17 |         const login = await request(app).post('/api/auth/login').send({ email: ADMIN_EMAIL, password: PASSWORD });\n      18 |         token = login.body.token;\n    > 19 |         householdId = login.body.user.default_household_id;\n         |                                       ^\n      20 |\n      21 |         if (!householdId) {\n      22 |             const hList = await request(app).get('/api/auth/my-households').set('Authorization', `Bearer ${token}`);\n\n      at Object.default_household_id (tests/security/advanced_integrity.test.js:19:39)\n\n  ● 🛡️ Advanced System Integrity & Security › ♻️ Idempotency: Duplicate creation check\n\n    TypeError: Cannot read properties of undefined (reading 'default_household_id')\n\n      17 |         const login = await request(app).post('/api/auth/login').send({ email: ADMIN_EMAIL, password: PASSWORD });\n      18 |         token = login.body.token;\n    > 19 |         householdId = login.body.user.default_household_id;\n         |                                       ^\n      20 |\n      21 |         if (!householdId) {\n      22 |             const hList = await request(app).get('/api/auth/my-households').set('Authorization', `Bearer ${token}`);\n\n      at Object.default_household_id (tests/security/advanced_integrity.test.js:19:39)\n\n  ● 🛡️ Advanced System Integrity & Security › 🛑 Security: Path Traversal prevention\n\n    TypeError: Cannot read properties of undefined (reading 'default_household_id')\n\n      17 |         const login = await request(app).post('/api/auth/login').send({ email: ADMIN_EMAIL, password: PASSWORD });\n      18 |         token = login.body.token;\n    > 19 |         householdId = login.body.user.default_household_id;\n         |                                       ^\n      20 |\n      21 |         if (!householdId) {\n      22 |             const hList = await request(app).get('/api/auth/my-households').set('Authorization', `Bearer ${token}`);\n\n      at Object.default_household_id (tests/security/advanced_integrity.test.js:19:39)\n\n  ● 🛡️ Advanced System Integrity & Security › 💾 Integrity: Backup Trigger\n\n    TypeError: Cannot read properties of undefined (reading 'default_household_id')\n\n      17 |         const login = await request(app).post('/api/auth/login').send({ email: ADMIN_EMAIL, password: PASSWORD });\n      18 |         token = login.body.token;\n    > 19 |         householdId = login.body.user.default_household_id;\n         |                                       ^\n      20 |\n      21 |         if (!householdId) {\n      22 |             const hList = await request(app).get('/api/auth/my-households').set('Authorization', `Bearer ${token}`);\n\n      at Object.default_household_id (tests/security/advanced_integrity.test.js:19:39)\n"
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 2,
+      "numPassingTests": 1,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1770336241160,
+        "runtime": 220,
+        "slow": false,
+        "start": 1770336240940
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/finance_routing.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "💰 Finance Routing Verification"
+          ],
+          "duration": 9,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/pots should not return 404",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "GET /api/households/:id/finance/savings/pots should not return 404"
+        },
+        {
+          "ancestorTitles": [
+            "💰 Finance Routing Verification"
+          ],
+          "duration": 9,
+          "failureDetails": [
+            {
+              "matcherResult": {
+                "message": "expect(received).toBeDefined()\n\nReceived: undefined",
+                "pass": false
+              }
+            }
+          ],
+          "failureMessages": [
+            "Error: expect(received).toBeDefined()\n\nReceived: undefined\n    at Object.toBeDefined (/home/matt/household-project/server/tests/finance_routing.test.js:53:24)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/:itemId should still work for valid items",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "failed",
+          "title": "GET /api/households/:id/finance/savings/:itemId should still work for valid items"
+        },
+        {
+          "ancestorTitles": [
+            "💰 Finance Routing Verification"
+          ],
+          "duration": 8,
+          "failureDetails": [
+            {
+              "matcherResult": {
+                "actual": 403,
+                "expected": 404,
+                "message": "expect(received).toBe(expected) // Object.is equality\n\nExpected: 404\nReceived: 403",
+                "name": "toBe",
+                "pass": false
+              }
+            }
+          ],
+          "failureMessages": [
+            "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 404\nReceived: 403\n    at Object.toBe (/home/matt/household-project/server/tests/finance_routing.test.js:68:28)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/999999 should return 404",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "failed",
+          "title": "GET /api/households/:id/finance/savings/999999 should return 404"
+        }
+      ],
+      "failureMessage": "  ● 💰 Finance Routing Verification › GET /api/households/:id/finance/savings/:itemId should still work for valid items\n\n    expect(received).toBeDefined()\n\n    Received: undefined\n\n      51 |         \n      52 |         const itemId = createRes.body.id;\n    > 53 |         expect(itemId).toBeDefined();\n         |                        ^\n      54 |\n      55 |         const res = await request(app)\n      56 |             .get(`/api/households/${householdId}/finance/savings/${itemId}`)\n\n      at Object.toBeDefined (tests/finance_routing.test.js:53:24)\n\n  ● 💰 Finance Routing Verification › GET /api/households/:id/finance/savings/999999 should return 404\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 404\n    Received: 403\n\n      66 |             .set('Authorization', `Bearer ${token}`);\n      67 |         \n    > 68 |         expect(res.status).toBe(404);\n         |                            ^\n      69 |     });\n      70 | });\n\n      at Object.toBe (tests/finance_routing.test.js:68:28)\n"
+    },
+    {
+      "leaks": false,
       "numFailingTests": 0,
       "numPassingTests": 4,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1770303541236,
-        "runtime": 525,
+        "end": 1770336241405,
+        "runtime": 192,
         "slow": false,
-        "start": 1770303540711
+        "start": 1770336241213
       },
       "skipped": false,
       "snapshot": {
@@ -541,7 +606,7 @@
           "ancestorTitles": [
             "Security Audit Proof of Concept"
           ],
-          "duration": 48,
+          "duration": 16,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Security Audit Proof of Concept Vulnerability 2: Path Traversal in Backup Download (FIXED)",
@@ -556,7 +621,7 @@
           "ancestorTitles": [
             "Security Audit Proof of Concept"
           ],
-          "duration": 268,
+          "duration": 14,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Security Audit Proof of Concept Vulnerability 3: Admin Escalation - Adding user to another household (FIXED)",
@@ -593,10 +658,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1770303541294,
-        "runtime": 51,
+        "end": 1770336241455,
+        "runtime": 46,
         "slow": false,
-        "start": 1770303541243
+        "start": 1770336241409
       },
       "skipped": false,
       "snapshot": {
@@ -614,7 +679,7 @@
           "ancestorTitles": [
             "Frontend Build Smoke Test"
           ],
-          "duration": 1,
+          "duration": 4,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Frontend Build Smoke Test index.html should exist after build",
@@ -629,7 +694,7 @@
           "ancestorTitles": [
             "Frontend Build Smoke Test"
           ],
-          "duration": 1,
+          "duration": 2,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Frontend Build Smoke Test index.html should contain root div",
@@ -644,7 +709,7 @@
           "ancestorTitles": [
             "Frontend Build Smoke Test"
           ],
-          "duration": 1,
+          "duration": 0,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Frontend Build Smoke Test JS bundle should be referenced",
