@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('Core UI Smoke Tests', () => {
     const ADMIN_EMAIL = 'mbryantuk@gmail.com';

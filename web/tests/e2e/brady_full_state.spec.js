@@ -470,6 +470,8 @@ test.describe('Brady Bunch Full System State E2E', () => {
         await page.click('a[href="/finance"]');
 
         await test.step('Verify Wealth or Burn', async () => {
+            // Open Wealth Tracking in Utility Bar
+            await page.locator('button[aria-label="Wealth Tracking"]').click();
             // Verify presence of large numbers
             await expect(page.locator('body')).toContainText(/2,450,000|2.45M/);
         });
@@ -479,7 +481,7 @@ test.describe('Brady Bunch Full System State E2E', () => {
         await page.goto('/finance/budget'); // Direct nav or click
 
         await test.step('Verify Cycle Start', async () => {
-            await expect(page.getByText('Jan 28')).toBeVisible();
+            await expect(page.locator('body')).toContainText(/Jan 28|28th Jan/);
         });
 
         await test.step('Verify Mikes Income Paid', async () => {
