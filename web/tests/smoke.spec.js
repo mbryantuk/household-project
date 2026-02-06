@@ -14,7 +14,7 @@ test.describe('Core UI Smoke Tests', () => {
     });
 
     test('Financial Profiles: Sidebar Accordion and Switching', async ({ page }) => {
-        await page.click('a[href*="/finance"]');
+        await page.getByRole('button', { name: 'Finance' }).click();
         await page.waitForURL('**/finance**');
 
         const accordion = page.locator('text=SWITCH PROFILE');
@@ -29,7 +29,7 @@ test.describe('Core UI Smoke Tests', () => {
     });
 
     test('Budget Tracker: Renders New Layout', async ({ page }) => {
-        await page.click('a[href*="/finance"]');
+        await page.getByRole('button', { name: 'Finance' }).click();
         await page.waitForURL('**/finance**');
         
         // Check for new Summary Row items
@@ -43,22 +43,23 @@ test.describe('Core UI Smoke Tests', () => {
     });
 
     test('Core Navigation: House Hub, Calendar, Meals', async ({ page }) => {
-        await page.click('a[href*="/house"]');
+        await page.getByRole('button', { name: 'House' }).click();
         await expect(page.locator('h2')).toContainText('Household Hub');
 
-        await page.click('a[href*="/calendar"]');
+        await page.getByRole('button', { name: 'Calendar' }).click();
         await expect(page.locator('h2')).toContainText('Calendar');
 
-        await page.click('a[href*="/meals"]');
+        await page.getByRole('button', { name: 'Meals' }).click();
         await expect(page.locator('h2')).toContainText('Meal Planner');
     });
 
     test('Avatar Menu: Opens Sidebar Panel', async ({ page }) => {
-        await page.locator('button:has(.MuiAvatar-root)').last().click();
+        // Click Avatar (Footer)
+        await page.getByRole('button', { name: 'Account & Settings' }).click();
         
         await expect(page.getByText('Account', { exact: true }).first()).toBeVisible();
-        // Use more specific selector for Settings to avoid ambiguity
-        await expect(page.getByRole('button', { name: /Settings/i })).toBeVisible();
+        // The menu item for settings has name "⚙️ Settings" usually
+        await expect(page.getByRole('button', { name: /Settings/i }).nth(1)).toBeVisible();
         await expect(page.getByText('Switch Household')).toBeVisible();
         await expect(page.getByText('Log Out')).toBeVisible();
     });

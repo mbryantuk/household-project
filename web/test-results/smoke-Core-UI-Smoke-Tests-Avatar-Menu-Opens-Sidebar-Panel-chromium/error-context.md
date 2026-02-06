@@ -30,13 +30,13 @@
           - generic [ref=e39]:
             - separator [ref=e41]
             - button "Account & Settings" [active] [ref=e42] [cursor=pointer]:
-              - generic [ref=e43]: M
+              - generic [ref=e43]: 🐧
         - generic [ref=e44]:
           - paragraph [ref=e46]: Account
           - generic [ref=e48]:
-            - generic [ref=e49]: M
+            - generic [ref=e49]: 🐧
             - generic [ref=e50]:
-              - paragraph [ref=e51]: Matt
+              - paragraph [ref=e51]: Matt Bryant
               - generic [ref=e52]: mbryantuk@gmail.com
           - list [ref=e53]:
             - separator [ref=e54]
@@ -58,7 +58,7 @@
             - generic [ref=e73]:
               - generic [ref=e74]:
                 - heading "Good afternoon, Matt" [level=2] [ref=e75]
-                - paragraph [ref=e76]: Friday 6 February • The Brady Bunch (API) v3.2.146-20260206 [2026-02-06 15:00:00]
+                - paragraph [ref=e76]: Friday 6 February • The Brady Bunch (API) v3.2.147 [2026-02-06 15:59:22]
               - button "Customize" [ref=e78] [cursor=pointer]:
                 - img [ref=e80]
                 - text: Customize
@@ -68,7 +68,7 @@
                   - img [ref=e89]
                   - paragraph [ref=e92]: System Time
                 - generic [ref=e94]:
-                  - heading "15:56:33" [level=1] [ref=e95]
+                  - heading "16:07:38" [level=1] [ref=e95]
                   - paragraph [ref=e96]: Friday, 6th February 2026
               - generic [ref=e99]:
                 - generic [ref=e100]:
@@ -500,32 +500,48 @@
                         - paragraph [ref=e644]: Cindy
                         - generic [ref=e645]: Turning 10
                     - generic [ref=e647]: 152 days
-        - generic [ref=e651]:
-          - button "Notes" [ref=e653] [cursor=pointer]:
-            - img [ref=e654]
-          - button "Calculator" [ref=e657] [cursor=pointer]:
-            - img [ref=e658]
+              - generic [ref=e650]:
+                - generic [ref=e651]:
+                  - img [ref=e653]
+                  - paragraph [ref=e655]: Investments
+                - generic [ref=e657]:
+                  - generic [ref=e660] [cursor=pointer]:
+                    - combobox [ref=e661]: Total Portfolio
+                    - img [ref=e663]
+                    - textbox [ref=e665]: total
+                  - generic [ref=e666]:
+                    - paragraph [ref=e667]: Total Portfolio
+                    - heading "💼 £152,000.00" [level=2] [ref=e668]
+                    - paragraph [ref=e669]: +£152,000 (0.00%)
+                  - generic [ref=e671]:
+                    - generic [ref=e672]: 📈 Vanguard ETF
+                    - generic [ref=e673]: £152,000
+        - generic [ref=e677]:
+          - button "Notes" [ref=e679] [cursor=pointer]:
+            - img [ref=e680]
+          - button "Calculator" [ref=e683] [cursor=pointer]:
+            - img [ref=e684]
           - separator
-          - button "Income" [ref=e661] [cursor=pointer]:
-            - img [ref=e662]
-          - button "Banking" [ref=e665] [cursor=pointer]:
-            - img [ref=e666]
-          - button "Savings & Pots" [ref=e669] [cursor=pointer]:
-            - img [ref=e670]
-          - button "Investments" [ref=e673] [cursor=pointer]:
-            - img [ref=e674]
-          - button "Pensions" [ref=e677] [cursor=pointer]:
-            - img [ref=e678]
-          - button "Credit Cards" [ref=e681] [cursor=pointer]:
-            - img [ref=e682]
-          - button "Personal Loans" [ref=e685] [cursor=pointer]:
-            - img [ref=e686]
-          - button "Mortgages" [ref=e690] [cursor=pointer]:
-            - img [ref=e691]
-          - button "Car Finance" [ref=e694] [cursor=pointer]:
-            - img [ref=e695]
+          - button "Income" [ref=e687] [cursor=pointer]:
+            - img [ref=e688]
+          - button "Banking" [ref=e691] [cursor=pointer]:
+            - img [ref=e692]
+          - button "Savings & Pots" [ref=e695] [cursor=pointer]:
+            - img [ref=e696]
+          - button "Investments" [ref=e699] [cursor=pointer]:
+            - img [ref=e700]
+          - button "Pensions" [ref=e703] [cursor=pointer]:
+            - img [ref=e704]
+          - button "Credit Cards" [ref=e707] [cursor=pointer]:
+            - img [ref=e708]
+          - button "Personal Loans" [ref=e711] [cursor=pointer]:
+            - img [ref=e712]
+          - button "Mortgages" [ref=e716] [cursor=pointer]:
+            - img [ref=e717]
+          - button "Car Finance" [ref=e720] [cursor=pointer]:
+            - img [ref=e721]
           - separator
-          - button "Calendar" [ref=e698] [cursor=pointer]:
-            - img [ref=e699]
-  - tooltip "Account & Settings" [ref=e701]
+          - button "Calendar" [ref=e724] [cursor=pointer]:
+            - img [ref=e725]
+  - tooltip "Account & Settings" [ref=e727]
 ```

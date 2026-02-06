@@ -28,14 +28,14 @@
       - generic [ref=e39]:
         - separator [ref=e41]
         - button "Account & Settings" [ref=e42] [cursor=pointer]:
-          - generic [ref=e43]: M
+          - generic [ref=e43]: 🐧
     - generic [ref=e44]:
       - main [ref=e45]:
         - generic [ref=e46]:
           - generic [ref=e47]:
             - generic [ref=e48]:
               - heading "Good afternoon, Matt" [level=2] [ref=e49]
-              - paragraph [ref=e50]: Friday 6 February • The Brady Bunch (API) v3.2.146-20260206 [2026-02-06 15:00:00]
+              - paragraph [ref=e50]: Friday 6 February • The Brady Bunch (API) v3.2.147 [2026-02-06 15:59:22]
             - button "Customize" [ref=e52] [cursor=pointer]:
               - img [ref=e54]
               - text: Customize
@@ -45,7 +45,7 @@
                 - img [ref=e63]
                 - paragraph [ref=e66]: System Time
               - generic [ref=e68]:
-                - heading "15:54:24" [level=1] [ref=e69]
+                - heading "16:05:29" [level=1] [ref=e69]
                 - paragraph [ref=e70]: Friday, 6th February 2026
             - generic [ref=e73]:
               - generic [ref=e74]:
@@ -477,31 +477,47 @@
                       - paragraph [ref=e618]: Cindy
                       - generic [ref=e619]: Turning 10
                   - generic [ref=e621]: 152 days
-      - generic [ref=e625]:
-        - button "Notes" [ref=e627] [cursor=pointer]:
-          - img [ref=e628]
-        - button "Calculator" [ref=e631] [cursor=pointer]:
-          - img [ref=e632]
+            - generic [ref=e624]:
+              - generic [ref=e625]:
+                - img [ref=e627]
+                - paragraph [ref=e629]: Investments
+              - generic [ref=e631]:
+                - generic [ref=e634] [cursor=pointer]:
+                  - combobox [ref=e635]: Total Portfolio
+                  - img [ref=e637]
+                  - textbox [ref=e639]: total
+                - generic [ref=e640]:
+                  - paragraph [ref=e641]: Total Portfolio
+                  - heading "💼 £152,000.00" [level=2] [ref=e642]
+                  - paragraph [ref=e643]: +£152,000 (0.00%)
+                - generic [ref=e645]:
+                  - generic [ref=e646]: 📈 Vanguard ETF
+                  - generic [ref=e647]: £152,000
+      - generic [ref=e651]:
+        - button "Notes" [ref=e653] [cursor=pointer]:
+          - img [ref=e654]
+        - button "Calculator" [ref=e657] [cursor=pointer]:
+          - img [ref=e658]
         - separator
-        - button "Income" [ref=e635] [cursor=pointer]:
-          - img [ref=e636]
-        - button "Banking" [ref=e639] [cursor=pointer]:
-          - img [ref=e640]
-        - button "Savings & Pots" [ref=e643] [cursor=pointer]:
-          - img [ref=e644]
-        - button "Investments" [ref=e647] [cursor=pointer]:
-          - img [ref=e648]
-        - button "Pensions" [ref=e651] [cursor=pointer]:
-          - img [ref=e652]
-        - button "Credit Cards" [ref=e655] [cursor=pointer]:
-          - img [ref=e656]
-        - button "Personal Loans" [ref=e659] [cursor=pointer]:
-          - img [ref=e660]
-        - button "Mortgages" [ref=e664] [cursor=pointer]:
-          - img [ref=e665]
-        - button "Car Finance" [ref=e668] [cursor=pointer]:
-          - img [ref=e669]
+        - button "Income" [ref=e661] [cursor=pointer]:
+          - img [ref=e662]
+        - button "Banking" [ref=e665] [cursor=pointer]:
+          - img [ref=e666]
+        - button "Savings & Pots" [ref=e669] [cursor=pointer]:
+          - img [ref=e670]
+        - button "Investments" [ref=e673] [cursor=pointer]:
+          - img [ref=e674]
+        - button "Pensions" [ref=e677] [cursor=pointer]:
+          - img [ref=e678]
+        - button "Credit Cards" [ref=e681] [cursor=pointer]:
+          - img [ref=e682]
+        - button "Personal Loans" [ref=e685] [cursor=pointer]:
+          - img [ref=e686]
+        - button "Mortgages" [ref=e690] [cursor=pointer]:
+          - img [ref=e691]
+        - button "Car Finance" [ref=e694] [cursor=pointer]:
+          - img [ref=e695]
         - separator
-        - button "Calendar" [ref=e672] [cursor=pointer]:
-          - img [ref=e673]
+        - button "Calendar" [ref=e698] [cursor=pointer]:
+          - img [ref=e699]
 ```

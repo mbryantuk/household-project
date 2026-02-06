@@ -94,7 +94,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "timedOut",
-                      "duration": 60189,
+                      "duration": 60233,
                       "error": {
                         "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
@@ -115,7 +115,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-06T15:53:24.540Z",
+                      "startTime": "2026-02-06T16:04:30.004Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -155,7 +155,7 @@
                       "workerIndex": 1,
                       "parallelIndex": 0,
                       "status": "timedOut",
-                      "duration": 60248,
+                      "duration": 60186,
                       "error": {
                         "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
@@ -176,7 +176,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-06T15:54:26.986Z",
+                      "startTime": "2026-02-06T16:05:32.430Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -237,7 +237,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-06T15:55:29.441Z",
+                      "startTime": "2026-02-06T16:06:34.620Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -277,10 +277,10 @@
                       "workerIndex": 3,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 2342,
+                      "duration": 2329,
                       "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /Settings/i })\nExpected: visible\nError: strict mode violation: getByRole('button', { name: /Settings/i }) resolved to 2 elements:\n    1) <button type=\"button\" aria-label=\"Account & Settings\" class=\"MuiIconButton-root MuiIconButton-variantPlain MuiIconButton-colorPrimary MuiIconButton-sizeMd css-1dud42f\">…</button> aka getByRole('button', { name: 'Account & Settings' })\n    2) <div tabindex=\"0\" role=\"button\" data-first-child=\"\" class=\"MuiListItemButton-root MuiListItemButton-colorNeutral MuiListItemButton-variantPlain css-bfgz8h\">…</div> aka getByRole('button', { name: '⚙️ Settings' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /Settings/i })\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /Settings/i })\nExpected: visible\nError: strict mode violation: getByRole('button', { name: /Settings/i }) resolved to 2 elements:\n    1) <button type=\"button\" aria-label=\"Account & Settings\" class=\"MuiIconButton-root MuiIconButton-variantPlain MuiIconButton-colorPrimary MuiIconButton-sizeMd css-1dud42f\">…</button> aka getByRole('button', { name: 'Account & Settings' })\n    2) <div tabindex=\"0\" role=\"button\" data-first-child=\"\" class=\"MuiListItemButton-root MuiListItemButton-colorNeutral MuiListItemButton-variantPlain css-bfgz8h\">…</div> aka getByRole('button', { name: '⚙️ Settings' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /Settings/i })\u001b[22m\n\n    at /var/tmp/vibe-kanban/worktrees/4a81-can-you-view-the/household-project/web/tests/smoke.spec.js:61:71",
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /Settings/i })\nExpected: visible\nError: strict mode violation: getByRole('button', { name: /Settings/i }) resolved to 2 elements:\n    1) <button type=\"button\" aria-label=\"Account & Settings\" class=\"MuiIconButton-root MuiIconButton-variantPlain MuiIconButton-colorPrimary MuiIconButton-sizeMd css-14m5iak\">…</button> aka getByRole('button', { name: 'Account & Settings' })\n    2) <div tabindex=\"0\" role=\"button\" data-first-child=\"\" class=\"MuiListItemButton-root MuiListItemButton-colorNeutral MuiListItemButton-variantPlain css-1406c48\">…</div> aka getByRole('button', { name: '⚙️ Settings' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /Settings/i })\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /Settings/i })\nExpected: visible\nError: strict mode violation: getByRole('button', { name: /Settings/i }) resolved to 2 elements:\n    1) <button type=\"button\" aria-label=\"Account & Settings\" class=\"MuiIconButton-root MuiIconButton-variantPlain MuiIconButton-colorPrimary MuiIconButton-sizeMd css-14m5iak\">…</button> aka getByRole('button', { name: 'Account & Settings' })\n    2) <div tabindex=\"0\" role=\"button\" data-first-child=\"\" class=\"MuiListItemButton-root MuiListItemButton-colorNeutral MuiListItemButton-variantPlain css-1406c48\">…</div> aka getByRole('button', { name: '⚙️ Settings' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /Settings/i })\u001b[22m\n\n    at /var/tmp/vibe-kanban/worktrees/4a81-can-you-view-the/household-project/web/tests/smoke.spec.js:61:71",
                         "location": {
                           "file": "/var/tmp/vibe-kanban/worktrees/4a81-can-you-view-the/household-project/web/tests/smoke.spec.js",
                           "column": 71,
@@ -295,13 +295,13 @@
                             "column": 71,
                             "line": 61
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /Settings/i })\nExpected: visible\nError: strict mode violation: getByRole('button', { name: /Settings/i }) resolved to 2 elements:\n    1) <button type=\"button\" aria-label=\"Account & Settings\" class=\"MuiIconButton-root MuiIconButton-variantPlain MuiIconButton-colorPrimary MuiIconButton-sizeMd css-1dud42f\">…</button> aka getByRole('button', { name: 'Account & Settings' })\n    2) <div tabindex=\"0\" role=\"button\" data-first-child=\"\" class=\"MuiListItemButton-root MuiListItemButton-colorNeutral MuiListItemButton-variantPlain css-bfgz8h\">…</div> aka getByRole('button', { name: '⚙️ Settings' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /Settings/i })\u001b[22m\n\n\n\u001b[0m \u001b[90m 59 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Account'\u001b[39m\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 60 |\u001b[39m         \u001b[90m// Use more specific selector for Settings to avoid ambiguity\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 61 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[35m/Settings/i\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 62 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Switch Household'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 63 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Log Out'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 64 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/4a81-can-you-view-the/household-project/web/tests/smoke.spec.js:61:71\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /Settings/i })\nExpected: visible\nError: strict mode violation: getByRole('button', { name: /Settings/i }) resolved to 2 elements:\n    1) <button type=\"button\" aria-label=\"Account & Settings\" class=\"MuiIconButton-root MuiIconButton-variantPlain MuiIconButton-colorPrimary MuiIconButton-sizeMd css-14m5iak\">…</button> aka getByRole('button', { name: 'Account & Settings' })\n    2) <div tabindex=\"0\" role=\"button\" data-first-child=\"\" class=\"MuiListItemButton-root MuiListItemButton-colorNeutral MuiListItemButton-variantPlain css-1406c48\">…</div> aka getByRole('button', { name: '⚙️ Settings' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /Settings/i })\u001b[22m\n\n\n\u001b[0m \u001b[90m 59 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Account'\u001b[39m\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 60 |\u001b[39m         \u001b[90m// Use more specific selector for Settings to avoid ambiguity\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 61 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[35m/Settings/i\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 62 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Switch Household'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 63 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Log Out'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 64 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/4a81-can-you-view-the/household-project/web/tests/smoke.spec.js:61:71\u001b[22m"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-06T15:56:31.864Z",
+                      "startTime": "2026-02-06T16:07:36.813Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -337,8 +337,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-06T15:53:20.293Z",
-    "duration": 194169.201,
+    "startTime": "2026-02-06T16:04:25.928Z",
+    "duration": 193433.886,
     "expected": 0,
     "skipped": 0,
     "unexpected": 4,

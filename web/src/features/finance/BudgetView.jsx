@@ -1226,8 +1226,8 @@ export default function BudgetView({ financialProfileId }) {
       const isOpen = sectionsOpen[group.id] ?? true;
       const toggle = () => setSectionsOpen(prev => ({ ...prev, [group.id]: !prev[group.id] }));
       return (
-      <Accordion expanded={isOpen} onChange={toggle} variant="outlined" sx={{ borderRadius: 'md', mb: 1, boxShadow: 'sm', overflow: 'hidden' }} key={group.id} >
-          <AccordionSummary expandIcon={<ExpandMore />} sx={{ py: { xs: 1.5, sm: 1 } }}>
+      <Accordion expanded={isOpen} onChange={toggle} variant="outlined" sx={{ borderRadius: 'md', mb: 0.5, boxShadow: 'xs', overflow: 'hidden' }} key={group.id} >
+          <AccordionSummary expandIcon={<ExpandMore />} sx={{ py: 0.5 }}>
               <Box sx={{ display: 'flex', flexWrap: { xs: 'wrap', sm: 'nowrap' }, justifyContent: 'space-between', width: '100%', alignItems: 'center', mr: 2, overflow: 'hidden', gap: 1.5 }}>
                   <Typography level="title-lg" sx={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 0, flexBasis: { xs: '100%', sm: 'auto' } }}>
                       <Avatar size="sm" sx={{ bgcolor: 'background.level3' }}>{group.emoji}</Avatar> 
