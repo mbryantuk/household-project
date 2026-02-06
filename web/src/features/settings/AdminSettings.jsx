@@ -189,9 +189,9 @@ export default function AdminSettings() {
                 <Grid xs={12} md={7}>
                     <Stack spacing={3}>
                         <Box>
-                            <Typography level="title-lg" startDecorator={<Verified color="primary" />}>Totem Household OS</Typography>
+                            <Typography level="title-lg" startDecorator={<Verified color="primary" />}>Mantel Household OS</Typography>
                             <Typography level="body-sm" sx={{ mt: 1 }}>
-                                MANTEL (Totem) is a next-generation household management engine designed for absolute data privacy and multi-tenant isolation.
+                                MANTEL is a next-generation household management engine designed for absolute data privacy and multi-tenant isolation.
                             </Typography>
                         </Box>
 
@@ -203,7 +203,7 @@ export default function AdminSettings() {
                                 <b>Lead Architect:</b> Matt Bryant<br />
                                 <b>Framework:</b> MUI Joy UI & React<br />
                                 <b>Core Icons:</b> Google Material Symbols<br />
-                                <b>Database:</b> SQLite (Optimized for Totem V3 Architecture)
+                                <b>Database:</b> SQLite (Optimized for Mantel V3 Architecture)
                             </Typography>
                         </Box>
 
