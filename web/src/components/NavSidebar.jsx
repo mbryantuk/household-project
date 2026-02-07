@@ -780,25 +780,35 @@ export default function NavSidebar({
 
                                   {members.filter(m => m.type !== 'pet').map(m => <SubItem key={m.id} label={m.alias || (m.name || '').split(' ')[0]} to={`/household/${household.id}/people/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
 
-                                  {enabledModules.includes('pets') && (
+                                                                    {enabledModules.includes('pets') && (
 
-                                      <>
+                                                                        <>
 
-                                          <Divider sx={{ my: 1 }} />
+                                                                            <Divider sx={{ my: 1 }} />
 
-                                          <GroupHeader label="Pets" />
+                                                                            <GroupHeader label="Pets" />
 
-                                          {members.filter(m => m.type === 'pet').map(m => <SubItem key={m.id} label={m.name} to={`/household/${household.id}/pets/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
+                                                                            {members.filter(m => m.type === 'pet').map(m => <SubItem key={m.id} label={m.name} to={`/household/${household.id}/pets/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
 
-                                      </>
+                                                                        </>
 
-                                  )}
+                                                                    )}
 
-                                  <Divider sx={{ my: 1 }} />
+                                                                    
 
-                                  <GroupHeader label="Fleet" />
+                                                                    {enabledModules.includes('vehicles') && (
 
-                                  {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`/household/${household.id}/vehicles/${v.id}`} emoji={v.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
+                                                                        <>
+
+                                                                            <Divider sx={{ my: 1 }} />
+
+                                                                            <GroupHeader label="Fleet" />
+
+                                                                            {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`/household/${household.id}/vehicles/${v.id}`} emoji={v.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
+
+                                                                        </>
+
+                                                                    )}
 
                               </>
 
