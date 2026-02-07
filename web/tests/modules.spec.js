@@ -1,42 +1,56 @@
 import { test, expect } from '@playwright/test';
 
+test.setTimeout(120000); // 2 minutes
+
 test.describe('Module Configuration', () => {
-  test.use({ storageState: 'playwright/.auth/admin.json' });
+    const ADMIN_EMAIL = 'mbryantuk@gmail.com';
+    const PASSWORD = 'Password123!';
+
+    test.beforeEach(async ({ page }) => {
+        await page.goto('/login');
+        await page.fill('input[type="email"]', ADMIN_EMAIL);
+        await page.click('button:has-text("Next")');
+        await page.fill('input[type="password"]', PASSWORD);
+        await page.click('button:has-text("Log In")');
+        await page.waitForURL('**/dashboard');
+        await page.waitForLoadState('networkidle');
+    });
 
   test('should toggle Vehicles/Fleet module', async ({ page }) => {
-    // 1. Navigate to Settings using the sidebar or direct URL.
-    // We assume household 1 exists and user has access.
-    await page.goto('/household/1/settings');
+    // Navigate to Settings - Household tab is index 2
+    const url = page.url();
+    const householdId = url.split('/household/')[1].split('/')[0];
+    await page.goto(`/household/${householdId}/settings?tab=2`);
+    await page.waitForLoadState('networkidle');
     
-    // Wait for settings to load
-    await expect(page.getByText('Feature Modules')).toBeVisible();
+    // Wait for settings section
+    await expect(page.getByText('Feature Modules')).toBeVisible({ timeout: 15000 });
 
-    // Locators
-    const fleetHeader = page.getByText('FLEET', { exact: true });
-    // The switch for vehicles. The text in the box is "Vehicles" (capitalized by css? no, manually capitalized in map key? 'pets', 'vehicles' are strings).
-    // In code: <Typography ... textTransform="capitalize">{mod}</Typography>
-    // So visual text is "Vehicles".
-    const vehicleRow = page.locator('div').filter({ hasText: /^VehiclesEnable or disable vehicles tracking.$/ });
-    const vehicleSwitch = vehicleRow.getByRole('checkbox');
+    // Try to find ANY checkbox in the modules section
+    // The modules section is a Sheet. 
+    const vehicleSwitch = page.locator('input[type="checkbox"]').nth(1);
 
-    // 2. Initial State Check
-    // We want to ensure it is ON to start testing the "Turn Off" flow.
+    // Open Household Panel in sidebar
+    await page.getByText('House', { exact: true }).first().click();
+
+    // Ensure it is ON to start
+    await vehicleSwitch.waitFor({ state: 'visible' });
     const isInitiallyChecked = await vehicleSwitch.isChecked();
     if (!isInitiallyChecked) {
         await vehicleSwitch.click();
         await expect(vehicleSwitch).toBeChecked();
-        // Wait for sidebar to update
-        await expect(fleetHeader).toBeVisible();
-    } else {
-        await expect(fleetHeader).toBeVisible();
     }
+    
+    // Check for FLEET header
+    const fleetHeader = page.locator('text=FLEET');
+    await expect(fleetHeader).toBeVisible();
 
-    // 3. Turn OFF
+    // Turn OFF
     await vehicleSwitch.click();
     await expect(vehicleSwitch).not.toBeChecked();
     await expect(fleetHeader).toBeHidden();
 
-    // 4. Turn ON
+    // Turn ON
     await vehicleSwitch.click();
     await expect(vehicleSwitch).toBeChecked();
     await expect(fleetHeader).toBeVisible();

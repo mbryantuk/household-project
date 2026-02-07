@@ -1,0 +1,323 @@
+# Page snapshot
+
+```yaml
+- main [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - generic [ref=e8]:
+          - generic "Dashboard" [ref=e10] [cursor=pointer]: 🏠
+          - list [ref=e11]:
+            - listitem [ref=e12]:
+              - button "House" [ref=e13] [cursor=pointer]:
+                - img [ref=e15]
+                - generic [ref=e17]: House
+            - listitem [ref=e18]:
+              - button "Calendar" [ref=e19] [cursor=pointer]:
+                - img [ref=e21]
+                - generic [ref=e23]: Calendar
+          - separator [ref=e24]
+        - list [ref=e26]:
+          - listitem [ref=e27]:
+            - button "Finance" [ref=e28] [cursor=pointer]:
+              - img [ref=e30]
+              - generic [ref=e32]: Finance
+          - listitem [ref=e33]:
+            - button "Meals" [ref=e34] [cursor=pointer]:
+              - img [ref=e36]
+              - generic [ref=e38]: Meals
+        - generic [ref=e39]:
+          - separator [ref=e41]
+          - button "Account & Settings" [ref=e42] [cursor=pointer]:
+            - generic [ref=e43]: 🐧
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - paragraph [ref=e46]: household
+          - button [ref=e47] [cursor=pointer]:
+            - img [ref=e48]
+        - list [ref=e50]:
+          - listitem [ref=e51]:
+            - generic [ref=e52]: Overview
+          - listitem [ref=e53]:
+            - link "🏠 House Hub" [ref=e54] [cursor=pointer]:
+              - /url: /household/3767/house
+              - generic [ref=e56]: 🏠
+              - generic [ref=e57]: House Hub
+          - separator [ref=e58]
+          - listitem [ref=e59]:
+            - generic [ref=e60]: Residents
+          - listitem [ref=e61]:
+            - link "👨 Mike" [ref=e62] [cursor=pointer]:
+              - /url: /household/3767/people/1
+              - generic [ref=e64]: 👨
+              - generic [ref=e65]: Mike
+          - listitem [ref=e66]:
+            - link "👩 Carol" [ref=e67] [cursor=pointer]:
+              - /url: /household/3767/people/2
+              - generic [ref=e69]: 👩
+              - generic [ref=e70]: Carol
+          - listitem [ref=e71]:
+            - link "👦 Greg" [ref=e72] [cursor=pointer]:
+              - /url: /household/3767/people/3
+              - generic [ref=e74]: 👦
+              - generic [ref=e75]: Greg
+          - listitem [ref=e76]:
+            - link "👧 Marcia" [ref=e77] [cursor=pointer]:
+              - /url: /household/3767/people/4
+              - generic [ref=e79]: 👧
+              - generic [ref=e80]: Marcia
+          - listitem [ref=e81]:
+            - link "👦 Peter" [ref=e82] [cursor=pointer]:
+              - /url: /household/3767/people/5
+              - generic [ref=e84]: 👦
+              - generic [ref=e85]: Peter
+          - listitem [ref=e86]:
+            - link "👧 Jan" [ref=e87] [cursor=pointer]:
+              - /url: /household/3767/people/6
+              - generic [ref=e89]: 👧
+              - generic [ref=e90]: Jan
+          - listitem [ref=e91]:
+            - link "👦 Bobby" [ref=e92] [cursor=pointer]:
+              - /url: /household/3767/people/7
+              - generic [ref=e94]: 👦
+              - generic [ref=e95]: Bobby
+          - listitem [ref=e96]:
+            - link "👧 Cindy" [ref=e97] [cursor=pointer]:
+              - /url: /household/3767/people/8
+              - generic [ref=e99]: 👧
+              - generic [ref=e100]: Cindy
+          - listitem [ref=e101]:
+            - link "👵 Alice" [ref=e102] [cursor=pointer]:
+              - /url: /household/3767/people/9
+              - generic [ref=e104]: 👵
+              - generic [ref=e105]: Alice
+          - separator [ref=e106]
+          - listitem [ref=e107]:
+            - generic [ref=e108]: Pets
+          - listitem [ref=e109]:
+            - link "🐕 Tiger" [ref=e110] [cursor=pointer]:
+              - /url: /household/3767/pets/10
+              - generic [ref=e112]: 🐕
+              - generic [ref=e113]: Tiger
+          - listitem [ref=e114]:
+            - link "🐈 Fluffy" [ref=e115] [cursor=pointer]:
+              - /url: /household/3767/pets/11
+              - generic [ref=e117]: 🐈
+              - generic [ref=e118]: Fluffy
+          - separator [ref=e119]
+          - listitem [ref=e120]:
+            - generic [ref=e121]: Fleet
+          - listitem [ref=e122]:
+            - link "⚡ Tesla Model S" [ref=e123] [cursor=pointer]:
+              - /url: /household/3767/vehicles/1
+              - generic [ref=e125]: ⚡
+              - generic [ref=e126]: Tesla Model S
+          - listitem [ref=e127]:
+            - link "🔋 Rivian R1S" [ref=e128] [cursor=pointer]:
+              - /url: /household/3767/vehicles/2
+              - generic [ref=e130]: 🔋
+              - generic [ref=e131]: Rivian R1S
+    - generic [ref=e132]:
+      - main [ref=e133]:
+        - generic [ref=e134]:
+          - generic [ref=e135]:
+            - generic [ref=e136]:
+              - generic [ref=e137]: 🏠
+              - generic [ref=e138]:
+                - heading "The Brady Bunch (API) v3.2.154 [2026-02-07 22:33:26]" [level=2] [ref=e139]
+                - paragraph [ref=e140]:
+                  - img [ref=e142]
+                  - text: Built N/A • Freehold
+            - generic [ref=e144]:
+              - button "Calendar" [ref=e145] [cursor=pointer]:
+                - img [ref=e147]
+                - text: Calendar
+              - button "Edit House" [ref=e149] [cursor=pointer]:
+                - img [ref=e151]
+                - text: Edit House
+          - generic [ref=e153]:
+            - generic [ref=e155]:
+              - generic [ref=e156]:
+                - paragraph [ref=e157]:
+                  - img [ref=e159]
+                  - text: Market Valuation
+                - generic [ref=e161]:
+                  - generic [ref=e164]:
+                    - img [ref=e166]
+                    - generic [ref=e168]:
+                      - generic [ref=e169]: Current Value
+                      - paragraph [ref=e170]: £0.00
+                  - generic [ref=e173]:
+                    - img [ref=e175]
+                    - generic [ref=e177]:
+                      - generic [ref=e178]: Purchase Price
+                      - paragraph [ref=e179]: £0.00
+                  - generic [ref=e182]:
+                    - img [ref=e184]
+                    - generic [ref=e186]:
+                      - generic [ref=e187]: Estimated Growth
+                      - paragraph [ref=e188]: +£0.00
+              - generic [ref=e189]:
+                - generic [ref=e191]:
+                  - paragraph [ref=e192]:
+                    - img [ref=e194]
+                    - text: Tech & Utilities
+                  - list [ref=e196]:
+                    - listitem [ref=e197]:
+                      - img [ref=e199]
+                      - generic [ref=e201]:
+                        - generic [ref=e202]: Broadband
+                        - paragraph [ref=e203]: Not Set
+                    - listitem [ref=e204]:
+                      - img [ref=e206]
+                      - generic [ref=e208]:
+                        - generic [ref=e209]: Energy Meter
+                        - paragraph [ref=e210]: Not Set
+                    - listitem [ref=e211]:
+                      - img [ref=e213]
+                      - generic [ref=e215]:
+                        - generic [ref=e216]: Water Supply
+                        - paragraph [ref=e217]: Metered Supply
+                - generic [ref=e219]:
+                  - paragraph [ref=e220]:
+                    - img [ref=e222]
+                    - text: Inventory Summary
+                  - generic [ref=e224]:
+                    - generic [ref=e225]:
+                      - paragraph [ref=e226]:
+                        - img [ref=e228]
+                        - text: Fleet Size
+                      - generic [ref=e231]: 0 Vehicles
+                    - separator [ref=e232]
+                    - generic [ref=e233]:
+                      - paragraph [ref=e234]:
+                        - img [ref=e236]
+                        - text: High Value Assets
+                      - generic [ref=e239]: Linked Records
+                    - separator [ref=e240]
+                    - button "View Full Inventory" [ref=e241] [cursor=pointer]:
+                      - text: View Full Inventory
+                      - img [ref=e243]
+            - generic [ref=e246]:
+              - generic [ref=e247]:
+                - paragraph [ref=e248]:
+                  - img [ref=e250]
+                  - text: Residents
+                - button "Add Resident" [ref=e252] [cursor=pointer]:
+                  - img [ref=e253]
+              - generic [ref=e255]:
+                - generic [ref=e256]:
+                  - img [ref=e257]
+                  - paragraph [ref=e259]:
+                    - text: Adults
+                    - generic [ref=e260]: (5)
+                - generic [ref=e261]:
+                  - generic [ref=e263] [cursor=pointer]:
+                    - generic [ref=e264]: 👨
+                    - generic [ref=e265]:
+                      - paragraph [ref=e266]: Mike
+                      - generic [ref=e267]: 48 Years Old
+                    - img [ref=e268]
+                  - generic [ref=e271] [cursor=pointer]:
+                    - generic [ref=e272]: 👩
+                    - generic [ref=e273]:
+                      - paragraph [ref=e274]: Carol
+                      - generic [ref=e275]: 44 Years Old
+                    - img [ref=e276]
+                  - generic [ref=e279] [cursor=pointer]:
+                    - generic [ref=e280]: 👦
+                    - generic [ref=e281]:
+                      - paragraph [ref=e282]: Greg
+                      - generic [ref=e283]: 22 Years Old
+                    - img [ref=e284]
+                  - generic [ref=e287] [cursor=pointer]:
+                    - generic [ref=e288]: 👧
+                    - generic [ref=e289]:
+                      - paragraph [ref=e290]: Marcia
+                      - generic [ref=e291]: 20 Years Old
+                    - img [ref=e292]
+                  - generic [ref=e295] [cursor=pointer]:
+                    - generic [ref=e296]: 👵
+                    - generic [ref=e297]:
+                      - paragraph [ref=e298]: Alice
+                      - generic [ref=e299]: 58 Years Old
+                    - img [ref=e300]
+              - generic [ref=e302]:
+                - generic [ref=e303]:
+                  - img [ref=e304]
+                  - paragraph [ref=e308]:
+                    - text: Children
+                    - generic [ref=e309]: (4)
+                - generic [ref=e310]:
+                  - generic [ref=e312] [cursor=pointer]:
+                    - generic [ref=e313]: 👦
+                    - generic [ref=e314]:
+                      - paragraph [ref=e315]: Peter
+                      - generic [ref=e316]: 18 Years Old
+                    - img [ref=e317]
+                  - generic [ref=e320] [cursor=pointer]:
+                    - generic [ref=e321]: 👧
+                    - generic [ref=e322]:
+                      - paragraph [ref=e323]: Jan
+                      - generic [ref=e324]: 15 Years Old
+                    - img [ref=e325]
+                  - generic [ref=e328] [cursor=pointer]:
+                    - generic [ref=e329]: 👦
+                    - generic [ref=e330]:
+                      - paragraph [ref=e331]: Bobby
+                      - generic [ref=e332]: 13 Years Old
+                    - img [ref=e333]
+                  - generic [ref=e336] [cursor=pointer]:
+                    - generic [ref=e337]: 👧
+                    - generic [ref=e338]:
+                      - paragraph [ref=e339]: Cindy
+                      - generic [ref=e340]: 10 Years Old
+                    - img [ref=e341]
+              - generic [ref=e343]:
+                - generic [ref=e344]:
+                  - img [ref=e345]
+                  - paragraph [ref=e351]:
+                    - text: Pets
+                    - generic [ref=e352]: (2)
+                - generic [ref=e353]:
+                  - generic [ref=e355] [cursor=pointer]:
+                    - generic [ref=e356]: 🐕
+                    - paragraph [ref=e358]: Tiger
+                    - img [ref=e359]
+                  - generic [ref=e362] [cursor=pointer]:
+                    - generic [ref=e363]: 🐈
+                    - paragraph [ref=e365]: Fluffy
+                    - img [ref=e366]
+      - generic [ref=e371]:
+        - button "Notes" [ref=e373] [cursor=pointer]:
+          - img [ref=e374]
+        - button "Calculator" [ref=e377] [cursor=pointer]:
+          - img [ref=e378]
+        - separator
+        - button "Income" [ref=e381] [cursor=pointer]:
+          - img [ref=e382]
+        - button "Banking" [ref=e385] [cursor=pointer]:
+          - img [ref=e386]
+        - button "Savings & Pots" [ref=e389] [cursor=pointer]:
+          - img [ref=e390]
+        - button "Investments" [ref=e393] [cursor=pointer]:
+          - img [ref=e394]
+        - button "Pensions" [ref=e397] [cursor=pointer]:
+          - img [ref=e398]
+        - button "Credit Cards" [ref=e401] [cursor=pointer]:
+          - img [ref=e402]
+        - button "Personal Loans" [ref=e405] [cursor=pointer]:
+          - img [ref=e406]
+        - button "Mortgages" [ref=e410] [cursor=pointer]:
+          - img [ref=e411]
+        - button "Car Finance" [ref=e414] [cursor=pointer]:
+          - img [ref=e415]
+        - separator
+        - button "Budget Health" [ref=e418] [cursor=pointer]:
+          - img [ref=e419]
+        - button "Wealth Tracking" [ref=e422] [cursor=pointer]:
+          - img [ref=e423]
+        - separator
+        - button "Calendar" [ref=e426] [cursor=pointer]:
+          - img [ref=e427]
+```

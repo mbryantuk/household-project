@@ -126,6 +126,7 @@ const FinanceProfileAccordion = ({ householdId, api, isDark, onSelect, currentPr
         } catch (err) { console.error("Failed to fetch profiles", err); }
     }, [api, householdId, currentProfileId, onSelect]);
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     useEffect(() => { fetchProfiles(); }, [fetchProfiles]);
 
     const handleCreate = async (e) => {
@@ -233,7 +234,8 @@ export default function NavSidebar({
   }, [isMobile]);
 
   const togglePin = () => {
-      const newVal = !isPinned;\n      setIsPinned(newVal);
+      const newVal = !isPinned;
+      setIsPinned(newVal);
       localStorage.setItem('nav_pinned', String(newVal));
   };
 
