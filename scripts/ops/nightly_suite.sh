@@ -24,7 +24,8 @@ if [ -f "/.dockerenv" ]; then
     SKIP_PURGE=true
 else
     IS_CONTAINER=false
-    PROJECT_ROOT="/home/matt/household-project"
+    # Dynamically find the absolute path to the project root (parent of scripts/)
+    PROJECT_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 fi
 
 # Parse arguments

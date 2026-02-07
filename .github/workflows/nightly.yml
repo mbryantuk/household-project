@@ -1,0 +1,39 @@
+name: Nightly Health Check
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # Run at 02:00 UTC every night
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  nightly-health:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: 'npm'
+        cache-dependency-path: |
+          server/package-lock.json
+          web/package-lock.json
+
+    - name: Install Dependencies
+      run: |
+        cd server && npm ci
+        cd ../web && npm ci
+        npx playwright install --with-deps chromium
+
+    - name: Run Nightly Suite
+      env:
+        # Use a dummy secret if needed, or rely on defaults
+        SECRET_KEY: ${{ secrets.SECRET_KEY || 'nightly-secret-key-1234567890' }}
+      run: |
+        chmod +x scripts/ops/nightly_suite.sh
+        # Run with skip-docker if we want to run in purely host mode, 
+        # but the script expects the app at :4001.
+        # GitHub Actions has docker-compose, so let's let it run docker.
+        ./scripts/ops/nightly_suite.sh --no-email

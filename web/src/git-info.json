@@ -1,4 +1,4 @@
 {
-  "commitMessage": "ops: fix nightly health check suite reporting and config",
-  "date": "Sat  7 Feb 21:41:49 GMT 2026"
+  "commitMessage": "ops: integrate nightly health check into github actions",
+  "date": "Sat  7 Feb 22:20:54 GMT 2026"
 }
