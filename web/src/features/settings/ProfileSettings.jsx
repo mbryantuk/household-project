@@ -139,6 +139,26 @@ export default function ProfileSettings() {
         </Sheet>
       </Box>
 
+      {/* 3. Help & Onboarding */}
+      <Box>
+        <Typography level="h4" sx={{ mb: 1 }}>Help & Onboarding</Typography>
+        <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', bgcolor: 'background.level1' }}>
+            <Typography level="body-sm" sx={{ mb: 2 }}>
+                Need a refresher on how Mantel works? You can restart the interactive onboarding tour at any time.
+            </Typography>
+            <Button 
+                variant="soft" 
+                color="neutral" 
+                onClick={() => {
+                    localStorage.removeItem('onboarding_completed');
+                    window.location.reload(); // Quick way to restart the tour logic
+                }}
+            >
+                Restart Onboarding Tour
+            </Button>
+        </Sheet>
+      </Box>
+
       <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(e) => { setAvatar(e); setEmojiPickerOpen(false); }} />
 
       {/* Invite Modal */}

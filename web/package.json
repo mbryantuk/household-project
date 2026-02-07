@@ -1,7 +1,7 @@
 {
   "name": "household-web",
   "private": true,
-  "version": "3.2.150",
+  "version": "3.2.152",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -27,6 +27,7 @@
     "react-dom": "^19.2.0",
     "react-grid-layout": "^2.2.2",
     "react-hook-form": "^7.71.1",
+    "react-joyride": "^2.9.3",
     "react-router-dom": "^6.28.0"
   },
   "devDependencies": {

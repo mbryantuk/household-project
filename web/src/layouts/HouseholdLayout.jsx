@@ -25,6 +25,7 @@ import AttachMoney from '@mui/icons-material/AttachMoney';
 
 import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
+import OnboardingTour from '../components/ui/OnboardingTour';
 import { getEmojiColor } from '../theme';
 import { HouseholdProvider } from '../contexts/HouseholdContext';
 
@@ -147,6 +148,7 @@ export default function HouseholdLayout({
 
   return (
     <HouseholdProvider value={contextValue}>
+        <OnboardingTour />
         <Box sx={{ 
             display: 'flex', 
             height: '100dvh', 

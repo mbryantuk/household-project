@@ -10,7 +10,7 @@ WORKDIR /app/web
 COPY web/package*.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm install --legacy-peer-deps
 
 # Copy frontend source and build
 COPY web/ ./
@@ -31,7 +31,7 @@ ENV NODE_ENV=production
 
 # 1. Install Root Dependencies (needed for scripts)
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm install --omit=dev --legacy-peer-deps
 
 # 2. Install Server Dependencies
 COPY server/package*.json ./server/

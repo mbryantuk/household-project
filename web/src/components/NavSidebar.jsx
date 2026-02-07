@@ -448,67 +448,163 @@ export default function NavSidebar({
 
   
 
-                  <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'center' }}>
-
-                      <Tooltip title="Dashboard" variant="soft" placement="right">
-
-                          <Avatar 
-
-                              variant="soft" color="primary" size="lg"
-
-                              onClick={() => { navigate(`/household/${household.id}/dashboard`); setHoveredCategory(null); }}
-
-                              sx={{ 
-
-                                  bgcolor: getEmojiColor(household?.avatar || '🏠', isDark),
-
-                                  fontSize: '1.5rem', fontWeight: 'bold', cursor: 'pointer',
-
-                                  transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.1)' }
-
-                              }}
-
-                          >
-
-                              {household?.avatar || '🏠'}
-
-                          </Avatar>
-
-                      </Tooltip>
-
-                  </Box>
-
-                  
-
-                  <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
-
-                      <RailIcon icon={<HomeIcon />} label="House" category="household" hasSubItems to={`/household/${household.id}/house`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
-
-                      <RailIcon icon={<Event />} label="Calendar" category="calendar" to={`/household/${household.id}/calendar`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
-
-                  </List>
-
-                  <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
-
-              </Box>
+                                    <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'center' }}>
 
   
 
-              <Box sx={{ width: '100%', flexGrow: 1, overflowY: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
+                                        <Tooltip title="Dashboard" variant="soft" placement="right">
 
-                  <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
+  
 
-                      <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems to={`/household/${household.id}/finance`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
+                                            <Avatar 
 
-                      {enabledModules.includes('meals') && (
+  
 
-                          <RailIcon icon={<RestaurantMenu />} label="Meals" category="meals" to={`/household/${household.id}/meals`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
+                                                id="tour-hh-selector"
 
-                      )}
+  
 
-                  </List>
+                                                variant="soft" color="primary" size="lg"
 
-              </Box>
+  
+
+                                                onClick={() => { navigate(`/household/${household.id}/dashboard`); setHoveredCategory(null); }}
+
+  
+
+                                                sx={{ 
+
+  
+
+                                                    bgcolor: getEmojiColor(household?.avatar || '🏠', isDark),
+
+  
+
+                                                    fontSize: '1.5rem', fontWeight: 'bold', cursor: 'pointer',
+
+  
+
+                                                    transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.1)' }
+
+  
+
+                                                }}
+
+  
+
+                                            >
+
+  
+
+                                                {household?.avatar || '🏠'}
+
+  
+
+                                            </Avatar>
+
+  
+
+                                        </Tooltip>
+
+  
+
+                                    </Box>
+
+  
+
+                                    
+
+  
+
+                                    <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
+
+  
+
+                                        <Box id="tour-nav-house">
+
+  
+
+                                          <RailIcon icon={<HomeIcon />} label="House" category="household" hasSubItems to={`/household/${household.id}/house`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
+
+  
+
+                                        </Box>
+
+  
+
+                                        <Box id="tour-nav-calendar">
+
+  
+
+                                          <RailIcon icon={<Event />} label="Calendar" category="calendar" to={`/household/${household.id}/calendar`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
+
+  
+
+                                        </Box>
+
+  
+
+                                    </List>
+
+  
+
+                                    <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
+
+  
+
+                                </Box>
+
+  
+
+                    
+
+  
+
+                                <Box sx={{ width: '100%', flexGrow: 1, overflowY: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
+
+  
+
+                                    <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
+
+  
+
+                                        <Box id="tour-nav-finance">
+
+  
+
+                                          <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems to={`/household/${household.id}/finance`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
+
+  
+
+                                        </Box>
+
+  
+
+                                        {enabledModules.includes('meals') && (
+
+  
+
+                                            <Box id="tour-nav-meals">
+
+  
+
+                                              <RailIcon icon={<RestaurantMenu />} label="Meals" category="meals" to={`/household/${household.id}/meals`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
+
+  
+
+                                            </Box>
+
+  
+
+                                        )}
+
+  
+
+                                    </List>
+
+  
+
+                                </Box>
 
   
 

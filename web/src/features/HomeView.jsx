@@ -190,19 +190,19 @@ export default function HomeView() {
   return (
     <Box sx={{ pb: 10, px: { xs: 1, md: 4 }, pt: 2 }}>
       <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} spacing={2} sx={{ mb: 4 }}>
-        <Box>
+        <Box id="tour-dashboard-greeting">
           <Typography level="h2" sx={{ fontWeight: 'lg' }}>{greeting}, {user?.first_name || 'Friend'}</Typography>
           <Typography level="body-md" color="neutral">{dateStr} • {household?.name}</Typography>
         </Box>
         
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box sx={{ display: 'flex', gap: 1 }} id="tour-dashboard-actions">
             {isEditing ? (
                 <>
                     <Button variant="soft" startDecorator={<Add />} onClick={(e) => setAddWidgetAnchor(e.currentTarget)}>Add Widget</Button>
                     <Button variant="solid" color="primary" loading={isSaving} startDecorator={<Save />} onClick={handleSave}>Save Layout</Button>
                 </>
             ) : (
-                <Button variant="plain" color="neutral" startDecorator={<Settings />} onClick={() => setIsEditing(true)}>Customize</Button>
+                <Button variant="plain" color="neutral" startDecorator={<Settings />} onClick={() => setIsEditing(true)} id="tour-dashboard-customize">Customize</Button>
             )}
         </Box>
       </Stack>
