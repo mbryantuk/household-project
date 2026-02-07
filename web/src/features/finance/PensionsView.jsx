@@ -9,6 +9,7 @@ import {
 import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
+import AppHeader from '../../components/ui/AppHeader';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -149,17 +150,17 @@ export default function PensionsView({ financialProfileId }) {
 
   return (
     <Box>
-        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-            <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Pensions</Typography>
-                <Typography level="body-md" color="neutral">Plan for your future retirement.</Typography>
-            </Box>
-            {isAdmin && (
-                <Button startDecorator={<Add />} onClick={() => setPensionId('new')}>
-                    Add Pension
-                </Button>
-            )}
-        </Box>
+        <AppHeader 
+            title="Pensions"
+            description="Plan for your future retirement."
+            endDecorator={
+                isAdmin && (
+                    <Button startDecorator={<Add />} onClick={() => setPensionId('new')}>
+                        Add Pension
+                    </Button>
+                )
+            }
+        />
 
         <Grid container spacing={3}>
             {pensions.map(pen => {

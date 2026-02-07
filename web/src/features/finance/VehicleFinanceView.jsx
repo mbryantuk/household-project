@@ -10,6 +10,7 @@ import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import AppSelect from '../../components/ui/AppSelect';
+import AppHeader from '../../components/ui/AppHeader';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -141,17 +142,17 @@ export default function VehicleFinanceView({ financialProfileId }) {
 
   return (
     <Box>
-        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-            <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Car Finance</Typography>
-                <Typography level="body-md" color="neutral">Track loans and leases for your fleet.</Typography>
-            </Box>
-            {isAdmin && (
-                <Button startDecorator={<Add />} onClick={() => setFinanceId('new')}>
-                    Add Agreement
-                </Button>
-            )}
-        </Box>
+        <AppHeader 
+            title="Car Finance"
+            description="Track loans and leases for your fleet."
+            endDecorator={
+                isAdmin && (
+                    <Button startDecorator={<Add />} onClick={() => setFinanceId('new')}>
+                        Add Agreement
+                    </Button>
+                )
+            }
+        />
 
         <Grid container spacing={3}>
             {finances.map(fin => {

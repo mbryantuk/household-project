@@ -10,6 +10,7 @@ import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import AppSelect from '../../components/ui/AppSelect';
+import AppHeader from '../../components/ui/AppHeader';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -137,21 +138,17 @@ export default function AgreementsView({ isSubscriptions = false, financialProfi
 
   return (
     <Box>
-        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-            <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                    {isSubscriptions ? 'Subscriptions' : 'Agreements & Contracts'}
-                </Typography>
-                <Typography level="body-md" color="neutral">
-                    {isSubscriptions ? 'Manage rolling services and digital subscriptions.' : 'Track fixed-term contracts and financial obligations.'}
-                </Typography>
-            </Box>
-            {isAdmin && (
-                <Button startDecorator={<Add />} onClick={() => setAgreementId('new')}>
-                    Add {isSubscriptions ? 'Subscription' : 'Agreement'}
-                </Button>
-            )}
-        </Box>
+        <AppHeader 
+            title={isSubscriptions ? 'Subscriptions' : 'Agreements & Contracts'}
+            description={isSubscriptions ? 'Manage rolling services and digital subscriptions.' : 'Track fixed-term contracts and financial obligations.'}
+            endDecorator={
+                isAdmin && (
+                    <Button startDecorator={<Add />} onClick={() => setAgreementId('new')}>
+                        Add {isSubscriptions ? 'Subscription' : 'Agreement'}
+                    </Button>
+                )
+            }
+        />
 
         <Grid container spacing={3}>
             {items.map(item => {

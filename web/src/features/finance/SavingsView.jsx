@@ -10,6 +10,7 @@ import { Edit, Delete, Add, GroupAdd, ExpandMore, Savings, TrendingUp, Remove } 
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import AppSelect from '../../components/ui/AppSelect';
+import AppHeader from '../../components/ui/AppHeader';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -240,17 +241,17 @@ export default function SavingsView({ financialProfileId }) {
 
   return (
     <Box>
-        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-            <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Savings</Typography>
-                <Typography level="body-md" color="neutral">Monitor savings goals and rainy day funds.</Typography>
-            </Box>
-            {isAdmin && (
-                <Button startDecorator={<Add />} onClick={() => setAccountId('new')}>
-                    Add Savings Account
-                </Button>
-            )}
-        </Box>
+        <AppHeader 
+            title="Savings"
+            description="Monitor savings goals and rainy day funds."
+            endDecorator={
+                isAdmin && (
+                    <Button startDecorator={<Add />} onClick={() => setAccountId('new')}>
+                        Add Savings Account
+                    </Button>
+                )
+            }
+        />
 
         <Grid container spacing={3}>
             {accounts.map(acc => {

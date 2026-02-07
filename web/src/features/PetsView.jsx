@@ -2,13 +2,14 @@ import { useState, useMemo, useEffect } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Divider, Tabs, TabList, Tab, Input, Button, 
-  FormControl, FormLabel, Grid, Tooltip, IconButton
+  FormControl, FormLabel, Grid, Tooltip, IconButton, CircularProgress
 } from '@mui/joy';
 import { 
   Delete, Payments, Info, Add
 } from '@mui/icons-material';
 import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
 import EmojiPicker from '../components/EmojiPicker';
+import AppHeader from '../components/ui/AppHeader';
 
 export default function PetsView() {
   const { api, id: householdId, household, members = [], fetchHhMembers, user: currentUser, showNotification, confirmAction } = useOutletContext();
@@ -135,24 +136,15 @@ export default function PetsView() {
   if (!petId) {
     return (
         <Box>
-            <Box sx={{ 
-                mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-                flexWrap: 'wrap', gap: 2 
-            }}>
-              <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                  Pets & Animals
-                </Typography>
-                <Typography level="body-md" color="neutral">
-                  Manage your furry family members and their needs.
-                </Typography>
-              </Box>
-              <Box>
-                  {isAdmin && (
-                      <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>Add Pet</Button>
-                  )}
-              </Box>
-            </Box>
+            <AppHeader 
+                title="Pets & Animals"
+                description="Manage your furry family members and their needs."
+                endDecorator={
+                    isAdmin && (
+                        <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>Add Pet</Button>
+                    )
+                }
+            />
 
             {Object.keys(groupedPets).length === 0 && (
                  <Typography level="body-lg" textAlign="center" sx={{ mt: 5, color: 'neutral.500' }}>No pets found.</Typography>
@@ -201,24 +193,15 @@ export default function PetsView() {
 
   return (
     <Box key={petId}>
-      <Box sx={{ 
-          mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-          flexWrap: 'wrap', gap: 2 
-      }}>
-        <Box>
-            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                {petId === 'new' ? 'Add New Pet' : selectedPet.name}
-            </Typography>
-            <Typography level="body-md" color="neutral">
-                {petId === 'new' ? 'Enter pet details below.' : 'View and manage pet information.'}
-            </Typography>
-        </Box>
-        <Box>
-            {petId !== 'new' && isAdmin && (
-                <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={handleDelete}>Remove Pet</Button>
-            )}
-        </Box>
-      </Box>
+      <AppHeader 
+        title={petId === 'new' ? 'Add New Pet' : selectedPet.name}
+        description={petId === 'new' ? 'Enter pet details below.' : 'View and manage pet information.'}
+        endDecorator={
+          petId !== 'new' && isAdmin && (
+            <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={handleDelete}>Remove Pet</Button>
+          )
+        }
+      />
 
       <Sheet variant="outlined" sx={{ borderRadius: 'md', minHeight: '600px', overflow: 'hidden' }}>
         {petId !== 'new' && (
@@ -241,12 +224,10 @@ export default function PetsView() {
         <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
           {(activeTab === 0 || petId === 'new') && (
             <Box>
-                <Box sx={{ mb: 4 }}>
-                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                        Pet Identity
-                    </Typography>
-                    <Typography level="body-md" color="neutral">Core personal identification and breed background.</Typography>
-                </Box>
+                <AppHeader 
+                    title="Pet Identity"
+                    description="Core personal identification and breed background."
+                />
                 <form onSubmit={handleSubmit}>
                 <Grid container spacing={3}>
                     <Grid xs={12} md={2}>

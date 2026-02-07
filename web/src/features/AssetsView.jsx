@@ -10,6 +10,7 @@ import { Edit, Delete, Add, Search, Inventory, Payments, Info } from '@mui/icons
 import { getEmojiColor } from '../theme';
 import AppSelect from '../components/ui/AppSelect';
 import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
+import AppHeader from '../components/ui/AppHeader';
 
 export default function AssetsView() {
   const { api, id: householdId, user: currentUser, isDark, showNotification, confirmAction, household } = useOutletContext();
@@ -128,34 +129,26 @@ export default function AssetsView() {
 
     return (
       <Box>
-        <Box sx={{ 
-            mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-            flexWrap: 'wrap', gap: 2 
-        }}>
-          <Box>
-            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-              Appliance & Asset Register
-            </Typography>
-            <Typography level="body-md" color="neutral">
-              Manage your household inventory and valuables.
-            </Typography>
-          </Box>
-          
-          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-              <Input 
-                placeholder="Search assets..." 
-                startDecorator={<Search />} 
-                value={filterQuery}
-                onChange={(e) => setFilterQuery(e.target.value)}
-                sx={{ width: { xs: '100%', sm: 250 } }}
-              />
-              {isAdmin && (
-                  <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('assets/new')}>
-                      Add Asset
-                  </Button>
-              )}
-          </Box>
-        </Box>
+        <AppHeader 
+          title="Appliance & Asset Register"
+          description="Manage your household inventory and valuables."
+          endDecorator={
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                <Input 
+                  placeholder="Search assets..." 
+                  startDecorator={<Search />} 
+                  value={filterQuery}
+                  onChange={(e) => setFilterQuery(e.target.value)}
+                  sx={{ width: { xs: '100%', sm: 250 } }}
+                />
+                {isAdmin && (
+                    <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('assets/new')}>
+                        Add Asset
+                    </Button>
+                )}
+            </Box>
+          }
+        />
       {/* DESKTOP VIEW: Standard Table with Sorting */}
       {!isMobile ? (
         <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto', flexGrow: 1 }}>

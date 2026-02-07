@@ -6,6 +6,7 @@ import {
 } from '@mui/joy';
 import { Save } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
+import AppHeader from '../components/ui/AppHeader';
 
 /**
  * A generic view for tables that only have one row (id=1)
@@ -63,14 +64,10 @@ export default function GeneralDetailView({ title, endpoint, fields, computed = 
 
   return (
     <Box>
-      <Box sx={{ mb: 4 }}>
-        <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-          {title}
-        </Typography>
-        <Typography level="body-md" color="neutral">
-          View and manage the structural and specific details for this section.
-        </Typography>
-      </Box>
+      <AppHeader 
+        title={title}
+        description="View and manage the structural and specific details for this section."
+      />
 
       {computed.length > 0 && (
         <Grid container spacing={2} sx={{ mb: 3 }}>

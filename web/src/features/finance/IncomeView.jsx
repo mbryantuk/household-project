@@ -12,6 +12,7 @@ import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
 import AppTable from '../../components/ui/AppTable';
 import EmojiPicker from '../../components/EmojiPicker';
+import AppHeader from '../../components/ui/AppHeader';
 import { getNextPayday, getDaysUntil } from '../../utils/dateUtils';
 
 const formatCurrency = (val) => {
@@ -237,27 +238,17 @@ export default function IncomeView({ financialProfileId }) {
 
     return (
       <Box sx={{ overflowX: 'hidden' }}>
-        <Box sx={{ 
-            mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-            flexWrap: 'wrap', gap: 2 
-        }}>
-          <Box>
-            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-              Income Sources
-            </Typography>
-            <Typography level="body-md" color="neutral">
-              Manage salary, contracting, and other income streams.
-            </Typography>
-          </Box>
-          
-          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-              {isAdmin && (
-                  <Button variant="solid" startDecorator={<Add />} onClick={() => setIncomeId('new')} sx={{ height: '44px' }}>
-                      Add Income
-                  </Button>
-              )}
-          </Box>
-        </Box>
+        <AppHeader 
+          title="Income Sources"
+          description="Manage salary, contracting, and other income streams."
+          endDecorator={
+            isAdmin && (
+                <Button variant="solid" startDecorator={<Add />} onClick={() => setIncomeId('new')} sx={{ height: '44px' }}>
+                    Add Income
+                </Button>
+            )
+          }
+        />
 
       {!isMobile ? (
         <AppTable 

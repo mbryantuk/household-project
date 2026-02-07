@@ -11,6 +11,7 @@ import {
 import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
 import EmojiPicker from '../components/EmojiPicker';
 import AppSelect from '../components/ui/AppSelect';
+import AppHeader from '../components/ui/AppHeader';
 
 const VEHICLE_TYPES = [
     { value: 'Car', label: 'Car' },
@@ -147,24 +148,15 @@ export default function VehiclesView() {
   if (vehicleId !== 'new' && !selectedVehicle) {
     return (
         <Box>
-            <Box sx={{ 
-                mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-                flexWrap: 'wrap', gap: 2 
-            }}>
-              <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                  Vehicle Management
-                </Typography>
-                <Typography level="body-md" color="neutral">
-                  Track maintenance, fuel, and vehicle history.
-                </Typography>
-              </Box>
-              <Box>
-                  {isAdmin && (
-                      <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>Add Vehicle</Button>
-                  )}
-              </Box>
-            </Box>
+            <AppHeader 
+                title="Vehicle Management"
+                description="Track maintenance, fuel, and vehicle history."
+                endDecorator={
+                    isAdmin && (
+                        <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>Add Vehicle</Button>
+                    )
+                }
+            />
             
             {Object.keys(groupedVehicles).length === 0 && (
                  <Typography level="body-lg" textAlign="center" sx={{ mt: 5, color: 'neutral.500' }}>No vehicles found.</Typography>
@@ -204,24 +196,15 @@ export default function VehiclesView() {
 
   return (
     <Box key={vehicleId}>
-      <Box sx={{ 
-          mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-          flexWrap: 'wrap', gap: 2 
-      }}>
-        <Box>
-            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                {vehicleId === 'new' ? 'Add New Vehicle' : `${selectedVehicle.make} ${selectedVehicle.model}`}
-            </Typography>
-            <Typography level="body-md" color="neutral">
-                {vehicleId === 'new' ? 'Enter vehicle details below.' : 'View and manage vehicle details.'}
-            </Typography>
-        </Box>
-        <Box>
-            {vehicleId !== 'new' && isAdmin && (
-                <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={handleDeleteVehicle}>Remove Vehicle</Button>
-            )}
-        </Box>
-      </Box>
+      <AppHeader 
+        title={vehicleId === 'new' ? 'Add New Vehicle' : `${selectedVehicle.make} ${selectedVehicle.model}`}
+        description={vehicleId === 'new' ? 'Enter vehicle details below.' : 'View and manage vehicle details.'}
+        endDecorator={
+          vehicleId !== 'new' && isAdmin && (
+            <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={handleDeleteVehicle}>Remove Vehicle</Button>
+          )
+        }
+      />
 
       <Sheet variant="outlined" sx={{ borderRadius: 'md', minHeight: '600px', overflow: 'hidden' }}>
         {vehicleId !== 'new' && (

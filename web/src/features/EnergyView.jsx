@@ -8,6 +8,7 @@ import {
 } from '@mui/joy';
 import { Edit, Delete, ElectricBolt, Add, ReceiptLong } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
+import AppHeader from '../components/ui/AppHeader';
 
 export default function EnergyView() {
   const { api, id: householdId, user: currentUser, isDark, showNotification } = useOutletContext();
@@ -70,26 +71,17 @@ export default function EnergyView() {
 
   return (
     <Box>
-      <Box sx={{ 
-          mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-          flexWrap: 'wrap', gap: 2 
-      }}>
-        <Box>
-          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-            Energy Accounts
-          </Typography>
-          <Typography level="body-md" color="neutral">
-            Monitor electricity and gas usage and tariffs.
-          </Typography>
-        </Box>
-        <Box>
-          {isAdmin && (
-              <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditAccount({}); setIsNew(true); }}>
-                  Add Account
-              </Button>
-          )}
-        </Box>
-      </Box>
+      <AppHeader 
+        title="Energy Accounts"
+        description="Monitor electricity and gas usage and tariffs."
+        endDecorator={
+          isAdmin && (
+            <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditAccount({}); setIsNew(true); }}>
+                Add Account
+            </Button>
+          )
+        }
+      />
 
       <Grid container spacing={3}>
         {accounts.map(a => (

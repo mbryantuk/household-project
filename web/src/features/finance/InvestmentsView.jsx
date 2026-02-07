@@ -8,6 +8,7 @@ import {
 import { Add, Edit, Delete, TrendingUp } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
+import AppHeader from '../../components/ui/AppHeader';
 
 const formatCurrency = (val, currencyCode = 'GBP') => {
     const num = parseFloat(val) || 0;
@@ -94,10 +95,13 @@ export default function InvestmentsView({ financialProfileId }) {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography level="h2" startDecorator={<TrendingUp />}>Investments</Typography>
-        <Button startDecorator={<Add />} onClick={() => setInvestmentId('new')}>Add Investment</Button>
-      </Box>
+      <AppHeader 
+        title="Investments"
+        description="Track stock market and crypto assets."
+        endDecorator={
+          <Button startDecorator={<Add />} onClick={() => setInvestmentId('new')}>Add Investment</Button>
+        }
+      />
 
       <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
         <Table hoverRow>
@@ -119,8 +123,8 @@ export default function InvestmentsView({ financialProfileId }) {
                 <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{formatCurrency(inv.current_value, household?.currency)}</td>
                 <td>
                   <Box sx={{ display: 'flex', gap: 0.5 }}>
-                    <IconButton size="sm" onClick={() => setInvestmentId(inv.id)}><Edit /></IconButton>
-                    <IconButton size="sm" color="danger" onClick={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/investments/${inv.id}`).then(() => { fetchInvestments(); if (selectedInvestmentId === String(inv.id)) setInvestmentId(null); }))}><Delete /></IconButton>
+                    <IconButton size=\"sm\" onClick={() => setInvestmentId(inv.id)}><Edit /></IconButton>
+                    <IconButton size=\"sm\" color=\"danger\" onClick={() => confirmAction(\"Delete?\", \"Are you sure?\", () => api.delete(`/households/${householdId}/finance/investments/${inv.id}`).then(() => { fetchInvestments(); if (selectedInvestmentId === String(inv.id)) setInvestmentId(null); }))}><Delete /></IconButton>
                   </Box>
                 </td>
               </tr>
@@ -134,12 +138,12 @@ export default function InvestmentsView({ financialProfileId }) {
           <ModalClose />
           <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
                 <Box sx={{ position: 'relative' }}>
-                    <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(formData.emoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => setEmojiPickerOpen(true)}>{formData.emoji}</Avatar>
-                    <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => setEmojiPickerOpen(true)}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
+                    <Avatar size=\"lg\" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(formData.emoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => setEmojiPickerOpen(true)}>{formData.emoji}</Avatar>
+                    <IconButton size=\"sm\" variant=\"solid\" color=\"primary\" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => setEmojiPickerOpen(true)}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
                 </Box>
                 <Box sx={{ flexGrow: 1 }}>
-                    <Typography level="h4">{selectedInvestmentId === 'new' ? 'New Investment' : 'Edit Investment'}</Typography>
-                    <Typography level="body-sm" color="neutral">Track stock market and crypto assets.</Typography>
+                    <Typography level=\"h4\">{selectedInvestmentId === 'new' ? 'New Investment' : 'Edit Investment'}</Typography>
+                    <Typography level=\"body-sm\" color=\"neutral\">Track stock market and crypto assets.</Typography>
                 </Box>
           </Box>
           <Divider />
@@ -148,7 +152,7 @@ export default function InvestmentsView({ financialProfileId }) {
             <FormControl required>
                 <FormLabel>Investment Name</FormLabel>
                 <Input 
-                    name="name"
+                    name=\"name\"
                     value={formData.name} 
                     onChange={e => setFormData({ ...formData, name: e.target.value })} 
                 />
@@ -156,7 +160,7 @@ export default function InvestmentsView({ financialProfileId }) {
             <FormControl required>
                 <FormLabel>Platform</FormLabel>
                 <Input 
-                    name="platform"
+                    name=\"platform\"
                     value={formData.platform} 
                     onChange={e => setFormData({ ...formData, platform: e.target.value })} 
                 />
@@ -165,10 +169,10 @@ export default function InvestmentsView({ financialProfileId }) {
                 <FormControl required>
                     <FormLabel>Current Value</FormLabel>
                     <Input 
-                        name="current_value"
-                        type="number" 
+                        name=\"current_value\"
+                        type=\"number\" 
                         slotProps={{ input: { step: 'any' } }}
-                        startDecorator="£" 
+                        startDecorator=\"£\" 
                         value={formData.current_value} 
                         onChange={e => setFormData({ ...formData, current_value: e.target.value })} 
                     />
@@ -176,16 +180,16 @@ export default function InvestmentsView({ financialProfileId }) {
                 <FormControl>
                     <FormLabel>Total Invested</FormLabel>
                     <Input 
-                        name="total_invested"
-                        type="number" 
+                        name=\"total_invested\"
+                        type=\"number\" 
                         slotProps={{ input: { step: 'any' } }}
-                        startDecorator="£" 
+                        startDecorator=\"£\" 
                         value={formData.total_invested} 
                         onChange={e => setFormData({ ...formData, total_invested: e.target.value })} 
                     />
                 </FormControl>
             </Box>
-            <Button size="lg" type="submit">Save</Button>
+            <Button size=\"lg\" type=\"submit\">Save</Button>
           </Stack>
           </form>
         </ModalDialog>

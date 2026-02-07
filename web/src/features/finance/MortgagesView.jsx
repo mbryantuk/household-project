@@ -10,6 +10,7 @@ import { Edit, Delete, Add, GroupAdd, TrendingUp, Sell, AccountBalanceWallet, Ar
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import AppSelect from '../../components/ui/AppSelect';
+import AppHeader from '../../components/ui/AppHeader';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -239,21 +240,21 @@ export default function MortgagesView({ financialProfileId }) {
 
   return (
     <Box>
-        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-            <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Mortgages & Equity</Typography>
-                <Typography level="body-md" color="neutral">Track loans secured against your properties.</Typography>
-            </Box>
-            {isAdmin && (
-                <Dropdown>
-                    <MenuButton variant="solid" color="primary" startDecorator={<Add />} endDecorator={<ArrowDropDown />}>Add New</MenuButton>
-                    <Menu placement="bottom-end">
-                        <MenuItem onClick={() => setMortgageId('new', 'mortgage')}>Add Mortgage</MenuItem>
-                        <MenuItem onClick={() => setMortgageId('new', 'equity')}>Add Equity Loan</MenuItem>
-                    </Menu>
-                </Dropdown>
-            )}
-        </Box>
+        <AppHeader 
+            title="Mortgages & Equity"
+            description="Track loans secured against your properties."
+            endDecorator={
+                isAdmin && (
+                    <Dropdown>
+                        <MenuButton variant="solid" color="primary" startDecorator={<Add />} endDecorator={<ArrowDropDown />}>Add New</MenuButton>
+                        <Menu placement="bottom-end">
+                            <MenuItem onClick={() => setMortgageId('new', 'mortgage')}>Add Mortgage</MenuItem>
+                            <MenuItem onClick={() => setMortgageId('new', 'equity')}>Add Equity Loan</MenuItem>
+                        </Menu>
+                    </Dropdown>
+                )
+            }
+        />
 
         <Stack spacing={4}>
             {groupedMortgages.map(prop => {

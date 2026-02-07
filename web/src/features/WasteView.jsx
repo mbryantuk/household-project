@@ -3,10 +3,11 @@ import { useOutletContext } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
-  FormControl, FormLabel, Select, Option, Stack, CircularProgress
+  FormControl, FormLabel, Select, Option, Stack, CircularProgress, Checkbox
 } from '@mui/joy';
 import { Edit, Delete, DeleteSweep, Add } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
+import AppHeader from '../components/ui/AppHeader';
 
 export default function WasteView() {
   const { api, id: householdId, user: currentUser, isDark, showNotification } = useOutletContext();
@@ -69,26 +70,17 @@ export default function WasteView() {
 
   return (
     <Box>
-      <Box sx={{ 
-          mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-          flexWrap: 'wrap', gap: 2 
-      }}>
-        <Box>
-          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-            Waste & Recycling
-          </Typography>
-          <Typography level="body-md" color="neutral">
-            Bin collection schedules and recycling information.
-          </Typography>
-        </Box>
-        <Box>
-          {isAdmin && (
-              <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditItem({}); setIsNew(true); }}>
-                  Add Collection
-              </Button>
-          )}
-        </Box>
-      </Box>
+      <AppHeader 
+        title="Waste & Recycling"
+        description="Bin collection schedules and recycling information."
+        endDecorator={
+          isAdmin && (
+            <Button variant="solid" startDecorator={<Add />} onClick={() => { setEditItem({}); setIsNew(true); }}>
+                Add Collection
+            </Button>
+          )
+        }
+      />
 
       <Grid container spacing={2}>
         {collections.map(c => (

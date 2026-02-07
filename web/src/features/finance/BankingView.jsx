@@ -10,6 +10,7 @@ import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import AppTable from '../../components/ui/AppTable';
+import AppHeader from '../../components/ui/AppHeader';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -237,31 +238,23 @@ export default function BankingView({ financialProfileId }) {
             </Box>
         )
     }
-  ], [isDark, getAssignees, isAdmin]);
+  ], [isDark, getAssignees, isAdmin, householdId]);
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
     return (
       <Box sx={{ overflowX: 'hidden' }}>
-        <Box sx={{ 
-            mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-            flexWrap: 'wrap', gap: 2 
-        }}>
-          <Box>
-            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-              Current Accounts
-            </Typography>
-            <Typography level="body-md" color="neutral">
-              Track balances, overdrafts, and account holders.
-            </Typography>
-          </Box>
-          
-          {isAdmin && (
-              <Button variant="solid" startDecorator={<Add />} onClick={() => setAccountId('new')}>
-                  Add Account
-              </Button>
-          )}
-        </Box>
+        <AppHeader 
+          title="Current Accounts"
+          description="Track balances, overdrafts, and account holders."
+          endDecorator={
+            isAdmin && (
+                <Button variant="solid" startDecorator={<Add />} onClick={() => setAccountId('new')}>
+                    Add Account
+                </Button>
+            )
+          }
+        />
 
       {!isMobile ? (
         <AppTable 

@@ -3,7 +3,7 @@ import { useOutletContext, useParams, useNavigate, useLocation } from 'react-rou
 import { 
   Box, Typography, Sheet, Divider, Button, Input, FormControl, FormLabel, 
   IconButton, Tooltip, 
-  Grid, Tabs, TabList, Tab
+  Grid, Tabs, TabList, Tab, CircularProgress
 } from '@mui/joy';
 import { 
   Delete, Payments, ContactPage
@@ -12,6 +12,7 @@ import EmojiPicker from '../components/EmojiPicker';
 import AppSelect from '../components/ui/AppSelect'; 
 import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
 import EntityGrid from '../components/ui/EntityGrid';
+import AppHeader from '../components/ui/AppHeader';
 
 export default function PeopleView() {
   const { api, id: householdId, household, members = [], fetchHhMembers, user: currentUser, showNotification, confirmAction } = useOutletContext();
@@ -164,14 +165,10 @@ export default function PeopleView() {
 
     return (
         <Box>
-            <Box sx={{ mb: 4 }}>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                  People & Residents
-                </Typography>
-                <Typography level="body-md" color="neutral">
-                  Select a resident to manage their details.
-                </Typography>
-            </Box>
+            <AppHeader 
+                title="People & Residents"
+                description="Select a resident to manage their details."
+            />
             
             <EntityGrid 
                 sections={sections}
@@ -202,24 +199,15 @@ export default function PeopleView() {
 
   return (
     <Box key={personId}>
-      <Box sx={{ 
-          mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-          flexWrap: 'wrap', gap: 2 
-      }}>
-        <Box>
-            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                {personId === 'new' ? `Add New ${formData.type === 'child' ? 'Child' : 'Person'}` : selectedPerson.name}
-            </Typography>
-            <Typography level="body-md" color="neutral">
-                {personId === 'new' ? 'Enter personal details below.' : 'View and manage personal information.'}
-            </Typography>
-        </Box>
-        <Box>
-            {personId !== 'new' && isAdmin && (
-                <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={handleDelete}>Remove Person</Button>
-            )}
-        </Box>
-      </Box>
+      <AppHeader 
+        title={personId === 'new' ? `Add New ${formData.type === 'child' ? 'Child' : 'Person'}` : selectedPerson.name}
+        description={personId === 'new' ? 'Enter personal details below.' : 'View and manage personal information.'}
+        endDecorator={
+          personId !== 'new' && isAdmin && (
+            <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={handleDelete}>Remove Person</Button>
+          )
+        }
+      />
 
       <Sheet variant="outlined" sx={{ borderRadius: 'md', minHeight: '600px', overflow: 'hidden' }}>
         {personId !== 'new' && (
@@ -242,12 +230,10 @@ export default function PeopleView() {
         <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
           {(activeTab === 0 || personId === 'new') && (
             <Box>
-                <Box sx={{ mb: 4 }}>
-                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                        Personal Identity
-                    </Typography>
-                    <Typography level="body-md" color="neutral">Core personal identification and background.</Typography>
-                </Box>
+                <AppHeader 
+                    title="Personal Identity"
+                    description="Core personal identification and background."
+                />
                 <form onSubmit={handleSubmit}>
                 <Grid container spacing={3}>
                     <Grid xs={12} md={2}>
