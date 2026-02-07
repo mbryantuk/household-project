@@ -24,6 +24,7 @@ import PensionsWidget from '../components/widgets/PensionsWidget';
 import WealthWidget from '../components/widgets/WealthWidget';
 import BudgetStatusWidget from '../components/widgets/BudgetStatusWidget';
 import ClockWidget from '../components/widgets/ClockWidget';
+import MonthlyWrapUpWidget from '../components/widgets/MonthlyWrapUpWidget';
 
 import IncomeWidget from '../components/widgets/IncomeWidget';
 import BankingWidget from '../components/widgets/BankingWidget';
@@ -54,6 +55,7 @@ const WIDGET_TYPES = {
   savings: { component: SavingsWidget, label: 'Savings Tracker', defaultH: 4, defaultW: 4 },
   invest: { component: InvestmentsWidget, label: 'Investments', defaultH: 4, defaultW: 4 },
   pensions: { component: PensionsWidget, label: 'Pensions', defaultH: 4, defaultW: 4 },
+  wrapup: { component: MonthlyWrapUpWidget, label: 'Monthly Wrap-Up', defaultH: 6, defaultW: 4 },
   
   income: { component: IncomeWidget, label: 'Income', defaultH: 4, defaultW: 4 },
   banking: { component: BankingWidget, label: 'Banking', defaultH: 4, defaultW: 4 },
@@ -66,13 +68,14 @@ const WIDGET_TYPES = {
 const DEFAULT_LAYOUT = [
   // Primary Row
   { i: 'clock-1', x: 0, y: 0, w: 4, h: 4, type: 'clock' },
-  { i: 'budget-1', x: 4, y: 0, w: 4, h: 5, type: 'budget_status' },
-  { i: 'wealth-1', x: 8, y: 0, w: 4, h: 7, type: 'wealth' },
+  { i: 'wrap-up-1', x: 4, y: 0, w: 4, h: 6, type: 'wrapup' },
+  { i: 'budget-1', x: 8, y: 0, w: 4, h: 5, type: 'budget_status' },
+  { i: 'wealth-1', x: 0, y: 4, w: 4, h: 7, type: 'wealth' },
   
   // Finance Row 1
-  { i: 'income-1', x: 0, y: 4, w: 4, h: 4, type: 'income' },
-  { i: 'banking-1', x: 4, y: 5, w: 4, h: 4, type: 'banking' },
-  { i: 'savings-1', x: 8, y: 7, w: 4, h: 4, type: 'savings' },
+  { i: 'income-1', x: 4, y: 6, w: 4, h: 4, type: 'income' },
+  { i: 'banking-1', x: 8, y: 5, w: 4, h: 4, type: 'banking' },
+  { i: 'savings-1', x: 0, y: 11, w: 4, h: 4, type: 'savings' },
 
   // Interaction Row
   { i: 'calendar-1', x: 0, y: 8, w: 8, h: 8, type: 'calendar' },

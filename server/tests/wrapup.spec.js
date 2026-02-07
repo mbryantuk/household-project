@@ -7,50 +7,61 @@ describe('Monthly Wrap-Up API', () => {
     const agent = request.agent(app);
 
     beforeAll(async () => {
-        // 1. Register User
-        const res = await agent.post('/api/auth/register').send({
-            email: 'wrapup_test@example.com',
-            password: 'Password123!',
-            first_name: 'Wrapper',
-            last_name: 'Test'
-        });
-        token = res.body.token;
-        householdId = res.body.household.id;
+        const email = `wrapup_test_${Date.now()}@example.com`;
+        const password = 'Password123!';
 
-        // 2. Setup DB Data
+        // 1. Register User
+        await agent.post('/api/auth/register').send({
+            householdName: 'WrapUp Test House',
+            email: email,
+            password: password,
+            firstName: 'Wrapper',
+            lastName: 'Test'
+        });
+
+        // 2. Login to get token and householdId
+        const loginRes = await agent.post('/api/auth/login').send({
+            email: email,
+            password: password
+        });
+
+        token = loginRes.body.token;
+        householdId = loginRes.body.household.id;
+
+        // 3. Setup DB Data
         const db = getHouseholdDb(householdId);
         await ensureHouseholdSchema(db, householdId);
 
+        // Assume default profile ID is 1
+        const profileId = 1;
+
         await new Promise((resolve, reject) => {
             db.serialize(() => {
-                // Insert Recurring Costs
-                db.run(`INSERT INTO recurring_costs (id, household_id, name, amount, category_id) VALUES (1, ?, 'Rent', 1000, 'housing')`, [householdId]);
-                db.run(`INSERT INTO recurring_costs (id, household_id, name, amount, category_id) VALUES (2, ?, 'Netflix', 15, 'subscription')`, [householdId]);
+                db.run(`INSERT INTO recurring_costs (id, household_id, financial_profile_id, name, amount, category_id, is_active) VALUES (1, ?, ?, 'Rent', 1000, 'housing', 1)`, [householdId, profileId]);
+                db.run(`INSERT INTO recurring_costs (id, household_id, financial_profile_id, name, amount, category_id, is_active) VALUES (2, ?, ?, 'Netflix', 15, 'subscription', 1)`, [householdId, profileId]);
                 
-                // Insert Previous Month (Jan 2026) - Total Spend: 1015
-                db.run(`INSERT INTO finance_budget_progress (household_id, cycle_start, item_key, actual_amount, is_paid) VALUES (?, '2026-01-01', 'housing_1', 1000, 1)`, [householdId]);
-                db.run(`INSERT INTO finance_budget_progress (household_id, cycle_start, item_key, actual_amount, is_paid) VALUES (?, '2026-01-01', 'subscription_2', 15, 1)`, [householdId]);
+                db.run(`INSERT INTO finance_budget_progress (household_id, financial_profile_id, cycle_start, item_key, actual_amount, is_paid) VALUES (?, ?, '2026-01-01', 'housing_1', 1000, 1)`, [householdId, profileId]);
+                db.run(`INSERT INTO finance_budget_progress (household_id, financial_profile_id, cycle_start, item_key, actual_amount, is_paid) VALUES (?, ?, '2026-01-01', 'subscription_2', 15, 1)`, [householdId, profileId]);
 
-                // Insert Current Month (Feb 2026) - Total Spend: 1100 (Rent went up)
-                db.run(`INSERT INTO finance_budget_progress (household_id, cycle_start, item_key, actual_amount, is_paid) VALUES (?, '2026-02-01', 'housing_1', 1100, 1)`, [householdId]);
-                // Netflix not paid yet
+                db.run(`INSERT INTO finance_budget_progress (household_id, financial_profile_id, cycle_start, item_key, actual_amount, is_paid) VALUES (?, ?, '2026-02-01', 'housing_1', 1100, 1)`, [householdId, profileId]);
                 
-                // Income (Should be excluded from spend)
-                db.run(`INSERT INTO finance_budget_progress (household_id, cycle_start, item_key, actual_amount, is_paid) VALUES (?, '2026-02-01', 'income_1', 3000, 1)`, [householdId]);
-
-                resolve();
+                db.run(`INSERT INTO finance_budget_progress (household_id, financial_profile_id, cycle_start, item_key, actual_amount, is_paid) VALUES (?, ?, '2026-02-01', 'income_1', 3000, 1)`, [householdId, profileId], (err) => {
+                    if (err) reject(err);
+                    else resolve();
+                });
             });
         });
+        db.close();
     });
 
     it('should calculate monthly spend and compare to previous month', async () => {
-        const res = await agent.get('/api/finance/wrap-up?month=2026-02-01')
+        const res = await agent.get(`/api/households/${householdId}/finance/wrap-up?month=2026-02-01`)
             .set('Authorization', `Bearer ${token}`);
 
         expect(res.statusCode).toBe(200);
         expect(res.body.month).toBe('2026-02-01');
         
-        // Current Spend: 1100 (Rent) - Netflix not paid
+        // Current Spend: 1100 (Rent)
         expect(res.body.total_spent).toBe(1100);
         
         // Previous Spend: 1015
@@ -65,7 +76,7 @@ describe('Monthly Wrap-Up API', () => {
     });
 
     it('should return 400 if month is missing', async () => {
-        const res = await agent.get('/api/finance/wrap-up')
+        const res = await agent.get(`/api/households/${householdId}/finance/wrap-up`)
             .set('Authorization', `Bearer ${token}`);
         expect(res.statusCode).toBe(400);
     });

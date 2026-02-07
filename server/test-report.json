@@ -1,8 +1,8 @@
 {
-  "numFailedTestSuites": 1,
-  "numFailedTests": 2,
-  "numPassedTestSuites": 0,
-  "numPassedTests": 0,
+  "numFailedTestSuites": 0,
+  "numFailedTests": 0,
+  "numPassedTestSuites": 1,
+  "numPassedTests": 2,
   "numPendingTestSuites": 0,
   "numPendingTests": 0,
   "numRuntimeErrorTestSuites": 0,
@@ -26,21 +26,21 @@
     "unmatched": 0,
     "updated": 0
   },
-  "startTime": 1770502098943,
+  "startTime": 1770502996728,
   "success": false,
   "testResults": [
     {
       "leaks": false,
-      "numFailingTests": 2,
-      "numPassingTests": 0,
+      "numFailingTests": 0,
+      "numPassingTests": 2,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1770502103224,
-        "runtime": 4110,
+        "end": 1770502998637,
+        "runtime": 1829,
         "slow": false,
-        "start": 1770502099114
+        "start": 1770502996808
       },
       "skipped": false,
       "snapshot": {
@@ -58,42 +58,34 @@
           "ancestorTitles": [
             "Monthly Wrap-Up API"
           ],
-          "duration": 1,
-          "failureDetails": [
-            {}
-          ],
-          "failureMessages": [
-            "TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.id (/var/tmp/vibe-kanban/worktrees/06dc-monthly-wrap-up/household-project/server/tests/wrapup.spec.js:18:42)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
-          ],
+          "duration": 112,
+          "failureDetails": [],
+          "failureMessages": [],
           "fullName": "Monthly Wrap-Up API should calculate monthly spend and compare to previous month",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 0,
+          "numPassingAsserts": 7,
           "retryReasons": [],
-          "status": "failed",
+          "status": "passed",
           "title": "should calculate monthly spend and compare to previous month"
         },
         {
           "ancestorTitles": [
             "Monthly Wrap-Up API"
           ],
-          "duration": 0,
-          "failureDetails": [
-            {}
-          ],
-          "failureMessages": [
-            "TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.id (/var/tmp/vibe-kanban/worktrees/06dc-monthly-wrap-up/household-project/server/tests/wrapup.spec.js:18:42)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
-          ],
+          "duration": 10,
+          "failureDetails": [],
+          "failureMessages": [],
           "fullName": "Monthly Wrap-Up API should return 400 if month is missing",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 0,
+          "numPassingAsserts": 1,
           "retryReasons": [],
-          "status": "failed",
+          "status": "passed",
           "title": "should return 400 if month is missing"
         }
       ],
-      "failureMessage": "\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mMonthly Wrap-Up API › should calculate monthly spend and compare to previous month\u001b[39m\u001b[22m\n\n    TypeError: Cannot read properties of undefined (reading 'id')\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 16 |\u001b[39m         })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 17 |\u001b[39m         token \u001b[33m=\u001b[39m res\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39mtoken\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 18 |\u001b[39m         householdId \u001b[33m=\u001b[39m res\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39mhousehold\u001b[33m.\u001b[39mid\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 19 |\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 20 |\u001b[39m         \u001b[90m// 2. Setup DB Data\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 21 |\u001b[39m         \u001b[36mconst\u001b[39m db \u001b[33m=\u001b[39m getHouseholdDb(householdId)\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.id (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/wrapup.spec.js\u001b[39m\u001b[0m\u001b[2m:18:42)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mMonthly Wrap-Up API › should return 400 if month is missing\u001b[39m\u001b[22m\n\n    TypeError: Cannot read properties of undefined (reading 'id')\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 16 |\u001b[39m         })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 17 |\u001b[39m         token \u001b[33m=\u001b[39m res\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39mtoken\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 18 |\u001b[39m         householdId \u001b[33m=\u001b[39m res\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39mhousehold\u001b[33m.\u001b[39mid\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 19 |\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 20 |\u001b[39m         \u001b[90m// 2. Setup DB Data\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 21 |\u001b[39m         \u001b[36mconst\u001b[39m db \u001b[33m=\u001b[39m getHouseholdDb(householdId)\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.id (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/wrapup.spec.js\u001b[39m\u001b[0m\u001b[2m:18:42)\u001b[22m\u001b[2m\u001b[22m\n"
+      "failureMessage": null
     }
   ],
   "wasInterrupted": false

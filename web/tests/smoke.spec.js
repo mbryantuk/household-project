@@ -43,6 +43,11 @@ test.describe('Core UI Smoke Tests', () => {
         await expect(page.locator('h2')).toContainText('Meal Planner');
     });
 
+    test('Dashboard: Monthly Wrap-Up Widget present', async ({ page }) => {
+        await page.goto('/dashboard');
+        await expect(page.locator('text=Monthly Wrap-Up')).toBeVisible();
+    });
+
     test('Avatar Menu: Opens Sidebar Panel', async ({ page }) => {
         // Click Avatar (Footer)
         await page.locator('button:has(.MuiAvatar-root)').last().click();
