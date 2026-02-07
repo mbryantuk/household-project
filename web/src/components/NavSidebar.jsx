@@ -109,7 +109,6 @@ const GroupHeader = ({ label }) => (
 // --- NEW COMPONENT: Profile Accordion ---
 const FinanceProfileAccordion = ({ householdId, api, isDark, onSelect, currentProfileId }) => {
     const [profiles, setProfiles] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [createOpen, setCreateOpen] = useState(false);
     const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
     const [newProfileName, setNewProfileName] = useState('');
@@ -124,7 +123,7 @@ const FinanceProfileAccordion = ({ householdId, api, isDark, onSelect, currentPr
                 const def = res.data.find(p => p.is_default) || res.data[0];
                 onSelect(def.id);
             }
-        } catch (err) { console.error("Failed to fetch profiles", err); } finally { setLoading(false); }
+        } catch (err) { console.error("Failed to fetch profiles", err); }
     }, [api, householdId, currentProfileId, onSelect]);
 
     useEffect(() => { fetchProfiles(); }, [fetchProfiles]);
@@ -216,7 +215,6 @@ export default function NavSidebar({
     onLogout, confirmAction 
   } = useHousehold();
   
-  const [activeCategory, setActiveCategory] = useState(null);
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [isPinned, setIsPinned] = useState(localStorage.getItem('nav_pinned') === 'true');
   const [userMenuAnchor, setUserMenuAnchor] = useState(null);
@@ -235,8 +233,7 @@ export default function NavSidebar({
   }, [isMobile]);
 
   const togglePin = () => {
-      const newVal = !isPinned;
-      setIsPinned(newVal);
+      const newVal = !isPinned;\n      setIsPinned(newVal);
       localStorage.setItem('nav_pinned', String(newVal));
   };
 
@@ -255,9 +252,7 @@ export default function NavSidebar({
       return null;
   }, []);
 
-  useEffect(() => {
-      setActiveCategory(getCategoryFromPath(location.pathname));
-  }, [location.pathname, getCategoryFromPath]);
+  const activeCategory = useMemo(() => getCategoryFromPath(location.pathname), [location.pathname, getCategoryFromPath]);
 
   const handleNav = (to, category, hasSubItems) => {
       if (to) {
@@ -267,7 +262,6 @@ export default function NavSidebar({
           if (!hasSubItems && isMobile && onClose) onClose();
       }
       if (!hasSubItems) setHoveredCategory(null);
-      setActiveCategory(category);
   };
 
   const handleSubItemClick = () => {
