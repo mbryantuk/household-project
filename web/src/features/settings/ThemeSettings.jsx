@@ -38,7 +38,7 @@ export default function ThemeSettings() {
       // Don't include custom in the grid if we want to show it separately
       if (id === 'custom') return;
       
-      if (spec.isPremium) {
+      if (spec.isSignature) {
         groups.signature.push({ id, ...spec });
       } else {
         groups[spec.mode].push({ id, ...spec });
@@ -61,7 +61,7 @@ export default function ThemeSettings() {
                         '&:hover': { transform: 'translateY(-2px)', boxShadow: 'sm' },
                         position: 'relative',
                         display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
-                        ...(spec.isPremium && {
+                        ...(spec.isSignature && {
                             borderWidth: themeId === spec.id ? '2px' : '1px',
                             borderColor: themeId === spec.id ? 'primary.solidBg' : 'divider',
                         })
@@ -82,9 +82,9 @@ export default function ThemeSettings() {
                         fontSize: '13px', 
                         color: themeId === spec.id ? 'common.white' : 'text.primary', 
                         width: '100%',
-                        ...(spec.isPremium && { fontWeight: 700 })
+                        ...(spec.isSignature && { fontWeight: 700 })
                     }}>{spec.name}</Typography>
-                    {spec.isPremium && (
+                    {spec.isSignature && (
                         <Typography level="body-xs" sx={{ 
                             fontSize: '10px', 
                             textTransform: 'uppercase', 
@@ -106,13 +106,13 @@ export default function ThemeSettings() {
     <Stack spacing={4}>
       <Box>
         <Typography level="h4">Appearance</Typography>
-        <Typography level="body-sm">Personalize your platform experience with architectural precision.</Typography>
+        <Typography level="body-sm">All themes now feature the premium Architectural style with editorial typography.</Typography>
       </Box>
 
       {/* Signature Section */}
       <Box>
-        <Typography level="title-lg" startDecorator={<Palette color="warning" />} sx={{ mb: 2 }}>Signature Designs</Typography>
-        <Typography level="body-sm" sx={{ mb: 2 }}>High-fidelity UI styles with editorial typography and refined depth.</Typography>
+        <Typography level="title-lg" startDecorator={<Palette color="warning" />} sx={{ mb: 2 }}>Signature Palettes</Typography>
+        <Typography level="body-sm" sx={{ mb: 2 }}>Curated high-contrast palettes optimized for the architectural UI.</Typography>
         <ThemeGrid themes={groupedThemes.signature} />
       </Box>
 
@@ -181,12 +181,12 @@ export default function ThemeSettings() {
 
       <Stack spacing={4}>
         <Box>
-          <Typography level="title-lg" startDecorator={<LightMode color="warning" />} sx={{ mb: 2 }}>Light Themes</Typography>
+          <Typography level="title-lg" startDecorator={<LightMode color="warning" />} sx={{ mb: 2 }}>Classic Light Palettes</Typography>
           <ThemeGrid themes={groupedThemes.light} />
         </Box>
         <Divider />
         <Box>
-          <Typography level="title-lg" startDecorator={<DarkMode color="primary" />} sx={{ mb: 2 }}>Dark Themes</Typography>
+          <Typography level="title-lg" startDecorator={<DarkMode color="primary" />} sx={{ mb: 2 }}>Classic Dark Palettes</Typography>
           <ThemeGrid themes={groupedThemes.dark} />
         </Box>
       </Stack>

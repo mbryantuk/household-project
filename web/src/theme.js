@@ -65,7 +65,7 @@ export const THEMES = {
   retro: { name: 'Retro 80s', mode: 'dark', primary: '#ff00ff', bg: '#000814', surface: '#001d3d', selection: '#003566', text: '#00f5ff' },
   space: { name: 'Deep Space', mode: 'dark', primary: '#6366f1', bg: '#020617', surface: '#0f172a', selection: '#1e293b', text: '#e0e7ff' },
   jungle: { name: 'Jungle Safari', mode: 'dark', primary: '#eab308', bg: '#022c22', surface: '#064e3b', selection: '#065f46', text: '#ecfdf5' },
-  obsidian: { name: 'Obsidian', mode: 'dark', primary: '#ffffff', bg: '#000000', surface: '#0a0a0a', selection: '#1a1a1a', text: '#e5e5e5' },
+  obsidian_base: { name: 'Obsidian', mode: 'dark', primary: '#ffffff', bg: '#000000', surface: '#0a0a0a', selection: '#1a1a1a', text: '#e5e5e5' },
   galaxy: { name: 'Galaxy Quest', mode: 'dark', primary: '#8b5cf6', bg: '#1e1b4b', surface: '#312e81', selection: '#3730a3', text: '#eef2ff' },
   mars: { name: 'Mars Rover', mode: 'dark', primary: '#fb923c', bg: '#431407', surface: '#7c2d12', selection: '#9a3412', text: '#fff7ed' },
   vampire: { name: 'Vampire Night', mode: 'dark', primary: '#e11d48', bg: '#4c0519', surface: '#881337', selection: '#9f1239', text: '#fff1f2' },
@@ -108,8 +108,8 @@ export const THEMES = {
   nord: { name: 'Nord Deep', mode: 'dark', primary: '#88c0d0', bg: '#2e3440', surface: '#3b4252', selection: '#434c5e', text: '#eceff4' },
 
   // --- SIGNATURE THEMES ---
-  platinum: { name: 'Mantel Platinum', mode: 'light', primary: '#18181b', bg: '#fbfcfd', surface: '#FFF', selection: '#f4f4f5', text: '#09090b', isPremium: true },
-  obsidian: { name: 'Mantel Obsidian', mode: 'dark', primary: '#f4f4f5', bg: '#09090b', surface: '#18181b', selection: '#27272a', text: '#fafafa', isPremium: true },
+  platinum: { name: 'Platinum', mode: 'light', primary: '#18181b', bg: '#fbfcfd', surface: '#FFF', selection: '#f4f4f5', text: '#09090b', isSignature: true },
+  obsidian: { name: 'Obsidian Black', mode: 'dark', primary: '#f4f4f5', bg: '#09090b', surface: '#18181b', selection: '#27272a', text: '#fafafa', isSignature: true },
 
   // --- SPECIAL THEMES ---
   custom: { name: 'Custom Theme', mode: 'light', primary: '#374151', bg: '#F9FAFB', surface: '#FFF', selection: '#E5E7EB', text: '#111827', isCustom: true }
@@ -137,13 +137,13 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
   }
 
   const isDark = spec.mode === 'dark';
-  const isPremium = spec.isPremium === true;
+  const isSignature = spec.isSignature === true;
   const primaryColor = spec.primary || '#374151';
 
   return extendTheme({
     fontFamily: {
         body: '"DM Sans", var(--joy-fontFamily-fallback)',
-        display: isPremium ? '"DM Serif Display", serif' : '"DM Sans", var(--joy-fontFamily-fallback)',
+        display: '"DM Serif Display", serif',
     },
     radius: {
         sm: '4px',
@@ -172,7 +172,7 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
           },
           primary: {
             solidBg: primaryColor,
-            solidHoverBg: isPremium ? (isDark ? '#ffffff' : '#000000') : primaryColor,
+            solidHoverBg: isSignature ? (isDark ? '#ffffff' : '#000000') : primaryColor,
             plainColor: primaryColor,
             outlinedColor: primaryColor,
             outlinedBorder: primaryColor,
@@ -193,12 +193,16 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
              ...(ownerState.level === 'h2' && {
                fontFamily: 'var(--joy-fontFamily-display)',
                fontSize: '1.75rem',
-               fontWeight: isPremium ? 400 : 700,
-               letterSpacing: isPremium ? '-0.02em' : 'normal',
+               fontWeight: 400,
+               letterSpacing: '-0.02em',
              }),
              ...(ownerState.level === 'h1' && {
                 fontFamily: 'var(--joy-fontFamily-display)',
-                fontWeight: isPremium ? 400 : 800,
+                fontWeight: 400,
+             }),
+             ...(ownerState.level === 'h3' && {
+                fontFamily: 'var(--joy-fontFamily-display)',
+                fontWeight: 400,
              }),
           }),
         },
@@ -222,7 +226,7 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
             root: ({ ownerState }) => ({
                 borderRadius: 'var(--joy-radius-md)',
                 fontWeight: 600,
-                ...(ownerState.variant === 'solid' && isPremium && {
+                ...(ownerState.variant === 'solid' && {
                     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
                 })
             })
