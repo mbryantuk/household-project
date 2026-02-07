@@ -35,6 +35,7 @@ import VehicleFinanceWidget from '../components/widgets/VehicleFinanceWidget';
 import ErrorBoundary from '../components/ErrorBoundary';
 import WidgetSkeleton from '../components/ui/WidgetSkeleton';
 import { useHousehold } from '../contexts/HouseholdContext';
+import AppHeader from '../components/ui/AppHeader';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -189,23 +190,22 @@ export default function HomeView() {
 
   return (
     <Box sx={{ pb: 10, px: { xs: 1, md: 4 }, pt: 2 }}>
-      <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} spacing={2} sx={{ mb: 4 }}>
-        <Box>
-          <Typography level="h2" sx={{ fontWeight: 'lg' }}>{greeting}, {user?.first_name || 'Friend'}</Typography>
-          <Typography level="body-md" color="neutral">{dateStr} • {household?.name}</Typography>
-        </Box>
-        
-        <Box sx={{ display: 'flex', gap: 1 }}>
-            {isEditing ? (
-                <>
-                    <Button variant="soft" startDecorator={<Add />} onClick={(e) => setAddWidgetAnchor(e.currentTarget)}>Add Widget</Button>
-                    <Button variant="solid" color="primary" loading={isSaving} startDecorator={<Save />} onClick={handleSave}>Save Layout</Button>
-                </>
-            ) : (
-                <Button variant="plain" color="neutral" startDecorator={<Settings />} onClick={() => setIsEditing(true)}>Customize</Button>
-            )}
-        </Box>
-      </Stack>
+      <AppHeader
+        title={`${greeting}, ${user?.first_name || 'Friend'}`}
+        description={`${dateStr} • ${household?.name}`}
+        endDecorator={
+          <Box sx={{ display: 'flex', gap: 1 }}>
+              {isEditing ? (
+                  <>
+                      <Button variant="soft" startDecorator={<Add />} onClick={(e) => setAddWidgetAnchor(e.currentTarget)}>Add Widget</Button>
+                      <Button variant="solid" color="primary" loading={isSaving} startDecorator={<Save />} onClick={handleSave}>Save Layout</Button>
+                  </>
+              ) : (
+                  <Button variant="plain" color="neutral" startDecorator={<Settings />} onClick={() => setIsEditing(true)}>Customize</Button>
+              )}
+          </Box>
+        }
+      />
 
       <ResponsiveGridLayout
           className="layout"

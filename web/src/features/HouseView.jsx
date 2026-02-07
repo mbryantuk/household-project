@@ -12,6 +12,7 @@ import {
   Add, ArrowForward, Pets, ChildCare, Person
 } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
+import AppHeader from '../components/ui/AppHeader';
 
 const formatCurrency = (val) => (parseFloat(val) || 0).toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });
 
@@ -96,43 +97,40 @@ export default function HouseView() {
 
   return (
     <Box sx={{ maxWidth: '1400px', mx: 'auto', pb: 8 }}>
-        {/* Header Section: The Property Passport */}
-        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Avatar 
-                    size="lg" 
-                    variant="soft" 
-                    sx={{ 
-                        width: 64, height: 64, fontSize: '2.5rem',
-                        bgcolor: getEmojiColor(household?.avatar || '🏠', isDark)
-                    }}
-                >
-                    {household?.avatar || '🏠'}
-                </Avatar>
-                <Box>
-                    <Typography level="h2">{household?.name || 'House Hub'}</Typography>
-                    <Typography level="body-sm" color="neutral" startDecorator={<Home />}>
-                        Built {household?.construction_year || 'N/A'} • {household?.tenure || 'Freehold'}
-                    </Typography>
-                </Box>
-            </Box>
-            <Stack direction="row" spacing={1}>
-                <Button 
-                    variant="outlined" color="neutral" size="sm" 
-                    startDecorator={<CalendarMonth />}
-                    onClick={() => navigate(`/household/${household?.id}/calendar`)}
-                >
-                    Calendar
-                </Button>
-                <Button 
-                    variant="solid" color="primary" size="sm" 
-                    startDecorator={<Add />}
-                    onClick={() => navigate(`/household/${household?.id}/settings?tab=2`)}
-                >
-                    Edit House
-                </Button>
-            </Stack>
-        </Box>
+      <AppHeader
+        title={household?.name || 'House Hub'}
+        description={`Built ${household?.construction_year || 'N/A'} • ${household?.tenure || 'Freehold'}`}
+        startDecorator={
+          <Avatar 
+              size="lg" 
+              variant="soft" 
+              sx={{ 
+                  width: 64, height: 64, fontSize: '2.5rem',
+                  bgcolor: getEmojiColor(household?.avatar || '🏠', isDark)
+              }}
+          >
+              {household?.avatar || '🏠'}
+          </Avatar>
+        }
+        endDecorator={
+          <Stack direction="row" spacing={1}>
+              <Button 
+                  variant="outlined" color="neutral" size="sm" 
+                  startDecorator={<CalendarMonth />}
+                  onClick={() => navigate(`/household/${household?.id}/calendar`)}
+              >
+                  Calendar
+              </Button>
+              <Button 
+                  variant="solid" color="primary" size="sm" 
+                  startDecorator={<Add />}
+                  onClick={() => navigate(`/household/${household?.id}/settings?tab=2`)}
+              >
+                  Edit House
+              </Button>
+          </Stack>
+        }
+      />
 
         <Grid container spacing={3}>
             {/* Left Column: Property & Inventory Stats */}
