@@ -64,4 +64,32 @@ test.describe('Core UI Smoke Tests', () => {
         await page.locator('button[aria-label="Wealth Tracking"]').click();
         await expect(page.locator('text=Wealth Tracking')).toBeVisible();
     });
+
+    test('Profile View: Fields and Theme Selector', async ({ page }) => {
+        // Navigate to Profile
+        const currentUrl = page.url();
+        const profileUrl = currentUrl.replace('/dashboard', '/profile');
+        await page.goto(profileUrl);
+
+        // Check Header
+        await expect(page.locator('h2')).toContainText('Your Profile');
+
+        // Check Personal Details
+        await expect(page.getByLabel('First Name')).toBeVisible();
+        await expect(page.getByLabel('Last Name')).toBeVisible();
+        await expect(page.getByLabel('Email Address')).toBeVisible();
+
+        // Check Theme Selector (New Feature)
+        await expect(page.getByText('Appearance')).toBeVisible();
+        await expect(page.getByText('Theme', { exact: true })).toBeVisible();
+        
+        // Check Security Section
+        await expect(page.getByText('Security')).toBeVisible();
+        await expect(page.locator('button:has-text("Change Password")')).toBeVisible();
+
+        // Toggle Edit Mode
+        await page.click('button:has-text("Edit Profile")');
+        await expect(page.getByLabel('First Name')).toBeEnabled();
+        await expect(page.locator('button:has-text("Save Changes")')).toBeVisible();
+    });
 });

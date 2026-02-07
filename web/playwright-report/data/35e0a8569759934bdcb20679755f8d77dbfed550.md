@@ -1,0 +1,354 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - main [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e7]:
+        - generic [ref=e8]:
+          - generic "Dashboard" [ref=e10] [cursor=pointer]: 🏠
+          - list [ref=e11]:
+            - listitem [ref=e12]:
+              - button "House" [ref=e13] [cursor=pointer]:
+                - img [ref=e15]
+                - generic [ref=e17]: House
+            - listitem [ref=e18]:
+              - button "Calendar" [ref=e19] [cursor=pointer]:
+                - img [ref=e21]
+                - generic [ref=e23]: Calendar
+          - separator [ref=e24]
+        - list [ref=e26]:
+          - listitem [ref=e27]:
+            - button "Finance" [ref=e28] [cursor=pointer]:
+              - img [ref=e30]
+              - generic [ref=e32]: Finance
+          - listitem [ref=e33]:
+            - button "Meals" [ref=e34] [cursor=pointer]:
+              - img [ref=e36]
+              - generic [ref=e38]: Meals
+        - generic [ref=e39]:
+          - separator [ref=e41]
+          - button "Account & Settings" [ref=e42] [cursor=pointer]:
+            - generic [ref=e43]: 🐧
+      - generic [ref=e44]:
+        - main [ref=e45]:
+          - generic [ref=e46]:
+            - generic [ref=e47]:
+              - generic [ref=e48]:
+                - heading "Good evening, Matt" [level=2] [ref=e49]
+                - paragraph [ref=e50]: Saturday 7 February • The Brady Bunch (API) v3.2.151 [2026-02-07 12:56:37]
+              - button "Customize" [ref=e52] [cursor=pointer]:
+                - img [ref=e54]
+                - text: Customize
+            - generic [ref=e57]:
+              - generic [ref=e60]:
+                - generic [ref=e61]:
+                  - img [ref=e63]
+                  - paragraph [ref=e66]: System Time
+                - generic [ref=e68]:
+                  - heading "21:43:44" [level=1] [ref=e69]
+                  - paragraph [ref=e70]: Saturday, 7th February 2026
+              - generic [ref=e73]:
+                - generic [ref=e74]:
+                  - img [ref=e76]
+                  - paragraph [ref=e78]: Budget Health
+                - paragraph [ref=e80]: Set up a primary income source to track budget health.
+              - generic [ref=e83]:
+                - generic [ref=e84]:
+                  - img [ref=e86]
+                  - paragraph [ref=e88]: Wealth Tracking
+                - generic [ref=e90]:
+                  - generic [ref=e91]:
+                    - generic [ref=e92]: Net Worth Estimate
+                    - heading "£0" [level=2] [ref=e93]
+                    - generic [ref=e94]: Assets minus all Liabilities
+                  - generic [ref=e95]:
+                    - separator [ref=e96]
+                    - generic [ref=e97]:
+                      - generic [ref=e98]:
+                        - generic [ref=e99]:
+                          - img [ref=e100]
+                          - text: Pensions
+                        - paragraph [ref=e102]: £0
+                      - generic [ref=e103]:
+                        - generic [ref=e104]:
+                          - img [ref=e105]
+                          - text: Investments
+                        - paragraph [ref=e107]: £0
+                    - generic [ref=e108]:
+                      - generic [ref=e109]:
+                        - img [ref=e110]
+                        - text: Liquid Savings
+                      - paragraph [ref=e112]: £0
+                      - list [ref=e113]
+              - generic [ref=e116]:
+                - generic [ref=e117]:
+                  - img [ref=e119]
+                  - paragraph [ref=e121]: Income
+                - generic [ref=e123]:
+                  - generic [ref=e124]:
+                    - generic [ref=e125]: Total Net Monthly
+                    - heading "£0" [level=4] [ref=e126]
+                  - list [ref=e127]
+              - generic [ref=e130]:
+                - generic [ref=e131]:
+                  - img [ref=e133]
+                  - paragraph [ref=e135]: Banking
+                - generic [ref=e137]:
+                  - generic [ref=e138]:
+                    - generic [ref=e139]: Combined Balance
+                    - heading "£0" [level=4] [ref=e140]
+                  - list [ref=e141]
+              - generic [ref=e144]:
+                - generic [ref=e145]:
+                  - img [ref=e147]
+                  - paragraph [ref=e149]: Savings
+                - generic [ref=e151]:
+                  - generic [ref=e154] [cursor=pointer]:
+                    - combobox [ref=e155]: Total Savings
+                    - img [ref=e157]
+                    - textbox [ref=e159]: total
+                  - generic [ref=e160]:
+                    - paragraph [ref=e161]: Total Savings
+                    - heading "🏦 £0.00" [level=2] [ref=e162]
+                  - paragraph [ref=e163]: No savings accounts yet.
+              - generic [ref=e166]:
+                - generic [ref=e167]:
+                  - img [ref=e169]
+                  - paragraph [ref=e171]: Calendar
+                - generic [ref=e172]:
+                  - generic [ref=e173]:
+                    - paragraph [ref=e174]: February 2026
+                    - generic [ref=e175]:
+                      - button [ref=e176] [cursor=pointer]:
+                        - img [ref=e177]
+                      - button [ref=e179] [cursor=pointer]:
+                        - img [ref=e180]
+                  - generic [ref=e182]:
+                    - generic [ref=e183]: M
+                    - generic [ref=e184]: T
+                    - generic [ref=e185]: W
+                    - generic [ref=e186]: T
+                    - generic [ref=e187]: F
+                    - generic [ref=e188]: S
+                    - generic [ref=e189]: S
+                    - button "26" [ref=e190] [cursor=pointer]:
+                      - generic [ref=e191]: "26"
+                    - button "27" [ref=e192] [cursor=pointer]:
+                      - generic [ref=e193]: "27"
+                    - button "28" [ref=e194] [cursor=pointer]:
+                      - generic [ref=e195]: "28"
+                    - button "29" [ref=e196] [cursor=pointer]:
+                      - generic [ref=e197]: "29"
+                    - button "30" [ref=e198] [cursor=pointer]:
+                      - generic [ref=e199]: "30"
+                    - button "31" [ref=e200] [cursor=pointer]:
+                      - generic [ref=e201]: "31"
+                    - button "1" [ref=e202] [cursor=pointer]:
+                      - generic [ref=e203]: "1"
+                    - button "2" [ref=e204] [cursor=pointer]:
+                      - generic [ref=e205]: "2"
+                    - button "3" [ref=e206] [cursor=pointer]:
+                      - generic [ref=e207]: "3"
+                    - button "4" [ref=e208] [cursor=pointer]:
+                      - generic [ref=e209]: "4"
+                    - button "5" [ref=e210] [cursor=pointer]:
+                      - generic [ref=e211]: "5"
+                    - button "6" [ref=e212] [cursor=pointer]:
+                      - generic [ref=e213]: "6"
+                    - button "7" [ref=e214] [cursor=pointer]:
+                      - generic [ref=e215]: "7"
+                    - button "8" [ref=e216] [cursor=pointer]:
+                      - generic [ref=e217]: "8"
+                    - button "9" [ref=e218] [cursor=pointer]:
+                      - generic [ref=e219]: "9"
+                    - button "10" [ref=e220] [cursor=pointer]:
+                      - generic [ref=e221]: "10"
+                    - button "11" [ref=e222] [cursor=pointer]:
+                      - generic [ref=e223]: "11"
+                    - button "12" [ref=e224] [cursor=pointer]:
+                      - generic [ref=e225]: "12"
+                    - button "13" [ref=e226] [cursor=pointer]:
+                      - generic [ref=e227]: "13"
+                    - button "14" [ref=e228] [cursor=pointer]:
+                      - generic [ref=e229]: "14"
+                    - button "15" [ref=e230] [cursor=pointer]:
+                      - generic [ref=e231]: "15"
+                    - button "16" [ref=e232] [cursor=pointer]:
+                      - generic [ref=e233]: "16"
+                    - button "17" [ref=e234] [cursor=pointer]:
+                      - generic [ref=e235]: "17"
+                    - button "18" [ref=e236] [cursor=pointer]:
+                      - generic [ref=e237]: "18"
+                    - button "19" [ref=e238] [cursor=pointer]:
+                      - generic [ref=e239]: "19"
+                    - button "20" [ref=e240] [cursor=pointer]:
+                      - generic [ref=e241]: "20"
+                    - button "21" [ref=e242] [cursor=pointer]:
+                      - generic [ref=e243]: "21"
+                    - button "22" [ref=e244] [cursor=pointer]:
+                      - generic [ref=e245]: "22"
+                    - button "23" [ref=e246] [cursor=pointer]:
+                      - generic [ref=e247]: "23"
+                    - button "24" [ref=e248] [cursor=pointer]:
+                      - generic [ref=e249]: "24"
+                    - button "25" [ref=e250] [cursor=pointer]:
+                      - generic [ref=e251]: "25"
+                    - button "26" [ref=e252] [cursor=pointer]:
+                      - generic [ref=e253]: "26"
+                    - button "27" [ref=e254] [cursor=pointer]:
+                      - generic [ref=e255]: "27"
+                    - button "28" [ref=e256] [cursor=pointer]:
+                      - generic [ref=e257]: "28"
+                    - button "1" [ref=e258] [cursor=pointer]:
+                      - generic [ref=e259]: "1"
+                    - button "2" [ref=e260] [cursor=pointer]:
+                      - generic [ref=e261]: "2"
+                    - button "3" [ref=e262] [cursor=pointer]:
+                      - generic [ref=e263]: "3"
+                    - button "4" [ref=e264] [cursor=pointer]:
+                      - generic [ref=e265]: "4"
+                    - button "5" [ref=e266] [cursor=pointer]:
+                      - generic [ref=e267]: "5"
+                    - button "6" [ref=e268] [cursor=pointer]:
+                      - generic [ref=e269]: "6"
+                    - button "7" [ref=e270] [cursor=pointer]:
+                      - generic [ref=e271]: "7"
+                    - button "8" [ref=e272] [cursor=pointer]:
+                      - generic [ref=e273]: "8"
+                  - separator [ref=e274]
+                  - generic [ref=e276]: No events
+              - generic [ref=e279]:
+                - generic [ref=e280]:
+                  - img [ref=e282]
+                  - paragraph [ref=e284]: Sticky Note
+                - generic [ref=e286]:
+                  - generic [ref=e287]:
+                    - button [ref=e288] [cursor=pointer]:
+                      - img [ref=e289]
+                    - generic [ref=e291]: Notes
+                  - list [ref=e293]:
+                    - listitem [ref=e294]:
+                      - button "Empty note..." [ref=e295] [cursor=pointer]:
+                        - checkbox [ref=e299]
+                        - generic [ref=e300]: Empty note...
+                      - button [ref=e302] [cursor=pointer]:
+                        - img [ref=e303]
+              - generic [ref=e307]:
+                - generic [ref=e308]:
+                  - img [ref=e310]
+                  - paragraph [ref=e312]: Credit Cards
+                - generic [ref=e314]:
+                  - generic [ref=e315]:
+                    - generic [ref=e316]:
+                      - generic [ref=e317]: Utilization
+                      - generic [ref=e318]: 0%
+                    - progressbar [ref=e319]
+                  - list [ref=e320]
+              - generic [ref=e323]:
+                - generic [ref=e324]:
+                  - img [ref=e326]
+                  - paragraph [ref=e329]: Personal Loans
+                - generic [ref=e331]:
+                  - generic [ref=e332]:
+                    - generic [ref=e333]: Total Debt
+                    - heading "£0" [level=4] [ref=e334]
+                  - list [ref=e335]
+              - generic [ref=e338]:
+                - generic [ref=e339]:
+                  - img [ref=e341]
+                  - paragraph [ref=e343]: Mortgages
+                - generic [ref=e345]:
+                  - generic [ref=e346]:
+                    - generic [ref=e347]: Total Mortgage Debt
+                    - heading "£0" [level=4] [ref=e348]
+                  - list [ref=e349]
+              - generic [ref=e352]:
+                - generic [ref=e353]:
+                  - img [ref=e355]
+                  - paragraph [ref=e357]: Pensions
+                - generic [ref=e359]:
+                  - generic [ref=e362] [cursor=pointer]:
+                    - combobox [ref=e363]: Total Portfolio
+                    - img [ref=e365]
+                    - textbox [ref=e367]: total
+                  - generic [ref=e368]:
+                    - paragraph [ref=e369]: Total Pension Pot
+                    - heading "🏺 £0.00" [level=2] [ref=e370]
+                    - paragraph [ref=e371]: +£0/mo contribution
+                  - paragraph [ref=e372]: No pensions found.
+              - generic [ref=e375]:
+                - generic [ref=e376]:
+                  - img [ref=e378]
+                  - paragraph [ref=e380]: Fleet Status
+                - list [ref=e382]:
+                  - generic [ref=e383]: No vehicles tracked.
+              - generic [ref=e386]:
+                - generic [ref=e387]:
+                  - img [ref=e389]
+                  - paragraph [ref=e391]: Car Finance
+                - generic [ref=e393]:
+                  - generic [ref=e394]:
+                    - generic [ref=e395]: Total Outstanding
+                    - heading "£0" [level=4] [ref=e396]
+                  - list [ref=e397]
+              - generic [ref=e400]:
+                - generic [ref=e401]:
+                  - img [ref=e403]
+                  - paragraph [ref=e405]: Upcoming Birthdays
+                - paragraph [ref=e407]: No upcoming birthdays found.
+              - generic [ref=e410]:
+                - generic [ref=e411]:
+                  - img [ref=e413]
+                  - paragraph [ref=e415]: Investments
+                - generic [ref=e417]:
+                  - generic [ref=e420] [cursor=pointer]:
+                    - combobox [ref=e421]: Total Portfolio
+                    - img [ref=e423]
+                    - textbox [ref=e425]: total
+                  - generic [ref=e426]:
+                    - paragraph [ref=e427]: Total Portfolio
+                    - heading "💼 £0.00" [level=2] [ref=e428]
+                    - paragraph [ref=e429]: +£0 (0.00%)
+                  - paragraph [ref=e430]: No investments found.
+        - generic [ref=e434]:
+          - button "Notes" [ref=e436] [cursor=pointer]:
+            - img [ref=e437]
+          - button "Calculator" [ref=e440] [cursor=pointer]:
+            - img [ref=e441]
+          - separator
+          - button "Income" [ref=e444] [cursor=pointer]:
+            - img [ref=e445]
+          - button "Banking" [ref=e448] [cursor=pointer]:
+            - img [ref=e449]
+          - button "Savings & Pots" [ref=e452] [cursor=pointer]:
+            - img [ref=e453]
+          - button "Investments" [ref=e456] [cursor=pointer]:
+            - img [ref=e457]
+          - button "Pensions" [ref=e460] [cursor=pointer]:
+            - img [ref=e461]
+          - button "Credit Cards" [ref=e464] [cursor=pointer]:
+            - img [ref=e465]
+          - button "Personal Loans" [ref=e468] [cursor=pointer]:
+            - img [ref=e469]
+          - button "Mortgages" [ref=e473] [cursor=pointer]:
+            - img [ref=e474]
+          - button "Car Finance" [ref=e477] [cursor=pointer]:
+            - img [ref=e478]
+          - separator
+          - generic [ref=e480]:
+            - generic [ref=e483]:
+              - generic [ref=e484]:
+                - img [ref=e486]
+                - paragraph [ref=e488]: Budget Health
+              - progressbar [ref=e491]:
+                - img [ref=e492]
+            - button "Budget Health" [active] [ref=e495] [cursor=pointer]:
+              - img [ref=e496]
+          - button "Wealth Tracking" [ref=e499] [cursor=pointer]:
+            - img [ref=e500]
+          - separator
+          - button "Calendar" [ref=e503] [cursor=pointer]:
+            - img [ref=e504]
+  - tooltip "Budget Health" [ref=e506]
+```

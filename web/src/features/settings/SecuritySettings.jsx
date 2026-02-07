@@ -31,6 +31,11 @@ export default function SecuritySettings() {
   const [disableModalOpen, setDisableModalOpen] = useState(false);
   const [password, setPassword] = useState('');
 
+  // Password Change State
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [passwordData, setPasswordData] = useState({ newPassword: '', confirmPassword: '' });
+  const [changingPassword, setChangingPassword] = useState(false);
+
   const fetchSessions = useCallback(async () => {
     setLoadingSessions(true);
     try {
@@ -116,6 +121,26 @@ export default function SecuritySettings() {
     }
   };
 
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+        return showNotification("Passwords do not match", "danger");
+    }
+
+    setChangingPassword(true);
+    try {
+        await onUpdateProfile({ password: passwordData.newPassword });
+        setIsPasswordModalOpen(false);
+        setPasswordData({ newPassword: '', confirmPassword: '' });
+        showNotification("Password changed successfully", "success");
+    } catch (err) {
+        const msg = err.response?.data?.error || "Failed to change password";
+        showNotification(msg, "danger");
+    } finally {
+        setChangingPassword(false);
+    }
+  };
+
   return (
     <Stack spacing={4} sx={{ maxWidth: 800 }}>
       <Box>
@@ -123,7 +148,18 @@ export default function SecuritySettings() {
         <Typography level="body-sm">Manage your account security and active sessions.</Typography>
       </Box>
 
-      {/* 1. MFA Section */}
+      {/* 1. Password Section */}
+      <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', bgcolor: 'background.level1' }}>
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Box>
+                  <Typography level="title-md" startDecorator={<Lock color="primary" />}>Password</Typography>
+                  <Typography level="body-xs" color="neutral" sx={{ mt: 0.5 }}>Update your login password regularly to stay secure.</Typography>
+              </Box>
+              <Button variant="solid" color="neutral" onClick={() => setIsPasswordModalOpen(true)}>Change Password</Button>
+          </Stack>
+      </Sheet>
+
+      {/* 2. MFA Section */}
       <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', bgcolor: 'background.level1' }}>
           <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 2 }}>
               <Box>
@@ -146,7 +182,7 @@ export default function SecuritySettings() {
           )}
       </Sheet>
 
-      {/* 2. Sessions Section */}
+      {/* 3. Sessions Section */}
       <Box>
           <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
               <Typography level="title-md" startDecorator={<Devices color="primary" />}>Active Sessions</Typography>
@@ -181,6 +217,40 @@ export default function SecuritySettings() {
               </List>
           </Sheet>
       </Box>
+
+      {/* PASSWORD CHANGE MODAL */}
+      <Modal open={isPasswordModalOpen} onClose={() => setIsPasswordModalOpen(false)}>
+          <ModalDialog>
+              <DialogTitle>Change Password</DialogTitle>
+              <DialogContent>Passwords must be at least 8 characters long and include a number and special character.</DialogContent>
+              <form onSubmit={handleChangePassword}>
+                  <Stack spacing={2} sx={{ mt: 1 }}>
+                      <FormControl required>
+                          <FormLabel>New Password</FormLabel>
+                          <Input 
+                              type="password" 
+                              placeholder="••••••••"
+                              value={passwordData.newPassword}
+                              onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
+                          />
+                      </FormControl>
+                      <FormControl required>
+                          <FormLabel>Confirm New Password</FormLabel>
+                          <Input 
+                              type="password" 
+                              placeholder="••••••••"
+                              value={passwordData.confirmPassword}
+                              onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
+                          />
+                      </FormControl>
+                      <DialogActions>
+                          <Button type="submit" loading={changingPassword}>Update Password</Button>
+                          <Button variant="plain" color="neutral" onClick={() => setIsPasswordModalOpen(false)}>Cancel</Button>
+                      </DialogActions>
+                  </Stack>
+              </form>
+          </ModalDialog>
+      </Modal>
 
       {/* MFA SETUP MODAL */}
       <Modal open={mfaModalOpen} onClose={() => setMfaModalOpen(false)}>

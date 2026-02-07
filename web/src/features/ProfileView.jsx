@@ -5,9 +5,10 @@ import {
   Modal, ModalDialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/joy';
 import { useOutletContext } from 'react-router-dom';
-import { Edit, Save, PhotoCamera, Lock, Key } from '@mui/icons-material';
-import { getEmojiColor } from '../theme';
+import { Edit, Save, PhotoCamera, Lock, Key, Palette } from '@mui/icons-material';
+import { getEmojiColor, THEMES } from '../theme';
 import EmojiPicker from '../components/EmojiPicker';
+import AppSelect from '../components/ui/AppSelect';
 
 export default function ProfileView() {
   const { user, onUpdateProfile, isDark, showNotification } = useOutletContext();
@@ -26,7 +27,8 @@ export default function ProfileView() {
     first_name: '',
     last_name: '',
     email: '',
-    avatar: '👤'
+    avatar: '👤',
+    theme: 'totem'
   });
 
   useEffect(() => {
@@ -35,7 +37,8 @@ export default function ProfileView() {
         first_name: user.first_name || '',
         last_name: user.last_name || '',
         email: user.email || '',
-        avatar: user.avatar || '👤'
+        avatar: user.avatar || '👤',
+        theme: user.theme || 'totem'
       });
     }
   }, [user]);
@@ -151,7 +154,29 @@ export default function ProfileView() {
                   />
                 </FormControl>
 
-                <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                <Divider sx={{ my: 2 }} />
+
+                <Typography level="title-lg" startDecorator={<Palette />}>Appearance</Typography>
+                <Grid container spacing={2}>
+                  <Grid xs={12}>
+                    <AppSelect
+                      label="Theme"
+                      value={formData.theme}
+                      onChange={(newValue) => setFormData({...formData, theme: newValue})}
+                      options={Object.entries(THEMES)
+                        .filter(([key]) => key !== 'custom') // Hide custom for now as it needs a JSON editor
+                        .map(([key, val]) => ({
+                          value: key,
+                          label: `${val.name} (${val.mode})`
+                        }))
+                        .sort((a, b) => a.label.localeCompare(b.label))
+                      }
+                      disabled={!isEditing}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 2 }}>
                   {!isEditing ? (
                     <Button 
                       variant="outlined" 
