@@ -64,4 +64,14 @@ test.describe('Core UI Smoke Tests', () => {
         await page.locator('button[aria-label="Wealth Tracking"]').click();
         await expect(page.locator('text=Wealth Tracking')).toBeVisible();
     });
+
+    test('Admin: Household Settings Module Toggles', async ({ page }) => {
+        // Find Settings from the Avatar menu
+        await page.locator('button:has(.MuiAvatar-root)').last().click();
+        await page.click('text=Settings');
+        
+        // Wait for specific tab content (Household Settings is usually tab 2 as identified)
+        await page.click('button:has-text("Household")');
+        await expect(page.getByText('Feature Modules')).toBeVisible();
+    });
 });
