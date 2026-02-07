@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState } from 'react';
 import { Box, Typography, FormControl, FormLabel, Input, Button, Stack, Sheet, Grid, Chip, Switch, Divider } from '@mui/joy';
 import Public from '@mui/icons-material/Public';
 import ViewModule from '@mui/icons-material/ViewModule';
@@ -28,7 +28,7 @@ export default function HouseholdSettings() {
     try {
       await onUpdateHousehold({ name });
       showNotification('Household name updated!', 'success');
-    } catch(e) {
+    } catch {
       showNotification('Failed to update household', 'danger');
     }
   };
