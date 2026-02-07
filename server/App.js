@@ -21,6 +21,7 @@ const adminRoutes = require('./routes/admin');
 const calendarRoutes = require('./routes/calendar');
 const detailsRoutes = require('./routes/details');
 const mealRoutes = require('./routes/meals');
+const shoppingRoutes = require('./routes/shopping');
 const financeRoutes = require('./routes/finance');
 const financeProfileRoutes = require('./routes/finance_profiles');
 
@@ -81,7 +82,8 @@ const allRouters = [
     { path: '/', router: memberRoutes },
     { path: '/', router: calendarRoutes },
     { path: '/', router: detailsRoutes },
-    { path: '/', router: mealRoutes }
+    { path: '/', router: mealRoutes },
+    { path: '/', router: shoppingRoutes }
 ];
 
 // 1. Mount at root

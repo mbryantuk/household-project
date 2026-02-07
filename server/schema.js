@@ -187,6 +187,16 @@ const TENANT_SCHEMA = [
         category TEXT,
         last_prepared DATE
     )`,
+    `CREATE TABLE IF NOT EXISTS shopping_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        name TEXT,
+        category TEXT DEFAULT 'general',
+        quantity TEXT,
+        is_checked INTEGER DEFAULT 0,
+        emoji TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
     `CREATE TABLE IF NOT EXISTS meal_plans (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
