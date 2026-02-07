@@ -1,50 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Typography, Stack, Button, Box, CircularProgress } from '@mui/joy';
 import { EmojiEvents, Insights } from '@mui/icons-material';
 import WidgetWrapper from './WidgetWrapper';
 import MonthlyWrapUpModal from '../modals/MonthlyWrapUpModal';
+import { useHousehold } from '../../contexts/HouseholdContext';
 
-export default function MonthlyWrapUpWidget({ api, household }) {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+export default function MonthlyWrapUpWidget() {
+  const { household, wrappedData: data } = useHousehold();
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Get current month in YYYY-MM-DD format (first day of month)
+  // Get current month display name
   const now = new Date();
-  const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
   const monthName = now.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
 
-  useEffect(() => {
-    if (!household?.id) return;
-    
-    setLoading(true);
-    api.get(`/households/${household.id}/finance/wrap-up?month=${currentMonthStr}`)
-      .then(res => {
-        setData(res.data);
-        setError(null);
-      })
-      .catch(err => {
-        console.error("Failed to fetch wrap-up", err);
-        setError("Failed to load summary");
-      })
-      .finally(() => setLoading(false));
-  }, [api, household?.id, currentMonthStr]);
-
-  if (loading) {
+  if (!data && household?.id) {
     return (
       <WidgetWrapper title="Monthly Wrap-Up" icon={<EmojiEvents />} color="warning">
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
           <CircularProgress size="sm" />
         </Box>
-      </WidgetWrapper>
-    );
-  }
-
-  if (error) {
-    return (
-      <WidgetWrapper title="Monthly Wrap-Up" icon={<EmojiEvents />} color="warning">
-        <Typography color="danger" level="body-sm">{error}</Typography>
       </WidgetWrapper>
     );
   }

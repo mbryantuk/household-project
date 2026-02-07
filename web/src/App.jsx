@@ -370,7 +370,12 @@ function AppInner({
           '.rbc-month-view, .rbc-time-view, .rbc-agenda-view': { border: `1px solid ${spec.selection} !important`, borderRadius: '8px', overflow: 'hidden' },
           '.rbc-day-bg + .rbc-day-bg, .rbc-month-row + .rbc-month-row, .rbc-time-content > * + *': { borderLeft: `1px solid ${spec.selection} !important`, borderTop: `1px solid ${spec.selection} !important` },
           '.rbc-toolbar button': { color: `${spec.text} !important`, border: `1px solid ${spec.selection} !important` },
-          '.rbc-toolbar button:hover, .rbc-toolbar button:active, .rbc-toolbar button.rbc-active': { backgroundColor: `${spec.selection} !important`, color: `${spec.text} !important` }
+          '.rbc-toolbar button:hover, .rbc-toolbar button:active, .rbc-toolbar button.rbc-active': { backgroundColor: `${spec.selection} !important`, color: `${spec.text} !important` },
+          '@keyframes wrapped-pulse': {
+            '0%': { boxShadow: `0 0 0 0px var(--joy-palette-warning-500)` },
+            '70%': { boxShadow: `0 0 0 10px rgba(255, 165, 0, 0)` },
+            '100%': { boxShadow: `0 0 0 0px rgba(255, 165, 0, 0)` }
+          }
       }} />
 
       <Suspense fallback={<PageLoader />}>

@@ -213,9 +213,11 @@ export default function NavSidebar({
   const [searchParams, setSearchParams] = useSearchParams();
   const { 
     household, members, vehicles, user, isDark, api,
-    onLogout, confirmAction 
+    onLogout, confirmAction, wrappedData
   } = useHousehold();
   
+  const wrappedAvailable = useMemo(() => wrappedData && wrappedData.total_spent > 0, [wrappedData]);
+
   const [activeCategory, setActiveCategory] = useState(null);
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [isPinned, setIsPinned] = useState(localStorage.getItem('nav_pinned') === 'true');
@@ -458,15 +460,27 @@ export default function NavSidebar({
 
                               onClick={() => { navigate(`/household/${household.id}/dashboard`); setHoveredCategory(null); }}
 
-                              sx={{ 
+                                                            sx={{ 
 
-                                  bgcolor: getEmojiColor(household?.avatar || '🏠', isDark),
+                                                                bgcolor: getEmojiColor(household?.avatar || '🏠', isDark),
 
-                                  fontSize: '1.5rem', fontWeight: 'bold', cursor: 'pointer',
+                                                                fontSize: '1.5rem', fontWeight: 'bold', cursor: 'pointer',
 
-                                  transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.1)' }
+                                                                transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.1)' },
 
-                              }}
+                                                                ...(wrappedAvailable && {
+
+                                                                    outline: '2px solid var(--joy-palette-warning-400)',
+
+                                                                    outlineOffset: '2px',
+
+                                                                    animation: 'wrapped-pulse 2s infinite'
+
+                                                                })
+
+                                                            }}
+
+                              
 
                           >
 

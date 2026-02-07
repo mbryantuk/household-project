@@ -82,6 +82,17 @@ export default function HouseholdLayout({
   
   // New: Global Status Bar State
   const [statusBarData, setStatusBarData] = useState(null);
+  const [wrappedData, setWrappedData] = useState(null);
+
+  useEffect(() => {
+    if (activeHousehold?.id && api) {
+      const now = new Date();
+      const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+      api.get(`/households/${activeHousehold.id}/finance/wrap-up?month=${currentMonthStr}`)
+        .then(res => setWrappedData(res.data))
+        .catch(() => setWrappedData(null));
+    }
+  }, [activeHousehold?.id, api]);
 
   useEffect(() => {
     const targetId = parseInt(id);
@@ -137,7 +148,9 @@ export default function HouseholdLayout({
       dates,
       onDateAdded,
       statusBarData,
-      setStatusBarData
+      setStatusBarData,
+      wrappedData,
+      setWrappedData
   };
 
   const toggleQuickAction = (event) => {
