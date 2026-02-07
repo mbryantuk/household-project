@@ -60,15 +60,18 @@ async function main() {
 
     if (type === 'backend') {
         await recordBackendResults(runId);
-    } else if (type === 'frontend_lifecycle_1') {
-        await recordFrontendResults('frontend_lifecycle_1', 'Stage 1: Brady Foundation', path.join(__dirname, '../../web/results-1.json'), runId);
-    } else if (type === 'frontend_lifecycle_2') {
-        await recordFrontendResults('frontend_lifecycle_2', 'Stage 2: Finance & Fringe', path.join(__dirname, '../../web/results-2.json'), runId);
+    } else if (type === 'frontend_ui_flows') {
+        await recordFrontendResults('frontend', 'UI Flow Verification', path.join(__dirname, '../../web/results-ui.json'), runId);
+    } else if (type === 'frontend_demo_seed') {
+        await recordFrontendResults('frontend', 'Demo Seed Integrity', path.join(__dirname, '../../web/results-demo.json'), runId);
     } else if (type === 'frontend') {
         await recordFrontendResults(undefined, undefined, undefined, runId);
     } else {
-        await recordBackendResults(runId);
-        await recordFrontendResults(undefined, undefined, undefined, runId);
+        // Fallback or default behavior
+        if (!type || type === 'all') {
+             await recordBackendResults(runId);
+             await recordFrontendResults(undefined, undefined, undefined, runId);
+        }
     }
     process.exit(0);
 }

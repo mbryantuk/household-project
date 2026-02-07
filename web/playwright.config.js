@@ -10,7 +10,7 @@ export default defineConfig({
   reporter: [
     ['list'],
     ['html', { open: 'never' }], 
-    ['json', { outputFile: 'test-results/results.json' }]
+    ['json', { outputFile: process.env.PLAYWRIGHT_JSON_OUTPUT_NAME || 'test-results/results.json' }]
   ],
   use: {
     // Target the production/container port by default, or override with BASE_URL env
