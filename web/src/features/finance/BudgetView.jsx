@@ -1481,98 +1481,97 @@ export default function BudgetView({ financialProfileId }) {
 
   return (
     <Box sx={{ userSelect: 'none', pb: 12, overflowX: 'hidden' }}>
-        <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'center', md: 'flex-start' } }}>
-                <IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, -1))}><ChevronLeft /></IconButton>
-                <Box sx={{ textAlign: 'center' }}>
-                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.2rem', sm: '1.5rem' } }}>{cycleData.label}</Typography>
-                    <Typography level="body-xs" color="neutral">{format(cycleData.startDate, 'do MMM')} to {format(cycleData.endDate, 'do MMM')}</Typography>
+        <AppHeader 
+            title={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <IconButton variant="outlined" size="sm" onClick={() => setViewDate(addMonths(viewDate, -1))}><ChevronLeft /></IconButton>
+                    <Typography level="h2">{cycleData.label}</Typography>
+                    <IconButton variant="outlined" size="sm" onClick={() => setViewDate(addMonths(viewDate, 1))}><ChevronRight /></IconButton>
                 </Box>
-                <IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, 1))}><ChevronRight /></IconButton>
-            </Box>
-            
-            <Stack direction="row" spacing={1} sx={{ width: { xs: '100%', sm: 'auto' }, flexWrap: 'wrap', gap: 1 }}>
-                <Input 
-                    startDecorator={<Search />}
-                    placeholder="Search items..."
-                    size="sm"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    sx={{ width: { xs: '100%', sm: 180 } }}
-                />
+            }
+            description={`${format(cycleData.startDate, 'do MMM')} to ${format(cycleData.endDate, 'do MMM')}`}
+            endDecorator={
+                <Stack direction="row" spacing={1} sx={{ width: { xs: '100%', sm: 'auto' }, flexWrap: 'wrap', gap: 1, justifyContent: 'flex-end' }}>
+                    <Input 
+                        startDecorator={<Search />}
+                        placeholder="Search items..."
+                        size="sm"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        sx={{ width: { xs: '100%', sm: 180 } }}
+                    />
 
-                <Select 
-                    size="sm" 
-                    value={filterEntity} 
-                    onChange={(e, val) => setFilterEntity(val)}
-                    startDecorator={<FilterAlt />}
-                    sx={{ width: { xs: '100%', sm: 160 } }}
-                >
-                    <Option value="all">All Objects</Option>
-                    <Divider />
-                    {entityGroupsOptions.map((group, idx) => [
-                        <Typography key={`label-${idx}`} level="body-xs" sx={{ px: 2, py: 1, fontWeight: 'bold' }}>{group.label}</Typography>,
-                        ...group.options.map(opt => (
-                            <Option key={opt.value} value={opt.value}>
-                                {opt.emoji} {opt.label}
-                            </Option>
-                        ))
-                    ])}
-                </Select>
-
-                <Select 
-                    size="sm" 
-                    value={filterAccount} 
-                    onChange={(e, val) => setFilterAccount(val)}
-                    placeholder="All Accounts"
-                    startDecorator={<AccountBalanceWallet />}
-                    sx={{ width: { xs: '100%', sm: 160 } }}
-                >
-                    <Option value="all">All Accounts</Option>
-                    <Divider />
-                    {currentAccounts.map(acc => (
-                        <Option key={acc.id} value={String(acc.id)}>
-                            {acc.emoji} {acc.account_name}
-                        </Option>
-                    ))}
-                </Select>
-
-                <Select 
-                    size="sm" 
-                    value={groupBy} 
-                    onChange={(e, val) => setGroupBy(val)}
-                    startDecorator={<GroupWork />}
-                    sx={{ width: { xs: '100%', sm: 160 } }}
-                >
-                    <Option value="standard">Standard Split</Option>
-                    <Option value="category">By Category</Option>
-                    <Option value="object">By Object</Option>
-                    <Option value="date">By Date</Option>
-                </Select>
-            </Stack>
-
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'center', md: 'flex-end' } }}>
-                <Tooltip title="Toggle Paid Items">
-                    <FormControl orientation="horizontal" size="sm" sx={{ mr: 1 }}>
-                        <FormLabel sx={{ mr: 1, display: { xs: 'none', lg: 'inline' } }}>Hide Paid</FormLabel>
-                        <Switch checked={hidePaid} onChange={(e) => setHidePaid(e.target.checked)} size="sm" />
-                    </FormControl>
-                </Tooltip>
-                {currentCycleRecord && (
-                    <Button variant="outlined" color="danger" size="sm" startDecorator={<RestartAlt />} onClick={handleResetCycle} sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>Reset</Button>
-                )}
-                {selectedKeys.length > 0 && (<Button variant="outlined" color="neutral" size="sm" onClick={() => setSelectedKeys([])}>Clear</Button>)}
-                <Dropdown>
-                    <MenuButton variant="solid" color="primary" size="sm" startDecorator={<Add />} endDecorator={<ArrowDropDown />}>Add</MenuButton>
-                    <Menu placement="bottom-end" size="sm">
-                        <MenuItem onClick={handleOpenAdhoc}>Add Adhoc Income</MenuItem>
+                    <Select 
+                        size="sm" 
+                        value={filterEntity} 
+                        onChange={(e, val) => setFilterEntity(val)}
+                        startDecorator={<FilterAlt />}
+                        sx={{ width: { xs: '100%', sm: 160 } }}
+                    >
+                        <Option value="all">All Objects</Option>
                         <Divider />
-                        <MenuItem onClick={handleOpenQuickAdd}>Add One-off Expense</MenuItem>
-                        <MenuItem onClick={handleOpenRecurring}>Add Recurring Expense</MenuItem>
-                    </Menu>
-                </Dropdown>
-            </Box>
-        </Box>
+                        {entityGroupsOptions.map((group, idx) => [
+                            <Typography key={`label-${idx}`} level="body-xs" sx={{ px: 2, py: 1, fontWeight: 'bold' }}>{group.label}</Typography>,
+                            ...group.options.map(opt => (
+                                <Option key={opt.value} value={opt.value}>
+                                    {opt.emoji} {opt.label}
+                                </Option>
+                            ))
+                        ])}
+                    </Select>
+
+                    <Select 
+                        size="sm" 
+                        value={filterAccount} 
+                        onChange={(e, val) => setFilterAccount(val)}
+                        placeholder="All Accounts"
+                        startDecorator={<AccountBalanceWallet />}
+                        sx={{ width: { xs: '100%', sm: 160 } }}
+                    >
+                        <Option value="all">All Accounts</Option>
+                        <Divider />
+                        {currentAccounts.map(acc => (
+                            <Option key={acc.id} value={String(acc.id)}>
+                                {acc.emoji} {acc.account_name}
+                            </Option>
+                        ))}
+                    </Select>
+
+                    <Select 
+                        size="sm" 
+                        value={groupBy} 
+                        onChange={(e, val) => setGroupBy(val)}
+                        startDecorator={<GroupWork />}
+                        sx={{ width: { xs: '100%', sm: 160 } }}
+                    >
+                        <Option value="standard">Standard Split</Option>
+                        <Option value="category">By Category</Option>
+                        <Option value="object">By Object</Option>
+                        <Option value="date">By Date</Option>
+                    </Select>
+
+                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                        <Tooltip title="Toggle Paid Items">
+                            <FormControl orientation="horizontal" size="sm">
+                                <Switch checked={hidePaid} onChange={(e) => setHidePaid(e.target.checked)} size="sm" />
+                            </FormControl>
+                        </Tooltip>
+                        {currentCycleRecord && (
+                            <Button variant="outlined" color="danger" size="sm" startDecorator={<RestartAlt />} onClick={handleResetCycle}>Reset</Button>
+                        )}
+                        <Dropdown>
+                            <MenuButton variant="solid" color="primary" size="sm" startDecorator={<Add />} endDecorator={<ArrowDropDown />}>Add</MenuButton>
+                            <Menu placement="bottom-end" size="sm">
+                                <MenuItem onClick={handleOpenAdhoc}>Add Adhoc Income</MenuItem>
+                                <Divider />
+                                <MenuItem onClick={handleOpenQuickAdd}>Add One-off Expense</MenuItem>
+                                <MenuItem onClick={handleOpenRecurring}>Add Recurring Expense</MenuItem>
+                            </Menu>
+                        </Dropdown>
+                    </Box>
+                </Stack>
+            }
+        />
 
         <Box sx={{ mb: 2, position: 'relative' }}>
             <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'flex-end', mb: 1 }}>
