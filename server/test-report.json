@@ -1,8 +1,8 @@
 {
-  "numFailedTestSuites": 1,
-  "numFailedTests": 1,
-  "numPassedTestSuites": 0,
-  "numPassedTests": 5,
+  "numFailedTestSuites": 0,
+  "numFailedTests": 0,
+  "numPassedTestSuites": 1,
+  "numPassedTests": 6,
   "numPendingTestSuites": 0,
   "numPendingTests": 0,
   "numRuntimeErrorTestSuites": 0,
@@ -26,21 +26,21 @@
     "unmatched": 0,
     "updated": 0
   },
-  "startTime": 1770502795464,
+  "startTime": 1770504520477,
   "success": false,
   "testResults": [
     {
       "leaks": false,
-      "numFailingTests": 1,
-      "numPassingTests": 5,
+      "numFailingTests": 0,
+      "numPassingTests": 6,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1770502800649,
-        "runtime": 4923,
+        "end": 1770504523065,
+        "runtime": 2492,
         "slow": false,
-        "start": 1770502795726
+        "start": 1770504520573
       },
       "skipped": false,
       "snapshot": {
@@ -58,7 +58,7 @@
           "ancestorTitles": [
             "🛒 Shopping List API Verification"
           ],
-          "duration": 944,
+          "duration": 223,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛒 Shopping List API Verification POST /shopping should create an item",
@@ -73,7 +73,7 @@
           "ancestorTitles": [
             "🛒 Shopping List API Verification"
           ],
-          "duration": 47,
+          "duration": 12,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛒 Shopping List API Verification GET /shopping should list items",
@@ -88,7 +88,7 @@
           "ancestorTitles": [
             "🛒 Shopping List API Verification"
           ],
-          "duration": 32,
+          "duration": 18,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛒 Shopping List API Verification PUT /shopping/:id should update an item",
@@ -103,7 +103,7 @@
           "ancestorTitles": [
             "🛒 Shopping List API Verification"
           ],
-          "duration": 41,
+          "duration": 27,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛒 Shopping List API Verification PUT /shopping/:id/toggle should toggle status",
@@ -118,26 +118,22 @@
           "ancestorTitles": [
             "🛒 Shopping List API Verification"
           ],
-          "duration": 51,
-          "failureDetails": [
-            {}
-          ],
-          "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\n\u001b[1mMatcher error\u001b[22m: \u001b[31mreceived\u001b[39m value must be a number or bigint\n\nReceived has value: \u001b[31mundefined\u001b[39m\n    at Object.toBeGreaterThanOrEqual (/var/tmp/vibe-kanban/worktrees/9e1d-shopping-list-co/household-project/server/tests/shopping.test.js:125:34)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
-          ],
+          "duration": 32,
+          "failureDetails": [],
+          "failureMessages": [],
           "fullName": "🛒 Shopping List API Verification DELETE /shopping/clear-completed should remove checked items",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 1,
+          "numPassingAsserts": 4,
           "retryReasons": [],
-          "status": "failed",
+          "status": "passed",
           "title": "DELETE /shopping/clear-completed should remove checked items"
         },
         {
           "ancestorTitles": [
             "🛒 Shopping List API Verification"
           ],
-          "duration": 26,
+          "duration": 15,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛒 Shopping List API Verification DELETE /shopping/:id should delete an item",
@@ -149,7 +145,7 @@
           "title": "DELETE /shopping/:id should delete an item"
         }
       ],
-      "failureMessage": "\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1m🛒 Shopping List API Verification › DELETE /shopping/clear-completed should remove checked items\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\n    \u001b[1mMatcher error\u001b[22m: \u001b[31mreceived\u001b[39m value must be a number or bigint\n\n    Received has value: \u001b[31mundefined\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 123 |\u001b[39m         \u001b[22m\n\u001b[2m     \u001b[90m 124 |\u001b[39m         expect(res\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m200\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 125 |\u001b[39m         expect(res\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39mdeleted)\u001b[33m.\u001b[39mtoBeGreaterThanOrEqual(\u001b[35m1\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 126 |\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 127 |\u001b[39m         \u001b[90m// Verify Bread is gone but Almond Milk (unchecked) remains\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 128 |\u001b[39m         \u001b[36mconst\u001b[39m getRes \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m request(app)\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m(\u001b[32m`/api/households/${householdId}/shopping`\u001b[39m)\u001b[33m.\u001b[39m\u001b[36mset\u001b[39m(\u001b[32m'Authorization'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m`Bearer ${token}`\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBeGreaterThanOrEqual (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/shopping.test.js\u001b[39m\u001b[0m\u001b[2m:125:34)\u001b[22m\u001b[2m\u001b[22m\n"
+      "failureMessage": null
     }
   ],
   "wasInterrupted": false

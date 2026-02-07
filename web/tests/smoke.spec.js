@@ -19,7 +19,7 @@ test.describe('Core UI Smoke Tests', () => {
         await page.waitForURL('**/finance**');
 
         // Check if Sidebar Accordion exists
-        const accordion = page.locator('text=SWITCH PROFILE');
+        const accordion = page.locator('text=SWITCH PROFILE').first();
         await expect(accordion).toBeVisible();
 
         // Create a New Profile
@@ -28,22 +28,22 @@ test.describe('Core UI Smoke Tests', () => {
         await page.click('button:has-text("Create Profile")');
 
         // Verify it was created and selected
-        await expect(page.locator('text=Smoke Test Profile')).toBeVisible();
+        await expect(page.locator('text=Smoke Test Profile').first()).toBeVisible();
         await expect(page).toHaveURL(/.*financial_profile_id=.*/);
     });
 
     test('Core Navigation: House Hub, Calendar, Shopping, Meals', async ({ page }) => {
         await page.click('a[href*="/house"]');
-        await expect(page.locator('h2')).toContainText('Household Hub');
+        await expect(page.locator('h2').first()).toContainText('Household Hub');
 
         await page.click('a[href*="/calendar"]');
-        await expect(page.locator('h2')).toContainText('Calendar');
+        await expect(page.locator('h2').first()).toContainText('Calendar');
 
         await page.click('a[href*="/shopping"]');
-        await expect(page.locator('h2')).toContainText('Shopping List');
+        await expect(page.locator('h2').first()).toContainText('Shopping List');
 
         await page.click('a[href*="/meals"]');
-        await expect(page.locator('h2')).toContainText('Meal Planner');
+        await expect(page.locator('h2').first()).toContainText('Meal Planner');
     });
 
     test('Avatar Menu: Opens Sidebar Panel', async ({ page }) => {
@@ -52,7 +52,7 @@ test.describe('Core UI Smoke Tests', () => {
         
         // Verify Sidebar Panel content (Account Header)
         await expect(page.getByText('Account', { exact: true }).first()).toBeVisible();
-        await expect(page.getByText('Settings')).toBeVisible();
+        await expect(page.locator('.MuiListItemContent-root:has-text("Settings")').first()).toBeVisible();
         await expect(page.getByText('Switch Household')).toBeVisible();
         await expect(page.getByText('Log Out')).toBeVisible();
     });
@@ -60,11 +60,11 @@ test.describe('Core UI Smoke Tests', () => {
     test('Utility Bar: Persistent Widgets', async ({ page }) => {
         // Budget Health
         await page.locator('button[aria-label="Budget Health"]').click();
-        await expect(page.locator('text=Budget Health')).toBeVisible();
+        await expect(page.locator('p:has-text("Budget Health")').first()).toBeVisible();
         await page.locator('button[aria-label="Budget Health"]').click(); // Close
 
         // Wealth Tracking
         await page.locator('button[aria-label="Wealth Tracking"]').click();
-        await expect(page.locator('text=Wealth Tracking')).toBeVisible();
+        await expect(page.locator('p:has-text("Wealth Tracking")').first()).toBeVisible();
     });
 });

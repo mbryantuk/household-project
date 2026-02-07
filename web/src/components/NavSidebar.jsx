@@ -110,6 +110,7 @@ const GroupHeader = ({ label }) => (
 // --- NEW COMPONENT: Profile Accordion ---
 const FinanceProfileAccordion = ({ householdId, api, isDark, onSelect, currentProfileId }) => {
     const [profiles, setProfiles] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [createOpen, setCreateOpen] = useState(false);
     const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
     const [newProfileName, setNewProfileName] = useState('');
@@ -124,7 +125,7 @@ const FinanceProfileAccordion = ({ householdId, api, isDark, onSelect, currentPr
                 const def = res.data.find(p => p.is_default) || res.data[0];
                 onSelect(def.id);
             }
-        } catch (err) { console.error("Failed to fetch profiles", err); }
+        } catch (err) { console.error("Failed to fetch profiles", err); } finally { setLoading(false); }
     }, [api, householdId, currentProfileId, onSelect]);
 
     useEffect(() => { fetchProfiles(); }, [fetchProfiles]);

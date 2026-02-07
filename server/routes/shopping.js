@@ -44,6 +44,22 @@ router.post('/households/:id/shopping', authenticateToken, requireHouseholdRole(
     }
 });
 
+// Clear Completed Items
+router.delete('/households/:id/shopping/clear-completed', authenticateToken, requireHouseholdRole('member'), async (req, res) => {
+    try {
+        const db = getHouseholdDb(req.params.id);
+        await ensureHouseholdSchema(db, req.params.id);
+        const result = await dbRun(
+            db,
+            "DELETE FROM shopping_items WHERE household_id = ? AND is_checked = 1",
+            [req.params.id]
+        );
+        res.json({ message: "Cleared completed items", deleted: result.changes || 0 });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Toggle Checked Status
 router.put('/households/:id/shopping/:itemId/toggle', authenticateToken, requireHouseholdRole('member'), async (req, res) => {
     const { is_checked } = req.body; 
@@ -90,22 +106,6 @@ router.delete('/households/:id/shopping/:itemId', authenticateToken, requireHous
             [req.params.itemId, req.params.id]
         );
         res.json({ message: "Deleted" });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// Clear Completed Items
-router.delete('/households/:id/shopping/clear-completed', authenticateToken, requireHouseholdRole('member'), async (req, res) => {
-    try {
-        const db = getHouseholdDb(req.params.id);
-        await ensureHouseholdSchema(db, req.params.id);
-        const result = await dbRun(
-            db,
-            "DELETE FROM shopping_items WHERE household_id = ? AND is_checked = 1",
-            [req.params.id]
-        );
-        res.json({ message: "Cleared completed items", deleted: result.changes || 0 });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
