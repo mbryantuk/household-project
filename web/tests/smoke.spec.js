@@ -26,14 +26,12 @@ test.describe('Core UI Smoke Tests', () => {
 
         // Calendar
         await page.locator('.MuiListItemButton-root:has-text("Calendar")').first().click();
-        // Check for "Calendar" header
         await expect(page.locator('h2:has-text("Calendar")').first()).toBeVisible();
 
         // Meals (if enabled)
         const mealsIcon = page.locator('.MuiListItemButton-root:has-text("Meals")').first();
         if (await mealsIcon.isVisible()) {
             await mealsIcon.click();
-            // Check for subheader text which is unique
             await expect(page.getByText('Plan weekly meals').first()).toBeVisible();
         }
     });
@@ -52,12 +50,12 @@ test.describe('Core UI Smoke Tests', () => {
     test('Utility Bar: Persistent Widgets', async ({ page }) => {
         // Budget Health
         await page.locator('button[aria-label="Budget Health"]').click();
-        await expect(page.locator('text=Budget Health').first()).toBeVisible();
+        await expect(page.locator('p:has-text("Budget Health")').first()).toBeVisible();
         await page.locator('button[aria-label="Budget Health"]').click(); // Close
 
         // Wealth Tracking
         await page.locator('button[aria-label="Wealth Tracking"]').click();
-        await expect(page.locator('text=Wealth Tracking').first()).toBeVisible();
+        await expect(page.locator('p:has-text("Wealth Tracking")').first()).toBeVisible();
     });
 
     test('Theme Settings: Switch Theme', async ({ page }) => {

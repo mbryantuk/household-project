@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Retry deployment",
-  "date": "Sat  7 Feb 22:05:28 GMT 2026"
+  "commitMessage": "Fix smoke test selectors for nightly suite",
+  "date": "Sat  7 Feb 22:29:44 GMT 2026"
 }
