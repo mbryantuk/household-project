@@ -62,7 +62,8 @@ export default function ThemeSettings() {
                         display: 'flex', width: '100%', height: 32, borderRadius: 'sm', 
                         overflow: 'hidden', mb: 1, border: '1px solid rgba(0,0,0,0.1)',
                         bgcolor: 'background.surface'
-                    }}>\n                        <Tooltip title="Primary" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.primary }} /></Tooltip>
+                    }}>
+                        <Tooltip title="Primary" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.primary }} /></Tooltip>
                         <Tooltip title="Background" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.bg }} /></Tooltip>
                         <Tooltip title="Surface" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.surface }} /></Tooltip>
                         <Tooltip title="Selection" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.selection }} /></Tooltip>
@@ -78,7 +79,8 @@ export default function ThemeSettings() {
                     )}
                 </Sheet>
             </Grid>
-        ))}\n    </Grid>
+        ))}
+    </Grid>
   );
 
   return (
@@ -104,7 +106,8 @@ export default function ThemeSettings() {
                           position: 'relative',
                           display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
                       }}
-                  >\n                      <Box sx={{ 
+                  >
+                      <Box sx={{ 
                           display: 'flex', width: '100%', height: 32, borderRadius: 'sm', 
                           overflow: 'hidden', mb: 1, border: '1px solid rgba(0,0,0,0.1)',
                           background: `linear-gradient(135deg, ${customThemeConfig.primary} 0%, ${customThemeConfig.bg} 100%)`
@@ -159,5 +162,6 @@ export default function ThemeSettings() {
           <ThemeGrid themes={groupedThemes.dark} />
         </Box>
       </Stack>
-    </Stack>\n  );
+    </Stack>
+  );
 }

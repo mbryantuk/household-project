@@ -132,12 +132,14 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
           ...(customConfig || {}),
           name: 'Custom Theme'
       };
-  }\n
+  }
+
   const isDark = spec.mode === 'dark';
   const primaryColor = spec.primary || '#374151';
 
   return extendTheme({
-    fontFamily: {\n        body: '"DM Sans", var(--joy-fontFamily-fallback)',
+    fontFamily: {
+        body: '"DM Sans", var(--joy-fontFamily-fallback)',
         display: '"DM Serif Display", serif',
     },
     radius: {
@@ -167,7 +169,7 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
           },
           primary: {
             solidBg: primaryColor,
-            solidHoverBg: (themeId === 'platinum' || themeId === 'obsidian') ? (isDark ? '#ffffff' : '#000000') : primaryColor,
+            solidHoverBg: primaryColor,
             plainColor: primaryColor,
             outlinedColor: primaryColor,
             outlinedBorder: primaryColor,
@@ -234,7 +236,8 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
                 borderColor: 'var(--joy-palette-divider)',
                 borderRadius: 'var(--joy-radius-md)',
             }),
-          }),\n        },
+          }),
+        },
       },
       JoyTab: {
         styleOverrides: {

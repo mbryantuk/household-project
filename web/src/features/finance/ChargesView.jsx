@@ -78,8 +78,8 @@ export default function ChargesView({ initialTab }) {
     start_date: format(new Date(), 'yyyy-MM-dd'),
     adjust_for_working_day: true,
     notes: '',
-    object_type: 'household', // Renamed from linked_entity_type
-    object_id: null,        // Renamed from linked_entity_id
+    object_type: 'household', 
+    object_id: null,        
     metadata: {}
   });
 
@@ -106,7 +106,6 @@ export default function ChargesView({ initialTab }) {
   }, [householdId, api]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCharges();
     fetchEntities();
   }, [fetchCharges, fetchEntities]);
@@ -119,7 +118,6 @@ export default function ChargesView({ initialTab }) {
     const method = editingId ? 'put' : 'post';
     const payload = { 
         ...formData,
-        // Ensure metadata is a JSON object (API expects it)
         metadata: formData.metadata 
     };
 
@@ -200,131 +198,6 @@ export default function ChargesView({ initialTab }) {
         }
       />
 
-      <Tabs value={activeTab} onChange={(e, val) => { setActiveTab(val); resetForm(); }} sx={{ bgcolor: 'transparent' }}>
-        <TabList sx={{ mb: 2, flexWrap: 'wrap' }}>
-          {CATEGORIES.map((cat, idx) => <Tab key={cat.id} value={idx}>{cat.label}</Tab>)}
-        </TabList>
-      </Tabs>
-
-      <Sheet variant="outlined" sx={{ borderRadius: 'md', p: 0, overflow: 'hidden' }}>
-        <Table hoverRow stickyHeader>
-          <thead>
-            <tr>
-              <th style={{ width: '30%' }}>Name</th>
-              <th>Assigned To</th>
-              <th>Frequency</th>
-              <th>Next/Start Date</th>
-              <th style={{ textAlign: 'right' }}>Amount</th>
-              <th style={{ width: '100px' }}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredCharges.map(charge => (
-              <tr key={charge.id}>
-                <td>
-                  <Typography fontWeight="lg">{charge.name}</Typography>
-                  {charge.notes && <Typography level="body-xs" color="neutral">{charge.notes}</Typography>}
-                  {/* Show Metadata Summary if relevant */}
-                  {charge.metadata && (
-                       <Stack direction="row" spacing={1} sx={{ mt: 0.5 }}>
-                           {Object.entries(typeof charge.metadata === 'string' ? JSON.parse(charge.metadata) : charge.metadata)
-                               .filter(([k]) => ['policy_number', 'account_number', 'renewal_date', 'registration', 'expiry_date'].includes(k))
-                               .map(([k, v]) => (
-                                   <Chip key={k} size=\"sm\" variant=\"outlined\" color=\"neutral\">
-                                       {k.replace('_', ' ')}: {v}
-                                   </Chip>
-                               ))
-                           }
-                       </Stack>
-                  )}
-                </td>
-                <td><Chip size=\"sm\" variant=\"soft\">{resolveEntityName(charge.object_type, charge.object_id)}</Chip></td>
-                <td><Chip size=\"sm\" variant=\"plain\" color=\"neutral\" sx={{ textTransform: 'capitalize' }}>{charge.frequency}</Chip></td>
-                <td>
-                  <Typography level=\"body-sm\">
-                    {(charge.start_date && typeof charge.start_date === 'string') ? format(parseISO(charge.start_date), 'do MMM yyyy') : 'Not set'}
-                    {charge.adjust_for_working_day && <Chip size=\"sm\" variant=\"plain\" color=\"primary\" sx={{ ml: 1, fontSize: '0.7em' }}>NWD</Chip>}
-                  </Typography>
-                </td>
-                <td style={{ textAlign: 'right', fontFamily: 'monospace' }}>{formatCurrency(charge.amount, household?.currency)}</td>
-                <td style={{ textAlign: 'right' }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                    <IconButton size=\"sm\" variant=\"plain\" onClick={() => handleEdit(charge)}><Edit /></IconButton>
-                    <IconButton size=\"sm\" variant=\"plain\" color=\"danger\" onClick={() => handleDelete(charge.id)}><Delete /></IconButton>
-                  </Box>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colSpan={4} style={{ textAlign: 'right', fontWeight: 'bold' }}>Total:</td>
-              <td style={{ textAlign: 'right', fontWeight: 'bold', fontFamily: 'monospace' }}>{formatCurrency(calculateTotal(filteredCharges), household?.currency)}</td>
-              <td></td>
-            </tr>
-          </tfoot>
-        </Table>
-      </Sheet>
-
-      <Modal open={open} onClose={() => setOpen(false)}>
-        <ModalDialog sx={{ maxWidth: 600, width: '100%', overflowY: 'auto' }}>
-          <ModalClose />
-          <Typography level=\"h4\">{editingId ? 'Edit Charge' : 'New Charge'}</Typography>
-          <Divider sx={{ my: 2 }} />
-          <Stack spacing={2}>
-            <Grid container spacing={2}>
-                <Grid xs={12}>
-                    <FormControl required><FormLabel>Name</FormLabel><Input autoFocus value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} /></FormControl>
-                </Grid>
-                <Grid xs={6}>
-                    <FormControl required><FormLabel>Amount</FormLabel><Input type=\"number\" startDecorator={household?.currency === 'USD' ? '$' : '£'} value={formData.amount} onChange={e => setFormData({ ...formData, amount: parseFloat(e.target.value) })} /></FormControl>
-                </Grid>
-                <Grid xs={6}>
-                    <FormControl required><FormLabel>Category</FormLabel>
-                        <Select value={formData.category_id} onChange={(e, val) => setFormData({ ...formData, category_id: val })}>{CATEGORIES.map(s => <Option key={s.id} value={s.id}>{s.label}</Option>)}</Select>
-                    </FormControl>
-                </Grid>
-                <Grid xs={6}>
-                    <FormControl required><FormLabel>Frequency</FormLabel>
-                    <Select value={formData.frequency} onChange={(e, val) => setFormData({ ...formData, frequency: val })}>{FREQUENCIES.map(f => <Option key={f.id} value={f.id}>{f.label}</Option>)}</Select>
-                    </FormControl>
-                </Grid>
-                <Grid xs={6}>
-                    <FormControl required><FormLabel>Start Date</FormLabel><Input type=\"date\" value={formData.start_date} onChange={e => setFormData({ ...formData, start_date: e.target.value })} /></FormControl>
-                </Grid>
-            </Grid>
-
-            {/* Dynamic Metadata Section */}
-            <MetadataFormFields 
-                categoryId={formData.category_id} 
-                metadata={formData.metadata} 
-                onChange={(newMeta) => setFormData(prev => ({ ...prev, metadata: newMeta }))}
-                customSchema={household?.metadata_schema ? JSON.parse(household.metadata_schema) : null}
-            />
-
-            <FormControl><FormLabel>Assign To</FormLabel>
-                <Select value={`${formData.object_type}_${formData.object_id || 'null'}`} onChange={(e, val) => { const [type, id] = val.split('_'); setFormData({ ...formData, object_type: type, object_id: id === 'null' ? null : parseInt(id) }); }}>
-                    <Option value={`household_null`}>🏠 Household</Option>
-                    <Divider>Members</Divider>{members.map(m => <Option key={m.id} value={`member_${m.id}`}>{m.emoji} {m.name}</Option>)}
-                    <Divider>Vehicles</Divider>{vehicles.map(v => <Option key={v.id} value={`vehicle_${v.id}`}>{v.emoji || '🚗'} {v.make} {v.model}</Option>)}
-                    <Divider>Assets</Divider>{assets.map(a => <Option key={a.id} value={`asset_${a.id}`}>{a.emoji || '📦'} {a.name}</Option>)}
-                </Select>
-            </FormControl>
-            
-            <Checkbox label=\"Adjust for next working day\" checked={formData.adjust_for_working_day} onChange={e => setFormData({ ...formData, adjust_for_working_day: e.target.checked })} />
-
-             <FormControl>
-                <FormLabel>Notes</FormLabel>
-                <Input value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} />
-            </FormControl>
-            
-            <Button size=\"lg\" onClick={handleSave} color=\"primary\">{editingId ? 'Save Changes' : 'Create Charge'}</Button>
-          </Stack>
-        </ModalDialog>
-      </Modal>
-    </Box>
-  );
-}
       <Tabs value={activeTab} onChange={(e, val) => { setActiveTab(val); resetForm(); }} sx={{ bgcolor: 'transparent' }}>
         <TabList sx={{ mb: 2, flexWrap: 'wrap' }}>
           {CATEGORIES.map((cat, idx) => <Tab key={cat.id} value={idx}>{cat.label}</Tab>)}
