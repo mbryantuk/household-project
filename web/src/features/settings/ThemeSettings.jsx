@@ -33,16 +33,11 @@ export default function ThemeSettings() {
   };
 
   const groupedThemes = useMemo(() => {
-    const groups = { light: [], dark: [], signature: [] };
+    const groups = { light: [], dark: [] };
     Object.entries(THEMES).forEach(([id, spec]) => {
       // Don't include custom in the grid if we want to show it separately
       if (id === 'custom') return;
-      
-      if (spec.isSignature) {
-        groups.signature.push({ id, ...spec });
-      } else {
-        groups[spec.mode].push({ id, ...spec });
-      }
+      groups[spec.mode].push({ id, ...spec });
     });
     return groups;
   }, []);
@@ -60,19 +55,14 @@ export default function ThemeSettings() {
                         transition: 'all 0.2s',
                         '&:hover': { transform: 'translateY(-2px)', boxShadow: 'sm' },
                         position: 'relative',
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
-                        ...(spec.isSignature && {
-                            borderWidth: themeId === spec.id ? '2px' : '1px',
-                            borderColor: themeId === spec.id ? 'primary.solidBg' : 'divider',
-                        })
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
                     }}
                 >
                     <Box sx={{ 
                         display: 'flex', width: '100%', height: 32, borderRadius: 'sm', 
                         overflow: 'hidden', mb: 1, border: '1px solid rgba(0,0,0,0.1)',
                         bgcolor: 'background.surface'
-                    }}>
-                        <Tooltip title="Primary" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.primary }} /></Tooltip>
+                    }}>\n                        <Tooltip title="Primary" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.primary }} /></Tooltip>
                         <Tooltip title="Background" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.bg }} /></Tooltip>
                         <Tooltip title="Surface" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.surface }} /></Tooltip>
                         <Tooltip title="Selection" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.selection }} /></Tooltip>
@@ -81,42 +71,22 @@ export default function ThemeSettings() {
                     <Typography level="title-sm" noWrap sx={{ 
                         fontSize: '13px', 
                         color: themeId === spec.id ? 'common.white' : 'text.primary', 
-                        width: '100%',
-                        ...(spec.isSignature && { fontWeight: 700 })
+                        width: '100%'
                     }}>{spec.name}</Typography>
-                    {spec.isSignature && (
-                        <Typography level="body-xs" sx={{ 
-                            fontSize: '10px', 
-                            textTransform: 'uppercase', 
-                            letterSpacing: '0.05em',
-                            opacity: 0.7,
-                            color: themeId === spec.id ? 'common.white' : 'text.secondary'
-                        }}>Signature</Typography>
-                    )}
                     {themeId === spec.id && (
                         <Palette sx={{ position: 'absolute', top: 6, right: 6, fontSize: '0.7rem', color: 'common.white' }} />
                     )}
                 </Sheet>
             </Grid>
-        ))}
-    </Grid>
+        ))}\n    </Grid>
   );
 
   return (
     <Stack spacing={4}>
       <Box>
         <Typography level="h4">Appearance</Typography>
-        <Typography level="body-sm">All themes now feature the premium Architectural style with editorial typography.</Typography>
+        <Typography level="body-sm">All themes feature the premium Architectural style with editorial typography.</Typography>
       </Box>
-
-      {/* Signature Section */}
-      <Box>
-        <Typography level="title-lg" startDecorator={<Palette color="warning" />} sx={{ mb: 2 }}>Signature Palettes</Typography>
-        <Typography level="body-sm" sx={{ mb: 2 }}>Curated high-contrast palettes optimized for the architectural UI.</Typography>
-        <ThemeGrid themes={groupedThemes.signature} />
-      </Box>
-
-      <Divider />
 
       {/* Special Theme: Custom */}
       <Box>
@@ -134,8 +104,7 @@ export default function ThemeSettings() {
                           position: 'relative',
                           display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
                       }}
-                  >
-                      <Box sx={{ 
+                  >\n                      <Box sx={{ 
                           display: 'flex', width: '100%', height: 32, borderRadius: 'sm', 
                           overflow: 'hidden', mb: 1, border: '1px solid rgba(0,0,0,0.1)',
                           background: `linear-gradient(135deg, ${customThemeConfig.primary} 0%, ${customThemeConfig.bg} 100%)`
@@ -181,15 +150,14 @@ export default function ThemeSettings() {
 
       <Stack spacing={4}>
         <Box>
-          <Typography level="title-lg" startDecorator={<LightMode color="warning" />} sx={{ mb: 2 }}>Classic Light Palettes</Typography>
+          <Typography level="title-lg" startDecorator={<LightMode color="warning" />} sx={{ mb: 2 }}>Light Themes</Typography>
           <ThemeGrid themes={groupedThemes.light} />
         </Box>
         <Divider />
         <Box>
-          <Typography level="title-lg" startDecorator={<DarkMode color="primary" />} sx={{ mb: 2 }}>Classic Dark Palettes</Typography>
+          <Typography level="title-lg" startDecorator={<DarkMode color="primary" />} sx={{ mb: 2 }}>Dark Themes</Typography>
           <ThemeGrid themes={groupedThemes.dark} />
         </Box>
       </Stack>
-    </Stack>
-  );
+    </Stack>\n  );
 }

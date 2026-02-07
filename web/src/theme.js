@@ -53,6 +53,7 @@ export const THEMES = {
   ocean_deep_light: { name: 'Deep Ocean (L)', mode: 'light', primary: '#0369a1', bg: '#f0f9ff', surface: '#fff', selection: '#e0f2fe', text: '#0c4a6e' },
   forest_edge_light: { name: 'Forest Edge (L)', mode: 'light', primary: '#15803d', bg: '#f0fdf4', surface: '#fff', selection: '#dcfce7', text: '#14532d' },
   midnight_sky_light: { name: 'Midnight Sky (L)', mode: 'light', primary: '#1d4ed8', bg: '#eff6ff', surface: '#fff', selection: '#dbeafe', text: '#1e3a8a' },
+  platinum: { name: 'Platinum', mode: 'light', primary: '#18181b', bg: '#fbfcfd', surface: '#FFF', selection: '#f4f4f5', text: '#09090b' },
 
   // --- DARK THEMES ---
   midnight: { name: 'Midnight City', mode: 'dark', primary: '#38bdf8', bg: '#0f172a', surface: '#1e293b', selection: '#334155', text: '#f1f5f9' },
@@ -106,10 +107,7 @@ export const THEMES = {
   monokai: { name: 'Monokai', mode: 'dark', primary: '#a6e22e', bg: '#272822', surface: '#3e3d32', selection: '#75715e', text: '#f8f8f2' },
   oceanic: { name: 'Oceanic Next', mode: 'dark', primary: '#6699cc', bg: '#1b2b34', surface: '#343d46', selection: '#4f5b66', text: '#d8dee9' },
   nord: { name: 'Nord Deep', mode: 'dark', primary: '#88c0d0', bg: '#2e3440', surface: '#3b4252', selection: '#434c5e', text: '#eceff4' },
-
-  // --- SIGNATURE THEMES ---
-  platinum: { name: 'Platinum', mode: 'light', primary: '#18181b', bg: '#fbfcfd', surface: '#FFF', selection: '#f4f4f5', text: '#09090b', isSignature: true },
-  obsidian: { name: 'Obsidian Black', mode: 'dark', primary: '#f4f4f5', bg: '#09090b', surface: '#18181b', selection: '#27272a', text: '#fafafa', isSignature: true },
+  obsidian: { name: 'Obsidian Black', mode: 'dark', primary: '#f4f4f5', bg: '#09090b', surface: '#18181b', selection: '#27272a', text: '#fafafa' },
 
   // --- SPECIAL THEMES ---
   custom: { name: 'Custom Theme', mode: 'light', primary: '#374151', bg: '#F9FAFB', surface: '#FFF', selection: '#E5E7EB', text: '#111827', isCustom: true }
@@ -134,15 +132,12 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
           ...(customConfig || {}),
           name: 'Custom Theme'
       };
-  }
-
+  }\n
   const isDark = spec.mode === 'dark';
-  const isSignature = spec.isSignature === true;
   const primaryColor = spec.primary || '#374151';
 
   return extendTheme({
-    fontFamily: {
-        body: '"DM Sans", var(--joy-fontFamily-fallback)',
+    fontFamily: {\n        body: '"DM Sans", var(--joy-fontFamily-fallback)',
         display: '"DM Serif Display", serif',
     },
     radius: {
@@ -172,7 +167,7 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
           },
           primary: {
             solidBg: primaryColor,
-            solidHoverBg: isSignature ? (isDark ? '#ffffff' : '#000000') : primaryColor,
+            solidHoverBg: (themeId === 'platinum' || themeId === 'obsidian') ? (isDark ? '#ffffff' : '#000000') : primaryColor,
             plainColor: primaryColor,
             outlinedColor: primaryColor,
             outlinedBorder: primaryColor,
@@ -239,8 +234,7 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
                 borderColor: 'var(--joy-palette-divider)',
                 borderRadius: 'var(--joy-radius-md)',
             }),
-          }),
-        },
+          }),\n        },
       },
       JoyTab: {
         styleOverrides: {
