@@ -691,4 +691,87 @@ router.delete('/current-accounts/:itemId', authenticateToken, requireHouseholdRo
 // Mount recurring costs
 router.use('/recurring-costs', recurringCostsRoutes);
 
+router.get('/wrap-up', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
+    const { month } = req.query;
+    if (!month) {
+        closeDb(req);
+        return res.status(400).json({ error: "Month required (YYYY-MM-DD)" });
+    }
+
+    // 1. Calculate Date Ranges
+    const currentMonthDate = new Date(month);
+    const prevMonthDate = new Date(currentMonthDate);
+    prevMonthDate.setMonth(currentMonthDate.getMonth() - 1);
+    
+    // Format dates as YYYY-MM-DD for SQL
+    const formatDate = (d) => d.toISOString().split('T')[0];
+    const currentMonthStr = formatDate(currentMonthDate);
+    const prevMonthStr = formatDate(prevMonthDate);
+
+    // 2. Fetch Data in Parallel
+    const sqlProgress = `SELECT * FROM finance_budget_progress WHERE household_id = ? AND cycle_start IN (?, ?)`;
+    const sqlCosts = `SELECT * FROM recurring_costs WHERE household_id = ?`;
+
+    req.tenantDb.all(sqlProgress, [req.hhId, currentMonthStr, prevMonthStr], (err, progressRows) => {
+        if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
+
+        req.tenantDb.all(sqlCosts, [req.hhId], (cErr, costRows) => {
+            closeDb(req);
+            if (cErr) return res.status(500).json({ error: cErr.message });
+
+            // 3. Process Data
+            const costMap = new Map();
+            costRows.forEach(c => costMap.set(c.id, c));
+
+            let currentTotal = 0;
+            let prevTotal = 0;
+            const currentCosts = [];
+
+            progressRows.forEach(row => {
+                // Skip Income
+                if (row.item_key.startsWith('income_')) return;
+
+                const amount = row.actual_amount || 0;
+                
+                // Identify Cost
+                // item_key format: 'category_id' (e.g. 'housing_1') -> We need to parse this loosely
+                // The schema isn't strictly enforced on item_key format, but convention is {type}_{id}
+                const parts = row.item_key.split('_');
+                const id = parseInt(parts[parts.length - 1]);
+                const costDetails = !isNaN(id) ? costMap.get(id) : null;
+                const name = costDetails ? costDetails.name : row.item_key;
+                const category = costDetails ? costDetails.category_id : parts[0];
+
+                if (row.cycle_start === currentMonthStr) {
+                    currentTotal += amount;
+                    currentCosts.push({
+                        name,
+                        amount,
+                        category,
+                        item_key: row.item_key
+                    });
+                } else if (row.cycle_start === prevMonthStr) {
+                    prevTotal += amount;
+                }
+            });
+
+            // 4. Calculate Stats
+            const deltaValue = currentTotal - prevTotal;
+            const deltaPercent = prevTotal !== 0 ? (deltaValue / prevTotal) * 100 : 0;
+
+            // Sort costs by amount desc
+            currentCosts.sort((a, b) => b.amount - a.amount);
+
+            res.json({
+                month: currentMonthStr,
+                total_spent: currentTotal,
+                prev_month_spent: prevTotal,
+                delta_value: deltaValue,
+                delta_percent: deltaPercent,
+                costs: currentCosts
+            });
+        });
+    });
+});
+
 module.exports = router;
