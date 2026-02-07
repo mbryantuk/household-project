@@ -9,12 +9,15 @@ if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 const globalDb = new sqlite3.Database(path.join(DATA_DIR, 'global.db'), (err) => {
     if (err) console.error("Global DB connection error:", err.message);
     else {
-        globalDb.run("PRAGMA journal_mode=WAL");
-        globalDb.run("PRAGMA synchronous=NORMAL");
-        globalDb.run("PRAGMA busy_timeout=10000");
         console.log("Connected to Global SQLite database (Optimized).");
-        initializeGlobalSchema(globalDb);
     }
+});
+
+globalDb.serialize(() => {
+    globalDb.run("PRAGMA journal_mode=WAL");
+    globalDb.run("PRAGMA synchronous=NORMAL");
+    globalDb.run("PRAGMA busy_timeout=10000");
+    initializeGlobalSchema(globalDb);
 });
 
 const getHouseholdDb = (householdId) => {
