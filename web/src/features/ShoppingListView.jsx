@@ -66,7 +66,7 @@ export default function ShoppingListView() {
         setNewItemName('');
         setNewItemQuantity('');
         showNotification("Item added", "success");
-    } catch (err) {
+    } catch {
         showNotification("Failed to add item", "danger");
     }
   };
@@ -78,7 +78,7 @@ export default function ShoppingListView() {
 
       try {
           await api.put(`/households/${householdId}/shopping/${item.id}/toggle`, { is_checked: newStatus });
-      } catch (err) {
+      } catch {
           // Revert
           setItems(prev => prev.map(i => i.id === item.id ? { ...i, is_checked: item.is_checked } : i));
           showNotification("Failed to update status", "danger");
@@ -90,7 +90,7 @@ export default function ShoppingListView() {
       try {
           await api.delete(`/households/${householdId}/shopping/${id}`);
           setItems(prev => prev.filter(i => i.id !== id));
-      } catch (err) {
+      } catch {
           showNotification("Delete failed", "danger");
       }
   };
@@ -101,7 +101,7 @@ export default function ShoppingListView() {
           await api.delete(`/households/${householdId}/shopping/clear-completed`);
           setItems(prev => prev.filter(i => !i.is_checked));
           showNotification("Completed items cleared", "success");
-      } catch (err) {
+      } catch {
           showNotification("Failed to clear items", "danger");
       }
   };

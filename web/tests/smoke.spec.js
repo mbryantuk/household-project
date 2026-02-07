@@ -32,12 +32,15 @@ test.describe('Core UI Smoke Tests', () => {
         await expect(page).toHaveURL(/.*financial_profile_id=.*/);
     });
 
-    test('Core Navigation: House Hub, Calendar, Meals', async ({ page }) => {
+    test('Core Navigation: House Hub, Calendar, Shopping, Meals', async ({ page }) => {
         await page.click('a[href*="/house"]');
         await expect(page.locator('h2')).toContainText('Household Hub');
 
         await page.click('a[href*="/calendar"]');
         await expect(page.locator('h2')).toContainText('Calendar');
+
+        await page.click('a[href*="/shopping"]');
+        await expect(page.locator('h2')).toContainText('Shopping List');
 
         await page.click('a[href*="/meals"]');
         await expect(page.locator('h2')).toContainText('Meal Planner');

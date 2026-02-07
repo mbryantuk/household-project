@@ -610,6 +610,24 @@ function initializeHouseholdSchema(db) {
                                             });
                                         }
                                     });
+
+                                    // 🛠️ MIGRATION: Ensure shopping_items exists
+                                    db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='shopping_items'", (err, row) => {
+                                        if (!row) {
+                                            console.log("🛠️ Migrating household database: Adding shopping_items table...");
+                                            db.run(`CREATE TABLE IF NOT EXISTS shopping_items (
+                                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                household_id INTEGER,
+                                                name TEXT,
+                                                category TEXT DEFAULT 'general',
+                                                quantity TEXT,
+                                                is_checked INTEGER DEFAULT 0,
+                                                emoji TEXT,
+                                                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                                            )`);
+                                        }
+                                    });
+
                                     resolve();
                                 }
                             });
