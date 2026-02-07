@@ -49,7 +49,7 @@ test.describe('Core UI Smoke Tests', () => {
         
         // Verify Sidebar Panel content (Account Header)
         await expect(page.getByText('Account', { exact: true }).first()).toBeVisible();
-        await expect(page.getByText('Settings')).toBeVisible();
+        await expect(page.getByRole('button', { name: /Settings/ })).toBeVisible();
         await expect(page.getByText('Switch Household')).toBeVisible();
         await expect(page.getByText('Log Out')).toBeVisible();
     });
@@ -57,39 +57,33 @@ test.describe('Core UI Smoke Tests', () => {
     test('Utility Bar: Persistent Widgets', async ({ page }) => {
         // Budget Health
         await page.locator('button[aria-label="Budget Health"]').click();
-        await expect(page.locator('text=Budget Health')).toBeVisible();
+        await expect(page.locator('text=Budget Health').first()).toBeVisible();
         await page.locator('button[aria-label="Budget Health"]').click(); // Close
 
         // Wealth Tracking
         await page.locator('button[aria-label="Wealth Tracking"]').click();
-        await expect(page.locator('text=Wealth Tracking')).toBeVisible();
+        await expect(page.locator('text=Wealth Tracking').first()).toBeVisible();
     });
 
-    test('Profile View: Fields and Theme Selector', async ({ page }) => {
-        // Navigate to Profile
-        const currentUrl = page.url();
-        const profileUrl = currentUrl.replace('/dashboard', '/profile');
-        await page.goto(profileUrl);
-
-        // Check Header
-        await expect(page.locator('h2')).toContainText('Your Profile');
-
-        // Check Personal Details
+    test('Settings View: Navigation and Tabs', async ({ page }) => {
+        // Open Avatar Menu
+        await page.locator('button:has(.MuiAvatar-root)').last().click();
+        
+        // Click Settings
+        await page.getByRole('button', { name: /Settings/ }).click();
+        await page.waitForURL('**/settings');
+        
+        // 1. Profile Tab (Default)
         await expect(page.getByLabel('First Name')).toBeVisible();
         await expect(page.getByLabel('Last Name')).toBeVisible();
-        await expect(page.getByLabel('Email Address')).toBeVisible();
-
-        // Check Theme Selector (New Feature)
-        await expect(page.getByText('Appearance')).toBeVisible();
-        await expect(page.getByText('Theme', { exact: true })).toBeVisible();
         
-        // Check Security Section
-        await expect(page.getByText('Security')).toBeVisible();
-        await expect(page.locator('button:has-text("Change Password")')).toBeVisible();
-
-        // Toggle Edit Mode
-        await page.click('button:has-text("Edit Profile")');
-        await expect(page.getByLabel('First Name')).toBeEnabled();
-        await expect(page.locator('button:has-text("Save Changes")')).toBeVisible();
+        // 2. Appearance Tab
+        await page.getByRole('tab', { name: 'Appearance' }).click();
+        await expect(page.getByText('Theme Preference')).toBeVisible();
+        
+        // 3. Security Tab
+        await page.getByRole('tab', { name: 'Security' }).click();
+        await expect(page.getByText('Password')).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Change Password' })).toBeVisible();
     });
 });
