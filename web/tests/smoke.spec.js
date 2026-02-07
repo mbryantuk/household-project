@@ -49,7 +49,7 @@ test.describe('Core UI Smoke Tests', () => {
         
         // Verify Sidebar Panel content (Account Header)
         await expect(page.getByText('Account', { exact: true }).first()).toBeVisible();
-        await expect(page.getByRole('button', { name: /Settings/ })).toBeVisible();
+        await expect(page.getByRole('button', { name: '⚙️ Settings' })).toBeVisible();
         await expect(page.getByText('Switch Household')).toBeVisible();
         await expect(page.getByText('Log Out')).toBeVisible();
     });
@@ -70,7 +70,7 @@ test.describe('Core UI Smoke Tests', () => {
         await page.locator('button:has(.MuiAvatar-root)').last().click();
         
         // Click Settings
-        await page.getByRole('button', { name: /Settings/ }).click();
+        await page.getByRole('button', { name: '⚙️ Settings' }).click();
         await page.waitForURL('**/settings');
         
         // 1. Profile Tab (Default)
