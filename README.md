@@ -78,10 +78,12 @@ The system includes a comprehensive multi-tier testing suite:
 1. **CRUD Isolation:** Verified in `server/tests/comprehensive_crud.test.js`. Covers all entities (Members, Assets, Vehicles, etc.) with strict tenant isolation.
 2. **Performance:** Benchmarked in `server/tests/performance.test.js`. Monitors API latency and concurrent load capacity.
 3. **Stress & Security:** Combinatorial role-based access control (RBAC) verification in `server/tests/stress_matrix.test.js`.
+4. **Nightly Health Suite:** A fully automated regression suite located at `scripts/ops/nightly_suite.sh`. It performs a full system rebuild (Docker), runs security tests, executes end-to-end UI smoke tests via Playwright, and emails a health report.
 
 **Commands:**
 - `npm test`: Run all core tests.
 - `npm run test:perf`: Run performance benchmarks.
+- `./scripts/ops/nightly_suite.sh`: Run the full regression suite manually.
 - `./deploy_verify.sh`: Full deployment, verification, and commit cycle.
 
 ## 🛡️ Security & Privacy
