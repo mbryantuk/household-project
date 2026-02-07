@@ -157,15 +157,16 @@ export default function FinanceView() {
 
   return (
     <Box sx={{ width: '100%' }}>
-        <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <IconButton variant="outlined" color="neutral" onClick={() => navigate('.')}>
-                <ArrowBack />
-            </IconButton>
-            <Typography level="title-lg" sx={{ ml: 1 }}>Back to Overview</Typography>
-          </Box>
-          {profileSwitcher}
-        </Box>
+        <AppHeader 
+            title={viewMap[activeTabKey]?.label || 'Finance'}
+            description={viewMap[activeTabKey]?.desc || 'Manage your financial domain.'}
+            startDecorator={
+                <IconButton variant="outlined" color="neutral" onClick={() => navigate('.')}>
+                    <ArrowBack />
+                </IconButton>
+            }
+            endDecorator={profileSwitcher}
+        />
         {renderContent()}
     </Box>
   );
