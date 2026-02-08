@@ -365,6 +365,16 @@ const TENANT_SCHEMA = [
         entity_id INTEGER,
         member_id INTEGER,
         PRIMARY KEY (entity_type, entity_id, member_id)
+    )`,
+    `CREATE TABLE IF NOT EXISTS school_terms (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        member_id INTEGER,
+        term_name TEXT,
+        start_date DATE,
+        end_date DATE,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(member_id) REFERENCES members(id) ON DELETE CASCADE
     )`
 ];
 

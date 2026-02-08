@@ -6,11 +6,12 @@ import {
   Grid, Tabs, TabList, Tab
 } from '@mui/joy';
 import { 
-  Delete, Payments, ContactPage
+  Delete, Payments, ContactPage, School
 } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
 import AppSelect from '../components/ui/AppSelect'; 
 import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
+import SchoolTermsWidget from '../components/ui/SchoolTermsWidget';
 import EntityGrid from '../components/ui/EntityGrid';
 
 export default function PeopleView() {
@@ -235,6 +236,9 @@ export default function PeopleView() {
                 >
                     <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><ContactPage sx={{ mr: 1 }}/> Identity</Tab>
                     <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Recurring Costs</Tab>
+                    {selectedPerson?.type === 'child' && (
+                        <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><School sx={{ mr: 1 }}/> School Terms</Tab>
+                    )}
                 </TabList>
             </Tabs>
         )}
@@ -344,6 +348,18 @@ export default function PeopleView() {
                 showNotification={showNotification}
                 confirmAction={confirmAction}
               />
+            </Box>
+          )}
+
+          {activeTab === 2 && selectedPerson?.type === 'child' && (
+            <Box>
+                <SchoolTermsWidget 
+                    api={api} 
+                    householdId={householdId} 
+                    memberId={personId}
+                    showNotification={showNotification}
+                    confirmAction={confirmAction}
+                />
             </Box>
           )}
         </Box>

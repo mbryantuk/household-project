@@ -48,7 +48,7 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
         const [
             dates, recurringCosts, incomes, creditCards,
             savings, investments, pensions,
-            vehicles, assets, members
+            vehicles, assets, members, schoolTerms
         ] = await Promise.all([
             dbAll(`SELECT * FROM dates WHERE household_id = ? ORDER BY date ASC`, [householdId]),
             dbAll(`SELECT * FROM recurring_costs WHERE household_id = ? AND is_active = 1`, [householdId]),
@@ -59,10 +59,25 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             dbAll(`SELECT * FROM finance_pensions WHERE household_id = ?`, [householdId]),
             dbAll(`SELECT * FROM vehicles WHERE household_id = ?`, [householdId]),
             dbAll(`SELECT * FROM assets WHERE household_id = ?`, [householdId]),
-            dbAll(`SELECT * FROM members WHERE household_id = ?`, [householdId])
+            dbAll(`SELECT * FROM members WHERE household_id = ?`, [householdId]),
+            dbAll(`SELECT * FROM school_terms WHERE household_id = ?`, [householdId])
         ]);
 
         const combined = [...dates];
+
+        schoolTerms.forEach(term => {
+            const member = members.find(m => m.id === term.member_id);
+            combined.push({
+                id: `school_term_${term.id}`,
+                title: `${term.term_name}${member ? ` (${member.emoji || '👶'} ${member.alias || member.name})` : ''}`,
+                date: term.start_date,
+                end_date: term.end_date,
+                type: 'school_term',
+                emoji: '🏫',
+                is_all_day: 1,
+                resource: term
+            });
+        });
 
         const generateEvents = (items, type, titleFn, emojiFn, descFn) => {
             items.forEach(item => {

@@ -23,6 +23,7 @@ const detailsRoutes = require('./routes/details');
 const mealRoutes = require('./routes/meals');
 const financeRoutes = require('./routes/finance');
 const financeProfileRoutes = require('./routes/finance_profiles');
+const schoolTermRoutes = require('./routes/school_terms');
 
 const { createBackup, cleanOldBackups } = require('./services/backup');
 
@@ -80,6 +81,7 @@ const allRouters = [
     { path: '/', router: householdRoutes },
     { path: '/', router: memberRoutes },
     { path: '/', router: calendarRoutes },
+    { path: '/', router: schoolTermRoutes },
     { path: '/', router: detailsRoutes },
     { path: '/', router: mealRoutes }
 ];
