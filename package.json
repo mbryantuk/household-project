@@ -1,6 +1,6 @@
 {
   "name": "household-project",
-  "version": "3.2.155",
+  "version": "3.2.156",
   "private": true,
   "scripts": {
     "test": "cd server && npm test",
