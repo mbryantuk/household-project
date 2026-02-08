@@ -277,6 +277,15 @@ export default function SavingsView({ financialProfileId }) {
                                     <Typography level="body-xs" color="neutral">{formatPercent(acc.interest_rate)} AER</Typography>
                                 </Box>
                             </Box>
+                            {acc.goal_target > 0 && (
+                                <Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                        <Typography level="body-xs">Goal Progress</Typography>
+                                        <Typography level="body-xs">{Math.round((acc.current_balance / acc.goal_target) * 100)}% of {formatCurrency(acc.goal_target)}</Typography>
+                                    </Box>
+                                    <LinearProgress determinate value={Math.min((acc.current_balance / acc.goal_target) * 100, 100)} color={(acc.current_balance / acc.goal_target) >= 1 ? 'success' : 'primary'} thickness={6} />
+                                </Box>
+                            )}
                             <Divider />
                             <Box sx={{ flexGrow: 1 }}>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
@@ -347,6 +356,7 @@ export default function SavingsView({ financialProfileId }) {
                             <Grid container spacing={2}>
                                 <Grid xs={12} sm={6}><FormControl required><FormLabel>Current Balance (£)</FormLabel><Input name="current_balance" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedAccount?.current_balance} /></FormControl></Grid>
                                 <Grid xs={12} sm={6}><FormControl><FormLabel>Interest Rate (%)</FormLabel><Input name="interest_rate" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedAccount?.interest_rate} /></FormControl></Grid>
+                                <Grid xs={12} sm={6}><FormControl><FormLabel>Goal Target (£)</FormLabel><Input name="goal_target" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedAccount?.goal_target} /></FormControl></Grid>
                                 <Grid xs={12} sm={6}><FormControl><FormLabel>Monthly Deposit (£)</FormLabel><Input name="deposit_amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedAccount?.deposit_amount} /></FormControl></Grid>
                                 <Grid xs={12} sm={6}><FormControl><FormLabel>Deposit Day</FormLabel><Input name="deposit_day" type="number" min="1" max="31" defaultValue={selectedAccount?.deposit_day} placeholder="e.g. 1" /></FormControl></Grid>
                             </Grid>

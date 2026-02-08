@@ -67,4 +67,25 @@ describe('💰 Finance Routing Verification', () => {
         
         expect(res.status).toBe(404);
     });
+
+    test('POST /api/households/:id/finance/savings with goal_target should persist', async () => {
+        const createRes = await request(app)
+            .post(`/api/households/${householdId}/finance/savings`)
+            .set('Authorization', `Bearer ${token}`)
+            .send({ 
+                institution: 'Goal Bank', 
+                account_name: 'Target Savings',
+                goal_target: 1000.50
+            });
+        
+        expect(createRes.status).toBe(201); // Assuming 201 Created or 200 OK
+        expect(createRes.body.goal_target).toBe(1000.50);
+
+        const getRes = await request(app)
+            .get(`/api/households/${householdId}/finance/savings/${createRes.body.id}`)
+            .set('Authorization', `Bearer ${token}`);
+        
+        expect(getRes.status).toBe(200);
+        expect(getRes.body.goal_target).toBe(1000.50);
+    });
 });

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Typography, Stack } from '@mui/joy';
+import { Box, Typography, Stack, LinearProgress } from '@mui/joy';
 import { Savings } from '@mui/icons-material';
 import WidgetWrapper from './WidgetWrapper';
 import AppSelect from '../ui/AppSelect';
@@ -67,6 +67,15 @@ export default function SavingsWidget({ api, household, data, onSaveData }) {
         {/* Mini Details */}
         {selectedAccount && (
              <Box>
+                {selectedAccount.goal_target > 0 && (
+                    <Box sx={{ mb: 1 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                            <Typography level="body-xs">Goal</Typography>
+                            <Typography level="body-xs">{Math.round((selectedAccount.current_balance / selectedAccount.goal_target) * 100)}%</Typography>
+                        </Box>
+                        <LinearProgress determinate value={Math.min((selectedAccount.current_balance / selectedAccount.goal_target) * 100, 100)} color={(selectedAccount.current_balance / selectedAccount.goal_target) >= 1 ? 'success' : 'primary'} thickness={4} />
+                    </Box>
+                )}
                 <Typography level="body-xs" sx={{ mb: 0.5, display: 'flex', justifyContent: 'space-between' }}>
                     <span>Interest Rate</span>
                     <span>{selectedAccount.interest_rate}%</span>
@@ -81,9 +90,14 @@ export default function SavingsWidget({ api, household, data, onSaveData }) {
         {!selectedAccount && accounts.length > 0 && (
             <Stack spacing={1}>
                 {accounts.slice(0, 3).map(acc => (
-                    <Box key={acc.id} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography level="body-xs">{acc.emoji} {acc.account_name}</Typography>
-                        <Typography level="body-xs" fontWeight="bold">£{acc.current_balance?.toLocaleString()}</Typography>
+                    <Box key={acc.id}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Typography level="body-xs">{acc.emoji} {acc.account_name}</Typography>
+                            <Typography level="body-xs" fontWeight="bold">£{acc.current_balance?.toLocaleString()}</Typography>
+                        </Box>
+                        {acc.goal_target > 0 && (
+                            <LinearProgress determinate value={Math.min((acc.current_balance / acc.goal_target) * 100, 100)} size="sm" thickness={2} sx={{ mt: 0.5 }} color={(acc.current_balance / acc.goal_target) >= 1 ? 'success' : 'primary'} />
+                        )}
                     </Box>
                 ))}
                 {accounts.length > 3 && <Typography level="body-xs" color="neutral" textAlign="center">+{accounts.length - 3} more</Typography>}

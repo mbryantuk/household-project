@@ -253,6 +253,7 @@ const TENANT_SCHEMA = [
         account_number TEXT, -- Encrypted
         interest_rate REAL,
         current_balance REAL,
+        goal_target REAL,
         emoji TEXT,
         notes TEXT,
         deposit_amount REAL DEFAULT 0,
@@ -510,6 +511,7 @@ function initializeHouseholdSchema(db) {
                             ['house_details', 'current_valuation', 'REAL DEFAULT 0'],
                             ['finance_savings', 'deposit_amount', 'REAL DEFAULT 0'],
                             ['finance_savings', 'deposit_day', 'INTEGER'],
+                            ['finance_savings', 'goal_target', 'REAL'],
                             ['finance_investments', 'monthly_contribution', 'REAL DEFAULT 0'],
                             ['finance_investments', 'payment_day', 'INTEGER'],
                             ['finance_budget_cycles', 'bank_account_id', 'INTEGER'],
