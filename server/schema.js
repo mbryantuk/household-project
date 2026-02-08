@@ -59,7 +59,7 @@ const GLOBAL_SCHEMA = [
         date_format TEXT DEFAULT 'DD/MM/YYYY',
         currency TEXT DEFAULT 'GBP',
         decimals INTEGER DEFAULT 2,
-        enabled_modules TEXT DEFAULT '["pets", "vehicles", "meals"]',
+        enabled_modules TEXT DEFAULT '["pets", "vehicles", "meals", "shopping"]',
         metadata_schema TEXT,
         auto_backup INTEGER DEFAULT 1,
         backup_retention INTEGER DEFAULT 7,
@@ -495,6 +495,21 @@ function initializeGlobalSchema(db) {
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )`);
             }
+        });
+
+        // 🛠️ MIGRATION: Add shopping to enabled_modules for all households
+        db.all("SELECT id, enabled_modules FROM households", (err, rows) => {
+            if (err) return;
+            rows.forEach(row => {
+                try {
+                    let modules = JSON.parse(row.enabled_modules || '[]');
+                    if (!modules.includes('shopping')) {
+                        console.log(`🛠️ Migrating household ${row.id}: Adding shopping module...`);
+                        modules.push('shopping');
+                        db.run("UPDATE households SET enabled_modules = ? WHERE id = ?", [JSON.stringify(modules), row.id]);
+                    }
+                } catch (e) {}
+            });
         });
     });
 }
