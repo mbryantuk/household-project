@@ -484,55 +484,70 @@ export default function App() {
   const theme = useMemo(() => getMantelTheme(themeId, customConfig), [themeId, customConfig]);
   
   const login = useCallback(async (email, password, rememberMe) => {
-      const res = await axios.post(`${API_URL}/auth/login`, { email, password, rememberMe });
-      
-      if (res.data.mfa_required) {
-          return { mfa_required: true, preAuthToken: res.data.preAuthToken };
-      }
+      try {
+          console.log("[App] Attempting login for:", email);
+          const res = await axios.post(`${API_URL}/auth/login`, { email, password, rememberMe });
+          console.log("[App] Login response received:", res.status, res.data);
+          
+          if (res.data.mfa_required) {
+              return { mfa_required: true, preAuthToken: res.data.preAuthToken };
+          }
 
-      const { token, role, context, household: hhData, user: userData, system_role } = res.data;
-      console.log("[App] Login Data received. Context:", context, "User:", userData?.email, "HH:", hhData?.id);
-      const fullUser = { ...userData, role, system_role };
-      setToken(token); setUser(fullUser);
-      localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(fullUser));
-      
-      if (rememberMe) {
-          localStorage.setItem('persistentSession', 'true');
-      } else {
-          localStorage.removeItem('persistentSession');
-      }
-      
-      if (userData.theme) setThemeId(userData.theme);
-      if (context === 'household' && hhData) {
-        setHousehold(hhData);
-        localStorage.setItem('household', JSON.stringify(hhData));
-        console.log("[App] Redirecting to household dashboard:", hhData.id);
-        window.location.href = `/household/${hhData.id}/dashboard`;
-      } else {
-        setHousehold(null); localStorage.removeItem('household');
-        console.log("[App] Redirecting to selector");
-        window.location.href = '/select-household';
+          const { token, role, context, household: hhData, user: userData, system_role } = res.data;
+          console.log("[App] Login Data processed. Context:", context, "HH:", hhData?.id);
+          const fullUser = { ...userData, role, system_role };
+          setToken(token); setUser(fullUser);
+          localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(fullUser));
+          
+          if (rememberMe) {
+              localStorage.setItem('persistentSession', 'true');
+          } else {
+              localStorage.removeItem('persistentSession');
+          }
+          
+          if (userData.theme) setThemeId(userData.theme);
+          if (context === 'household' && hhData) {
+            setHousehold(hhData);
+            localStorage.setItem('household', JSON.stringify(hhData));
+            console.log("[App] Redirecting to household dashboard:", hhData.id);
+            window.location.href = `/household/${hhData.id}/dashboard`;
+          } else {
+            setHousehold(null); localStorage.removeItem('household');
+            console.log("[App] Redirecting to selector");
+            window.location.href = '/select-household';
+          }
+      } catch (err) {
+          console.error("[App] Login Error:", err.message, err.response?.data);
+          throw err;
       }
   }, []);
 
   const mfaLogin = useCallback(async (preAuthToken, code) => {
-      const res = await axios.post(`${API_URL}/auth/mfa/login`, { preAuthToken, code });
-      const { token, role, context, household: hhData, user: userData, system_role } = res.data;
-      console.log("[App] Login Data received. Context:", context, "User:", userData?.email, "HH:", hhData?.id);
-      const fullUser = { ...userData, role, system_role };
-      setToken(token); setUser(fullUser);
-      localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(fullUser));
-      
-      if (userData.theme) setThemeId(userData.theme);
-      if (context === 'household' && hhData) {
-        setHousehold(hhData);
-        localStorage.setItem('household', JSON.stringify(hhData));
-        console.log("[App] Redirecting to household dashboard:", hhData.id);
-        window.location.href = `/household/${hhData.id}/dashboard`;
-      } else {
-        setHousehold(null); localStorage.removeItem('household');
-        console.log("[App] Redirecting to selector");
-        window.location.href = '/select-household';
+      try {
+          console.log("[App] Attempting MFA login");
+          const res = await axios.post(`${API_URL}/auth/mfa/login`, { preAuthToken, code });
+          console.log("[App] MFA Login response received:", res.status, res.data);
+          
+          const { token, role, context, household: hhData, user: userData, system_role } = res.data;
+          console.log("[App] MFA Login Data processed. Context:", context, "HH:", hhData?.id);
+          const fullUser = { ...userData, role, system_role };
+          setToken(token); setUser(fullUser);
+          localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(fullUser));
+          
+          if (userData.theme) setThemeId(userData.theme);
+          if (context === 'household' && hhData) {
+            setHousehold(hhData);
+            localStorage.setItem('household', JSON.stringify(hhData));
+            console.log("[App] Redirecting to household dashboard:", hhData.id);
+            window.location.href = `/household/${hhData.id}/dashboard`;
+          } else {
+            setHousehold(null); localStorage.removeItem('household');
+            console.log("[App] Redirecting to selector");
+            window.location.href = '/select-household';
+          }
+      } catch (err) {
+          console.error("[App] MFA Login Error:", err.message, err.response?.data);
+          throw err;
       }
   }, []);
 
