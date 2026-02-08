@@ -1,8 +1,8 @@
 {
   "numFailedTestSuites": 1,
-  "numFailedTests": 7,
+  "numFailedTests": 4,
   "numPassedTestSuites": 0,
-  "numPassedTests": 0,
+  "numPassedTests": 3,
   "numPendingTestSuites": 0,
   "numPendingTests": 0,
   "numRuntimeErrorTestSuites": 0,
@@ -26,21 +26,21 @@
     "unmatched": 0,
     "updated": 0
   },
-  "startTime": 1770584677251,
+  "startTime": 1770584810874,
   "success": false,
   "testResults": [
     {
       "leaks": false,
-      "numFailingTests": 7,
-      "numPassingTests": 0,
+      "numFailingTests": 4,
+      "numPassingTests": 3,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1770584679654,
-        "runtime": 1978,
+        "end": 1770584813574,
+        "runtime": 2245,
         "slow": false,
-        "start": 1770584677676
+        "start": 1770584811329
       },
       "skipped": false,
       "snapshot": {
@@ -58,7 +58,7 @@
           "ancestorTitles": [
             "🔐 MFA (Multi-Factor Authentication) Integrity"
           ],
-          "duration": 2,
+          "duration": 29,
           "failureDetails": [
             {
               "matcherResult": {
@@ -71,12 +71,12 @@
             }
           ],
           "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m500\u001b[39m\n    at Object.toBe (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/tests/security/mfa.test.js:44:33)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m500\u001b[39m\n    at Object.toBe (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/tests/security/mfa.test.js:58:28)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
           ],
           "fullName": "🔐 MFA (Multi-Factor Authentication) Integrity 1️⃣ Setup MFA (Should return Secret + QR)",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 1,
+          "numPassingAsserts": 2,
           "retryReasons": [],
           "status": "failed",
           "title": "1️⃣ Setup MFA (Should return Secret + QR)"
@@ -85,25 +85,23 @@
           "ancestorTitles": [
             "🔐 MFA (Multi-Factor Authentication) Integrity"
           ],
-          "duration": 0,
+          "duration": 13,
           "failureDetails": [
             {
-              "matcherResult": {
-                "actual": 500,
-                "expected": 200,
-                "message": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m500\u001b[39m",
-                "name": "toBe",
-                "pass": false
-              }
+              "name": "SecretMissingError"
+            },
+            {
+              "name": "SecretMissingError"
             }
           ],
           "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m500\u001b[39m\n    at Object.toBe (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/tests/security/mfa.test.js:44:33)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+            "SecretMissingError: Secret is required. Use generateSecret() to create one, or provide via { secret: 'YOUR_BASE32_SECRET' }\n    at _r (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/@otplib/core/src/utils.ts:798:25)\n    at d.generate (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/@otplib/totp/src/class.ts:94:5)\n    at Object.generate (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/tests/security/mfa.test.js:65:36)\n    at Promise.then.completed (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-circus/build/utils.js:298:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-circus/build/utils.js:231:10)\n    at _callCircusTest (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-circus/build/run.js:316:40)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at _runTest (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-circus/build/run.js:252:3)\n    at _runTestsForDescribeBlock (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-circus/build/run.js:126:9)\n    at _runTestsForDescribeBlock (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-circus/build/run.js:121:9)\n    at run (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-circus/build/run.js:71:3)\n    at runAndTransformResultsToJestFormat (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)\n    at jestAdapter (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:74:19)\n    at runTestInternal (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-runner/build/runTest.js:281:16)\n    at runTest (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-runner/build/runTest.js:341:7)",
+            "SecretMissingError: Secret is required. Use generateSecret() to create one, or provide via { secret: 'YOUR_BASE32_SECRET' }\n    at _r (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/@otplib/core/src/utils.ts:798:25)\n    at d.verify (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/@otplib/totp/src/class.ts:139:5)\n    at verify (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/routes/auth.js:271:39)"
           ],
           "fullName": "🔐 MFA (Multi-Factor Authentication) Integrity 2️⃣ Verify MFA (Should enable MFA)",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 0,
+          "numPassingAsserts": 2,
           "retryReasons": [],
           "status": "failed",
           "title": "2️⃣ Verify MFA (Should enable MFA)"
@@ -112,47 +110,39 @@
           "ancestorTitles": [
             "🔐 MFA (Multi-Factor Authentication) Integrity"
           ],
-          "duration": 0,
-          "failureDetails": [
-            {
-              "matcherResult": {
-                "actual": 500,
-                "expected": 200,
-                "message": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m500\u001b[39m",
-                "name": "toBe",
-                "pass": false
-              }
-            }
-          ],
-          "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m500\u001b[39m\n    at Object.toBe (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/tests/security/mfa.test.js:44:33)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
-          ],
+          "duration": 38,
+          "failureDetails": [],
+          "failureMessages": [],
           "fullName": "🔐 MFA (Multi-Factor Authentication) Integrity 3️⃣ Login should now require MFA",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 0,
+          "numPassingAsserts": 3,
           "retryReasons": [],
-          "status": "failed",
+          "status": "passed",
           "title": "3️⃣ Login should now require MFA"
         },
         {
           "ancestorTitles": [
             "🔐 MFA (Multi-Factor Authentication) Integrity"
           ],
-          "duration": 0,
+          "duration": 10,
           "failureDetails": [
             {
+              "name": "SecretMissingError"
+            },
+            {
               "matcherResult": {
-                "actual": 500,
-                "expected": 200,
-                "message": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m500\u001b[39m",
+                "actual": 200,
+                "expected": 401,
+                "message": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m200\u001b[39m",
                 "name": "toBe",
                 "pass": false
               }
             }
           ],
           "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m500\u001b[39m\n    at Object.toBe (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/tests/security/mfa.test.js:44:33)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+            "SecretMissingError: Secret is required. Use generateSecret() to create one, or provide via { secret: 'YOUR_BASE32_SECRET' }\n    at _r (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/@otplib/core/src/utils.ts:798:25)\n    at d.verify (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/@otplib/totp/src/class.ts:139:5)\n    at verify (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/routes/auth.js:235:39)",
+            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m200\u001b[39m\n    at Object.toBe (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/tests/security/mfa.test.js:92:28)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
           ],
           "fullName": "🔐 MFA (Multi-Factor Authentication) Integrity 4️⃣ MFA Login with INVALID code should fail",
           "invocations": 1,
@@ -166,25 +156,23 @@
           "ancestorTitles": [
             "🔐 MFA (Multi-Factor Authentication) Integrity"
           ],
-          "duration": 1,
+          "duration": 10,
           "failureDetails": [
             {
-              "matcherResult": {
-                "actual": 500,
-                "expected": 200,
-                "message": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m500\u001b[39m",
-                "name": "toBe",
-                "pass": false
-              }
+              "name": "SecretMissingError"
+            },
+            {
+              "name": "SecretMissingError"
             }
           ],
           "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m500\u001b[39m\n    at Object.toBe (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/tests/security/mfa.test.js:44:33)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+            "SecretMissingError: Secret is required. Use generateSecret() to create one, or provide via { secret: 'YOUR_BASE32_SECRET' }\n    at _r (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/@otplib/core/src/utils.ts:798:25)\n    at d.generate (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/@otplib/totp/src/class.ts:94:5)\n    at Object.generate (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/tests/security/mfa.test.js:96:36)\n    at Promise.then.completed (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-circus/build/utils.js:298:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-circus/build/utils.js:231:10)\n    at _callCircusTest (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-circus/build/run.js:316:40)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at _runTest (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-circus/build/run.js:252:3)\n    at _runTestsForDescribeBlock (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-circus/build/run.js:126:9)\n    at _runTestsForDescribeBlock (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-circus/build/run.js:121:9)\n    at run (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-circus/build/run.js:71:3)\n    at runAndTransformResultsToJestFormat (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)\n    at jestAdapter (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:74:19)\n    at runTestInternal (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-runner/build/runTest.js:281:16)\n    at runTest (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/jest-runner/build/runTest.js:341:7)",
+            "SecretMissingError: Secret is required. Use generateSecret() to create one, or provide via { secret: 'YOUR_BASE32_SECRET' }\n    at _r (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/@otplib/core/src/utils.ts:798:25)\n    at d.verify (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/node_modules/@otplib/totp/src/class.ts:139:5)\n    at verify (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/routes/auth.js:235:39)"
           ],
           "fullName": "🔐 MFA (Multi-Factor Authentication) Integrity 5️⃣ MFA Login with VALID code should succeed",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 0,
+          "numPassingAsserts": 2,
           "retryReasons": [],
           "status": "failed",
           "title": "5️⃣ MFA Login with VALID code should succeed"
@@ -193,58 +181,34 @@
           "ancestorTitles": [
             "🔐 MFA (Multi-Factor Authentication) Integrity"
           ],
-          "duration": 0,
-          "failureDetails": [
-            {
-              "matcherResult": {
-                "actual": 500,
-                "expected": 200,
-                "message": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m500\u001b[39m",
-                "name": "toBe",
-                "pass": false
-              }
-            }
-          ],
-          "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m500\u001b[39m\n    at Object.toBe (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/tests/security/mfa.test.js:44:33)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
-          ],
+          "duration": 37,
+          "failureDetails": [],
+          "failureMessages": [],
           "fullName": "🔐 MFA (Multi-Factor Authentication) Integrity 6️⃣ Disable MFA",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 0,
+          "numPassingAsserts": 2,
           "retryReasons": [],
-          "status": "failed",
+          "status": "passed",
           "title": "6️⃣ Disable MFA"
         },
         {
           "ancestorTitles": [
             "🔐 MFA (Multi-Factor Authentication) Integrity"
           ],
-          "duration": 0,
-          "failureDetails": [
-            {
-              "matcherResult": {
-                "actual": 500,
-                "expected": 200,
-                "message": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m500\u001b[39m",
-                "name": "toBe",
-                "pass": false
-              }
-            }
-          ],
-          "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m500\u001b[39m\n    at Object.toBe (/var/tmp/vibe-kanban/worktrees/c318-finally-resolve/household-project/server/tests/security/mfa.test.js:44:33)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
-          ],
+          "duration": 45,
+          "failureDetails": [],
+          "failureMessages": [],
           "fullName": "🔐 MFA (Multi-Factor Authentication) Integrity 7️⃣ Login should NOT require MFA anymore",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 0,
+          "numPassingAsserts": 3,
           "retryReasons": [],
-          "status": "failed",
+          "status": "passed",
           "title": "7️⃣ Login should NOT require MFA anymore"
         }
       ],
-      "failureMessage": "\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1m🔐 MFA (Multi-Factor Authentication) Integrity › 1️⃣ Setup MFA (Should return Secret + QR)\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m200\u001b[39m\n    Received: \u001b[31m500\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 42 |\u001b[39m             password\u001b[33m:\u001b[39m testUser\u001b[33m.\u001b[39mpassword\u001b[22m\n\u001b[2m     \u001b[90m 43 |\u001b[39m         })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 44 |\u001b[39m         expect(loginRes\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m200\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 45 |\u001b[39m         adminToken \u001b[33m=\u001b[39m loginRes\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39mtoken\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 46 |\u001b[39m         userId \u001b[33m=\u001b[39m loginRes\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39muser\u001b[33m.\u001b[39mid\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 47 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/security/mfa.test.js\u001b[39m\u001b[0m\u001b[2m:44:33)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1m🔐 MFA (Multi-Factor Authentication) Integrity › 2️⃣ Verify MFA (Should enable MFA)\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m200\u001b[39m\n    Received: \u001b[31m500\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 42 |\u001b[39m             password\u001b[33m:\u001b[39m testUser\u001b[33m.\u001b[39mpassword\u001b[22m\n\u001b[2m     \u001b[90m 43 |\u001b[39m         })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 44 |\u001b[39m         expect(loginRes\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m200\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 45 |\u001b[39m         adminToken \u001b[33m=\u001b[39m loginRes\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39mtoken\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 46 |\u001b[39m         userId \u001b[33m=\u001b[39m loginRes\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39muser\u001b[33m.\u001b[39mid\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 47 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/security/mfa.test.js\u001b[39m\u001b[0m\u001b[2m:44:33)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1m🔐 MFA (Multi-Factor Authentication) Integrity › 3️⃣ Login should now require MFA\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m200\u001b[39m\n    Received: \u001b[31m500\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 42 |\u001b[39m             password\u001b[33m:\u001b[39m testUser\u001b[33m.\u001b[39mpassword\u001b[22m\n\u001b[2m     \u001b[90m 43 |\u001b[39m         })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 44 |\u001b[39m         expect(loginRes\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m200\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 45 |\u001b[39m         adminToken \u001b[33m=\u001b[39m loginRes\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39mtoken\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 46 |\u001b[39m         userId \u001b[33m=\u001b[39m loginRes\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39muser\u001b[33m.\u001b[39mid\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 47 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/security/mfa.test.js\u001b[39m\u001b[0m\u001b[2m:44:33)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1m🔐 MFA (Multi-Factor Authentication) Integrity › 4️⃣ MFA Login with INVALID code should fail\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m200\u001b[39m\n    Received: \u001b[31m500\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 42 |\u001b[39m             password\u001b[33m:\u001b[39m testUser\u001b[33m.\u001b[39mpassword\u001b[22m\n\u001b[2m     \u001b[90m 43 |\u001b[39m         })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 44 |\u001b[39m         expect(loginRes\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m200\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 45 |\u001b[39m         adminToken \u001b[33m=\u001b[39m loginRes\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39mtoken\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 46 |\u001b[39m         userId \u001b[33m=\u001b[39m loginRes\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39muser\u001b[33m.\u001b[39mid\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 47 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/security/mfa.test.js\u001b[39m\u001b[0m\u001b[2m:44:33)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1m🔐 MFA (Multi-Factor Authentication) Integrity › 5️⃣ MFA Login with VALID code should succeed\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m200\u001b[39m\n    Received: \u001b[31m500\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 42 |\u001b[39m             password\u001b[33m:\u001b[39m testUser\u001b[33m.\u001b[39mpassword\u001b[22m\n\u001b[2m     \u001b[90m 43 |\u001b[39m         })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 44 |\u001b[39m         expect(loginRes\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m200\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 45 |\u001b[39m         adminToken \u001b[33m=\u001b[39m loginRes\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39mtoken\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 46 |\u001b[39m         userId \u001b[33m=\u001b[39m loginRes\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39muser\u001b[33m.\u001b[39mid\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 47 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/security/mfa.test.js\u001b[39m\u001b[0m\u001b[2m:44:33)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1m🔐 MFA (Multi-Factor Authentication) Integrity › 6️⃣ Disable MFA\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m200\u001b[39m\n    Received: \u001b[31m500\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 42 |\u001b[39m             password\u001b[33m:\u001b[39m testUser\u001b[33m.\u001b[39mpassword\u001b[22m\n\u001b[2m     \u001b[90m 43 |\u001b[39m         })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 44 |\u001b[39m         expect(loginRes\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m200\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 45 |\u001b[39m         adminToken \u001b[33m=\u001b[39m loginRes\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39mtoken\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 46 |\u001b[39m         userId \u001b[33m=\u001b[39m loginRes\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39muser\u001b[33m.\u001b[39mid\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 47 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/security/mfa.test.js\u001b[39m\u001b[0m\u001b[2m:44:33)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1m🔐 MFA (Multi-Factor Authentication) Integrity › 7️⃣ Login should NOT require MFA anymore\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m200\u001b[39m\n    Received: \u001b[31m500\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 42 |\u001b[39m             password\u001b[33m:\u001b[39m testUser\u001b[33m.\u001b[39mpassword\u001b[22m\n\u001b[2m     \u001b[90m 43 |\u001b[39m         })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 44 |\u001b[39m         expect(loginRes\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m200\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 45 |\u001b[39m         adminToken \u001b[33m=\u001b[39m loginRes\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39mtoken\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 46 |\u001b[39m         userId \u001b[33m=\u001b[39m loginRes\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39muser\u001b[33m.\u001b[39mid\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 47 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/security/mfa.test.js\u001b[39m\u001b[0m\u001b[2m:44:33)\u001b[22m\u001b[2m\u001b[22m\n"
+      "failureMessage": "\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1m🔐 MFA (Multi-Factor Authentication) Integrity › 1️⃣ Setup MFA (Should return Secret + QR)\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m200\u001b[39m\n    Received: \u001b[31m500\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 56 |\u001b[39m         \u001b[22m\n\u001b[2m     \u001b[90m 57 |\u001b[39m         \u001b[36mif\u001b[39m (res\u001b[33m.\u001b[39mstatus \u001b[33m!==\u001b[39m \u001b[35m200\u001b[39m) console\u001b[33m.\u001b[39merror(\u001b[32m\"Setup MFA Failed:\"\u001b[39m\u001b[33m,\u001b[39m res\u001b[33m.\u001b[39mbody)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 58 |\u001b[39m         expect(res\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m200\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                            \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 59 |\u001b[39m         expect(res\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39msecret)\u001b[33m.\u001b[39mtoBeDefined()\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 60 |\u001b[39m         expect(res\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39mqrCodeUrl)\u001b[33m.\u001b[39mtoBeDefined()\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 61 |\u001b[39m         mfaSecret \u001b[33m=\u001b[39m res\u001b[33m.\u001b[39mbody\u001b[33m.\u001b[39msecret\u001b[33m;\u001b[39m \u001b[90m// Save for verification\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/security/mfa.test.js\u001b[39m\u001b[0m\u001b[2m:58:28)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1m🔐 MFA (Multi-Factor Authentication) Integrity › 2️⃣ Verify MFA (Should enable MFA)\u001b[39m\u001b[22m\n\n    SecretMissingError: Secret is required. Use generateSecret() to create one, or provide via { secret: 'YOUR_BASE32_SECRET' }\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 63 |\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 64 |\u001b[39m     test(\u001b[32m'2️⃣ Verify MFA (Should enable MFA)'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 65 |\u001b[39m         \u001b[36mconst\u001b[39m code \u001b[33m=\u001b[39m authenticator\u001b[33m.\u001b[39mgenerate(mfaSecret)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 66 |\u001b[39m         \u001b[36mconst\u001b[39m res \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m request(app)\u001b[33m.\u001b[39mpost(\u001b[32m'/api/auth/mfa/verify'\u001b[39m)\u001b[22m\n\u001b[2m     \u001b[90m 67 |\u001b[39m             \u001b[33m.\u001b[39m\u001b[36mset\u001b[39m(\u001b[32m'Authorization'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m`Bearer ${adminToken}`\u001b[39m)\u001b[22m\n\u001b[2m     \u001b[90m 68 |\u001b[39m             \u001b[33m.\u001b[39msend({ code })\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat _r (\u001b[22m\u001b[2mnode_modules/@otplib/core/src/utils.ts\u001b[2m:798:25)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat d.generate (\u001b[22m\u001b[2mnode_modules/@otplib/totp/src/class.ts\u001b[2m:94:5)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.generate (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/security/mfa.test.js\u001b[39m\u001b[0m\u001b[2m:65:36)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1m🔐 MFA (Multi-Factor Authentication) Integrity › 2️⃣ Verify MFA (Should enable MFA)\u001b[39m\u001b[22m\n\n    SecretMissingError: Secret is required. Use generateSecret() to create one, or provide via { secret: 'YOUR_BASE32_SECRET' }\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 269 |\u001b[39m         \u001b[36mconst\u001b[39m user \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m dbGet(globalDb\u001b[33m,\u001b[39m \u001b[32m`SELECT mfa_secret FROM users WHERE id = ?`\u001b[39m\u001b[33m,\u001b[39m [req\u001b[33m.\u001b[39muser\u001b[33m.\u001b[39mid])\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 270 |\u001b[39m         \u001b[36mconst\u001b[39m secret \u001b[33m=\u001b[39m decrypt(user\u001b[33m.\u001b[39mmfa_secret)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 271 |\u001b[39m         \u001b[36mconst\u001b[39m isValid \u001b[33m=\u001b[39m authenticator\u001b[33m.\u001b[39mverify({ token\u001b[33m:\u001b[39m code\u001b[33m,\u001b[39m secret })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 272 |\u001b[39m         \u001b[22m\n\u001b[2m     \u001b[90m 273 |\u001b[39m         \u001b[36mif\u001b[39m (isValid) {\u001b[22m\n\u001b[2m     \u001b[90m 274 |\u001b[39m             \u001b[36mawait\u001b[39m dbRun(globalDb\u001b[33m,\u001b[39m \u001b[32m`UPDATE users SET mfa_enabled = 1 WHERE id = ?`\u001b[39m\u001b[33m,\u001b[39m [req\u001b[33m.\u001b[39muser\u001b[33m.\u001b[39mid])\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat _r (\u001b[22m\u001b[2mnode_modules/@otplib/core/src/utils.ts\u001b[2m:798:25)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat d.verify (\u001b[22m\u001b[2mnode_modules/@otplib/totp/src/class.ts\u001b[2m:139:5)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat verify (\u001b[22m\u001b[2mroutes/auth.js\u001b[2m:271:39)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1m🔐 MFA (Multi-Factor Authentication) Integrity › 4️⃣ MFA Login with INVALID code should fail\u001b[39m\u001b[22m\n\n    SecretMissingError: Secret is required. Use generateSecret() to create one, or provide via { secret: 'YOUR_BASE32_SECRET' }\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 233 |\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 234 |\u001b[39m         \u001b[36mconst\u001b[39m secret \u001b[33m=\u001b[39m decrypt(user\u001b[33m.\u001b[39mmfa_secret)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 235 |\u001b[39m         \u001b[36mconst\u001b[39m isValid \u001b[33m=\u001b[39m authenticator\u001b[33m.\u001b[39mverify({ token\u001b[33m:\u001b[39m code\u001b[33m,\u001b[39m secret })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 236 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39misValid) \u001b[36mreturn\u001b[39m res\u001b[33m.\u001b[39mstatus(\u001b[35m401\u001b[39m)\u001b[33m.\u001b[39mjson({ error\u001b[33m:\u001b[39m \u001b[32m\"Invalid 2FA code\"\u001b[39m })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 237 |\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 238 |\u001b[39m         \u001b[36mawait\u001b[39m finalizeLogin(user\u001b[33m,\u001b[39m req\u001b[33m,\u001b[39m res\u001b[33m,\u001b[39m decoded\u001b[33m.\u001b[39mrememberMe)\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat _r (\u001b[22m\u001b[2mnode_modules/@otplib/core/src/utils.ts\u001b[2m:798:25)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat d.verify (\u001b[22m\u001b[2mnode_modules/@otplib/totp/src/class.ts\u001b[2m:139:5)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat verify (\u001b[22m\u001b[2mroutes/auth.js\u001b[2m:235:39)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1m🔐 MFA (Multi-Factor Authentication) Integrity › 4️⃣ MFA Login with INVALID code should fail\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m401\u001b[39m\n    Received: \u001b[31m200\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 91 |\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 92 |\u001b[39m         expect(res\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m401\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                            \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 93 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 94 |\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 95 |\u001b[39m     test(\u001b[32m'5️⃣ MFA Login with VALID code should succeed'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/security/mfa.test.js\u001b[39m\u001b[0m\u001b[2m:92:28)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1m🔐 MFA (Multi-Factor Authentication) Integrity › 5️⃣ MFA Login with VALID code should succeed\u001b[39m\u001b[22m\n\n    SecretMissingError: Secret is required. Use generateSecret() to create one, or provide via { secret: 'YOUR_BASE32_SECRET' }\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 94 |\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 95 |\u001b[39m     test(\u001b[32m'5️⃣ MFA Login with VALID code should succeed'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 96 |\u001b[39m         \u001b[36mconst\u001b[39m code \u001b[33m=\u001b[39m authenticator\u001b[33m.\u001b[39mgenerate(mfaSecret)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 97 |\u001b[39m         \u001b[36mconst\u001b[39m res \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m request(app)\u001b[33m.\u001b[39mpost(\u001b[32m'/api/auth/mfa/login'\u001b[39m)\u001b[33m.\u001b[39msend({\u001b[22m\n\u001b[2m     \u001b[90m 98 |\u001b[39m             preAuthToken\u001b[33m,\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 99 |\u001b[39m             code\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat _r (\u001b[22m\u001b[2mnode_modules/@otplib/core/src/utils.ts\u001b[2m:798:25)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat d.generate (\u001b[22m\u001b[2mnode_modules/@otplib/totp/src/class.ts\u001b[2m:94:5)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.generate (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/security/mfa.test.js\u001b[39m\u001b[0m\u001b[2m:96:36)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1m🔐 MFA (Multi-Factor Authentication) Integrity › 5️⃣ MFA Login with VALID code should succeed\u001b[39m\u001b[22m\n\n    SecretMissingError: Secret is required. Use generateSecret() to create one, or provide via { secret: 'YOUR_BASE32_SECRET' }\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 233 |\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 234 |\u001b[39m         \u001b[36mconst\u001b[39m secret \u001b[33m=\u001b[39m decrypt(user\u001b[33m.\u001b[39mmfa_secret)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 235 |\u001b[39m         \u001b[36mconst\u001b[39m isValid \u001b[33m=\u001b[39m authenticator\u001b[33m.\u001b[39mverify({ token\u001b[33m:\u001b[39m code\u001b[33m,\u001b[39m secret })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 236 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39misValid) \u001b[36mreturn\u001b[39m res\u001b[33m.\u001b[39mstatus(\u001b[35m401\u001b[39m)\u001b[33m.\u001b[39mjson({ error\u001b[33m:\u001b[39m \u001b[32m\"Invalid 2FA code\"\u001b[39m })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 237 |\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 238 |\u001b[39m         \u001b[36mawait\u001b[39m finalizeLogin(user\u001b[33m,\u001b[39m req\u001b[33m,\u001b[39m res\u001b[33m,\u001b[39m decoded\u001b[33m.\u001b[39mrememberMe)\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat _r (\u001b[22m\u001b[2mnode_modules/@otplib/core/src/utils.ts\u001b[2m:798:25)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat d.verify (\u001b[22m\u001b[2mnode_modules/@otplib/totp/src/class.ts\u001b[2m:139:5)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat verify (\u001b[22m\u001b[2mroutes/auth.js\u001b[2m:235:39)\u001b[22m\u001b[2m\u001b[22m\n"
     }
   ],
   "wasInterrupted": false
