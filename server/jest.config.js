@@ -8,9 +8,7 @@ module.exports = {
   transform: {
     '^.+\\.jsx?$': 'babel-jest',
   },
-  transformIgnorePatterns: [
-    '/node_modules/(?!(@scure|otplib|qrcode|ua-parser-js)/)'
-  ],
+  transformIgnorePatterns: [],
   globalTeardown: '<rootDir>/tests/teardown.js',
   reporters: [
     'default',

@@ -2,13 +2,23 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { authenticator } = require('otplib');
+const otplib = require('otplib');
+const authenticator = otplib.authenticator || new otplib.TOTP();
+const crypto = require('crypto');
+
+// Fix for otplib v13+ in Node environment: explicitly set crypto
+if (!authenticator.options?.createDigest) {
+    authenticator.options = { 
+        createDigest: (algorithm, data) => crypto.createHmac(algorithm, data).digest() 
+    };
+}
+
 const qrcode = require('qrcode');
 const UAParser = require('ua-parser-js');
-const crypto = require('crypto');
 const { globalDb, getHouseholdDb, dbGet, dbRun, dbAll } = require('../db'); 
 const { SECRET_KEY } = require('../config');
 const { authenticateToken } = require('../middleware/auth');
+const { encrypt, decrypt } = require('../utils/encryption');
 
 /**
  * Helper to finalize login and create session
@@ -221,7 +231,8 @@ router.post('/mfa/login', async (req, res) => {
         const user = await dbGet(globalDb, `SELECT * FROM users WHERE id = ?`, [decoded.preAuthId]);
         if (!user || !user.is_active) return res.status(403).json({ error: "User inactive" });
 
-        const isValid = authenticator.verify({ token: code, secret: user.mfa_secret });
+        const secret = decrypt(user.mfa_secret);
+        const isValid = authenticator.verify({ token: code, secret });
         if (!isValid) return res.status(401).json({ error: "Invalid 2FA code" });
 
         await finalizeLogin(user, req, res, decoded.rememberMe);
@@ -244,11 +255,11 @@ router.post('/mfa/setup', authenticateToken, async (req, res) => {
         const qrCodeUrl = await qrcode.toDataURL(otpauth);
 
         // Store secret temporarily (encrypted)
-        await dbRun(globalDb, `UPDATE users SET mfa_secret = ? WHERE id = ?`, [secret, req.user.id]);
+        await dbRun(globalDb, `UPDATE users SET mfa_secret = ? WHERE id = ?`, [encrypt(secret), req.user.id]);
 
         res.json({ secret, qrCodeUrl });
     } catch (err) {
-        res.status(500).json({ error: "MFA setup failed" });
+        res.status(500).json({ error: "MFA setup failed: " + err.message });
     }
 });
 
@@ -256,7 +267,8 @@ router.post('/mfa/verify', authenticateToken, async (req, res) => {
     const { code } = req.body;
     try {
         const user = await dbGet(globalDb, `SELECT mfa_secret FROM users WHERE id = ?`, [req.user.id]);
-        const isValid = authenticator.verify({ token: code, secret: user.mfa_secret });
+        const secret = decrypt(user.mfa_secret);
+        const isValid = authenticator.verify({ token: code, secret });
         
         if (isValid) {
             await dbRun(globalDb, `UPDATE users SET mfa_enabled = 1 WHERE id = ?`, [req.user.id]);
