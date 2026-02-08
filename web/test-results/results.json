@@ -70,239 +70,245 @@
       "file": "onboarding.spec.js",
       "column": 0,
       "line": 0,
-      "specs": [],
-      "suites": [
+      "specs": [
         {
-          "title": "Onboarding Tour",
-          "file": "onboarding.spec.js",
-          "line": 3,
-          "column": 6,
-          "specs": [
+          "title": "Tour starts automatically and can be progressed",
+          "ok": false,
+          "tags": [],
+          "tests": [
             {
-              "title": "Tour starts automatically and can be progressed",
-              "ok": false,
-              "tags": [],
-              "tests": [
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
                 {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 31117,
+                  "error": {
+                    "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================",
+                    "stack": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================\n    at /var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js:21:16",
+                    "location": {
+                      "file": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js",
+                      "column": 16,
+                      "line": 21
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 19 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'Login clicked, waiting for dashboard...'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mscreenshot({ path\u001b[33m:\u001b[39m \u001b[32m'test-results/after-login-click.png'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'**/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m30000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m\n \u001b[90m 24 |\u001b[39m test(\u001b[32m'Tour starts automatically and can be progressed'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                  },
+                  "errors": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 18628,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Welcome to Mantel!').first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Welcome to Mantel!').first()\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Welcome to Mantel!').first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Welcome to Mantel!').first()\u001b[22m\n\n    at /var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js:25:68",
-                        "location": {
-                          "file": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js",
-                          "column": 68,
-                          "line": 25
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 23 |\u001b[39m     test(\u001b[32m'Tour starts automatically and can be progressed'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 24 |\u001b[39m         \u001b[90m// Wait for tour to appear - use a more generic text search\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 25 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Welcome to Mantel!'\u001b[39m)\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 26 |\u001b[39m\n \u001b[90m 27 |\u001b[39m         \u001b[90m// Click Next\u001b[39m\n \u001b[90m 28 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js",
-                            "column": 68,
-                            "line": 25
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Welcome to Mantel!').first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Welcome to Mantel!').first()\u001b[22m\n\n\n\u001b[0m \u001b[90m 23 |\u001b[39m     test(\u001b[32m'Tour starts automatically and can be progressed'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 24 |\u001b[39m         \u001b[90m// Wait for tour to appear - use a more generic text search\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 25 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Welcome to Mantel!'\u001b[39m)\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 26 |\u001b[39m\n \u001b[90m 27 |\u001b[39m         \u001b[90m// Click Next\u001b[39m\n \u001b[90m 28 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js:25:68\u001b[22m"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "BROWSER: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "BROWSER: Content is cached for offline use.\n"
-                        },
-                        {
-                          "text": "BROWSER: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "BROWSER: SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "BROWSER: TypeError: Cannot read properties of null (reading 'split')\n    at TQ (http://localhost:4001/assets/index-DXuVRxtp.js:97:307295)\n    at s3 (http://localhost:4001/assets/index-DXuVRxtp.js:97:306551)\n    at http://localhost:4001/assets/index-DXuVRxtp.js:97:311614\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-DXuVRxtp.js:97:311490\n    at Object.ny [as useMemo] (http://localhost:4001/assets/index-DXuVRxtp.js:9:57408)\n    at Z6.He.useMemo (http://localhost:4001/assets/index-DXuVRxtp.js:2:9119)\n    at BQ (http://localhost:4001/assets/index-DXuVRxtp.js:97:310412)\n    at F1 (http://localhost:4001/assets/index-DXuVRxtp.js:9:48437)\n    at cm (http://localhost:4001/assets/index-DXuVRxtp.js:9:71294)\n"
-                        },
-                        {
-                          "text": "BROWSER: Widget Crash Detected: TypeError: Cannot read properties of null (reading 'split')\n    at TQ (http://localhost:4001/assets/index-DXuVRxtp.js:97:307295)\n    at s3 (http://localhost:4001/assets/index-DXuVRxtp.js:97:306551)\n    at http://localhost:4001/assets/index-DXuVRxtp.js:97:311614\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-DXuVRxtp.js:97:311490\n    at Object.ny [as useMemo] (http://localhost:4001/assets/index-DXuVRxtp.js:9:57408)\n    at Z6.He.useMemo (http://localhost:4001/assets/index-DXuVRxtp.js:2:9119)\n    at BQ (http://localhost:4001/assets/index-DXuVRxtp.js:97:310412)\n    at F1 (http://localhost:4001/assets/index-DXuVRxtp.js:9:48437)\n    at cm (http://localhost:4001/assets/index-DXuVRxtp.js:9:71294) {componentStack: \n    at BQ (http://localhost:4001/assets/index-DXu…ocalhost:4001/assets/index-DXuVRxtp.js:97:362636)}\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-02-08T20:07:01.266Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/test-results/onboarding-Onboarding-Tour-23015-cally-and-can-be-progressed-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/test-results/onboarding-Onboarding-Tour-23015-cally-and-can-be-progressed-chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
+                      "location": {
                         "file": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js",
-                        "column": 68,
-                        "line": 25
-                      }
+                        "column": 16,
+                        "line": 21
+                      },
+                      "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================\n\n\u001b[0m \u001b[90m 19 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'Login clicked, waiting for dashboard...'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mscreenshot({ path\u001b[33m:\u001b[39m \u001b[32m'test-results/after-login-click.png'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'**/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m30000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m\n \u001b[90m 24 |\u001b[39m test(\u001b[32m'Tour starts automatically and can be progressed'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js:21:16\u001b[22m"
                     }
                   ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "289937b78f21fd60af7e-39f9be3c882676f29bea",
-              "file": "onboarding.spec.js",
-              "line": 23,
-              "column": 5
-            },
-            {
-              "title": "Restarting tour from settings",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
+                  "stdout": [
                     {
-                      "workerIndex": 1,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 257,
-                      "error": {
-                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4001/login\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/login\", waiting until \"load\"\u001b[22m\n",
-                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4001/login\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/login\", waiting until \"load\"\u001b[22m\n\n    at /var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js:15:20",
-                        "location": {
-                          "file": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js",
-                          "column": 20,
-                          "line": 15
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 13 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 14 |\u001b[39m         \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 15 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 16 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 17 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 18 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mPASSWORD\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js",
-                            "column": 20,
-                            "line": 15
-                          },
-                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4001/login\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/login\", waiting until \"load\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 13 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 14 |\u001b[39m         \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 15 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 16 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 17 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 18 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mPASSWORD\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js:15:20\u001b[22m"
-                        }
-                      ],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-02-08T20:07:23.772Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/test-results/onboarding-Onboarding-Tour-Restarting-tour-from-settings-chromium/test-failed-1.png"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js",
-                        "column": 20,
-                        "line": 15
-                      }
+                      "text": "BROWSER: SW registered: ServiceWorkerRegistration\n"
+                    },
+                    {
+                      "text": "BROWSER: Content is cached for offline use.\n"
+                    },
+                    {
+                      "text": "BROWSER: SW registered: ServiceWorkerRegistration\n"
+                    },
+                    {
+                      "text": "Login clicked, waiting for dashboard...\n"
                     }
                   ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "289937b78f21fd60af7e-54cf1034754e8613d45e",
-              "file": "onboarding.spec.js",
-              "line": 36,
-              "column": 5
-            },
-            {
-              "title": "Restarting tour from account sidebar panel",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-02-08T22:11:21.792Z",
                   "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
+                  "attachments": [
                     {
-                      "workerIndex": 2,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 357,
-                      "error": {
-                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4001/login\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/login\", waiting until \"load\"\u001b[22m\n",
-                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4001/login\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/login\", waiting until \"load\"\u001b[22m\n\n    at /var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js:15:20",
-                        "location": {
-                          "file": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js",
-                          "column": 20,
-                          "line": 15
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 13 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 14 |\u001b[39m         \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 15 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 16 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 17 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 18 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mPASSWORD\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js",
-                            "column": 20,
-                            "line": 15
-                          },
-                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4001/login\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/login\", waiting until \"load\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 13 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 14 |\u001b[39m         \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 15 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 16 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 17 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 18 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mPASSWORD\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js:15:20\u001b[22m"
-                        }
-                      ],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-02-08T20:07:26.333Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/test-results/onboarding-Onboarding-Tour-769a4--from-account-sidebar-panel-chromium/test-failed-1.png"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js",
-                        "column": 20,
-                        "line": 15
-                      }
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/test-results/onboarding-Tour-starts-automatically-and-can-be-progressed-chromium/test-failed-1.png"
                     }
                   ],
-                  "status": "unexpected"
+                  "errorLocation": {
+                    "file": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js",
+                    "column": 16,
+                    "line": 21
+                  }
                 }
               ],
-              "id": "289937b78f21fd60af7e-3694779805ec19af5d84",
-              "file": "onboarding.spec.js",
-              "line": 61,
-              "column": 5
+              "status": "unexpected"
             }
-          ]
+          ],
+          "id": "289937b78f21fd60af7e-ec5d9675367a4e924678",
+          "file": "onboarding.spec.js",
+          "line": 24,
+          "column": 1
+        },
+        {
+          "title": "Restarting tour from settings",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 31205,
+                  "error": {
+                    "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================",
+                    "stack": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================\n    at /var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js:21:16",
+                    "location": {
+                      "file": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js",
+                      "column": 16,
+                      "line": 21
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 19 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'Login clicked, waiting for dashboard...'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mscreenshot({ path\u001b[33m:\u001b[39m \u001b[32m'test-results/after-login-click.png'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'**/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m30000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m\n \u001b[90m 24 |\u001b[39m test(\u001b[32m'Tour starts automatically and can be progressed'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js",
+                        "column": 16,
+                        "line": 21
+                      },
+                      "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================\n\n\u001b[0m \u001b[90m 19 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'Login clicked, waiting for dashboard...'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mscreenshot({ path\u001b[33m:\u001b[39m \u001b[32m'test-results/after-login-click.png'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'**/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m30000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m\n \u001b[90m 24 |\u001b[39m test(\u001b[32m'Tour starts automatically and can be progressed'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js:21:16\u001b[22m"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "BROWSER: SW registered: ServiceWorkerRegistration\n"
+                    },
+                    {
+                      "text": "BROWSER: Content is cached for offline use.\n"
+                    },
+                    {
+                      "text": "BROWSER: SW registered: ServiceWorkerRegistration\n"
+                    },
+                    {
+                      "text": "Login clicked, waiting for dashboard...\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-02-08T22:11:54.890Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/test-results/onboarding-Restarting-tour-from-settings-chromium/test-failed-1.png"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js",
+                    "column": 16,
+                    "line": 21
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "289937b78f21fd60af7e-c76dd0e88bd0996de366",
+          "file": "onboarding.spec.js",
+          "line": 37,
+          "column": 1
+        },
+        {
+          "title": "Restarting tour from account sidebar panel",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 31099,
+                  "error": {
+                    "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================",
+                    "stack": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================\n    at /var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js:21:16",
+                    "location": {
+                      "file": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js",
+                      "column": 16,
+                      "line": 21
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 19 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'Login clicked, waiting for dashboard...'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mscreenshot({ path\u001b[33m:\u001b[39m \u001b[32m'test-results/after-login-click.png'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'**/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m30000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m\n \u001b[90m 24 |\u001b[39m test(\u001b[32m'Tour starts automatically and can be progressed'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js",
+                        "column": 16,
+                        "line": 21
+                      },
+                      "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================\n\n\u001b[0m \u001b[90m 19 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'Login clicked, waiting for dashboard...'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mscreenshot({ path\u001b[33m:\u001b[39m \u001b[32m'test-results/after-login-click.png'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'**/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m30000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m\n \u001b[90m 24 |\u001b[39m test(\u001b[32m'Tour starts automatically and can be progressed'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js:21:16\u001b[22m"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "BROWSER: SW registered: ServiceWorkerRegistration\n"
+                    },
+                    {
+                      "text": "BROWSER: Content is cached for offline use.\n"
+                    },
+                    {
+                      "text": "BROWSER: SW registered: ServiceWorkerRegistration\n"
+                    },
+                    {
+                      "text": "Login clicked, waiting for dashboard...\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-02-08T22:12:28.190Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/test-results/onboarding-Restarting-tour-from-account-sidebar-panel-chromium/test-failed-1.png"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js",
+                    "column": 16,
+                    "line": 21
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "289937b78f21fd60af7e-bb515cab44f4f0fc60d8",
+          "file": "onboarding.spec.js",
+          "line": 62,
+          "column": 1
         }
       ]
     }
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-08T20:06:54.922Z",
-    "duration": 32083.229,
+    "startTime": "2026-02-08T22:11:19.968Z",
+    "duration": 99522.765,
     "expected": 0,
     "skipped": 0,
     "unexpected": 3,

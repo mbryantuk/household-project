@@ -55,62 +55,76 @@ export default function OnboardingTour() {
   const [run, setRun] = useState(false);
 
   useEffect(() => {
-    // Check if user has completed the tour
-    const tourStatus = localStorage.getItem('onboarding_completed');
-    if (!tourStatus && user) {
-      // Small delay to ensure everything is rendered
-      const timer = setTimeout(() => {
-        setRun(true);
-      }, 1500);
-      return () => clearTimeout(timer);
+    try {
+        // Check if user has completed the tour
+        const tourStatus = localStorage.getItem('onboarding_completed');
+        console.log("[Tour] Status:", tourStatus, "User:", !!user);
+        
+        if (!tourStatus && user) {
+          console.log("[Tour] Starting timer...");
+          // Small delay to ensure everything is rendered
+          const timer = setTimeout(() => {
+            console.log("[Tour] Setting run=true");
+            setRun(true);
+          }, 2000);
+          return () => clearTimeout(timer);
+        }
+    } catch (err) {
+        console.error("[Tour] Init Error:", err);
     }
   }, [user]);
 
   const handleJoyrideCallback = (data) => {
-    const { status } = data;
-    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
-      setRun(false);
-      localStorage.setItem('onboarding_completed', 'true');
-      // Proactively save to user profile if we can
-      if (onUpdateProfile) {
-          // We'll use the budget_settings or similar if we don't want a new column
-          // Actually, let's just stick to localStorage for now to be safe with the schema
-      }
+    try {
+        const { status } = data;
+        console.log("[Tour] Callback status:", status);
+        if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+          setRun(false);
+          localStorage.setItem('onboarding_completed', 'true');
+          console.log("[Tour] Completed/Skipped");
+        }
+    } catch (err) {
+        console.error("[Tour] Callback Error:", err);
     }
   };
 
-  return (
-    <Joyride
-      steps={TOUR_STEPS}
-      run={run}
-      continuous={true}
-      showProgress={true}
-      showSkipButton={true}
-      callback={handleJoyrideCallback}
-      styles={{
-        options: {
-          primaryColor: theme.vars.palette.primary.solidBg,
-          zIndex: 10000,
-          backgroundColor: theme.vars.palette.background.surface,
-          textColor: theme.vars.palette.text.primary,
-          arrowColor: theme.vars.palette.background.surface,
-        },
-        tooltipContainer: {
-            textAlign: 'left',
-            borderRadius: '12px',
-            padding: '4px',
-        },
-        buttonNext: {
-            borderRadius: '8px',
-            fontWeight: 'bold',
-        },
-        buttonBack: {
-            marginRight: '10px',
-        },
-        buttonSkip: {
-            color: theme.vars.palette.neutral.plainColor,
-        }
-      }}
-    />
-  );
+  try {
+      return (
+        <Joyride
+          steps={TOUR_STEPS}
+          run={run}
+          continuous={true}
+          showProgress={true}
+          showSkipButton={true}
+          callback={handleJoyrideCallback}
+          styles={{
+            options: {
+              primaryColor: theme.vars.palette.primary.solidBg,
+              zIndex: 10000,
+              backgroundColor: theme.vars.palette.background.surface,
+              textColor: theme.vars.palette.text.primary,
+              arrowColor: theme.vars.palette.background.surface,
+            },
+            tooltipContainer: {
+                textAlign: 'left',
+                borderRadius: '12px',
+                padding: '4px',
+            },
+            buttonNext: {
+                borderRadius: '8px',
+                fontWeight: 'bold',
+            },
+            buttonBack: {
+                marginRight: '10px',
+            },
+            buttonSkip: {
+                color: theme.vars.palette.neutral.plainColor,
+            }
+          }}
+        />
+      );
+  } catch (err) {
+      console.error("[Tour] Render Error:", err);
+      return null;
+  }
 }
