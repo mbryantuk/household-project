@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { Box, Typography, Button, Stack, IconButton, Sheet, Menu, MenuItem, Grid, Divider } from '@mui/joy';
 import Add from '@mui/icons-material/Add';
 import Save from '@mui/icons-material/Save';
@@ -93,7 +93,7 @@ const DEFAULT_LAYOUT = [
 export default function HomeView() {
   const { members, household, user, dates, onUpdateProfile, api } = useHousehold();
   const [isEditing, setIsEditing] = useState(false);
-  const [page, setPage] = useState(1);
+  const [page] = useState(1);
   const [isSaving, setIsSaving] = useState(false);
   const [breakpoint, setBreakpoint] = useState('lg');
   const [addWidgetAnchor, setAddWidgetAnchor] = useState(null);
@@ -140,6 +140,7 @@ export default function HomeView() {
 
   const handleAddWidget = (type) => {
     const config = WIDGET_TYPES[type];
+    // eslint-disable-next-line
     const newId = `${type}-${Date.now()}`;
     const newItem = {
         i: newId, x: (currentItems.length * 4) % 12, y: Infinity, w: config.defaultW, h: config.defaultH, type: type,
@@ -225,6 +226,7 @@ export default function HomeView() {
                   <Box key={item.i} data-grid={{ ...item, static: !isEditing }} sx={{ position: 'relative' }}>
                       {isEditing && (
                           <IconButton 
+                              aria-label="Remove Widget"
                               size="sm" variant="solid" color="danger"
                               onClick={() => handleRemoveWidget(item.i)}
                               sx={{ position: 'absolute', top: -14, right: -14, zIndex: 100, borderRadius: '50%' }}
