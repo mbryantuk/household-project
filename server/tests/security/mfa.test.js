@@ -1,15 +1,7 @@
 const request = require('supertest');
 const { app, server } = require('../../server');
 const otplib = require('otplib');
-const authenticator = otplib.authenticator || new otplib.TOTP();
 const crypto = require('crypto');
-
-// Fix for otplib v13+ in Jest/Node environment
-if (!authenticator.options?.createDigest) {
-    authenticator.options = { 
-        createDigest: (algorithm, data) => crypto.createHmac(algorithm, data).digest() 
-    };
-}
 
 // 🛠️ CRITICAL: Unmock otplib to verify REAL logic + Encryption
 jest.unmock('otplib');
@@ -30,8 +22,6 @@ describe('🔐 MFA (Multi-Factor Authentication) Integrity', () => {
     };
 
     beforeAll(async () => {
-        console.log('otplib export:', require('otplib'));
-        console.log('otplib default:', require('otplib').default);
         // Register
         const res = await request(app).post('/api/auth/register').send(testUser);
         expect(res.status).toBe(201);
@@ -62,11 +52,12 @@ describe('🔐 MFA (Multi-Factor Authentication) Integrity', () => {
     });
 
     test('2️⃣ Verify MFA (Should enable MFA)', async () => {
-        const code = authenticator.generate(mfaSecret);
+        const code = await otplib.generate({ secret: mfaSecret });
         const res = await request(app).post('/api/auth/mfa/verify')
             .set('Authorization', `Bearer ${adminToken}`)
             .send({ code });
 
+        if (res.status !== 200) console.error("Verify MFA Failed:", res.body);
         expect(res.status).toBe(200);
         expect(res.body.message).toContain('enabled');
     });
@@ -93,12 +84,13 @@ describe('🔐 MFA (Multi-Factor Authentication) Integrity', () => {
     });
 
     test('5️⃣ MFA Login with VALID code should succeed', async () => {
-        const code = authenticator.generate(mfaSecret);
+        const code = await otplib.generate({ secret: mfaSecret });
         const res = await request(app).post('/api/auth/mfa/login').send({
             preAuthToken,
             code
         });
 
+        if (res.status !== 200) console.error("MFA Login Failed:", res.body);
         expect(res.status).toBe(200);
         expect(res.body.token).toBeDefined();
         adminToken = res.body.token; // Refresh token
