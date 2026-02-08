@@ -332,7 +332,7 @@ router.delete('/sessions', authenticateToken, async (req, res) => {
  */
 router.get('/profile', authenticateToken, async (req, res) => {
     try {
-        const user = await dbGet(globalDb, `SELECT id, email, username, first_name, last_name, avatar, system_role, dashboard_layout, sticky_note, theme, default_household_id FROM users WHERE id = ?`, [req.user.id]);
+        const user = await dbGet(globalDb, `SELECT id, email, username, first_name, last_name, avatar, system_role, dashboard_layout, sticky_note, theme, default_household_id, budget_settings FROM users WHERE id = ?`, [req.user.id]);
         if (!user) return res.status(404).json({ error: "User not found" });
         res.json(user);
     } catch (err) {

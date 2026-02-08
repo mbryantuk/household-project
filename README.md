@@ -15,6 +15,7 @@ Totem is a high-performance, multi-tenant Household Management SaaS designed wit
     *   **Financial Integration:** Automated expansion of recurring costs onto the calendar.
     *   **Bank Holiday Support:** Automated import of UK Bank Holidays (gov.uk API).
     *   **Smart Scheduling:** Support for "Nearest Working Day" logic (prior working day) for recurring items.
+    *   **Smart Bill Reminders:** ✉️ Daily email notifications for upcoming bills (3-day warning), adjusted for working days.
 *   **Asset-First Financial Modeling:**
     *   **Appliance Register:** Track purchase value, replacement cost, and depreciation for all household items.
     *   **Advanced Data Views:** Desktop-optimized **DataGrid** with inline sorting/filtering and Mobile-optimized **Card Views** for assets.
@@ -42,6 +43,17 @@ Totem is a high-performance, multi-tenant Household Management SaaS designed wit
 ### Prerequisites
 *   Docker & Docker Compose
 *   Node.js 20+
+
+### Environment Configuration (Optional)
+To enable email notifications, create a `.env` file in `server/` with the following:
+```env
+SMTP_HOST=smtp.your-provider.com
+SMTP_PORT=587
+SMTP_USER=your-email@example.com
+SMTP_PASS=your-password
+SMTP_FROM="Totem Alerts" <noreply@totem.com>
+```
+*Note: If omitted, the system runs in Mock Mode and logs emails to the console.*
 
 ### Quick Start (Production)
 ```bash

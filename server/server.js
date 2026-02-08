@@ -1,11 +1,13 @@
 const app = require('./App');
 const { globalDb } = require('./db');
 const { bootstrap } = require('./bootstrap');
+const { initCron } = require('./services/BillReminderService');
 
 const PORT = process.env.PORT || 4001;
 
 bootstrap(globalDb).then(() => {
     if (process.env.NODE_ENV !== 'test') {
+        initCron(); // Start background jobs
         app.listen(PORT, '0.0.0.0', () => {
             console.log(`🚀 Server LIVE on port ${PORT}`);
         });
