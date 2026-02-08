@@ -87,7 +87,7 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "failed",
-                  "duration": 31344,
+                  "duration": 31812,
                   "error": {
                     "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================",
                     "stack": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================\n    at /var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js:21:16",
@@ -134,7 +134,13 @@
                       "text": "BROWSER: [Login] Submitting login for: mbryantuk@gmail.com\n"
                     },
                     {
+                      "text": "BROWSER: [App] Attempting login for: mbryantuk@gmail.com\n"
+                    },
+                    {
                       "text": "Login clicked, waiting for dashboard...\n"
+                    },
+                    {
+                      "text": "BROWSER: [App] Login response received: 200 {mfa_required: true, preAuthToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwcmVBdXRoS…zMTd9.u6SmVYoSKvQ5kNMyKI-0Tt9lAd_ig7Pe7OQkwFYjMrM}\n"
                     },
                     {
                       "text": "BROWSER: [Login] Login success\n"
@@ -142,7 +148,7 @@
                   ],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-02-08T22:44:02.976Z",
+                  "startTime": "2026-02-08T22:50:15.218Z",
                   "annotations": [],
                   "attachments": [
                     {
@@ -182,7 +188,7 @@
                   "workerIndex": 1,
                   "parallelIndex": 0,
                   "status": "failed",
-                  "duration": 31135,
+                  "duration": 31188,
                   "error": {
                     "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================",
                     "stack": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================\n    at /var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js:21:16",
@@ -229,7 +235,13 @@
                       "text": "BROWSER: [Login] Submitting login for: mbryantuk@gmail.com\n"
                     },
                     {
+                      "text": "BROWSER: [App] Attempting login for: mbryantuk@gmail.com\n"
+                    },
+                    {
                       "text": "Login clicked, waiting for dashboard...\n"
+                    },
+                    {
+                      "text": "BROWSER: [App] Login response received: 200 {mfa_required: true, preAuthToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwcmVBdXRoS…zNTB9.4_XV4TnhD4N4-5LAe392IcIp7CWcUtievKuajSqev8A}\n"
                     },
                     {
                       "text": "BROWSER: [Login] Login success\n"
@@ -237,7 +249,7 @@
                   ],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-02-08T22:44:36.360Z",
+                  "startTime": "2026-02-08T22:50:49.196Z",
                   "annotations": [],
                   "attachments": [
                     {
@@ -277,7 +289,7 @@
                   "workerIndex": 2,
                   "parallelIndex": 0,
                   "status": "failed",
-                  "duration": 31148,
+                  "duration": 31188,
                   "error": {
                     "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================",
                     "stack": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================\n    at /var/tmp/vibe-kanban/worktrees/9d3e-interactive-onbo/household-project/web/tests/onboarding.spec.js:21:16",
@@ -324,7 +336,13 @@
                       "text": "BROWSER: [Login] Submitting login for: mbryantuk@gmail.com\n"
                     },
                     {
+                      "text": "BROWSER: [App] Attempting login for: mbryantuk@gmail.com\n"
+                    },
+                    {
                       "text": "Login clicked, waiting for dashboard...\n"
+                    },
+                    {
+                      "text": "BROWSER: [App] Login response received: 200 {mfa_required: true, preAuthToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwcmVBdXRoS…zODN9.gcUTnx7b51cJOCIe39XVqrXc747C5pkhNoQfzSyt2k4}\n"
                     },
                     {
                       "text": "BROWSER: [Login] Login success\n"
@@ -332,7 +350,7 @@
                   ],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-02-08T22:45:09.495Z",
+                  "startTime": "2026-02-08T22:51:22.524Z",
                   "annotations": [],
                   "attachments": [
                     {
@@ -361,8 +379,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-08T22:44:00.799Z",
-    "duration": 100046.47600000001,
+    "startTime": "2026-02-08T22:50:13.366Z",
+    "duration": 100566.882,
     "expected": 0,
     "skipped": 0,
     "unexpected": 3,

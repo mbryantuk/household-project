@@ -193,6 +193,8 @@ router.post('/login', async (req, res) => {
         const isValid = bcrypt.compareSync(password, user.password_hash);
         if (!isValid) return res.status(401).json({ error: "Invalid credentials" });
 
+        console.log(`[Auth] User ${user.email} login attempt. mfa_enabled: ${user.mfa_enabled} (type: ${typeof user.mfa_enabled})`);
+
         // Check MFA
         if (user.mfa_enabled) {
             const preAuthToken = jwt.sign({ preAuthId: user.id, type: 'mfa_pending', rememberMe }, SECRET_KEY, { expiresIn: '5m' });
