@@ -101,6 +101,7 @@ describe('🔐 MFA (Multi-Factor Authentication) Integrity', () => {
             .set('Authorization', `Bearer ${adminToken}`)
             .send({ password: testUser.password });
 
+        if (res.status !== 200) console.error("MFA Disable Failed:", res.body);
         expect(res.status).toBe(200);
         expect(res.body.message).toContain('disabled');
     });

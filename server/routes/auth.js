@@ -5,7 +5,8 @@ const jwt = require('jsonwebtoken');
 const otplib = require('otplib');
 const crypto = require('crypto');
 const qrcode = require('qrcode');
-const UAParser = require('ua-parser-js');
+const uap = require('ua-parser-js');
+const UAParser = uap.UAParser || uap;
 const { globalDb, getHouseholdDb, dbGet, dbRun, dbAll } = require('../db'); 
 const { SECRET_KEY } = require('../config');
 const { authenticateToken } = require('../middleware/auth');
@@ -15,80 +16,85 @@ const { encrypt, decrypt } = require('../utils/encryption');
  * Helper to finalize login and create session
  */
 async function finalizeLogin(user, req, res, rememberMe = false) {
-    let householdId = user.last_household_id || user.default_household_id;
-    let userRole = 'member';
+    try {
+        let householdId = user.last_household_id || user.default_household_id;
+        let userRole = 'member';
 
-    if (!householdId) {
-        const link = await dbGet(globalDb, `SELECT * FROM user_households WHERE user_id = ? AND is_active = 1 LIMIT 1`, [user.id]);
-        if (link) {
-            householdId = link.household_id;
-            userRole = link.role;
-        }
-    } else {
-        const link = await dbGet(globalDb, `SELECT * FROM user_households WHERE user_id = ? AND household_id = ? AND is_active = 1`, [user.id, householdId]);
-        if (link) {
-            userRole = link.role;
+        if (!householdId) {
+            const link = await dbGet(globalDb, `SELECT * FROM user_households WHERE user_id = ? AND is_active = 1 LIMIT 1`, [user.id]);
+            if (link) {
+                householdId = link.household_id;
+                userRole = link.role;
+            }
         } else {
-            householdId = null;
-            const altLink = await dbGet(globalDb, `SELECT * FROM user_households WHERE user_id = ? AND is_active = 1 LIMIT 1`, [user.id]);
-            if (altLink) {
-                householdId = altLink.household_id;
-                userRole = altLink.role;
+            const link = await dbGet(globalDb, `SELECT * FROM user_households WHERE user_id = ? AND household_id = ? AND is_active = 1`, [user.id, householdId]);
+            if (link) {
+                userRole = link.role;
+            } else {
+                householdId = null;
+                const altLink = await dbGet(globalDb, `SELECT * FROM user_households WHERE user_id = ? AND is_active = 1 LIMIT 1`, [user.id]);
+                if (altLink) {
+                    householdId = altLink.household_id;
+                    userRole = altLink.role;
+                }
             }
         }
-    }
 
-    let householdData = null;
-    if (householdId) {
-        householdData = await dbGet(globalDb, `SELECT * FROM households WHERE id = ?`, [householdId]);
-    }
+        let householdData = null;
+        if (householdId) {
+            householdData = await dbGet(globalDb, `SELECT * FROM households WHERE id = ?`, [householdId]);
+        }
 
-    const sessionId = crypto.randomBytes(16).toString('hex');
-    const parser = new UAParser(req.headers['user-agent']);
-    const device = parser.getDevice();
-    const browser = parser.getBrowser();
-    const os = parser.getOS();
-    const deviceInfo = `${browser.name || 'Unknown'} on ${os.name || 'Unknown'} (${device.model || 'Desktop'})`;
+        const sessionId = crypto.randomBytes(16).toString('hex');
+        const parser = new UAParser(req.headers['user-agent']);
+        const device = parser.getDevice() || {};
+        const browser = parser.getBrowser() || {};
+        const os = parser.getOS() || {};
+        const deviceInfo = `${browser.name || 'Unknown'} on ${os.name || 'Unknown'} (${device.model || 'Desktop'})`;
 
-    const expiresAt = new Date(Date.now() + (rememberMe ? 30 : 1) * 24 * 60 * 60 * 1000).toISOString();
-    
-    await dbRun(globalDb, 
-        `INSERT INTO user_sessions (id, user_id, device_info, ip_address, user_agent, expires_at) 
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [sessionId, user.id, deviceInfo, req.ip, req.headers['user-agent'], expiresAt]
-    );
+        const expiresAt = new Date(Date.now() + (rememberMe ? 30 : 1) * 24 * 60 * 60 * 1000).toISOString();
+        
+        await dbRun(globalDb, 
+            `INSERT INTO user_sessions (id, user_id, device_info, ip_address, user_agent, expires_at) 
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [sessionId, user.id, deviceInfo, req.ip, req.headers['user-agent'], expiresAt]
+        );
 
-    const tokenPayload = {
-        id: user.id,
-        sid: sessionId,
-        email: user.email,
-        system_role: user.system_role,
-        householdId: householdId,
-        role: userRole
-    };
-
-    const expiresIn = rememberMe ? '30d' : '24h';
-    const token = jwt.sign(tokenPayload, SECRET_KEY, { expiresIn });
-
-    res.json({
-        token,
-        role: userRole,
-        system_role: user.system_role,
-        context: householdId ? 'household' : 'global',
-        user: {
+        const tokenPayload = {
             id: user.id,
+            sid: sessionId,
             email: user.email,
-            username: user.username,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            avatar: user.avatar,
-            theme: user.theme,
-            dashboard_layout: user.dashboard_layout,
-            sticky_note: user.sticky_note,
-            mfa_enabled: !!user.mfa_enabled
-        },
-        household: householdData
-    });
+            system_role: user.system_role,
+            householdId: householdId,
+            role: userRole
+        };
+
+        const expiresIn = rememberMe ? '30d' : '24h';
+        const token = jwt.sign(tokenPayload, SECRET_KEY, { expiresIn });
+
+        res.json({
+            token,
+            role: userRole,
+            system_role: user.system_role,
+            context: householdId ? 'household' : 'global',
+            user: {
+                id: user.id,
+                email: user.email,
+                username: user.username,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                avatar: user.avatar,
+                theme: user.theme,
+                dashboard_layout: user.dashboard_layout,
+                sticky_note: user.sticky_note,
+                mfa_enabled: !!user.mfa_enabled
+            },
+            household: householdData
+        });
+    } catch (err) {
+        console.error("Finalize Login Error:", err);
+        throw err;
+    }
 }
 
 router.post('/register', async (req, res) => {
@@ -120,6 +126,7 @@ router.post('/register', async (req, res) => {
 
         res.status(201).json({ message: "Registration successful" });
     } catch (err) {
+        console.error("Registration Error:", err);
         res.status(500).json({ error: "Registration failed: " + err.message });
     }
 });
@@ -152,6 +159,7 @@ router.post('/login', async (req, res) => {
         }
         await finalizeLogin(user, req, res, rememberMe);
     } catch (err) {
+        console.error("Login Error:", err);
         res.status(500).json({ error: "Login failed" });
     }
 });
@@ -167,12 +175,18 @@ router.post('/mfa/login', async (req, res) => {
         if (!user || !user.is_active) return res.status(403).json({ error: "User inactive" });
 
         const secret = decrypt(user.mfa_secret);
+        if (!secret) throw new Error("MFA secret missing");
+        
         const verifyResult = await otplib.verify({ token: code, secret });
         if (!verifyResult || !verifyResult.valid) return res.status(401).json({ error: "Invalid 2FA code" });
 
         await finalizeLogin(user, req, res, decoded.rememberMe);
     } catch (err) {
-        res.status(401).json({ error: "Invalid or expired pre-auth token" });
+        console.error("MFA Login Error:", err);
+        if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
+            return res.status(401).json({ error: "Invalid or expired pre-auth token" });
+        }
+        res.status(500).json({ error: "MFA login failed: " + err.message });
     }
 });
 
@@ -188,15 +202,20 @@ router.post('/mfa/setup', authenticateToken, async (req, res) => {
         await dbRun(globalDb, `UPDATE users SET mfa_secret = ? WHERE id = ?`, [encrypt(secret), req.user.id]);
         res.json({ secret, qrCodeUrl });
     } catch (err) {
+        console.error("MFA Setup Error:", err);
         res.status(500).json({ error: "MFA setup failed: " + err.message });
     }
 });
 
 router.post('/mfa/verify', authenticateToken, async (req, res) => {
     const { code } = req.body;
+    if (!code) return res.status(400).json({ error: "Verification code required" });
+    
     try {
         const user = await dbGet(globalDb, `SELECT mfa_secret FROM users WHERE id = ?`, [req.user.id]);
         const secret = decrypt(user.mfa_secret);
+        if (!secret) throw new Error("MFA secret not set");
+
         const verifyResult = await otplib.verify({ token: code, secret });
         if (verifyResult && verifyResult.valid) {
             await dbRun(globalDb, `UPDATE users SET mfa_enabled = 1 WHERE id = ?`, [req.user.id]);
@@ -205,18 +224,23 @@ router.post('/mfa/verify', authenticateToken, async (req, res) => {
             res.status(400).json({ error: "Invalid verification code" });
         }
     } catch (err) {
-        res.status(500).json({ error: "Verification failed" });
+        console.error("MFA Verify Error:", err);
+        res.status(500).json({ error: "Verification failed: " + err.message });
     }
 });
 
 router.post('/mfa/disable', authenticateToken, async (req, res) => {
+    const { password } = req.body;
+    if (!password) return res.status(400).json({ error: "Password required" });
+    
     try {
         const user = await dbGet(globalDb, `SELECT password_hash FROM users WHERE id = ?`, [req.user.id]);
-        if (!bcrypt.compareSync(req.body.password, user.password_hash)) return res.status(401).json({ error: "Invalid password" });
+        if (!bcrypt.compareSync(password, user.password_hash)) return res.status(401).json({ error: "Invalid password" });
         await dbRun(globalDb, `UPDATE users SET mfa_enabled = 0, mfa_secret = NULL WHERE id = ?`, [req.user.id]);
         res.json({ message: "MFA disabled" });
     } catch (err) {
-        res.status(500).json({ error: "Disable failed" });
+        console.error("MFA Disable Error:", err);
+        res.status(500).json({ error: "Disable failed: " + err.message });
     }
 });
 
