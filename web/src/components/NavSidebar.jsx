@@ -6,7 +6,7 @@ import {
 import { 
   Event, Pets, Inventory2, RestaurantMenu, AccountBalance, Close, 
   KeyboardArrowRight, PushPin, PushPinOutlined, HomeWork, Settings as SettingsIcon, 
-  Logout as LogoutIcon, Download as DownloadIcon, Home as HomeIcon, ExpandMore, Add, CheckCircle
+  Logout as LogoutIcon, Download as DownloadIcon, Home as HomeIcon, ExpandMore, Add, CheckCircle, Person as PersonIcon
 } from '@mui/icons-material';
 
 import { useLocation, useNavigate, NavLink, useSearchParams } from 'react-router-dom';
@@ -109,7 +109,6 @@ const GroupHeader = ({ label }) => (
 // --- NEW COMPONENT: Profile Accordion ---
 const FinanceProfileAccordion = ({ householdId, api, isDark, onSelect, currentProfileId }) => {
     const [profiles, setProfiles] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [createOpen, setCreateOpen] = useState(false);
     const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
     const [newProfileName, setNewProfileName] = useState('');
@@ -124,7 +123,7 @@ const FinanceProfileAccordion = ({ householdId, api, isDark, onSelect, currentPr
                 const def = res.data.find(p => p.is_default) || res.data[0];
                 onSelect(def.id);
             }
-        } catch (err) { console.error("Failed to fetch profiles", err); } finally { setLoading(false); }
+        } catch (err) { console.error("Failed to fetch profiles", err); }
     }, [api, householdId, currentProfileId, onSelect]);
 
     useEffect(() => { fetchProfiles(); }, [fetchProfiles]);
@@ -610,141 +609,151 @@ export default function NavSidebar({
 
                       >
 
-                          <Box sx={{ px: 2, py: 1.5 }}>
+                                                    <Box sx={{ px: 2, py: 1.5 }}>
 
-                              <Typography level="title-sm">{user?.first_name} {user?.last_name}</Typography>
+                                                        <Typography level="title-sm">{user?.first_name} {user?.last_name}</Typography>
 
-                              <Typography level="body-xs" color="neutral">{user?.email}</Typography>
+                                                        <Typography level="body-xs" color="neutral">{user?.email}</Typography>
 
-                          </Box>
+                                                    </Box>
 
-                          <Divider />
+                                                    <Divider />
 
-                          <MenuItem onClick={() => { navigate(`/household/${household.id}/settings`); setUserMenuAnchor(null); }}>
+                                                    <MenuItem onClick={() => { navigate(`/household/${household.id}/profile`); setUserMenuAnchor(null); }}>
 
-                              <ListItemDecorator><SettingsIcon /></ListItemDecorator>
+                                                        <ListItemDecorator><PersonIcon /></ListItemDecorator>
 
-                              Settings
+                                                        Profile
 
-                          </MenuItem>
+                                                    </MenuItem>
 
-                          <MenuItem onClick={() => { navigate('/select-household'); setUserMenuAnchor(null); }}>
+                                                    <MenuItem onClick={() => { navigate(`/household/${household.id}/settings`); setUserMenuAnchor(null); }}>
 
-                              <ListItemDecorator><HomeWork /></ListItemDecorator>
+                                                        <ListItemDecorator><SettingsIcon /></ListItemDecorator>
 
-                              Switch Household
+                                                        Settings
 
-                          </MenuItem>
+                                                    </MenuItem>
 
-                          <MenuItem onClick={() => { 
+                                                    <MenuItem onClick={() => { navigate('/select-household'); setUserMenuAnchor(null); }}>
 
-                              setUserMenuAnchor(null);
+                                                        <ListItemDecorator><HomeWork /></ListItemDecorator>
 
-                              confirmAction("Log Out", "Are you sure you want to log out?", onLogout);
+                                                        Switch Household
 
-                          }}>
+                                                    </MenuItem>
 
-                              <ListItemDecorator><LogoutIcon color="danger" /></ListItemDecorator>
+                                                    <MenuItem onClick={() => { 
 
-                              Log Out
+                                                        setUserMenuAnchor(null);
 
-                          </MenuItem>
+                                                        confirmAction("Log Out", "Are you sure you want to log out?", onLogout);
 
-                      </Menu>
+                                                    }}>
 
-                  )}
+                                                        <ListItemDecorator><LogoutIcon color="danger" /></ListItemDecorator>
 
-              </Box>
+                                                        Log Out
 
-          </Sheet>
+                                                    </MenuItem>
 
-  
+                                                </Menu>
 
-          {/* SUB-PANEL */}
+                                            )}
 
-          {showPanel && (
+                                        </Box>
 
-              <Sheet
+                                    </Sheet>
 
-                  sx={{
+                            
 
-                      width: PANEL_WIDTH,
+                                    {/* SUB-PANEL */}
 
-                      position: (isMobile || !isPinned) ? 'absolute' : 'relative',
+                                    {showPanel && (
 
-                      left: (isMobile || !isPinned) ? RAIL_WIDTH : 'auto', 
+                                        <Sheet
 
-                      top: 0, zIndex: 2100, borderRight: '1px solid',
+                                            sx={{
 
-                      borderColor: 'rgba(0,0,0,0.08)',
+                                                width: PANEL_WIDTH,
 
-                      bgcolor: 'rgba(255, 255, 255, 0.8)',
+                                                position: (isMobile || !isPinned) ? 'absolute' : 'relative',
 
-                      backdropFilter: 'blur(12px)',
+                                                left: (isMobile || !isPinned) ? RAIL_WIDTH : 'auto', 
 
-                      height: '100dvh', display: 'flex', flexDirection: 'column',
+                                                top: 0, zIndex: 2100, borderRight: '1px solid',
 
-                      boxShadow: (!isPinned && !isMobile) ? '8px 0 24px rgba(0,0,0,0.15)' : 'none',
+                                                borderColor: 'rgba(0,0,0,0.08)',
 
-                      [theme => theme.getColorSchemeSelector('dark')]: {
+                                                bgcolor: 'rgba(255, 255, 255, 0.8)',
 
-                          bgcolor: 'rgba(19, 19, 24, 0.8)',
+                                                backdropFilter: 'blur(12px)',
 
-                          borderColor: 'rgba(255,255,255,0.1)',
+                                                height: '100dvh', display: 'flex', flexDirection: 'column',
 
-                      }
+                                                boxShadow: (!isPinned && !isMobile) ? '8px 0 24px rgba(0,0,0,0.15)' : 'none',
 
-                  }}
+                                                [theme => theme.getColorSchemeSelector('dark')]: {
 
-              >
+                                                    bgcolor: 'rgba(19, 19, 24, 0.8)',
 
-                  {currentPanelCategory === 'account' ? (
+                                                    borderColor: 'rgba(255,255,255,0.1)',
 
-                      <>
+                                                }
 
-                          <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+                                            }}
 
-                              <Typography level="title-md">Account</Typography>
+                                        >
 
-                          </Box>
+                                            {currentPanelCategory === 'account' ? (
 
-                          <Box sx={{ p: 2 }}>
+                                                <>
 
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                                                    <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
 
-                                  <Avatar size="lg" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark) }}>
+                                                        <Typography level="title-md">Account</Typography>
 
-                                      {user?.avatar || user?.first_name?.[0]}
+                                                    </Box>
 
-                                  </Avatar>
+                                                    <Box sx={{ p: 2 }}>
 
-                                  <Box>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
 
-                                      <Typography level="title-sm">{user?.first_name} {user?.last_name}</Typography>
+                                                            <Avatar size="lg" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark) }}>
 
-                                      <Typography level="body-xs" color="neutral">{user?.email}</Typography>
+                                                                {user?.avatar || user?.first_name?.[0]}
 
-                                  </Box>
+                                                            </Avatar>
 
-                              </Box>
+                                                            <Box>
 
-                          </Box>
+                                                                <Typography level="title-sm">{user?.first_name} {user?.last_name}</Typography>
 
-                          
+                                                                <Typography level="body-xs" color="neutral">{user?.email}</Typography>
 
-                          <List sx={{ mt: 'auto', p: 1 }}>
+                                                            </Box>
 
-                              <Divider sx={{ mb: 1 }} />
+                                                        </Box>
 
-                              <SubItem label="Settings" onClick={() => handleNav(`/household/${household.id}/settings`, 'settings')} emoji="⚙️" isDark={isDark} />
+                                                    </Box>
 
-                              <SubItem label="Switch Household" onClick={() => handleNav('/select-household', 'switch')} emoji="🔄" isDark={isDark} />
+                                                    
 
-                              <SubItem label="Log Out" onClick={() => confirmAction("Log Out", "Are you sure?", onLogout)} emoji="🚪" isDark={isDark} />
+                                                    <List sx={{ mt: 'auto', p: 1 }}>
 
-                          </List>
+                                                        <Divider sx={{ mb: 1 }} />
 
-                      </>
+                                                        <SubItem label="Profile" onClick={() => handleNav(`/household/${household.id}/profile`, 'profile')} emoji="👤" isDark={isDark} />
+
+                                                        <SubItem label="Settings" onClick={() => handleNav(`/household/${household.id}/settings`, 'settings')} emoji="⚙️" isDark={isDark} />
+
+                                                        <SubItem label="Switch Household" onClick={() => handleNav('/select-household', 'switch')} emoji="🔄" isDark={isDark} />
+
+                                                        <SubItem label="Log Out" onClick={() => confirmAction("Log Out", "Are you sure?", onLogout)} emoji="🚪" isDark={isDark} />
+
+                                                    </List>
+
+                                                </>
 
                   ) : (
 

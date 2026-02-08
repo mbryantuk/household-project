@@ -79,7 +79,7 @@
           "column": 6,
           "specs": [
             {
-              "title": "Settings View: Navigation and Tabs",
+              "title": "Financial Profiles: Sidebar Accordion and Switching",
               "ok": false,
               "tags": [],
               "tests": [
@@ -93,32 +93,348 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 10545,
+                      "status": "timedOut",
+                      "duration": 60110,
                       "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Theme Preference')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Theme Preference')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Theme Preference')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Theme Preference')\u001b[22m\n\n    at /var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js:82:58",
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js:7:10",
                         "location": {
                           "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
-                          "column": 58,
-                          "line": 82
+                          "column": 10,
+                          "line": 7
                         },
-                        "snippet": "\u001b[0m \u001b[90m 80 |\u001b[39m         \u001b[90m// 2. Appearance Tab\u001b[39m\n \u001b[90m 81 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'tab'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Appearance'\u001b[39m })\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 82 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Theme Preference'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 83 |\u001b[39m         \n \u001b[90m 84 |\u001b[39m         \u001b[90m// 3. Security Tab\u001b[39m\n \u001b[90m 85 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'tab'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Security'\u001b[39m })\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[90m// Attempt to disable any onboarding tours\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39maddInitScript(() \u001b[33m=>\u001b[39m {\n \u001b[90m 10 |\u001b[39m             window\u001b[33m.\u001b[39mlocalStorage\u001b[33m.\u001b[39msetItem(\u001b[32m'mantel_tour_complete'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'true'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
-                            "column": 58,
-                            "line": 82
+                            "column": 10,
+                            "line": 7
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Theme Preference')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Theme Preference')\u001b[22m\n\n\n\u001b[0m \u001b[90m 80 |\u001b[39m         \u001b[90m// 2. Appearance Tab\u001b[39m\n \u001b[90m 81 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'tab'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Appearance'\u001b[39m })\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 82 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Theme Preference'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 83 |\u001b[39m         \n \u001b[90m 84 |\u001b[39m         \u001b[90m// 3. Security Tab\u001b[39m\n \u001b[90m 85 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'tab'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Security'\u001b[39m })\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js:82:58\u001b[22m"
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[90m// Attempt to disable any onboarding tours\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39maddInitScript(() \u001b[33m=>\u001b[39m {\n \u001b[90m 10 |\u001b[39m             window\u001b[33m.\u001b[39mlocalStorage\u001b[33m.\u001b[39msetItem(\u001b[32m'mantel_tour_complete'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'true'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js:7:10\u001b[22m"
+                        },
+                        {
+                          "location": {
+                            "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                            "column": 20,
+                            "line": 14
+                          },
+                          "message": "Error: page.fill: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 12 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 13 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 14 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 15 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 16 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mPASSWORD\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 17 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Log In\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js:14:20\u001b[22m"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-07T22:19:41.058Z",
+                      "startTime": "2026-02-08T20:23:40.952Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--1945d-bar-Accordion-and-Switching-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--1945d-bar-Accordion-and-Switching-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                        "column": 10,
+                        "line": 7
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-d6449fc28ef2b705aa57",
+              "file": "smoke.spec.js",
+              "line": 21,
+              "column": 5
+            },
+            {
+              "title": "Core Navigation: House Hub, Calendar, Meals",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60102,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js:7:10",
+                        "location": {
+                          "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                          "column": 10,
+                          "line": 7
+                        },
+                        "snippet": "\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[90m// Attempt to disable any onboarding tours\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39maddInitScript(() \u001b[33m=>\u001b[39m {\n \u001b[90m 10 |\u001b[39m             window\u001b[33m.\u001b[39mlocalStorage\u001b[33m.\u001b[39msetItem(\u001b[32m'mantel_tour_complete'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'true'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                            "column": 10,
+                            "line": 7
+                          },
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[90m// Attempt to disable any onboarding tours\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39maddInitScript(() \u001b[33m=>\u001b[39m {\n \u001b[90m 10 |\u001b[39m             window\u001b[33m.\u001b[39mlocalStorage\u001b[33m.\u001b[39msetItem(\u001b[32m'mantel_tour_complete'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'true'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js:7:10\u001b[22m"
+                        },
+                        {
+                          "location": {
+                            "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                            "column": 20,
+                            "line": 14
+                          },
+                          "message": "Error: page.fill: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 12 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 13 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 14 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 15 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 16 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mPASSWORD\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 17 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Log In\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js:14:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-08T20:24:43.041Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--ff4ea-on-House-Hub-Calendar-Meals-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--ff4ea-on-House-Hub-Calendar-Meals-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                        "column": 10,
+                        "line": 7
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-0850ea6cc76a4a27e073",
+              "file": "smoke.spec.js",
+              "line": 40,
+              "column": 5
+            },
+            {
+              "title": "Avatar Menu: Opens Sidebar Panel",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60118,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js:7:10",
+                        "location": {
+                          "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                          "column": 10,
+                          "line": 7
+                        },
+                        "snippet": "\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[90m// Attempt to disable any onboarding tours\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39maddInitScript(() \u001b[33m=>\u001b[39m {\n \u001b[90m 10 |\u001b[39m             window\u001b[33m.\u001b[39mlocalStorage\u001b[33m.\u001b[39msetItem(\u001b[32m'mantel_tour_complete'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'true'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                            "column": 10,
+                            "line": 7
+                          },
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[90m// Attempt to disable any onboarding tours\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39maddInitScript(() \u001b[33m=>\u001b[39m {\n \u001b[90m 10 |\u001b[39m             window\u001b[33m.\u001b[39mlocalStorage\u001b[33m.\u001b[39msetItem(\u001b[32m'mantel_tour_complete'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'true'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js:7:10\u001b[22m"
+                        },
+                        {
+                          "location": {
+                            "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                            "column": 20,
+                            "line": 14
+                          },
+                          "message": "Error: page.fill: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 12 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 13 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 14 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 15 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 16 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mPASSWORD\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 17 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Log In\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js:14:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-08T20:25:45.113Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/test-results/smoke-Core-UI-Smoke-Tests-Avatar-Menu-Opens-Sidebar-Panel-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/test-results/smoke-Core-UI-Smoke-Tests-Avatar-Menu-Opens-Sidebar-Panel-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                        "column": 10,
+                        "line": 7
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-bf93edaa617e6cd82241",
+              "file": "smoke.spec.js",
+              "line": 54,
+              "column": 5
+            },
+            {
+              "title": "Utility Bar: Persistent Widgets",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60115,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js:7:10",
+                        "location": {
+                          "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                          "column": 10,
+                          "line": 7
+                        },
+                        "snippet": "\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[90m// Attempt to disable any onboarding tours\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39maddInitScript(() \u001b[33m=>\u001b[39m {\n \u001b[90m 10 |\u001b[39m             window\u001b[33m.\u001b[39mlocalStorage\u001b[33m.\u001b[39msetItem(\u001b[32m'mantel_tour_complete'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'true'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                            "column": 10,
+                            "line": 7
+                          },
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[90m// Attempt to disable any onboarding tours\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39maddInitScript(() \u001b[33m=>\u001b[39m {\n \u001b[90m 10 |\u001b[39m             window\u001b[33m.\u001b[39mlocalStorage\u001b[33m.\u001b[39msetItem(\u001b[32m'mantel_tour_complete'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'true'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js:7:10\u001b[22m"
+                        },
+                        {
+                          "location": {
+                            "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                            "column": 20,
+                            "line": 14
+                          },
+                          "message": "Error: page.fill: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 12 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 13 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 14 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 15 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 16 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mPASSWORD\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 17 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Log In\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js:14:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-08T20:26:47.200Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/test-results/smoke-Core-UI-Smoke-Tests-Utility-Bar-Persistent-Widgets-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/test-results/smoke-Core-UI-Smoke-Tests-Utility-Bar-Persistent-Widgets-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                        "column": 10,
+                        "line": 7
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-dd34f4997caa60953de2",
+              "file": "smoke.spec.js",
+              "line": 66,
+              "column": 5
+            },
+            {
+              "title": "Settings View: Navigation and Tabs",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60124,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js:7:10",
+                        "location": {
+                          "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                          "column": 10,
+                          "line": 7
+                        },
+                        "snippet": "\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[90m// Attempt to disable any onboarding tours\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39maddInitScript(() \u001b[33m=>\u001b[39m {\n \u001b[90m 10 |\u001b[39m             window\u001b[33m.\u001b[39mlocalStorage\u001b[33m.\u001b[39msetItem(\u001b[32m'mantel_tour_complete'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'true'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                            "column": 10,
+                            "line": 7
+                          },
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[90m// Attempt to disable any onboarding tours\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39maddInitScript(() \u001b[33m=>\u001b[39m {\n \u001b[90m 10 |\u001b[39m             window\u001b[33m.\u001b[39mlocalStorage\u001b[33m.\u001b[39msetItem(\u001b[32m'mantel_tour_complete'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'true'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js:7:10\u001b[22m"
+                        },
+                        {
+                          "location": {
+                            "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                            "column": 20,
+                            "line": 14
+                          },
+                          "message": "Error: page.fill: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 12 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 13 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 14 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 15 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 16 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mPASSWORD\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 17 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Log In\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js:14:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-08T20:27:49.400Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -134,8 +450,8 @@
                       ],
                       "errorLocation": {
                         "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
-                        "column": 58,
-                        "line": 82
+                        "column": 10,
+                        "line": 7
                       }
                     }
                   ],
@@ -144,7 +460,84 @@
               ],
               "id": "2c14808d47b386fba9eb-b18657e72be887e247f0",
               "file": "smoke.spec.js",
-              "line": 68,
+              "line": 77,
+              "column": 5
+            },
+            {
+              "title": "Profile Page: Direct Access and Theme Selector",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60112,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js:7:10",
+                        "location": {
+                          "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                          "column": 10,
+                          "line": 7
+                        },
+                        "snippet": "\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[90m// Attempt to disable any onboarding tours\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39maddInitScript(() \u001b[33m=>\u001b[39m {\n \u001b[90m 10 |\u001b[39m             window\u001b[33m.\u001b[39mlocalStorage\u001b[33m.\u001b[39msetItem(\u001b[32m'mantel_tour_complete'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'true'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                            "column": 10,
+                            "line": 7
+                          },
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[90m// Attempt to disable any onboarding tours\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39maddInitScript(() \u001b[33m=>\u001b[39m {\n \u001b[90m 10 |\u001b[39m             window\u001b[33m.\u001b[39mlocalStorage\u001b[33m.\u001b[39msetItem(\u001b[32m'mantel_tour_complete'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'true'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js:7:10\u001b[22m"
+                        },
+                        {
+                          "location": {
+                            "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                            "column": 20,
+                            "line": 14
+                          },
+                          "message": "Error: page.fill: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 12 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 13 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 14 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 15 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 16 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mPASSWORD\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 17 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Log In\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js:14:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-08T20:28:51.555Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--cc9a5-t-Access-and-Theme-Selector-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--cc9a5-t-Access-and-Theme-Selector-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/var/tmp/vibe-kanban/worktrees/ad9f-update-user-prof/household-project/web/tests/smoke.spec.js",
+                        "column": 10,
+                        "line": 7
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-df4151a96028549b9d42",
+              "file": "smoke.spec.js",
+              "line": 99,
               "column": 5
             }
           ]
@@ -154,11 +547,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-07T22:19:35.054Z",
-    "duration": 21211.901,
+    "startTime": "2026-02-08T20:23:36.799Z",
+    "duration": 375098.08700000006,
     "expected": 0,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 6,
     "flaky": 0
   }
 }
