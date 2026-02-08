@@ -1,14 +1,56 @@
 import { useState, useMemo } from 'react';
-import { Box, Typography, Sheet, Stack, Grid, Tooltip, FormControl, FormLabel, Switch, Input, Button, Divider } from '@mui/joy';
+import { Box, Typography, Sheet, Stack, Grid, Tooltip, FormControl, FormLabel, Switch, Input, Button, Divider, Alert } from '@mui/joy';
 import Palette from '@mui/icons-material/Palette';
 import LightMode from '@mui/icons-material/LightMode';
 import DarkMode from '@mui/icons-material/DarkMode';
+import SettingsSystemDaydream from '@mui/icons-material/SettingsSystemDaydream';
+import CheckCircle from '@mui/icons-material/CheckCircle';
 
 import { useHousehold } from '../../contexts/HouseholdContext';
 import { THEMES } from '../../theme';
 
 export default function ThemeSettings() {
   const { user, themeId, onThemeChange, onUpdateProfile, showNotification } = useHousehold();
+
+  // Auto-Sync State
+  const [autoSync, setAutoSync] = useState(() => localStorage.getItem('themeAutoSync') === 'true');
+  
+  // Preferred Themes
+  const [preferredLight, setPreferredLight] = useState(() => localStorage.getItem('preferredLightTheme') || 'totem');
+  const [preferredDark, setPreferredDark] = useState(() => localStorage.getItem('preferredDarkTheme') || 'midnight');
+
+  const handleAutoSyncChange = (e) => {
+    const isEnabled = e.target.checked;
+    setAutoSync(isEnabled);
+    localStorage.setItem('themeAutoSync', isEnabled);
+    window.dispatchEvent(new Event('theme-auto-sync-changed'));
+    showNotification(isEnabled ? "Theme will now match system settings." : "Manual theme selection enabled.", "success");
+  };
+
+  const handleThemeSelect = (spec) => {
+    if (autoSync) {
+        const isDarkTheme = spec.mode === 'dark';
+        if (isDarkTheme) {
+            setPreferredDark(spec.id);
+            localStorage.setItem('preferredDarkTheme', spec.id);
+            showNotification(`Set as Preferred Dark Theme`, "success");
+        } else {
+            setPreferredLight(spec.id);
+            localStorage.setItem('preferredLightTheme', spec.id);
+            showNotification(`Set as Preferred Light Theme`, "success");
+        }
+
+        // Apply immediately if it matches current system state
+        const systemIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if ((isDarkTheme && systemIsDark) || (!isDarkTheme && !systemIsDark)) {
+            onThemeChange(spec.id);
+        }
+        
+        window.dispatchEvent(new Event('theme-auto-sync-changed'));
+    } else {
+        onThemeChange(spec.id);
+    }
+  };
 
   // Custom Theme State
   const [customThemeConfig, setCustomThemeConfig] = useState(() => {
@@ -35,7 +77,6 @@ export default function ThemeSettings() {
   const groupedThemes = useMemo(() => {
     const groups = { light: [], dark: [], signature: [] };
     Object.entries(THEMES).forEach(([id, spec]) => {
-      // Don't include custom in the grid if we want to show it separately
       if (id === 'custom') return;
       
       if (spec.isPremium) {
@@ -47,58 +88,71 @@ export default function ThemeSettings() {
     return groups;
   }, []);
 
-  const ThemeGrid = ({ themes }) => (
+  const renderThemeGrid = (themes) => (
     <Grid container spacing={2}>
-        {themes.map((spec) => (
-            <Grid key={spec.id} xs={6} sm={4} md={3}>
-                <Sheet
-                    variant={themeId === spec.id ? 'solid' : 'outlined'}
-                    color={themeId === spec.id ? 'primary' : 'neutral'}
-                    onClick={() => onThemeChange(spec.id)}
-                    sx={{
-                        p: 1.5, borderRadius: 'md', cursor: 'pointer', height: '100%',
-                        transition: 'all 0.2s',
-                        '&:hover': { transform: 'translateY(-2px)', boxShadow: 'sm' },
-                        position: 'relative',
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
-                        ...(spec.isPremium && {
-                            borderWidth: themeId === spec.id ? '2px' : '1px',
-                            borderColor: themeId === spec.id ? 'primary.solidBg' : 'divider',
-                        })
-                    }}
-                >
-                    <Box sx={{ 
-                        display: 'flex', width: '100%', height: 32, borderRadius: 'sm', 
-                        overflow: 'hidden', mb: 1, border: '1px solid rgba(0,0,0,0.1)',
-                        bgcolor: 'background.surface'
-                    }}>
-                        <Tooltip title="Primary" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.primary }} /></Tooltip>
-                        <Tooltip title="Background" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.bg }} /></Tooltip>
-                        <Tooltip title="Surface" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.surface }} /></Tooltip>
-                        <Tooltip title="Selection" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.selection }} /></Tooltip>
-                        <Tooltip title="Text" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.text }} /></Tooltip>
-                    </Box>
-                    <Typography level="title-sm" noWrap sx={{ 
-                        fontSize: '13px', 
-                        color: themeId === spec.id ? 'common.white' : 'text.primary', 
-                        width: '100%',
-                        ...(spec.isPremium && { fontWeight: 700 })
-                    }}>{spec.name}</Typography>
-                    {spec.isPremium && (
-                        <Typography level="body-xs" sx={{ 
-                            fontSize: '10px', 
-                            textTransform: 'uppercase', 
-                            letterSpacing: '0.05em',
-                            opacity: 0.7,
-                            color: themeId === spec.id ? 'common.white' : 'text.secondary'
-                        }}>Signature</Typography>
-                    )}
-                    {themeId === spec.id && (
-                        <Palette sx={{ position: 'absolute', top: 6, right: 6, fontSize: '0.7rem', color: 'common.white' }} />
-                    )}
-                </Sheet>
-            </Grid>
-        ))}
+        {themes.map((spec) => {
+            const isPreferred = autoSync && (spec.id === preferredLight || spec.id === preferredDark);
+            const isActive = themeId === spec.id;
+            
+            return (
+                <Grid key={spec.id} xs={6} sm={4} md={3}>
+                    <Sheet
+                        variant={isActive ? 'solid' : (isPreferred ? 'soft' : 'outlined')}
+                        color={isActive ? 'primary' : (isPreferred ? 'success' : 'neutral')}
+                        onClick={() => handleThemeSelect(spec)}
+                        sx={{
+                            p: 1.5, borderRadius: 'md', cursor: 'pointer', height: '100%',
+                            transition: 'all 0.2s',
+                            '&:hover': { transform: 'translateY(-2px)', boxShadow: 'sm' },
+                            position: 'relative',
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+                            ...(spec.isPremium && {
+                                borderWidth: isActive ? '2px' : '1px',
+                                borderColor: isActive ? 'primary.solidBg' : 'divider',
+                            }),
+                            ...(isPreferred && !isActive && {
+                                borderColor: 'success.500',
+                                borderWidth: '2px',
+                                borderStyle: 'dashed'
+                            })
+                        }}
+                    >
+                        <Box sx={{ 
+                            display: 'flex', width: '100%', height: 32, borderRadius: 'sm', 
+                            overflow: 'hidden', mb: 1, border: '1px solid rgba(0,0,0,0.1)',
+                            bgcolor: 'background.surface'
+                        }}>
+                            <Tooltip title="Primary" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.primary }} /></Tooltip>
+                            <Tooltip title="Background" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.bg }} /></Tooltip>
+                            <Tooltip title="Surface" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.surface }} /></Tooltip>
+                            <Tooltip title="Selection" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.selection }} /></Tooltip>
+                            <Tooltip title="Text" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.text }} /></Tooltip>
+                        </Box>
+                        <Typography level="title-sm" noWrap sx={{ 
+                            fontSize: '13px', 
+                            color: isActive ? 'common.white' : 'text.primary', 
+                            width: '100%',
+                            ...(spec.isPremium && { fontWeight: 700 })
+                        }}>{spec.name}</Typography>
+                        {spec.isPremium && (
+                            <Typography level="body-xs" sx={{ 
+                                fontSize: '10px', 
+                                textTransform: 'uppercase', 
+                                letterSpacing: '0.05em',
+                                opacity: 0.7,
+                                color: isActive ? 'common.white' : 'text.secondary'
+                            }}>Signature</Typography>
+                        )}
+                        {isActive && (
+                            <Palette sx={{ position: 'absolute', top: 6, right: 6, fontSize: '0.7rem', color: 'common.white' }} />
+                        )}
+                        {isPreferred && !isActive && (
+                            <CheckCircle sx={{ position: 'absolute', top: 6, right: 6, fontSize: '0.9rem', color: 'success.500' }} />
+                        )}
+                    </Sheet>
+                </Grid>
+            );
+        })}
     </Grid>
   );
 
@@ -109,11 +163,33 @@ export default function ThemeSettings() {
         <Typography level="body-sm">Personalize your platform experience with architectural precision.</Typography>
       </Box>
 
+      {/* Auto-Sync Control */}
+      <Sheet variant="soft" color={autoSync ? "primary" : "neutral"} sx={{ p: 2, borderRadius: 'md', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <SettingsSystemDaydream fontSize="large" color={autoSync ? "primary" : "neutral"} />
+            <Box>
+                <Typography level="title-md">Sync with System</Typography>
+                <Typography level="body-sm">Automatically switch themes based on your device settings.</Typography>
+            </Box>
+        </Box>
+        <Switch 
+            checked={autoSync} 
+            onChange={handleAutoSyncChange}
+            sx={{ ml: 2 }}
+        />
+      </Sheet>
+      
+      {autoSync && (
+        <Alert color="primary" variant="soft" size="sm">
+            Select a theme below to set it as your preferred <b>{window.matchMedia('(prefers-color-scheme: dark)').matches ? 'Dark' : 'Light'}</b> mode.
+        </Alert>
+      )}
+
       {/* Signature Section */}
       <Box>
         <Typography level="title-lg" startDecorator={<Palette color="warning" />} sx={{ mb: 2 }}>Signature Designs</Typography>
         <Typography level="body-sm" sx={{ mb: 2 }}>High-fidelity UI styles with editorial typography and refined depth.</Typography>
-        <ThemeGrid themes={groupedThemes.signature} />
+        {renderThemeGrid(groupedThemes.signature)}
       </Box>
 
       <Divider />
@@ -126,7 +202,7 @@ export default function ThemeSettings() {
                   <Sheet
                       variant={themeId === 'custom' ? 'solid' : 'outlined'}
                       color={themeId === 'custom' ? 'primary' : 'neutral'}
-                      onClick={() => onThemeChange('custom')}
+                      onClick={() => handleThemeSelect({ id: 'custom', mode: customThemeConfig.mode })} // Treat custom as its current mode
                       sx={{
                           p: 1.5, borderRadius: 'md', cursor: 'pointer',
                           transition: 'all 0.2s',
@@ -182,12 +258,12 @@ export default function ThemeSettings() {
       <Stack spacing={4}>
         <Box>
           <Typography level="title-lg" startDecorator={<LightMode color="warning" />} sx={{ mb: 2 }}>Light Themes</Typography>
-          <ThemeGrid themes={groupedThemes.light} />
+          {renderThemeGrid(groupedThemes.light)}
         </Box>
         <Divider />
         <Box>
           <Typography level="title-lg" startDecorator={<DarkMode color="primary" />} sx={{ mb: 2 }}>Dark Themes</Typography>
-          <ThemeGrid themes={groupedThemes.dark} />
+          {renderThemeGrid(groupedThemes.dark)}
         </Box>
       </Stack>
     </Stack>

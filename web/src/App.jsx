@@ -358,6 +358,46 @@ function AppInner({
     } catch (err) { showNotification("Failed to update profile.", "danger"); throw err; }
   }, [authAxios, user, setUser, setThemeId, showNotification]);
 
+  // --- Auto-Sync Theme Logic ---
+  useEffect(() => {
+    const performSync = () => {
+        const autoSync = localStorage.getItem('themeAutoSync') === 'true';
+        if (!autoSync) return;
+
+        const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const targetTheme = isSystemDark 
+            ? (localStorage.getItem('preferredDarkTheme') || 'midnight')
+            : (localStorage.getItem('preferredLightTheme') || 'totem');
+
+        if (targetTheme && targetTheme !== themeId) {
+            handleUpdateProfile({ theme: targetTheme });
+        }
+    };
+
+    window.addEventListener('theme-auto-sync-changed', performSync);
+    
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    if (mediaQuery.addEventListener) {
+        mediaQuery.addEventListener('change', performSync);
+    } else {
+        mediaQuery.addListener(performSync);
+    }
+
+    // Initial check
+    const timer = setTimeout(performSync, 500);
+
+    return () => {
+        clearTimeout(timer);
+        window.removeEventListener('theme-auto-sync-changed', performSync);
+        if (mediaQuery.removeEventListener) {
+            mediaQuery.removeEventListener('change', performSync);
+        } else {
+            mediaQuery.removeListener(performSync);
+        }
+    };
+  }, [themeId, handleUpdateProfile]);
+  // -----------------------------
+
   return (
     <>
       <GlobalStyles styles={{

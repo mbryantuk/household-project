@@ -1,0 +1,156 @@
+{
+  "config": {
+    "configFile": "/var/tmp/vibe-kanban/worktrees/e588-dark-light-mode/household-project/web/playwright.config.js",
+    "rootDir": "/var/tmp/vibe-kanban/worktrees/e588-dark-light-mode/household-project/web/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/var/tmp/vibe-kanban/worktrees/e588-dark-light-mode/household-project/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/var/tmp/vibe-kanban/worktrees/e588-dark-light-mode/household-project/web/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "smoke.spec.js",
+      "file": "smoke.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Core UI Smoke Tests",
+          "file": "smoke.spec.js",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Financial Profiles: Sidebar Accordion and Switching",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60219,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/var/tmp/vibe-kanban/worktrees/e588-dark-light-mode/household-project/web/tests/smoke.spec.js",
+                            "column": 20,
+                            "line": 18
+                          },
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/finance\"]')\u001b[22m\n\u001b[2m    - waiting for\" http://localhost:4001/household/60/dashboard\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://localhost:4001/household/60/dashboard\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 16 |\u001b[39m     test(\u001b[32m'Financial Profiles: Sidebar Accordion and Switching'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 17 |\u001b[39m         \u001b[90m// Navigate to Finance\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 18 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/finance\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 19 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'**/finance**'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 20 |\u001b[39m\n \u001b[90m 21 |\u001b[39m         \u001b[90m// Check if Sidebar Accordion exists\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/e588-dark-light-mode/household-project/web/tests/smoke.spec.js:18:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-08T18:06:56.590Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/var/tmp/vibe-kanban/worktrees/e588-dark-light-mode/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--1945d-bar-Accordion-and-Switching-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/var/tmp/vibe-kanban/worktrees/e588-dark-light-mode/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--1945d-bar-Accordion-and-Switching-chromium/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-d6449fc28ef2b705aa57",
+              "file": "smoke.spec.js",
+              "line": 16,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-02-08T18:06:54.684Z",
+    "duration": 62321.816000000006,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

@@ -109,7 +109,7 @@ export const THEMES = {
 
   // --- SIGNATURE THEMES ---
   platinum: { name: 'Mantel Platinum', mode: 'light', primary: '#18181b', bg: '#fbfcfd', surface: '#FFF', selection: '#f4f4f5', text: '#09090b', isPremium: true },
-  obsidian: { name: 'Mantel Obsidian', mode: 'dark', primary: '#f4f4f5', bg: '#09090b', surface: '#18181b', selection: '#27272a', text: '#fafafa', isPremium: true },
+  obsidian_premium: { name: 'Mantel Obsidian', mode: 'dark', primary: '#f4f4f5', bg: '#09090b', surface: '#18181b', selection: '#27272a', text: '#fafafa', isPremium: true },
 
   // --- SPECIAL THEMES ---
   custom: { name: 'Custom Theme', mode: 'light', primary: '#374151', bg: '#F9FAFB', surface: '#FFF', selection: '#E5E7EB', text: '#111827', isCustom: true }
