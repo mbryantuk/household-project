@@ -384,147 +384,71 @@ const TENANT_SCHEMA = [
 ];
 
 function initializeGlobalSchema(db) {
-    db.serialize(() => {
-        GLOBAL_SCHEMA.forEach(sql => {
-            db.run(sql, (err) => {
-                if (err && !err.message.includes('already exists')) {
-                    console.error("Global Schema Init Error:", err.message);
+    return new Promise((resolve, reject) => {
+        db.serialize(() => {
+            GLOBAL_SCHEMA.forEach(sql => {
+                db.run(sql, (err) => {
+                    if (err && !err.message.includes('already exists')) {
+                        console.error("Global Schema Init Error:", err.message);
+                    }
+                });
+            });
+
+            // 🛠️ MIGRATIONS: Ensure all columns exist in users table
+            db.all("PRAGMA table_info(users)", (err, rows) => {
+                if (err) {
+                    console.error("Failed to check users schema", err);
+                    return resolve(); // Don't block startup but log error
+                }
+                
+                const migrations = [
+                    { name: 'budget_settings', sql: "ALTER TABLE users ADD COLUMN budget_settings TEXT" },
+                    { name: 'last_household_id', sql: "ALTER TABLE users ADD COLUMN last_household_id INTEGER" },
+                    { name: 'mfa_enabled', sql: "ALTER TABLE users ADD COLUMN mfa_enabled INTEGER DEFAULT 0" },
+                    { name: 'mfa_secret', sql: "ALTER TABLE users ADD COLUMN mfa_secret TEXT" },
+                    { name: 'current_challenge', sql: "ALTER TABLE users ADD COLUMN current_challenge TEXT" }
+                ];
+
+                migrations.forEach(m => {
+                    if (!rows.some(r => r.name === m.name)) {
+                        console.log(`🛠️ Migrating users table: Adding ${m.name}...`);
+                        db.run(m.sql, (err) => {
+                            if (err) console.error(`Migration failed for ${m.name}:`, err.message);
+                            else console.log(`✅ ${m.name} column added.`);
+                        });
+                    }
+                });
+            });
+
+            // 🛠️ MIGRATION: Add nightly_version_filter to households
+            db.all("PRAGMA table_info(households)", (err, rows) => {
+                if (err) return;
+                const hasNightlyVersionFilter = rows.some(r => r.name === 'nightly_version_filter');
+                if (!hasNightlyVersionFilter) {
+                    console.log("🛠️ Migrating households table: Adding nightly_version_filter...");
+                    db.run("ALTER TABLE households ADD COLUMN nightly_version_filter TEXT");
+                }
+                const hasMetadataSchema = rows.some(r => r.name === 'metadata_schema');
+                if (!hasMetadataSchema) {
+                    console.log("🛠️ Migrating households table: Adding metadata_schema...");
+                    db.run("ALTER TABLE households ADD COLUMN metadata_schema TEXT");
                 }
             });
-        });
 
-        // 🛠️ MIGRATION: Add budget_settings to users
-        db.all("PRAGMA table_info(users)", (err, rows) => {
-            if (err) return console.error("Failed to check users schema", err);
-            const hasBudgetSettings = rows.some(r => r.name === 'budget_settings');
-            if (!hasBudgetSettings) {
-                console.log("🛠️ Migrating users table: Adding budget_settings...");
-                db.run("ALTER TABLE users ADD COLUMN budget_settings TEXT", (err) => {
-                    if (err) console.error("Migration failed:", err.message);
-                    else console.log("✅ budget_settings column added.");
-                });
-            }
-        });
+            // 🛠️ MIGRATION: Add version to test_results
+            db.all("PRAGMA table_info(test_results)", (err, rows) => {
+                if (err) return;
+                const hasVersion = rows.some(r => r.name === 'version');
+                if (!hasVersion) {
+                    console.log("🛠️ Migrating test_results table: Adding version...");
+                    db.run("ALTER TABLE test_results ADD COLUMN version TEXT");
+                }
+            });
 
-        // 🛠️ MIGRATION: Add last_household_id to users
-        db.all("PRAGMA table_info(users)", (err, rows) => {
-            if (err) return console.error("Failed to check users schema", err);
-            const hasLastHh = rows.some(r => r.name === 'last_household_id');
-            if (!hasLastHh) {
-                console.log("🛠️ Migrating users table: Adding last_household_id...");
-                db.run("ALTER TABLE users ADD COLUMN last_household_id INTEGER", (err) => {
-                    if (err) console.error("Migration failed:", err.message);
-                    else console.log("✅ last_household_id column added.");
-                });
-            }
-        });
-
-        // 🛠️ MIGRATION: Add nightly_version_filter to households
-        db.all("PRAGMA table_info(households)", (err, rows) => {
-            if (err) return console.error("Failed to check households schema", err);
-            const hasNightlyVersionFilter = rows.some(r => r.name === 'nightly_version_filter');
-            if (!hasNightlyVersionFilter) {
-                console.log("🛠️ Migrating households table: Adding nightly_version_filter...");
-                db.run("ALTER TABLE households ADD COLUMN nightly_version_filter TEXT", (err) => {
-                    if (err) console.error("Migration failed:", err.message);
-                    else console.log("✅ nightly_version_filter column added.");
-                });
-            }
-        });
-
-        // 🛠️ MIGRATION: Add metadata_schema to households
-        db.all("PRAGMA table_info(households)", (err, rows) => {
-            if (err) return console.error("Failed to check households schema", err);
-            const hasMetadataSchema = rows.some(r => r.name === 'metadata_schema');
-            if (!hasMetadataSchema) {
-                console.log("🛠️ Migrating households table: Adding metadata_schema...");
-                db.run("ALTER TABLE households ADD COLUMN metadata_schema TEXT", (err) => {
-                    if (err) console.error("Migration failed:", err.message);
-                    else console.log("✅ metadata_schema column added.");
-                });
-            }
-        });
-
-        // 🛠️ MIGRATION: Add version to test_results
-        db.all("PRAGMA table_info(test_results)", (err, rows) => {
-            if (err) return console.error("Failed to check test_results schema", err);
-            const hasVersion = rows.some(r => r.name === 'version');
-            if (!hasVersion) {
-                console.log("🛠️ Migrating test_results table: Adding version...");
-                db.run("ALTER TABLE test_results ADD COLUMN version TEXT", (err) => {
-                    if (err) console.error("Migration failed:", err.message);
-                    else console.log("✅ version column added to test_results.");
-                });
-            }
-        });
-
-        // 🛠️ MIGRATION: Add MFA columns to users
-        db.all("PRAGMA table_info(users)", (err, rows) => {
-            if (err) return;
-            if (!rows.some(r => r.name === 'mfa_enabled')) {
-                console.log("🛠️ Migrating users: Adding mfa_enabled...");
-                db.run("ALTER TABLE users ADD COLUMN mfa_enabled INTEGER DEFAULT 0");
-            }
-            if (!rows.some(r => r.name === 'mfa_secret')) {
-                console.log("🛠️ Migrating users: Adding mfa_secret...");
-                db.run("ALTER TABLE users ADD COLUMN mfa_secret TEXT");
-            }
-            if (!rows.some(r => r.name === 'current_challenge')) {
-                console.log("🛠️ Migrating users: Adding current_challenge...");
-                db.run("ALTER TABLE users ADD COLUMN current_challenge TEXT");
-            }
-        });
-
-        // 🛠️ MIGRATION: Ensure user_sessions exists
-        db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='user_sessions'", (err, row) => {
-            if (!row) {
-                console.log("🛠️ Migrating global database: Adding user_sessions table...");
-                db.run(`CREATE TABLE user_sessions (
-                    id TEXT PRIMARY KEY,
-                    user_id INTEGER,
-                    device_info TEXT,
-                    ip_address TEXT,
-                    user_agent TEXT,
-                    last_active DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    expires_at DATETIME,
-                    is_revoked INTEGER DEFAULT 0,
-                    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-                )`);
-            }
-        });
-
-        // 🛠️ MIGRATION: Ensure user_passkeys exists
-        db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='user_passkeys'", (err, row) => {
-            if (!row) {
-                console.log("🛠️ Migrating global database: Adding user_passkeys table...");
-                db.run(`CREATE TABLE user_passkeys (
-                    id TEXT PRIMARY KEY,
-                    user_id INTEGER,
-                    credential_id TEXT UNIQUE,
-                    public_key TEXT,
-                    webauthn_user_id TEXT,
-                    counter INTEGER,
-                    transports TEXT,
-                    device_type TEXT,
-                    backed_up INTEGER,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    last_used_at DATETIME,
-                    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-                )`);
-            }
-        });
-
-        // 🛠️ MIGRATION: Ensure version_history exists
-        db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='version_history'", (err, row) => {
-            if (!row) {
-                console.log("🛠️ Migrating global database: Adding version_history table...");
-                db.run(`CREATE TABLE version_history (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    version TEXT,
-                    comment TEXT,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                )`);
-            }
+            // Final sync call to ensure we resolve after everything is queued
+            db.run("SELECT 1", () => {
+                resolve();
+            });
         });
     });
 }

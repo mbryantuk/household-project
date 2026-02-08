@@ -475,6 +475,26 @@ const getOrigin = (req) => {
     return req.get('origin') || `http://${req.get('host')}`;
 };
 
+// 0. List Passkeys
+router.get('/passkey/list', authenticateToken, async (req, res) => {
+    try {
+        const passkeys = await dbAll(globalDb, 'SELECT id, created_at, last_used_at, device_type, backed_up FROM user_passkeys WHERE user_id = ? ORDER BY created_at DESC', [req.user.id]);
+        res.json(passkeys);
+    } catch (err) {
+        res.status(500).json({ error: "Failed to list passkeys" });
+    }
+});
+
+// 0.1 Delete Passkey
+router.delete('/passkey/:id', authenticateToken, async (req, res) => {
+    try {
+        await dbRun(globalDb, 'DELETE FROM user_passkeys WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
+        res.json({ message: "Passkey removed" });
+    } catch (err) {
+        res.status(500).json({ error: "Failed to remove passkey" });
+    }
+});
+
 // 1. Register - Start
 router.post('/passkey/register/start', authenticateToken, async (req, res) => {
     try {

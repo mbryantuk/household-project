@@ -231,7 +231,7 @@ export default function Login({ onLogin, onMfaLogin, onPasskeyLogin }) {
                 </Typography>
             </Box>
 
-            <FormControl required sx={{ mb: 4 }}>
+            <FormControl required sx={{ mb: 2 }}>
               <FormLabel>Password</FormLabel>
               <Input 
                 autoFocus
@@ -253,10 +253,33 @@ export default function Login({ onLogin, onMfaLogin, onPasskeyLogin }) {
             <Button 
               fullWidth type="submit" variant="solid" size="lg" 
               loading={loading}
-              sx={{ borderRadius: 'md' }}
+              sx={{ borderRadius: 'md', mb: 2 }}
             >
               Log In
             </Button>
+
+            {userProfile?.has_passkeys && (
+              <>
+                <Box sx={{ display: 'flex', alignItems: 'center', my: 2, width: '100%' }}>
+                  <Box sx={{ flex: 1, height: '1px', bgcolor: 'divider' }} />
+                  <Typography level="body-xs" sx={{ px: 2, color: 'neutral.500', fontWeight: 'lg' }}>OR</Typography>
+                  <Box sx={{ flex: 1, height: '1px', bgcolor: 'divider' }} />
+                </Box>
+
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  color="primary"
+                  size="lg"
+                  onClick={handlePasskeyLogin}
+                  loading={loading}
+                  startDecorator={<Fingerprint />}
+                  sx={{ borderRadius: 'md' }}
+                >
+                  Sign in with Passkey
+                </Button>
+              </>
+            )}
           </form>
         ) : (
           <form onSubmit={handleMfaSubmit}>

@@ -13,9 +13,10 @@ const globalDb = new sqlite3.Database(path.join(DATA_DIR, 'global.db'), (err) =>
         globalDb.run("PRAGMA synchronous=NORMAL");
         globalDb.run("PRAGMA busy_timeout=10000");
         console.log("Connected to Global SQLite database (Optimized).");
-        initializeGlobalSchema(globalDb);
     }
 });
+
+const initialize = () => initializeGlobalSchema(globalDb);
 
 const getHouseholdDb = (householdId) => {
     const dbPath = path.join(DATA_DIR, `household_${householdId}.db`);
@@ -48,4 +49,4 @@ const dbRun = (db, query, params = []) => new Promise((resolve, reject) => {
     db.run(query, params, function(err) { err ? reject(err) : resolve({ id: this.lastID, changes: this.changes }); });
 });
 
-module.exports = { globalDb, getHouseholdDb, ensureHouseholdSchema, dbGet, dbAll, dbRun };
+module.exports = { globalDb, initialize, getHouseholdDb, ensureHouseholdSchema, dbGet, dbAll, dbRun };

@@ -1,8 +1,8 @@
-function bootstrap(db) {
-    return new Promise((resolve, reject) => {
-        // No longer creating default superuser
-        resolve();
-    });
+const { initialize } = require('./db');
+
+async function bootstrap(db) {
+    await initialize();
+    // No longer creating default superuser
 }
 
 module.exports = { bootstrap };
