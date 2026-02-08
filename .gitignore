@@ -5,5 +5,9 @@
 server/data/*
 !server/data/.gitkeep
 
+# Test Artifacts
+**/test-results/
+**/playwright-report/
+
 # Operations Secrets
 scripts/ops/.env.nightly
