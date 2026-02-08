@@ -42,6 +42,7 @@ const FinanceView = lazy(() => import('./features/FinanceView'));
 
 const API_BASE = window.location.origin;
 const API_URL = `${API_BASE}/api`;
+console.log("[App] API_URL:", API_URL);
 
 const IDLE_WARNING_MS = 60 * 60 * 1000; // 1 Hour
 const IDLE_LOGOUT_MS = 120 * 60 * 1000;  // 2 Hours

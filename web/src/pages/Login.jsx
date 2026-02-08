@@ -29,13 +29,16 @@ export default function Login({ onLogin, onMfaLogin }) {
     if (e) e.preventDefault();
     if (!email) return;
     
+    console.log("[Login] Looking up email:", email);
     setError('');
     setLoading(true);
     try {
         const res = await axios.post(`${window.location.origin}/api/auth/lookup`, { email });
+        console.log("[Login] Lookup success:", res.data);
         setUserProfile(res.data);
         setStep(2);
     } catch (err) {
+        console.warn("[Login] Lookup failed:", err.message);
         // If not found, just let them try to login normally (might be a new user or different error)
         if (err.response?.status === 404) {
             setStep(2); // Still go to password, let login handle the actual auth error
@@ -56,11 +59,13 @@ export default function Login({ onLogin, onMfaLogin }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("[Login] Submitting login for:", email);
     setError('');
     setLoading(true);
 
     try {
       const res = await onLogin(email, password, rememberMe);
+      console.log("[Login] Login success");
       
       if (res?.mfa_required) {
           setPreAuthToken(res.preAuthToken);
