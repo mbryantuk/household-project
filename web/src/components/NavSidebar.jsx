@@ -830,9 +830,11 @@ export default function NavSidebar({
 
                           <List sx={{ mt: 'auto', p: 1 }}>
 
-                              <Divider sx={{ mb: 1 }} />
+                                                            <Divider sx={{ mb: 1 }} />
 
-                              <SubItem label="Settings" onClick={() => handleNav(`/household/${household.id}/settings`, 'settings')} emoji="⚙️" isDark={isDark} />
+                                                            <SubItem label="Restart Tour" onClick={() => { localStorage.removeItem('onboarding_completed'); window.location.reload(); }} emoji="✨" isDark={isDark} />
+
+                                                            <SubItem label="Settings" onClick={() => handleNav(`/household/${household.id}/settings`, 'settings')} emoji="⚙️" isDark={isDark} />
 
                               <SubItem label="Switch Household" onClick={() => handleNav('/select-household', 'switch')} emoji="🔄" isDark={isDark} />
 

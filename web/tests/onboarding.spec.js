@@ -57,4 +57,24 @@ test.describe('Onboarding Tour', () => {
         await page.waitForURL('**/dashboard');
         await expect(page.getByText('Welcome to Mantel!').first()).toBeVisible({ timeout: 15000 });
     });
+
+    test('Restarting tour from account sidebar panel', async ({ page }) => {
+        // Complete the tour first
+        await page.addInitScript(() => {
+            window.localStorage.setItem('onboarding_completed', 'true');
+        });
+        await page.reload();
+        
+        await expect(page.getByText('Welcome to Mantel!')).not.toBeVisible();
+
+        // Open account panel
+        await page.locator('button:has(.MuiAvatar-root)').last().click();
+        
+        // Click Restart Tour in the panel
+        await page.click('text=Restart Tour');
+
+        // Should reload and start tour
+        await page.waitForURL('**/dashboard');
+        await expect(page.getByText('Welcome to Mantel!').first()).toBeVisible({ timeout: 15000 });
+    });
 });
