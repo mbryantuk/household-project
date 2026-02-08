@@ -502,7 +502,7 @@ export default function App() {
       }
       
       if (userData.theme) setThemeId(userData.theme);
-      if (context === 'household') {
+      if (context === 'household' && hhData) {
         setHousehold(hhData);
         localStorage.setItem('household', JSON.stringify(hhData));
         console.log("[App] Redirecting to household dashboard:", hhData.id);
@@ -522,7 +522,7 @@ export default function App() {
       localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(fullUser));
       
       if (userData.theme) setThemeId(userData.theme);
-      if (context === 'household') {
+      if (context === 'household' && hhData) {
         setHousehold(hhData);
         localStorage.setItem('household', JSON.stringify(hhData));
         console.log("[App] Redirecting to household dashboard:", hhData.id);
