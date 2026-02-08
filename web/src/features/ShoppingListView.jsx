@@ -36,8 +36,8 @@ export default function ShoppingListView() {
     try {
       const res = await api.get(`/households/${householdId}/shopping`);
       setItems(res.data || []);
-    } catch (err) {
-      console.error("Failed to fetch shopping items", err);
+    } catch {
+      console.error("Failed to fetch shopping items");
     } finally {
       setLoading(false);
     }

@@ -110,7 +110,6 @@ const GroupHeader = ({ label }) => (
 // --- NEW COMPONENT: Profile Accordion ---
 const FinanceProfileAccordion = ({ householdId, api, isDark, onSelect, currentProfileId }) => {
     const [profiles, setProfiles] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [createOpen, setCreateOpen] = useState(false);
     const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
     const [newProfileName, setNewProfileName] = useState('');
@@ -125,7 +124,7 @@ const FinanceProfileAccordion = ({ householdId, api, isDark, onSelect, currentPr
                 const def = res.data.find(p => p.is_default) || res.data[0];
                 onSelect(def.id);
             }
-        } catch (err) { console.error("Failed to fetch profiles", err); } finally { setLoading(false); }
+        } catch (err) { console.error("Failed to fetch profiles", err); }
     }, [api, householdId, currentProfileId, onSelect]);
 
     useEffect(() => { fetchProfiles(); }, [fetchProfiles]);
@@ -257,8 +256,11 @@ export default function NavSidebar({
   }, []);
 
   useEffect(() => {
-      setActiveCategory(getCategoryFromPath(location.pathname));
-  }, [location.pathname, getCategoryFromPath]);
+      const cat = getCategoryFromPath(location.pathname);
+      if (cat !== activeCategory) {
+          setActiveCategory(cat);
+      }
+  }, [location.pathname, getCategoryFromPath, activeCategory]);
 
   const handleNav = (to, category, hasSubItems) => {
       if (to) {
@@ -500,7 +502,7 @@ export default function NavSidebar({
                   <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
 
                       <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems to={`/household/${household.id}/finance`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
-                      
+
                       <RailIcon icon={<ShoppingCart />} label="Shop" category="shopping" to={`/household/${household.id}/shopping`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
 
                       {enabledModules.includes('meals') && (
