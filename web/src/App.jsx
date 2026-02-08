@@ -491,6 +491,7 @@ export default function App() {
       }
 
       const { token, role, context, household: hhData, user: userData, system_role } = res.data;
+      console.log("[App] Login Data received. Context:", context, "User:", userData?.email, "HH:", hhData?.id);
       const fullUser = { ...userData, role, system_role };
       setToken(token); setUser(fullUser);
       localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(fullUser));
@@ -517,6 +518,7 @@ export default function App() {
   const mfaLogin = useCallback(async (preAuthToken, code) => {
       const res = await axios.post(`${API_URL}/auth/mfa/login`, { preAuthToken, code });
       const { token, role, context, household: hhData, user: userData, system_role } = res.data;
+      console.log("[App] Login Data received. Context:", context, "User:", userData?.email, "HH:", hhData?.id);
       const fullUser = { ...userData, role, system_role };
       setToken(token); setUser(fullUser);
       localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(fullUser));
