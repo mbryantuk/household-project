@@ -3,6 +3,12 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { authenticator } = require('otplib');
+const {
+    generateRegistrationOptions,
+    verifyRegistrationResponse,
+    generateAuthenticationOptions,
+    verifyAuthenticationResponse,
+} = require('@simplewebauthn/server');
 const qrcode = require('qrcode');
 const UAParser = require('ua-parser-js');
 const crypto = require('crypto');
@@ -167,9 +173,17 @@ router.post('/lookup', async (req, res) => {
     if (!identifier) return res.status(400).json({ error: "Identifier required" });
 
     try {
-        const user = await dbGet(globalDb, `SELECT first_name, avatar FROM users WHERE email = ? OR username = ? COLLATE NOCASE`, [identifier, identifier]);
+        const user = await dbGet(globalDb, `SELECT id, first_name, avatar FROM users WHERE email = ? OR username = ? COLLATE NOCASE`, [identifier, identifier]);
         if (!user) return res.status(404).json({ error: "Not found" });
-        res.json(user);
+        
+        // Check for passkeys
+        const passkeyCount = await dbGet(globalDb, `SELECT count(*) as count FROM user_passkeys WHERE user_id = ?`, [user.id]);
+        
+        res.json({
+            first_name: user.first_name,
+            avatar: user.avatar,
+            has_passkeys: passkeyCount.count > 0
+        });
     } catch (err) {
         res.status(500).json({ error: "Lookup failed" });
     }
@@ -442,6 +456,177 @@ router.post('/token', authenticateToken, async (req, res) => {
 
     } catch (err) {
         res.status(500).json({ error: "Token refresh failed" });
+    }
+});
+
+/**
+ * WEBAUTHN / PASSKEYS
+ */
+
+// TODO: Move to config
+const RP_NAME = 'Mantel Household';
+// In dev, we use localhost. In prod, this should be the domain.
+const getRpID = (req) => {
+    const host = req.get('host');
+    if (host.includes(':')) return host.split(':')[0];
+    return host;
+};
+const getOrigin = (req) => {
+    return req.get('origin') || `http://${req.get('host')}`;
+};
+
+// 1. Register - Start
+router.post('/passkey/register/start', authenticateToken, async (req, res) => {
+    try {
+        const user = await dbGet(globalDb, 'SELECT * FROM users WHERE id = ?', [req.user.id]);
+        const userPasskeys = await dbAll(globalDb, 'SELECT credential_id FROM user_passkeys WHERE user_id = ?', [req.user.id]);
+
+        const options = await generateRegistrationOptions({
+            rpName: RP_NAME,
+            rpID: getRpID(req),
+            userID: user.id.toString(),
+            userName: user.email,
+            attestationType: 'none',
+            excludeCredentials: userPasskeys.map(key => ({
+                id: key.credential_id,
+                transports: ['internal', 'hybrid', 'usb', 'nfc', 'ble'],
+            })),
+            authenticatorSelection: {
+                residentKey: 'preferred',
+                userVerification: 'preferred',
+                authenticatorAttachment: 'platform',
+            },
+        });
+
+        await dbRun(globalDb, 'UPDATE users SET current_challenge = ? WHERE id = ?', [options.challenge, req.user.id]);
+        res.json(options);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to generate registration options" });
+    }
+});
+
+// 2. Register - Finish
+router.post('/passkey/register/finish', authenticateToken, async (req, res) => {
+    const { attestationResponse } = req.body;
+    try {
+        const user = await dbGet(globalDb, 'SELECT * FROM users WHERE id = ?', [req.user.id]);
+        
+        const verification = await verifyRegistrationResponse({
+            response: attestationResponse,
+            expectedChallenge: user.current_challenge,
+            expectedOrigin: getOrigin(req),
+            expectedRPID: getRpID(req),
+        });
+
+        if (verification.verified && verification.registrationInfo) {
+            const { credentialPublicKey, credentialID, counter } = verification.registrationInfo;
+
+            // SimpleWebAuthn returns Unit8Arrays/Buffers. We store as Base64 for SQLite.
+            // credentialID is what we need to match later.
+            const credIdBase64 = Buffer.from(credentialID).toString('base64');
+            const pubKeyBase64 = Buffer.from(credentialPublicKey).toString('base64');
+
+            await dbRun(globalDb, 
+                `INSERT INTO user_passkeys (id, user_id, credential_id, public_key, counter, transports, device_type, backed_up, created_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+                [
+                    crypto.randomUUID(),
+                    req.user.id,
+                    credIdBase64,
+                    pubKeyBase64,
+                    counter,
+                    JSON.stringify(attestationResponse.response.transports || []),
+                    'platform', 
+                    0 
+                ]
+            );
+
+            await dbRun(globalDb, 'UPDATE users SET current_challenge = NULL WHERE id = ?', [req.user.id]);
+            res.json({ verified: true });
+        } else {
+            res.status(400).json({ verified: false, error: "Verification failed" });
+        }
+    } catch (err) {
+        console.error("Passkey Verify Error:", err);
+        res.status(500).json({ error: "Registration failed: " + err.message });
+    }
+});
+
+// 3. Login - Start
+router.post('/passkey/login/start', async (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email required" });
+
+    try {
+        const user = await dbGet(globalDb, 'SELECT * FROM users WHERE email = ?', [email]);
+        if (!user) return res.status(404).json({ error: "User not found" });
+
+        const userPasskeys = await dbAll(globalDb, 'SELECT credential_id FROM user_passkeys WHERE user_id = ?', [user.id]);
+        
+        // If no passkeys, we can't do passkey login.
+        if (userPasskeys.length === 0) {
+            return res.status(400).json({ error: "No passkeys set up for this account." });
+        }
+
+        const options = await generateAuthenticationOptions({
+            rpID: getRpID(req),
+            allowCredentials: userPasskeys.map(key => ({
+                id: Buffer.from(key.credential_id, 'base64'), // Decode from DB Base64 to Buffer
+                type: 'public-key',
+                transports: ['internal', 'hybrid', 'usb', 'nfc', 'ble'],
+            })),
+            userVerification: 'preferred',
+        });
+
+        await dbRun(globalDb, 'UPDATE users SET current_challenge = ? WHERE id = ?', [options.challenge, user.id]);
+        res.json(options);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to start login" });
+    }
+});
+
+// 4. Login - Finish
+router.post('/passkey/login/finish', async (req, res) => {
+    const { email, assertionResponse } = req.body;
+    try {
+        const user = await dbGet(globalDb, 'SELECT * FROM users WHERE email = ?', [email]);
+        if (!user) return res.status(404).json({ error: "User not found" });
+
+        // assertionResponse.id is Base64URL encoded from the browser.
+        // We stored it as Base64.
+        const credIdBuffer = Buffer.from(assertionResponse.id, 'base64url');
+        const credIdBase64 = credIdBuffer.toString('base64');
+
+        const dbPasskey = await dbGet(globalDb, 'SELECT * FROM user_passkeys WHERE user_id = ? AND credential_id = ?', [user.id, credIdBase64]);
+
+        if (!dbPasskey) return res.status(400).json({ error: "Passkey not found" });
+
+        const verification = await verifyAuthenticationResponse({
+            response: assertionResponse,
+            expectedChallenge: user.current_challenge,
+            expectedOrigin: getOrigin(req),
+            expectedRPID: getRpID(req),
+            authenticator: {
+                credentialPublicKey: Buffer.from(dbPasskey.public_key, 'base64'),
+                credentialID: credIdBuffer,
+                counter: dbPasskey.counter,
+            },
+        });
+
+        if (verification.verified) {
+             const { newCounter } = verification.authenticationInfo;
+             await dbRun(globalDb, 'UPDATE user_passkeys SET counter = ?, last_used_at = CURRENT_TIMESTAMP WHERE id = ?', [newCounter, dbPasskey.id]);
+             await dbRun(globalDb, 'UPDATE users SET current_challenge = NULL WHERE id = ?', [user.id]);
+
+             await finalizeLogin(user, req, res, true);
+        } else {
+            res.status(400).json({ error: "Verification failed" });
+        }
+    } catch (err) {
+        console.error("Passkey Login Error:", err);
+        res.status(500).json({ error: "Login failed" });
     }
 });
 

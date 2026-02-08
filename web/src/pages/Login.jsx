@@ -3,12 +3,13 @@ import {
   Box, Sheet, Typography, Input, Button, Alert, Link, Checkbox, FormControl, FormLabel, Avatar, IconButton, Stack
 } from '@mui/joy';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-import { ArrowBack, Visibility, VisibilityOff, Email, Lock } from '@mui/icons-material';
+import { ArrowBack, Visibility, VisibilityOff, Email, Lock, Fingerprint, Security } from '@mui/icons-material';
 import axios from 'axios';
+import { startAuthentication } from '@simplewebauthn/browser';
 import MantelIcon from '../components/MantelIcon';
 import { getEmojiColor } from '../theme';
 
-export default function Login({ onLogin, onMfaLogin }) {
+export default function Login({ onLogin, onMfaLogin, onPasskeyLogin }) {
   const location = useLocation();
   const [step, setStep] = useState(1); // 1: Email, 2: Password, 3: MFA
   const [email, setEmail] = useState(localStorage.getItem('rememberedEmail') || '');
@@ -107,6 +108,24 @@ export default function Login({ onLogin, onMfaLogin }) {
       setMfaCode('');
       setUserProfile(null);
       setError('');
+  };
+
+  const handlePasskeyLogin = async () => {
+    setError('');
+    setLoading(true);
+    try {
+        const startRes = await axios.post(`${window.location.origin}/api/auth/passkey/login/start`, { email });
+        const asseResp = await startAuthentication(startRes.data);
+        await onPasskeyLogin(email, asseResp);
+    } catch (err) {
+        console.error("Passkey Login Failed:", err);
+        if (err.name === 'NotAllowedError') {
+             setError("Passkey request cancelled.");
+        } else {
+             setError("Passkey login failed. Please try again.");
+        }
+        setLoading(false);
+    }
   };
 
   return (

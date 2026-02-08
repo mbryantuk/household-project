@@ -66,7 +66,7 @@ const queryClient = new QueryClient({
 
 function AppInner({ 
     themeId, setThemeId, user, setUser, token, setToken, household, setHousehold, 
-    logout, login, mfaLogin, spec, isDark 
+    logout, login, mfaLogin, passkeyLogin, spec, isDark 
 }) {
   const { setMode } = useColorScheme();
   
@@ -375,7 +375,7 @@ function AppInner({
 
       <Suspense fallback={<PageLoader />}>
         <Routes>
-            <Route path="/login" element={!token ? <Login onLogin={login} onMfaLogin={mfaLogin} /> : <Navigate to="/" />} />
+            <Route path="/login" element={!token ? <Login onLogin={login} onMfaLogin={mfaLogin} onPasskeyLogin={passkeyLogin} /> : <Navigate to="/" />} />
             <Route path="/register" element={!token ? <Register /> : <Navigate to="/" />} />
             <Route path="/calculator" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
             <Route path="/fin-calculator-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FinancialCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
@@ -482,14 +482,8 @@ export default function App() {
   const { spec, isDark } = useMemo(() => getThemeSpec(themeId, customConfig), [themeId, customConfig]);
   const theme = useMemo(() => getMantelTheme(themeId, customConfig), [themeId, customConfig]);
   
-  const login = useCallback(async (email, password, rememberMe) => {
-      const res = await axios.post(`${API_URL}/auth/login`, { email, password, rememberMe });
-      
-      if (res.data.mfa_required) {
-          return { mfa_required: true, preAuthToken: res.data.preAuthToken };
-      }
-
-      const { token, role, context, household: hhData, user: userData, system_role } = res.data;
+  const handleAuthSuccess = useCallback((data, rememberMe) => {
+      const { token, role, context, household: hhData, user: userData, system_role } = data;
       const fullUser = { ...userData, role, system_role };
       setToken(token); setUser(fullUser);
       localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(fullUser));
@@ -511,23 +505,30 @@ export default function App() {
       }
   }, []);
 
+  const login = useCallback(async (email, password, rememberMe) => {
+      const res = await axios.post(`${API_URL}/auth/login`, { email, password, rememberMe });
+      
+      if (res.data.mfa_required) {
+          return { mfa_required: true, preAuthToken: res.data.preAuthToken };
+      }
+
+      handleAuthSuccess(res.data, rememberMe);
+  }, [handleAuthSuccess]);
+
   const mfaLogin = useCallback(async (preAuthToken, code) => {
       const res = await axios.post(`${API_URL}/auth/mfa/login`, { preAuthToken, code });
-      const { token, role, context, household: hhData, user: userData, system_role } = res.data;
-      const fullUser = { ...userData, role, system_role };
-      setToken(token); setUser(fullUser);
-      localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(fullUser));
-      
-      if (userData.theme) setThemeId(userData.theme);
-      if (context === 'household') {
-        setHousehold(hhData);
-        localStorage.setItem('household', JSON.stringify(hhData));
-        window.location.href = `/household/${hhData.id}/dashboard`;
-      } else {
-        setHousehold(null); localStorage.removeItem('household');
-        window.location.href = '/select-household';
-      }
-  }, []);
+      handleAuthSuccess(res.data, false); // MFA login implies session persistence preference was already handled or we default false? 
+      // Actually, MFA payload doesn't usually carry rememberMe unless we passed it in preAuthToken.
+      // In auth.js: finalizeLogin uses decoded.rememberMe. So res.data has the correct token expiry.
+      // But for client side persistence... finalizeLogin returns user data. 
+      // Ideally we should trust the token or passed flag. 
+      // For now, let's assume standard behavior.
+  }, [handleAuthSuccess]);
+
+  const passkeyLogin = useCallback(async (email, assertionResponse) => {
+      const res = await axios.post(`${API_URL}/auth/passkey/login/finish`, { email, assertionResponse });
+      handleAuthSuccess(res.data, true); // Passkeys usually imply "trusted device", so rememberMe=true is reasonable default
+  }, [handleAuthSuccess]);
 
   const logout = useCallback(() => {
     localStorage.removeItem('token');
@@ -548,7 +549,7 @@ export default function App() {
                 user={user} setUser={setUser} 
                 token={token} setToken={setToken} 
                 household={household} setHousehold={setHousehold}
-                logout={logout} login={login} mfaLogin={mfaLogin}
+                logout={logout} login={login} mfaLogin={mfaLogin} passkeyLogin={passkeyLogin}
                 spec={spec} isDark={isDark}
             />
         </CssVarsProvider>

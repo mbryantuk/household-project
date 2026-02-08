@@ -18,6 +18,7 @@ const GLOBAL_SCHEMA = [
         is_active INTEGER DEFAULT 1,
         mfa_enabled INTEGER DEFAULT 0,
         mfa_secret TEXT,
+        current_challenge TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
     `CREATE TABLE IF NOT EXISTS user_sessions (
@@ -29,6 +30,20 @@ const GLOBAL_SCHEMA = [
         last_active DATETIME DEFAULT CURRENT_TIMESTAMP,
         expires_at DATETIME,
         is_revoked INTEGER DEFAULT 0,
+        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+    )`,
+    `CREATE TABLE IF NOT EXISTS user_passkeys (
+        id TEXT PRIMARY KEY,
+        user_id INTEGER,
+        credential_id TEXT UNIQUE,
+        public_key TEXT,
+        webauthn_user_id TEXT,
+        counter INTEGER,
+        transports TEXT,
+        device_type TEXT,
+        backed_up INTEGER,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        last_used_at DATETIME,
         FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
     )`,
     `CREATE TABLE IF NOT EXISTS test_results (
@@ -454,6 +469,10 @@ function initializeGlobalSchema(db) {
                 console.log("🛠️ Migrating users: Adding mfa_secret...");
                 db.run("ALTER TABLE users ADD COLUMN mfa_secret TEXT");
             }
+            if (!rows.some(r => r.name === 'current_challenge')) {
+                console.log("🛠️ Migrating users: Adding current_challenge...");
+                db.run("ALTER TABLE users ADD COLUMN current_challenge TEXT");
+            }
         });
 
         // 🛠️ MIGRATION: Ensure user_sessions exists
@@ -469,6 +488,27 @@ function initializeGlobalSchema(db) {
                     last_active DATETIME DEFAULT CURRENT_TIMESTAMP,
                     expires_at DATETIME,
                     is_revoked INTEGER DEFAULT 0,
+                    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+                )`);
+            }
+        });
+
+        // 🛠️ MIGRATION: Ensure user_passkeys exists
+        db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='user_passkeys'", (err, row) => {
+            if (!row) {
+                console.log("🛠️ Migrating global database: Adding user_passkeys table...");
+                db.run(`CREATE TABLE user_passkeys (
+                    id TEXT PRIMARY KEY,
+                    user_id INTEGER,
+                    credential_id TEXT UNIQUE,
+                    public_key TEXT,
+                    webauthn_user_id TEXT,
+                    counter INTEGER,
+                    transports TEXT,
+                    device_type TEXT,
+                    backed_up INTEGER,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    last_used_at DATETIME,
                     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
                 )`);
             }
