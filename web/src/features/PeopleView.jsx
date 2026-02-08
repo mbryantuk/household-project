@@ -59,9 +59,9 @@ export default function PeopleView() {
   useEffect(() => {
     if (selectedPerson) {
       const data = {
-        first_name: selectedPerson.first_name || selectedPerson.name?.split(' ')[0] || '',
+        first_name: selectedPerson.first_name || (selectedPerson.name || '').split(' ')[0] || '',
         middle_name: selectedPerson.middle_name || '',
-        last_name: selectedPerson.last_name || selectedPerson.name?.split(' ').slice(1).join(' ') || '',
+        last_name: selectedPerson.last_name || (selectedPerson.name || '').split(' ').slice(1).join(' ') || '',
         type: selectedPerson.type || 'adult',
         alias: selectedPerson.alias || '',
         dob: selectedPerson.dob || '',

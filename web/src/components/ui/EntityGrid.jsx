@@ -47,7 +47,7 @@ export default function EntityGrid({ sections, renderItem, onSelect }) {
             }}
           >
             {/* Render Items */}
-            {section.items.map((item) => (
+            {section.items.filter(item => item !== null && item !== undefined).map((item) => (
               <Box key={item.id || item.tempId} sx={{ minWidth: { xs: 140, sm: 160 }, width: { xs: 140, sm: 160 }, scrollSnapAlign: 'start' }}>
                 <Card 
                   variant="outlined" 

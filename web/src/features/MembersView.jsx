@@ -121,7 +121,7 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
       
       {/* LIST */}
       <Grid container spacing={2}>
-        {members.map((m) => (
+        {members.filter(m => m !== null).map((m) => (
           <Grid xs={12} sm={6} md={4} key={m.id}>
             <Card 
                 variant="outlined" 

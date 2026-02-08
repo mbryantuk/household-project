@@ -504,9 +504,11 @@ export default function App() {
       if (context === 'household') {
         setHousehold(hhData);
         localStorage.setItem('household', JSON.stringify(hhData));
+        console.log("[App] Redirecting to household dashboard:", hhData.id);
         window.location.href = `/household/${hhData.id}/dashboard`;
       } else {
         setHousehold(null); localStorage.removeItem('household');
+        console.log("[App] Redirecting to selector");
         window.location.href = '/select-household';
       }
   }, []);
@@ -522,9 +524,11 @@ export default function App() {
       if (context === 'household') {
         setHousehold(hhData);
         localStorage.setItem('household', JSON.stringify(hhData));
+        console.log("[App] Redirecting to household dashboard:", hhData.id);
         window.location.href = `/household/${hhData.id}/dashboard`;
       } else {
         setHousehold(null); localStorage.removeItem('household');
+        console.log("[App] Redirecting to selector");
         window.location.href = '/select-household';
       }
   }, []);

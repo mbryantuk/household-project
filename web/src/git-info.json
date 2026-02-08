@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix globalDb ReferenceError in App.js",
-  "date": "Sun  8 Feb 22:13:19 GMT 2026"
+  "commitMessage": "Add more logging and null checks",
+  "date": "Sun  8 Feb 22:21:35 GMT 2026"
 }

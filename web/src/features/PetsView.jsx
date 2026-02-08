@@ -164,7 +164,7 @@ export default function PetsView() {
                         {species}s
                     </Typography>
                     <Grid container spacing={2}>
-                        {pets.map(p => (
+                        {pets.filter(p => p !== null).map(p => (
                             <Grid xs={12} sm={6} md={4} key={p.id}>
                                 <Sheet 
                                     variant="outlined" 
