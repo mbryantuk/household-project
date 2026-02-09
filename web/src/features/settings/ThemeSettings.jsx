@@ -7,6 +7,61 @@ import DarkMode from '@mui/icons-material/DarkMode';
 import { useHousehold } from '../../contexts/HouseholdContext';
 import { THEMES } from '../../theme';
 
+const ThemeGrid = ({ themes, themeId, onThemeChange }) => (
+  <Grid container spacing={2}>
+      {themes.map((spec) => (
+          <Grid key={spec.id} xs={6} sm={4} md={3}>
+              <Sheet
+                  variant={themeId === spec.id ? 'solid' : 'outlined'}
+                  color={themeId === spec.id ? 'primary' : 'neutral'}
+                  onClick={() => onThemeChange(spec.id)}
+                  sx={{
+                      p: 1.5, borderRadius: 'md', cursor: 'pointer', height: '100%',
+                      transition: 'all 0.2s',
+                      '&:hover': { transform: 'translateY(-2px)', boxShadow: 'sm' },
+                      position: 'relative',
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+                      ...(spec.isPremium && {
+                          borderWidth: themeId === spec.id ? '2px' : '1px',
+                          borderColor: themeId === spec.id ? 'primary.solidBg' : 'divider',
+                      })
+                  }}
+              >
+                  <Box sx={{ 
+                      display: 'flex', width: '100%', height: 32, borderRadius: 'sm', 
+                      overflow: 'hidden', mb: 1, border: '1px solid rgba(0,0,0,0.1)',
+                      bgcolor: 'background.surface'
+                  }}>
+                      <Tooltip title="Primary" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.primary }} /></Tooltip>
+                      <Tooltip title="Background" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.bg }} /></Tooltip>
+                      <Tooltip title="Surface" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.surface }} /></Tooltip>
+                      <Tooltip title="Selection" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.selection }} /></Tooltip>
+                      <Tooltip title="Text" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.text }} /></Tooltip>
+                  </Box>
+                  <Typography level="title-sm" noWrap sx={{ 
+                      fontSize: '13px', 
+                      color: themeId === spec.id ? 'common.white' : 'text.primary', 
+                      width: '100%',
+                      ...(spec.isPremium && { fontWeight: 700 })
+                  }}>{spec.name}</Typography>
+                  {spec.isPremium && (
+                      <Typography level="body-xs" sx={{ 
+                          fontSize: '10px', 
+                          textTransform: 'uppercase', 
+                          letterSpacing: '0.05em',
+                          opacity: 0.7,
+                          color: themeId === spec.id ? 'common.white' : 'text.secondary'
+                      }}>Signature</Typography>
+                  )}
+                  {themeId === spec.id && (
+                      <Palette sx={{ position: 'absolute', top: 6, right: 6, fontSize: '0.7rem', color: 'common.white' }} />
+                  )}
+              </Sheet>
+          </Grid>
+      ))}
+  </Grid>
+);
+
 export default function ThemeSettings() {
   const { user, themeId, onThemeChange, onUpdateProfile, showNotification } = useHousehold();
 
@@ -47,61 +102,6 @@ export default function ThemeSettings() {
     return groups;
   }, []);
 
-  const ThemeGrid = ({ themes }) => (
-    <Grid container spacing={2}>
-        {themes.map((spec) => (
-            <Grid key={spec.id} xs={6} sm={4} md={3}>
-                <Sheet
-                    variant={themeId === spec.id ? 'solid' : 'outlined'}
-                    color={themeId === spec.id ? 'primary' : 'neutral'}
-                    onClick={() => onThemeChange(spec.id)}
-                    sx={{
-                        p: 1.5, borderRadius: 'md', cursor: 'pointer', height: '100%',
-                        transition: 'all 0.2s',
-                        '&:hover': { transform: 'translateY(-2px)', boxShadow: 'sm' },
-                        position: 'relative',
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
-                        ...(spec.isPremium && {
-                            borderWidth: themeId === spec.id ? '2px' : '1px',
-                            borderColor: themeId === spec.id ? 'primary.solidBg' : 'divider',
-                        })
-                    }}
-                >
-                    <Box sx={{ 
-                        display: 'flex', width: '100%', height: 32, borderRadius: 'sm', 
-                        overflow: 'hidden', mb: 1, border: '1px solid rgba(0,0,0,0.1)',
-                        bgcolor: 'background.surface'
-                    }}>
-                        <Tooltip title="Primary" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.primary }} /></Tooltip>
-                        <Tooltip title="Background" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.bg }} /></Tooltip>
-                        <Tooltip title="Surface" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.surface }} /></Tooltip>
-                        <Tooltip title="Selection" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.selection }} /></Tooltip>
-                        <Tooltip title="Text" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.text }} /></Tooltip>
-                    </Box>
-                    <Typography level="title-sm" noWrap sx={{ 
-                        fontSize: '13px', 
-                        color: themeId === spec.id ? 'common.white' : 'text.primary', 
-                        width: '100%',
-                        ...(spec.isPremium && { fontWeight: 700 })
-                    }}>{spec.name}</Typography>
-                    {spec.isPremium && (
-                        <Typography level="body-xs" sx={{ 
-                            fontSize: '10px', 
-                            textTransform: 'uppercase', 
-                            letterSpacing: '0.05em',
-                            opacity: 0.7,
-                            color: themeId === spec.id ? 'common.white' : 'text.secondary'
-                        }}>Signature</Typography>
-                    )}
-                    {themeId === spec.id && (
-                        <Palette sx={{ position: 'absolute', top: 6, right: 6, fontSize: '0.7rem', color: 'common.white' }} />
-                    )}
-                </Sheet>
-            </Grid>
-        ))}
-    </Grid>
-  );
-
   return (
     <Stack spacing={4}>
       <Box>
@@ -113,7 +113,7 @@ export default function ThemeSettings() {
       <Box>
         <Typography level="title-lg" startDecorator={<Palette color="warning" />} sx={{ mb: 2 }}>Signature Designs</Typography>
         <Typography level="body-sm" sx={{ mb: 2 }}>High-fidelity UI styles with editorial typography and refined depth.</Typography>
-        <ThemeGrid themes={groupedThemes.signature} />
+        <ThemeGrid themes={groupedThemes.signature} themeId={themeId} onThemeChange={onThemeChange} />
       </Box>
 
       <Divider />
@@ -182,12 +182,12 @@ export default function ThemeSettings() {
       <Stack spacing={4}>
         <Box>
           <Typography level="title-lg" startDecorator={<LightMode color="warning" />} sx={{ mb: 2 }}>Light Themes</Typography>
-          <ThemeGrid themes={groupedThemes.light} />
+          <ThemeGrid themes={groupedThemes.light} themeId={themeId} onThemeChange={onThemeChange} />
         </Box>
         <Divider />
         <Box>
           <Typography level="title-lg" startDecorator={<DarkMode color="primary" />} sx={{ mb: 2 }}>Dark Themes</Typography>
-          <ThemeGrid themes={groupedThemes.dark} />
+          <ThemeGrid themes={groupedThemes.dark} themeId={themeId} onThemeChange={onThemeChange} />
         </Box>
       </Stack>
     </Stack>

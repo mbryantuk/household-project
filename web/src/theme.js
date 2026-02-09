@@ -65,7 +65,7 @@ export const THEMES = {
   retro: { name: 'Retro 80s', mode: 'dark', primary: '#ff00ff', bg: '#000814', surface: '#001d3d', selection: '#003566', text: '#00f5ff' },
   space: { name: 'Deep Space', mode: 'dark', primary: '#6366f1', bg: '#020617', surface: '#0f172a', selection: '#1e293b', text: '#e0e7ff' },
   jungle: { name: 'Jungle Safari', mode: 'dark', primary: '#eab308', bg: '#022c22', surface: '#064e3b', selection: '#065f46', text: '#ecfdf5' },
-  obsidian: { name: 'Obsidian', mode: 'dark', primary: '#ffffff', bg: '#000000', surface: '#0a0a0a', selection: '#1a1a1a', text: '#e5e5e5' },
+  pure_obsidian: { name: 'Obsidian (Pure)', mode: 'dark', primary: '#ffffff', bg: '#000000', surface: '#0a0a0a', selection: '#1a1a1a', text: '#e5e5e5' },
   galaxy: { name: 'Galaxy Quest', mode: 'dark', primary: '#8b5cf6', bg: '#1e1b4b', surface: '#312e81', selection: '#3730a3', text: '#eef2ff' },
   mars: { name: 'Mars Rover', mode: 'dark', primary: '#fb923c', bg: '#431407', surface: '#7c2d12', selection: '#9a3412', text: '#fff7ed' },
   vampire: { name: 'Vampire Night', mode: 'dark', primary: '#e11d48', bg: '#4c0519', surface: '#881337', selection: '#9f1239', text: '#fff1f2' },

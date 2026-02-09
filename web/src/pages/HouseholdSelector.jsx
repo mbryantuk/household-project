@@ -8,6 +8,7 @@ import Add from '@mui/icons-material/Add';
 import ArrowForward from '@mui/icons-material/ArrowForward';
 import Logout from '@mui/icons-material/Logout';
 import DeleteForever from '@mui/icons-material/DeleteForever';
+import FileDownload from '@mui/icons-material/FileDownload';
 import { useNavigate } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
 
@@ -51,6 +52,33 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
     }
   };
 
+  const handleExportHousehold = async (e, hh) => {
+    e.stopPropagation();
+    showNotification(`Preparing export for ${hh.name}...`, "neutral");
+    try {
+        // 1. Trigger Backup
+        const createRes = await api.post(`/households/${hh.id}/backups`);
+        const { filename } = createRes.data;
+
+        // 2. Download File
+        const downloadRes = await api.get(`/households/${hh.id}/backups/${filename}`, { responseType: 'blob' });
+        
+        // 3. Trigger Browser Download
+        const url = window.URL.createObjectURL(new Blob([downloadRes.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
+        
+        showNotification(`Export complete: ${filename}`, "success");
+    } catch (err) {
+        console.error("Export failed", err);
+        showNotification("Failed to export household.", "danger");
+    }
+  };
+
   const handleCreateHousehold = async (e) => {
     e.preventDefault();
     if (!newHouseholdName.trim()) return;
@@ -90,17 +118,28 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
             }} onClick={() => handleSelect(hh)}>
               
               {hh.role === 'admin' && (
-                  <Tooltip title="Delete Household" variant="soft" color="danger">
-                      <IconButton 
-                        variant="plain" 
-                        color="danger" 
-                        size="sm"
-                        sx={{ position: 'absolute', top: 8, right: 8, zIndex: 2 }}
-                        onClick={(e) => handleDeleteHousehold(e, hh)}
-                      >
-                          <DeleteForever />
-                      </IconButton>
-                  </Tooltip>
+                  <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 2, display: 'flex', gap: 0.5 }}>
+                      <Tooltip title="Export Data" variant="soft" color="primary">
+                          <IconButton 
+                            variant="plain" 
+                            color="primary" 
+                            size="sm"
+                            onClick={(e) => handleExportHousehold(e, hh)}
+                          >
+                              <FileDownload />
+                          </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Delete Household" variant="soft" color="danger">
+                          <IconButton 
+                            variant="plain" 
+                            color="danger" 
+                            size="sm"
+                            onClick={(e) => handleDeleteHousehold(e, hh)}
+                          >
+                              <DeleteForever />
+                          </IconButton>
+                      </Tooltip>
+                  </Box>
               )}
 
               <AspectRatio ratio="1" variant="soft" sx={{ borderRadius: '50%', mb: 2, bgcolor: getEmojiColor(hh.avatar || '🏠') }}>
