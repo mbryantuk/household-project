@@ -86,6 +86,11 @@ router.put('/households/:id', authenticateToken, requireHouseholdRole('admin'), 
     });
 });
 
+/**
+ * DELETE /households/:id
+ * Destroy a household and all associated traces (DB, backups, links).
+ * Accessible by Household Admin or System Admin.
+ */
 router.delete('/households/:id', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
     const householdId = parseInt(req.params.id);
     try {
@@ -93,7 +98,11 @@ router.delete('/households/:id', authenticateToken, requireHouseholdRole('admin'
         await dbRun(globalDb, `DELETE FROM user_households WHERE household_id = ?`, [householdId]);
         await dbRun(globalDb, `DELETE FROM households WHERE id = ?`, [householdId]);
 
-        // 2. Delete Tenant Database File
+        // 2. Nullify User pointers
+        await dbRun(globalDb, `UPDATE users SET default_household_id = NULL WHERE default_household_id = ?`, [householdId]);
+        await dbRun(globalDb, `UPDATE users SET last_household_id = NULL WHERE last_household_id = ?`, [householdId]);
+
+        // 3. Delete Tenant Database File
         const hhDbPath = path.join(DATA_DIR, `household_${householdId}.db`);
         if (fs.existsSync(hhDbPath)) {
             try { 
@@ -103,7 +112,7 @@ router.delete('/households/:id', authenticateToken, requireHouseholdRole('admin'
             }
         }
 
-        // 3. Delete Backup Files
+        // 4. Delete Backup Files
         try {
             if (fs.existsSync(BACKUP_DIR)) {
                 const files = fs.readdirSync(BACKUP_DIR);
@@ -119,6 +128,7 @@ router.delete('/households/:id', authenticateToken, requireHouseholdRole('admin'
 
         res.json({ message: "Household and all traces destroyed." });
     } catch (err) {
+        console.error(`[Destruction Error] HH ${householdId}:`, err);
         res.status(500).json({ error: err.message });
     }
 });
@@ -237,7 +247,26 @@ router.get('/households/:id/backups', authenticateToken, requireHouseholdRole('a
 
 router.post('/households/:id/backups', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
     try {
-        const filename = await createBackup(req.params.id);
+        const householdId = req.params.id;
+        
+        // Fetch metadata for manifest
+        const household = await dbGet(globalDb, "SELECT * FROM households WHERE id = ?", [householdId]);
+        const users = await dbAll(globalDb, `
+            SELECT u.email, u.first_name, u.last_name, uh.role 
+            FROM users u
+            JOIN user_households uh ON u.id = uh.user_id
+            WHERE uh.household_id = ?
+        `, [householdId]);
+
+        const manifest = {
+            version: "1.0",
+            exported_at: new Date().toISOString(),
+            household,
+            users,
+            type: 'household_export'
+        };
+
+        const filename = await createBackup(householdId, manifest);
         res.json({ message: "Household backup created", filename });
     } catch (err) {
         res.status(500).json({ error: err.message });

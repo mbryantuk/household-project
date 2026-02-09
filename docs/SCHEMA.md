@@ -12,7 +12,7 @@ Shared system-wide data.
 
 | Table | Description | Key Columns |
 | :--- | :--- | :--- |
-| **`users`** | Global user accounts (SSO). | `id`, `email`, `password_hash`, `default_household_id`, `budget_settings`, `theme` |
+| **`users`** | Global user accounts (SSO). | `id`, `email`, `password_hash`, `default_household_id`, `budget_settings`, `theme`, `custom_theme` |
 | **`households`** | Directory of all tenant workspaces. | `id`, `name`, `currency`, `enabled_modules`, `nightly_version_filter`, `metadata_schema` |
 | **`user_households`** | Many-to-Many link between Users and Households. | `user_id`, `household_id`, `role` (admin/member/viewer) |
 | **`version_history`** | System deployment log. | `version`, `comment`, `created_at` |

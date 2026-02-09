@@ -71,8 +71,8 @@ Totem employs a **Nightly Quality Gate**:
 
 ### Backup Strategy
 *   **Automated Zips:** The system creates nightly ZIP archives of every household database.
+*   **Tenant Export:** Admins can trigger a manual "Tenant Export" which packages the household database, global metadata (name, settings), and associated user accounts into a portable ZIP for cross-instance migration.
 *   **Retention Policy:** Configurable retention (default 7 days).
-*   **Restoration:** Manual file replacement (currently).
 
 ---
 

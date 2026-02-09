@@ -9,6 +9,7 @@ import ArrowForward from '@mui/icons-material/ArrowForward';
 import Logout from '@mui/icons-material/Logout';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import FileDownload from '@mui/icons-material/FileDownload';
+import DataObject from '@mui/icons-material/DataObject';
 import { useNavigate } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
 
@@ -80,6 +81,26 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
     }
   };
 
+  const handleExportJSON = async (e, hh) => {
+    e.stopPropagation();
+    showNotification(`Generating JSON export for ${hh.name}...`, "neutral");
+    try {
+        const res = await api.get(`/export/${hh.id}`, { responseType: 'blob' });
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        const timestamp = new Date().toISOString().split('T')[0];
+        link.setAttribute('download', `totem-export-hh${hh.id}-${timestamp}.json`);
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
+        showNotification(`JSON Export complete`, "success");
+    } catch (err) {
+        console.error("JSON Export failed", err);
+        showNotification("Failed to export JSON.", "danger");
+    }
+  };
+
   const handleCreateHousehold = async (e) => {
     e.preventDefault();
     if (!newHouseholdName.trim()) return;
@@ -121,7 +142,7 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
               
               {hh.role === 'admin' && (
                   <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 2, display: 'flex', gap: 0.5 }}>
-                      <Tooltip title="Export Data" variant="soft" color="primary">
+                      <Tooltip title="Export Data (ZIP)" variant="soft" color="primary">
                           <IconButton 
                             variant="plain" 
                             color="primary" 
@@ -129,6 +150,16 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
                             onClick={(e) => handleExportHousehold(e, hh)}
                           >
                               <FileDownload />
+                          </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Export Data (JSON)" variant="soft" color="primary">
+                          <IconButton 
+                            variant="plain" 
+                            color="primary" 
+                            size="sm"
+                            onClick={(e) => handleExportJSON(e, hh)}
+                          >
+                              <DataObject />
                           </IconButton>
                       </Tooltip>
                       <Tooltip title="Delete Household" variant="soft" color="danger">

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Box, Typography, Sheet, Tabs, TabList, Tab, TabPanel, Stack, Button, Grid, Chip, Divider, LinearProgress, Checkbox } from '@mui/joy';
+import { Box, Typography, Sheet, Tabs, TabList, Tab, TabPanel, Stack, Button, Grid, Chip, Divider, IconButton, Tooltip } from '@mui/joy';
 import HealthAndSafety from '@mui/icons-material/HealthAndSafety';
 import Update from '@mui/icons-material/Update';
 import CheckCircle from '@mui/icons-material/CheckCircle';
@@ -7,6 +7,10 @@ import Cancel from '@mui/icons-material/Cancel';
 import Info from '@mui/icons-material/Info';
 import Verified from '@mui/icons-material/Verified';
 import Policy from '@mui/icons-material/Policy';
+import DeleteForever from '@mui/icons-material/DeleteForever';
+import Home from '@mui/icons-material/Home';
+import CloudDownload from '@mui/icons-material/CloudDownload';
+import DataObject from '@mui/icons-material/DataObject';
 
 import { useHousehold } from '../../contexts/HouseholdContext';
 import AppSelect from '../../components/ui/AppSelect';
@@ -16,6 +20,10 @@ import gitInfo from '../../git-info.json';
 export default function AdminSettings() {
   const { api, showNotification, household, onUpdateHousehold } = useHousehold();
   const [activeTab, setActiveTab] = useState(0);
+
+  // Tenants State
+  const [tenants, setTenants] = useState([]);
+  const [loadingTenants, setLoadingTenants] = useState(false);
 
   // Nightly Health State
   const [testResults, setTestResults] = useState([]);
@@ -27,8 +35,7 @@ export default function AdminSettings() {
   const [loadingHistory, setLoadingHistory] = useState(false);
 
   // Health Check State
-  const [healthStatus, setHealthStatus] = useState(null);
-  const [healthOptions, setHealthOptions] = useState({
+  const [healthOptions] = useState({
     skipDocker: true,
     skipBackend: false,
     skipFrontend: false,
@@ -40,6 +47,18 @@ export default function AdminSettings() {
     versions.add(pkg.version);
     return Array.from(versions).sort((a, b) => b.localeCompare(a, undefined, { numeric: true, sensitivity: 'base' }));
   }, [testResults]);
+
+  const fetchTenants = useCallback(async () => {
+    setLoadingTenants(true);
+    try {
+      const res = await api.get('/admin/all-households');
+      setTenants(res.data);
+    } catch {
+      showNotification("Failed to fetch tenants.", "danger");
+    } finally {
+      setLoadingTenants(false);
+    }
+  }, [api, showNotification]);
 
   const fetchTestResults = useCallback(async () => {
     setLoadingTests(true);
@@ -65,6 +84,51 @@ export default function AdminSettings() {
     }
   }, [api, showNotification]);
 
+  const onExportTenant = async (tenant) => {
+    try {
+        showNotification(`Preparing export for "${tenant.name}"...`, "neutral");
+        const res = await api.get(`/admin/households/${tenant.id}/export`);
+        const filename = res.data.filename;
+        
+        // Use axios to download with Auth header
+        const downloadRes = await api.get(`/admin/backups/download/${filename}`, {
+            responseType: 'blob'
+        });
+        
+        const url = window.URL.createObjectURL(new Blob([downloadRes.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        
+        showNotification(`Tenant "${tenant.name}" exported successfully.`, "success");
+    } catch (err) {
+        showNotification(err.response?.data?.error || "Failed to export tenant.", "danger");
+    }
+  };
+
+  const onExportJSONTenant = async (tenant) => {
+    try {
+        showNotification(`Generating JSON export for "${tenant.name}"...`, "neutral");
+        const res = await api.get(`/export/${tenant.id}`, { responseType: 'blob' });
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        const timestamp = new Date().toISOString().split('T')[0];
+        link.setAttribute('download', `totem-export-hh${tenant.id}-${timestamp}.json`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        showNotification(`Tenant "${tenant.name}" exported as JSON.`, "success");
+    } catch (err) {
+        showNotification(err.response?.data?.error || "Failed to export JSON.", "danger");
+    }
+  };
+
   const triggerHealthCheck = async () => {
     try {
       await api.post('/admin/health-check/trigger', healthOptions);
@@ -74,26 +138,131 @@ export default function AdminSettings() {
     }
   };
 
+  const onDestroyTenant = async (tenant) => {
+    if (tenant.id === household.id) {
+        showNotification("You cannot destroy the household you are currently using.", "warning");
+        return;
+    }
+
+    const confirmed = window.confirm(`⚠️ DANGER: Are you sure you want to destroy tenant "${tenant.name}" (ID: ${tenant.id})?\n\nThis will permanently delete ALL data, backups, and user associations. This cannot be undone.`);
+    if (!confirmed) return;
+
+    try {
+        await api.delete(`/households/${tenant.id}`);
+        showNotification(`Tenant "${tenant.name}" destroyed successfully.`, "success");
+        fetchTenants();
+    } catch (err) {
+        showNotification(err.response?.data?.error || "Failed to destroy tenant.", "danger");
+    }
+  };
+
   useEffect(() => {
-    if (activeTab === 0) fetchTestResults();
-    if (activeTab === 1) fetchVersionHistory();
-  }, [activeTab, fetchTestResults, fetchVersionHistory]);
+    if (activeTab === 0) fetchTenants();
+    if (activeTab === 1) fetchTestResults();
+    if (activeTab === 2) fetchVersionHistory();
+  }, [activeTab, fetchTenants, fetchTestResults, fetchVersionHistory]);
 
   return (
     <Stack spacing={4}>
       <Box>
         <Typography level="h4">System Administration</Typography>
-        <Typography level="body-sm">Monitor platform health and version history</Typography>
+        <Typography level="body-sm">Monitor platform health and manage tenants</Typography>
       </Box>
 
       <Tabs value={activeTab} onChange={(_e, v) => setActiveTab(v)}>
         <TabList variant="plain" sx={{ mb: 2 }}>
-          <Tab value={0}>Nightly Health</Tab>
-          <Tab value={1}>Release Notes</Tab>
-          <Tab value={2}>About</Tab>
+          <Tab value={0}>Tenants</Tab>
+          <Tab value={1}>Nightly Health</Tab>
+          <Tab value={2}>Release Notes</Tab>
+          <Tab value={3}>About</Tab>
         </TabList>
 
         <TabPanel value={0}>
+            <Stack spacing={3}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography level="title-md">Tenant Registry</Typography>
+                    <Button variant="soft" color="primary" startDecorator={<Update />} onClick={fetchTenants} loading={loadingTenants}>Refresh</Button>
+                </Box>
+
+                <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                        <thead>
+                            <tr style={{ background: 'var(--joy-palette-background-level1)' }}>
+                                <th style={{ padding: '12px' }}>Household</th>
+                                <th style={{ padding: '12px' }}>Created</th>
+                                <th style={{ padding: '12px' }}>Type</th>
+                                <th style={{ padding: '12px' }}>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {tenants.map(t => (
+                                <tr key={t.id}>
+                                    <td style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>
+                                        <Stack direction="row" spacing={1.5} alignItems="center">
+                                            <Box sx={{ p: 0.5, borderRadius: 'sm', bgcolor: 'background.level2' }}>
+                                                <Home sx={{ color: 'primary.plainColor' }} />
+                                            </Box>
+                                            <Box>
+                                                <Typography level="body-sm" fontWeight="bold">{t.name}</Typography>
+                                                <Typography level="body-xs">ID: #{t.id}</Typography>
+                                            </Box>
+                                        </Stack>
+                                    </td>
+                                    <td style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>
+                                        <Typography level="body-xs">{new Date(t.created_at).toLocaleDateString()}</Typography>
+                                    </td>
+                                    <td style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>
+                                        <Chip size="sm" variant="soft" color={t.is_test ? "warning" : "success"}>
+                                            {t.is_test ? "Test" : "Production"}
+                                        </Chip>
+                                    </td>
+                                    <td style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>
+                                        <Stack direction="row" spacing={0.5}>
+                                            <Tooltip title="Export (ZIP)" variant="soft" color="primary">
+                                                <IconButton 
+                                                    size="sm" 
+                                                    variant="plain" 
+                                                    color="primary" 
+                                                    aria-label="Export (ZIP)"
+                                                    onClick={() => onExportTenant(t)}
+                                                >
+                                                    <CloudDownload />
+                                                </IconButton>
+                                            </Tooltip>
+                                            <Tooltip title="Export (JSON)" variant="soft" color="primary">
+                                                <IconButton 
+                                                    size="sm" 
+                                                    variant="plain" 
+                                                    color="primary" 
+                                                    aria-label="Export (JSON)"
+                                                    onClick={() => onExportJSONTenant(t)}
+                                                >
+                                                    <DataObject />
+                                                </IconButton>
+                                            </Tooltip>
+                                            <Tooltip title="Destroy Tenant" variant="soft" color="danger">
+                                                <IconButton 
+                                                    size="sm" 
+                                                    variant="plain" 
+                                                    color="danger" 
+                                                    aria-label="Destroy Tenant"
+                                                    disabled={t.id === household.id}
+                                                    onClick={() => onDestroyTenant(t)}
+                                                >
+                                                    <DeleteForever />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </Stack>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </Sheet>
+            </Stack>
+        </TabPanel>
+
+        <TabPanel value={1}>
             <Stack spacing={3}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography level="title-md">Health Monitor</Typography>
@@ -155,8 +324,13 @@ export default function AdminSettings() {
             </Stack>
         </TabPanel>
 
-        <TabPanel value={1}>
-            <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'hidden' }}>
+        <TabPanel value={2}>
+            <Stack spacing={3}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography level="title-md">Release Notes</Typography>
+                    <Button variant="soft" color="primary" startDecorator={<Update />} onClick={fetchVersionHistory} loading={loadingHistory}>Refresh</Button>
+                </Box>
+                <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'hidden' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                         <tr style={{ background: 'var(--joy-palette-background-level1)' }}>
@@ -182,9 +356,10 @@ export default function AdminSettings() {
                     </tbody>
                 </table>
             </Sheet>
+            </Stack>
         </TabPanel>
 
-        <TabPanel value={2}>
+        <TabPanel value={3}>
             <Grid container spacing={3}>
                 <Grid xs={12} md={7}>
                     <Stack spacing={3}>

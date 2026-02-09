@@ -118,13 +118,25 @@ function requireHouseholdRole(requiredRole) {
                         [req.user.id, targetHouseholdId],
                         (err, link) => {
                             if (err) return res.status(500).json({ error: "Database error during RBAC check" });
+                            
+                            // SYSTEM ADMIN BYPASS: If no link exists, system admins get virtual 'admin' role
                             if (!link || !link.is_active) {
+                                if (req.user.systemRole === 'admin') {
+                                    req.user.role = 'admin';
+                                    return next();
+                                }
                                 return res.status(403).json({ error: "Access denied: No active link to this household" });
                             }
+
                             if (hasPermission(link.role)) {
                                 req.user.role = link.role; // Update role for this request
                                 next();
                             } else {
+                                // SYSTEM ADMIN OVERRIDE: Even if link exists with lower role, system admin can override to 'admin'
+                                if (req.user.systemRole === 'admin') {
+                                    req.user.role = 'admin';
+                                    return next();
+                                }
                                 res.status(403).json({ error: `Access denied: Required role ${requiredRole}, you have ${link.role} in this household` });
                             }
                         }

@@ -5,6 +5,7 @@ Totem is a high-performance, multi-tenant Household Management SaaS designed wit
 ## 🚀 Key Features
 
 *   **SaaS Architecture:** Global User System allowing single sign-on across multiple households.
+    *   **Tenant Export:** Admins can export a full tenant's data (database + metadata + users) as a portable zip for backups or migration.
 *   **Strict Multi-Tenancy:** Secure data isolation using tenant-specific database contexts.
 *   **Modern UI/UX:** Built with **MUI Joy UI** for a sleek, modern aesthetic.
     *   **Theme Library:** Includes a comprehensive library of **50+ vibrant themes** (Light and Dark) stored at the household level, featuring a **visualized palette selector** for precise selection.

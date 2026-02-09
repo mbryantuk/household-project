@@ -21,6 +21,7 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
+      '/api': 'http://localhost:4001',
       '/auth': 'http://localhost:4001',
       '/households': 'http://localhost:4001',
       '/members': 'http://localhost:4001',

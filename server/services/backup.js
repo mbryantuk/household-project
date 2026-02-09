@@ -12,9 +12,10 @@ if (!fs.existsSync(BACKUP_DIR)) {
 /**
  * Creates a zip backup of the data directory or a specific household.
  * @param {string|number} householdId - Optional. If provided, only back up that household's DB.
+ * @param {object} manifest - Optional. Additional metadata to include in the backup.
  * @returns {Promise<string>} Path to the created backup file.
  */
-const createBackup = (householdId = null) => {
+const createBackup = (householdId = null, manifest = null) => {
     return new Promise((resolve, reject) => {
         try {
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -42,6 +43,10 @@ const createBackup = (householdId = null) => {
                         zip.addLocalFile(fullPath);
                     }
                 });
+            }
+
+            if (manifest) {
+                zip.addFile("manifest.json", Buffer.from(JSON.stringify(manifest, null, 2)));
             }
 
             zip.writeZip(filePath);

@@ -84,6 +84,7 @@ async function finalizeLogin(user, req, res, rememberMe = false) {
             last_name: user.last_name,
             avatar: user.avatar,
             theme: user.theme,
+            custom_theme: user.custom_theme,
             dashboard_layout: user.dashboard_layout,
             sticky_note: user.sticky_note,
             mfa_enabled: !!user.mfa_enabled
@@ -332,7 +333,7 @@ router.delete('/sessions', authenticateToken, async (req, res) => {
  */
 router.get('/profile', authenticateToken, async (req, res) => {
     try {
-        const user = await dbGet(globalDb, `SELECT id, email, username, first_name, last_name, avatar, system_role, dashboard_layout, sticky_note, theme, default_household_id FROM users WHERE id = ?`, [req.user.id]);
+        const user = await dbGet(globalDb, `SELECT id, email, username, first_name, last_name, avatar, system_role, dashboard_layout, sticky_note, theme, custom_theme, default_household_id FROM users WHERE id = ?`, [req.user.id]);
         if (!user) return res.status(404).json({ error: "User not found" });
         res.json(user);
     } catch (err) {
@@ -350,7 +351,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
         first_name, last_name, 
         avatar, dashboard_layout, sticky_note,
         budget_settings,
-        theme, default_household_id
+        theme, custom_theme, default_household_id
     } = req.body;
     
     let fields = [];
@@ -366,6 +367,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
     
     if (avatar !== undefined) { fields.push('avatar = ?'); values.push(avatar); }
     if (theme !== undefined) { fields.push('theme = ?'); values.push(theme); }
+    if (custom_theme !== undefined) { fields.push('custom_theme = ?'); values.push(custom_theme); }
     if (sticky_note !== undefined) { fields.push('sticky_note = ?'); values.push(sticky_note); }
     if (default_household_id !== undefined) { fields.push('default_household_id = ?'); values.push(default_household_id); }
     if (dashboard_layout !== undefined) { 

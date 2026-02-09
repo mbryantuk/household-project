@@ -81,7 +81,8 @@ const allRouters = [
     { path: '/', router: memberRoutes },
     { path: '/', router: calendarRoutes },
     { path: '/', router: detailsRoutes },
-    { path: '/', router: mealRoutes }
+    { path: '/', router: mealRoutes },
+    { path: '/export', router: require('./routes/export') }
 ];
 
 // 1. Mount at root

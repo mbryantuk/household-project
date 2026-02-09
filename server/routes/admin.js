@@ -23,6 +23,11 @@ const dbGet = (db, sql, params) => new Promise((resolve, reject) => {
     db.get(sql, params, (err, row) => err ? reject(err) : resolve(row));
 });
 
+// HELPER: Promisify DB all
+const dbAll = (db, sql, params) => new Promise((resolve, reject) => {
+    db.all(sql, params, (err, rows) => err ? reject(err) : resolve(rows));
+});
+
 // HELPER: Promisify DB run
 const dbRun = (db, sql, params) => new Promise((resolve, reject) => {
     db.run(sql, params, function(err) {
@@ -66,8 +71,50 @@ router.post('/backups/upload', authenticateToken, requireSystemRole('admin'), up
 });
 
 // ==========================================
-// 🌍 HOUSEHOLD MANAGEMENT (Household Admin or System Admin)
+// 🌍 HOUSEHOLD MANAGEMENT (System Admin Only)
 // ==========================================
+
+/**
+ * GET /admin/all-households
+ * Returns all households in the system.
+ */
+router.get('/all-households', authenticateToken, requireSystemRole('admin'), (req, res) => {
+    globalDb.all("SELECT * FROM households ORDER BY created_at DESC", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+/**
+ * GET /admin/households/:id/export
+ * Exports a household's data including global metadata and users.
+ */
+router.get('/households/:id/export', authenticateToken, requireSystemRole('admin'), async (req, res) => {
+    const householdId = req.params.id;
+    try {
+        const household = await dbGet(globalDb, "SELECT * FROM households WHERE id = ?", [householdId]);
+        if (!household) return res.status(404).json({ error: "Household not found" });
+
+        const users = await dbAll(globalDb, `
+            SELECT u.*, uh.role 
+            FROM users u
+            JOIN user_households uh ON u.id = uh.user_id
+            WHERE uh.household_id = ?
+        `, [householdId]);
+
+        const manifest = {
+            version: "1.0",
+            exported_at: new Date().toISOString(),
+            household,
+            users
+        };
+
+        const filename = await createBackup(householdId, manifest);
+        res.json({ message: "Export ready", filename });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 router.get('/households', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
     // Only return the household they are admin of, unless system admin
@@ -108,16 +155,6 @@ router.put('/households/:id', authenticateToken, requireHouseholdRole('admin'), 
     globalDb.run(`UPDATE households SET ${fields.join(', ')} WHERE id = ?`, values, function(err) {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Household updated" });
-    });
-});
-
-router.delete('/households/:id', authenticateToken, requireHouseholdRole('admin'), (req, res) => {
-    const hhId = req.params.id;
-    globalDb.run("DELETE FROM households WHERE id = ?", [hhId], function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        const dbPath = path.join(DATA_DIR, `household_${hhId}.db`);
-        if (fs.existsSync(dbPath)) { try { fs.unlinkSync(dbPath); } catch (e) {} }
-        res.json({ message: "Household deleted" });
     });
 });
 
@@ -262,7 +299,7 @@ router.post('/health-check/trigger', authenticateToken, requireSystemRole('admin
 
     // Reset log and status
     fs.writeFileSync(HEALTH_LOG, '');
-    updateHealthStatus({ 
+    updateHealthStatus({
         state: 'running', 
         progress: 0, 
         message: 'Starting comprehensive suite...',

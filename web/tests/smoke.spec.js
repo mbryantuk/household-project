@@ -64,4 +64,45 @@ test.describe('Core UI Smoke Tests', () => {
         await page.locator('button[aria-label="Wealth Tracking"]').click();
         await expect(page.locator('text=Wealth Tracking')).toBeVisible();
     });
+
+    test('Admin: System Administration & Tenant Export UI', async ({ page }) => {
+        // Navigate to Settings
+        await page.locator('button:has(.MuiAvatar-root)').last().click();
+        await page.click('text=Settings');
+        await page.waitForURL('**/settings**');
+
+        // Check for Admin Tools tab
+        const adminTab = page.locator('text=Admin Tools');
+        await expect(adminTab).toBeVisible();
+        await adminTab.click();
+
+        await expect(page.locator('text=System Administration')).toBeVisible();
+        await expect(page.locator('text=Tenant Registry')).toBeVisible();
+        
+        // Verify Export button exists for at least one tenant
+        const exportButton = page.locator('button[aria-label="Export Tenant Data"]').first();
+        await expect(exportButton).toBeVisible();
+    });
+
+    test('Settings: Theme Customization', async ({ page }) => {
+        // Navigate to Settings > Appearance
+        await page.locator('button:has(.MuiAvatar-root)').last().click();
+        await page.click('text=Settings');
+        await page.waitForURL('**/settings**');
+        
+        await page.click('text=Appearance');
+        
+        // Verify Theme Grid renders
+        await expect(page.locator('text=Signature Designs')).toBeVisible();
+        await expect(page.locator('text=Light Themes')).toBeVisible();
+        await expect(page.locator('text=Dark Themes')).toBeVisible();
+
+        // Select a theme (e.g., Mantel Obsidian)
+        await page.click('text=Mantel Obsidian');
+        
+        // Verify selection (usually indicated by solid variant or Palette icon)
+        // Since we can't easily check 'solid' variant via text, we check for Laboratory/Custom
+        await page.click('text=Custom Theme');
+        await expect(page.locator('text=Custom Theme Builder')).toBeVisible();
+    });
 });

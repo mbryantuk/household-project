@@ -394,6 +394,13 @@ function initializeGlobalSchema(db) {
         // 🛠️ MIGRATION: Add last_household_id to users
         db.all("PRAGMA table_info(users)", (err, rows) => {
             if (err) return console.error("Failed to check users schema", err);
+            
+            const hasCustomTheme = rows.some(r => r.name === 'custom_theme');
+            if (!hasCustomTheme) {
+                console.log("🛠️ Migrating users table: Adding custom_theme...");
+                db.run("ALTER TABLE users ADD COLUMN custom_theme TEXT");
+            }
+
             const hasLastHh = rows.some(r => r.name === 'last_household_id');
             if (!hasLastHh) {
                 console.log("🛠️ Migrating users table: Adding last_household_id...");
