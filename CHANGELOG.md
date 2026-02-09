@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.2.151] - 2026-02-09
+### Added
+- **Tenancy:** Added "Export Tenant" capability to the Household Selector for admins to download full backup archives.
+
 ## [3.2.126] - 2026-02-04
 ### Added
 - **Testing:** Migrated the "Brady Bunch" Master Seed into the backend test suite as `brady_seed.test.js`.

@@ -46,7 +46,8 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
             await api.delete(`/households/${hh.id}`);
             showNotification(`Household "${hh.name}" deleted.`, "success");
             fetchHouseholds();
-        } catch (err) {
+        } catch (error) {
+            console.error(error);
             showNotification("Failed to delete household.", "danger");
         }
     }
@@ -92,7 +93,8 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
         setNewHouseholdName('');
         if (onSelectHousehold) await onSelectHousehold(newHh);
         navigate(`/household/${newHh.id}/dashboard`);
-    } catch (err) {
+    } catch (error) {
+        console.error(error);
         showNotification("Failed to create household.", "danger");
     } finally {
         setIsSubmitting(false);
