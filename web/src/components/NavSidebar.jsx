@@ -810,15 +810,15 @@ export default function NavSidebar({
 
                                   <ListItem sx={{ mt: 1, mb: 0.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', pr: 1 }}>
 
-                                      <Typography level="body-xs" fontWeight="bold" textTransform="uppercase" letterSpacing="1px" sx={{ px: 1, color: 'text.tertiary' }}>
+                                                                            <Typography level="body-xs" fontWeight="bold" textTransform="uppercase" letterSpacing="1px" sx={{ px: 1, color: 'text.tertiary' }}>
 
-                                          PROFILES
+                                                                                PROFILES
 
-                                      </Typography>
+                                                                            </Typography>
 
-                                      <IconButton size="sm" variant="plain" onClick={() => setProfileCreateOpen(true)}><Add fontSize="small" /></IconButton>
+                                                                            <IconButton size="sm" variant="plain" onClick={() => setProfileCreateOpen(true)} aria-label="Add Profile"><Add fontSize="small" /></IconButton>
 
-                                  </ListItem>
+                                                                        </ListItem>
 
                                   {profiles.map(p => (
 

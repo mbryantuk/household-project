@@ -1,0 +1,2698 @@
+# Page snapshot
+
+```yaml
+- main [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e7]:
+      - generic [ref=e8]:
+        - generic "Dashboard" [ref=e10] [cursor=pointer]: 🏠
+        - list [ref=e11]:
+          - listitem [ref=e12]:
+            - button "House" [ref=e13] [cursor=pointer]:
+              - img [ref=e15]
+              - generic [ref=e17]: House
+          - listitem [ref=e18]:
+            - button "Calendar" [ref=e19] [cursor=pointer]:
+              - img [ref=e21]
+              - generic [ref=e23]: Calendar
+        - separator [ref=e24]
+      - list [ref=e26]:
+        - listitem [ref=e27]:
+          - button "Finance" [active] [ref=e28] [cursor=pointer]:
+            - img [ref=e30]
+            - generic [ref=e32]: Finance
+        - listitem [ref=e33]:
+          - button "Meals" [ref=e34] [cursor=pointer]:
+            - img [ref=e36]
+            - generic [ref=e38]: Meals
+      - generic [ref=e39]:
+        - separator [ref=e41]
+        - button "Account & Settings" [ref=e42] [cursor=pointer]:
+          - generic [ref=e43]: 🐧
+    - generic [ref=e44]:
+      - main [ref=e45]:
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - generic [ref=e48]:
+              - button [ref=e49] [cursor=pointer]:
+                - img [ref=e50]
+              - paragraph [ref=e52]: Back to Overview
+            - generic [ref=e55]:
+              - generic [ref=e56] [cursor=pointer]:
+                - generic [ref=e58]: 💰
+                - combobox [ref=e59]: Joint Finances(Default)
+                - img [ref=e61]
+                - textbox [ref=e63]: "2"
+              - button [ref=e64] [cursor=pointer]:
+                - img [ref=e65]
+          - generic [ref=e67]:
+            - generic [ref=e68]:
+              - generic [ref=e69]:
+                - button [ref=e70] [cursor=pointer]:
+                  - img [ref=e71]
+                - generic [ref=e73]:
+                  - heading "February 2026 Budget" [level=2] [ref=e74]
+                  - generic [ref=e75]: 28th Jan to 27th Feb
+                - button [ref=e76] [cursor=pointer]:
+                  - img [ref=e77]
+              - generic [ref=e79]:
+                - generic [ref=e80]:
+                  - img [ref=e82]
+                  - textbox "Search items..." [ref=e84]
+                - generic [ref=e85] [cursor=pointer]:
+                  - img [ref=e87]
+                  - combobox [ref=e89]: All Objects
+                  - img [ref=e91]
+                  - textbox [ref=e93]: all
+                - generic [ref=e94] [cursor=pointer]:
+                  - img [ref=e96]
+                  - combobox [ref=e98]: All Accounts
+                  - img [ref=e100]
+                  - textbox [ref=e102]: all
+                - generic [ref=e103] [cursor=pointer]:
+                  - img [ref=e105]
+                  - combobox [ref=e107]: Standard Split
+                  - img [ref=e109]
+                  - textbox [ref=e111]: standard
+              - generic [ref=e112]:
+                - generic "Toggle Paid Items" [ref=e113]:
+                  - generic [ref=e114]: Hide Paid
+                  - switch "Hide Paid" [ref=e119] [cursor=pointer]
+                - button "Reset" [ref=e120] [cursor=pointer]:
+                  - img [ref=e122]
+                  - text: Reset
+                - button "Add" [ref=e124] [cursor=pointer]:
+                  - img [ref=e126]
+                  - text: Add
+                  - img [ref=e129]
+            - generic "No projected overdraft" [ref=e132]:
+              - progressbar [ref=e133]
+              - generic:
+                - generic: "28"
+              - generic:
+                - generic: "29"
+              - generic:
+                - generic: "30"
+              - generic:
+                - generic: "31"
+              - generic:
+                - generic: "1"
+              - generic:
+                - generic: "2"
+              - generic:
+                - generic: "3"
+              - generic:
+                - generic: "4"
+              - generic:
+                - generic: "5"
+              - generic:
+                - generic: "6"
+              - generic:
+                - generic: "7"
+              - generic:
+                - generic: "8"
+              - generic:
+                - generic: "9"
+              - generic:
+                - generic "Peter's Birthday" [ref=e134]: 🎂
+                - generic: "10"
+              - generic:
+                - generic: "11"
+              - generic:
+                - generic: "12"
+              - generic:
+                - generic: "13"
+              - generic:
+                - generic "Valentine's Day, Carol's Birthday" [ref=e135]: ❤️
+                - generic: "14"
+              - generic:
+                - generic "Grandma's 80th Birthday" [ref=e136]: 🎂
+                - generic: "15"
+              - generic:
+                - generic: "16"
+              - generic:
+                - generic: "17"
+              - generic:
+                - generic: "18"
+              - generic:
+                - generic: "19"
+              - generic:
+                - generic: "20"
+              - generic:
+                - generic: "21"
+              - generic:
+                - generic: "22"
+              - generic:
+                - generic: "23"
+              - generic:
+                - generic: "24"
+              - generic:
+                - generic: "25"
+              - generic:
+                - generic: "26"
+              - generic:
+                - generic: "27"
+            - generic [ref=e137]:
+              - generic [ref=e139]:
+                - generic [ref=e140]:
+                  - generic [ref=e141]:
+                    - paragraph [ref=e142]:
+                      - img [ref=e144]
+                      - text: Income Sources
+                    - generic [ref=e146]: £15,700.00
+                  - generic [ref=e147]:
+                    - generic [ref=e148]:
+                      - img [ref=e150]
+                      - generic [ref=e152]:
+                        - paragraph [ref=e153]: Brady Architecture Pay
+                        - generic [ref=e154]: 28th Jan
+                      - generic [ref=e155]:
+                        - paragraph [ref=e157]: £9,500.00
+                        - generic [ref=e159]:
+                          - checkbox [checked] [ref=e161] [cursor=pointer]
+                          - img [ref=e162]
+                    - generic [ref=e164]:
+                      - img [ref=e166]
+                      - generic [ref=e168]:
+                        - paragraph [ref=e169]: WFH Creative Pay
+                        - generic [ref=e170]: 20th Feb
+                      - generic [ref=e171]:
+                        - generic [ref=e172]:
+                          - paragraph [ref=e173]: £6,200.00
+                          - button [ref=e174] [cursor=pointer]:
+                            - img [ref=e175]
+                        - generic [ref=e178]:
+                          - checkbox [ref=e180] [cursor=pointer]
+                          - img [ref=e181]
+                - generic [ref=e183]:
+                  - paragraph [ref=e185]:
+                    - img [ref=e187]
+                    - text: Liquidity Control
+                  - generic [ref=e189]:
+                    - generic [ref=e190]: Linked Bank Account
+                    - generic [ref=e191] [cursor=pointer]:
+                      - generic [ref=e192]: 🏦
+                      - combobox "Linked Bank Account" [ref=e193]: 🏦 Joint Checking
+                      - img [ref=e195]
+                      - textbox [ref=e197]: "1"
+                  - generic [ref=e198]:
+                    - generic [ref=e199]: Current Bank Balance
+                    - generic [ref=e200]:
+                      - heading "£" [level=4] [ref=e202]
+                      - spinbutton "Current Bank Balance" [ref=e203]: "18800"
+                - generic [ref=e204]:
+                  - paragraph [ref=e205]:
+                    - img [ref=e207]
+                    - text: Drawdown Projection
+                  - generic [ref=e209]:
+                    - generic [ref=e210]:
+                      - generic [ref=e211]: Lowest Point
+                      - paragraph [ref=e212]: £8,601.00
+                    - generic [ref=e213]:
+                      - img [ref=e214]
+                      - generic [ref=e221]:
+                        - generic [ref=e224]: Balance Projection
+                        - generic [ref=e227]: Zero Line
+                        - generic [ref=e230]: Today
+                        - generic [ref=e233]: Overdraft Limit
+                  - separator [ref=e234]
+                  - generic [ref=e235]:
+                    - generic [ref=e236]:
+                      - generic [ref=e237]: Safe to Spend Now
+                      - paragraph [ref=e238]: £8,601.00
+                    - generic [ref=e239]:
+                      - generic [ref=e240]: End of Cycle
+                      - paragraph [ref=e241]: £14,533.00
+                  - generic [ref=e242]: "* Projection assumes all future income is received on time."
+              - generic [ref=e243]:
+                - generic [ref=e244]:
+                  - button "📅 Events & Holidays Total £0.00 Paid £0.00 Unpaid £0.00" [expanded] [ref=e246] [cursor=pointer]:
+                    - generic [ref=e247]:
+                      - paragraph [ref=e248]:
+                        - generic [ref=e249]: 📅
+                        - generic [ref=e250]: Events & Holidays
+                      - generic [ref=e251]:
+                        - generic [ref=e252]:
+                          - generic [ref=e253]: Total
+                          - paragraph [ref=e254]: £0.00
+                        - generic [ref=e255]:
+                          - generic [ref=e256]: Paid
+                          - paragraph [ref=e257]: £0.00
+                        - generic [ref=e258]:
+                          - generic [ref=e259]: Unpaid
+                          - paragraph [ref=e260]: £0.00
+                    - img [ref=e262]
+                  - separator [ref=e264]
+                  - region "📅 Events & Holidays Total £0.00 Paid £0.00 Unpaid £0.00" [ref=e265]:
+                    - table [ref=e268]:
+                      - rowgroup [ref=e269]:
+                        - row "Item Category Due Date Amount Paid Delete / Skip" [ref=e270]:
+                          - columnheader [ref=e271]:
+                            - checkbox [ref=e275] [cursor=pointer]
+                          - columnheader "Item" [ref=e276] [cursor=pointer]:
+                            - generic [ref=e277]:
+                              - text: Item
+                              - img [ref=e278]
+                          - columnheader "Category" [ref=e280] [cursor=pointer]:
+                            - generic [ref=e281]:
+                              - text: Category
+                              - img [ref=e282]
+                          - columnheader "Due Date" [ref=e284] [cursor=pointer]:
+                            - generic [ref=e285]:
+                              - text: Due Date
+                              - img [ref=e286]
+                          - columnheader "Amount" [ref=e288] [cursor=pointer]:
+                            - generic [ref=e289]:
+                              - text: Amount
+                              - img [ref=e290]
+                          - columnheader "Paid" [ref=e292]
+                          - columnheader "Delete / Skip" [ref=e293]
+                      - rowgroup [ref=e294]:
+                        - row "🎂 Peter's Birthday birthday 10th Feb Tomorrow 0.00" [ref=e295] [cursor=pointer]:
+                          - cell [ref=e296]:
+                            - checkbox [ref=e300]
+                          - cell "🎂 Peter's Birthday" [ref=e301]:
+                            - generic [ref=e302]:
+                              - generic [ref=e303]: 🎂
+                              - paragraph [ref=e305]: Peter's Birthday
+                          - cell "birthday" [ref=e306]:
+                            - generic [ref=e308]: birthday
+                          - cell "10th Feb Tomorrow" [ref=e309]:
+                            - generic [ref=e310]:
+                              - generic [ref=e311]: 10th Feb
+                              - generic [ref=e312]: Tomorrow
+                          - cell "0.00" [ref=e313]:
+                            - spinbutton [ref=e315]: "0.00"
+                          - cell [ref=e316]:
+                            - generic [ref=e317]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e318]:
+                            - button [ref=e319]:
+                              - img [ref=e320]
+                        - row "❤️ Valentine's Day celebration 14th Feb In 5 days 0.00" [ref=e322] [cursor=pointer]:
+                          - cell [ref=e323]:
+                            - checkbox [ref=e327]
+                          - cell "❤️ Valentine's Day" [ref=e328]:
+                            - generic [ref=e329]:
+                              - generic [ref=e330]: ❤️
+                              - paragraph [ref=e332]: Valentine's Day
+                          - cell "celebration" [ref=e333]:
+                            - generic [ref=e335]: celebration
+                          - cell "14th Feb In 5 days" [ref=e336]:
+                            - generic [ref=e337]:
+                              - generic [ref=e338]: 14th Feb
+                              - generic [ref=e339]: In 5 days
+                          - cell "0.00" [ref=e340]:
+                            - spinbutton [ref=e342]: "0.00"
+                          - cell [ref=e343]:
+                            - generic [ref=e344]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e345]:
+                            - button [ref=e346]:
+                              - img [ref=e347]
+                        - row "🎂 Carol's Birthday birthday 14th Feb In 5 days 0.00" [ref=e349] [cursor=pointer]:
+                          - cell [ref=e350]:
+                            - checkbox [ref=e354]
+                          - cell "🎂 Carol's Birthday" [ref=e355]:
+                            - generic [ref=e356]:
+                              - generic [ref=e357]: 🎂
+                              - paragraph [ref=e359]: Carol's Birthday
+                          - cell "birthday" [ref=e360]:
+                            - generic [ref=e362]: birthday
+                          - cell "14th Feb In 5 days" [ref=e363]:
+                            - generic [ref=e364]:
+                              - generic [ref=e365]: 14th Feb
+                              - generic [ref=e366]: In 5 days
+                          - cell "0.00" [ref=e367]:
+                            - spinbutton [ref=e369]: "0.00"
+                          - cell [ref=e370]:
+                            - generic [ref=e371]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e372]:
+                            - button [ref=e373]:
+                              - img [ref=e374]
+                        - row "🎂 Grandma's 80th Birthday birthday 15th Feb In 6 days 0.00" [ref=e376] [cursor=pointer]:
+                          - cell [ref=e377]:
+                            - checkbox [ref=e381]
+                          - cell "🎂 Grandma's 80th Birthday" [ref=e382]:
+                            - generic [ref=e383]:
+                              - generic [ref=e384]: 🎂
+                              - paragraph [ref=e386]: Grandma's 80th Birthday
+                          - cell "birthday" [ref=e387]:
+                            - generic [ref=e389]: birthday
+                          - cell "15th Feb In 6 days" [ref=e390]:
+                            - generic [ref=e391]:
+                              - generic [ref=e392]: 15th Feb
+                              - generic [ref=e393]: In 6 days
+                          - cell "0.00" [ref=e394]:
+                            - spinbutton [ref=e396]: "0.00"
+                          - cell [ref=e397]:
+                            - generic [ref=e398]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e399]:
+                            - button [ref=e400]:
+                              - img [ref=e401]
+                - generic [ref=e403]:
+                  - button "🏠 Household Bills Total £2,417.00 Paid £0.00 Unpaid £2,417.00" [expanded] [ref=e405] [cursor=pointer]:
+                    - generic [ref=e406]:
+                      - paragraph [ref=e407]:
+                        - generic [ref=e408]: 🏠
+                        - generic [ref=e409]: Household Bills
+                      - generic [ref=e410]:
+                        - generic [ref=e411]:
+                          - generic [ref=e412]: Total
+                          - paragraph [ref=e413]: £2,417.00
+                        - generic [ref=e414]:
+                          - generic [ref=e415]: Paid
+                          - paragraph [ref=e416]: £0.00
+                        - generic [ref=e417]:
+                          - generic [ref=e418]: Unpaid
+                          - paragraph [ref=e419]: £2,417.00
+                    - img [ref=e421]
+                  - separator [ref=e423]
+                  - region "🏠 Household Bills Total £2,417.00 Paid £0.00 Unpaid £2,417.00" [ref=e424]:
+                    - table [ref=e427]:
+                      - rowgroup [ref=e428]:
+                        - row "Item Category Due Date Amount Paid Delete / Skip" [ref=e429]:
+                          - columnheader [ref=e430]:
+                            - checkbox [ref=e434] [cursor=pointer]
+                          - columnheader "Item" [ref=e435] [cursor=pointer]:
+                            - generic [ref=e436]:
+                              - text: Item
+                              - img [ref=e437]
+                          - columnheader "Category" [ref=e439] [cursor=pointer]:
+                            - generic [ref=e440]:
+                              - text: Category
+                              - img [ref=e441]
+                          - columnheader "Due Date" [ref=e443] [cursor=pointer]:
+                            - generic [ref=e444]:
+                              - text: Due Date
+                              - img [ref=e445]
+                          - columnheader "Amount" [ref=e447] [cursor=pointer]:
+                            - generic [ref=e448]:
+                              - text: Amount
+                              - img [ref=e449]
+                          - columnheader "Paid" [ref=e451]
+                          - columnheader "Delete / Skip" [ref=e452]
+                      - rowgroup [ref=e453]:
+                        - 'row "💰 💰 Payday: Brady Architecture income 28th Jan 12 days ago 0.00" [ref=e454] [cursor=pointer]':
+                          - cell [ref=e455]:
+                            - checkbox [ref=e459]
+                          - 'cell "💰 💰 Payday: Brady Architecture" [ref=e460]':
+                            - generic [ref=e461]:
+                              - generic [ref=e462]: 💰
+                              - paragraph [ref=e464]: "💰 Payday: Brady Architecture"
+                          - cell "income" [ref=e465]:
+                            - generic [ref=e467]: income
+                          - cell "28th Jan 12 days ago" [ref=e468]:
+                            - generic [ref=e469]:
+                              - generic [ref=e470]: 28th Jan
+                              - generic [ref=e471]: 12 days ago
+                          - cell "0.00" [ref=e472]:
+                            - spinbutton [ref=e474]: "0.00"
+                          - cell [ref=e475]:
+                            - generic [ref=e476]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e477]:
+                            - button [ref=e478]:
+                              - img [ref=e479]
+                        - row "💸 Council Tax recurring cost 2nd Feb 7 days ago 0.00" [ref=e481] [cursor=pointer]:
+                          - cell [ref=e482]:
+                            - checkbox [ref=e486]
+                          - cell "💸 Council Tax" [ref=e487]:
+                            - generic [ref=e488]:
+                              - generic [ref=e489]: 💸
+                              - paragraph [ref=e491]: Council Tax
+                          - cell "recurring cost" [ref=e492]:
+                            - generic [ref=e494]: recurring cost
+                          - cell "2nd Feb 7 days ago" [ref=e495]:
+                            - generic [ref=e496]:
+                              - generic [ref=e497]: 2nd Feb
+                              - generic [ref=e498]: 7 days ago
+                          - cell "0.00" [ref=e499]:
+                            - spinbutton [ref=e501]: "0.00"
+                          - cell [ref=e502]:
+                            - generic [ref=e503]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e504]:
+                            - button [ref=e505]:
+                              - img [ref=e506]
+                        - row "💸 Life Insurance (Mike) (👨 Mike) recurring cost 2nd Feb 7 days ago 0.00" [ref=e508] [cursor=pointer]:
+                          - cell [ref=e509]:
+                            - checkbox [ref=e513]
+                          - cell "💸 Life Insurance (Mike) (👨 Mike)" [ref=e514]:
+                            - generic [ref=e515]:
+                              - generic [ref=e516]: 💸
+                              - paragraph [ref=e518]: Life Insurance (Mike) (👨 Mike)
+                          - cell "recurring cost" [ref=e519]:
+                            - generic [ref=e521]: recurring cost
+                          - cell "2nd Feb 7 days ago" [ref=e522]:
+                            - generic [ref=e523]:
+                              - generic [ref=e524]: 2nd Feb
+                              - generic [ref=e525]: 7 days ago
+                          - cell "0.00" [ref=e526]:
+                            - spinbutton [ref=e528]: "0.00"
+                          - cell [ref=e529]:
+                            - generic [ref=e530]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e531]:
+                            - button [ref=e532]:
+                              - img [ref=e533]
+                        - row "💸 Life Insurance (Carol) (👩 Carol) recurring cost 2nd Feb 7 days ago 0.00" [ref=e535] [cursor=pointer]:
+                          - cell [ref=e536]:
+                            - checkbox [ref=e540]
+                          - cell "💸 Life Insurance (Carol) (👩 Carol)" [ref=e541]:
+                            - generic [ref=e542]:
+                              - generic [ref=e543]: 💸
+                              - paragraph [ref=e545]: Life Insurance (Carol) (👩 Carol)
+                          - cell "recurring cost" [ref=e546]:
+                            - generic [ref=e548]: recurring cost
+                          - cell "2nd Feb 7 days ago" [ref=e549]:
+                            - generic [ref=e550]:
+                              - generic [ref=e551]: 2nd Feb
+                              - generic [ref=e552]: 7 days ago
+                          - cell "0.00" [ref=e553]:
+                            - spinbutton [ref=e555]: "0.00"
+                          - cell [ref=e556]:
+                            - generic [ref=e557]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e558]:
+                            - button [ref=e559]:
+                              - img [ref=e560]
+                        - row "💸 Spotify Family recurring cost 2nd Feb 7 days ago 0.00" [ref=e562] [cursor=pointer]:
+                          - cell [ref=e563]:
+                            - checkbox [ref=e567]
+                          - cell "💸 Spotify Family" [ref=e568]:
+                            - generic [ref=e569]:
+                              - generic [ref=e570]: 💸
+                              - paragraph [ref=e572]: Spotify Family
+                          - cell "recurring cost" [ref=e573]:
+                            - generic [ref=e575]: recurring cost
+                          - cell "2nd Feb 7 days ago" [ref=e576]:
+                            - generic [ref=e577]:
+                              - generic [ref=e578]: 2nd Feb
+                              - generic [ref=e579]: 7 days ago
+                          - cell "0.00" [ref=e580]:
+                            - spinbutton [ref=e582]: "0.00"
+                          - cell [ref=e583]:
+                            - generic [ref=e584]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e585]:
+                            - button [ref=e586]:
+                              - img [ref=e587]
+                        - row "💸 Golf Club (Mike) (👨 Mike) recurring cost 2nd Feb 7 days ago 0.00" [ref=e589] [cursor=pointer]:
+                          - cell [ref=e590]:
+                            - checkbox [ref=e594]
+                          - cell "💸 Golf Club (Mike) (👨 Mike)" [ref=e595]:
+                            - generic [ref=e596]:
+                              - generic [ref=e597]: 💸
+                              - paragraph [ref=e599]: Golf Club (Mike) (👨 Mike)
+                          - cell "recurring cost" [ref=e600]:
+                            - generic [ref=e602]: recurring cost
+                          - cell "2nd Feb 7 days ago" [ref=e603]:
+                            - generic [ref=e604]:
+                              - generic [ref=e605]: 2nd Feb
+                              - generic [ref=e606]: 7 days ago
+                          - cell "0.00" [ref=e607]:
+                            - spinbutton [ref=e609]: "0.00"
+                          - cell [ref=e610]:
+                            - generic [ref=e611]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e612]:
+                            - button [ref=e613]:
+                              - img [ref=e614]
+                        - row "💸 College Social (Greg) (👦 Greg) recurring cost 2nd Feb 7 days ago 0.00" [ref=e616] [cursor=pointer]:
+                          - cell [ref=e617]:
+                            - checkbox [ref=e621]
+                          - cell "💸 College Social (Greg) (👦 Greg)" [ref=e622]:
+                            - generic [ref=e623]:
+                              - generic [ref=e624]: 💸
+                              - paragraph [ref=e626]: College Social (Greg) (👦 Greg)
+                          - cell "recurring cost" [ref=e627]:
+                            - generic [ref=e629]: recurring cost
+                          - cell "2nd Feb 7 days ago" [ref=e630]:
+                            - generic [ref=e631]:
+                              - generic [ref=e632]: 2nd Feb
+                              - generic [ref=e633]: 7 days ago
+                          - cell "0.00" [ref=e634]:
+                            - spinbutton [ref=e636]: "0.00"
+                          - cell [ref=e637]:
+                            - generic [ref=e638]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e639]:
+                            - button [ref=e640]:
+                              - img [ref=e641]
+                        - row "💸 University Fund (Marcia) (👧 Marcia) recurring cost 2nd Feb 7 days ago 0.00" [ref=e643] [cursor=pointer]:
+                          - cell [ref=e644]:
+                            - checkbox [ref=e648]
+                          - cell "💸 University Fund (Marcia) (👧 Marcia)" [ref=e649]:
+                            - generic [ref=e650]:
+                              - generic [ref=e651]: 💸
+                              - paragraph [ref=e653]: University Fund (Marcia) (👧 Marcia)
+                          - cell "recurring cost" [ref=e654]:
+                            - generic [ref=e656]: recurring cost
+                          - cell "2nd Feb 7 days ago" [ref=e657]:
+                            - generic [ref=e658]:
+                              - generic [ref=e659]: 2nd Feb
+                              - generic [ref=e660]: 7 days ago
+                          - cell "0.00" [ref=e661]:
+                            - spinbutton [ref=e663]: "0.00"
+                          - cell [ref=e664]:
+                            - generic [ref=e665]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e666]:
+                            - button [ref=e667]:
+                              - img [ref=e668]
+                        - row "💸 Retirement Social (Alice) (👵 Alice) recurring cost 2nd Feb 7 days ago 0.00" [ref=e670] [cursor=pointer]:
+                          - cell [ref=e671]:
+                            - checkbox [ref=e675]
+                          - cell "💸 Retirement Social (Alice) (👵 Alice)" [ref=e676]:
+                            - generic [ref=e677]:
+                              - generic [ref=e678]: 💸
+                              - paragraph [ref=e680]: Retirement Social (Alice) (👵 Alice)
+                          - cell "recurring cost" [ref=e681]:
+                            - generic [ref=e683]: recurring cost
+                          - cell "2nd Feb 7 days ago" [ref=e684]:
+                            - generic [ref=e685]:
+                              - generic [ref=e686]: 2nd Feb
+                              - generic [ref=e687]: 7 days ago
+                          - cell "0.00" [ref=e688]:
+                            - spinbutton [ref=e690]: "0.00"
+                          - cell [ref=e691]:
+                            - generic [ref=e692]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e693]:
+                            - button [ref=e694]:
+                              - img [ref=e695]
+                        - row "💸 Pocket Money (Peter) (👦 Peter) recurring cost 2nd Feb 7 days ago 0.00" [ref=e697] [cursor=pointer]:
+                          - cell [ref=e698]:
+                            - checkbox [ref=e702]
+                          - cell "💸 Pocket Money (Peter) (👦 Peter)" [ref=e703]:
+                            - generic [ref=e704]:
+                              - generic [ref=e705]: 💸
+                              - paragraph [ref=e707]: Pocket Money (Peter) (👦 Peter)
+                          - cell "recurring cost" [ref=e708]:
+                            - generic [ref=e710]: recurring cost
+                          - cell "2nd Feb 7 days ago" [ref=e711]:
+                            - generic [ref=e712]:
+                              - generic [ref=e713]: 2nd Feb
+                              - generic [ref=e714]: 7 days ago
+                          - cell "0.00" [ref=e715]:
+                            - spinbutton [ref=e717]: "0.00"
+                          - cell [ref=e718]:
+                            - generic [ref=e719]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e720]:
+                            - button [ref=e721]:
+                              - img [ref=e722]
+                        - row "💸 Pocket Money (Jan) (👧 Jan) recurring cost 2nd Feb 7 days ago 0.00" [ref=e724] [cursor=pointer]:
+                          - cell [ref=e725]:
+                            - checkbox [ref=e729]
+                          - cell "💸 Pocket Money (Jan) (👧 Jan)" [ref=e730]:
+                            - generic [ref=e731]:
+                              - generic [ref=e732]: 💸
+                              - paragraph [ref=e734]: Pocket Money (Jan) (👧 Jan)
+                          - cell "recurring cost" [ref=e735]:
+                            - generic [ref=e737]: recurring cost
+                          - cell "2nd Feb 7 days ago" [ref=e738]:
+                            - generic [ref=e739]:
+                              - generic [ref=e740]: 2nd Feb
+                              - generic [ref=e741]: 7 days ago
+                          - cell "0.00" [ref=e742]:
+                            - spinbutton [ref=e744]: "0.00"
+                          - cell [ref=e745]:
+                            - generic [ref=e746]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e747]:
+                            - button [ref=e748]:
+                              - img [ref=e749]
+                        - row "💸 Pocket Money (Bobby) (👦 Bobby) recurring cost 2nd Feb 7 days ago 0.00" [ref=e751] [cursor=pointer]:
+                          - cell [ref=e752]:
+                            - checkbox [ref=e756]
+                          - cell "💸 Pocket Money (Bobby) (👦 Bobby)" [ref=e757]:
+                            - generic [ref=e758]:
+                              - generic [ref=e759]: 💸
+                              - paragraph [ref=e761]: Pocket Money (Bobby) (👦 Bobby)
+                          - cell "recurring cost" [ref=e762]:
+                            - generic [ref=e764]: recurring cost
+                          - cell "2nd Feb 7 days ago" [ref=e765]:
+                            - generic [ref=e766]:
+                              - generic [ref=e767]: 2nd Feb
+                              - generic [ref=e768]: 7 days ago
+                          - cell "0.00" [ref=e769]:
+                            - spinbutton [ref=e771]: "0.00"
+                          - cell [ref=e772]:
+                            - generic [ref=e773]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e774]:
+                            - button [ref=e775]:
+                              - img [ref=e776]
+                        - row "💸 Pocket Money (Cindy) (👧 Cindy) recurring cost 2nd Feb 7 days ago 0.00" [ref=e778] [cursor=pointer]:
+                          - cell [ref=e779]:
+                            - checkbox [ref=e783]
+                          - cell "💸 Pocket Money (Cindy) (👧 Cindy)" [ref=e784]:
+                            - generic [ref=e785]:
+                              - generic [ref=e786]: 💸
+                              - paragraph [ref=e788]: Pocket Money (Cindy) (👧 Cindy)
+                          - cell "recurring cost" [ref=e789]:
+                            - generic [ref=e791]: recurring cost
+                          - cell "2nd Feb 7 days ago" [ref=e792]:
+                            - generic [ref=e793]:
+                              - generic [ref=e794]: 2nd Feb
+                              - generic [ref=e795]: 7 days ago
+                          - cell "0.00" [ref=e796]:
+                            - spinbutton [ref=e798]: "0.00"
+                          - cell [ref=e799]:
+                            - generic [ref=e800]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e801]:
+                            - button [ref=e802]:
+                              - img [ref=e803]
+                        - row "🏠 Nationwide recurring cost 2nd Feb 7 days ago 0.00" [ref=e805] [cursor=pointer]:
+                          - cell [ref=e806]:
+                            - checkbox [ref=e810]
+                          - cell "🏠 Nationwide" [ref=e811]:
+                            - generic [ref=e812]:
+                              - generic [ref=e813]: 🏠
+                              - paragraph [ref=e815]: Nationwide
+                          - cell "recurring cost" [ref=e816]:
+                            - generic [ref=e818]: recurring cost
+                          - cell "2nd Feb 7 days ago" [ref=e819]:
+                            - generic [ref=e820]:
+                              - generic [ref=e821]: 2nd Feb
+                              - generic [ref=e822]: 7 days ago
+                          - cell "0.00" [ref=e823]:
+                            - spinbutton [ref=e825]: "0.00"
+                          - cell [ref=e826]:
+                            - generic [ref=e827]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e828]:
+                            - button [ref=e829]:
+                              - img [ref=e830]
+                        - 'row "👴 👴 Pension: 401k saving 2nd Feb 7 days ago 0.00" [ref=e832] [cursor=pointer]':
+                          - cell [ref=e833]:
+                            - checkbox [ref=e837]
+                          - 'cell "👴 👴 Pension: 401k" [ref=e838]':
+                            - generic [ref=e839]:
+                              - generic [ref=e840]: 👴
+                              - paragraph [ref=e842]: "👴 Pension: 401k"
+                          - cell "saving" [ref=e843]:
+                            - generic [ref=e845]: saving
+                          - cell "2nd Feb 7 days ago" [ref=e846]:
+                            - generic [ref=e847]:
+                              - generic [ref=e848]: 2nd Feb
+                              - generic [ref=e849]: 7 days ago
+                          - cell "0.00" [ref=e850]:
+                            - spinbutton [ref=e852]: "0.00"
+                          - cell [ref=e853]:
+                            - generic [ref=e854]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e855]:
+                            - button [ref=e856]:
+                              - img [ref=e857]
+                        - row "Council Tax council 2nd Feb 7 days ago 280.00" [ref=e859] [cursor=pointer]:
+                          - cell [ref=e860]:
+                            - checkbox [ref=e864]
+                          - cell "Council Tax" [ref=e865]:
+                            - generic [ref=e866]:
+                              - img [ref=e868]
+                              - paragraph [ref=e871]: Council Tax
+                          - cell "council" [ref=e872]:
+                            - generic [ref=e874]: council
+                          - cell "2nd Feb 7 days ago" [ref=e875]:
+                            - generic [ref=e876]:
+                              - generic [ref=e877]: 2nd Feb
+                              - generic [ref=e878]: 7 days ago
+                          - cell "280.00" [ref=e879]:
+                            - spinbutton [ref=e881]: "280.00"
+                          - cell [ref=e882]:
+                            - generic [ref=e883]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e884]:
+                            - button [ref=e885]:
+                              - img [ref=e886]
+                        - row "Life Insurance (Mike) insurance 2nd Feb 7 days ago 40.00" [ref=e888] [cursor=pointer]:
+                          - cell [ref=e889]:
+                            - checkbox [ref=e893]
+                          - cell "Life Insurance (Mike)" [ref=e894]:
+                            - generic [ref=e895]:
+                              - img [ref=e897]
+                              - paragraph [ref=e900]: Life Insurance (Mike)
+                          - cell "insurance" [ref=e901]:
+                            - generic [ref=e903]: insurance
+                          - cell "2nd Feb 7 days ago" [ref=e904]:
+                            - generic [ref=e905]:
+                              - generic [ref=e906]: 2nd Feb
+                              - generic [ref=e907]: 7 days ago
+                          - cell "40.00" [ref=e908]:
+                            - spinbutton [ref=e910]: "40.00"
+                          - cell [ref=e911]:
+                            - generic [ref=e912]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e913]:
+                            - button [ref=e914]:
+                              - img [ref=e915]
+                        - row "Life Insurance (Carol) insurance 2nd Feb 7 days ago 35.00" [ref=e917] [cursor=pointer]:
+                          - cell [ref=e918]:
+                            - checkbox [ref=e922]
+                          - cell "Life Insurance (Carol)" [ref=e923]:
+                            - generic [ref=e924]:
+                              - img [ref=e926]
+                              - paragraph [ref=e929]: Life Insurance (Carol)
+                          - cell "insurance" [ref=e930]:
+                            - generic [ref=e932]: insurance
+                          - cell "2nd Feb 7 days ago" [ref=e933]:
+                            - generic [ref=e934]:
+                              - generic [ref=e935]: 2nd Feb
+                              - generic [ref=e936]: 7 days ago
+                          - cell "35.00" [ref=e937]:
+                            - spinbutton [ref=e939]: "35.00"
+                          - cell [ref=e940]:
+                            - generic [ref=e941]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e942]:
+                            - button [ref=e943]:
+                              - img [ref=e944]
+                        - row "Spotify Family subscription 2nd Feb 7 days ago 17.00" [ref=e946] [cursor=pointer]:
+                          - cell [ref=e947]:
+                            - checkbox [ref=e951]
+                          - cell "Spotify Family" [ref=e952]:
+                            - generic [ref=e953]:
+                              - img [ref=e955]
+                              - paragraph [ref=e958]: Spotify Family
+                          - cell "subscription" [ref=e959]:
+                            - generic [ref=e961]: subscription
+                          - cell "2nd Feb 7 days ago" [ref=e962]:
+                            - generic [ref=e963]:
+                              - generic [ref=e964]: 2nd Feb
+                              - generic [ref=e965]: 7 days ago
+                          - cell "17.00" [ref=e966]:
+                            - spinbutton [ref=e968]: "17.00"
+                          - cell [ref=e969]:
+                            - generic [ref=e970]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e971]:
+                            - button [ref=e972]:
+                              - img [ref=e973]
+                        - row "Golf Club (Mike) fun money 2nd Feb 7 days ago 150.00" [ref=e975] [cursor=pointer]:
+                          - cell [ref=e976]:
+                            - checkbox [ref=e980]
+                          - cell "Golf Club (Mike)" [ref=e981]:
+                            - generic [ref=e982]:
+                              - img [ref=e984]
+                              - paragraph [ref=e987]: Golf Club (Mike)
+                          - cell "fun money" [ref=e988]:
+                            - generic [ref=e990]: fun money
+                          - cell "2nd Feb 7 days ago" [ref=e991]:
+                            - generic [ref=e992]:
+                              - generic [ref=e993]: 2nd Feb
+                              - generic [ref=e994]: 7 days ago
+                          - cell "150.00" [ref=e995]:
+                            - spinbutton [ref=e997]: "150.00"
+                          - cell [ref=e998]:
+                            - generic [ref=e999]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1000]:
+                            - button [ref=e1001]:
+                              - img [ref=e1002]
+                        - row "College Social (Greg) fun money 2nd Feb 7 days ago 200.00" [ref=e1004] [cursor=pointer]:
+                          - cell [ref=e1005]:
+                            - checkbox [ref=e1009]
+                          - cell "College Social (Greg)" [ref=e1010]:
+                            - generic [ref=e1011]:
+                              - img [ref=e1013]
+                              - paragraph [ref=e1016]: College Social (Greg)
+                          - cell "fun money" [ref=e1017]:
+                            - generic [ref=e1019]: fun money
+                          - cell "2nd Feb 7 days ago" [ref=e1020]:
+                            - generic [ref=e1021]:
+                              - generic [ref=e1022]: 2nd Feb
+                              - generic [ref=e1023]: 7 days ago
+                          - cell "200.00" [ref=e1024]:
+                            - spinbutton [ref=e1026]: "200.00"
+                          - cell [ref=e1027]:
+                            - generic [ref=e1028]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1029]:
+                            - button [ref=e1030]:
+                              - img [ref=e1031]
+                        - row "University Fund (Marcia) fun money 2nd Feb 7 days ago 200.00" [ref=e1033] [cursor=pointer]:
+                          - cell [ref=e1034]:
+                            - checkbox [ref=e1038]
+                          - cell "University Fund (Marcia)" [ref=e1039]:
+                            - generic [ref=e1040]:
+                              - img [ref=e1042]
+                              - paragraph [ref=e1045]: University Fund (Marcia)
+                          - cell "fun money" [ref=e1046]:
+                            - generic [ref=e1048]: fun money
+                          - cell "2nd Feb 7 days ago" [ref=e1049]:
+                            - generic [ref=e1050]:
+                              - generic [ref=e1051]: 2nd Feb
+                              - generic [ref=e1052]: 7 days ago
+                          - cell "200.00" [ref=e1053]:
+                            - spinbutton [ref=e1055]: "200.00"
+                          - cell [ref=e1056]:
+                            - generic [ref=e1057]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1058]:
+                            - button [ref=e1059]:
+                              - img [ref=e1060]
+                        - row "Retirement Social (Alice) fun money 2nd Feb 7 days ago 100.00" [ref=e1062] [cursor=pointer]:
+                          - cell [ref=e1063]:
+                            - checkbox [ref=e1067]
+                          - cell "Retirement Social (Alice)" [ref=e1068]:
+                            - generic [ref=e1069]:
+                              - img [ref=e1071]
+                              - paragraph [ref=e1074]: Retirement Social (Alice)
+                          - cell "fun money" [ref=e1075]:
+                            - generic [ref=e1077]: fun money
+                          - cell "2nd Feb 7 days ago" [ref=e1078]:
+                            - generic [ref=e1079]:
+                              - generic [ref=e1080]: 2nd Feb
+                              - generic [ref=e1081]: 7 days ago
+                          - cell "100.00" [ref=e1082]:
+                            - spinbutton [ref=e1084]: "100.00"
+                          - cell [ref=e1085]:
+                            - generic [ref=e1086]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1087]:
+                            - button [ref=e1088]:
+                              - img [ref=e1089]
+                        - row "Pocket Money (Peter) pocket money 2nd Feb 7 days ago 25.00" [ref=e1091] [cursor=pointer]:
+                          - cell [ref=e1092]:
+                            - checkbox [ref=e1096]
+                          - cell "Pocket Money (Peter)" [ref=e1097]:
+                            - generic [ref=e1098]:
+                              - img [ref=e1100]
+                              - paragraph [ref=e1103]: Pocket Money (Peter)
+                          - cell "pocket money" [ref=e1104]:
+                            - generic [ref=e1106]: pocket money
+                          - cell "2nd Feb 7 days ago" [ref=e1107]:
+                            - generic [ref=e1108]:
+                              - generic [ref=e1109]: 2nd Feb
+                              - generic [ref=e1110]: 7 days ago
+                          - cell "25.00" [ref=e1111]:
+                            - spinbutton [ref=e1113]: "25.00"
+                          - cell [ref=e1114]:
+                            - generic [ref=e1115]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1116]:
+                            - button [ref=e1117]:
+                              - img [ref=e1118]
+                        - row "Pocket Money (Jan) pocket money 2nd Feb 7 days ago 25.00" [ref=e1120] [cursor=pointer]:
+                          - cell [ref=e1121]:
+                            - checkbox [ref=e1125]
+                          - cell "Pocket Money (Jan)" [ref=e1126]:
+                            - generic [ref=e1127]:
+                              - img [ref=e1129]
+                              - paragraph [ref=e1132]: Pocket Money (Jan)
+                          - cell "pocket money" [ref=e1133]:
+                            - generic [ref=e1135]: pocket money
+                          - cell "2nd Feb 7 days ago" [ref=e1136]:
+                            - generic [ref=e1137]:
+                              - generic [ref=e1138]: 2nd Feb
+                              - generic [ref=e1139]: 7 days ago
+                          - cell "25.00" [ref=e1140]:
+                            - spinbutton [ref=e1142]: "25.00"
+                          - cell [ref=e1143]:
+                            - generic [ref=e1144]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1145]:
+                            - button [ref=e1146]:
+                              - img [ref=e1147]
+                        - row "Pocket Money (Bobby) pocket money 2nd Feb 7 days ago 20.00" [ref=e1149] [cursor=pointer]:
+                          - cell [ref=e1150]:
+                            - checkbox [ref=e1154]
+                          - cell "Pocket Money (Bobby)" [ref=e1155]:
+                            - generic [ref=e1156]:
+                              - img [ref=e1158]
+                              - paragraph [ref=e1161]: Pocket Money (Bobby)
+                          - cell "pocket money" [ref=e1162]:
+                            - generic [ref=e1164]: pocket money
+                          - cell "2nd Feb 7 days ago" [ref=e1165]:
+                            - generic [ref=e1166]:
+                              - generic [ref=e1167]: 2nd Feb
+                              - generic [ref=e1168]: 7 days ago
+                          - cell "20.00" [ref=e1169]:
+                            - spinbutton [ref=e1171]: "20.00"
+                          - cell [ref=e1172]:
+                            - generic [ref=e1173]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1174]:
+                            - button [ref=e1175]:
+                              - img [ref=e1176]
+                        - row "Pocket Money (Cindy) pocket money 2nd Feb 7 days ago 20.00" [ref=e1178] [cursor=pointer]:
+                          - cell [ref=e1179]:
+                            - checkbox [ref=e1183]
+                          - cell "Pocket Money (Cindy)" [ref=e1184]:
+                            - generic [ref=e1185]:
+                              - img [ref=e1187]
+                              - paragraph [ref=e1190]: Pocket Money (Cindy)
+                          - cell "pocket money" [ref=e1191]:
+                            - generic [ref=e1193]: pocket money
+                          - cell "2nd Feb 7 days ago" [ref=e1194]:
+                            - generic [ref=e1195]:
+                              - generic [ref=e1196]: 2nd Feb
+                              - generic [ref=e1197]: 7 days ago
+                          - cell "20.00" [ref=e1198]:
+                            - spinbutton [ref=e1200]: "20.00"
+                          - cell [ref=e1201]:
+                            - generic [ref=e1202]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1203]:
+                            - button [ref=e1204]:
+                              - img [ref=e1205]
+                        - row "💸 Yoga & Pilates (Carol) (👩 Carol) recurring cost 3rd Feb 6 days ago 0.00" [ref=e1207] [cursor=pointer]:
+                          - cell [ref=e1208]:
+                            - checkbox [ref=e1212]
+                          - cell "💸 Yoga & Pilates (Carol) (👩 Carol)" [ref=e1213]:
+                            - generic [ref=e1214]:
+                              - generic [ref=e1215]: 💸
+                              - paragraph [ref=e1217]: Yoga & Pilates (Carol) (👩 Carol)
+                          - cell "recurring cost" [ref=e1218]:
+                            - generic [ref=e1220]: recurring cost
+                          - cell "3rd Feb 6 days ago" [ref=e1221]:
+                            - generic [ref=e1222]:
+                              - generic [ref=e1223]: 3rd Feb
+                              - generic [ref=e1224]: 6 days ago
+                          - cell "0.00" [ref=e1225]:
+                            - spinbutton [ref=e1227]: "0.00"
+                          - cell [ref=e1228]:
+                            - generic [ref=e1229]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1230]:
+                            - button [ref=e1231]:
+                              - img [ref=e1232]
+                        - row "Yoga & Pilates (Carol) fun money 3rd Feb 6 days ago 120.00" [ref=e1234] [cursor=pointer]:
+                          - cell [ref=e1235]:
+                            - checkbox [ref=e1239]
+                          - cell "Yoga & Pilates (Carol)" [ref=e1240]:
+                            - generic [ref=e1241]:
+                              - img [ref=e1243]
+                              - paragraph [ref=e1246]: Yoga & Pilates (Carol)
+                          - cell "fun money" [ref=e1247]:
+                            - generic [ref=e1249]: fun money
+                          - cell "3rd Feb 6 days ago" [ref=e1250]:
+                            - generic [ref=e1251]:
+                              - generic [ref=e1252]: 3rd Feb
+                              - generic [ref=e1253]: 6 days ago
+                          - cell "120.00" [ref=e1254]:
+                            - spinbutton [ref=e1256]: "120.00"
+                          - cell [ref=e1257]:
+                            - generic [ref=e1258]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1259]:
+                            - button [ref=e1260]:
+                              - img [ref=e1261]
+                        - row "💸 Disney+ recurring cost 5th Feb 4 days ago 0.00" [ref=e1263] [cursor=pointer]:
+                          - cell [ref=e1264]:
+                            - checkbox [ref=e1268]
+                          - cell "💸 Disney+" [ref=e1269]:
+                            - generic [ref=e1270]:
+                              - generic [ref=e1271]: 💸
+                              - paragraph [ref=e1273]: Disney+
+                          - cell "recurring cost" [ref=e1274]:
+                            - generic [ref=e1276]: recurring cost
+                          - cell "5th Feb 4 days ago" [ref=e1277]:
+                            - generic [ref=e1278]:
+                              - generic [ref=e1279]: 5th Feb
+                              - generic [ref=e1280]: 4 days ago
+                          - cell "0.00" [ref=e1281]:
+                            - spinbutton [ref=e1283]: "0.00"
+                          - cell [ref=e1284]:
+                            - generic [ref=e1285]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1286]:
+                            - button [ref=e1287]:
+                              - img [ref=e1288]
+                        - row "💸 Gym & Spa (Mike) (👨 Mike) recurring cost 5th Feb 4 days ago 0.00" [ref=e1290] [cursor=pointer]:
+                          - cell [ref=e1291]:
+                            - checkbox [ref=e1295]
+                          - cell "💸 Gym & Spa (Mike) (👨 Mike)" [ref=e1296]:
+                            - generic [ref=e1297]:
+                              - generic [ref=e1298]: 💸
+                              - paragraph [ref=e1300]: Gym & Spa (Mike) (👨 Mike)
+                          - cell "recurring cost" [ref=e1301]:
+                            - generic [ref=e1303]: recurring cost
+                          - cell "5th Feb 4 days ago" [ref=e1304]:
+                            - generic [ref=e1305]:
+                              - generic [ref=e1306]: 5th Feb
+                              - generic [ref=e1307]: 4 days ago
+                          - cell "0.00" [ref=e1308]:
+                            - spinbutton [ref=e1310]: "0.00"
+                          - cell [ref=e1311]:
+                            - generic [ref=e1312]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1313]:
+                            - button [ref=e1314]:
+                              - img [ref=e1315]
+                        - row "💸 Dog Food (Tiger) (🐕 Tiger) recurring cost 5th Feb 4 days ago 0.00" [ref=e1317] [cursor=pointer]:
+                          - cell [ref=e1318]:
+                            - checkbox [ref=e1322]
+                          - cell "💸 Dog Food (Tiger) (🐕 Tiger)" [ref=e1323]:
+                            - generic [ref=e1324]:
+                              - generic [ref=e1325]: 💸
+                              - paragraph [ref=e1327]: Dog Food (Tiger) (🐕 Tiger)
+                          - cell "recurring cost" [ref=e1328]:
+                            - generic [ref=e1330]: recurring cost
+                          - cell "5th Feb 4 days ago" [ref=e1331]:
+                            - generic [ref=e1332]:
+                              - generic [ref=e1333]: 5th Feb
+                              - generic [ref=e1334]: 4 days ago
+                          - cell "0.00" [ref=e1335]:
+                            - spinbutton [ref=e1337]: "0.00"
+                          - cell [ref=e1338]:
+                            - generic [ref=e1339]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1340]:
+                            - button [ref=e1341]:
+                              - img [ref=e1342]
+                        - row "💸 Cat Food (Fluffy) (🐈 Fluffy) recurring cost 5th Feb 4 days ago 0.00" [ref=e1344] [cursor=pointer]:
+                          - cell [ref=e1345]:
+                            - checkbox [ref=e1349]
+                          - cell "💸 Cat Food (Fluffy) (🐈 Fluffy)" [ref=e1350]:
+                            - generic [ref=e1351]:
+                              - generic [ref=e1352]: 💸
+                              - paragraph [ref=e1354]: Cat Food (Fluffy) (🐈 Fluffy)
+                          - cell "recurring cost" [ref=e1355]:
+                            - generic [ref=e1357]: recurring cost
+                          - cell "5th Feb 4 days ago" [ref=e1358]:
+                            - generic [ref=e1359]:
+                              - generic [ref=e1360]: 5th Feb
+                              - generic [ref=e1361]: 4 days ago
+                          - cell "0.00" [ref=e1362]:
+                            - spinbutton [ref=e1364]: "0.00"
+                          - cell [ref=e1365]:
+                            - generic [ref=e1366]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1367]:
+                            - button [ref=e1368]:
+                              - img [ref=e1369]
+                        - row "💳 💳 Sapphire Reserve Bill bill 5th Feb 4 days ago 0.00" [ref=e1371] [cursor=pointer]:
+                          - cell [ref=e1372]:
+                            - checkbox [ref=e1376]
+                          - cell "💳 💳 Sapphire Reserve Bill" [ref=e1377]:
+                            - generic [ref=e1378]:
+                              - generic [ref=e1379]: 💳
+                              - paragraph [ref=e1381]: 💳 Sapphire Reserve Bill
+                          - cell "bill" [ref=e1382]:
+                            - generic [ref=e1384]: bill
+                          - cell "5th Feb 4 days ago" [ref=e1385]:
+                            - generic [ref=e1386]:
+                              - generic [ref=e1387]: 5th Feb
+                              - generic [ref=e1388]: 4 days ago
+                          - cell "0.00" [ref=e1389]:
+                            - spinbutton [ref=e1391]: "0.00"
+                          - cell [ref=e1392]:
+                            - generic [ref=e1393]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1394]:
+                            - button [ref=e1395]:
+                              - img [ref=e1396]
+                        - row "Disney+ subscription 5th Feb 4 days ago 12.00" [ref=e1398] [cursor=pointer]:
+                          - cell [ref=e1399]:
+                            - checkbox [ref=e1403]
+                          - cell "Disney+" [ref=e1404]:
+                            - generic [ref=e1405]:
+                              - img [ref=e1407]
+                              - paragraph [ref=e1410]: Disney+
+                          - cell "subscription" [ref=e1411]:
+                            - generic [ref=e1413]: subscription
+                          - cell "5th Feb 4 days ago" [ref=e1414]:
+                            - generic [ref=e1415]:
+                              - generic [ref=e1416]: 5th Feb
+                              - generic [ref=e1417]: 4 days ago
+                          - cell "12.00" [ref=e1418]:
+                            - spinbutton [ref=e1420]: "12.00"
+                          - cell [ref=e1421]:
+                            - generic [ref=e1422]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1423]:
+                            - button [ref=e1424]:
+                              - img [ref=e1425]
+                        - row "Gym & Spa (Mike) fun money 5th Feb 4 days ago 85.00" [ref=e1427] [cursor=pointer]:
+                          - cell [ref=e1428]:
+                            - checkbox [ref=e1432]
+                          - cell "Gym & Spa (Mike)" [ref=e1433]:
+                            - generic [ref=e1434]:
+                              - img [ref=e1436]
+                              - paragraph [ref=e1439]: Gym & Spa (Mike)
+                          - cell "fun money" [ref=e1440]:
+                            - generic [ref=e1442]: fun money
+                          - cell "5th Feb 4 days ago" [ref=e1443]:
+                            - generic [ref=e1444]:
+                              - generic [ref=e1445]: 5th Feb
+                              - generic [ref=e1446]: 4 days ago
+                          - cell "85.00" [ref=e1447]:
+                            - spinbutton [ref=e1449]: "85.00"
+                          - cell [ref=e1450]:
+                            - generic [ref=e1451]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1452]:
+                            - button [ref=e1453]:
+                              - img [ref=e1454]
+                        - row "Dog Food (Tiger) food 5th Feb 4 days ago 60.00" [ref=e1456] [cursor=pointer]:
+                          - cell [ref=e1457]:
+                            - checkbox [ref=e1461]
+                          - cell "Dog Food (Tiger)" [ref=e1462]:
+                            - generic [ref=e1463]:
+                              - img [ref=e1465]
+                              - paragraph [ref=e1468]: Dog Food (Tiger)
+                          - cell "food" [ref=e1469]:
+                            - generic [ref=e1471]: food
+                          - cell "5th Feb 4 days ago" [ref=e1472]:
+                            - generic [ref=e1473]:
+                              - generic [ref=e1474]: 5th Feb
+                              - generic [ref=e1475]: 4 days ago
+                          - cell "60.00" [ref=e1476]:
+                            - spinbutton [ref=e1478]: "60.00"
+                          - cell [ref=e1479]:
+                            - generic [ref=e1480]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1481]:
+                            - button [ref=e1482]:
+                              - img [ref=e1483]
+                        - row "Cat Food (Fluffy) food 5th Feb 4 days ago 40.00" [ref=e1485] [cursor=pointer]:
+                          - cell [ref=e1486]:
+                            - checkbox [ref=e1490]
+                          - cell "Cat Food (Fluffy)" [ref=e1491]:
+                            - generic [ref=e1492]:
+                              - img [ref=e1494]
+                              - paragraph [ref=e1497]: Cat Food (Fluffy)
+                          - cell "food" [ref=e1498]:
+                            - generic [ref=e1500]: food
+                          - cell "5th Feb 4 days ago" [ref=e1501]:
+                            - generic [ref=e1502]:
+                              - generic [ref=e1503]: 5th Feb
+                              - generic [ref=e1504]: 4 days ago
+                          - cell "40.00" [ref=e1505]:
+                            - spinbutton [ref=e1507]: "40.00"
+                          - cell [ref=e1508]:
+                            - generic [ref=e1509]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1510]:
+                            - button [ref=e1511]:
+                              - img [ref=e1512]
+                        - row "💸 Tesla Insurance (⚡ Tesla) recurring cost 9th Feb Today 0.00" [ref=e1514] [cursor=pointer]:
+                          - cell [ref=e1515]:
+                            - checkbox [ref=e1519]
+                          - cell "💸 Tesla Insurance (⚡ Tesla)" [ref=e1520]:
+                            - generic [ref=e1521]:
+                              - generic [ref=e1522]: 💸
+                              - paragraph [ref=e1524]: Tesla Insurance (⚡ Tesla)
+                          - cell "recurring cost" [ref=e1525]:
+                            - generic [ref=e1527]: recurring cost
+                          - cell "9th Feb Today" [ref=e1528]:
+                            - generic [ref=e1529]:
+                              - generic [ref=e1530]: 9th Feb
+                              - generic [ref=e1531]: Today
+                          - cell "0.00" [ref=e1532]:
+                            - spinbutton [ref=e1534]: "0.00"
+                          - cell [ref=e1535]:
+                            - generic [ref=e1536]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1537]:
+                            - button [ref=e1538]:
+                              - img [ref=e1539]
+                        - row "💸 Book Club & Coffee (Carol) (👩 Carol) recurring cost 9th Feb Today 0.00" [ref=e1541] [cursor=pointer]:
+                          - cell [ref=e1542]:
+                            - checkbox [ref=e1546]
+                          - cell "💸 Book Club & Coffee (Carol) (👩 Carol)" [ref=e1547]:
+                            - generic [ref=e1548]:
+                              - generic [ref=e1549]: 💸
+                              - paragraph [ref=e1551]: Book Club & Coffee (Carol) (👩 Carol)
+                          - cell "recurring cost" [ref=e1552]:
+                            - generic [ref=e1554]: recurring cost
+                          - cell "9th Feb Today" [ref=e1555]:
+                            - generic [ref=e1556]:
+                              - generic [ref=e1557]: 9th Feb
+                              - generic [ref=e1558]: Today
+                          - cell "0.00" [ref=e1559]:
+                            - spinbutton [ref=e1561]: "0.00"
+                          - cell [ref=e1562]:
+                            - generic [ref=e1563]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1564]:
+                            - button [ref=e1565]:
+                              - img [ref=e1566]
+                        - row "⚡ Tesla Financial Services (⚡ Tesla) recurring cost 9th Feb Today 0.00" [ref=e1568] [cursor=pointer]:
+                          - cell [ref=e1569]:
+                            - checkbox [ref=e1573]
+                          - cell "⚡ Tesla Financial Services (⚡ Tesla)" [ref=e1574]:
+                            - generic [ref=e1575]:
+                              - generic [ref=e1576]: ⚡
+                              - paragraph [ref=e1578]: Tesla Financial Services (⚡ Tesla)
+                          - cell "recurring cost" [ref=e1579]:
+                            - generic [ref=e1581]: recurring cost
+                          - cell "9th Feb Today" [ref=e1582]:
+                            - generic [ref=e1583]:
+                              - generic [ref=e1584]: 9th Feb
+                              - generic [ref=e1585]: Today
+                          - cell "0.00" [ref=e1586]:
+                            - spinbutton [ref=e1588]: "0.00"
+                          - cell [ref=e1589]:
+                            - generic [ref=e1590]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1591]:
+                            - button [ref=e1592]:
+                              - img [ref=e1593]
+                        - row "Tesla Insurance insurance 9th Feb Today 120.00" [ref=e1595] [cursor=pointer]:
+                          - cell [ref=e1596]:
+                            - checkbox [ref=e1600]
+                          - cell "Tesla Insurance" [ref=e1601]:
+                            - generic [ref=e1602]:
+                              - img [ref=e1604]
+                              - paragraph [ref=e1607]: Tesla Insurance
+                          - cell "insurance" [ref=e1608]:
+                            - generic [ref=e1610]: insurance
+                          - cell "9th Feb Today" [ref=e1611]:
+                            - generic [ref=e1612]:
+                              - generic [ref=e1613]: 9th Feb
+                              - generic [ref=e1614]: Today
+                          - cell "120.00" [ref=e1615]:
+                            - spinbutton [ref=e1617]: "120.00"
+                          - cell [ref=e1618]:
+                            - generic [ref=e1619]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1620]:
+                            - button [ref=e1621]:
+                              - img [ref=e1622]
+                        - row "Book Club & Coffee (Carol) fun money 9th Feb Today 40.00" [ref=e1624] [cursor=pointer]:
+                          - cell [ref=e1625]:
+                            - checkbox [ref=e1629]
+                          - cell "Book Club & Coffee (Carol)" [ref=e1630]:
+                            - generic [ref=e1631]:
+                              - img [ref=e1633]
+                              - paragraph [ref=e1636]: Book Club & Coffee (Carol)
+                          - cell "fun money" [ref=e1637]:
+                            - generic [ref=e1639]: fun money
+                          - cell "9th Feb Today" [ref=e1640]:
+                            - generic [ref=e1641]:
+                              - generic [ref=e1642]: 9th Feb
+                              - generic [ref=e1643]: Today
+                          - cell "40.00" [ref=e1644]:
+                            - spinbutton [ref=e1646]: "40.00"
+                          - cell [ref=e1647]:
+                            - generic [ref=e1648]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1649]:
+                            - button [ref=e1650]:
+                              - img [ref=e1651]
+                        - row "💸 Tesla Service Plan (⚡ Tesla) recurring cost 10th Feb Tomorrow 0.00" [ref=e1653] [cursor=pointer]:
+                          - cell [ref=e1654]:
+                            - checkbox [ref=e1658]
+                          - cell "💸 Tesla Service Plan (⚡ Tesla)" [ref=e1659]:
+                            - generic [ref=e1660]:
+                              - generic [ref=e1661]: 💸
+                              - paragraph [ref=e1663]: Tesla Service Plan (⚡ Tesla)
+                          - cell "recurring cost" [ref=e1664]:
+                            - generic [ref=e1666]: recurring cost
+                          - cell "10th Feb Tomorrow" [ref=e1667]:
+                            - generic [ref=e1668]:
+                              - generic [ref=e1669]: 10th Feb
+                              - generic [ref=e1670]: Tomorrow
+                          - cell "0.00" [ref=e1671]:
+                            - spinbutton [ref=e1673]: "0.00"
+                          - cell [ref=e1674]:
+                            - generic [ref=e1675]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1676]:
+                            - button [ref=e1677]:
+                              - img [ref=e1678]
+                        - row "💸 Tesla Extended Warranty (⚡ Tesla) recurring cost 10th Feb Tomorrow 0.00" [ref=e1680] [cursor=pointer]:
+                          - cell [ref=e1681]:
+                            - checkbox [ref=e1685]
+                          - cell "💸 Tesla Extended Warranty (⚡ Tesla)" [ref=e1686]:
+                            - generic [ref=e1687]:
+                              - generic [ref=e1688]: 💸
+                              - paragraph [ref=e1690]: Tesla Extended Warranty (⚡ Tesla)
+                          - cell "recurring cost" [ref=e1691]:
+                            - generic [ref=e1693]: recurring cost
+                          - cell "10th Feb Tomorrow" [ref=e1694]:
+                            - generic [ref=e1695]:
+                              - generic [ref=e1696]: 10th Feb
+                              - generic [ref=e1697]: Tomorrow
+                          - cell "0.00" [ref=e1698]:
+                            - spinbutton [ref=e1700]: "0.00"
+                          - cell [ref=e1701]:
+                            - generic [ref=e1702]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1703]:
+                            - button [ref=e1704]:
+                              - img [ref=e1705]
+                        - row "💸 Pet Insurance (Tiger) (🐕 Tiger) recurring cost 10th Feb Tomorrow 0.00" [ref=e1707] [cursor=pointer]:
+                          - cell [ref=e1708]:
+                            - checkbox [ref=e1712]
+                          - cell "💸 Pet Insurance (Tiger) (🐕 Tiger)" [ref=e1713]:
+                            - generic [ref=e1714]:
+                              - generic [ref=e1715]: 💸
+                              - paragraph [ref=e1717]: Pet Insurance (Tiger) (🐕 Tiger)
+                          - cell "recurring cost" [ref=e1718]:
+                            - generic [ref=e1720]: recurring cost
+                          - cell "10th Feb Tomorrow" [ref=e1721]:
+                            - generic [ref=e1722]:
+                              - generic [ref=e1723]: 10th Feb
+                              - generic [ref=e1724]: Tomorrow
+                          - cell "0.00" [ref=e1725]:
+                            - spinbutton [ref=e1727]: "0.00"
+                          - cell [ref=e1728]:
+                            - generic [ref=e1729]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1730]:
+                            - button [ref=e1731]:
+                              - img [ref=e1732]
+                        - row "💸 Pet Insurance (Fluffy) (🐈 Fluffy) recurring cost 10th Feb Tomorrow 0.00" [ref=e1734] [cursor=pointer]:
+                          - cell [ref=e1735]:
+                            - checkbox [ref=e1739]
+                          - cell "💸 Pet Insurance (Fluffy) (🐈 Fluffy)" [ref=e1740]:
+                            - generic [ref=e1741]:
+                              - generic [ref=e1742]: 💸
+                              - paragraph [ref=e1744]: Pet Insurance (Fluffy) (🐈 Fluffy)
+                          - cell "recurring cost" [ref=e1745]:
+                            - generic [ref=e1747]: recurring cost
+                          - cell "10th Feb Tomorrow" [ref=e1748]:
+                            - generic [ref=e1749]:
+                              - generic [ref=e1750]: 10th Feb
+                              - generic [ref=e1751]: Tomorrow
+                          - cell "0.00" [ref=e1752]:
+                            - spinbutton [ref=e1754]: "0.00"
+                          - cell [ref=e1755]:
+                            - generic [ref=e1756]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1757]:
+                            - button [ref=e1758]:
+                              - img [ref=e1759]
+                        - row "💸 Home Office Expansion Loan recurring cost 10th Feb Tomorrow 0.00" [ref=e1761] [cursor=pointer]:
+                          - cell [ref=e1762]:
+                            - checkbox [ref=e1766]
+                          - cell "💸 Home Office Expansion Loan" [ref=e1767]:
+                            - generic [ref=e1768]:
+                              - generic [ref=e1769]: 💸
+                              - paragraph [ref=e1771]: Home Office Expansion Loan
+                          - cell "recurring cost" [ref=e1772]:
+                            - generic [ref=e1774]: recurring cost
+                          - cell "10th Feb Tomorrow" [ref=e1775]:
+                            - generic [ref=e1776]:
+                              - generic [ref=e1777]: 10th Feb
+                              - generic [ref=e1778]: Tomorrow
+                          - cell "0.00" [ref=e1779]:
+                            - spinbutton [ref=e1781]: "0.00"
+                          - cell [ref=e1782]:
+                            - generic [ref=e1783]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1784]:
+                            - button [ref=e1785]:
+                              - img [ref=e1786]
+                        - row "Tesla Service Plan vehicle service 10th Feb Tomorrow 45.00" [ref=e1788] [cursor=pointer]:
+                          - cell [ref=e1789]:
+                            - checkbox [ref=e1793]
+                          - cell "Tesla Service Plan" [ref=e1794]:
+                            - generic [ref=e1795]:
+                              - img [ref=e1797]
+                              - paragraph [ref=e1800]: Tesla Service Plan
+                          - cell "vehicle service" [ref=e1801]:
+                            - generic [ref=e1803]: vehicle service
+                          - cell "10th Feb Tomorrow" [ref=e1804]:
+                            - generic [ref=e1805]:
+                              - generic [ref=e1806]: 10th Feb
+                              - generic [ref=e1807]: Tomorrow
+                          - cell "45.00" [ref=e1808]:
+                            - spinbutton [ref=e1810]: "45.00"
+                          - cell [ref=e1811]:
+                            - generic [ref=e1812]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1813]:
+                            - button [ref=e1814]:
+                              - img [ref=e1815]
+                        - row "Tesla Extended Warranty insurance 10th Feb Tomorrow 35.00" [ref=e1817] [cursor=pointer]:
+                          - cell [ref=e1818]:
+                            - checkbox [ref=e1822]
+                          - cell "Tesla Extended Warranty" [ref=e1823]:
+                            - generic [ref=e1824]:
+                              - img [ref=e1826]
+                              - paragraph [ref=e1829]: Tesla Extended Warranty
+                          - cell "insurance" [ref=e1830]:
+                            - generic [ref=e1832]: insurance
+                          - cell "10th Feb Tomorrow" [ref=e1833]:
+                            - generic [ref=e1834]:
+                              - generic [ref=e1835]: 10th Feb
+                              - generic [ref=e1836]: Tomorrow
+                          - cell "35.00" [ref=e1837]:
+                            - spinbutton [ref=e1839]: "35.00"
+                          - cell [ref=e1840]:
+                            - generic [ref=e1841]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1842]:
+                            - button [ref=e1843]:
+                              - img [ref=e1844]
+                        - row "Pet Insurance (Tiger) insurance 10th Feb Tomorrow 45.00" [ref=e1846] [cursor=pointer]:
+                          - cell [ref=e1847]:
+                            - checkbox [ref=e1851]
+                          - cell "Pet Insurance (Tiger)" [ref=e1852]:
+                            - generic [ref=e1853]:
+                              - img [ref=e1855]
+                              - paragraph [ref=e1858]: Pet Insurance (Tiger)
+                          - cell "insurance" [ref=e1859]:
+                            - generic [ref=e1861]: insurance
+                          - cell "10th Feb Tomorrow" [ref=e1862]:
+                            - generic [ref=e1863]:
+                              - generic [ref=e1864]: 10th Feb
+                              - generic [ref=e1865]: Tomorrow
+                          - cell "45.00" [ref=e1866]:
+                            - spinbutton [ref=e1868]: "45.00"
+                          - cell [ref=e1869]:
+                            - generic [ref=e1870]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1871]:
+                            - button [ref=e1872]:
+                              - img [ref=e1873]
+                        - row "Pet Insurance (Fluffy) insurance 10th Feb Tomorrow 30.00" [ref=e1875] [cursor=pointer]:
+                          - cell [ref=e1876]:
+                            - checkbox [ref=e1880]
+                          - cell "Pet Insurance (Fluffy)" [ref=e1881]:
+                            - generic [ref=e1882]:
+                              - img [ref=e1884]
+                              - paragraph [ref=e1887]: Pet Insurance (Fluffy)
+                          - cell "insurance" [ref=e1888]:
+                            - generic [ref=e1890]: insurance
+                          - cell "10th Feb Tomorrow" [ref=e1891]:
+                            - generic [ref=e1892]:
+                              - generic [ref=e1893]: 10th Feb
+                              - generic [ref=e1894]: Tomorrow
+                          - cell "30.00" [ref=e1895]:
+                            - spinbutton [ref=e1897]: "30.00"
+                          - cell [ref=e1898]:
+                            - generic [ref=e1899]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1900]:
+                            - button [ref=e1901]:
+                              - img [ref=e1902]
+                        - row "💸 Home Insurance recurring cost 12th Feb In 3 days 0.00" [ref=e1904] [cursor=pointer]:
+                          - cell [ref=e1905]:
+                            - checkbox [ref=e1909]
+                          - cell "💸 Home Insurance" [ref=e1910]:
+                            - generic [ref=e1911]:
+                              - generic [ref=e1912]: 💸
+                              - paragraph [ref=e1914]: Home Insurance
+                          - cell "recurring cost" [ref=e1915]:
+                            - generic [ref=e1917]: recurring cost
+                          - cell "12th Feb In 3 days" [ref=e1918]:
+                            - generic [ref=e1919]:
+                              - generic [ref=e1920]: 12th Feb
+                              - generic [ref=e1921]: In 3 days
+                          - cell "0.00" [ref=e1922]:
+                            - spinbutton [ref=e1924]: "0.00"
+                          - cell [ref=e1925]:
+                            - generic [ref=e1926]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1927]:
+                            - button [ref=e1928]:
+                              - img [ref=e1929]
+                        - row "Home Insurance insurance 12th Feb In 3 days 65.00" [ref=e1931] [cursor=pointer]:
+                          - cell [ref=e1932]:
+                            - checkbox [ref=e1936]
+                          - cell "Home Insurance" [ref=e1937]:
+                            - generic [ref=e1938]:
+                              - img [ref=e1940]
+                              - paragraph [ref=e1943]: Home Insurance
+                          - cell "insurance" [ref=e1944]:
+                            - generic [ref=e1946]: insurance
+                          - cell "12th Feb In 3 days" [ref=e1947]:
+                            - generic [ref=e1948]:
+                              - generic [ref=e1949]: 12th Feb
+                              - generic [ref=e1950]: In 3 days
+                          - cell "65.00" [ref=e1951]:
+                            - spinbutton [ref=e1953]: "65.00"
+                          - cell [ref=e1954]:
+                            - generic [ref=e1955]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1956]:
+                            - button [ref=e1957]:
+                              - img [ref=e1958]
+                        - row "💸 LA Water recurring cost 16th Feb In 1w 0d 0.00" [ref=e1960] [cursor=pointer]:
+                          - cell [ref=e1961]:
+                            - checkbox [ref=e1965]
+                          - cell "💸 LA Water" [ref=e1966]:
+                            - generic [ref=e1967]:
+                              - generic [ref=e1968]: 💸
+                              - paragraph [ref=e1970]: LA Water
+                          - cell "recurring cost" [ref=e1971]:
+                            - generic [ref=e1973]: recurring cost
+                          - cell "16th Feb In 1w 0d" [ref=e1974]:
+                            - generic [ref=e1975]:
+                              - generic [ref=e1976]: 16th Feb
+                              - generic [ref=e1977]: In 1w 0d
+                          - cell "0.00" [ref=e1978]:
+                            - spinbutton [ref=e1980]: "0.00"
+                          - cell [ref=e1981]:
+                            - generic [ref=e1982]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e1983]:
+                            - button [ref=e1984]:
+                              - img [ref=e1985]
+                        - row "💸 Home Emergency Cover recurring cost 16th Feb In 1w 0d 0.00" [ref=e1987] [cursor=pointer]:
+                          - cell [ref=e1988]:
+                            - checkbox [ref=e1992]
+                          - cell "💸 Home Emergency Cover" [ref=e1993]:
+                            - generic [ref=e1994]:
+                              - generic [ref=e1995]: 💸
+                              - paragraph [ref=e1997]: Home Emergency Cover
+                          - cell "recurring cost" [ref=e1998]:
+                            - generic [ref=e2000]: recurring cost
+                          - cell "16th Feb In 1w 0d" [ref=e2001]:
+                            - generic [ref=e2002]:
+                              - generic [ref=e2003]: 16th Feb
+                              - generic [ref=e2004]: In 1w 0d
+                          - cell "0.00" [ref=e2005]:
+                            - spinbutton [ref=e2007]: "0.00"
+                          - cell [ref=e2008]:
+                            - generic [ref=e2009]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2010]:
+                            - button [ref=e2011]:
+                              - img [ref=e2012]
+                        - row "💸 Amazon Prime recurring cost 16th Feb In 1w 0d 0.00" [ref=e2014] [cursor=pointer]:
+                          - cell [ref=e2015]:
+                            - checkbox [ref=e2019]
+                          - cell "💸 Amazon Prime" [ref=e2020]:
+                            - generic [ref=e2021]:
+                              - generic [ref=e2022]: 💸
+                              - paragraph [ref=e2024]: Amazon Prime
+                          - cell "recurring cost" [ref=e2025]:
+                            - generic [ref=e2027]: recurring cost
+                          - cell "16th Feb In 1w 0d" [ref=e2028]:
+                            - generic [ref=e2029]:
+                              - generic [ref=e2030]: 16th Feb
+                              - generic [ref=e2031]: In 1w 0d
+                          - cell "0.00" [ref=e2032]:
+                            - spinbutton [ref=e2034]: "0.00"
+                          - cell [ref=e2035]:
+                            - generic [ref=e2036]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2037]:
+                            - button [ref=e2038]:
+                              - img [ref=e2039]
+                        - row "💸 Rivian Service (🔋 Rivian) recurring cost 16th Feb In 1w 0d 0.00" [ref=e2041] [cursor=pointer]:
+                          - cell [ref=e2042]:
+                            - checkbox [ref=e2046]
+                          - cell "💸 Rivian Service (🔋 Rivian)" [ref=e2047]:
+                            - generic [ref=e2048]:
+                              - generic [ref=e2049]: 💸
+                              - paragraph [ref=e2051]: Rivian Service (🔋 Rivian)
+                          - cell "recurring cost" [ref=e2052]:
+                            - generic [ref=e2054]: recurring cost
+                          - cell "16th Feb In 1w 0d" [ref=e2055]:
+                            - generic [ref=e2056]:
+                              - generic [ref=e2057]: 16th Feb
+                              - generic [ref=e2058]: In 1w 0d
+                          - cell "0.00" [ref=e2059]:
+                            - spinbutton [ref=e2061]: "0.00"
+                          - cell [ref=e2062]:
+                            - generic [ref=e2063]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2064]:
+                            - button [ref=e2065]:
+                              - img [ref=e2066]
+                        - row "💸 Rivian Warranty (🔋 Rivian) recurring cost 16th Feb In 1w 0d 0.00" [ref=e2068] [cursor=pointer]:
+                          - cell [ref=e2069]:
+                            - checkbox [ref=e2073]
+                          - cell "💸 Rivian Warranty (🔋 Rivian)" [ref=e2074]:
+                            - generic [ref=e2075]:
+                              - generic [ref=e2076]: 💸
+                              - paragraph [ref=e2078]: Rivian Warranty (🔋 Rivian)
+                          - cell "recurring cost" [ref=e2079]:
+                            - generic [ref=e2081]: recurring cost
+                          - cell "16th Feb In 1w 0d" [ref=e2082]:
+                            - generic [ref=e2083]:
+                              - generic [ref=e2084]: 16th Feb
+                              - generic [ref=e2085]: In 1w 0d
+                          - cell "0.00" [ref=e2086]:
+                            - spinbutton [ref=e2088]: "0.00"
+                          - cell [ref=e2089]:
+                            - generic [ref=e2090]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2091]:
+                            - button [ref=e2092]:
+                              - img [ref=e2093]
+                        - row "💸 Vet Wellness Plan (Tiger) (🐕 Tiger) recurring cost 16th Feb In 1w 0d 0.00" [ref=e2095] [cursor=pointer]:
+                          - cell [ref=e2096]:
+                            - checkbox [ref=e2100]
+                          - cell "💸 Vet Wellness Plan (Tiger) (🐕 Tiger)" [ref=e2101]:
+                            - generic [ref=e2102]:
+                              - generic [ref=e2103]: 💸
+                              - paragraph [ref=e2105]: Vet Wellness Plan (Tiger) (🐕 Tiger)
+                          - cell "recurring cost" [ref=e2106]:
+                            - generic [ref=e2108]: recurring cost
+                          - cell "16th Feb In 1w 0d" [ref=e2109]:
+                            - generic [ref=e2110]:
+                              - generic [ref=e2111]: 16th Feb
+                              - generic [ref=e2112]: In 1w 0d
+                          - cell "0.00" [ref=e2113]:
+                            - spinbutton [ref=e2115]: "0.00"
+                          - cell [ref=e2116]:
+                            - generic [ref=e2117]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2118]:
+                            - button [ref=e2119]:
+                              - img [ref=e2120]
+                        - row "💸 Vet Wellness Plan (Fluffy) (🐈 Fluffy) recurring cost 16th Feb In 1w 0d 0.00" [ref=e2122] [cursor=pointer]:
+                          - cell [ref=e2123]:
+                            - checkbox [ref=e2127]
+                          - cell "💸 Vet Wellness Plan (Fluffy) (🐈 Fluffy)" [ref=e2128]:
+                            - generic [ref=e2129]:
+                              - generic [ref=e2130]: 💸
+                              - paragraph [ref=e2132]: Vet Wellness Plan (Fluffy) (🐈 Fluffy)
+                          - cell "recurring cost" [ref=e2133]:
+                            - generic [ref=e2135]: recurring cost
+                          - cell "16th Feb In 1w 0d" [ref=e2136]:
+                            - generic [ref=e2137]:
+                              - generic [ref=e2138]: 16th Feb
+                              - generic [ref=e2139]: In 1w 0d
+                          - cell "0.00" [ref=e2140]:
+                            - spinbutton [ref=e2142]: "0.00"
+                          - cell [ref=e2143]:
+                            - generic [ref=e2144]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2145]:
+                            - button [ref=e2146]:
+                              - img [ref=e2147]
+                        - row "📝 Barclays recurring cost 16th Feb In 1w 0d 0.00" [ref=e2149] [cursor=pointer]:
+                          - cell [ref=e2150]:
+                            - checkbox [ref=e2154]
+                          - cell "📝 Barclays" [ref=e2155]:
+                            - generic [ref=e2156]:
+                              - generic [ref=e2157]: 📝
+                              - paragraph [ref=e2159]: Barclays
+                          - cell "recurring cost" [ref=e2160]:
+                            - generic [ref=e2162]: recurring cost
+                          - cell "16th Feb In 1w 0d" [ref=e2163]:
+                            - generic [ref=e2164]:
+                              - generic [ref=e2165]: 16th Feb
+                              - generic [ref=e2166]: In 1w 0d
+                          - cell "0.00" [ref=e2167]:
+                            - spinbutton [ref=e2169]: "0.00"
+                          - cell [ref=e2170]:
+                            - generic [ref=e2171]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2172]:
+                            - button [ref=e2173]:
+                              - img [ref=e2174]
+                        - row "LA Water water 16th Feb In 1w 0d 45.00" [ref=e2176] [cursor=pointer]:
+                          - cell [ref=e2177]:
+                            - checkbox [ref=e2181]
+                          - cell "LA Water" [ref=e2182]:
+                            - generic [ref=e2183]:
+                              - img [ref=e2185]
+                              - paragraph [ref=e2188]: LA Water
+                          - cell "water" [ref=e2189]:
+                            - generic [ref=e2191]: water
+                          - cell "16th Feb In 1w 0d" [ref=e2192]:
+                            - generic [ref=e2193]:
+                              - generic [ref=e2194]: 16th Feb
+                              - generic [ref=e2195]: In 1w 0d
+                          - cell "45.00" [ref=e2196]:
+                            - spinbutton [ref=e2198]: "45.00"
+                          - cell [ref=e2199]:
+                            - generic [ref=e2200]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2201]:
+                            - button [ref=e2202]:
+                              - img [ref=e2203]
+                        - row "Home Emergency Cover insurance 16th Feb In 1w 0d 15.00" [ref=e2205] [cursor=pointer]:
+                          - cell [ref=e2206]:
+                            - checkbox [ref=e2210]
+                          - cell "Home Emergency Cover" [ref=e2211]:
+                            - generic [ref=e2212]:
+                              - img [ref=e2214]
+                              - paragraph [ref=e2217]: Home Emergency Cover
+                          - cell "insurance" [ref=e2218]:
+                            - generic [ref=e2220]: insurance
+                          - cell "16th Feb In 1w 0d" [ref=e2221]:
+                            - generic [ref=e2222]:
+                              - generic [ref=e2223]: 16th Feb
+                              - generic [ref=e2224]: In 1w 0d
+                          - cell "15.00" [ref=e2225]:
+                            - spinbutton [ref=e2227]: "15.00"
+                          - cell [ref=e2228]:
+                            - generic [ref=e2229]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2230]:
+                            - button [ref=e2231]:
+                              - img [ref=e2232]
+                        - row "Amazon Prime subscription 16th Feb In 1w 0d 10.00" [ref=e2234] [cursor=pointer]:
+                          - cell [ref=e2235]:
+                            - checkbox [ref=e2239]
+                          - cell "Amazon Prime" [ref=e2240]:
+                            - generic [ref=e2241]:
+                              - img [ref=e2243]
+                              - paragraph [ref=e2246]: Amazon Prime
+                          - cell "subscription" [ref=e2247]:
+                            - generic [ref=e2249]: subscription
+                          - cell "16th Feb In 1w 0d" [ref=e2250]:
+                            - generic [ref=e2251]:
+                              - generic [ref=e2252]: 16th Feb
+                              - generic [ref=e2253]: In 1w 0d
+                          - cell "10.00" [ref=e2254]:
+                            - spinbutton [ref=e2256]: "10.00"
+                          - cell [ref=e2257]:
+                            - generic [ref=e2258]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2259]:
+                            - button [ref=e2260]:
+                              - img [ref=e2261]
+                        - row "Rivian Service vehicle service 16th Feb In 1w 0d 50.00" [ref=e2263] [cursor=pointer]:
+                          - cell [ref=e2264]:
+                            - checkbox [ref=e2268]
+                          - cell "Rivian Service" [ref=e2269]:
+                            - generic [ref=e2270]:
+                              - img [ref=e2272]
+                              - paragraph [ref=e2275]: Rivian Service
+                          - cell "vehicle service" [ref=e2276]:
+                            - generic [ref=e2278]: vehicle service
+                          - cell "16th Feb In 1w 0d" [ref=e2279]:
+                            - generic [ref=e2280]:
+                              - generic [ref=e2281]: 16th Feb
+                              - generic [ref=e2282]: In 1w 0d
+                          - cell "50.00" [ref=e2283]:
+                            - spinbutton [ref=e2285]: "50.00"
+                          - cell [ref=e2286]:
+                            - generic [ref=e2287]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2288]:
+                            - button [ref=e2289]:
+                              - img [ref=e2290]
+                        - row "Rivian Warranty insurance 16th Feb In 1w 0d 40.00" [ref=e2292] [cursor=pointer]:
+                          - cell [ref=e2293]:
+                            - checkbox [ref=e2297]
+                          - cell "Rivian Warranty" [ref=e2298]:
+                            - generic [ref=e2299]:
+                              - img [ref=e2301]
+                              - paragraph [ref=e2304]: Rivian Warranty
+                          - cell "insurance" [ref=e2305]:
+                            - generic [ref=e2307]: insurance
+                          - cell "16th Feb In 1w 0d" [ref=e2308]:
+                            - generic [ref=e2309]:
+                              - generic [ref=e2310]: 16th Feb
+                              - generic [ref=e2311]: In 1w 0d
+                          - cell "40.00" [ref=e2312]:
+                            - spinbutton [ref=e2314]: "40.00"
+                          - cell [ref=e2315]:
+                            - generic [ref=e2316]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2317]:
+                            - button [ref=e2318]:
+                              - img [ref=e2319]
+                        - row "Vet Wellness Plan (Tiger) health 16th Feb In 1w 0d 25.00" [ref=e2321] [cursor=pointer]:
+                          - cell [ref=e2322]:
+                            - checkbox [ref=e2326]
+                          - cell "Vet Wellness Plan (Tiger)" [ref=e2327]:
+                            - generic [ref=e2328]:
+                              - img [ref=e2330]
+                              - paragraph [ref=e2333]: Vet Wellness Plan (Tiger)
+                          - cell "health" [ref=e2334]:
+                            - generic [ref=e2336]: health
+                          - cell "16th Feb In 1w 0d" [ref=e2337]:
+                            - generic [ref=e2338]:
+                              - generic [ref=e2339]: 16th Feb
+                              - generic [ref=e2340]: In 1w 0d
+                          - cell "25.00" [ref=e2341]:
+                            - spinbutton [ref=e2343]: "25.00"
+                          - cell [ref=e2344]:
+                            - generic [ref=e2345]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2346]:
+                            - button [ref=e2347]:
+                              - img [ref=e2348]
+                        - row "Vet Wellness Plan (Fluffy) health 16th Feb In 1w 0d 20.00" [ref=e2350] [cursor=pointer]:
+                          - cell [ref=e2351]:
+                            - checkbox [ref=e2355]
+                          - cell "Vet Wellness Plan (Fluffy)" [ref=e2356]:
+                            - generic [ref=e2357]:
+                              - img [ref=e2359]
+                              - paragraph [ref=e2362]: Vet Wellness Plan (Fluffy)
+                          - cell "health" [ref=e2363]:
+                            - generic [ref=e2365]: health
+                          - cell "16th Feb In 1w 0d" [ref=e2366]:
+                            - generic [ref=e2367]:
+                              - generic [ref=e2368]: 16th Feb
+                              - generic [ref=e2369]: In 1w 0d
+                          - cell "20.00" [ref=e2370]:
+                            - spinbutton [ref=e2372]: "20.00"
+                          - cell [ref=e2373]:
+                            - generic [ref=e2374]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2375]:
+                            - button [ref=e2376]:
+                              - img [ref=e2377]
+                        - row "💸 Rivian Insurance (🔋 Rivian) recurring cost 18th Feb In 1w 2d 0.00" [ref=e2379] [cursor=pointer]:
+                          - cell [ref=e2380]:
+                            - checkbox [ref=e2384]
+                          - cell "💸 Rivian Insurance (🔋 Rivian)" [ref=e2385]:
+                            - generic [ref=e2386]:
+                              - generic [ref=e2387]: 💸
+                              - paragraph [ref=e2389]: Rivian Insurance (🔋 Rivian)
+                          - cell "recurring cost" [ref=e2390]:
+                            - generic [ref=e2392]: recurring cost
+                          - cell "18th Feb In 1w 2d" [ref=e2393]:
+                            - generic [ref=e2394]:
+                              - generic [ref=e2395]: 18th Feb
+                              - generic [ref=e2396]: In 1w 2d
+                          - cell "0.00" [ref=e2397]:
+                            - spinbutton [ref=e2399]: "0.00"
+                          - cell [ref=e2400]:
+                            - generic [ref=e2401]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2402]:
+                            - button [ref=e2403]:
+                              - img [ref=e2404]
+                        - row "Rivian Insurance insurance 18th Feb In 1w 2d 135.00" [ref=e2406] [cursor=pointer]:
+                          - cell [ref=e2407]:
+                            - checkbox [ref=e2411]
+                          - cell "Rivian Insurance" [ref=e2412]:
+                            - generic [ref=e2413]:
+                              - img [ref=e2415]
+                              - paragraph [ref=e2418]: Rivian Insurance
+                          - cell "insurance" [ref=e2419]:
+                            - generic [ref=e2421]: insurance
+                          - cell "18th Feb In 1w 2d" [ref=e2422]:
+                            - generic [ref=e2423]:
+                              - generic [ref=e2424]: 18th Feb
+                              - generic [ref=e2425]: In 1w 2d
+                          - cell "135.00" [ref=e2426]:
+                            - spinbutton [ref=e2428]: "135.00"
+                          - cell [ref=e2429]:
+                            - generic [ref=e2430]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2431]:
+                            - button [ref=e2432]:
+                              - img [ref=e2433]
+                        - row "💸 Pacific Power recurring cost 20th Feb In 1w 4d 0.00" [ref=e2435] [cursor=pointer]:
+                          - cell [ref=e2436]:
+                            - checkbox [ref=e2440]
+                          - cell "💸 Pacific Power" [ref=e2441]:
+                            - generic [ref=e2442]:
+                              - generic [ref=e2443]: 💸
+                              - paragraph [ref=e2445]: Pacific Power
+                          - cell "recurring cost" [ref=e2446]:
+                            - generic [ref=e2448]: recurring cost
+                          - cell "20th Feb In 1w 4d" [ref=e2449]:
+                            - generic [ref=e2450]:
+                              - generic [ref=e2451]: 20th Feb
+                              - generic [ref=e2452]: In 1w 4d
+                          - cell "0.00" [ref=e2453]:
+                            - spinbutton [ref=e2455]: "0.00"
+                          - cell [ref=e2456]:
+                            - generic [ref=e2457]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2458]:
+                            - button [ref=e2459]:
+                              - img [ref=e2460]
+                        - row "💸 Netflix Premium recurring cost 20th Feb In 1w 4d 0.00" [ref=e2462] [cursor=pointer]:
+                          - cell [ref=e2463]:
+                            - checkbox [ref=e2467]
+                          - cell "💸 Netflix Premium" [ref=e2468]:
+                            - generic [ref=e2469]:
+                              - generic [ref=e2470]: 💸
+                              - paragraph [ref=e2472]: Netflix Premium
+                          - cell "recurring cost" [ref=e2473]:
+                            - generic [ref=e2475]: recurring cost
+                          - cell "20th Feb In 1w 4d" [ref=e2476]:
+                            - generic [ref=e2477]:
+                              - generic [ref=e2478]: 20th Feb
+                              - generic [ref=e2479]: In 1w 4d
+                          - cell "0.00" [ref=e2480]:
+                            - spinbutton [ref=e2482]: "0.00"
+                          - cell [ref=e2483]:
+                            - generic [ref=e2484]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2485]:
+                            - button [ref=e2486]:
+                              - img [ref=e2487]
+                        - 'row "💰 💰 Payday: WFH Creative income 20th Feb In 1w 4d 0.00" [ref=e2489] [cursor=pointer]':
+                          - cell [ref=e2490]:
+                            - checkbox [ref=e2494]
+                          - 'cell "💰 💰 Payday: WFH Creative" [ref=e2495]':
+                            - generic [ref=e2496]:
+                              - generic [ref=e2497]: 💰
+                              - paragraph [ref=e2499]: "💰 Payday: WFH Creative"
+                          - cell "income" [ref=e2500]:
+                            - generic [ref=e2502]: income
+                          - cell "20th Feb In 1w 4d" [ref=e2503]:
+                            - generic [ref=e2504]:
+                              - generic [ref=e2505]: 20th Feb
+                              - generic [ref=e2506]: In 1w 4d
+                          - cell "0.00" [ref=e2507]:
+                            - spinbutton [ref=e2509]: "0.00"
+                          - cell [ref=e2510]:
+                            - generic [ref=e2511]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2512]:
+                            - button [ref=e2513]:
+                              - img [ref=e2514]
+                        - row "💳 💳 Platinum Bill bill 20th Feb In 1w 4d 0.00" [ref=e2516] [cursor=pointer]:
+                          - cell [ref=e2517]:
+                            - checkbox [ref=e2521]
+                          - cell "💳 💳 Platinum Bill" [ref=e2522]:
+                            - generic [ref=e2523]:
+                              - generic [ref=e2524]: 💳
+                              - paragraph [ref=e2526]: 💳 Platinum Bill
+                          - cell "bill" [ref=e2527]:
+                            - generic [ref=e2529]: bill
+                          - cell "20th Feb In 1w 4d" [ref=e2530]:
+                            - generic [ref=e2531]:
+                              - generic [ref=e2532]: 20th Feb
+                              - generic [ref=e2533]: In 1w 4d
+                          - cell "0.00" [ref=e2534]:
+                            - spinbutton [ref=e2536]: "0.00"
+                          - cell [ref=e2537]:
+                            - generic [ref=e2538]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2539]:
+                            - button [ref=e2540]:
+                              - img [ref=e2541]
+                        - row "Pacific Power energy 20th Feb In 1w 4d 250.00" [ref=e2543] [cursor=pointer]:
+                          - cell [ref=e2544]:
+                            - checkbox [ref=e2548]
+                          - cell "Pacific Power" [ref=e2549]:
+                            - generic [ref=e2550]:
+                              - img [ref=e2552]
+                              - paragraph [ref=e2555]: Pacific Power
+                          - cell "energy" [ref=e2556]:
+                            - generic [ref=e2558]: energy
+                          - cell "20th Feb In 1w 4d" [ref=e2559]:
+                            - generic [ref=e2560]:
+                              - generic [ref=e2561]: 20th Feb
+                              - generic [ref=e2562]: In 1w 4d
+                          - cell "250.00" [ref=e2563]:
+                            - spinbutton [ref=e2565]: "250.00"
+                          - cell [ref=e2566]:
+                            - generic [ref=e2567]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2568]:
+                            - button [ref=e2569]:
+                              - img [ref=e2570]
+                        - row "Netflix Premium subscription 20th Feb In 1w 4d 18.00" [ref=e2572] [cursor=pointer]:
+                          - cell [ref=e2573]:
+                            - checkbox [ref=e2577]
+                          - cell "Netflix Premium" [ref=e2578]:
+                            - generic [ref=e2579]:
+                              - img [ref=e2581]
+                              - paragraph [ref=e2584]: Netflix Premium
+                          - cell "subscription" [ref=e2585]:
+                            - generic [ref=e2587]: subscription
+                          - cell "20th Feb In 1w 4d" [ref=e2588]:
+                            - generic [ref=e2589]:
+                              - generic [ref=e2590]: 20th Feb
+                              - generic [ref=e2591]: In 1w 4d
+                          - cell "18.00" [ref=e2592]:
+                            - spinbutton [ref=e2594]: "18.00"
+                          - cell [ref=e2595]:
+                            - generic [ref=e2596]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2597]:
+                            - button [ref=e2598]:
+                              - img [ref=e2599]
+                - generic [ref=e2601]:
+                  - button "💳 Finance & Debts Total £6,350.00 Paid £0.00 Unpaid £6,350.00" [expanded] [ref=e2603] [cursor=pointer]:
+                    - generic [ref=e2604]:
+                      - paragraph [ref=e2605]:
+                        - generic [ref=e2606]: 💳
+                        - generic [ref=e2607]: Finance & Debts
+                      - generic [ref=e2608]:
+                        - generic [ref=e2609]:
+                          - generic [ref=e2610]: Total
+                          - paragraph [ref=e2611]: £6,350.00
+                        - generic [ref=e2612]:
+                          - generic [ref=e2613]: Paid
+                          - paragraph [ref=e2614]: £0.00
+                        - generic [ref=e2615]:
+                          - generic [ref=e2616]: Unpaid
+                          - paragraph [ref=e2617]: £6,350.00
+                    - img [ref=e2619]
+                  - separator [ref=e2621]
+                  - region "💳 Finance & Debts Total £6,350.00 Paid £0.00 Unpaid £6,350.00" [ref=e2622]:
+                    - table [ref=e2625]:
+                      - rowgroup [ref=e2626]:
+                        - row "Item Category Due Date Amount Paid Delete / Skip" [ref=e2627]:
+                          - columnheader [ref=e2628]:
+                            - checkbox [ref=e2632] [cursor=pointer]
+                          - columnheader "Item" [ref=e2633] [cursor=pointer]:
+                            - generic [ref=e2634]:
+                              - text: Item
+                              - img [ref=e2635]
+                          - columnheader "Category" [ref=e2637] [cursor=pointer]:
+                            - generic [ref=e2638]:
+                              - text: Category
+                              - img [ref=e2639]
+                          - columnheader "Due Date" [ref=e2641] [cursor=pointer]:
+                            - generic [ref=e2642]:
+                              - text: Due Date
+                              - img [ref=e2643]
+                          - columnheader "Amount" [ref=e2645] [cursor=pointer]:
+                            - generic [ref=e2646]:
+                              - text: Amount
+                              - img [ref=e2647]
+                          - columnheader "Paid" [ref=e2649]
+                          - columnheader "Delete / Skip" [ref=e2650]
+                      - rowgroup [ref=e2651]:
+                        - row "🏠 Nationwide mortgage 2nd Feb 7 days ago 1850.00" [ref=e2652] [cursor=pointer]:
+                          - cell [ref=e2653]:
+                            - checkbox [ref=e2657]
+                          - cell "🏠 Nationwide" [ref=e2658]:
+                            - generic [ref=e2659]:
+                              - generic [ref=e2660]: 🏠
+                              - paragraph [ref=e2662]: Nationwide
+                          - cell "mortgage" [ref=e2663]:
+                            - generic [ref=e2665]: mortgage
+                          - cell "2nd Feb 7 days ago" [ref=e2666]:
+                            - generic [ref=e2667]:
+                              - generic [ref=e2668]: 2nd Feb
+                              - generic [ref=e2669]: 7 days ago
+                          - cell "1850.00" [ref=e2670]:
+                            - spinbutton [ref=e2672]: "1850.00"
+                          - cell [ref=e2673]:
+                            - generic [ref=e2674]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2675]:
+                            - button [ref=e2676]:
+                              - img [ref=e2677]
+                        - row "💳 Sapphire Reserve credit card 5th Feb 4 days ago 0.00" [ref=e2679] [cursor=pointer]:
+                          - cell [ref=e2680]:
+                            - checkbox [ref=e2684]
+                          - cell "💳 Sapphire Reserve" [ref=e2685]:
+                            - generic [ref=e2686]:
+                              - generic [ref=e2687]: 💳
+                              - paragraph [ref=e2689]: Sapphire Reserve
+                          - cell "credit card" [ref=e2690]:
+                            - generic [ref=e2692]: credit card
+                          - cell "5th Feb 4 days ago" [ref=e2693]:
+                            - generic [ref=e2694]:
+                              - generic [ref=e2695]: 5th Feb
+                              - generic [ref=e2696]: 4 days ago
+                          - cell "0.00" [ref=e2697]:
+                            - spinbutton [ref=e2699]: "0.00"
+                          - cell [ref=e2700]:
+                            - generic [ref=e2701]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2702]:
+                            - button [ref=e2703]:
+                              - img [ref=e2704]
+                        - row "⚡ Tesla Financial Services vehicle finance 9th Feb Today 850.00" [ref=e2706] [cursor=pointer]:
+                          - cell [ref=e2707]:
+                            - checkbox [ref=e2711]
+                          - cell "⚡ Tesla Financial Services" [ref=e2712]:
+                            - generic [ref=e2713]:
+                              - generic [ref=e2714]: ⚡
+                              - paragraph [ref=e2716]: Tesla Financial Services
+                          - cell "vehicle finance" [ref=e2717]:
+                            - generic [ref=e2719]: vehicle finance
+                          - cell "9th Feb Today" [ref=e2720]:
+                            - generic [ref=e2721]:
+                              - generic [ref=e2722]: 9th Feb
+                              - generic [ref=e2723]: Today
+                          - cell "850.00" [ref=e2724]:
+                            - spinbutton [ref=e2726]: "850.00"
+                          - cell [ref=e2727]:
+                            - generic [ref=e2728]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2729]:
+                            - button [ref=e2730]:
+                              - img [ref=e2731]
+                        - row "Home Office Expansion Loan loan 10th Feb Tomorrow 3200.00" [ref=e2733] [cursor=pointer]:
+                          - cell [ref=e2734]:
+                            - checkbox [ref=e2738]
+                          - cell "Home Office Expansion Loan" [ref=e2739]:
+                            - generic [ref=e2740]:
+                              - img [ref=e2742]
+                              - paragraph [ref=e2745]: Home Office Expansion Loan
+                          - cell "loan" [ref=e2746]:
+                            - generic [ref=e2748]: loan
+                          - cell "10th Feb Tomorrow" [ref=e2749]:
+                            - generic [ref=e2750]:
+                              - generic [ref=e2751]: 10th Feb
+                              - generic [ref=e2752]: Tomorrow
+                          - cell "3200.00" [ref=e2753]:
+                            - spinbutton [ref=e2755]: "3200.00"
+                          - cell [ref=e2756]:
+                            - generic [ref=e2757]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2758]:
+                            - button [ref=e2759]:
+                              - img [ref=e2760]
+                        - row "📝 Barclays loan 16th Feb In 1w 0d 450.00" [ref=e2762] [cursor=pointer]:
+                          - cell [ref=e2763]:
+                            - checkbox [ref=e2767]
+                          - cell "📝 Barclays" [ref=e2768]:
+                            - generic [ref=e2769]:
+                              - generic [ref=e2770]: 📝
+                              - paragraph [ref=e2772]: Barclays
+                          - cell "loan" [ref=e2773]:
+                            - generic [ref=e2775]: loan
+                          - cell "16th Feb In 1w 0d" [ref=e2776]:
+                            - generic [ref=e2777]:
+                              - generic [ref=e2778]: 16th Feb
+                              - generic [ref=e2779]: In 1w 0d
+                          - cell "450.00" [ref=e2780]:
+                            - spinbutton [ref=e2782]: "450.00"
+                          - cell [ref=e2783]:
+                            - generic [ref=e2784]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2785]:
+                            - button [ref=e2786]:
+                              - img [ref=e2787]
+                        - row "💳 Platinum credit card 20th Feb In 1w 4d 0.00" [ref=e2789] [cursor=pointer]:
+                          - cell [ref=e2790]:
+                            - checkbox [ref=e2794]
+                          - cell "💳 Platinum" [ref=e2795]:
+                            - generic [ref=e2796]:
+                              - generic [ref=e2797]: 💳
+                              - paragraph [ref=e2799]: Platinum
+                          - cell "credit card" [ref=e2800]:
+                            - generic [ref=e2802]: credit card
+                          - cell "20th Feb In 1w 4d" [ref=e2803]:
+                            - generic [ref=e2804]:
+                              - generic [ref=e2805]: 20th Feb
+                              - generic [ref=e2806]: In 1w 4d
+                          - cell "0.00" [ref=e2807]:
+                            - spinbutton [ref=e2809]: "0.00"
+                          - cell [ref=e2810]:
+                            - generic [ref=e2811]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2812]:
+                            - button [ref=e2813]:
+                              - img [ref=e2814]
+                - generic [ref=e2816]:
+                  - button "📈 Savings & Growth Total £1,700.00 Paid £0.00 Unpaid £1,700.00" [expanded] [ref=e2818] [cursor=pointer]:
+                    - generic [ref=e2819]:
+                      - paragraph [ref=e2820]:
+                        - generic [ref=e2821]: 📈
+                        - generic [ref=e2822]: Savings & Growth
+                      - generic [ref=e2823]:
+                        - generic [ref=e2824]:
+                          - generic [ref=e2825]: Total
+                          - paragraph [ref=e2826]: £1,700.00
+                        - generic [ref=e2827]:
+                          - generic [ref=e2828]: Paid
+                          - paragraph [ref=e2829]: £0.00
+                        - generic [ref=e2830]:
+                          - generic [ref=e2831]: Unpaid
+                          - paragraph [ref=e2832]: £1,700.00
+                    - img [ref=e2834]
+                  - separator [ref=e2836]
+                  - region "📈 Savings & Growth Total £1,700.00 Paid £0.00 Unpaid £1,700.00" [ref=e2837]:
+                    - table [ref=e2840]:
+                      - rowgroup [ref=e2841]:
+                        - row "Item Category Due Date Amount Paid Delete / Skip" [ref=e2842]:
+                          - columnheader [ref=e2843]:
+                            - checkbox [ref=e2847] [cursor=pointer]
+                          - columnheader "Item" [ref=e2848] [cursor=pointer]:
+                            - generic [ref=e2849]:
+                              - text: Item
+                              - img [ref=e2850]
+                          - columnheader "Category" [ref=e2852] [cursor=pointer]:
+                            - generic [ref=e2853]:
+                              - text: Category
+                              - img [ref=e2854]
+                          - columnheader "Due Date" [ref=e2856] [cursor=pointer]:
+                            - generic [ref=e2857]:
+                              - text: Due Date
+                              - img [ref=e2858]
+                          - columnheader "Amount" [ref=e2860] [cursor=pointer]:
+                            - generic [ref=e2861]:
+                              - text: Amount
+                              - img [ref=e2862]
+                          - columnheader "Paid" [ref=e2864]
+                          - columnheader "Delete / Skip" [ref=e2865]
+                      - rowgroup [ref=e2866]:
+                        - row "Marcus Carol's Personal Savings Account savings 1st Feb 8 days ago 0.00" [ref=e2867] [cursor=pointer]:
+                          - cell [ref=e2868]:
+                            - checkbox [ref=e2872]
+                          - cell "Marcus Carol's Personal Savings Account" [ref=e2873]:
+                            - generic [ref=e2874]:
+                              - img [ref=e2876]
+                              - generic [ref=e2878]:
+                                - paragraph [ref=e2879]: Marcus Carol's Personal
+                                - generic [ref=e2880]: Savings Account
+                          - cell "savings" [ref=e2881]:
+                            - generic [ref=e2883]: savings
+                          - cell "1st Feb 8 days ago" [ref=e2884]:
+                            - generic [ref=e2885]:
+                              - generic [ref=e2886]: 1st Feb
+                              - generic [ref=e2887]: 8 days ago
+                          - cell "0.00" [ref=e2888]:
+                            - spinbutton [ref=e2890]: "0.00"
+                          - cell [ref=e2891]:
+                            - generic [ref=e2892]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2893]:
+                            - button [ref=e2894]:
+                              - img [ref=e2895]
+                        - row "🚨 Emergency Fund Pot Transfer Pot 1st Feb 8 days ago 0.00" [ref=e2897] [cursor=pointer]:
+                          - cell [ref=e2898]:
+                            - checkbox [ref=e2902]
+                          - cell "🚨 Emergency Fund Pot Transfer" [ref=e2903]:
+                            - generic [ref=e2904]:
+                              - generic [ref=e2905]: 🚨
+                              - generic [ref=e2906]:
+                                - paragraph [ref=e2907]: Emergency Fund
+                                - generic [ref=e2908]: Pot Transfer
+                          - cell "Pot" [ref=e2909]:
+                            - generic [ref=e2911]: Pot
+                          - cell "1st Feb 8 days ago" [ref=e2912]:
+                            - generic [ref=e2913]:
+                              - generic [ref=e2914]: 1st Feb
+                              - generic [ref=e2915]: 8 days ago
+                          - cell "0.00" [ref=e2916]:
+                            - spinbutton [ref=e2918]: "0.00"
+                          - cell [ref=e2919]:
+                            - generic [ref=e2920]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2921]:
+                            - button [ref=e2922]:
+                              - img [ref=e2923]
+                        - row "🌋 Hawaii 2026 Pot Transfer Pot 1st Feb 8 days ago 0.00" [ref=e2925] [cursor=pointer]:
+                          - cell [ref=e2926]:
+                            - checkbox [ref=e2930]
+                          - cell "🌋 Hawaii 2026 Pot Transfer" [ref=e2931]:
+                            - generic [ref=e2932]:
+                              - generic [ref=e2933]: 🌋
+                              - generic [ref=e2934]:
+                                - paragraph [ref=e2935]: Hawaii 2026
+                                - generic [ref=e2936]: Pot Transfer
+                          - cell "Pot" [ref=e2937]:
+                            - generic [ref=e2939]: Pot
+                          - cell "1st Feb 8 days ago" [ref=e2940]:
+                            - generic [ref=e2941]:
+                              - generic [ref=e2942]: 1st Feb
+                              - generic [ref=e2943]: 8 days ago
+                          - cell "0.00" [ref=e2944]:
+                            - spinbutton [ref=e2946]: "0.00"
+                          - cell [ref=e2947]:
+                            - generic [ref=e2948]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2949]:
+                            - button [ref=e2950]:
+                              - img [ref=e2951]
+                        - row "🔨 House Repairs Pot Transfer Pot 1st Feb 8 days ago 0.00" [ref=e2953] [cursor=pointer]:
+                          - cell [ref=e2954]:
+                            - checkbox [ref=e2958]
+                          - cell "🔨 House Repairs Pot Transfer" [ref=e2959]:
+                            - generic [ref=e2960]:
+                              - generic [ref=e2961]: 🔨
+                              - generic [ref=e2962]:
+                                - paragraph [ref=e2963]: House Repairs
+                                - generic [ref=e2964]: Pot Transfer
+                          - cell "Pot" [ref=e2965]:
+                            - generic [ref=e2967]: Pot
+                          - cell "1st Feb 8 days ago" [ref=e2968]:
+                            - generic [ref=e2969]:
+                              - generic [ref=e2970]: 1st Feb
+                              - generic [ref=e2971]: 8 days ago
+                          - cell "0.00" [ref=e2972]:
+                            - spinbutton [ref=e2974]: "0.00"
+                          - cell [ref=e2975]:
+                            - generic [ref=e2976]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e2977]:
+                            - button [ref=e2978]:
+                              - img [ref=e2979]
+                        - row "🚗 Car Replacement Pot Transfer Pot 1st Feb 8 days ago 0.00" [ref=e2981] [cursor=pointer]:
+                          - cell [ref=e2982]:
+                            - checkbox [ref=e2986]
+                          - cell "🚗 Car Replacement Pot Transfer" [ref=e2987]:
+                            - generic [ref=e2988]:
+                              - generic [ref=e2989]: 🚗
+                              - generic [ref=e2990]:
+                                - paragraph [ref=e2991]: Car Replacement
+                                - generic [ref=e2992]: Pot Transfer
+                          - cell "Pot" [ref=e2993]:
+                            - generic [ref=e2995]: Pot
+                          - cell "1st Feb 8 days ago" [ref=e2996]:
+                            - generic [ref=e2997]:
+                              - generic [ref=e2998]: 1st Feb
+                              - generic [ref=e2999]: 8 days ago
+                          - cell "0.00" [ref=e3000]:
+                            - spinbutton [ref=e3002]: "0.00"
+                          - cell [ref=e3003]:
+                            - generic [ref=e3004]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e3005]:
+                            - button [ref=e3006]:
+                              - img [ref=e3007]
+                        - row "Fidelity Pension pension 2nd Feb 7 days ago 1200.00" [ref=e3009] [cursor=pointer]:
+                          - cell [ref=e3010]:
+                            - checkbox [ref=e3014]
+                          - cell "Fidelity Pension" [ref=e3015]:
+                            - generic [ref=e3016]:
+                              - img [ref=e3018]
+                              - paragraph [ref=e3021]: Fidelity Pension
+                          - cell "pension" [ref=e3022]:
+                            - generic [ref=e3024]: pension
+                          - cell "2nd Feb 7 days ago" [ref=e3025]:
+                            - generic [ref=e3026]:
+                              - generic [ref=e3027]: 2nd Feb
+                              - generic [ref=e3028]: 7 days ago
+                          - cell "1200.00" [ref=e3029]:
+                            - spinbutton [ref=e3031]: "1200.00"
+                          - cell [ref=e3032]:
+                            - generic [ref=e3033]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e3034]:
+                            - button [ref=e3035]:
+                              - img [ref=e3036]
+                        - row "Vanguard ETF Investment investment 2nd Feb 7 days ago 500.00" [ref=e3038] [cursor=pointer]:
+                          - cell [ref=e3039]:
+                            - checkbox [ref=e3043]
+                          - cell "Vanguard ETF Investment" [ref=e3044]:
+                            - generic [ref=e3045]:
+                              - img [ref=e3047]
+                              - paragraph [ref=e3050]: Vanguard ETF Investment
+                          - cell "investment" [ref=e3051]:
+                            - generic [ref=e3053]: investment
+                          - cell "2nd Feb 7 days ago" [ref=e3054]:
+                            - generic [ref=e3055]:
+                              - generic [ref=e3056]: 2nd Feb
+                              - generic [ref=e3057]: 7 days ago
+                          - cell "500.00" [ref=e3058]:
+                            - spinbutton [ref=e3060]: "500.00"
+                          - cell [ref=e3061]:
+                            - generic [ref=e3062]:
+                              - generic:
+                                - generic:
+                                  - checkbox [disabled]
+                                - img
+                          - cell [ref=e3063]:
+                            - button [ref=e3064]:
+                              - img [ref=e3065]
+      - generic [ref=e3070]:
+        - button "Notes" [ref=e3072] [cursor=pointer]:
+          - img [ref=e3073]
+        - button "Calculator" [ref=e3076] [cursor=pointer]:
+          - img [ref=e3077]
+        - separator
+        - button "Income" [ref=e3080] [cursor=pointer]:
+          - img [ref=e3081]
+        - button "Banking" [ref=e3084] [cursor=pointer]:
+          - img [ref=e3085]
+        - button "Savings & Pots" [ref=e3088] [cursor=pointer]:
+          - img [ref=e3089]
+        - button "Investments" [ref=e3092] [cursor=pointer]:
+          - img [ref=e3093]
+        - button "Pensions" [ref=e3096] [cursor=pointer]:
+          - img [ref=e3097]
+        - button "Credit Cards" [ref=e3100] [cursor=pointer]:
+          - img [ref=e3101]
+        - button "Personal Loans" [ref=e3104] [cursor=pointer]:
+          - img [ref=e3105]
+        - button "Mortgages" [ref=e3109] [cursor=pointer]:
+          - img [ref=e3110]
+        - button "Car Finance" [ref=e3113] [cursor=pointer]:
+          - img [ref=e3114]
+        - separator
+        - button "Budget Health" [ref=e3117] [cursor=pointer]:
+          - img [ref=e3118]
+        - button "Wealth Tracking" [ref=e3121] [cursor=pointer]:
+          - img [ref=e3122]
+        - separator
+        - button "Calendar" [ref=e3125] [cursor=pointer]:
+          - img [ref=e3126]
+```
