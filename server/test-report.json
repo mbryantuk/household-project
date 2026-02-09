@@ -26,7 +26,7 @@
     "unmatched": 0,
     "updated": 0
   },
-  "startTime": 1770591946132,
+  "startTime": 1770598643731,
   "success": false,
   "testResults": [
     {
@@ -37,10 +37,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1770591949157,
-        "runtime": 2948,
+        "end": 1770598645894,
+        "runtime": 2035,
         "slow": false,
-        "start": 1770591946209
+        "start": 1770598643859
       },
       "skipped": false,
       "snapshot": {
@@ -58,7 +58,7 @@
           "ancestorTitles": [
             "🏫 School Terms API"
           ],
-          "duration": 335,
+          "duration": 18,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🏫 School Terms API POST /api/households/:id/school-terms should create a new term",
@@ -73,7 +73,7 @@
           "ancestorTitles": [
             "🏫 School Terms API"
           ],
-          "duration": 192,
+          "duration": 12,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🏫 School Terms API GET /api/households/:id/school-terms should return terms",
@@ -88,7 +88,7 @@
           "ancestorTitles": [
             "🏫 School Terms API"
           ],
-          "duration": 10,
+          "duration": 18,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🏫 School Terms API GET /api/households/:id/school-terms?member_id=:memberId should filter by member",
@@ -103,7 +103,7 @@
           "ancestorTitles": [
             "🏫 School Terms API"
           ],
-          "duration": 103,
+          "duration": 23,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🏫 School Terms API PUT /api/households/:id/school-terms/:termId should update a term",
@@ -118,7 +118,7 @@
           "ancestorTitles": [
             "🏫 School Terms API"
           ],
-          "duration": 269,
+          "duration": 140,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🏫 School Terms API GET /api/households/:id/dates should include school terms",
@@ -133,7 +133,7 @@
           "ancestorTitles": [
             "🏫 School Terms API"
           ],
-          "duration": 294,
+          "duration": 25,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🏫 School Terms API DELETE /api/households/:id/school-terms/:termId should remove a term",

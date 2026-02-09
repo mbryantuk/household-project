@@ -3,7 +3,7 @@ import { useOutletContext, useParams, useNavigate, useLocation } from 'react-rou
 import { 
   Box, Typography, Sheet, Divider, Button, Input, FormControl, FormLabel, 
   IconButton, Tooltip, 
-  Grid, Tabs, TabList, Tab
+  Grid, Tabs, TabList, Tab, CircularProgress
 } from '@mui/joy';
 import { 
   Delete, Payments, ContactPage, School
@@ -38,6 +38,8 @@ export default function PeopleView() {
     return (members || []).find(m => m.id === parseInt(personId));
   }, [members, personId, localPerson]);
 
+  const isChild = selectedPerson?.type === 'child' || new URLSearchParams(location.search).get('type') === 'child';
+
   const queryParams = new URLSearchParams(location.search);
   const initialType = queryParams.get('type') || 'adult';
 
@@ -49,7 +51,7 @@ export default function PeopleView() {
   // Fetch person if not in members list (e.g. direct link or just created)
   useEffect(() => {
     if (personId && personId !== 'new' && !selectedPerson && !loading) {
-        Promise.resolve().then(() => setLoading(true));
+        setLoading(true);
         api.get(`/households/${householdId}/members/${personId}`)
             .then(res => setLocalPerson(res.data))
             .catch(() => showNotification("Failed to load person.", "danger"))
@@ -59,7 +61,7 @@ export default function PeopleView() {
 
   useEffect(() => {
     if (selectedPerson) {
-      const data = {
+      setFormData({
         first_name: selectedPerson.first_name || selectedPerson.name?.split(' ')[0] || '',
         middle_name: selectedPerson.middle_name || '',
         last_name: selectedPerson.last_name || selectedPerson.name?.split(' ').slice(1).join(' ') || '',
@@ -68,15 +70,13 @@ export default function PeopleView() {
         dob: selectedPerson.dob || '',
         emoji: selectedPerson.emoji || '👨',
         notes: selectedPerson.notes || '',
-      };
-      Promise.resolve().then(() => setFormData(data));
+      });
     } else if (personId === 'new') {
       const currentType = new URLSearchParams(location.search).get('type') || 'adult';
-      const data = {
+      setFormData({
         first_name: '', middle_name: '', last_name: '',
         type: currentType, alias: '', dob: '', emoji: currentType === 'child' ? '👶' : '👨', notes: '',
-      };
-      Promise.resolve().then(() => setFormData(data));
+      });
     }
   }, [selectedPerson, personId, location.search]);
 
@@ -236,7 +236,7 @@ export default function PeopleView() {
                 >
                     <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><ContactPage sx={{ mr: 1 }}/> Identity</Tab>
                     <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Recurring Costs</Tab>
-                    {selectedPerson?.type === 'child' && (
+                    {isChild && (
                         <Tab variant={activeTab === 2 ? 'solid' : 'plain'} color={activeTab === 2 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><School sx={{ mr: 1 }}/> School Terms</Tab>
                     )}
                 </TabList>
@@ -351,7 +351,7 @@ export default function PeopleView() {
             </Box>
           )}
 
-          {activeTab === 2 && selectedPerson?.type === 'child' && (
+          {activeTab === 2 && isChild && personId !== 'new' && (
             <Box>
                 <SchoolTermsWidget 
                     api={api} 
