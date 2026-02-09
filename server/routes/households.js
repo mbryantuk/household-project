@@ -89,14 +89,35 @@ router.put('/households/:id', authenticateToken, requireHouseholdRole('admin'), 
 router.delete('/households/:id', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
     const householdId = parseInt(req.params.id);
     try {
+        // 1. Clean up Global DB references
         await dbRun(globalDb, `DELETE FROM user_households WHERE household_id = ?`, [householdId]);
         await dbRun(globalDb, `DELETE FROM households WHERE id = ?`, [householdId]);
 
+        // 2. Delete Tenant Database File
         const hhDbPath = path.join(DATA_DIR, `household_${householdId}.db`);
         if (fs.existsSync(hhDbPath)) {
-            try { fs.unlinkSync(hhDbPath); } catch (e) { console.error("File delete failed", e); }
+            try { 
+                fs.unlinkSync(hhDbPath); 
+            } catch (e) { 
+                console.error(`[Cleanup] Failed to delete DB file for HH ${householdId}:`, e.message); 
+            }
         }
-        res.json({ message: "Household deleted" });
+
+        // 3. Delete Backup Files
+        try {
+            if (fs.existsSync(BACKUP_DIR)) {
+                const files = fs.readdirSync(BACKUP_DIR);
+                const backups = files.filter(f => f.startsWith(`household-${householdId}-`));
+                backups.forEach(f => {
+                    fs.unlinkSync(path.join(BACKUP_DIR, f));
+                });
+                if (backups.length > 0) console.log(`[Cleanup] Deleted ${backups.length} backup files for HH ${householdId}`);
+            }
+        } catch (e) {
+            console.error(`[Cleanup] Failed to delete backups for HH ${householdId}:`, e.message);
+        }
+
+        res.json({ message: "Household and all traces destroyed." });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
