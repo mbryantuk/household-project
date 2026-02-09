@@ -1,0 +1,355 @@
+{
+  "config": {
+    "configFile": "/var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/playwright.config.js",
+    "rootDir": "/var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "smoke.spec.js",
+      "file": "smoke.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Core UI Smoke Tests",
+          "file": "smoke.spec.js",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Financial Profiles: Sidebar Accordion and Switching",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60775,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/tests/smoke.spec.js",
+                            "column": 20,
+                            "line": 18
+                          },
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/finance\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 16 |\u001b[39m     test(\u001b[32m'Financial Profiles: Sidebar Accordion and Switching'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 17 |\u001b[39m         \u001b[90m// Navigate to Finance\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 18 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/finance\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 19 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'**/finance**'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 20 |\u001b[39m\n \u001b[90m 21 |\u001b[39m         \u001b[90m// Check if Sidebar Accordion exists\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/tests/smoke.spec.js:18:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-09T11:54:26.172Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--1945d-bar-Accordion-and-Switching-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--1945d-bar-Accordion-and-Switching-chromium/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-d6449fc28ef2b705aa57",
+              "file": "smoke.spec.js",
+              "line": 16,
+              "column": 5
+            },
+            {
+              "title": "Core Navigation: House Hub, Calendar, Meals",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60488,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/tests/smoke.spec.js",
+                            "column": 20,
+                            "line": 36
+                          },
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 34 |\u001b[39m\n \u001b[90m 35 |\u001b[39m     test(\u001b[32m'Core Navigation: House Hub, Calendar, Meals'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'Household Hub'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 38 |\u001b[39m\n \u001b[90m 39 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/calendar\"]'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/tests/smoke.spec.js:36:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-09T11:55:34.547Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--ff4ea-on-House-Hub-Calendar-Meals-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--ff4ea-on-House-Hub-Calendar-Meals-chromium/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-0850ea6cc76a4a27e073",
+              "file": "smoke.spec.js",
+              "line": 35,
+              "column": 5
+            },
+            {
+              "title": "Avatar Menu: Opens Sidebar Panel",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 4743,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Settings')\nExpected: visible\nError: strict mode violation: getByText('Settings') resolved to 3 elements:\n    1) <div class=\"MuiListItemContent-root css-pvr40b\">Settings</div> aka getByRole('button', { name: '⚙️ Settings' })\n    2) <p class=\"MuiTypography-root MuiTypography-body-sm css-peddd8\">Settings</p> aka locator('p').filter({ hasText: 'Settings' })\n    3) <div id=\"_r_c_\" role=\"tooltip\" data-popper-placement=\"right\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementRight css-cemyjr\">Account & Settings</div> aka getByRole('tooltip', { name: 'Account & Settings' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Settings')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Settings')\nExpected: visible\nError: strict mode violation: getByText('Settings') resolved to 3 elements:\n    1) <div class=\"MuiListItemContent-root css-pvr40b\">Settings</div> aka getByRole('button', { name: '⚙️ Settings' })\n    2) <p class=\"MuiTypography-root MuiTypography-body-sm css-peddd8\">Settings</p> aka locator('p').filter({ hasText: 'Settings' })\n    3) <div id=\"_r_c_\" role=\"tooltip\" data-popper-placement=\"right\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementRight css-cemyjr\">Account & Settings</div> aka getByRole('tooltip', { name: 'Account & Settings' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Settings')\u001b[22m\n\n    at /var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/tests/smoke.spec.js:52:50",
+                        "location": {
+                          "file": "/var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/tests/smoke.spec.js",
+                          "column": 50,
+                          "line": 52
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 50 |\u001b[39m         \u001b[90m// Verify Sidebar Panel content (Account Header)\u001b[39m\n \u001b[90m 51 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Account'\u001b[39m\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 52 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Settings'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 53 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Switch Household'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 54 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Log Out'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 55 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/tests/smoke.spec.js",
+                            "column": 50,
+                            "line": 52
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Settings')\nExpected: visible\nError: strict mode violation: getByText('Settings') resolved to 3 elements:\n    1) <div class=\"MuiListItemContent-root css-pvr40b\">Settings</div> aka getByRole('button', { name: '⚙️ Settings' })\n    2) <p class=\"MuiTypography-root MuiTypography-body-sm css-peddd8\">Settings</p> aka locator('p').filter({ hasText: 'Settings' })\n    3) <div id=\"_r_c_\" role=\"tooltip\" data-popper-placement=\"right\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementRight css-cemyjr\">Account & Settings</div> aka getByRole('tooltip', { name: 'Account & Settings' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Settings')\u001b[22m\n\n\n\u001b[0m \u001b[90m 50 |\u001b[39m         \u001b[90m// Verify Sidebar Panel content (Account Header)\u001b[39m\n \u001b[90m 51 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Account'\u001b[39m\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 52 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Settings'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 53 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Switch Household'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 54 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Log Out'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 55 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/tests/smoke.spec.js:52:50\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-09T11:56:41.242Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/test-results/smoke-Core-UI-Smoke-Tests-Avatar-Menu-Opens-Sidebar-Panel-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/test-results/smoke-Core-UI-Smoke-Tests-Avatar-Menu-Opens-Sidebar-Panel-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/tests/smoke.spec.js",
+                        "column": 50,
+                        "line": 52
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-bf93edaa617e6cd82241",
+              "file": "smoke.spec.js",
+              "line": 46,
+              "column": 5
+            },
+            {
+              "title": "Utility Bar: Persistent Widgets",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 3397,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Budget Health')\nExpected: visible\nError: strict mode violation: locator('text=Budget Health') resolved to 3 elements:\n    1) <p class=\"MuiTypography-root MuiTypography-title-lg css-14eokod\">Budget Health</p> aka getByText('Budget Health').first()\n    2) <p class=\"MuiTypography-root MuiTypography-title-lg css-14eokod\">Budget Health</p> aka getByText('Budget Health').nth(1)\n    3) <div id=\"_r_10_\" role=\"tooltip\" data-popper-escaped=\"\" data-popper-placement=\"top\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementBottom css-125o12r\">Budget Health</div> aka getByRole('tooltip', { name: 'Budget Health' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Budget Health')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Budget Health')\nExpected: visible\nError: strict mode violation: locator('text=Budget Health') resolved to 3 elements:\n    1) <p class=\"MuiTypography-root MuiTypography-title-lg css-14eokod\">Budget Health</p> aka getByText('Budget Health').first()\n    2) <p class=\"MuiTypography-root MuiTypography-title-lg css-14eokod\">Budget Health</p> aka getByText('Budget Health').nth(1)\n    3) <div id=\"_r_10_\" role=\"tooltip\" data-popper-escaped=\"\" data-popper-placement=\"top\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementBottom css-125o12r\">Budget Health</div> aka getByRole('tooltip', { name: 'Budget Health' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Budget Health')\u001b[22m\n\n    at /var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/tests/smoke.spec.js:60:58",
+                        "location": {
+                          "file": "/var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/tests/smoke.spec.js",
+                          "column": 58,
+                          "line": 60
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 58 |\u001b[39m         \u001b[90m// Budget Health\u001b[39m\n \u001b[90m 59 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Budget Health\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 60 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Budget Health'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 61 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Budget Health\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m \u001b[90m// Close\u001b[39m\n \u001b[90m 62 |\u001b[39m\n \u001b[90m 63 |\u001b[39m         \u001b[90m// Wealth Tracking\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/tests/smoke.spec.js",
+                            "column": 58,
+                            "line": 60
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Budget Health')\nExpected: visible\nError: strict mode violation: locator('text=Budget Health') resolved to 3 elements:\n    1) <p class=\"MuiTypography-root MuiTypography-title-lg css-14eokod\">Budget Health</p> aka getByText('Budget Health').first()\n    2) <p class=\"MuiTypography-root MuiTypography-title-lg css-14eokod\">Budget Health</p> aka getByText('Budget Health').nth(1)\n    3) <div id=\"_r_10_\" role=\"tooltip\" data-popper-escaped=\"\" data-popper-placement=\"top\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementBottom css-125o12r\">Budget Health</div> aka getByRole('tooltip', { name: 'Budget Health' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Budget Health')\u001b[22m\n\n\n\u001b[0m \u001b[90m 58 |\u001b[39m         \u001b[90m// Budget Health\u001b[39m\n \u001b[90m 59 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Budget Health\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 60 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Budget Health'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 61 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Budget Health\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m \u001b[90m// Close\u001b[39m\n \u001b[90m 62 |\u001b[39m\n \u001b[90m 63 |\u001b[39m         \u001b[90m// Wealth Tracking\u001b[39m\u001b[0m\n\u001b[2m    at /var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/tests/smoke.spec.js:60:58\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-09T11:56:50.769Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/test-results/smoke-Core-UI-Smoke-Tests-Utility-Bar-Persistent-Widgets-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/test-results/smoke-Core-UI-Smoke-Tests-Utility-Bar-Persistent-Widgets-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/var/tmp/vibe-kanban/worktrees/7526-test-task/household-project/web/tests/smoke.spec.js",
+                        "column": 58,
+                        "line": 60
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-dd34f4997caa60953de2",
+              "file": "smoke.spec.js",
+              "line": 57,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-02-09T11:54:21.091Z",
+    "duration": 153394.29400000002,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 4,
+    "flaky": 0
+  }
+}
