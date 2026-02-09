@@ -37,6 +37,8 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
         return (
           <ListItem sx={{ px: 0 }}>
               <ListItemButton 
+                  component={to ? NavLink : 'div'}
+                  to={to}
                   selected={isActive}
                   onClick={handleClick}
                   sx={{ 
@@ -61,6 +63,8 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
     return (
           <ListItem sx={{ p: 0 }}>
               <ListItemButton 
+                  component={to ? NavLink : 'div'}
+                  to={to}
                   selected={isActive}
                   onClick={handleClick}
                   onMouseEnter={handleMouseEnter}
@@ -498,9 +502,13 @@ export default function NavSidebar({
 
                   <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
 
-                      <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems to={`/household/${household.id}/finance`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
+                                                                  <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems to={`/household/${household.id}/finance`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
 
-                      {enabledModules.includes('meals') && (
+                                                                  {enabledModules.includes('meals') && (
+
+                                            
+
+                      
 
                           <RailIcon icon={<RestaurantMenu />} label="Meals" category="meals" to={`/household/${household.id}/meals`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
 

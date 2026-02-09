@@ -2,13 +2,14 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { authenticator } = require('otplib');
+const { generateSecret, generateURI, verifySync } = require('otplib');
 const qrcode = require('qrcode');
 const UAParser = require('ua-parser-js');
 const crypto = require('crypto');
 const { globalDb, getHouseholdDb, dbGet, dbRun, dbAll } = require('../db'); 
 const { SECRET_KEY } = require('../config');
 const { authenticateToken } = require('../middleware/auth');
+const { encrypt, decrypt } = require('../services/crypto');
 
 /**
  * Helper to finalize login and create session
@@ -167,9 +168,16 @@ router.post('/lookup', async (req, res) => {
     if (!identifier) return res.status(400).json({ error: "Identifier required" });
 
     try {
-        const user = await dbGet(globalDb, `SELECT first_name, avatar FROM users WHERE email = ? OR username = ? COLLATE NOCASE`, [identifier, identifier]);
+        const user = await dbGet(globalDb, `SELECT id, first_name, avatar FROM users WHERE email = ? OR username = ? COLLATE NOCASE`, [identifier, identifier]);
         if (!user) return res.status(404).json({ error: "Not found" });
-        res.json(user);
+        
+        const passkey = await dbGet(globalDb, `SELECT id FROM user_authenticators WHERE user_id = ? LIMIT 1`, [user.id]);
+        
+        res.json({
+            first_name: user.first_name,
+            avatar: user.avatar,
+            hasPasskey: !!passkey
+        });
     } catch (err) {
         res.status(500).json({ error: "Lookup failed" });
     }
@@ -221,7 +229,30 @@ router.post('/mfa/login', async (req, res) => {
         const user = await dbGet(globalDb, `SELECT * FROM users WHERE id = ?`, [decoded.preAuthId]);
         if (!user || !user.is_active) return res.status(403).json({ error: "User inactive" });
 
-        const isValid = authenticator.verify({ token: code, secret: user.mfa_secret });
+        let isValid = false;
+        
+        // 1. Try TOTP Code (6 digits)
+        if (code.length === 6) {
+            const secret = decrypt(user.mfa_secret);
+            const result = verifySync({ 
+                token: code, 
+                secret: secret,
+                epochTolerance: 30 // Allow 1 step drift (30s)
+            });
+            isValid = result.valid;
+        } 
+        // 2. Try Recovery Code
+        else if (user.mfa_recovery_codes) {
+            const codes = JSON.parse(decrypt(user.mfa_recovery_codes) || '[]');
+            const codeIndex = codes.indexOf(code);
+            if (codeIndex !== -1) {
+                isValid = true;
+                // Remove used code
+                codes.splice(codeIndex, 1);
+                await dbRun(globalDb, `UPDATE users SET mfa_recovery_codes = ? WHERE id = ?`, [encrypt(JSON.stringify(codes)), user.id]);
+            }
+        }
+
         if (!isValid) return res.status(401).json({ error: "Invalid 2FA code" });
 
         await finalizeLogin(user, req, res, decoded.rememberMe);
@@ -239,12 +270,12 @@ router.post('/mfa/setup', authenticateToken, async (req, res) => {
         const user = await dbGet(globalDb, `SELECT email, mfa_enabled FROM users WHERE id = ?`, [req.user.id]);
         if (user.mfa_enabled) return res.status(400).json({ error: "MFA already enabled" });
 
-        const secret = authenticator.generateSecret();
-        const otpauth = authenticator.keyuri(user.email, 'Totem', secret);
+        const secret = generateSecret();
+        const otpauth = generateURI({ issuer: 'Mantel', label: user.email, secret });
         const qrCodeUrl = await qrcode.toDataURL(otpauth);
 
         // Store secret temporarily (encrypted)
-        await dbRun(globalDb, `UPDATE users SET mfa_secret = ? WHERE id = ?`, [secret, req.user.id]);
+        await dbRun(globalDb, `UPDATE users SET mfa_secret = ? WHERE id = ?`, [encrypt(secret), req.user.id]);
 
         res.json({ secret, qrCodeUrl });
     } catch (err) {
@@ -256,15 +287,30 @@ router.post('/mfa/verify', authenticateToken, async (req, res) => {
     const { code } = req.body;
     try {
         const user = await dbGet(globalDb, `SELECT mfa_secret FROM users WHERE id = ?`, [req.user.id]);
-        const isValid = authenticator.verify({ token: code, secret: user.mfa_secret });
+        const secret = decrypt(user.mfa_secret);
+        const result = verifySync({ token: code, secret: secret, epochTolerance: 30 });
         
-        if (isValid) {
-            await dbRun(globalDb, `UPDATE users SET mfa_enabled = 1 WHERE id = ?`, [req.user.id]);
-            res.json({ message: "MFA enabled successfully" });
+        if (result.valid) {
+            // Generate 10 recovery codes
+            const recoveryCodes = [];
+            for (let i = 0; i < 10; i++) {
+                recoveryCodes.push(crypto.randomBytes(4).toString('hex').toUpperCase()); // 8 chars hex
+            }
+
+            await dbRun(globalDb, 
+                `UPDATE users SET mfa_enabled = 1, mfa_recovery_codes = ? WHERE id = ?`, 
+                [encrypt(JSON.stringify(recoveryCodes)), req.user.id]
+            );
+            
+            res.json({ 
+                message: "MFA enabled successfully",
+                recoveryCodes 
+            });
         } else {
             res.status(400).json({ error: "Invalid verification code" });
         }
     } catch (err) {
+        console.error("MFA Verify Error:", err);
         res.status(500).json({ error: "Verification failed" });
     }
 });
@@ -277,10 +323,25 @@ router.post('/mfa/disable', authenticateToken, async (req, res) => {
             return res.status(401).json({ error: "Invalid password" });
         }
 
-        await dbRun(globalDb, `UPDATE users SET mfa_enabled = 0, mfa_secret = NULL WHERE id = ?`, [req.user.id]);
+        await dbRun(globalDb, `UPDATE users SET mfa_enabled = 0, mfa_secret = NULL, mfa_recovery_codes = NULL WHERE id = ?`, [req.user.id]);
         res.json({ message: "MFA disabled" });
     } catch (err) {
         res.status(500).json({ error: "Disable failed" });
+    }
+});
+
+router.post('/mfa/recovery-codes', authenticateToken, async (req, res) => {
+    const { password } = req.body;
+    try {
+        const user = await dbGet(globalDb, `SELECT password_hash, mfa_recovery_codes FROM users WHERE id = ?`, [req.user.id]);
+        if (!bcrypt.compareSync(password, user.password_hash)) {
+            return res.status(401).json({ error: "Invalid password" });
+        }
+
+        const codes = JSON.parse(decrypt(user.mfa_recovery_codes) || '[]');
+        res.json({ recoveryCodes: codes });
+    } catch (err) {
+        res.status(500).json({ error: "Failed to fetch recovery codes" });
     }
 });
 

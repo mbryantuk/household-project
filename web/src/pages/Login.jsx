@@ -1,14 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { 
-  Box, Sheet, Typography, Input, Button, Alert, Link, Checkbox, FormControl, FormLabel, Avatar, IconButton, Stack
+  Box, Sheet, Typography, Input, Button, Alert, Link, Checkbox, FormControl, FormLabel, Avatar, IconButton, Stack, Divider
 } from '@mui/joy';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-import { ArrowBack, Visibility, VisibilityOff, Email, Lock } from '@mui/icons-material';
+import { ArrowBack, Visibility, VisibilityOff, Email, Lock, Fingerprint, Security } from '@mui/icons-material';
 import axios from 'axios';
 import MantelIcon from '../components/MantelIcon';
 import { getEmojiColor } from '../theme';
+import { loginWithPasskey } from '../utils/webauthn';
 
-export default function Login({ onLogin, onMfaLogin }) {
+export default function Login({ onLogin, onMfaLogin, onPasskeyLogin }) {
   const location = useLocation();
   const [step, setStep] = useState(1); // 1: Email, 2: Password, 3: MFA
   const [email, setEmail] = useState(localStorage.getItem('rememberedEmail') || '');
@@ -53,6 +54,17 @@ export default function Login({ onLogin, onMfaLogin }) {
        handleLookup();
     }
   }, [email, step, handleLookup]);
+
+  const handlePasskeyLogin = async () => {
+    setError('');
+    setLoading(true);
+    try {
+        await onPasskeyLogin(email, rememberMe);
+    } catch (err) {
+        setError(err.response?.data?.error || "Passkey authentication failed.");
+        setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -234,10 +246,28 @@ export default function Login({ onLogin, onMfaLogin }) {
             <Button 
               fullWidth type="submit" variant="solid" size="lg" 
               loading={loading}
-              sx={{ borderRadius: 'md' }}
+              sx={{ borderRadius: 'md', mb: userProfile?.hasPasskey ? 2 : 0 }}
             >
               Log In
             </Button>
+
+            {userProfile?.hasPasskey && (
+                <>
+                    <Divider sx={{ my: 2 }}>or</Divider>
+                    <Button 
+                        fullWidth 
+                        variant="outlined" 
+                        color="primary"
+                        size="lg"
+                        startDecorator={<Fingerprint />}
+                        onClick={handlePasskeyLogin}
+                        disabled={loading}
+                        sx={{ borderRadius: 'md' }}
+                    >
+                        Sign in with Passkey
+                    </Button>
+                </>
+            )}
           </form>
         ) : (
           <form onSubmit={handleMfaSubmit}>
@@ -267,7 +297,7 @@ export default function Login({ onLogin, onMfaLogin }) {
                 </Box>
                 <Typography level="h4" sx={{ mb: 0.5 }}>2-Step Verification</Typography>
                 <Typography level="body-sm" color="neutral" sx={{ textAlign: 'center' }}>
-                    Enter the 6-digit code from your authenticator app.
+                    Enter the 6-digit code from your authenticator app or an 8-character recovery code.
                 </Typography>
             </Box>
 
@@ -277,10 +307,10 @@ export default function Login({ onLogin, onMfaLogin }) {
                 autoFocus
                 placeholder="000000"
                 value={mfaCode} 
-                onChange={e => setMfaCode(e.target.value.replace(/\D/g, '').substring(0, 6))} 
+                onChange={e => setMfaCode(e.target.value.substring(0, 10))} 
                 disabled={loading}
                 size="lg"
-                slotProps={{ input: { textAlign: 'center', letterSpacing: '0.5em', fontWeight: 'bold' } }}
+                slotProps={{ input: { textAlign: 'center', letterSpacing: '0.2em', fontWeight: 'bold' } }}
               />
             </FormControl>
 

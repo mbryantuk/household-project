@@ -1,6 +1,6 @@
 {
   "name": "household-project",
-  "version": "3.2.150",
+  "version": "3.2.150-20260209",
   "private": true,
   "scripts": {
     "test": "cd server && npm test",
@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@google/genai": "^1.36.0",
+    "axios": "^1.13.5",
     "nodemailer": "^7.0.12",
     "sqlite3": "^5.1.7"
   }

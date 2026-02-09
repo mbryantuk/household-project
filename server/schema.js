@@ -18,6 +18,7 @@ const GLOBAL_SCHEMA = [
         is_active INTEGER DEFAULT 1,
         mfa_enabled INTEGER DEFAULT 0,
         mfa_secret TEXT,
+        mfa_recovery_codes TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
     `CREATE TABLE IF NOT EXISTS user_sessions (
@@ -74,6 +75,26 @@ const GLOBAL_SCHEMA = [
         is_active INTEGER DEFAULT 1,
         joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (user_id, household_id)
+    )`,
+    `CREATE TABLE IF NOT EXISTS user_authenticators (
+        id TEXT PRIMARY KEY,
+        user_id INTEGER,
+        credential_id TEXT,
+        public_key TEXT,
+        counter INTEGER,
+        device_type TEXT,
+        backed_up INTEGER,
+        transports TEXT,
+        household_id INTEGER,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+    )`,
+    `CREATE TABLE IF NOT EXISTS webauthn_challenges (
+        household_id INTEGER,
+        challenge TEXT PRIMARY KEY,
+        user_id INTEGER,
+        expires_at DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`
 ];
 
@@ -453,6 +474,10 @@ function initializeGlobalSchema(db) {
             if (!rows.some(r => r.name === 'mfa_secret')) {
                 console.log("🛠️ Migrating users: Adding mfa_secret...");
                 db.run("ALTER TABLE users ADD COLUMN mfa_secret TEXT");
+            }
+            if (!rows.some(r => r.name === 'mfa_recovery_codes')) {
+                console.log("🛠️ Migrating users: Adding mfa_recovery_codes...");
+                db.run("ALTER TABLE users ADD COLUMN mfa_recovery_codes TEXT");
             }
         });
 

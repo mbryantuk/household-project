@@ -22,8 +22,9 @@ export default function SecuritySettings() {
 
   // MFA State
   const [mfaModalOpen, setMfaModalOpen] = useState(false);
-  const [mfaStep, setMfaStep] = useState(1); // 1: QR, 2: Verify
+  const [mfaStep, setMfaStep] = useState(1); // 1: QR, 2: Verify, 3: Recovery Codes
   const [mfaData, setMfaData] = useState(null);
+  const [recoveryCodes, setRecoveryCodes] = useState([]);
   const [mfaCode, setMfaCode] = useState('');
   const [verifying, setVerifying] = useState(false);
 
@@ -84,6 +85,7 @@ export default function SecuritySettings() {
         const res = await api.post('/auth/mfa/setup');
         setMfaData(res.data);
         setMfaStep(1);
+        setMfaCode('');
         setMfaModalOpen(true);
     } catch (err) {
         showNotification("MFA setup failed.", "danger");
@@ -93,9 +95,10 @@ export default function SecuritySettings() {
   const handleMfaVerify = async () => {
     setVerifying(true);
     try {
-        await api.post('/auth/mfa/verify', { code: mfaCode });
+        const res = await api.post('/auth/mfa/verify', { code: mfaCode });
         showNotification("Multi-factor authentication enabled!", "success");
-        setMfaModalOpen(false);
+        setRecoveryCodes(res.data.recoveryCodes || []);
+        setMfaStep(3);
         onUpdateProfile({ mfa_enabled: true }); // Update local state
     } catch (err) {
         showNotification("Invalid code. Please try again.", "danger");
@@ -198,7 +201,7 @@ export default function SecuritySettings() {
                           </Typography>
                           <Button fullWidth onClick={() => setMfaStep(2)}>I've scanned it</Button>
                       </Stack>
-                  ) : (
+                  ) : mfaStep === 2 ? (
                       <Stack spacing={2} sx={{ mt: 1 }}>
                           <Typography level="body-sm">Enter the 6-digit code from your app to verify setup.</Typography>
                           <FormControl required>
@@ -213,6 +216,22 @@ export default function SecuritySettings() {
                           </FormControl>
                           <Button fullWidth loading={verifying} onClick={handleMfaVerify}>Complete Setup</Button>
                           <Button variant="plain" color="neutral" onClick={() => setMfaStep(1)}>Back to QR Code</Button>
+                      </Stack>
+                  ) : (
+                      <Stack spacing={2} sx={{ mt: 1 }}>
+                          <Alert color="warning" variant="soft" startDecorator={<Warning />}>
+                              Save these recovery codes! They are the only way to access your account if you lose your phone.
+                          </Alert>
+                          <Sheet variant="soft" sx={{ p: 2, borderRadius: 'sm', bgcolor: 'background.level2' }}>
+                              <Grid container spacing={1}>
+                                  {recoveryCodes.map(code => (
+                                      <Grid key={code} xs={6}>
+                                          <Typography level="body-xs" sx={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{code}</Typography>
+                                      </Grid>
+                                  ))}
+                              </Grid>
+                          </Sheet>
+                          <Button fullWidth onClick={() => setMfaModalOpen(false)}>Done</Button>
                       </Stack>
                   )}
               </DialogContent>

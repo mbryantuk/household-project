@@ -12,6 +12,7 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
+      - KANBAN_URL=http://10.10.2.0:8089
 
 # You can keep the volume definition, though the bind mount above 
 # handles the actual persistence on your Pi's disk.

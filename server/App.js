@@ -15,6 +15,7 @@ require('./services/crypto');
 
 // Routes
 const authRoutes = require('./routes/auth');
+const webauthnRoutes = require('./routes/webauthn');
 const householdRoutes = require('./routes/households');
 const memberRoutes = require('./routes/members');
 const adminRoutes = require('./routes/admin');
@@ -29,6 +30,7 @@ const { createBackup, cleanOldBackups } = require('./services/backup');
 const app = express();
 
 // Security Middleware
+app.set('trust proxy', 1);
 app.use(helmet({
     contentSecurityPolicy: false, 
     crossOriginEmbedderPolicy: false
@@ -65,7 +67,11 @@ app.use('/api/auth/register', authLimiter);
 // Logging
 app.use((req, res, next) => {
     if (process.env.NODE_ENV !== 'test') {
-        console.log(`📡 [${req.method}] ${req.path}`);
+        res.on('finish', () => {
+            const status = res.statusCode;
+            const emoji = status >= 500 ? '❌' : (status >= 400 ? '⚠️' : '✅');
+            console.log(`${emoji} [${res.statusCode}] ${req.method} ${req.path}`);
+        });
     }
     next();
 });
@@ -73,6 +79,7 @@ app.use((req, res, next) => {
 // MOUNT API ROUTES
 // We mount everything at both root and /api for maximum compatibility with various proxy setups
 const allRouters = [
+    { path: '/auth/webauthn', router: webauthnRoutes },
     { path: '/auth', router: authRoutes },
     { path: '/admin', router: adminRoutes },
     { path: '/households/:id/finance/profiles', router: financeProfileRoutes },
@@ -128,5 +135,14 @@ if (fs.existsSync(frontendPath)) {
         res.sendFile(path.join(frontendPath, 'index.html'));
     });
 }
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+    console.error(`❌ [ERROR] ${req.method} ${req.path}:`, err);
+    res.status(err.status || 500).json({
+        error: err.message || "Internal Server Error",
+        path: req.path
+    });
+});
 
 module.exports = app;

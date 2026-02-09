@@ -1,39 +1,45 @@
 {
-  "timestamp": "2026-02-06T00:03:56.592Z",
+  "timestamp": "2026-02-09T11:33:51.271Z",
   "accounts": {
-    "admin": "admin_1770336236374@test.com",
-    "viewer": "viewer_1770336236374@test.com"
+    "admin": "admin_1770636827218@test.com",
+    "viewer": "viewer_1770636827218@test.com"
   },
   "steps": [
-    "00:03:56: Loading Swagger schema for strict sync enforcement.",
-    "00:03:56: Initializing test environment.",
-    "00:03:56: Cleaning up: Deleting test household."
+    "11:33:47: Loading Swagger schema for strict sync enforcement.",
+    "11:33:47: Initializing test environment.",
+    "11:33:51: Cleaning up: Deleting test household."
   ],
   "summary": {
-    "total_endpoints": 0,
-    "passed": 0,
-    "failed": 0
+    "total_endpoints": 10,
+    "passed": 5,
+    "failed": 5
   },
-  "results": {},
+  "results": {
+    "GET /auth/profile": "PASS",
+    "POST /households/{id}/finance/recurring-costs": "PASS",
+    "GET /households/{id}/finance/recurring-costs": "FAIL (403)",
+    "POST /households/{id}/members": "PASS",
+    "GET /households/{id}/members": "FAIL (403)",
+    "POST /households/{id}/vehicles": "PASS",
+    "GET /households/{id}/vehicles": "FAIL (403)",
+    "POST /households/{id}/finance/income": "PASS",
+    "GET /households/{id}/finance/income": "FAIL (403)",
+    "GET /households/{id}/meals": "FAIL (403)"
+  },
   "swagger_discrepancies": {
     "missing_in_swagger": [],
     "not_tested_from_swagger": [
       "POST /auth/register",
       "POST /auth/login",
-      "GET /auth/profile",
       "PUT /auth/profile",
       "POST /households",
       "GET /households/{id}",
       "PUT /households/{id}",
       "GET /households/{id}/details",
       "PUT /households/{id}/details",
-      "GET /households/{id}/members",
-      "POST /households/{id}/members",
       "GET /households/{id}/members/{itemId}",
       "PUT /households/{id}/members/{itemId}",
       "DELETE /households/{id}/members/{itemId}",
-      "GET /households/{id}/vehicles",
-      "POST /households/{id}/vehicles",
       "GET /households/{id}/vehicles/{itemId}",
       "PUT /households/{id}/vehicles/{itemId}",
       "DELETE /households/{id}/vehicles/{itemId}",
@@ -42,12 +48,8 @@
       "GET /households/{id}/assets/{itemId}",
       "PUT /households/{id}/assets/{itemId}",
       "DELETE /households/{id}/assets/{itemId}",
-      "GET /households/{id}/finance/recurring-costs",
-      "POST /households/{id}/finance/recurring-costs",
       "PUT /households/{id}/finance/recurring-costs/{itemId}",
       "DELETE /households/{id}/finance/recurring-costs/{itemId}",
-      "GET /households/{id}/finance/income",
-      "POST /households/{id}/finance/income",
       "GET /households/{id}/finance/income/{itemId}",
       "PUT /households/{id}/finance/income/{itemId}",
       "DELETE /households/{id}/finance/income/{itemId}",
@@ -73,7 +75,6 @@
       "DELETE /households/{id}/finance/savings/{itemId}",
       "GET /households/{id}/finance/current-accounts",
       "POST /households/{id}/finance/current-accounts",
-      "GET /households/{id}/meals",
       "POST /households/{id}/meals"
     ]
   }

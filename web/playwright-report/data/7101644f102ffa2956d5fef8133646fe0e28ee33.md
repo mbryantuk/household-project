@@ -1,0 +1,466 @@
+# Page snapshot
+
+```yaml
+- main [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e7]:
+      - generic [ref=e8]:
+        - generic "Dashboard" [ref=e10] [cursor=pointer]: 🏠
+        - list [ref=e11]:
+          - listitem [ref=e12]:
+            - button "House" [ref=e13] [cursor=pointer]:
+              - img [ref=e15]
+              - generic [ref=e17]: House
+          - listitem [ref=e18]:
+            - button "Calendar" [ref=e19] [cursor=pointer]:
+              - img [ref=e21]
+              - generic [ref=e23]: Calendar
+        - separator [ref=e24]
+      - list [ref=e26]:
+        - listitem [ref=e27]:
+          - button "Finance" [ref=e28] [cursor=pointer]:
+            - img [ref=e30]
+            - generic [ref=e32]: Finance
+        - listitem [ref=e33]:
+          - button "Meals" [ref=e34] [cursor=pointer]:
+            - img [ref=e36]
+            - generic [ref=e38]: Meals
+      - generic [ref=e39]:
+        - separator [ref=e41]
+        - button "Account & Settings" [ref=e42] [cursor=pointer]:
+          - generic [ref=e43]: 🐧
+    - generic [ref=e44]:
+      - main [ref=e45]:
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - generic [ref=e48]:
+              - heading "Good morning, Matt" [level=2] [ref=e49]
+              - paragraph [ref=e50]: Monday 9 February • The Brady Bunch (API) v3.2.150-20260209 [2026-02-09 11:33:40]
+            - button "Customize" [ref=e52] [cursor=pointer]:
+              - img [ref=e54]
+              - text: Customize
+          - generic [ref=e57]:
+            - generic [ref=e60]:
+              - generic [ref=e61]:
+                - img [ref=e63]
+                - paragraph [ref=e66]: System Time
+              - generic [ref=e68]:
+                - heading "11:52:54" [level=1] [ref=e69]
+                - paragraph [ref=e70]: Monday, 9th February 2026
+            - generic [ref=e73]:
+              - generic [ref=e74]:
+                - img [ref=e76]
+                - paragraph [ref=e78]: Budget Health
+              - generic [ref=e80]:
+                - generic [ref=e81]:
+                  - paragraph [ref=e82]: January 2026
+                  - generic [ref=e84]: Healthy
+                - generic [ref=e85]:
+                  - generic [ref=e86]:
+                    - generic [ref=e87]: Time until Payday
+                    - generic [ref=e88]: 18 days remaining
+                  - progressbar [ref=e89]
+                - generic [ref=e90]:
+                  - generic [ref=e91]:
+                    - generic [ref=e92]: Bills Paid
+                    - generic [ref=e93]: 0%
+                  - progressbar [ref=e94]
+                - separator [ref=e95]
+                - generic [ref=e97]:
+                  - generic [ref=e98]:
+                    - generic [ref=e99]:
+                      - img [ref=e100]
+                      - text: Lowest Point
+                    - paragraph [ref=e102]: £9,300.00
+                  - generic [ref=e103]:
+                    - generic [ref=e104]:
+                      - img [ref=e105]
+                      - text: End Balance
+                    - paragraph [ref=e107]: £15,500.00
+            - generic [ref=e110]:
+              - generic [ref=e111]:
+                - img [ref=e113]
+                - paragraph [ref=e115]: Wealth Tracking
+              - generic [ref=e117]:
+                - generic [ref=e118]:
+                  - generic [ref=e119]: Net Worth Estimate
+                  - heading "£2,184,300" [level=2] [ref=e120]
+                  - generic [ref=e121]: Assets minus all Liabilities
+                - generic [ref=e122]:
+                  - generic [ref=e123]:
+                    - generic [ref=e124]:
+                      - generic [ref=e125]:
+                        - img [ref=e127]
+                        - text: House Equity
+                      - generic [ref=e129]: £2,025,000
+                    - generic [ref=e130]: £2,450,000 value vs £425,000 debt
+                    - progressbar [ref=e131]
+                  - generic [ref=e132]:
+                    - generic [ref=e133]:
+                      - generic [ref=e134]:
+                        - img [ref=e136]
+                        - text: Vehicle Equity
+                      - generic [ref=e138]: £150,000
+                    - generic [ref=e139]: £150,000 value vs £0 debt
+                    - progressbar [ref=e140]
+                  - separator [ref=e141]
+                  - generic [ref=e142]:
+                    - generic [ref=e143]:
+                      - generic [ref=e144]:
+                        - img [ref=e145]
+                        - text: Pensions
+                      - paragraph [ref=e147]: £0
+                    - generic [ref=e148]:
+                      - generic [ref=e149]:
+                        - img [ref=e150]
+                        - text: Investments
+                      - paragraph [ref=e152]: £0
+                  - generic [ref=e153]:
+                    - generic [ref=e154]:
+                      - img [ref=e155]
+                      - text: Liquid Savings
+                    - paragraph [ref=e157]: £0
+                    - list [ref=e158]
+            - generic [ref=e161]:
+              - generic [ref=e162]:
+                - img [ref=e164]
+                - paragraph [ref=e166]: Income
+              - generic [ref=e168]:
+                - generic [ref=e169]:
+                  - generic [ref=e170]: Total Net Monthly
+                  - heading "£15,700" [level=4] [ref=e171]
+                - list [ref=e172]:
+                  - listitem [ref=e173]:
+                    - generic [ref=e174]: 💰
+                    - generic [ref=e175]:
+                      - paragraph [ref=e176]: Brady Architecture
+                      - generic [ref=e177]: Day 28
+                    - paragraph [ref=e178]: £9,500
+                  - listitem [ref=e179]:
+                    - generic [ref=e180]: 💰
+                    - generic [ref=e181]:
+                      - paragraph [ref=e182]: WFH Creative
+                      - generic [ref=e183]: Day 20
+                    - paragraph [ref=e184]: £6,200
+            - generic [ref=e187]:
+              - generic [ref=e188]:
+                - img [ref=e190]
+                - paragraph [ref=e192]: Banking
+              - generic [ref=e194]:
+                - generic [ref=e195]:
+                  - generic [ref=e196]: Combined Balance
+                  - heading "£9,300" [level=4] [ref=e197]
+                - list [ref=e198]:
+                  - listitem [ref=e199]:
+                    - generic [ref=e200]: 🏦
+                    - generic [ref=e201]:
+                      - paragraph [ref=e202]: Wells Fargo
+                      - generic [ref=e203]: Checking
+                    - paragraph [ref=e204]: £9,300
+            - generic [ref=e207]:
+              - generic [ref=e208]:
+                - img [ref=e210]
+                - paragraph [ref=e212]: Savings
+              - generic [ref=e214]:
+                - generic [ref=e217] [cursor=pointer]:
+                  - combobox [ref=e218]: Total Savings
+                  - img [ref=e220]
+                  - textbox [ref=e222]: total
+                - generic [ref=e223]:
+                  - paragraph [ref=e224]: Total Savings
+                  - heading "🏦 £0.00" [level=2] [ref=e225]
+                - paragraph [ref=e226]: No savings accounts yet.
+            - generic [ref=e229]:
+              - generic [ref=e230]:
+                - img [ref=e232]
+                - paragraph [ref=e234]: Calendar
+              - generic [ref=e235]:
+                - generic [ref=e236]:
+                  - paragraph [ref=e237]: February 2026
+                  - generic [ref=e238]:
+                    - button [ref=e239] [cursor=pointer]:
+                      - img [ref=e240]
+                    - button [ref=e242] [cursor=pointer]:
+                      - img [ref=e243]
+                - generic [ref=e245]:
+                  - generic [ref=e246]: M
+                  - generic [ref=e247]: T
+                  - generic [ref=e248]: W
+                  - generic [ref=e249]: T
+                  - generic [ref=e250]: F
+                  - generic [ref=e251]: S
+                  - generic [ref=e252]: S
+                  - button "26" [ref=e253] [cursor=pointer]:
+                    - generic [ref=e254]: "26"
+                  - button "27" [ref=e255] [cursor=pointer]:
+                    - generic [ref=e256]: "27"
+                  - button "28" [ref=e257] [cursor=pointer]:
+                    - generic [ref=e258]: "28"
+                  - button "29" [ref=e260] [cursor=pointer]:
+                    - generic [ref=e261]: "29"
+                  - button "30" [ref=e262] [cursor=pointer]:
+                    - generic [ref=e263]: "30"
+                  - button "31" [ref=e264] [cursor=pointer]:
+                    - generic [ref=e265]: "31"
+                  - button "1" [ref=e266] [cursor=pointer]:
+                    - generic [ref=e267]: "1"
+                  - button "2" [ref=e268] [cursor=pointer]:
+                    - generic [ref=e269]: "2"
+                  - button "3" [ref=e271] [cursor=pointer]:
+                    - generic [ref=e272]: "3"
+                  - button "4" [ref=e273] [cursor=pointer]:
+                    - generic [ref=e274]: "4"
+                  - button "5" [ref=e275] [cursor=pointer]:
+                    - generic [ref=e276]: "5"
+                  - button "6" [ref=e278] [cursor=pointer]:
+                    - generic [ref=e279]: "6"
+                  - button "7" [ref=e280] [cursor=pointer]:
+                    - generic [ref=e281]: "7"
+                  - button "8" [ref=e282] [cursor=pointer]:
+                    - generic [ref=e283]: "8"
+                  - button "9" [ref=e284] [cursor=pointer]:
+                    - generic [ref=e285]: "9"
+                  - button "10" [ref=e286] [cursor=pointer]:
+                    - generic [ref=e287]: "10"
+                  - button "11" [ref=e289] [cursor=pointer]:
+                    - generic [ref=e290]: "11"
+                  - button "12" [ref=e291] [cursor=pointer]:
+                    - generic [ref=e292]: "12"
+                  - button "13" [ref=e294] [cursor=pointer]:
+                    - generic [ref=e295]: "13"
+                  - button "14" [ref=e296] [cursor=pointer]:
+                    - generic [ref=e297]: "14"
+                  - button "15" [ref=e298] [cursor=pointer]:
+                    - generic [ref=e299]: "15"
+                  - button "16" [ref=e300] [cursor=pointer]:
+                    - generic [ref=e301]: "16"
+                  - button "17" [ref=e303] [cursor=pointer]:
+                    - generic [ref=e304]: "17"
+                  - button "18" [ref=e305] [cursor=pointer]:
+                    - generic [ref=e306]: "18"
+                  - button "19" [ref=e308] [cursor=pointer]:
+                    - generic [ref=e309]: "19"
+                  - button "20" [ref=e310] [cursor=pointer]:
+                    - generic [ref=e311]: "20"
+                  - button "21" [ref=e313] [cursor=pointer]:
+                    - generic [ref=e314]: "21"
+                  - button "22" [ref=e315] [cursor=pointer]:
+                    - generic [ref=e316]: "22"
+                  - button "23" [ref=e317] [cursor=pointer]:
+                    - generic [ref=e318]: "23"
+                  - button "24" [ref=e319] [cursor=pointer]:
+                    - generic [ref=e320]: "24"
+                  - button "25" [ref=e321] [cursor=pointer]:
+                    - generic [ref=e322]: "25"
+                  - button "26" [ref=e323] [cursor=pointer]:
+                    - generic [ref=e324]: "26"
+                  - button "27" [ref=e325] [cursor=pointer]:
+                    - generic [ref=e326]: "27"
+                  - button "28" [ref=e327] [cursor=pointer]:
+                    - generic [ref=e328]: "28"
+                  - button "1" [ref=e329] [cursor=pointer]:
+                    - generic [ref=e330]: "1"
+                  - button "2" [ref=e331] [cursor=pointer]:
+                    - generic [ref=e332]: "2"
+                  - button "3" [ref=e334] [cursor=pointer]:
+                    - generic [ref=e335]: "3"
+                  - button "4" [ref=e336] [cursor=pointer]:
+                    - generic [ref=e337]: "4"
+                  - button "5" [ref=e338] [cursor=pointer]:
+                    - generic [ref=e339]: "5"
+                  - button "6" [ref=e341] [cursor=pointer]:
+                    - generic [ref=e342]: "6"
+                  - button "7" [ref=e343] [cursor=pointer]:
+                    - generic [ref=e344]: "7"
+                  - button "8" [ref=e345] [cursor=pointer]:
+                    - generic [ref=e346]: "8"
+                - separator [ref=e347]
+                - generic [ref=e350]:
+                  - paragraph [ref=e351]: 💸
+                  - generic [ref=e352]: Tesla Insurance (⚡ Tesla)
+            - generic [ref=e355]:
+              - generic [ref=e356]:
+                - img [ref=e358]
+                - paragraph [ref=e360]: Sticky Note
+              - generic [ref=e362]:
+                - generic [ref=e363]:
+                  - button [ref=e364] [cursor=pointer]:
+                    - img [ref=e365]
+                  - generic [ref=e367]: Notes
+                - list [ref=e369]:
+                  - listitem [ref=e370]:
+                    - button "Empty note..." [ref=e371] [cursor=pointer]:
+                      - checkbox [ref=e375]
+                      - generic [ref=e376]: Empty note...
+                    - button [ref=e378] [cursor=pointer]:
+                      - img [ref=e379]
+            - generic [ref=e383]:
+              - generic [ref=e384]:
+                - img [ref=e386]
+                - paragraph [ref=e388]: Credit Cards
+              - generic [ref=e390]:
+                - generic [ref=e391]:
+                  - generic [ref=e392]:
+                    - generic [ref=e393]: Utilization
+                    - generic [ref=e394]: 0%
+                  - progressbar [ref=e395]
+                - list [ref=e396]
+            - generic [ref=e399]:
+              - generic [ref=e400]:
+                - img [ref=e402]
+                - paragraph [ref=e405]: Personal Loans
+              - generic [ref=e407]:
+                - generic [ref=e408]:
+                  - generic [ref=e409]: Total Debt
+                  - heading "£0" [level=4] [ref=e410]
+                - list [ref=e411]:
+                  - listitem [ref=e412]:
+                    - generic [ref=e413]: 📝
+                    - generic [ref=e414]:
+                      - paragraph [ref=e415]: Home Office Expansion Loan
+                      - generic [ref=e416]: £3200/mo
+                    - paragraph [ref=e417]: £0
+            - generic [ref=e420]:
+              - generic [ref=e421]:
+                - img [ref=e423]
+                - paragraph [ref=e425]: Mortgages
+              - generic [ref=e427]:
+                - generic [ref=e428]:
+                  - generic [ref=e429]: Total Mortgage Debt
+                  - heading "£425,000" [level=4] [ref=e430]
+                - list [ref=e431]:
+                  - listitem [ref=e432]:
+                    - generic [ref=e433]: 🏠
+                    - generic [ref=e434]:
+                      - paragraph [ref=e435]: Nationwide
+                      - generic [ref=e436]: £1850/mo
+                    - paragraph [ref=e437]: £425,000
+            - generic [ref=e440]:
+              - generic [ref=e441]:
+                - img [ref=e443]
+                - paragraph [ref=e445]: Pensions
+              - generic [ref=e447]:
+                - generic [ref=e450] [cursor=pointer]:
+                  - combobox [ref=e451]: Total Portfolio
+                  - img [ref=e453]
+                  - textbox [ref=e455]: total
+                - generic [ref=e456]:
+                  - paragraph [ref=e457]: Total Pension Pot
+                  - heading "🏺 £0.00" [level=2] [ref=e458]
+                  - paragraph [ref=e459]: +£0/mo contribution
+                - paragraph [ref=e460]: No pensions found.
+            - generic [ref=e463]:
+              - generic [ref=e464]:
+                - img [ref=e466]
+                - paragraph [ref=e468]: Fleet Status
+              - list [ref=e470]:
+                - listitem [ref=e471]:
+                  - generic [ref=e472]:
+                    - paragraph [ref=e473]: Tesla Model S
+                    - generic [ref=e474]:
+                      - generic [ref=e476]: "MOT: 2026-11-01"
+                      - generic [ref=e478]: "Tax: 2026-11-01"
+                - listitem [ref=e479]:
+                  - generic [ref=e480]:
+                    - paragraph [ref=e481]: Rivian R1S
+                    - generic [ref=e482]:
+                      - generic [ref=e484]: "MOT: 2026-08-20"
+                      - generic [ref=e486]: "Tax: 2026-08-20"
+            - generic [ref=e489]:
+              - generic [ref=e490]:
+                - img [ref=e492]
+                - paragraph [ref=e494]: Car Finance
+              - generic [ref=e496]:
+                - generic [ref=e497]:
+                  - generic [ref=e498]: Total Outstanding
+                  - heading "£0" [level=4] [ref=e499]
+                - list [ref=e500]
+            - generic [ref=e503]:
+              - generic [ref=e504]:
+                - img [ref=e506]
+                - paragraph [ref=e508]: Upcoming Birthdays
+              - generic [ref=e510]:
+                - generic [ref=e511]:
+                  - generic [ref=e512]:
+                    - generic [ref=e513]: 👦
+                    - generic [ref=e514]:
+                      - paragraph [ref=e515]: Peter
+                      - generic [ref=e516]: Turning 18
+                  - generic [ref=e518]: Tomorrow
+                - generic [ref=e519]:
+                  - generic [ref=e520]:
+                    - generic [ref=e521]: 👩
+                    - generic [ref=e522]:
+                      - paragraph [ref=e523]: Carol
+                      - generic [ref=e524]: Turning 44
+                  - generic [ref=e526]: 5 days
+                - generic [ref=e527]:
+                  - generic [ref=e528]:
+                    - generic [ref=e529]: 👨
+                    - generic [ref=e530]:
+                      - paragraph [ref=e531]: Mike
+                      - generic [ref=e532]: Turning 48
+                  - generic [ref=e534]: 92 days
+                - generic [ref=e535]:
+                  - generic [ref=e536]:
+                    - generic [ref=e537]: 👧
+                    - generic [ref=e538]:
+                      - paragraph [ref=e539]: Cindy
+                      - generic [ref=e540]: Turning 10
+                  - generic [ref=e542]: 149 days
+                - generic [ref=e543]:
+                  - generic [ref=e544]:
+                    - generic [ref=e545]: 👧
+                    - generic [ref=e546]:
+                      - paragraph [ref=e547]: Marcia
+                      - generic [ref=e548]: Turning 20
+                  - generic [ref=e550]: 177 days
+            - generic [ref=e553]:
+              - generic [ref=e554]:
+                - img [ref=e556]
+                - paragraph [ref=e558]: Sticky Note
+              - generic [ref=e560]:
+                - generic [ref=e561]:
+                  - button [ref=e562] [cursor=pointer]:
+                    - img [ref=e563]
+                  - generic [ref=e565]: Notes
+                - list [ref=e567]:
+                  - listitem [ref=e568]:
+                    - button "Empty note..." [ref=e569] [cursor=pointer]:
+                      - checkbox [ref=e573]
+                      - generic [ref=e574]: Empty note...
+                    - button [ref=e576] [cursor=pointer]:
+                      - img [ref=e577]
+      - generic [ref=e582]:
+        - button "Notes" [ref=e584] [cursor=pointer]:
+          - img [ref=e585]
+        - button "Calculator" [ref=e588] [cursor=pointer]:
+          - img [ref=e589]
+        - separator
+        - button "Income" [ref=e592] [cursor=pointer]:
+          - img [ref=e593]
+        - button "Banking" [ref=e596] [cursor=pointer]:
+          - img [ref=e597]
+        - button "Savings & Pots" [ref=e600] [cursor=pointer]:
+          - img [ref=e601]
+        - button "Investments" [ref=e604] [cursor=pointer]:
+          - img [ref=e605]
+        - button "Pensions" [ref=e608] [cursor=pointer]:
+          - img [ref=e609]
+        - button "Credit Cards" [ref=e612] [cursor=pointer]:
+          - img [ref=e613]
+        - button "Personal Loans" [ref=e616] [cursor=pointer]:
+          - img [ref=e617]
+        - button "Mortgages" [ref=e621] [cursor=pointer]:
+          - img [ref=e622]
+        - button "Car Finance" [ref=e625] [cursor=pointer]:
+          - img [ref=e626]
+        - separator
+        - button "Budget Health" [ref=e629] [cursor=pointer]:
+          - img [ref=e630]
+        - button "Wealth Tracking" [ref=e633] [cursor=pointer]:
+          - img [ref=e634]
+        - separator
+        - button "Calendar" [ref=e637] [cursor=pointer]:
+          - img [ref=e638]
+```

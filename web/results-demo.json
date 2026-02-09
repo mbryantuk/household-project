@@ -107,7 +107,7 @@
                       ],
                       "stdout": [
                         {
-                          "text": "🚀 LAUNCHING E2E SEED: The Brady Bunch (E2E) v3.2.0 [2026-02-06 00:04:10]\n"
+                          "text": "🚀 LAUNCHING E2E SEED: The Brady Bunch (E2E) v3.2.0 [2026-02-09 00:07:57]\n"
                         },
                         {
                           "text": "🧹 MAINTENANCE: Keeping household undefined for demos.\n"
@@ -119,7 +119,7 @@
                         }
                       ],
                       "retry": 0,
-                      "startTime": "2026-02-06T00:04:10.358Z",
+                      "startTime": "2026-02-09T00:07:57.498Z",
                       "annotations": [],
                       "attachments": [],
                       "errorLocation": {
@@ -158,7 +158,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-06T00:04:10.606Z",
+                      "startTime": "2026-02-09T00:07:57.694Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -192,7 +192,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-06T00:04:10.606Z",
+                      "startTime": "2026-02-09T00:07:57.694Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -226,7 +226,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-06T00:04:10.606Z",
+                      "startTime": "2026-02-09T00:07:57.694Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -260,7 +260,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-06T00:04:10.606Z",
+                      "startTime": "2026-02-09T00:07:57.694Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -270,7 +270,7 @@
               ],
               "id": "ccab690aca2c80705b5f-fd45e656e994b80d89b1",
               "file": "e2e/brady_full_state.spec.js",
-              "line": 478,
+              "line": 480,
               "column": 5
             }
           ]
@@ -280,8 +280,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-06T00:04:08.341Z",
-    "duration": 2283.359,
+    "startTime": "2026-02-09T00:07:55.529Z",
+    "duration": 2183.5690000000004,
     "expected": 0,
     "skipped": 4,
     "unexpected": 1,

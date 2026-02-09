@@ -1,14 +1,22 @@
+const { spawn, execSync } = require('child_process');
 const kanban = require('./kanban_api');
+const path = require('path');
 
-const POLL_INTERVAL = 30000; // 30 seconds
+const POLL_INTERVAL = 60000; // 1 minute
 const TARGET_CONCURRENCY = 2;
-const PROJECT_ID = process.env.PROJECT_ID || 'd691614b-4566-41d1-8ba9-c6636354a120';
+const PROJECT_ID = 'd691614b-4566-41d1-8ba9-c6636354a120';
 
-/**
- * Ensures exactly TARGET_CONCURRENCY tasks are in 'inprogress'.
- */
-async function maintainConcurrency() {
-    console.log(`[${new Date().toISOString()}] 🔍 Checking Kanban concurrency...`);
+function isTaskRunning(taskId) {
+    try {
+        const stdout = execSync(`ps aux | grep "supervisor.js --taskId ${taskId}" | grep -v grep`).toString();
+        return stdout.length > 0;
+    } catch (e) {
+        return false;
+    }
+}
+
+async function monitor() {
+    console.log(`[${new Date().toISOString()}] 🔍 Watchdog scanning...`);
     
     try {
         const response = await kanban.listTasks(PROJECT_ID);
@@ -16,38 +24,44 @@ async function maintainConcurrency() {
 
         const inProgressTasks = tasks.filter(t => t.status === 'inprogress');
         const todoTasks = tasks.filter(t => t.status === 'todo');
+        const actuallyRunning = inProgressTasks.filter(t => isTaskRunning(t.id));
+        
+        console.log(`📊 Board: ${inProgressTasks.length} | Running: ${actuallyRunning.length} | Todo: ${todoTasks.length}`);
 
-        console.log(`📊 Current State: ${inProgressTasks.length} In Progress, ${todoTasks.length} Todo`);
-
-        if (inProgressTasks.length < TARGET_CONCURRENCY) {
-            const needed = TARGET_CONCURRENCY - inProgressTasks.length;
-            const toPromote = todoTasks.slice(0, needed);
-
-            if (toPromote.length > 0) {
-                console.log(`🚀 Promoting ${toPromote.length} tasks to 'inprogress'...`);
-                for (const task of toPromote) {
-                    console.log(`  - [${task.id.slice(0, 8)}] ${task.title}`);
-                    await kanban.updateTask(task.id, { status: 'inprogress' });
-                }
-            } else {
-                console.log("⚠️ No tasks in 'todo' to promote.");
+        // 1. Start marked tasks that are not running locally
+        for (const task of inProgressTasks) {
+            if (!isTaskRunning(task.id)) {
+                console.log(`🎬 Resuming Agent: [${task.id.slice(0,8)}] ${task.title}`);
+                const supervisorPath = path.resolve(__dirname, 'supervisor.js');
+                const child = spawn('node', [supervisorPath, '--taskId', task.id], {
+                    detached: true,
+                    stdio: 'inherit',
+                    env: { ...process.env, KANBAN_URL: 'http://10.10.2.0:8089' }
+                });
+                child.unref();
             }
-        } else if (inProgressTasks.length > TARGET_CONCURRENCY) {
-            console.log(`⚠️ Alert: More than ${TARGET_CONCURRENCY} tasks are 'inprogress' (${inProgressTasks.length}).`);
-            // We don't automatically demote to avoid interrupting active work, but we alert.
-        } else {
-            console.log("✅ Target concurrency maintained.");
+        }
+
+        // 2. Promote from Todo if we have slots AND we aren't already over the running limit
+        const slotsAvailable = TARGET_CONCURRENCY - actuallyRunning.length;
+        if (slotsAvailable > 0 && todoTasks.length > 0) {
+            // Check board count too to prevent over-marking
+            if (inProgressTasks.length < TARGET_CONCURRENCY) {
+                const toPromote = todoTasks.slice(0, 1); // Promote one at a time for safety
+                for (const task of toPromote) {
+                    console.log(`🚀 Promoting: [${task.id.slice(0,8)}] ${task.title}`);
+                    await kanban.updateTask(task.id, { status: 'inprogress' });
+                    // Supervisor will be started by the next tick or immediately
+                }
+            }
         }
 
     } catch (err) {
-        console.error(`❌ Monitor Error: ${err.message}`);
+        console.error(`❌ Watchdog Error: ${err.message}`);
     }
 
-    setTimeout(maintainConcurrency, POLL_INTERVAL);
+    setTimeout(monitor, POLL_INTERVAL);
 }
 
-console.log("🛠️ Vibe-Kanban Concurrency Monitor Started");
-console.log(`🎯 Target: ${TARGET_CONCURRENCY} 'inprogress' tasks`);
-console.log(`⏱️ Polling every ${POLL_INTERVAL / 1000}s`);
-
-maintainConcurrency();
+console.log("🛠️ Kanban Watchdog V4.2 (Resilient) Started");
+monitor();

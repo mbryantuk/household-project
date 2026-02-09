@@ -10,14 +10,18 @@
     "grep": {},
     "grepInvert": null,
     "maxFailures": 0,
-    "metadata": {},
+    "metadata": {
+      "actualWorkers": 2
+    },
     "preserveOutput": "always",
     "projects": [
       {
         "outputDir": "/home/matt/household-project/web/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {},
+        "metadata": {
+          "actualWorkers": 2
+        },
         "id": "chromium",
         "name": "chromium",
         "testDir": "/home/matt/household-project/web/tests",
@@ -50,25 +54,628 @@
     "workers": 2,
     "webServer": null
   },
-  "suites": [],
-  "errors": [
+  "suites": [
     {
-      "message": "ReferenceError: require is not defined in ES module scope, you can use import instead\nThis file is being treated as an ES module because it has a '.js' file extension and '/home/matt/household-project/web/package.json' contains \"type\": \"module\". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.",
-      "stack": "ReferenceError: require is not defined in ES module scope, you can use import instead\nThis file is being treated as an ES module because it has a '.js' file extension and '/home/matt/household-project/web/package.json' contains \"type\": \"module\". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.\n    at /home/matt/household-project/web/tests/smoke.spec.js:1:26",
-      "location": {
-        "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-        "column": 26,
-        "line": 1
-      },
-      "snippet": "   at smoke.spec.js:1\n\n> 1 | const { test, expect } = require('@playwright/test');\n    |                          ^\n  2 |\n  3 | test.describe('Core UI Smoke Tests', () => {\n  4 |     const ADMIN_EMAIL = 'mbryantuk@gmail.com';"
+      "title": "e2e/ui/assets.spec.js",
+      "file": "e2e/ui/assets.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "UI Flow: Assets",
+          "file": "e2e/ui/assets.spec.js",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "User can add a new asset",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60234,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/e2e/ui/assets.spec.js",
+                            "column": 20,
+                            "line": 21
+                          },
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\u001b[2m    - waiting for\" http://localhost:4001/household/3819/dashboard\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://localhost:4001/household/3819/dashboard\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a new asset'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${creds.householdName}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Assets\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/assets.spec.js:21:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-09T11:13:53.914Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/e2e-ui-assets-UI-Flow-Assets-User-can-add-a-new-asset-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/e2e-ui-assets-UI-Flow-Assets-User-can-add-a-new-asset-chromium/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8b8292db4c64e6706ceb-e9e5938a5d03a2fdbd58",
+              "file": "e2e/ui/assets.spec.js",
+              "line": 20,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/ui/finance.spec.js",
+      "file": "e2e/ui/finance.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "UI Flow: Finance",
+          "file": "e2e/ui/finance.spec.js",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "User can add a recurring cost",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "timedOut",
+                      "duration": 60206,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/e2e/ui/finance.spec.js",
+                            "column": 20,
+                            "line": 21
+                          },
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\u001b[2m    - waiting for\" http://localhost:4001/household/3818/dashboard\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://localhost:4001/household/3818/dashboard\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a recurring cost'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${creds.householdName}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Bills & Costs\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 24 |\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/finance.spec.js:21:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-09T11:13:53.623Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/e2e-ui-finance-UI-Flow-Finance-User-can-add-a-recurring-cost-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/e2e-ui-finance-UI-Flow-Finance-User-can-add-a-recurring-cost-chromium/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "eb54589f93d90eb846f8-f160722198db25d44c32",
+              "file": "e2e/ui/finance.spec.js",
+              "line": 20,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/ui/members.spec.js",
+      "file": "e2e/ui/members.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "UI Flow: Members",
+          "file": "e2e/ui/members.spec.js",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "User can add a new member",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "timedOut",
+                      "duration": 60277,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/e2e/ui/members.spec.js",
+                            "column": 20,
+                            "line": 21
+                          },
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\u001b[2m    - waiting for\" http://localhost:4001/household/3820/dashboard\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://localhost:4001/household/3820/dashboard\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a new member'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'People & Residents'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[90m// Add Member\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/members.spec.js:21:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-09T11:14:57.382Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/e2e-ui-members-UI-Flow-Members-User-can-add-a-new-member-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/e2e-ui-members-UI-Flow-Members-User-can-add-a-new-member-chromium/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "5daeea4017bcb311ff98-0c9c0e04f4bdfdd4752a",
+              "file": "e2e/ui/members.spec.js",
+              "line": 20,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/ui/onboarding.spec.js",
+      "file": "e2e/ui/onboarding.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "UI Flow: Onboarding",
+          "file": "e2e/ui/onboarding.spec.js",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "User can register and configure household details",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60220,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js",
+                            "column": 24,
+                            "line": 37
+                          },
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 35 |\u001b[39m         \u001b[90m// 3. Configure House Details\u001b[39m\n \u001b[90m 36 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Configure House'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[32m'Household Hub'\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${HOUSE_NAME}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 40 |\u001b[39m             \u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:37:24\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:36:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Register",
+                          "duration": 1676
+                        },
+                        {
+                          "title": "Login",
+                          "duration": 529
+                        },
+                        {
+                          "title": "Configure House",
+                          "duration": 57858,
+                          "error": {
+                            "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n",
+                            "stack": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:37:24\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:36:20",
+                            "location": {
+                              "file": "/home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js",
+                              "column": 24,
+                              "line": 37
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 35 |\u001b[39m         \u001b[90m// 3. Configure House Details\u001b[39m\n \u001b[90m 36 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Configure House'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[32m'Household Hub'\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${HOUSE_NAME}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 40 |\u001b[39m             \u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-02-09T11:14:57.493Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/e2e-ui-onboarding-UI-Flow--be0c3-configure-household-details-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/e2e-ui-onboarding-UI-Flow--be0c3-configure-household-details-chromium/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2eb59c7f471b63d604d1-13d666cf3e8d5d4a0fdb",
+              "file": "e2e/ui/onboarding.spec.js",
+              "line": 4,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "smoke.spec.js",
+      "file": "smoke.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Core UI Smoke Tests",
+          "file": "smoke.spec.js",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Financial Profiles: Sidebar Accordion and Switching",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60824,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                            "column": 20,
+                            "line": 18
+                          },
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/finance\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 16 |\u001b[39m     test(\u001b[32m'Financial Profiles: Sidebar Accordion and Switching'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 17 |\u001b[39m         \u001b[90m// Navigate to Finance\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 18 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/finance\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 19 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'**/finance**'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 20 |\u001b[39m\n \u001b[90m 21 |\u001b[39m         \u001b[90m// Check if Sidebar Accordion exists\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:18:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-09T11:16:00.503Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--1945d-bar-Accordion-and-Switching-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--1945d-bar-Accordion-and-Switching-chromium/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-d6449fc28ef2b705aa57",
+              "file": "smoke.spec.js",
+              "line": 16,
+              "column": 5
+            },
+            {
+              "title": "Core Navigation: House Hub, Calendar, Meals",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60274,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                            "column": 20,
+                            "line": 36
+                          },
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 34 |\u001b[39m\n \u001b[90m 35 |\u001b[39m     test(\u001b[32m'Core Navigation: House Hub, Calendar, Meals'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'Household Hub'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 38 |\u001b[39m\n \u001b[90m 39 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/calendar\"]'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:36:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-09T11:17:10.340Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--ff4ea-on-House-Hub-Calendar-Meals-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--ff4ea-on-House-Hub-Calendar-Meals-chromium/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-0850ea6cc76a4a27e073",
+              "file": "smoke.spec.js",
+              "line": 35,
+              "column": 5
+            },
+            {
+              "title": "Avatar Menu: Opens Sidebar Panel",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 4340,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Settings')\nExpected: visible\nError: strict mode violation: getByText('Settings') resolved to 3 elements:\n    1) <div class=\"MuiListItemContent-root css-pvr40b\">Settings</div> aka getByRole('button', { name: '⚙️ Settings' })\n    2) <p class=\"MuiTypography-root MuiTypography-body-sm css-peddd8\">Settings</p> aka locator('p').filter({ hasText: 'Settings' })\n    3) <div id=\"_r_8_\" role=\"tooltip\" data-popper-placement=\"right\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementRight css-cemyjr\">Account & Settings</div> aka getByRole('tooltip', { name: 'Account & Settings' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Settings')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Settings')\nExpected: visible\nError: strict mode violation: getByText('Settings') resolved to 3 elements:\n    1) <div class=\"MuiListItemContent-root css-pvr40b\">Settings</div> aka getByRole('button', { name: '⚙️ Settings' })\n    2) <p class=\"MuiTypography-root MuiTypography-body-sm css-peddd8\">Settings</p> aka locator('p').filter({ hasText: 'Settings' })\n    3) <div id=\"_r_8_\" role=\"tooltip\" data-popper-placement=\"right\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementRight css-cemyjr\">Account & Settings</div> aka getByRole('tooltip', { name: 'Account & Settings' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Settings')\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:52:50",
+                        "location": {
+                          "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                          "column": 50,
+                          "line": 52
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 50 |\u001b[39m         \u001b[90m// Verify Sidebar Panel content (Account Header)\u001b[39m\n \u001b[90m 51 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Account'\u001b[39m\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 52 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Settings'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 53 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Switch Household'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 54 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Log Out'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 55 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                            "column": 50,
+                            "line": 52
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Settings')\nExpected: visible\nError: strict mode violation: getByText('Settings') resolved to 3 elements:\n    1) <div class=\"MuiListItemContent-root css-pvr40b\">Settings</div> aka getByRole('button', { name: '⚙️ Settings' })\n    2) <p class=\"MuiTypography-root MuiTypography-body-sm css-peddd8\">Settings</p> aka locator('p').filter({ hasText: 'Settings' })\n    3) <div id=\"_r_8_\" role=\"tooltip\" data-popper-placement=\"right\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementRight css-cemyjr\">Account & Settings</div> aka getByRole('tooltip', { name: 'Account & Settings' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Settings')\u001b[22m\n\n\n\u001b[0m \u001b[90m 50 |\u001b[39m         \u001b[90m// Verify Sidebar Panel content (Account Header)\u001b[39m\n \u001b[90m 51 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Account'\u001b[39m\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 52 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Settings'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 53 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Switch Household'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 54 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Log Out'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 55 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:52:50\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-09T11:18:15.731Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests-Avatar-Menu-Opens-Sidebar-Panel-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests-Avatar-Menu-Opens-Sidebar-Panel-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                        "column": 50,
+                        "line": 52
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-bf93edaa617e6cd82241",
+              "file": "smoke.spec.js",
+              "line": 46,
+              "column": 5
+            },
+            {
+              "title": "Utility Bar: Persistent Widgets",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 3460,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Budget Health')\nExpected: visible\nError: strict mode violation: locator('text=Budget Health') resolved to 5 elements:\n    1) <p class=\"MuiTypography-root MuiTypography-title-lg css-14eokod\">Budget Health</p> aka getByText('Budget Health').first()\n    2) <p class=\"MuiTypography-root MuiTypography-body-sm MuiTypography-colorNeutral css-wnzt3u\">Set up a primary income source to track budget he…</p> aka getByText('Set up a primary income').first()\n    3) <p class=\"MuiTypography-root MuiTypography-title-lg css-14eokod\">Budget Health</p> aka getByText('Budget Health').nth(2)\n    4) <p class=\"MuiTypography-root MuiTypography-body-sm MuiTypography-colorNeutral css-wnzt3u\">Set up a primary income source to track budget he…</p> aka getByText('Set up a primary income').nth(1)\n    5) <div id=\"_r_r_\" role=\"tooltip\" data-popper-escaped=\"\" data-popper-placement=\"top\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementBottom css-125o12r\">Budget Health</div> aka getByRole('tooltip', { name: 'Budget Health' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Budget Health')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Budget Health')\nExpected: visible\nError: strict mode violation: locator('text=Budget Health') resolved to 5 elements:\n    1) <p class=\"MuiTypography-root MuiTypography-title-lg css-14eokod\">Budget Health</p> aka getByText('Budget Health').first()\n    2) <p class=\"MuiTypography-root MuiTypography-body-sm MuiTypography-colorNeutral css-wnzt3u\">Set up a primary income source to track budget he…</p> aka getByText('Set up a primary income').first()\n    3) <p class=\"MuiTypography-root MuiTypography-title-lg css-14eokod\">Budget Health</p> aka getByText('Budget Health').nth(2)\n    4) <p class=\"MuiTypography-root MuiTypography-body-sm MuiTypography-colorNeutral css-wnzt3u\">Set up a primary income source to track budget he…</p> aka getByText('Set up a primary income').nth(1)\n    5) <div id=\"_r_r_\" role=\"tooltip\" data-popper-escaped=\"\" data-popper-placement=\"top\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementBottom css-125o12r\">Budget Health</div> aka getByRole('tooltip', { name: 'Budget Health' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Budget Health')\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:60:58",
+                        "location": {
+                          "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                          "column": 58,
+                          "line": 60
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 58 |\u001b[39m         \u001b[90m// Budget Health\u001b[39m\n \u001b[90m 59 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Budget Health\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 60 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Budget Health'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 61 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Budget Health\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m \u001b[90m// Close\u001b[39m\n \u001b[90m 62 |\u001b[39m\n \u001b[90m 63 |\u001b[39m         \u001b[90m// Wealth Tracking\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                            "column": 58,
+                            "line": 60
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Budget Health')\nExpected: visible\nError: strict mode violation: locator('text=Budget Health') resolved to 5 elements:\n    1) <p class=\"MuiTypography-root MuiTypography-title-lg css-14eokod\">Budget Health</p> aka getByText('Budget Health').first()\n    2) <p class=\"MuiTypography-root MuiTypography-body-sm MuiTypography-colorNeutral css-wnzt3u\">Set up a primary income source to track budget he…</p> aka getByText('Set up a primary income').first()\n    3) <p class=\"MuiTypography-root MuiTypography-title-lg css-14eokod\">Budget Health</p> aka getByText('Budget Health').nth(2)\n    4) <p class=\"MuiTypography-root MuiTypography-body-sm MuiTypography-colorNeutral css-wnzt3u\">Set up a primary income source to track budget he…</p> aka getByText('Set up a primary income').nth(1)\n    5) <div id=\"_r_r_\" role=\"tooltip\" data-popper-escaped=\"\" data-popper-placement=\"top\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementBottom css-125o12r\">Budget Health</div> aka getByRole('tooltip', { name: 'Budget Health' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Budget Health')\u001b[22m\n\n\n\u001b[0m \u001b[90m 58 |\u001b[39m         \u001b[90m// Budget Health\u001b[39m\n \u001b[90m 59 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Budget Health\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 60 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Budget Health'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 61 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Budget Health\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m \u001b[90m// Close\u001b[39m\n \u001b[90m 62 |\u001b[39m\n \u001b[90m 63 |\u001b[39m         \u001b[90m// Wealth Tracking\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:60:58\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-09T11:18:22.785Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests-Utility-Bar-Persistent-Widgets-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests-Utility-Bar-Persistent-Widgets-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                        "column": 58,
+                        "line": 60
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-dd34f4997caa60953de2",
+              "file": "smoke.spec.js",
+              "line": 57,
+              "column": 5
+            }
+          ]
+        }
+      ]
     }
   ],
+  "errors": [],
   "stats": {
-    "startTime": "2026-02-06T00:04:05.157Z",
-    "duration": 193.74199999999996,
+    "startTime": "2026-02-09T11:13:50.861Z",
+    "duration": 275628.903,
     "expected": 0,
     "skipped": 0,
-    "unexpected": 0,
+    "unexpected": 8,
     "flaky": 0
   }
 }

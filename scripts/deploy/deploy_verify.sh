@@ -1,8 +1,11 @@
 #!/bin/bash
-# Totem Deployment Script (High-Speed)
+# Totem Deployment Script (Concurrency-Aware)
 # Usage: ./deploy_verify.sh [commit_message]
 
 set -e
+
+# Load Lock Utility
+source scripts/utils/git_lock.sh
 
 # 0. Prepare Commit Message
 if [ -z "$1" ]; then
@@ -16,14 +19,21 @@ RAW_COMMIT_MESSAGE="$1"
 echo "🚧 Enabling Maintenance Mode (Locking Login)..."
 touch server/data/upgrading.lock
 
-# 1. Bump Version
+# 1. Acquire Git Lock for Versioning & Branching
+acquire_lock
+
+# 1.1. Ensure we are on a safe branch and synced
+CURRENT_BRANCH=$(git branch --show-current)
+echo "🌿 Current Branch: $CURRENT_BRANCH"
+git pull origin "$CURRENT_BRANCH" --rebase || echo "⚠️ Rebase failed, continuing..."
+
+# 1.2. Bump Version
 echo "📦 Bumping Version..."
 OLD_VERSION=$(node -p "require('./package.json').version")
 node scripts/utils/bump_version.js
 NEW_VERSION=$(node -p "require('./package.json').version")
 
-# 1.2. Clean up Commit Message (remove redundant versions)
-# Strip leading 'vX.Y.Z - ' or 'vX.Y.Z: ' if it matches either OLD or NEW version
+# 1.3. Clean up Commit Message (remove redundant versions)
 CLEAN_MESSAGE=$(echo "$RAW_COMMIT_MESSAGE" | sed -E "s/^v?($OLD_VERSION|$NEW_VERSION)[[:space:]]*[-:][[:space:]]*//g" | sed -E "s/^v?($OLD_VERSION|$NEW_VERSION)[[:space:]]*//g")
 
 # 1.5. Update Client Git Info
@@ -39,8 +49,8 @@ EOF
 echo "🚀 Deploying v$NEW_VERSION..."
 docker compose up -d --build
 
-echo "⏳ Waiting 30s for container stabilization..."
-sleep 30
+echo "⏳ Waiting 15s for container stabilization..."
+sleep 15
 
 # 2.6. Seed Brady Household
 echo "🌱 Seeding Brady Household..."
@@ -52,8 +62,10 @@ unset BYPASS_MAINTENANCE
 echo "💾 Committing changes..."
 git add .
 git commit -m "v$NEW_VERSION - $CLEAN_MESSAGE"
-CURRENT_BRANCH=$(git branch --show-current)
 git push origin "$CURRENT_BRANCH"
+
+# Release Git Lock immediately after push
+release_lock
 
 # 3.2. Record Deployment History
 echo "📝 Recording deployment history..."
