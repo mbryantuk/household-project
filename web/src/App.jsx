@@ -30,6 +30,7 @@ import HouseholdSelector from './pages/HouseholdSelector';
 
 // Lazy Loaded Features
 const HomeView = lazy(() => import('./features/HomeView'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const SettingsView = lazy(() => import('./features/SettingsView'));
 const MealPlannerView = lazy(() => import('./features/MealPlannerView'));
 const CalendarView = lazy(() => import('./features/CalendarView'));
