@@ -5,23 +5,65 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  schedule:
+    # Run at midnight UTC every day for the nightly build
+    - cron: '0 0 * * *'
 
 jobs:
-  test:
+  nightly_build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        # Fetch all history to enable merging
+        fetch-depth: 0 
 
-    - name: Use Node.js 20.x
+    - name: Use Node.js 20.x for Server Cache
       uses: actions/setup-node@v4
       with:
         node-version: 20.x
         cache: 'npm'
         cache-dependency-path: server/package-lock.json
 
+    - name: Use Node.js 20.x for Web Cache
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: 'npm'
+        cache-dependency-path: web/package-lock.json
+
     - name: Install Server Dependencies
       run: cd server && npm install
 
-    - name: Run Tests
-      run: cd server && npm test
+    - name: Install Web Dependencies
+      run: cd web && npm install
+
+    - name: Configure Git for CI
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+
+    - name: Merge Gemini Develop Branch into Main
+      # This step assumes Gemini's changes are collected in a 'gemini-develop' branch
+      # and should be merged into 'main' for the nightly release.
+      # Adjust branch names ('gemini-develop', 'main') if your strategy differs.
+      # This requires the GitHub Actions runner to have write permissions to the repository.
+      run: |
+        git checkout main
+        git pull origin main
+        git fetch origin gemini-develop
+        git merge origin/gemini-develop --no-ff -m "Nightly: Merge Gemini develop branch for release"
+        git push origin main
+
+    - name: Make deployment and test scripts executable
+      run: |
+        chmod +x scripts/deploy/nightly_deploy.sh
+        chmod +x scripts/ops/nightly_suite.sh
+
+    - name: Run Nightly Deploy Script
+      run: ./scripts/deploy/nightly_deploy.sh
+
+    - name: Run Nightly Test Suite
+      run: ./scripts/ops/nightly_suite.sh

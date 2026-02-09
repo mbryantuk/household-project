@@ -158,6 +158,13 @@
     "/households/{id}/meals": { 
         "get": { "tags": ["Meals"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
         "post": { "tags": ["Meals"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    },
+    "/households/{id}/backups": {
+        "get": { "tags": ["Backups"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+        "post": { "tags": ["Backups"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    },
+    "/households/{id}/backups/{filename}": {
+        "get": { "tags": ["Backups"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "filename", "required": true, "schema": { "type": "string" } }], "responses": { "200": { "description": "Download" } } }
     }
   }
 }

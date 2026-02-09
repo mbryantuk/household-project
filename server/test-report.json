@@ -1,14 +1,14 @@
 {
-  "numFailedTestSuites": 1,
+  "numFailedTestSuites": 0,
   "numFailedTests": 0,
-  "numPassedTestSuites": 0,
-  "numPassedTests": 0,
+  "numPassedTestSuites": 1,
+  "numPassedTests": 1,
   "numPendingTestSuites": 0,
   "numPendingTests": 0,
-  "numRuntimeErrorTestSuites": 1,
+  "numRuntimeErrorTestSuites": 0,
   "numTodoTests": 0,
   "numTotalTestSuites": 1,
-  "numTotalTests": 0,
+  "numTotalTests": 1,
   "openHandles": [],
   "snapshot": {
     "added": 0,
@@ -26,28 +26,21 @@
     "unmatched": 0,
     "updated": 0
   },
-  "startTime": 1770638225111,
+  "startTime": 1770661097796,
   "success": false,
   "testResults": [
     {
-      "failureMessage": "  \u001b[1m● \u001b[22mTest suite failed to run\n\n    Cannot find module '@babel/preset-env'\n    Require stack:\n    - /home/matt/.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/config/files/plugins.js\n    - /home/matt/.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/config/files/index.js\n    - /home/matt/.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/index.js\n    - /home/matt/.npm/_npx/b8d86e6551a4f492/node_modules/jest-snapshot/build/index.js\n    - /home/matt/.npm/_npx/b8d86e6551a4f492/node_modules/jest-runtime/build/index.js\n    - /home/matt/.npm/_npx/b8d86e6551a4f492/node_modules/@jest/core/build/index.js\n    - /home/matt/.npm/_npx/b8d86e6551a4f492/node_modules/jest-cli/build/index.js\n    - /home/matt/.npm/_npx/b8d86e6551a4f492/node_modules/jest-cli/bin/jest.js\n    - /home/matt/.npm/_npx/b8d86e6551a4f492/node_modules/jest/bin/jest.js\n\n    Make sure that all the Babel plugins and presets you are using\n    are defined as dependencies or devDependencies in your package.json\n    file. It's possible that the missing plugin is loaded by a preset\n    you are using that forgot to add the plugin to its dependencies: you\n    can workaround this problem by explicitly adding the missing package\n    to your top-level package.json.\n\n      \u001b[2mat tryRequireResolve (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/config/files/plugins.js\u001b[2m:128:11)\u001b[22m\n      \u001b[2mat resolveStandardizedNameForRequire (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/config/files/plugins.js\u001b[2m:162:19)\u001b[22m\n      \u001b[2mat resolveStandardizedName (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/config/files/plugins.js\u001b[2m:183:12)\u001b[22m\n      \u001b[2mat loadPreset (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/config/files/plugins.js\u001b[2m:68:7)\u001b[22m\n          at loadPreset.next (<anonymous>)\n      \u001b[2mat createDescriptor (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/config/config-descriptors.js\u001b[2m:140:16)\u001b[22m\n          at createDescriptor.next (<anonymous>)\n      \u001b[2mat evaluateSync (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/gensync/index.js\u001b[2m:251:28)\u001b[22m\n      \u001b[2mat \u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/gensync/index.js\u001b[2m:31:34\u001b[22m\n          at Array.map (<anonymous>)\n      \u001b[2mat Function.sync (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/gensync/index.js\u001b[2m:31:22)\u001b[22m\n      \u001b[2mat Function.all (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/gensync/index.js\u001b[2m:210:24)\u001b[22m\n      \u001b[2mat createDescriptors (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/config/config-descriptors.js\u001b[2m:102:41)\u001b[22m\n          at createDescriptors.next (<anonymous>)\n      \u001b[2mat createPresetDescriptors (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/config/config-descriptors.js\u001b[2m:96:17)\u001b[22m\n          at createPresetDescriptors.next (<anonymous>)\n      \u001b[2mat \u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/gensync-utils/functional.js\u001b[2m:22:27\u001b[22m\n      \u001b[2mat mergeChainOpts (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/config/config-chain.js\u001b[2m:350:34)\u001b[22m\n          at mergeChainOpts.next (<anonymous>)\n      \u001b[2mat chainWalker (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/config/config-chain.js\u001b[2m:316:14)\u001b[22m\n          at chainWalker.next (<anonymous>)\n      \u001b[2mat loadFileChain (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/config/config-chain.js\u001b[2m:191:24)\u001b[22m\n          at loadFileChain.next (<anonymous>)\n      \u001b[2mat buildRootChain (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/config/config-chain.js\u001b[2m:77:27)\u001b[22m\n          at buildRootChain.next (<anonymous>)\n      \u001b[2mat loadPrivatePartialConfig (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/config/partial.js\u001b[2m:72:62)\u001b[22m\n          at loadPrivatePartialConfig.next (<anonymous>)\n      \u001b[2mat loadPartialConfig (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/config/partial.js\u001b[2m:115:25)\u001b[22m\n          at loadPartialConfig.next (<anonymous>)\n      \u001b[2mat evaluateSync (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/gensync/index.js\u001b[2m:251:28)\u001b[22m\n      \u001b[2mat sync (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/gensync/index.js\u001b[2m:89:14)\u001b[22m\n      \u001b[2mat stopHiding - secret - don't use this - v1 (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/errors/rewrite-stack-trace.js\u001b[2m:47:12)\u001b[22m\n      \u001b[2mat loadPartialConfigSync (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/config/index.js\u001b[2m:37:84)\u001b[22m\n      \u001b[2mat ScriptTransformer._getCacheKey (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@jest/transform/build/index.js\u001b[2m:195:41)\u001b[22m\n      \u001b[2mat ScriptTransformer._getFileCachePath (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@jest/transform/build/index.js\u001b[2m:231:27)\u001b[22m\n      \u001b[2mat ScriptTransformer.transformSource (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@jest/transform/build/index.js\u001b[2m:402:32)\u001b[22m\n      \u001b[2mat ScriptTransformer._transformAndBuildScript (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@jest/transform/build/index.js\u001b[2m:519:40)\u001b[22m\n      \u001b[2mat ScriptTransformer.transform (\u001b[22m../../.npm/_npx/b8d86e6551a4f492/node_modules/@jest/transform/build/index.js\u001b[2m:558:19)\u001b[22m\n",
       "leaks": false,
       "numFailingTests": 0,
-      "numPassingTests": 0,
+      "numPassingTests": 1,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 0,
-        "loadTestEnvironmentEnd": 0,
-        "loadTestEnvironmentStart": 0,
-        "runtime": 0,
-        "setupAfterEnvEnd": 0,
-        "setupAfterEnvStart": 0,
-        "setupFilesEnd": 0,
-        "setupFilesStart": 0,
+        "end": 1770661101258,
+        "runtime": 3296,
         "slow": false,
-        "start": 0
+        "start": 1770661097962
       },
       "skipped": false,
       "snapshot": {
@@ -59,22 +52,25 @@
         "unmatched": 0,
         "updated": 0
       },
-      "testExecError": {
-        "code": "MODULE_NOT_FOUND",
-        "requireStack": [
-          "/home/matt/.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/config/files/plugins.js",
-          "/home/matt/.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/config/files/index.js",
-          "/home/matt/.npm/_npx/b8d86e6551a4f492/node_modules/@babel/core/lib/index.js",
-          "/home/matt/.npm/_npx/b8d86e6551a4f492/node_modules/jest-snapshot/build/index.js",
-          "/home/matt/.npm/_npx/b8d86e6551a4f492/node_modules/jest-runtime/build/index.js",
-          "/home/matt/.npm/_npx/b8d86e6551a4f492/node_modules/@jest/core/build/index.js",
-          "/home/matt/.npm/_npx/b8d86e6551a4f492/node_modules/jest-cli/build/index.js",
-          "/home/matt/.npm/_npx/b8d86e6551a4f492/node_modules/jest-cli/bin/jest.js",
-          "/home/matt/.npm/_npx/b8d86e6551a4f492/node_modules/jest/bin/jest.js"
-        ]
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/mfa.test.js",
-      "testResults": []
+      "testFilePath": "/home/matt/household-project/server/tests/security/destroy_tenant.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "💣 Tenant Destruction & Cleanup"
+          ],
+          "duration": 86,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "💣 Tenant Destruction & Cleanup 🧨 Destroy Tenant: Should remove all traces (DB, Files, Backups)",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 9,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "🧨 Destroy Tenant: Should remove all traces (DB, Files, Backups)"
+        }
+      ],
+      "failureMessage": null
     }
   ],
   "wasInterrupted": false
