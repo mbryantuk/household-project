@@ -231,6 +231,7 @@ export default function BudgetView({ financialProfileId }) {
   const [progress, setProgress] = useState([]); 
   const [cycles, setCycles] = useState([]); 
   const [currentAccounts, setCurrentAccounts] = useState([]);
+  const [budgetCategories, setBudgetCategories] = useState([]);
   
   const [liabilities, setLiabilities] = useState({
       recurring_costs: [], credit_cards: [], pensions: [], vehicles: [], assets: [],
@@ -274,7 +275,7 @@ export default function BudgetView({ financialProfileId }) {
       const q = `?financial_profile_id=${financialProfileId}`;
       const [ 
           incRes, progRes, cycleRes, recurringRes, ccRes, pensionRes, potRes, holidayRes, vehRes, assetRes, saveRes, invRes, accountRes, dateRes,
-          mortRes, vFinRes, detailRes
+          mortRes, vFinRes, detailRes, catRes
       ] = await Promise.all([
           api.get(`/households/${householdId}/finance/income${q}`),
           api.get(`/households/${householdId}/finance/budget-progress${q}`),
@@ -292,13 +293,15 @@ export default function BudgetView({ financialProfileId }) {
           api.get(`/households/${householdId}/dates`),
           api.get(`/households/${householdId}/finance/mortgages${q}`),
           api.get(`/households/${householdId}/finance/vehicle-finance${q}`),
-          api.get(`/households/${householdId}/details`)
+          api.get(`/households/${householdId}/details`),
+          api.get(`/households/${householdId}/finance/categories`)
       ]);
 
       setIncomes(incRes.data || []);
       setProgress(progRes.data || []);
       setCycles(cycleRes.data || []);
       setCurrentAccounts(accountRes.data || []);
+      setBudgetCategories(catRes.data || []);
       setLiabilities({
           recurring_costs: recurringRes.data || [],
           credit_cards: ccRes.data || [],
@@ -583,7 +586,8 @@ export default function BudgetView({ financialProfileId }) {
 
               if (groupBy === 'category') {
                   finalGroupKey = `cat_${category}`;
-                  getGroup(finalGroupKey, category.charAt(0).toUpperCase() + category.slice(1).replace('_', ' '), '📂');
+                  const catMatch = budgetCategories.find(c => c.name.toLowerCase() === category.toLowerCase());
+                  getGroup(finalGroupKey, category.charAt(0).toUpperCase() + category.slice(1).replace('_', ' '), catMatch?.emoji || '📂');
               } else if (groupBy === 'object') {
                   if (object) {
                       finalGroupKey = `obj_${object.type}_${object.id}`;
@@ -611,7 +615,7 @@ export default function BudgetView({ financialProfileId }) {
       incomes.forEach(inc => {
           const d = getAdjustedDate(inc.payment_day, inc.nearest_working_day === 1, startDate);
           const member = members.find(m => m.id === inc.member_id);
-          addExpense(inc, 'income', `${inc.employer} Pay`, inc.amount, d, <Payments />, 'income', 'income', member ? { type: 'member', id: member.id, name: member.first_name, emoji: member.emoji } : null);
+          addExpense(inc, 'income', `${inc.employer} Pay`, inc.amount, d, inc.emoji || <Payments />, 'income', 'income', member ? { type: 'member', id: member.id, name: member.first_name, emoji: member.emoji } : null);
       });
 
       // --- BANK HOLIDAYS ---
@@ -722,16 +726,18 @@ export default function BudgetView({ financialProfileId }) {
              datesToAdd.push(getAdjustedDate(charge.day_of_month, charge.adjust_for_working_day, startDate));
           }
 
-          let icon = <Receipt />;
+          let icon = charge.emoji || <Receipt />;
           const cat = charge.category_id;
-          if (cat === 'mortgage') icon = <Home />;
-          else if (cat === 'loan') icon = <RequestQuote />;
-          else if (cat === 'insurance') icon = <Shield />;
-          else if (cat === 'subscription') icon = <ShoppingBag />;
-          else if (cat?.includes('utility') || cat === 'water' || cat === 'energy') icon = <ElectricBolt />;
-          else if (cat?.includes('vehicle')) icon = <DirectionsCar />;
-          else if (cat === 'credit_card') icon = <CreditCard />;
-          else if (cat === 'income') icon = <Payments />;
+          if (!charge.emoji) {
+            if (cat === 'mortgage') icon = <Home />;
+            else if (cat === 'loan') icon = <RequestQuote />;
+            else if (cat === 'insurance') icon = <Shield />;
+            else if (cat === 'subscription') icon = <ShoppingBag />;
+            else if (cat?.includes('utility') || cat === 'water' || cat === 'energy') icon = <ElectricBolt />;
+            else if (cat?.includes('vehicle')) icon = <DirectionsCar />;
+            else if (cat === 'credit_card') icon = <CreditCard />;
+            else if (cat === 'income') icon = <Payments />;
+          }
 
           let objectInfo = null;
           if (charge.object_type === 'member') {
@@ -753,18 +759,18 @@ export default function BudgetView({ financialProfileId }) {
           });
       });
 
-      liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit_card', `${cc.card_name}`, 0, getAdjustedDate(cc.payment_day || 1, true, startDate), <CreditCard />, 'credit_card', 'finance'));
+      liabilities.credit_cards.forEach(cc => addExpense(cc, 'credit_card', `${cc.card_name}`, 0, getAdjustedDate(cc.payment_day || 1, true, startDate), cc.emoji || <CreditCard />, 'credit_card', 'finance'));
 
       // 6. WEALTH items
       liabilities.savings.forEach(s => {
           const hasPots = savingsPots.some(pot => String(pot.savings_id) === String(s.id));
           if (!hasPots) {
-              addExpense(s, 'savings_deposit', `${s.institution} ${s.account_name}`, s.deposit_amount || 0, getAdjustedDate(s.deposit_day || 1, false, startDate), <SavingsIcon />, 'savings', 'wealth');
+              addExpense(s, 'savings_deposit', `${s.institution} ${s.account_name}`, s.deposit_amount || 0, getAdjustedDate(s.deposit_day || 1, false, startDate), s.emoji || <SavingsIcon />, 'savings', 'wealth');
           }
       });
-      liabilities.pensions.forEach(p => addExpense(p, 'pension', `${p.provider} Pension`, p.monthly_contribution || 0, getAdjustedDate(p.payment_day || 1, true, startDate), <Assignment />, 'pension', 'wealth'));
-      liabilities.investments.forEach(i => addExpense(i, 'investment', `${i.name} Investment`, i.monthly_contribution || 0, getAdjustedDate(i.payment_day || 1, true, startDate), <TrendingUp />, 'investment', 'wealth'));
-      savingsPots.forEach(pot => addExpense(pot, 'pot', pot.name, 0, getAdjustedDate(pot.deposit_day || 1, false, startDate), <SavingsIcon />, 'savings', 'wealth'));
+      liabilities.pensions.forEach(p => addExpense(p, 'pension', `${p.provider} Pension`, p.monthly_contribution || 0, getAdjustedDate(p.payment_day || 1, true, startDate), p.emoji || <Assignment />, 'pension', 'wealth'));
+      liabilities.investments.forEach(i => addExpense(i, 'investment', `${i.name} Investment`, i.monthly_contribution || 0, getAdjustedDate(i.payment_day || 1, true, startDate), i.emoji || <TrendingUp />, 'investment', 'wealth'));
+      savingsPots.forEach(pot => addExpense(pot, 'pot', pot.name, 0, getAdjustedDate(pot.deposit_day || 1, false, startDate), pot.emoji || <SavingsIcon />, 'savings', 'wealth'));
 
       const sorter = (a, b) => {
           let valA = a[sortConfig.key];
@@ -793,7 +799,7 @@ export default function BudgetView({ financialProfileId }) {
       };
 
       return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, groupList, skipped, budgetLabelDate, incomeGroup, eventsPerDay };
-  }, [incomes, liabilities, progress, viewDate, getPriorWorkingDay, getAdjustedDate, savingsPots, getNextWorkingDay, members, sortConfig, searchQuery, groupBy, filterEntity, hidePaid, calendarDates, bankHolidays, financialProfileId]);
+  }, [incomes, liabilities, progress, viewDate, getPriorWorkingDay, getAdjustedDate, savingsPots, getNextWorkingDay, members, sortConfig, searchQuery, groupBy, filterEntity, hidePaid, calendarDates, bankHolidays, financialProfileId, budgetCategories]);
 
   const currentCycleRecord = useMemo(() => cycles.find(c => c.cycle_start === cycleData?.cycleKey), [cycles, cycleData]);
   
@@ -1900,7 +1906,20 @@ export default function BudgetView({ financialProfileId }) {
         {/* Quick Add Modal */}
         <Modal open={quickAddOpen} onClose={() => setQuickAddOpen(false)}>
             <ModalDialog>
-                <DialogTitle>Add One-off Expense</DialogTitle>
+                <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center' }}>
+                    <Avatar 
+                        size="lg" 
+                        sx={{ 
+                            cursor: 'pointer', 
+                            bgcolor: getEmojiColor(selectedEmoji, isDark),
+                            fontSize: '2rem'
+                        }}
+                        onClick={() => setPickerOpen(true)}
+                    >
+                        {selectedEmoji}
+                    </Avatar>
+                    <DialogTitle sx={{ m: 0 }}>Add One-off Expense</DialogTitle>
+                </Box>
                 <DialogContent>
                     <form onSubmit={handleQuickAdd}>
                         <Stack spacing={2}>
@@ -1919,7 +1938,20 @@ export default function BudgetView({ financialProfileId }) {
         {/* Adhoc Income Modal */}
         <Modal open={adhocIncomeOpen} onClose={() => setAdhocIncomeOpen(false)}>
             <ModalDialog>
-                <DialogTitle>Add Adhoc Income</DialogTitle>
+                <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center' }}>
+                    <Avatar 
+                        size="lg" 
+                        sx={{ 
+                            cursor: 'pointer', 
+                            bgcolor: getEmojiColor(selectedEmoji, isDark),
+                            fontSize: '2rem'
+                        }}
+                        onClick={() => setPickerOpen(true)}
+                    >
+                        {selectedEmoji}
+                    </Avatar>
+                    <DialogTitle sx={{ m: 0 }}>Add Adhoc Income</DialogTitle>
+                </Box>
                 <DialogContent>
                     <form onSubmit={handleAdhocIncome}>
                         <Stack spacing={2}>
@@ -1937,7 +1969,20 @@ export default function BudgetView({ financialProfileId }) {
         {/* Recurring Modal */}
         <Modal open={recurringAddOpen} onClose={() => setRecurringAddOpen(false)}>
             <ModalDialog sx={{ maxWidth: 600, width: '100%', overflow: 'auto' }}>
-                <DialogTitle>Add Recurring Expense</DialogTitle>
+                <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center' }}>
+                    <Avatar 
+                        size="lg" 
+                        sx={{ 
+                            cursor: 'pointer', 
+                            bgcolor: getEmojiColor(selectedEmoji, isDark),
+                            fontSize: '2rem'
+                        }}
+                        onClick={() => setPickerOpen(true)}
+                    >
+                        {selectedEmoji}
+                    </Avatar>
+                    <DialogTitle sx={{ m: 0 }}>Add Recurring Expense</DialogTitle>
+                </Box>
                 <DialogContent>
                     <form onSubmit={handleRecurringAdd}>
                         <Stack spacing={2}>

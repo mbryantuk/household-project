@@ -43,6 +43,24 @@ test.describe('Core UI Smoke Tests', () => {
         await expect(page.locator('h2')).toContainText('Meal Planner');
     });
 
+    test('Finance: Budget Categories and Emojis', async ({ page }) => {
+        await page.click('a[href*="/finance"]');
+        await page.waitForURL('**/finance**');
+
+        // Navigate to Categories
+        await page.click('text=Budget Categories');
+        await expect(page.locator('h2')).toContainText('Budget Categories');
+
+        // Add a category
+        await page.click('button:has-text("Add Category")');
+        await page.fill('input[placeholder*="e.g. Groceries"]', 'Smoke Test Category');
+        await page.fill('input[placeholder*="No limit"]', '100');
+        await page.click('button:has-text("Save Category")');
+
+        // Verify it exists
+        await expect(page.locator('text=Smoke Test Category')).toBeVisible();
+    });
+
     test('Avatar Menu: Opens Sidebar Panel', async ({ page }) => {
         // Click Avatar (Footer)
         await page.locator('button:has(.MuiAvatar-root)').last().click();

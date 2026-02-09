@@ -4,12 +4,14 @@ import {
   Box, Sheet, Divider, Typography, Button, Table, IconButton, 
   Modal, ModalDialog, ModalClose, FormControl, FormLabel, Input, 
   Select, Option, Checkbox, Tabs, TabList, Tab, Stack, Chip,
-  Grid
+  Grid, Avatar
 } from '@mui/joy';
 import { Add, Edit, Delete } from '@mui/icons-material';
 import { format, parseISO } from 'date-fns';
 import MetadataFormFields from '../../components/ui/MetadataFormFields';
 import { METADATA_SCHEMAS } from '../../utils/financeSchemas';
+import { getEmojiColor } from '../../theme';
+import EmojiPicker from '../../components/EmojiPicker';
 
 const formatCurrency = (val, currencyCode = 'GBP') => {
     const num = parseFloat(val) || 0;
@@ -52,7 +54,7 @@ const FREQUENCIES = [
 ];
 
 export default function ChargesView({ initialTab }) {
-  const { household, api, members: contextMembers = [], vehicles: contextVehicles = [], assets: contextAssets = [] } = useOutletContext();
+  const { household, api, members: contextMembers = [], vehicles: contextVehicles = [], assets: contextAssets = [], isDark, showNotification } = useOutletContext();
   const householdId = household?.id;
   const [charges, setCharges] = useState([]);
   const [activeTab, setActiveTab] = useState(() => {
@@ -69,6 +71,8 @@ export default function ChargesView({ initialTab }) {
   const [vehicles, setVehicles] = useState([]);
   const [assets, setAssets] = useState([]);
 
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+
   const [formData, setFormData] = useState({
     name: '',
     amount: '',
@@ -79,6 +83,7 @@ export default function ChargesView({ initialTab }) {
     notes: '',
     object_type: 'household', // Renamed from linked_entity_type
     object_id: null,        // Renamed from linked_entity_id
+    emoji: '🧾',
     metadata: {}
   });
 
@@ -150,6 +155,7 @@ export default function ChargesView({ initialTab }) {
       notes: '',
       object_type: 'household',
       object_id: null,
+      emoji: '🧾',
       metadata: {}
     });
   }, [activeTab]);
@@ -166,6 +172,7 @@ export default function ChargesView({ initialTab }) {
       notes: charge.notes || '',
       object_type: charge.object_type || 'household',
       object_id: charge.object_id,
+      emoji: charge.emoji || '🧾',
       metadata: typeof charge.metadata === 'string' ? JSON.parse(charge.metadata) : (charge.metadata || {})
     });
     setOpen(true);
@@ -209,6 +216,7 @@ export default function ChargesView({ initialTab }) {
         <Table hoverRow stickyHeader>
           <thead>
             <tr>
+              <th style={{ width: 40 }}></th>
               <th style={{ width: '30%' }}>Name</th>
               <th>Assigned To</th>
               <th>Frequency</th>
@@ -220,6 +228,11 @@ export default function ChargesView({ initialTab }) {
           <tbody>
             {filteredCharges.map(charge => (
               <tr key={charge.id}>
+                <td>
+                  <Avatar size="sm" sx={{ bgcolor: getEmojiColor(charge.emoji || charge.name[0], isDark) }}>
+                    {charge.emoji || charge.name[0]}
+                  </Avatar>
+                </td>
                 <td>
                   <Typography fontWeight="lg">{charge.name}</Typography>
                   {charge.notes && <Typography level="body-xs" color="neutral">{charge.notes}</Typography>}
@@ -268,8 +281,34 @@ export default function ChargesView({ initialTab }) {
       <Modal open={open} onClose={() => setOpen(false)}>
         <ModalDialog sx={{ maxWidth: 600, width: '100%', overflowY: 'auto' }}>
           <ModalClose />
-          <Typography level="h4">{editingId ? 'Edit Charge' : 'New Charge'}</Typography>
-          <Divider sx={{ my: 2 }} />
+          <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
+                <Box sx={{ position: 'relative' }}>
+                    <Avatar 
+                        size="lg" 
+                        sx={{ 
+                            '--Avatar-size': '64px', 
+                            bgcolor: getEmojiColor(formData.emoji, isDark), 
+                            fontSize: '2rem', 
+                            cursor: 'pointer' 
+                        }} 
+                        onClick={() => setEmojiPickerOpen(true)}
+                    >
+                        {formData.emoji}
+                    </Avatar>
+                    <IconButton 
+                        size="sm" variant="solid" color="primary" 
+                        sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} 
+                        onClick={() => setEmojiPickerOpen(true)}
+                    >
+                        <Edit sx={{ fontSize: '0.8rem' }} />
+                    </IconButton>
+                </Box>
+                <Box sx={{ flexGrow: 1 }}>
+                    <Typography level="h4">{editingId ? 'Edit Charge' : 'New Charge'}</Typography>
+                    <Typography level="body-sm" color="neutral">Manage bills, insurance, and subscriptions.</Typography>
+                </Box>
+          </Box>
+          <Divider sx={{ mb: 2 }} />
           <Stack spacing={2}>
             <Grid container spacing={2}>
                 <Grid xs={12}>
@@ -321,6 +360,12 @@ export default function ChargesView({ initialTab }) {
           </Stack>
         </ModalDialog>
       </Modal>
+      <EmojiPicker 
+        open={emojiPickerOpen} 
+        onClose={() => setEmojiPickerOpen(false)} 
+        onEmojiSelect={(e) => setFormData({ ...formData, emoji: e })}
+        isDark={isDark}
+      />
     </Box>
   );
 }
