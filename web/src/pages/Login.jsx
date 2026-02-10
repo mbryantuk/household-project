@@ -3,7 +3,7 @@ import {
   Box, Sheet, Typography, Input, Button, Alert, Link, Checkbox, FormControl, FormLabel, Avatar, IconButton, Stack
 } from '@mui/joy';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-import { ArrowBack, Visibility, VisibilityOff, Email, Lock } from '@mui/icons-material';
+import { ArrowBack, Visibility, VisibilityOff, Email, Lock, Security } from '@mui/icons-material';
 import axios from 'axios';
 import MantelIcon from '../components/MantelIcon';
 import { getEmojiColor } from '../theme';
@@ -49,7 +49,7 @@ export default function Login({ onLogin, onMfaLogin }) {
 
   // Auto-advance if we have a remembered email
   useEffect(() => {
-    if (localStorage.getItem('rememberMe') === 'true' && email && step === 1) {
+    if (localStorage.getItem('rememberedEmail') && step === 1 && localStorage.getItem('rememberMe') === 'true') {
        handleLookup();
     }
   }, [email, step, handleLookup]);

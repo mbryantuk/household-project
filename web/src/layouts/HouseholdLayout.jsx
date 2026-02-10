@@ -320,8 +320,7 @@ export default function HouseholdLayout({
                                 icon={<SettingsIcon />} 
                                 label="Settings" 
                                 to="settings" 
-                                                                  onClick={() => setDrawerOpen(false)} 
-                                                              />                                onClick={() => setDrawerOpen(false)} 
+                                onClick={() => setDrawerOpen(false)} 
                             />
                             <MenuTile 
                                 icon={<Logout />} 
