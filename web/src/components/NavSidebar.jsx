@@ -110,6 +110,7 @@ const GroupHeader = ({ label }) => (
 // --- NEW COMPONENT: Profile Accordion ---
 const FinanceProfileAccordion = ({ householdId, api, isDark, onSelect, currentProfileId }) => {
     const [profiles, setProfiles] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [createOpen, setCreateOpen] = useState(false);
     const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
     const [newProfileName, setNewProfileName] = useState('');
@@ -118,14 +119,13 @@ const FinanceProfileAccordion = ({ householdId, api, isDark, onSelect, currentPr
     const fetchProfiles = useCallback(async () => {
         try {
             const res = await api.get(`/households/${householdId}/finance/profiles`);
-            const data = res.data || [];
-            setProfiles(data);
+            setProfiles(res.data || []);
             // If no profile selected, default to the one marked default
-            if (!currentProfileId && data.length > 0) {
-                const def = data.find(p => p.is_default) || data[0];
+            if (!currentProfileId && res.data.length > 0) {
+                const def = res.data.find(p => p.is_default) || res.data[0];
                 onSelect(def.id);
             }
-        } catch (err) { console.error("Failed to fetch profiles", err); }
+        } catch (err) { console.error("Failed to fetch profiles", err); } finally { setLoading(false); }
     }, [api, householdId, currentProfileId, onSelect]);
 
     useEffect(() => { fetchProfiles(); }, [fetchProfiles]);
@@ -258,12 +258,8 @@ export default function NavSidebar({
   }, []);
 
   useEffect(() => {
-      const cat = getCategoryFromPath(location.pathname);
-      if (cat !== activeCategory) {
-          const timer = setTimeout(() => setActiveCategory(cat), 0);
-          return () => clearTimeout(timer);
-      }
-  }, [location.pathname, getCategoryFromPath, activeCategory]);
+      setActiveCategory(getCategoryFromPath(location.pathname));
+  }, [location.pathname, getCategoryFromPath]);
 
   const handleNav = (to, category, hasSubItems) => {
       if (to) {
@@ -505,7 +501,7 @@ export default function NavSidebar({
                   <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
 
                       <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems to={`/household/${household.id}/finance`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
-                      
+
                       <RailIcon icon={<ShoppingCart />} label="Shop" category="shopping" to={`/household/${household.id}/shopping`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
 
                       {enabledModules.includes('meals') && (

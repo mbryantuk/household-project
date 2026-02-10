@@ -22,6 +22,7 @@ import AccountBalance from '@mui/icons-material/AccountBalance';
 import CalendarMonth from '@mui/icons-material/CalendarMonth';
 import Add from '@mui/icons-material/Add';
 import AttachMoney from '@mui/icons-material/AttachMoney';
+import ShoppingCart from '@mui/icons-material/ShoppingCart';
 
 import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
@@ -36,6 +37,7 @@ const ROUTE_META = {
   house: { title: 'House' },
   vehicles: { title: 'Vehicles' },
   finance: { title: 'Finance' },
+  shopping: { title: 'Shopping List' },
   meals: { title: 'Meal Planner' },
   settings: { title: 'Settings' },
   profile: { title: 'Profile' }
@@ -140,11 +142,6 @@ export default function HouseholdLayout({
       setStatusBarData
   };
 
-  const toggleQuickAction = (event) => {
-    if (quickActionAnchor) setQuickActionAnchor(null);
-    else setQuickActionAnchor(event.currentTarget);
-  };
-
   return (
     <HouseholdProvider value={contextValue}>
         <Box sx={{ 
@@ -243,6 +240,14 @@ export default function HouseholdLayout({
                     <HomeIcon sx={{ color: isTabActive('dashboard') ? 'primary.plainColor' : 'neutral.plainColor' }} />
                     <Typography level="body-xs" sx={{ color: isTabActive('dashboard') ? 'primary.plainColor' : 'neutral.plainColor', fontWeight: isTabActive('dashboard') ? 'bold' : 'normal' }}>Home</Typography>
                 </Stack>
+
+                <Stack 
+                    alignItems="center" spacing={0.5} onClick={() => navigate('shopping')} 
+                    sx={{ flex: 1, cursor: 'pointer', transition: 'transform 0.2s', '&:active': { transform: 'scale(0.95)' } }}
+                >
+                    <ShoppingCart sx={{ color: isTabActive('shopping') ? 'primary.plainColor' : 'neutral.plainColor' }} />
+                    <Typography level="body-xs" sx={{ color: isTabActive('shopping') ? 'primary.plainColor' : 'neutral.plainColor', fontWeight: isTabActive('shopping') ? 'bold' : 'normal' }}>Shop</Typography>
+                </Stack>
                 
                 <Stack 
                     alignItems="center" spacing={0.5} onClick={() => { setActiveMenu('switch'); setDrawerOpen(true); }}
@@ -272,11 +277,12 @@ export default function HouseholdLayout({
             <Sheet sx={{ bgcolor: 'background.surface', borderTopLeftRadius: '24px', borderTopRightRadius: '24px', p: 3, pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Box sx={{ width: 40, height: 4, borderRadius: 2, bgcolor: 'neutral.300', mx: 'auto', mb: 2 }} />
                 <Typography level="title-lg" sx={{ mb: 1 }}>Navigation</Typography>
-                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2 }}>
                     {activeMenu === 'main' ? (
                         <>
-                            <MenuTile icon={<HomeIcon />} label="Household" to="house" onClick={() => setDrawerOpen(false)} />
+                            <MenuTile icon={<HomeIcon />} label="House" to="house" onClick={() => setDrawerOpen(false)} />
                             <MenuTile icon={<AccountBalance />} label="Finance" to="finance" onClick={() => setDrawerOpen(false)} />
+                            <MenuTile icon={<ShoppingCart />} label="Shop" to="shopping" onClick={() => setDrawerOpen(false)} />
                             <MenuTile icon={<RestaurantMenu />} label="Meals" to="meals" onClick={() => setDrawerOpen(false)} />
                         </>
                     ) : (
