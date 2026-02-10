@@ -61,6 +61,7 @@ export default function HouseholdLayout({
   onLogout,
   themeId,
   onThemeChange,
+  onPreviewTheme,
   installPrompt,
   onInstall,
   household
@@ -131,6 +132,7 @@ export default function HouseholdLayout({
       fetchVehicles,
       themeId,
       onThemeChange,
+      onPreviewTheme,
       households,
       onSelectHousehold,
       onLogout,

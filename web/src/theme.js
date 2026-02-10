@@ -53,6 +53,8 @@ export const THEMES = {
   ocean_deep_light: { name: 'Deep Ocean (L)', mode: 'light', primary: '#0369a1', bg: '#f0f9ff', surface: '#fff', selection: '#e0f2fe', text: '#0c4a6e' },
   forest_edge_light: { name: 'Forest Edge (L)', mode: 'light', primary: '#15803d', bg: '#f0fdf4', surface: '#fff', selection: '#dcfce7', text: '#14532d' },
   midnight_sky_light: { name: 'Midnight Sky (L)', mode: 'light', primary: '#1d4ed8', bg: '#eff6ff', surface: '#fff', selection: '#dbeafe', text: '#1e3a8a' },
+  tropical: { name: 'Tropical Paradise', mode: 'light', primary: '#10b981', bg: '#f0fdf4', surface: '#fff', selection: '#dcfce7', text: '#064e3b' },
+  nordic_light: { name: 'Nordic Light', mode: 'light', primary: '#5e81ac', bg: '#eceff4', surface: '#fff', selection: '#e5e9f0', text: '#2e3440' },
 
   // --- DARK THEMES ---
   midnight: { name: 'Midnight City', mode: 'dark', primary: '#38bdf8', bg: '#0f172a', surface: '#1e293b', selection: '#334155', text: '#f1f5f9' },
@@ -110,6 +112,8 @@ export const THEMES = {
   // --- SIGNATURE THEMES ---
   platinum: { name: 'Mantel Platinum', mode: 'light', primary: '#18181b', bg: '#fbfcfd', surface: '#FFF', selection: '#f4f4f5', text: '#09090b', isPremium: true },
   obsidian: { name: 'Mantel Obsidian', mode: 'dark', primary: '#f4f4f5', bg: '#09090b', surface: '#18181b', selection: '#27272a', text: '#fafafa', isPremium: true },
+  midnight_signature: { name: 'Mantel Midnight', mode: 'dark', primary: '#38bdf8', bg: '#0f172a', surface: '#1e293b', selection: '#334155', text: '#f1f5f9', isPremium: true },
+  forest_signature: { name: 'Mantel Forest', mode: 'dark', primary: '#22c55e', bg: '#052e16', surface: '#064e3b', selection: '#14532d', text: '#dcfce7', isPremium: true },
 
   // --- SPECIAL THEMES ---
   custom: { name: 'Custom Theme', mode: 'light', primary: '#374151', bg: '#F9FAFB', surface: '#FFF', selection: '#E5E7EB', text: '#111827', isCustom: true }

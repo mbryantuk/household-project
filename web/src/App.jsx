@@ -30,7 +30,6 @@ import HouseholdSelector from './pages/HouseholdSelector';
 
 // Lazy Loaded Features
 const HomeView = lazy(() => import('./features/HomeView'));
-const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const SettingsView = lazy(() => import('./features/SettingsView'));
 const MealPlannerView = lazy(() => import('./features/MealPlannerView'));
 const CalendarView = lazy(() => import('./features/CalendarView'));
@@ -67,7 +66,7 @@ const queryClient = new QueryClient({
 
 function AppInner({ 
     themeId, setThemeId, user, setUser, token, setToken, household, setHousehold, 
-    logout, login, mfaLogin, spec, isDark 
+    logout, login, mfaLogin, spec, isDark, onPreviewTheme
 }) {
   const { setMode } = useColorScheme();
   
@@ -354,6 +353,7 @@ function AppInner({
       await authAxios.put('/auth/profile', updates);
       
       if (updates.theme) setThemeId(updates.theme);
+      if (onPreviewTheme) onPreviewTheme(null); // Clear any active preview after official update
       
       if (!updates.sticky_note && !updates.theme && !updates.custom_theme) showNotification("Profile updated.", "success");
     } catch (err) { showNotification("Failed to update profile.", "danger"); throw err; }
@@ -399,6 +399,7 @@ function AppInner({
                 onUpdateProfile={handleUpdateProfile} onLogout={logout}
                 themeId={themeId} onThemeChange={(newId) => handleUpdateProfile({ theme: newId })}
                 installPrompt={installPrompt} onInstall={handleInstall} household={household}
+                onPreviewTheme={onPreviewTheme}
                 />}>
                     <Route index element={<Navigate to="dashboard" replace />} />
                     <Route path="dashboard" element={<HomeView household={household} members={hhMembers} currentUser={user} dates={hhDates} onUpdateProfile={handleUpdateProfile} api={authAxios} />} />
@@ -472,6 +473,8 @@ export default function App() {
   });
 
   const [themeId, setThemeId] = useState(user?.theme || 'totem');
+  const [previewThemeId, setPreviewThemeId] = useState(null);
+  const [previewCustomConfig, setPreviewCustomConfig] = useState(null);
 
   const customConfig = useMemo(() => {
     if (!user?.custom_theme) return null;
@@ -480,9 +483,16 @@ export default function App() {
     } catch { return null; }
   }, [user?.custom_theme]);
 
-  const { spec, isDark } = useMemo(() => getThemeSpec(themeId, customConfig), [themeId, customConfig]);
-  const theme = useMemo(() => getMantelTheme(themeId, customConfig), [themeId, customConfig]);
+  const effectiveThemeId = previewThemeId || themeId;
+  const effectiveCustomConfig = previewCustomConfig || customConfig;
+
+  const { spec, isDark } = useMemo(() => getThemeSpec(effectiveThemeId, effectiveCustomConfig), [effectiveThemeId, effectiveCustomConfig]);
+  const theme = useMemo(() => getMantelTheme(effectiveThemeId, effectiveCustomConfig), [effectiveThemeId, effectiveCustomConfig]);
   
+  const handlePreviewTheme = useCallback((id, config = null) => {
+    setPreviewThemeId(id);
+    setPreviewCustomConfig(config);
+  }, []);
   const login = useCallback(async (email, password, rememberMe) => {
       const res = await axios.post(`${API_URL}/auth/login`, { email, password, rememberMe });
       

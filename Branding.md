@@ -20,7 +20,7 @@ Clean, functional, and structural. Uses Slate/Charcoal and White. Focused on cla
 
 ### 2. Premium Architectural (Signature)
 Editorial-grade UI for high-end households.
-* **Themes:** `Mantel Platinum` (Light), `Mantel Obsidian` (Dark).
+* **Themes:** `Mantel Platinum` (Light), `Mantel Obsidian` (Dark), `Mantel Midnight` (Dark), `Mantel Forest` (Dark).
 * **Typography:** Uses serif fonts (*DM Serif Display*) for headings to evoke a "Premium Ledger" or "Editorial" feel.
 * **Depth:** Subtle glassmorphism, soft layering with refined shadows, and generous whitespace.
 * **Materials:** Zinc-based palettes with high-contrast accents.

@@ -63,7 +63,7 @@ const ThemeGrid = ({ themes, themeId, onThemeChange }) => (
 );
 
 export default function ThemeSettings() {
-  const { user, themeId, onThemeChange, onUpdateProfile, showNotification } = useHousehold();
+  const { user, themeId, onThemeChange, onPreviewTheme, onUpdateProfile, showNotification } = useHousehold();
 
   // Custom Theme State
   const [customThemeConfig, setCustomThemeConfig] = useState(() => {
@@ -78,12 +78,28 @@ export default function ThemeSettings() {
     return DEFAULT_MANTEL;
   });
 
+  // Effect to update preview when custom config changes
+  useEffect(() => {
+    if (themeId === 'custom') {
+      onPreviewTheme('custom', customThemeConfig);
+    }
+  }, [customThemeConfig, themeId, onPreviewTheme]);
+
   const handleSaveCustomTheme = async () => {
     try {
-      await onUpdateProfile({ custom_theme: JSON.stringify(customThemeConfig) });
-      showNotification("Custom theme saved.", "success");
+      await onUpdateProfile({ custom_theme: JSON.stringify(customThemeConfig), theme: 'custom' });
+      showNotification("Custom theme saved and applied.", "success");
     } catch {
       showNotification("Failed to save custom theme.", "danger");
+    }
+  };
+
+  const handleThemeSelect = (id) => {
+    if (id === 'custom') {
+      onThemeChange('custom');
+      onPreviewTheme('custom', customThemeConfig);
+    } else {
+      onThemeChange(id);
     }
   };
 
@@ -113,7 +129,7 @@ export default function ThemeSettings() {
       <Box>
         <Typography level="title-lg" startDecorator={<Palette color="warning" />} sx={{ mb: 2 }}>Signature Designs</Typography>
         <Typography level="body-sm" sx={{ mb: 2 }}>High-fidelity UI styles with editorial typography and refined depth.</Typography>
-        <ThemeGrid themes={groupedThemes.signature} themeId={themeId} onThemeChange={onThemeChange} />
+        <ThemeGrid themes={groupedThemes.signature} themeId={themeId} onThemeChange={handleThemeSelect} />
       </Box>
 
       <Divider />
@@ -126,7 +142,7 @@ export default function ThemeSettings() {
                   <Sheet
                       variant={themeId === 'custom' ? 'solid' : 'outlined'}
                       color={themeId === 'custom' ? 'primary' : 'neutral'}
-                      onClick={() => onThemeChange('custom')}
+                      onClick={() => handleThemeSelect('custom')}
                       sx={{
                           p: 1.5, borderRadius: 'md', cursor: 'pointer',
                           transition: 'all 0.2s',
@@ -182,12 +198,12 @@ export default function ThemeSettings() {
       <Stack spacing={4}>
         <Box>
           <Typography level="title-lg" startDecorator={<LightMode color="warning" />} sx={{ mb: 2 }}>Light Themes</Typography>
-          <ThemeGrid themes={groupedThemes.light} themeId={themeId} onThemeChange={onThemeChange} />
+          <ThemeGrid themes={groupedThemes.light} themeId={themeId} onThemeChange={handleThemeSelect} />
         </Box>
         <Divider />
         <Box>
           <Typography level="title-lg" startDecorator={<DarkMode color="primary" />} sx={{ mb: 2 }}>Dark Themes</Typography>
-          <ThemeGrid themes={groupedThemes.dark} themeId={themeId} onThemeChange={onThemeChange} />
+          <ThemeGrid themes={groupedThemes.dark} themeId={themeId} onThemeChange={handleThemeSelect} />
         </Box>
       </Stack>
     </Stack>
