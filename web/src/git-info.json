@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Finalize 50 dual-mode Signature themes, re-organized personal preferences in Avatar menu, and fix dark mode UI contrast",
-  "date": "Wed 11 Feb 14:26:26 GMT 2026"
+  "commitMessage": "Fix theme selection crash, properly hook up onModeChange, and finalize 50 dual-mode themes",
+  "date": "Wed 11 Feb 14:34:20 GMT 2026"
 }

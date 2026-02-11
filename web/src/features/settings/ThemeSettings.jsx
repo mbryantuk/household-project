@@ -62,7 +62,7 @@ export default function ThemeSettings() {
   });
 
   useEffect(() => {
-    if (themeId === 'custom') {
+    if (themeId === 'custom' && onPreviewTheme) {
       onPreviewTheme('custom', customThemeConfig);
     }
   }, [customThemeConfig, themeId, onPreviewTheme]);
@@ -78,11 +78,11 @@ export default function ThemeSettings() {
 
   const handleThemeSelect = (id) => {
     if (id === 'custom') {
-      onThemeChange('custom');
-      onPreviewTheme('custom', customThemeConfig);
+      if (onThemeChange) onThemeChange('custom');
+      if (onPreviewTheme) onPreviewTheme('custom', customThemeConfig);
     } else {
-      onThemeChange(id);
-      onPreviewTheme(null);
+      if (onThemeChange) onThemeChange(id);
+      if (onPreviewTheme) onPreviewTheme(null);
     }
   };
 
@@ -105,7 +105,11 @@ export default function ThemeSettings() {
           <RadioGroup
             orientation="horizontal"
             value={mode || 'system'}
-            onChange={(e) => onModeChange(e.target.value)}
+            onChange={(e) => {
+                const newMode = e.target.value;
+                if (onModeChange) onModeChange(newMode);
+                onUpdateProfile({ mode: newMode });
+            }}
             sx={{
                 gap: 2,
                 '& .MuiRadio-root': {

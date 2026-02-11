@@ -68,7 +68,7 @@ const queryClient = new QueryClient({
 function AppInner({ 
     themeId, setThemeId, user, setUser, token, setToken, household, setHousehold, 
     logout, login, mfaLogin, handleLoginSuccess, spec, isDark, onPreviewTheme,
-    mode, setModePref
+    mode, setModePref, onModeChange
 }) {
   const { setMode, mode: currentMode } = useColorScheme();
   
@@ -564,9 +564,10 @@ export default function App() {
                 household={household} setHousehold={setHousehold}
                 logout={logout} login={login} mfaLogin={mfaLogin}
                 handleLoginSuccess={handleLoginSuccess}
-                spec={spec} isDark={false} // Mode handled internally by Joy and AppInner Effect
+                spec={spec} isDark={false} 
                 onPreviewTheme={handlePreviewTheme}
                 mode={modePref} setModePref={setModePref}
+                onModeChange={setModePref}
             />
         </CssVarsProvider>
       </QueryClientProvider>
