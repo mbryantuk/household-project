@@ -1,0 +1,175 @@
+{
+  "config": {
+    "configFile": "/home/matt/household-project/web/playwright.config.js",
+    "rootDir": "/home/matt/household-project/web/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/matt/household-project/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/matt/household-project/web/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.2",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "smoke.spec.js",
+      "file": "smoke.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Core UI Smoke Tests",
+          "file": "smoke.spec.js",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Financial Profiles: Sidebar Accordion and Switching",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60347,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                            "column": 20,
+                            "line": 19
+                          },
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/finance\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 17 |\u001b[39m     test(\u001b[32m'Financial Profiles: Sidebar Accordion and Switching'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 18 |\u001b[39m         \u001b[90m// Navigate to Finance\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 19 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/finance\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 20 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'**/finance**'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 21 |\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[90m// Check if Sidebar Accordion exists\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:19:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] Content is cached for offline use.\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] TypeError: Cannot read properties of null (reading 'split')\n    at HG (http://localhost:4001/assets/index-DluiFsWA.js:97:346087)\n    at n3 (http://localhost:4001/assets/index-DluiFsWA.js:97:345343)\n    at http://localhost:4001/assets/index-DluiFsWA.js:97:350406\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-DluiFsWA.js:97:350282\n    at Object.Kb [as useMemo] (http://localhost:4001/assets/index-DluiFsWA.js:9:57408)\n    at He.useMemo (http://localhost:4001/assets/index-DluiFsWA.js:2:9121)\n    at XG (http://localhost:4001/assets/index-DluiFsWA.js:97:349204)\n    at B1 (http://localhost:4001/assets/index-DluiFsWA.js:9:48437)\n    at rm (http://localhost:4001/assets/index-DluiFsWA.js:9:71294)\n"
+                        },
+                        {
+                          "text": "[BROWSER] Widget Crash Detected: TypeError: Cannot read properties of null (reading 'split')\n    at HG (http://localhost:4001/assets/index-DluiFsWA.js:97:346087)\n    at n3 (http://localhost:4001/assets/index-DluiFsWA.js:97:345343)\n    at http://localhost:4001/assets/index-DluiFsWA.js:97:350406\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-DluiFsWA.js:97:350282\n    at Object.Kb [as useMemo] (http://localhost:4001/assets/index-DluiFsWA.js:9:57408)\n    at He.useMemo (http://localhost:4001/assets/index-DluiFsWA.js:2:9121)\n    at XG (http://localhost:4001/assets/index-DluiFsWA.js:97:349204)\n    at B1 (http://localhost:4001/assets/index-DluiFsWA.js:9:48437)\n    at rm (http://localhost:4001/assets/index-DluiFsWA.js:9:71294) {componentStack: \n    at XG (http://localhost:4001/assets/index-Dlu…ocalhost:4001/assets/index-DluiFsWA.js:97:403611)}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-11T18:37:39.790Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--1945d-bar-Accordion-and-Switching-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--1945d-bar-Accordion-and-Switching-chromium/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-d6449fc28ef2b705aa57",
+              "file": "smoke.spec.js",
+              "line": 17,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-02-11T18:37:33.119Z",
+    "duration": 67485.004,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

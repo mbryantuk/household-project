@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.2.182] - 2026-02-11
+### Fixed
+- **Finance:** Fixed budget payment checkboxes being permanently disabled by correcting the `savingProgress` state initialization.
+
 ## [3.2.151] - 2026-02-09
 ### Added
 - **Tenancy:** Added "Export Tenant" capability to the Household Selector for admins to download full backup archives.

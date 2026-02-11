@@ -222,7 +222,7 @@ const IncomeSourceCard = ({ inc, onUpdate, onDelete }) => {
 export default function BudgetView({ financialProfileId }) {
   const { api, id: householdId, isDark, showNotification, members = [], setStatusBarData, confirmAction, household } = useOutletContext();
   const [loading, setLoading] = useState(true);
-    const [savingProgress] = useState(new Map());
+  const [savingProgress, setSavingProgress] = useState(new Set());
   const [viewDate, setViewDate] = useState(new Date());
   const [bankHolidays, setBankHolidays] = useState([]);
   const [hidePaid, setHidePaid] = useState(false);
@@ -865,6 +865,8 @@ export default function BudgetView({ financialProfileId }) {
   };
 
   const togglePaid = async (itemKey, amount = 0) => {
+      if (savingProgress.has(itemKey)) return;
+      
       const currentProgress = [...progress];
       const existingItemIndex = currentProgress.findIndex(p => p.item_key === itemKey && p.cycle_start === cycleData.cycleKey);
       const isCurrentlyPaid = existingItemIndex !== -1 && currentProgress[existingItemIndex].is_paid === 1;
@@ -890,6 +892,7 @@ export default function BudgetView({ financialProfileId }) {
           }
       }
       setProgress(newProgress);
+      setSavingProgress(prev => new Set(prev).add(itemKey));
 
       try {
           if (isCurrentlyPaid) {
@@ -903,6 +906,12 @@ export default function BudgetView({ financialProfileId }) {
           // Revert on error
           setProgress(currentProgress);
           showNotification("Failed to update status.", "danger");
+      } finally {
+          setSavingProgress(prev => {
+              const next = new Set(prev);
+              next.delete(itemKey);
+              return next;
+          });
       }
   };
 
@@ -1309,7 +1318,7 @@ export default function BudgetView({ financialProfileId }) {
               <Checkbox 
                   size="sm" variant="plain" checked={exp.isPaid} 
                   onChange={() => togglePaid(exp.key, exp.amount)} 
-                  disabled={savingProgress} 
+                  disabled={savingProgress.has(exp.key)} 
                   uncheckedIcon={<RadioButtonUnchecked sx={{ fontSize: '1.2rem' }} />} 
                   checkedIcon={<CheckCircle color="success" sx={{ fontSize: '1.2rem' }} />} 
                   onClick={(e) => e.stopPropagation()} 
@@ -1381,7 +1390,7 @@ export default function BudgetView({ financialProfileId }) {
                             <Checkbox 
                                 size="lg" variant="plain" checked={exp.isPaid} 
                                 onChange={() => togglePaid(exp.key, exp.amount)} 
-                                disabled={savingProgress} 
+                                disabled={savingProgress.has(exp.key)} 
                                 uncheckedIcon={<RadioButtonUnchecked sx={{ fontSize: '1.5rem' }} />} 
                                 checkedIcon={<CheckCircle color="success" sx={{ fontSize: '1.5rem' }} />} 
                                 onClick={(e) => e.stopPropagation()} 
