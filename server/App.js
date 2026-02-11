@@ -34,7 +34,9 @@ const app = express();
 
 // SUPER EARLY DEBUG LOGGING
 app.use((req, res, next) => {
-    console.log(`[EARLY DEBUG] ${req.method} ${req.path} - Headers:`, JSON.stringify(req.headers));
+    if (process.env.DEBUG === 'true') {
+        console.log(`[EARLY DEBUG] ${req.method} ${req.path} - Headers:`, JSON.stringify(req.headers));
+    }
     next();
 });
 
@@ -74,7 +76,9 @@ app.use((req, res, next) => {
 
 // DEBUG LOGGING
 app.use((req, res, next) => {
-    console.log(`[DEBUG] ${req.method} ${req.path} - Auth Header: ${req.headers['authorization'] ? 'Present' : 'Missing'}`);
+    if (process.env.DEBUG === 'true') {
+        console.log(`[DEBUG] ${req.method} ${req.path} - Auth Header: ${req.headers['authorization'] ? 'Present' : 'Missing'}`);
+    }
     next();
 });
 

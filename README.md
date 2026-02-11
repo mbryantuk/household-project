@@ -98,3 +98,10 @@ For deeper technical details, please refer to the internal documentation:
 
 *   **[Database Schema](docs/SCHEMA.md):** Detailed breakdown of Global vs. Tenant tables and field types.
 *   **[Solution Architecture](docs/ARCHITECTURE.md):** High-level topology, security patterns, and frontend/backend design.
+
+## 🐛 Debug Mode
+
+Totem includes a dual-layer debug system for troubleshooting:
+
+1.  **Household Debug Mode:** Enabled via **Settings > Household Settings**. This enables verbose logging in the browser console (Axios requests/responses) and detailed server-side request logging for all members of that household.
+2.  **System Debug Mode:** Enabled by setting the environment variable `DEBUG=true` on the server. This provides low-level logging for all incoming traffic, including headers and auth-header presence, regardless of household settings.

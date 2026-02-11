@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Refactor HomeView and update theme customization",
-  "date": "Wed 11 Feb 22:55:15 GMT 2026"
+  "commitMessage": "Fix Debug Mode persistence and cleanup global logging",
+  "date": "Wed 11 Feb 23:02:10 GMT 2026"
 }
