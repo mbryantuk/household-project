@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix ReferenceError in UtilityBar: handleUpdateProfile is not defined",
-  "date": "Wed 11 Feb 15:37:28 GMT 2026"
+  "commitMessage": "Fix system dark mode sync for sidebar and utility bar",
+  "date": "Wed 11 Feb 15:52:58 GMT 2026"
 }

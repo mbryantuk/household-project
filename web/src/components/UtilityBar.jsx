@@ -85,8 +85,9 @@ const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, activeWi
 };
 
 export default function UtilityBar() {
-  const { mode } = useColorScheme();
-  const isDark = mode === 'dark';
+  const { mode, systemMode } = useColorScheme();
+  const isDark = mode === 'dark' || (mode === 'system' && systemMode === 'dark');
+  
   const { user, api, dates, onDateAdded, onUpdateProfile, statusBarData, activeHouseholdId, household } = useHousehold();
   const scrollRef = useRef(null);
   const [activeWidget, setActiveWidget] = useState(null); 

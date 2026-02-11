@@ -19,8 +19,9 @@ const RAIL_WIDTH = 64;
 const PANEL_WIDTH = 260; 
 
 const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, activeCategory, hoveredCategory, onHover, handleNav, isMobile }) => {
-    const { mode } = useColorScheme();
-    const isDark = mode === 'dark';
+    const { mode, systemMode } = useColorScheme();
+    const isDark = mode === 'dark' || (mode === 'system' && systemMode === 'dark');
+    
     const pathMatches = to && location.pathname.includes(to);
     const categoryMatches = activeCategory === category;
     const isHovered = hoveredCategory === category;
@@ -95,8 +96,8 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
 };
 
 const SubItem = ({ label, to, emoji, onClick, active }) => {
-    const { mode } = useColorScheme();
-    const isDark = mode === 'dark';
+    const { mode, systemMode } = useColorScheme();
+    const isDark = mode === 'dark' || (mode === 'system' && systemMode === 'dark');
     return (
     <ListItem>
         <ListItemButton 
@@ -137,8 +138,9 @@ const GroupHeader = ({ label }) => (
 export default function NavSidebar({ 
     isMobile = false, onClose, installPrompt, onInstall
 }) {
-  const { mode } = useColorScheme();
-  const isDark = mode === 'dark';
+  const { mode, systemMode } = useColorScheme();
+  const isDark = mode === 'dark' || (mode === 'system' && systemMode === 'dark');
+  
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
