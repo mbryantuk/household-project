@@ -54,6 +54,17 @@
           "type": { "type": "string", "enum": ["adult", "child", "pet"] },
           "emoji": { "type": "string" }
         }
+      },
+      "Chore": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "frequency": { "type": "string" },
+          "value": { "type": "number" },
+          "next_due_date": { "type": "string", "format": "date" },
+          "assigned_member_id": { "type": "integer" }
+        }
       }
     }
   },
@@ -79,6 +90,20 @@
         "get": { "tags": ["Members"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
         "put": { "tags": ["Members"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
         "delete": { "tags": ["Members"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+    },
+    "/households/{id}/chores": {
+        "get": { "tags": ["Chores"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Chore" } } } } } } },
+        "post": { "tags": ["Chores"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    },
+    "/households/{id}/chores/{choreId}": {
+        "put": { "tags": ["Chores"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "choreId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
+        "delete": { "tags": ["Chores"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "choreId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+    },
+    "/households/{id}/chores/{choreId}/complete": {
+        "post": { "tags": ["Chores"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "choreId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+    },
+    "/households/{id}/chores/stats": {
+        "get": { "tags": ["Chores"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
     },
     "/households/{id}/vehicles": { 
         "get": { "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
