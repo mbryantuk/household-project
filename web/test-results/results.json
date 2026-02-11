@@ -66,20 +66,20 @@
   },
   "suites": [
     {
-      "title": "smoke.spec.js",
-      "file": "smoke.spec.js",
+      "title": "e2e/chores.spec.js",
+      "file": "e2e/chores.spec.js",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Core UI Smoke Tests",
-          "file": "smoke.spec.js",
+          "title": "Chores & Gamification Flow",
+          "file": "e2e/chores.spec.js",
           "line": 3,
           "column": 6,
           "specs": [
             {
-              "title": "Financial Profiles: Sidebar Accordion and Switching",
+              "title": "should view, add, complete, and delete a chore",
               "ok": false,
               "tags": [],
               "tests": [
@@ -93,23 +93,26 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 60347,
+                      "status": "failed",
+                      "duration": 11419,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('tr').filter({ hasText: 'Test Chore 1770843818987' })\nExpected: not visible\nReceived: visible\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('tr').filter({ hasText: 'Test Chore 1770843818987' })\u001b[22m\n\u001b[2m    9 × locator resolved to <tr>…</tr>\u001b[22m\n\u001b[2m      - unexpected value \"visible\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('tr').filter({ hasText: 'Test Chore 1770843818987' })\nExpected: not visible\nReceived: visible\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('tr').filter({ hasText: 'Test Chore 1770843818987' })\u001b[22m\n\u001b[2m    9 × locator resolved to <tr>…</tr>\u001b[22m\n\u001b[2m      - unexpected value \"visible\"\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/chores.spec.js:69:65",
+                        "location": {
+                          "file": "/home/matt/household-project/web/tests/e2e/chores.spec.js",
+                          "column": 65,
+                          "line": 69
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 67 |\u001b[39m\n \u001b[90m 68 |\u001b[39m     \u001b[90m// 7. Verify Row Gone\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 69 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'tr'\u001b[39m\u001b[33m,\u001b[39m { hasText\u001b[33m:\u001b[39m taskName }))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 70 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 71 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 72 |\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
-                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
-                        },
-                        {
                           "location": {
-                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 20,
-                            "line": 19
+                            "file": "/home/matt/household-project/web/tests/e2e/chores.spec.js",
+                            "column": 65,
+                            "line": 69
                           },
-                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/finance\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 17 |\u001b[39m     test(\u001b[32m'Financial Profiles: Sidebar Accordion and Switching'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 18 |\u001b[39m         \u001b[90m// Navigate to Finance\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 19 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/finance\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 20 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'**/finance**'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 21 |\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[90m// Check if Sidebar Accordion exists\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:19:20\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('tr').filter({ hasText: 'Test Chore 1770843818987' })\nExpected: not visible\nReceived: visible\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('tr').filter({ hasText: 'Test Chore 1770843818987' })\u001b[22m\n\u001b[2m    9 × locator resolved to <tr>…</tr>\u001b[22m\n\u001b[2m      - unexpected value \"visible\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 67 |\u001b[39m\n \u001b[90m 68 |\u001b[39m     \u001b[90m// 7. Verify Row Gone\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 69 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'tr'\u001b[39m\u001b[33m,\u001b[39m { hasText\u001b[33m:\u001b[39m taskName }))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 70 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 71 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 72 |\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/chores.spec.js:69:65\u001b[22m"
                         }
                       ],
                       "stdout": [
@@ -123,40 +126,42 @@
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
+                          "text": "Dashboard loaded.\n"
+                        },
+                        {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[BROWSER] TypeError: Cannot read properties of null (reading 'split')\n    at HG (http://localhost:4001/assets/index-DluiFsWA.js:97:346087)\n    at n3 (http://localhost:4001/assets/index-DluiFsWA.js:97:345343)\n    at http://localhost:4001/assets/index-DluiFsWA.js:97:350406\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-DluiFsWA.js:97:350282\n    at Object.Kb [as useMemo] (http://localhost:4001/assets/index-DluiFsWA.js:9:57408)\n    at He.useMemo (http://localhost:4001/assets/index-DluiFsWA.js:2:9121)\n    at XG (http://localhost:4001/assets/index-DluiFsWA.js:97:349204)\n    at B1 (http://localhost:4001/assets/index-DluiFsWA.js:9:48437)\n    at rm (http://localhost:4001/assets/index-DluiFsWA.js:9:71294)\n"
-                        },
-                        {
-                          "text": "[BROWSER] Widget Crash Detected: TypeError: Cannot read properties of null (reading 'split')\n    at HG (http://localhost:4001/assets/index-DluiFsWA.js:97:346087)\n    at n3 (http://localhost:4001/assets/index-DluiFsWA.js:97:345343)\n    at http://localhost:4001/assets/index-DluiFsWA.js:97:350406\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-DluiFsWA.js:97:350282\n    at Object.Kb [as useMemo] (http://localhost:4001/assets/index-DluiFsWA.js:9:57408)\n    at He.useMemo (http://localhost:4001/assets/index-DluiFsWA.js:2:9121)\n    at XG (http://localhost:4001/assets/index-DluiFsWA.js:97:349204)\n    at B1 (http://localhost:4001/assets/index-DluiFsWA.js:9:48437)\n    at rm (http://localhost:4001/assets/index-DluiFsWA.js:9:71294) {componentStack: \n    at XG (http://localhost:4001/assets/index-Dlu…ocalhost:4001/assets/index-DluiFsWA.js:97:403611)}\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-11T18:37:39.790Z",
+                      "startTime": "2026-02-11T21:03:34.323Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--1945d-bar-Accordion-and-Switching-chromium/test-failed-1.png"
+                          "path": "/home/matt/household-project/web/test-results/e2e-chores-Chores-Gamifica-c83dc-complete-and-delete-a-chore-chromium/test-failed-1.png"
                         },
                         {
                           "name": "error-context",
                           "contentType": "text/markdown",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--1945d-bar-Accordion-and-Switching-chromium/error-context.md"
+                          "path": "/home/matt/household-project/web/test-results/e2e-chores-Chores-Gamifica-c83dc-complete-and-delete-a-chore-chromium/error-context.md"
                         }
-                      ]
+                      ],
+                      "errorLocation": {
+                        "file": "/home/matt/household-project/web/tests/e2e/chores.spec.js",
+                        "column": 65,
+                        "line": 69
+                      }
                     }
                   ],
                   "status": "unexpected"
                 }
               ],
-              "id": "2c14808d47b386fba9eb-d6449fc28ef2b705aa57",
-              "file": "smoke.spec.js",
-              "line": 17,
-              "column": 5
+              "id": "362ddf8274dc1e38045d-c673e8d16a93d253fa04",
+              "file": "e2e/chores.spec.js",
+              "line": 30,
+              "column": 3
             }
           ]
         }
@@ -165,8 +170,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-11T18:37:33.119Z",
-    "duration": 67485.004,
+    "startTime": "2026-02-11T21:03:27.572Z",
+    "duration": 18540.808,
     "expected": 0,
     "skipped": 0,
     "unexpected": 1,

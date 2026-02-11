@@ -1,0 +1,494 @@
+# Page snapshot
+
+```yaml
+- main [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e7]:
+      - generic [ref=e8]:
+        - generic "Dashboard" [ref=e10] [cursor=pointer]: 🏠
+        - list [ref=e11]:
+          - listitem [ref=e12]:
+            - button "House" [ref=e13] [cursor=pointer]:
+              - img [ref=e15]
+              - generic [ref=e17]: House
+          - listitem [ref=e18]:
+            - button "Calendar" [ref=e19] [cursor=pointer]:
+              - img [ref=e21]
+              - generic [ref=e23]: Calendar
+        - separator [ref=e24]
+      - list [ref=e26]:
+        - listitem [ref=e27]:
+          - button "Finance" [ref=e28] [cursor=pointer]:
+            - img [ref=e30]
+            - generic [ref=e32]: Finance
+        - listitem [ref=e33]:
+          - button "Shopping List" [ref=e34] [cursor=pointer]:
+            - img [ref=e36]
+            - generic [ref=e38]: Shopping List
+        - listitem [ref=e39]:
+          - button "Chores" [ref=e40] [cursor=pointer]:
+            - img [ref=e42]
+            - generic [ref=e44]: Chores
+        - listitem [ref=e45]:
+          - button "Meals" [ref=e46] [cursor=pointer]:
+            - img [ref=e48]
+            - generic [ref=e50]: Meals
+      - generic [ref=e51]:
+        - separator [ref=e53]
+        - button "Account & Settings" [ref=e54] [cursor=pointer]:
+          - generic [ref=e55]: 🐧
+    - generic [ref=e56]:
+      - main [ref=e57]:
+        - generic [ref=e58]:
+          - generic [ref=e59]:
+            - generic [ref=e60]:
+              - heading "Chores Tracker" [level=2] [ref=e61]:
+                - img [ref=e63]
+                - text: Chores Tracker
+              - paragraph [ref=e65]: Assign tasks, track completion, and manage pocket money.
+            - button "Add Chore" [ref=e66] [cursor=pointer]:
+              - img [ref=e68]
+              - text: Add Chore
+          - table [ref=e71]:
+            - rowgroup [ref=e72]:
+              - row "Task Assignee Frequency Due Date Value Actions" [ref=e73]:
+                - columnheader [ref=e74]
+                - columnheader "Task" [ref=e75]
+                - columnheader "Assignee" [ref=e76]
+                - columnheader "Frequency" [ref=e77]
+                - columnheader "Due Date" [ref=e78]
+                - columnheader "Value" [ref=e79]
+                - columnheader "Actions" [ref=e80]
+            - rowgroup [ref=e81]:
+              - row "🧹 Test Chore 1770843818987 Unassigned One-off - £5.00" [ref=e82]:
+                - cell [ref=e83]:
+                  - button [ref=e84] [cursor=pointer]:
+                    - img [ref=e85]
+                - cell "🧹 Test Chore 1770843818987" [ref=e87]:
+                  - generic [ref=e88]:
+                    - generic [ref=e89]: 🧹
+                    - paragraph [ref=e91]: Test Chore 1770843818987
+                - cell "Unassigned" [ref=e92]:
+                  - generic [ref=e94]: Unassigned
+                - cell "One-off" [ref=e95]:
+                  - paragraph [ref=e96]:
+                    - img [ref=e98]
+                    - text: One-off
+                - cell "-" [ref=e100]
+                - cell "£5.00" [ref=e101]:
+                  - paragraph [ref=e102]: £5.00
+                - cell [ref=e103]:
+                  - generic [ref=e104]:
+                    - button [ref=e105] [cursor=pointer]:
+                      - img [ref=e106]
+                    - button [ref=e108] [cursor=pointer]:
+                      - img [ref=e109]
+              - row "🌱 Mow the Lawn Front and back yard Greg 👦 Weekly 11th Feb £10.00" [ref=e111]:
+                - cell [ref=e112]:
+                  - button [ref=e113] [cursor=pointer]:
+                    - img [ref=e114]
+                - cell "🌱 Mow the Lawn Front and back yard" [ref=e116]:
+                  - generic [ref=e117]:
+                    - generic [ref=e118]: 🌱
+                    - generic [ref=e119]:
+                      - paragraph [ref=e120]: Mow the Lawn
+                      - generic [ref=e121]: Front and back yard
+                - cell "Greg 👦" [ref=e122]:
+                  - generic [ref=e123]:
+                    - generic [ref=e124]: Greg
+                    - generic: 👦
+                - cell "Weekly" [ref=e125]:
+                  - paragraph [ref=e126]:
+                    - img [ref=e128]
+                    - text: Weekly
+                - cell "11th Feb" [ref=e130]:
+                  - generic [ref=e132]: 11th Feb
+                - cell "£10.00" [ref=e133]:
+                  - paragraph [ref=e134]: £10.00
+                - cell [ref=e135]:
+                  - generic [ref=e136]:
+                    - button [ref=e137] [cursor=pointer]:
+                      - img [ref=e138]
+                    - button [ref=e140] [cursor=pointer]:
+                      - img [ref=e141]
+              - row "🚗 Wash the Car Wash the Station Wagon Peter 👦 Weekly 11th Feb £5.00" [ref=e143]:
+                - cell [ref=e144]:
+                  - button [ref=e145] [cursor=pointer]:
+                    - img [ref=e146]
+                - cell "🚗 Wash the Car Wash the Station Wagon" [ref=e148]:
+                  - generic [ref=e149]:
+                    - generic [ref=e150]: 🚗
+                    - generic [ref=e151]:
+                      - paragraph [ref=e152]: Wash the Car
+                      - generic [ref=e153]: Wash the Station Wagon
+                - cell "Peter 👦" [ref=e154]:
+                  - generic [ref=e155]:
+                    - generic [ref=e156]: Peter
+                    - generic: 👦
+                - cell "Weekly" [ref=e157]:
+                  - paragraph [ref=e158]:
+                    - img [ref=e160]
+                    - text: Weekly
+                - cell "11th Feb" [ref=e162]:
+                  - generic [ref=e164]: 11th Feb
+                - cell "£5.00" [ref=e165]:
+                  - paragraph [ref=e166]: £5.00
+                - cell [ref=e167]:
+                  - generic [ref=e168]:
+                    - button [ref=e169] [cursor=pointer]:
+                      - img [ref=e170]
+                    - button [ref=e172] [cursor=pointer]:
+                      - img [ref=e173]
+              - row "🛏️ Clean Room Tidy up and make bed Marcia 👧 Weekly 11th Feb £5.00" [ref=e175]:
+                - cell [ref=e176]:
+                  - button [ref=e177] [cursor=pointer]:
+                    - img [ref=e178]
+                - cell "🛏️ Clean Room Tidy up and make bed" [ref=e180]:
+                  - generic [ref=e181]:
+                    - generic [ref=e182]: 🛏️
+                    - generic [ref=e183]:
+                      - paragraph [ref=e184]: Clean Room
+                      - generic [ref=e185]: Tidy up and make bed
+                - cell "Marcia 👧" [ref=e186]:
+                  - generic [ref=e187]:
+                    - generic [ref=e188]: Marcia
+                    - generic: 👧
+                - cell "Weekly" [ref=e189]:
+                  - paragraph [ref=e190]:
+                    - img [ref=e192]
+                    - text: Weekly
+                - cell "11th Feb" [ref=e194]:
+                  - generic [ref=e196]: 11th Feb
+                - cell "£5.00" [ref=e197]:
+                  - paragraph [ref=e198]: £5.00
+                - cell [ref=e199]:
+                  - generic [ref=e200]:
+                    - button [ref=e201] [cursor=pointer]:
+                      - img [ref=e202]
+                    - button [ref=e204] [cursor=pointer]:
+                      - img [ref=e205]
+              - row "🛏️ Clean Room Tidy up and make bed Jan 👧 Weekly 11th Feb £5.00" [ref=e207]:
+                - cell [ref=e208]:
+                  - button [ref=e209] [cursor=pointer]:
+                    - img [ref=e210]
+                - cell "🛏️ Clean Room Tidy up and make bed" [ref=e212]:
+                  - generic [ref=e213]:
+                    - generic [ref=e214]: 🛏️
+                    - generic [ref=e215]:
+                      - paragraph [ref=e216]: Clean Room
+                      - generic [ref=e217]: Tidy up and make bed
+                - cell "Jan 👧" [ref=e218]:
+                  - generic [ref=e219]:
+                    - generic [ref=e220]: Jan
+                    - generic: 👧
+                - cell "Weekly" [ref=e221]:
+                  - paragraph [ref=e222]:
+                    - img [ref=e224]
+                    - text: Weekly
+                - cell "11th Feb" [ref=e226]:
+                  - generic [ref=e228]: 11th Feb
+                - cell "£5.00" [ref=e229]:
+                  - paragraph [ref=e230]: £5.00
+                - cell [ref=e231]:
+                  - generic [ref=e232]:
+                    - button [ref=e233] [cursor=pointer]:
+                      - img [ref=e234]
+                    - button [ref=e236] [cursor=pointer]:
+                      - img [ref=e237]
+              - row "🛏️ Clean Room Tidy up and make bed Cindy 👧 Weekly 11th Feb £3.00" [ref=e239]:
+                - cell [ref=e240]:
+                  - button [ref=e241] [cursor=pointer]:
+                    - img [ref=e242]
+                - cell "🛏️ Clean Room Tidy up and make bed" [ref=e244]:
+                  - generic [ref=e245]:
+                    - generic [ref=e246]: 🛏️
+                    - generic [ref=e247]:
+                      - paragraph [ref=e248]: Clean Room
+                      - generic [ref=e249]: Tidy up and make bed
+                - cell "Cindy 👧" [ref=e250]:
+                  - generic [ref=e251]:
+                    - generic [ref=e252]: Cindy
+                    - generic: 👧
+                - cell "Weekly" [ref=e253]:
+                  - paragraph [ref=e254]:
+                    - img [ref=e256]
+                    - text: Weekly
+                - cell "11th Feb" [ref=e258]:
+                  - generic [ref=e260]: 11th Feb
+                - cell "£3.00" [ref=e261]:
+                  - paragraph [ref=e262]: £3.00
+                - cell [ref=e263]:
+                  - generic [ref=e264]:
+                    - button [ref=e265] [cursor=pointer]:
+                      - img [ref=e266]
+                    - button [ref=e268] [cursor=pointer]:
+                      - img [ref=e269]
+              - row "🗑️ Take out Trash Tuesday nights Bobby 👦 Weekly 11th Feb £2.00" [ref=e271]:
+                - cell [ref=e272]:
+                  - button [ref=e273] [cursor=pointer]:
+                    - img [ref=e274]
+                - cell "🗑️ Take out Trash Tuesday nights" [ref=e276]:
+                  - generic [ref=e277]:
+                    - generic [ref=e278]: 🗑️
+                    - generic [ref=e279]:
+                      - paragraph [ref=e280]: Take out Trash
+                      - generic [ref=e281]: Tuesday nights
+                - cell "Bobby 👦" [ref=e282]:
+                  - generic [ref=e283]:
+                    - generic [ref=e284]: Bobby
+                    - generic: 👦
+                - cell "Weekly" [ref=e285]:
+                  - paragraph [ref=e286]:
+                    - img [ref=e288]
+                    - text: Weekly
+                - cell "11th Feb" [ref=e290]:
+                  - generic [ref=e292]: 11th Feb
+                - cell "£2.00" [ref=e293]:
+                  - paragraph [ref=e294]: £2.00
+                - cell [ref=e295]:
+                  - generic [ref=e296]:
+                    - button [ref=e297] [cursor=pointer]:
+                      - img [ref=e298]
+                    - button [ref=e300] [cursor=pointer]:
+                      - img [ref=e301]
+              - row "🍽️ Wash Dishes Help Alice after dinner Jan 👧 Daily 11th Feb £1.00" [ref=e303]:
+                - cell [ref=e304]:
+                  - button [ref=e305] [cursor=pointer]:
+                    - img [ref=e306]
+                - cell "🍽️ Wash Dishes Help Alice after dinner" [ref=e308]:
+                  - generic [ref=e309]:
+                    - generic [ref=e310]: 🍽️
+                    - generic [ref=e311]:
+                      - paragraph [ref=e312]: Wash Dishes
+                      - generic [ref=e313]: Help Alice after dinner
+                - cell "Jan 👧" [ref=e314]:
+                  - generic [ref=e315]:
+                    - generic [ref=e316]: Jan
+                    - generic: 👧
+                - cell "Daily" [ref=e317]:
+                  - paragraph [ref=e318]:
+                    - img [ref=e320]
+                    - text: Daily
+                - cell "11th Feb" [ref=e322]:
+                  - generic [ref=e324]: 11th Feb
+                - cell "£1.00" [ref=e325]:
+                  - paragraph [ref=e326]: £1.00
+                - cell [ref=e327]:
+                  - generic [ref=e328]:
+                    - button [ref=e329] [cursor=pointer]:
+                      - img [ref=e330]
+                    - button [ref=e332] [cursor=pointer]:
+                      - img [ref=e333]
+              - row "🐕 Walk Tiger Around the block twice Peter 👦 Daily 11th Feb £1.00" [ref=e335]:
+                - cell [ref=e336]:
+                  - button [ref=e337] [cursor=pointer]:
+                    - img [ref=e338]
+                - cell "🐕 Walk Tiger Around the block twice" [ref=e340]:
+                  - generic [ref=e341]:
+                    - generic [ref=e342]: 🐕
+                    - generic [ref=e343]:
+                      - paragraph [ref=e344]: Walk Tiger
+                      - generic [ref=e345]: Around the block twice
+                - cell "Peter 👦" [ref=e346]:
+                  - generic [ref=e347]:
+                    - generic [ref=e348]: Peter
+                    - generic: 👦
+                - cell "Daily" [ref=e349]:
+                  - paragraph [ref=e350]:
+                    - img [ref=e352]
+                    - text: Daily
+                - cell "11th Feb" [ref=e354]:
+                  - generic [ref=e356]: 11th Feb
+                - cell "£1.00" [ref=e357]:
+                  - paragraph [ref=e358]: £1.00
+                - cell [ref=e359]:
+                  - generic [ref=e360]:
+                    - button [ref=e361] [cursor=pointer]:
+                      - img [ref=e362]
+                    - button [ref=e364] [cursor=pointer]:
+                      - img [ref=e365]
+              - row "🧹 Dust Living Room Careful with the vase Marcia 👧 Weekly 11th Feb £5.00" [ref=e367]:
+                - cell [ref=e368]:
+                  - button [ref=e369] [cursor=pointer]:
+                    - img [ref=e370]
+                - cell "🧹 Dust Living Room Careful with the vase" [ref=e372]:
+                  - generic [ref=e373]:
+                    - generic [ref=e374]: 🧹
+                    - generic [ref=e375]:
+                      - paragraph [ref=e376]: Dust Living Room
+                      - generic [ref=e377]: Careful with the vase
+                - cell "Marcia 👧" [ref=e378]:
+                  - generic [ref=e379]:
+                    - generic [ref=e380]: Marcia
+                    - generic: 👧
+                - cell "Weekly" [ref=e381]:
+                  - paragraph [ref=e382]:
+                    - img [ref=e384]
+                    - text: Weekly
+                - cell "11th Feb" [ref=e386]:
+                  - generic [ref=e388]: 11th Feb
+                - cell "£5.00" [ref=e389]:
+                  - paragraph [ref=e390]: £5.00
+                - cell [ref=e391]:
+                  - generic [ref=e392]:
+                    - button [ref=e393] [cursor=pointer]:
+                      - img [ref=e394]
+                    - button [ref=e396] [cursor=pointer]:
+                      - img [ref=e397]
+              - row "🏊 Clean Pool Skim leaves Greg 👦 Weekly 11th Feb £8.00" [ref=e399]:
+                - cell [ref=e400]:
+                  - button [ref=e401] [cursor=pointer]:
+                    - img [ref=e402]
+                - cell "🏊 Clean Pool Skim leaves" [ref=e404]:
+                  - generic [ref=e405]:
+                    - generic [ref=e406]: 🏊
+                    - generic [ref=e407]:
+                      - paragraph [ref=e408]: Clean Pool
+                      - generic [ref=e409]: Skim leaves
+                - cell "Greg 👦" [ref=e410]:
+                  - generic [ref=e411]:
+                    - generic [ref=e412]: Greg
+                    - generic: 👦
+                - cell "Weekly" [ref=e413]:
+                  - paragraph [ref=e414]:
+                    - img [ref=e416]
+                    - text: Weekly
+                - cell "11th Feb" [ref=e418]:
+                  - generic [ref=e420]: 11th Feb
+                - cell "£8.00" [ref=e421]:
+                  - paragraph [ref=e422]: £8.00
+                - cell [ref=e423]:
+                  - generic [ref=e424]:
+                    - button [ref=e425] [cursor=pointer]:
+                      - img [ref=e426]
+                    - button [ref=e428] [cursor=pointer]:
+                      - img [ref=e429]
+              - row "🧹 Test Chore 1770843347602 Unassigned Weekly 11th Feb £5.00" [ref=e431]:
+                - cell [ref=e432]:
+                  - button [ref=e433] [cursor=pointer]:
+                    - img [ref=e434]
+                - cell "🧹 Test Chore 1770843347602" [ref=e436]:
+                  - generic [ref=e437]:
+                    - generic [ref=e438]: 🧹
+                    - paragraph [ref=e440]: Test Chore 1770843347602
+                - cell "Unassigned" [ref=e441]:
+                  - generic [ref=e443]: Unassigned
+                - cell "Weekly" [ref=e444]:
+                  - paragraph [ref=e445]:
+                    - img [ref=e447]
+                    - text: Weekly
+                - cell "11th Feb" [ref=e449]:
+                  - generic [ref=e451]: 11th Feb
+                - cell "£5.00" [ref=e452]:
+                  - paragraph [ref=e453]: £5.00
+                - cell [ref=e454]:
+                  - generic [ref=e455]:
+                    - button [ref=e456] [cursor=pointer]:
+                      - img [ref=e457]
+                    - button [ref=e459] [cursor=pointer]:
+                      - img [ref=e460]
+              - row "🧹 Test Chore 1770843396353 Unassigned Weekly 18th Feb £5.00" [ref=e462]:
+                - cell [ref=e463]:
+                  - button [ref=e464] [cursor=pointer]:
+                    - img [ref=e465]
+                - cell "🧹 Test Chore 1770843396353" [ref=e467]:
+                  - generic [ref=e468]:
+                    - generic [ref=e469]: 🧹
+                    - paragraph [ref=e471]: Test Chore 1770843396353
+                - cell "Unassigned" [ref=e472]:
+                  - generic [ref=e474]: Unassigned
+                - cell "Weekly" [ref=e475]:
+                  - paragraph [ref=e476]:
+                    - img [ref=e478]
+                    - text: Weekly
+                - cell "18th Feb" [ref=e480]:
+                  - generic [ref=e482]: 18th Feb
+                - cell "£5.00" [ref=e483]:
+                  - paragraph [ref=e484]: £5.00
+                - cell [ref=e485]:
+                  - generic [ref=e486]:
+                    - button [ref=e487] [cursor=pointer]:
+                      - img [ref=e488]
+                    - button [ref=e490] [cursor=pointer]:
+                      - img [ref=e491]
+              - row "🧹 Test Chore 1770843445368 Unassigned Weekly 18th Feb £5.00" [ref=e493]:
+                - cell [ref=e494]:
+                  - button [ref=e495] [cursor=pointer]:
+                    - img [ref=e496]
+                - cell "🧹 Test Chore 1770843445368" [ref=e498]:
+                  - generic [ref=e499]:
+                    - generic [ref=e500]: 🧹
+                    - paragraph [ref=e502]: Test Chore 1770843445368
+                - cell "Unassigned" [ref=e503]:
+                  - generic [ref=e505]: Unassigned
+                - cell "Weekly" [ref=e506]:
+                  - paragraph [ref=e507]:
+                    - img [ref=e509]
+                    - text: Weekly
+                - cell "18th Feb" [ref=e511]:
+                  - generic [ref=e513]: 18th Feb
+                - cell "£5.00" [ref=e514]:
+                  - paragraph [ref=e515]: £5.00
+                - cell [ref=e516]:
+                  - generic [ref=e517]:
+                    - button [ref=e518] [cursor=pointer]:
+                      - img [ref=e519]
+                    - button [ref=e521] [cursor=pointer]:
+                      - img [ref=e522]
+              - row "🧹 Test Chore 1770843499024 Unassigned Weekly 18th Feb £5.00" [ref=e524]:
+                - cell [ref=e525]:
+                  - button [ref=e526] [cursor=pointer]:
+                    - img [ref=e527]
+                - cell "🧹 Test Chore 1770843499024" [ref=e529]:
+                  - generic [ref=e530]:
+                    - generic [ref=e531]: 🧹
+                    - paragraph [ref=e533]: Test Chore 1770843499024
+                - cell "Unassigned" [ref=e534]:
+                  - generic [ref=e536]: Unassigned
+                - cell "Weekly" [ref=e537]:
+                  - paragraph [ref=e538]:
+                    - img [ref=e540]
+                    - text: Weekly
+                - cell "18th Feb" [ref=e542]:
+                  - generic [ref=e544]: 18th Feb
+                - cell "£5.00" [ref=e545]:
+                  - paragraph [ref=e546]: £5.00
+                - cell [ref=e547]:
+                  - generic [ref=e548]:
+                    - button [ref=e549] [cursor=pointer]:
+                      - img [ref=e550]
+                    - button [ref=e552] [cursor=pointer]:
+                      - img [ref=e553]
+      - generic [ref=e558]:
+        - button "Notes" [ref=e560] [cursor=pointer]:
+          - img [ref=e561]
+        - button "Calculator" [ref=e564] [cursor=pointer]:
+          - img [ref=e565]
+        - separator
+        - button "Income" [ref=e568] [cursor=pointer]:
+          - img [ref=e569]
+        - button "Banking" [ref=e572] [cursor=pointer]:
+          - img [ref=e573]
+        - button "Savings & Pots" [ref=e576] [cursor=pointer]:
+          - img [ref=e577]
+        - button "Investments" [ref=e580] [cursor=pointer]:
+          - img [ref=e581]
+        - button "Pensions" [ref=e584] [cursor=pointer]:
+          - img [ref=e585]
+        - button "Credit Cards" [ref=e588] [cursor=pointer]:
+          - img [ref=e589]
+        - button "Personal Loans" [ref=e592] [cursor=pointer]:
+          - img [ref=e593]
+        - button "Mortgages" [ref=e597] [cursor=pointer]:
+          - img [ref=e598]
+        - button "Car Finance" [ref=e601] [cursor=pointer]:
+          - img [ref=e602]
+        - separator
+        - button "Budget Health" [ref=e605] [cursor=pointer]:
+          - img [ref=e606]
+        - button "Wealth Tracking" [ref=e609] [cursor=pointer]:
+          - img [ref=e610]
+        - separator
+        - button "Calendar" [ref=e613] [cursor=pointer]:
+          - img [ref=e614]
+```

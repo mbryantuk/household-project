@@ -222,7 +222,7 @@ export default function ChoresView() {
                             </td>
                         </tr>
                     )}
-                    {chores.map(chore => {
+                    {chores.filter(c => c.next_due_date).map(chore => {
                         const assignee = members.find(m => m.id === chore.assigned_member_id);
                         return (
                             <tr key={chore.id}>

@@ -87,6 +87,10 @@ router.post('/:choreId/complete', authenticateToken, (req, res) => {
 
                 // 3. Update next due date if recurring
                 let nextDate = null;
+                const sendResponse = () => {
+                    res.json({ success: true, next_due_date: nextDate, value_earned: valueEarned });
+                };
+
                 if (chore.frequency !== 'one_off' && chore.next_due_date) {
                     const currentDue = parseISO(chore.next_due_date);
                     let newDate;
@@ -98,16 +102,15 @@ router.post('/:choreId/complete', authenticateToken, (req, res) => {
                     }
                     if (newDate) {
                         nextDate = format(newDate, 'yyyy-MM-dd');
-                        db.run(`UPDATE chores SET next_due_date = ? WHERE id = ?`, [nextDate, chore.id]);
+                        db.run(`UPDATE chores SET next_due_date = ? WHERE id = ?`, [nextDate, chore.id], sendResponse);
+                    } else {
+                        sendResponse();
                     }
                 } else if (chore.frequency === 'one_off') {
-                    // Maybe delete or mark as archived? For now, we leave it but maybe clear date? 
-                    // Actually, usually one-off chores are deleted or just sit there. 
-                    // Let's clear the next_due_date to indicate "Done"
-                    db.run(`UPDATE chores SET next_due_date = NULL WHERE id = ?`, [chore.id]);
+                    db.run(`UPDATE chores SET next_due_date = NULL WHERE id = ?`, [chore.id], sendResponse);
+                } else {
+                    sendResponse();
                 }
-
-                res.json({ success: true, next_due_date: nextDate, value_earned: valueEarned });
             }
         );
     });
