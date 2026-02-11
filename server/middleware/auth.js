@@ -49,13 +49,28 @@ function authenticateToken(req, res, next) {
 
                 // Always try to fetch household role to ensure req.user.role is populated
                 if (effectiveHhId) {
-                    globalDb.get("SELECT role, is_active FROM user_households WHERE user_id = ? AND household_id = ?", [user.id, effectiveHhId], (err, link) => {
-                        if (!err && link && link.is_active) {
-                            req.user.role = link.role;
-                            req.user.householdId = effectiveHhId;
+                    globalDb.get(
+                        `SELECT uh.role, uh.is_active, h.debug_mode 
+                         FROM user_households uh 
+                         JOIN households h ON uh.household_id = h.id 
+                         WHERE uh.user_id = ? AND uh.household_id = ?`,
+                        [user.id, effectiveHhId], 
+                        (err, link) => {
+                            if (!err && link && link.is_active) {
+                                req.user.role = link.role;
+                                req.user.householdId = effectiveHhId;
+                                req.user.debugMode = link.debug_mode === 1;
+
+                                if (req.user.debugMode) {
+                                    console.log(`\n🐛 [DEBUG] ${req.method} ${req.path}`);
+                                    console.log('   Headers:', JSON.stringify(req.headers, null, 2));
+                                    console.log('   Body:', JSON.stringify(req.body, null, 2));
+                                    console.log('   User:', `${req.user.username} (${req.user.id})`);
+                                }
+                            }
+                            next();
                         }
-                        next();
-                    });
+                    );
                 } else {
                     next();
                 }

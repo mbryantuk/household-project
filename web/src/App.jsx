@@ -133,10 +133,45 @@ function AppInner({
 
   const navigate = useNavigate();
 
-  const authAxios = useMemo(() => axios.create({ 
-    baseURL: API_URL, 
-    headers: { Authorization: `Bearer ${token}` } 
-  }), [token]);
+  const authAxios = useMemo(() => {
+    const instance = axios.create({ 
+        baseURL: API_URL, 
+        headers: { Authorization: `Bearer ${token}` } 
+    });
+
+    instance.interceptors.request.use(req => {
+        if (household?.debug_mode === 1) {
+            console.groupCollapsed(`🐛 [DEBUG-CLIENT] Request: ${req.method?.toUpperCase()} ${req.url}`);
+            console.log('Headers:', req.headers);
+            console.log('Data:', req.data);
+            console.log('Params:', req.params);
+            console.groupEnd();
+        }
+        return req;
+    });
+
+    instance.interceptors.response.use(
+        res => {
+            if (household?.debug_mode === 1) {
+                console.groupCollapsed(`🐛 [DEBUG-CLIENT] Response: ${res.status} ${res.config.url}`);
+                console.log('Data:', res.data);
+                console.groupEnd();
+            }
+            return res;
+        },
+        err => {
+            if (household?.debug_mode === 1) {
+                console.groupCollapsed(`🐛 [DEBUG-CLIENT] Error: ${err.response?.status || 'Network'} ${err.config?.url}`);
+                console.log('Message:', err.message);
+                console.log('Response:', err.response?.data);
+                console.groupEnd();
+            }
+            return Promise.reject(err);
+        }
+    );
+
+    return instance;
+  }, [token, household?.debug_mode]);
 
   const showNotification = useCallback((message, severity = 'neutral') => {
     const joySeverity = severity === 'error' ? 'danger' : (severity === 'info' ? 'neutral' : severity);

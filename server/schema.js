@@ -79,6 +79,7 @@ const GLOBAL_SCHEMA = [
         auto_backup INTEGER DEFAULT 1,
         backup_retention INTEGER DEFAULT 7,
         is_test INTEGER DEFAULT 0,
+        debug_mode INTEGER DEFAULT 0,
         nightly_version_filter TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
@@ -487,6 +488,15 @@ function initializeGlobalSchema(db) {
                 db.run("ALTER TABLE households ADD COLUMN nightly_version_filter TEXT", (err) => {
                     if (err) console.error("Migration failed:", err.message);
                     else console.log("✅ nightly_version_filter column added.");
+                });
+            }
+            
+            const hasDebugMode = rows.some(r => r.name === 'debug_mode');
+            if (!hasDebugMode) {
+                console.log("🛠️ Migrating households table: Adding debug_mode...");
+                db.run("ALTER TABLE households ADD COLUMN debug_mode INTEGER DEFAULT 0", (err) => {
+                    if (err) console.error("Migration failed:", err.message);
+                    else console.log("✅ debug_mode column added.");
                 });
             }
         });

@@ -130,6 +130,23 @@ export default function HouseholdSettings() {
                 ))}
           </Stack>
       </Sheet>
+
+      {/* Debug Section */}
+      <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', bgcolor: 'warning.softBg', borderColor: 'warning.200' }}>
+          <Typography level="title-md" sx={{ mb: 1, color: 'warning.700' }}>System Diagnostics</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box>
+                  <Typography level="title-sm">Debug Mode</Typography>
+                  <Typography level="body-xs" color="neutral">Enable verbose logging for troubleshooting (Performance impact).</Typography>
+              </Box>
+              <Switch 
+                  checked={household?.debug_mode === 1}
+                  onChange={(e) => onUpdateHousehold({ debug_mode: e.target.checked ? 1 : 0 })}
+                  disabled={!isAdmin}
+                  color="warning"
+              />
+          </Box>
+      </Sheet>
     </Stack>
   );
 }
