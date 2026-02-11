@@ -168,8 +168,8 @@ export default function HouseholdLayout({
                 justifyContent: 'space-between',
                 p: 1.5,
                 borderBottom: '1px solid',
-                borderColor: 'divider',
-                bgcolor: 'background.surface',
+                borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'divider',
+                bgcolor: isDark ? '#111111' : 'background.surface',
                 zIndex: 100,
                 boxShadow: 'sm'
             }}
@@ -230,8 +230,8 @@ export default function HouseholdLayout({
                     right: 0,
                     height: 70,
                     borderTop: '1px solid',
-                    borderColor: 'divider',
-                    bgcolor: 'background.surface',
+                    borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'divider',
+                    bgcolor: isDark ? '#111111' : 'background.surface',
                     px: 1,
                     justifyContent: 'space-around',
                     alignItems: 'center',
@@ -272,8 +272,8 @@ export default function HouseholdLayout({
             slotProps={{ content: { sx: { bgcolor: 'transparent', p: 0, height: 'auto', maxHeight: '80vh', borderTopLeftRadius: '24px', borderTopRightRadius: '24px', boxShadow: 'none' } } }}
             sx={{ display: { md: 'none' } }}
         >
-            <Sheet sx={{ bgcolor: 'background.surface', borderTopLeftRadius: '24px', borderTopRightRadius: '24px', p: 3, pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Box sx={{ width: 40, height: 4, borderRadius: 2, bgcolor: 'neutral.300', mx: 'auto', mb: 2 }} />
+            <Sheet sx={{ bgcolor: isDark ? '#181818' : 'background.surface', borderTopLeftRadius: '24px', borderTopRightRadius: '24px', p: 3, pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Box sx={{ width: 40, height: 4, borderRadius: 2, bgcolor: isDark ? 'rgba(255,255,255,0.2)' : 'neutral.300', mx: 'auto', mb: 2 }} />
                 <Typography level="title-lg" sx={{ mb: 1 }}>Navigation</Typography>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
                     {activeMenu === 'main' ? (

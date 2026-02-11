@@ -6,7 +6,8 @@ import {
 import { 
   Event, Pets, Inventory2, RestaurantMenu, AccountBalance, Close, 
   KeyboardArrowRight, PushPin, PushPinOutlined, HomeWork, Settings as SettingsIcon, 
-  Logout as LogoutIcon, Download as DownloadIcon, Home as HomeIcon, ExpandMore, Add, CheckCircle
+  Logout as LogoutIcon, Download as DownloadIcon, Home as HomeIcon, ExpandMore, Add, CheckCircle,
+  Palette, Person, Security
 } from '@mui/icons-material';
 
 import { useLocation, useNavigate, NavLink, useSearchParams } from 'react-router-dom';
@@ -91,24 +92,27 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
     );
 };
 
-const SubItem = ({ label, to, emoji, onClick, isDark }) => (
+const SubItem = ({ label, to, emoji, onClick, isDark, active }) => (
     <ListItem>
         <ListItemButton 
           component={to ? NavLink : 'div'} 
           to={to} 
           onClick={onClick}
+          selected={active}
           sx={{ 
               borderRadius: 'sm',
-              '&.active': {
+              '&.Mui-selected': {
                   bgcolor: 'primary.softBg',
                   color: 'primary.solidBg',
-                  fontWeight: 'bold'
+                  fontWeight: '700'
               }
           }}
         >
             <ListItemDecorator>
               {emoji ? (
-                  <Avatar size="sm" sx={{ '--Avatar-size': '24px', fontSize: '1rem', bgcolor: getEmojiColor(emoji, isDark) }}>{emoji}</Avatar>
+                  typeof emoji === 'string' ? (
+                    <Avatar size="sm" sx={{ '--Avatar-size': '24px', fontSize: '1rem', bgcolor: getEmojiColor(emoji, isDark) }}>{emoji}</Avatar>
+                  ) : emoji
               ) : <KeyboardArrowRight />}
             </ListItemDecorator>
             <ListItemContent>{label}</ListItemContent>
@@ -123,103 +127,6 @@ const GroupHeader = ({ label }) => (
         </Typography>
     </ListItem>
 );
-
-const FinanceProfileAccordion = ({ householdId, api, isDark, onSelect, currentProfileId }) => {
-    const [profiles, setProfiles] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [createOpen, setCreateOpen] = useState(false);
-    const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
-    const [newProfileName, setNewProfileName] = useState('');
-    const [newProfileEmoji, setNewProfileEmoji] = useState('💰');
-
-    const fetchProfiles = useCallback(async () => {
-        try {
-            const res = await api.get(`/households/${householdId}/finance/profiles`);
-            setProfiles(res.data || []);
-            if (!currentProfileId && res.data.length > 0) {
-                const def = res.data.find(p => p.is_default) || res.data[0];
-                onSelect(def.id);
-            }
-        } catch (err) { console.error("Failed to fetch profiles", err); } finally { setLoading(false); }
-    }, [api, householdId, currentProfileId, onSelect]);
-
-    useEffect(() => { fetchProfiles(); }, [fetchProfiles]);
-
-    const handleCreate = async (e) => {
-        e.preventDefault();
-        try {
-            const res = await api.post(`/households/${householdId}/finance/profiles`, {
-                name: newProfileName, emoji: newProfileEmoji, is_default: false
-            });
-            setProfiles(prev => [...prev, res.data]);
-            onSelect(res.data.id);
-            setCreateOpen(false);
-            setNewProfileName('');
-            setNewProfileEmoji('💰');
-        } catch (err) { alert("Failed to create profile: " + err.message); }
-    };
-
-    const activeProfile = profiles.find(p => String(p.id) === String(currentProfileId));
-
-    return (
-        <Box sx={{ mb: 1 }}>
-            <Accordion variant="outlined" defaultExpanded sx={{ borderRadius: 'sm', bgcolor: 'background.surface' }}>
-                <AccordionSummary expandIcon={<ExpandMore />} sx={{ minHeight: 48 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
-                        <Avatar size="sm" sx={{ bgcolor: getEmojiColor(activeProfile?.emoji || '💰', isDark) }}>{activeProfile?.emoji || '💰'}</Avatar>
-                        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                            <Typography level="title-sm" noWrap>{activeProfile?.name || 'Loading...'}</Typography>
-                            <Typography level="body-xs" color="neutral">Active Profile</Typography>
-                        </Box>
-                    </Box>
-                </AccordionSummary>
-                <AccordionDetails sx={{ p: 0 }}>
-                    <Box sx={{ p: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: 'background.level1', borderBottom: '1px solid', borderColor: 'divider' }}>
-                        <Typography level="body-xs" fontWeight="bold" sx={{ px: 1 }}>SWITCH PROFILE</Typography>
-                        <IconButton size="sm" variant="plain" color="primary" onClick={() => setCreateOpen(true)}><Add /></IconButton>
-                    </Box>
-                    <List size="sm" sx={{ maxHeight: 200, overflowY: 'auto' }}>
-                        {profiles.map(p => (
-                            <ListItem key={p.id}>
-                                <ListItemButton 
-                                    selected={String(p.id) === String(currentProfileId)} 
-                                    onClick={() => onSelect(p.id)}
-                                    sx={{ borderRadius: 'sm' }}
-                                >
-                                    <ListItemDecorator>{p.emoji}</ListItemDecorator>
-                                    <ListItemContent>{p.name}</ListItemContent>
-                                    {String(p.id) === String(currentProfileId) && <CheckCircle color="primary" sx={{ fontSize: '1rem' }} />}
-                                </ListItemButton>
-                            </ListItem>
-                        ))}
-                    </List>
-                </AccordionDetails>
-            </Accordion>
-
-            <Modal open={createOpen} onClose={() => setCreateOpen(false)}>
-                <ModalDialog>
-                    <DialogTitle>Create Financial Profile</DialogTitle>
-                    <DialogContent>
-                        <form onSubmit={handleCreate}>
-                            <Box sx={{ display: 'flex', gap: 2, mt: 2, mb: 2 }}>
-                                <IconButton variant="outlined" onClick={() => setEmojiPickerOpen(true)} sx={{ width: 48, height: 48, fontSize: '1.5rem' }}>{newProfileEmoji}</IconButton>
-                                <FormControl required sx={{ flexGrow: 1 }}>
-                                    <FormLabel>Profile Name</FormLabel>
-                                    <Input value={newProfileName} onChange={e => setNewProfileName(e.target.value)} autoFocus placeholder="e.g. Joint, Business..." />
-                                </FormControl>
-                            </Box>
-                            <DialogActions>
-                                <Button variant="plain" color="neutral" onClick={() => setCreateOpen(false)}>Cancel</Button>
-                                <Button type="submit">Create Profile</Button>
-                            </DialogActions>
-                        </form>
-                    </DialogContent>
-                </ModalDialog>
-            </Modal>
-            <EmojiPicker open={emojiPickerOpen} onClose={() => setEmojiPickerOpen(false)} onEmojiSelect={(e) => { setNewProfileEmoji(e); setEmojiPickerOpen(false); }} isDark={isDark} />
-        </Box>
-    );
-};
 
 export default function NavSidebar({ 
     isMobile = false, onClose, installPrompt, onInstall
@@ -268,6 +175,7 @@ export default function NavSidebar({
       if (path.includes('/calendar')) return 'calendar';
       if (path.includes('/meals')) return 'meals';
       if (path.includes('/dashboard')) return 'dashboard';
+      if (path.includes('/settings')) return 'account';
       return null;
   }, []);
 
@@ -324,7 +232,7 @@ export default function NavSidebar({
     const handleCreateProfile = async (e) => {
         e.preventDefault();
         try {
-            const res = await api.post(`/households/${householdId}/finance/profiles`, {
+            const res = await api.post(`/households/${household.id}/finance/profiles`, {
                 name: newProfileName, emoji: newProfileEmoji, is_default: false
             });
             setProfiles(prev => [...prev, res.data]);
@@ -344,6 +252,8 @@ export default function NavSidebar({
             }
         } catch (err) { alert("Failed to delete: " + err.message); }
     };
+
+    const isSettingsTabActive = (tab) => location.pathname.includes('/settings') && searchParams.get('tab') === String(tab);
 
     return (
       <Box 
@@ -365,7 +275,7 @@ export default function NavSidebar({
                   justifyContent: 'space-between',
                   alignItems: isMobile ? 'stretch' : 'center',
                   pt: 1.5, pb: 1.5, 
-                  bgcolor: isDark ? '#111111' : 'rgba(255, 255, 255, 0.9)',
+                  bgcolor: isDark ? '#111111' : 'rgba(255, 255, 255, 0.95)',
                   backdropFilter: 'blur(12px)',
                   zIndex: 2600, height: '100dvh'
               }}
@@ -411,7 +321,6 @@ export default function NavSidebar({
                   </List>
               </Box>
   
-              {/* FOOTER SECTION */}
               <Box sx={{ width: '100%', mt: 'auto', pt: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                   <Box sx={{ width: '100%', px: 1.5 }}><Divider sx={{ mb: 1 }} /></Box>
                   {installPrompt && (
@@ -422,12 +331,12 @@ export default function NavSidebar({
                   <Tooltip title={isMobile ? "Account" : "Account & Settings"} variant="soft" placement="right">
                       <IconButton 
                           variant="plain" 
-                          color={hoveredCategory === 'account' ? 'primary' : 'neutral'}
+                          color={(hoveredCategory === 'account' || activeCategory === 'account') ? 'primary' : 'neutral'}
                           onClick={(e) => {
                               if (isMobile) setUserMenuAnchor(userMenuAnchor ? null : e.currentTarget);
                               else setHoveredCategory(hoveredCategory === 'account' ? null : 'account');
                           }}
-                          sx={{ p: 0.5, borderRadius: '50%', bgcolor: (userMenuAnchor || hoveredCategory === 'account') ? 'background.level1' : 'transparent' }}
+                          sx={{ p: 0.5, borderRadius: '50%', bgcolor: (userMenuAnchor || hoveredCategory === 'account' || activeCategory === 'account') ? 'primary.softBg' : 'transparent' }}
                       >
                           <Avatar size="sm" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark), width: 32, height: 32, fontSize: '1rem' }}>
                               {user?.avatar || user?.first_name?.[0]}
@@ -446,7 +355,7 @@ export default function NavSidebar({
                       left: (isMobile || !isPinned) ? RAIL_WIDTH : 'auto', 
                       top: 0, zIndex: 2100, borderRight: '1px solid',
                       borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
-                      bgcolor: isDark ? '#181818' : 'rgba(255, 255, 255, 0.95)',
+                      bgcolor: isDark ? '#181818' : 'rgba(255, 255, 255, 0.98)',
                       backdropFilter: 'blur(12px)',
                       height: '100dvh', display: 'flex', flexDirection: 'column',
                       boxShadow: (!isPinned && !isMobile) ? '8px 0 24px rgba(0,0,0,0.15)' : 'none'
@@ -455,7 +364,7 @@ export default function NavSidebar({
                   {currentPanelCategory === 'account' ? (
                       <>
                           <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
-                              <Typography level="title-md">Account</Typography>
+                              <Typography level="title-md" textTransform="uppercase" letterSpacing="1px">Personal Preferences</Typography>
                           </Box>
                           <Box sx={{ p: 2 }}>
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
@@ -466,11 +375,21 @@ export default function NavSidebar({
                                   </Box>
                               </Box>
                           </Box>
-                          <List sx={{ mt: 'auto', p: 1 }}>
-                              <Divider sx={{ mb: 1 }} />
-                              <SubItem label="Settings" onClick={() => handleNav(`/household/${household.id}/settings`, 'settings')} emoji="⚙️" isDark={isDark} />
-                              <SubItem label="Switch Household" onClick={() => handleNav('/select-household', 'switch')} emoji="🔄" isDark={isDark} />
-                              <SubItem label="Log Out" onClick={() => confirmAction("Log Out", "Are you sure?", onLogout)} emoji="🚪" isDark={isDark} />
+                          
+                          <List sx={{ p: 1, gap: 0.5 }}>
+                              <SubItem label="Profile Settings" to={`/household/${household.id}/settings?tab=0`} emoji={<Person />} isDark={isDark} active={isSettingsTabActive(0)} onClick={handleSubItemClick} />
+                              <SubItem label="Security & MFA" to={`/household/${household.id}/settings?tab=1`} emoji={<Security />} isDark={isDark} active={isSettingsTabActive(1)} onClick={handleSubItemClick} />
+                              <SubItem label="Appearance" to={`/household/${household.id}/settings?tab=3`} emoji={<Palette />} isDark={isDark} active={isSettingsTabActive(3)} onClick={handleSubItemClick} />
+                              
+                              <Divider sx={{ my: 1 }} />
+                              <GroupHeader label="Workspace" />
+                              <SubItem label="Household Settings" to={`/household/${household.id}/settings?tab=2`} emoji={<HomeWork />} isDark={isDark} active={isSettingsTabActive(2)} onClick={handleSubItemClick} />
+                              <SubItem label="Switch Household" to="/select-household" emoji={<HomeWork />} isDark={isDark} onClick={handleSubItemClick} />
+                              
+                              <Box sx={{ mt: 'auto', pt: 2 }}>
+                                <Divider sx={{ mb: 1 }} />
+                                <SubItem label="Log Out" onClick={() => confirmAction("Log Out", "Are you sure?", onLogout)} emoji={<LogoutIcon color="danger" />} isDark={isDark} />
+                              </Box>
                           </List>
                       </>
                   ) : (

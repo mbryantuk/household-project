@@ -7,10 +7,10 @@ import DarkMode from '@mui/icons-material/DarkMode';
 import { useHousehold } from '../../contexts/HouseholdContext';
 import { THEMES } from '../../theme';
 
-const ThemeGrid = ({ themes, themeId, onThemeChange }) => (
+const ThemeGrid = ({ themes, themeId, onThemeChange, isDark }) => (
   <Grid container spacing={2}>
       {themes.map((spec) => (
-          <Grid key={spec.id} xs={6} sm={4} md={3}>
+          <Grid key={spec.id} xs={6} sm={4} md={2.4}>
               <Sheet
                   variant={themeId === spec.id ? 'solid' : 'outlined'}
                   color={themeId === spec.id ? 'primary' : 'neutral'}
@@ -20,41 +20,23 @@ const ThemeGrid = ({ themes, themeId, onThemeChange }) => (
                       transition: 'all 0.2s',
                       '&:hover': { transform: 'translateY(-2px)', boxShadow: 'sm' },
                       position: 'relative',
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
-                      ...(spec.isPremium && {
-                          borderWidth: themeId === spec.id ? '2px' : '1px',
-                          borderColor: themeId === spec.id ? 'primary.solidBg' : 'divider',
-                      })
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
                   }}
               >
                   <Box sx={{ 
-                      display: 'flex', width: '100%', height: 32, borderRadius: 'sm', 
+                      display: 'flex', width: '100%', height: 24, borderRadius: 'xs', 
                       overflow: 'hidden', mb: 1, border: '1px solid rgba(0,0,0,0.1)',
-                      bgcolor: 'background.surface'
-                  }}>
-                      <Tooltip title="Primary" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.primary }} /></Tooltip>
-                      <Tooltip title="Background" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.bg }} /></Tooltip>
-                      <Tooltip title="Surface" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.surface }} /></Tooltip>
-                      <Tooltip title="Selection" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.selection }} /></Tooltip>
-                      <Tooltip title="Text" variant="soft" size="sm"><Box sx={{ flex: 1, bgcolor: spec.text }} /></Tooltip>
-                  </Box>
+                      bgcolor: spec.primary
+                  }} />
                   <Typography level="title-sm" noWrap sx={{ 
-                      fontSize: '13px', 
+                      fontSize: '12px', 
                       color: themeId === spec.id ? 'common.white' : 'text.primary', 
                       width: '100%',
-                      ...(spec.isPremium && { fontWeight: 700 })
+                      fontWeight: 600
                   }}>{spec.name}</Typography>
-                  {spec.isPremium && (
-                      <Typography level="body-xs" sx={{ 
-                          fontSize: '10px', 
-                          textTransform: 'uppercase', 
-                          letterSpacing: '0.05em',
-                          opacity: 0.7,
-                          color: themeId === spec.id ? 'common.white' : 'text.secondary'
-                      }}>Signature</Typography>
-                  )}
+                  
                   {themeId === spec.id && (
-                      <Palette sx={{ position: 'absolute', top: 6, right: 6, fontSize: '0.7rem', color: 'common.white' }} />
+                      <Palette sx={{ position: 'absolute', top: 4, right: 4, fontSize: '0.6rem', color: 'common.white' }} />
                   )}
               </Sheet>
           </Grid>
@@ -63,11 +45,11 @@ const ThemeGrid = ({ themes, themeId, onThemeChange }) => (
 );
 
 export default function ThemeSettings() {
-  const { user, themeId, onThemeChange, onPreviewTheme, onUpdateProfile, showNotification } = useHousehold();
+  const { user, themeId, onThemeChange, onPreviewTheme, onUpdateProfile, showNotification, isDark } = useHousehold();
 
   // Custom Theme State
   const [customThemeConfig, setCustomThemeConfig] = useState(() => {
-    const DEFAULT_MANTEL = { mode: 'light', primary: '#374151', bg: '#F9FAFB', surface: '#FFF', selection: '#E5E7EB', text: '#111827' };
+    const DEFAULT_MANTEL = { primary: '#374151' };
     if (user?.custom_theme) {
       try {
         return typeof user.custom_theme === 'string' 
@@ -88,9 +70,9 @@ export default function ThemeSettings() {
   const handleSaveCustomTheme = async () => {
     try {
       await onUpdateProfile({ custom_theme: JSON.stringify(customThemeConfig), theme: 'custom' });
-      showNotification("Custom theme saved and applied.", "success");
+      showNotification("Custom theme saved.", "success");
     } catch {
-      showNotification("Failed to save custom theme.", "danger");
+      showNotification("Failed to save.", "danger");
     }
   };
 
@@ -100,51 +82,33 @@ export default function ThemeSettings() {
       onPreviewTheme('custom', customThemeConfig);
     } else {
       onThemeChange(id);
+      onPreviewTheme(null); // Clear preview when official theme selected
     }
   };
 
-  const groupedThemes = useMemo(() => {
-    const groups = { light: [], dark: [], signature: [] };
-    Object.entries(THEMES).forEach(([id, spec]) => {
-      // Don't include custom in the grid if we want to show it separately
-      if (id === 'custom') return;
-      
-      if (spec.isPremium) {
-        groups.signature.push({ id, ...spec });
-      } else {
-        groups[spec.mode].push({ id, ...spec });
-      }
-    });
-    return groups;
+  const allThemes = useMemo(() => {
+    return Object.entries(THEMES)
+        .filter(([id]) => id !== 'custom')
+        .map(([id, spec]) => ({ id, ...spec }));
   }, []);
 
   return (
     <Stack spacing={4}>
       <Box>
-        <Typography level="h4">Appearance</Typography>
-        <Typography level="body-sm">Personalize your platform experience with architectural precision.</Typography>
+        <Typography level="h4">System Appearance</Typography>
+        <Typography level="body-sm">Select a color identity. All Signature themes now support dual Light & Dark modes based on your system preference.</Typography>
       </Box>
 
       {/* Signature Section */}
       <Box>
-        <Typography level="title-lg" startDecorator={<Palette color="warning" />} sx={{ mb: 2 }}>Signature Designs</Typography>
-        <Typography level="body-sm" sx={{ mb: 2 }}>High-fidelity UI styles with editorial typography and refined depth.</Typography>
-        
-        <Typography level="title-sm" sx={{ mb: 2, mt: 4, textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.6 }}>Premium Light</Typography>
-        <ThemeGrid themes={groupedThemes.light} themeId={themeId} onThemeChange={handleThemeSelect} />
-
-        <Typography level="title-sm" sx={{ mb: 2, mt: 4, textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.6 }}>Premium Dark</Typography>
-        <ThemeGrid themes={groupedThemes.dark} themeId={themeId} onThemeChange={handleThemeSelect} />
-
-        <Typography level="title-sm" sx={{ mb: 2, mt: 4, textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.6 }}>Signature Collector</Typography>
-        <ThemeGrid themes={groupedThemes.signature} themeId={themeId} onThemeChange={handleThemeSelect} />
+        <Typography level="title-lg" startDecorator={<Palette color="primary" />} sx={{ mb: 3 }}>Signature Collection</Typography>
+        <ThemeGrid themes={allThemes} themeId={themeId} onThemeChange={handleThemeSelect} isDark={isDark} />
       </Box>
 
       <Divider />
 
-      {/* Restore Special Theme: Custom */}
       <Box>
-          <Typography level="title-lg" startDecorator={<Palette color="primary" />} sx={{ mb: 2 }}>Laboratory</Typography>
+          <Typography level="title-lg" startDecorator={<Palette color="neutral" />} sx={{ mb: 2 }}>Laboratory</Typography>
           <Grid container spacing={2}>
               <Grid xs={6} sm={4} md={3}>
                   <Sheet
@@ -162,7 +126,7 @@ export default function ThemeSettings() {
                       <Box sx={{ 
                           display: 'flex', width: '100%', height: 32, borderRadius: 'sm', 
                           overflow: 'hidden', mb: 1, border: '1px solid rgba(0,0,0,0.1)',
-                          background: `linear-gradient(135deg, ${customThemeConfig.primary} 0%, ${customThemeConfig.bg} 100%)`
+                          bgcolor: customThemeConfig.primary
                       }} />
                       <Typography level="title-sm" sx={{ fontSize: '13px', color: themeId === 'custom' ? 'common.white' : 'text.primary' }}>Custom Theme</Typography>
                   </Sheet>
@@ -174,19 +138,6 @@ export default function ThemeSettings() {
           <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', mb: 4, bgcolor: 'background.level1' }}>
               <Typography level="title-md" sx={{ mb: 2 }} startDecorator={<Palette color="primary" />}>Custom Theme Builder</Typography>
               <Grid container spacing={3}>
-                  <Grid xs={12} sm={6} md={4}>
-                      <FormControl>
-                          <FormLabel>Mode</FormLabel>
-                          <Stack direction="row" spacing={1} alignItems="center">
-                              <Typography level="body-xs">Light</Typography>
-                              <Switch 
-                                  checked={customThemeConfig.mode === 'dark'} 
-                                  onChange={(e) => setCustomThemeConfig({...customThemeConfig, mode: e.target.checked ? 'dark' : 'light'})}
-                              />
-                              <Typography level="body-xs">Dark</Typography>
-                          </Stack>
-                      </FormControl>
-                  </Grid>
                   <Grid xs={12} sm={6} md={4}>
                       <FormControl>
                           <FormLabel>Primary Color</FormLabel>

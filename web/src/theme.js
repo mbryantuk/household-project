@@ -1,21 +1,62 @@
 import { extendTheme } from '@mui/joy/styles';
 
+/**
+ * 50 SIGNATURE THEMES (Each with Light & Dark Modes)
+ * Colors derived from architectural and natural palettes.
+ */
 export const THEMES = {
-  // --- SIGNATURE THEMES ---
-  platinum: { name: 'Mantel Platinum', mode: 'light', primary: '#18181b', bg: '#fbfcfd', surface: '#FFF', selection: '#f4f4f5', text: '#09090b', isPremium: true },
-  obsidian: { name: 'Mantel Obsidian', mode: 'dark', primary: '#f4f4f5', bg: '#09090b', surface: '#18181b', selection: '#27272a', text: '#fafafa', isPremium: true },
-  midnight_signature: { name: 'Mantel Midnight', mode: 'dark', primary: '#38bdf8', bg: '#0f172a', surface: '#1e293b', selection: '#334155', text: '#f1f5f9', isPremium: true },
-  forest_signature: { name: 'Mantel Forest', mode: 'dark', primary: '#22c55e', bg: '#052e16', surface: '#064e3b', selection: '#14532d', text: '#dcfce7', isPremium: true },
-  
-  // Promoted Signature Themes
-  totem: { name: 'Mantel Classic', mode: 'light', primary: '#374151', bg: '#F9FAFB', surface: '#FFF', selection: '#E5E7EB', text: '#111827', isPremium: true },
-  ocean: { name: 'Mantel Ocean', mode: 'light', primary: '#0284c7', bg: '#f0f9ff', surface: '#fff', selection: '#e0f2fe', text: '#0c4a6e', isPremium: true },
-  sunset: { name: 'Mantel Sunset', mode: 'light', primary: '#ea580c', bg: '#fff7ed', surface: '#fff', selection: '#ffedd5', text: '#7c2d12', isPremium: true },
-  space: { name: 'Mantel Space', mode: 'dark', primary: '#6366f1', bg: '#020617', surface: '#0f172a', selection: '#1e293b', text: '#e0e7ff', isPremium: true },
-  jungle: { name: 'Mantel Jungle', mode: 'dark', primary: '#eab308', bg: '#022c22', surface: '#064e3b', selection: '#065f46', text: '#ecfdf5', isPremium: true },
-  
+  totem: { name: 'Classic', primary: '#374151' },
+  platinum: { name: 'Platinum', primary: '#18181b' },
+  midnight: { name: 'Midnight', primary: '#38bdf8' },
+  obsidian: { name: 'Obsidian', primary: '#f4f4f5' },
+  forest: { name: 'Forest', primary: '#22c55e' },
+  ocean: { name: 'Ocean', primary: '#0284c7' },
+  sunset: { name: 'Sunset', primary: '#ea580c' },
+  space: { name: 'Space', primary: '#6366f1' },
+  jungle: { name: 'Jungle', primary: '#eab308' },
+  mint: { name: 'Mint', primary: '#0d9488' },
+  sakura: { name: 'Sakura', primary: '#db2777' },
+  lavender: { name: 'Lavender', primary: '#8b5cf6' },
+  honey: { name: 'Honey', primary: '#b45309' },
+  lemonade: { name: 'Lemonade', primary: '#84cc16' },
+  candy: { name: 'Candy', primary: '#f472b6' },
+  arctic: { name: 'Arctic', primary: '#06b6d4' },
+  autumn: { name: 'Autumn', primary: '#c2410c' },
+  cotton: { name: 'Cotton', primary: '#38bdf8' },
+  emerald: { name: 'Emerald', primary: '#059669' },
+  berry: { name: 'Berry', primary: '#9d174d' },
+  rose: { name: 'Rose', primary: '#e11d48' },
+  citrus: { name: 'Citrus', primary: '#f59e0b' },
+  sky: { name: 'Morning Sky', primary: '#0ea5e9' },
+  matcha: { name: 'Matcha', primary: '#65a30d' },
+  peach: { name: 'Peach', primary: '#fb923c' },
+  lilac: { name: 'Lilac', primary: '#a855f7' },
+  coral: { name: 'Coral', primary: '#f43f5e' },
+  pistachio: { name: 'Pistachio', primary: '#10b981' },
+  azure: { name: 'Azure', primary: '#2563eb' },
+  sunflower: { name: 'Sunflower', primary: '#eab308' },
+  grape: { name: 'Grape', primary: '#9333ea' },
+  tangerine: { name: 'Tangerine', primary: '#fb923c' },
+  sand: { name: 'Sand', primary: '#a16207' },
+  teal: { name: 'Teal', primary: '#0d9488' },
+  sage: { name: 'Sage', primary: '#15803d' },
+  orchid: { name: 'Orchid', primary: '#d946ef' },
+  periwinkle: { name: 'Periwinkle', primary: '#818cf8' },
+  blueberry: { name: 'Blueberry', primary: '#3b82f6' },
+  grass: { name: 'Grass', primary: '#4ade80' },
+  seafoam: { name: 'Seafoam', primary: '#2dd4bf' },
+  marigold: { name: 'Marigold', primary: '#fbbf24' },
+  plum: { name: 'Plum', primary: '#a21caf' },
+  clay: { name: 'Clay', primary: '#c2410c' },
+  pine: { name: 'Pine', primary: '#166534' },
+  crimson: { name: 'Crimson', primary: '#dc2626' },
+  slate: { name: 'Slate', primary: '#475569' },
+  graphite: { name: 'Graphite', primary: '#27272a' },
+  nordic: { name: 'Nordic', primary: '#5e81ac' },
+  espresso: { name: 'Espresso', primary: '#44403c' },
+  ink: { name: 'Ink', primary: '#1f2937' },
   // Special Theme: Custom
-  custom: { name: 'Custom Theme', mode: 'light', primary: '#374151', bg: '#F9FAFB', surface: '#FFF', selection: '#E5E7EB', text: '#111827', isCustom: true, isPremium: true }
+  custom: { name: 'Custom Theme', primary: '#374151', isCustom: true }
 };
 
 export const getEmojiColor = (emoji, isDark = true) => {
@@ -27,65 +68,101 @@ export const getEmojiColor = (emoji, isDark = true) => {
   return `hsl(${hue}, ${isDark ? 50 : 70}%, ${isDark ? 25 : 90}%)`;
 };
 
+/**
+ * Derives a full spec from a primary color and mode.
+ */
+const deriveSpec = (primary, mode) => {
+    const isDark = mode === 'dark';
+    if (isDark) {
+        return {
+            mode: 'dark',
+            primary,
+            bg: '#0a0a0a',
+            surface: '#121212',
+            selection: '#1e1e1e',
+            text: '#f4f4f5'
+        };
+    }
+    return {
+        mode: 'light',
+        primary,
+        bg: '#f9fafb',
+        surface: '#ffffff',
+        selection: '#f3f4f6',
+        text: '#111827'
+    };
+};
+
 export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
-  let spec = THEMES[themeId] || THEMES.totem;
-  
-  // Handle Custom Theme Injection
-  if (themeId === 'custom') {
-      spec = {
-          ...THEMES.custom,
-          ...(customConfig || {}),
-          name: 'Custom Theme'
-      };
+  let base = THEMES[themeId] || THEMES.totem;
+  if (themeId === 'custom' && customConfig) {
+      base = { ...base, ...customConfig };
   }
 
-  const isDark = spec.mode === 'dark';
-  const isPremium = spec.isPremium === true;
-  const primaryColor = spec.primary || '#374151';
+  const lightSpec = deriveSpec(base.primary, 'light');
+  const darkSpec = deriveSpec(base.primary, 'dark');
 
   return extendTheme({
     fontFamily: {
         body: '"DM Sans", var(--joy-fontFamily-fallback)',
-        display: isPremium ? '"DM Serif Display", serif' : '"DM Sans", var(--joy-fontFamily-fallback)',
+        display: '"DM Serif Display", serif',
     },
-    radius: {
-        sm: '4px',
-        md: '8px',
-        lg: '12px',
-        xl: '16px',
-    },
-    shadow: {
-        sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-        md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-        lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-    },
+    radius: { sm: '4px', md: '8px', lg: '12px', xl: '16px' },
     colorSchemes: {
-      [spec.mode]: {
+      light: {
         palette: {
           background: {
-            body: spec.bg || (isDark ? '#0f172a' : '#F9FAFB'),
-            surface: spec.surface || (isDark ? '#1e293b' : '#FFF'),
-            level1: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
-            level2: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)',
-            level3: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.09)',
+            body: lightSpec.bg,
+            surface: lightSpec.surface,
+            level1: 'rgba(0,0,0,0.03)',
+            level2: 'rgba(0,0,0,0.06)',
+            level3: 'rgba(0,0,0,0.09)',
           },
           text: {
-            primary: spec.text || (isDark ? '#f1f5f9' : '#111827'),
-            secondary: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)',
+            primary: lightSpec.text,
+            secondary: 'rgba(0,0,0,0.6)',
           },
           primary: {
-            solidBg: primaryColor,
-            solidHoverBg: isPremium ? (isDark ? '#ffffff' : '#000000') : primaryColor,
-            plainColor: primaryColor,
-            outlinedColor: primaryColor,
-            outlinedBorder: primaryColor,
-            softBg: isDark ? 'rgba(255,255,255,0.1)' : `${primaryColor}15`,
+            solidBg: lightSpec.primary,
+            solidHoverBg: '#000000',
+            plainColor: lightSpec.primary,
+            outlinedColor: lightSpec.primary,
+            outlinedBorder: lightSpec.primary,
+            softBg: `${lightSpec.primary}15`,
           },
           neutral: {
-            outlinedBorder: spec.selection || (isDark ? '#334155' : '#E5E7EB'),
-            plainColor: spec.text || (isDark ? '#f1f5f9' : '#111827'),
+            outlinedBorder: lightSpec.selection,
+            plainColor: lightSpec.text,
           },
-          divider: spec.selection || (isDark ? '#334155' : '#E5E7EB'),
+          divider: lightSpec.selection,
+        },
+      },
+      dark: {
+        palette: {
+          background: {
+            body: darkSpec.bg,
+            surface: darkSpec.surface,
+            level1: 'rgba(255,255,255,0.05)',
+            level2: 'rgba(255,255,255,0.1)',
+            level3: 'rgba(255,255,255,0.15)',
+          },
+          text: {
+            primary: darkSpec.text,
+            secondary: 'rgba(255,255,255,0.7)',
+          },
+          primary: {
+            solidBg: darkSpec.primary,
+            solidHoverBg: '#ffffff',
+            plainColor: darkSpec.primary,
+            outlinedColor: darkSpec.primary,
+            outlinedBorder: darkSpec.primary,
+            softBg: 'rgba(255,255,255,0.1)',
+          },
+          neutral: {
+            outlinedBorder: darkSpec.selection,
+            plainColor: darkSpec.text,
+          },
+          divider: darkSpec.selection,
         },
       },
     },
@@ -96,12 +173,12 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
              ...(ownerState.level === 'h2' && {
                fontFamily: 'var(--joy-fontFamily-display)',
                fontSize: '1.75rem',
-               fontWeight: isPremium ? 400 : 700,
-               letterSpacing: isPremium ? '-0.02em' : 'normal',
+               fontWeight: 400,
+               letterSpacing: '-0.02em',
              }),
              ...(ownerState.level === 'h1' && {
                 fontFamily: 'var(--joy-fontFamily-display)',
-                fontWeight: isPremium ? 400 : 800,
+                fontWeight: 400,
              }),
           }),
         },
@@ -114,22 +191,9 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
             boxShadow: 'var(--joy-shadow-sm)',
             borderRadius: 'var(--joy-radius-md)',
             transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-            '&:hover': {
-                boxShadow: 'var(--joy-shadow-md)',
-            }
+            '&:hover': { boxShadow: 'var(--joy-shadow-md)' }
           },
         },
-      },
-      JoyButton: {
-        styleOverrides: {
-            root: ({ ownerState }) => ({
-                borderRadius: 'var(--joy-radius-md)',
-                fontWeight: 600,
-                ...(ownerState.variant === 'solid' && isPremium && {
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                })
-            })
-        }
       },
       JoySheet: {
         styleOverrides: {
@@ -141,28 +205,18 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
           }),
         },
       },
-      JoyTab: {
-        styleOverrides: {
-          root: ({ ownerState }) => ({
-            ...(ownerState.selected && {
-              color: isDark ? '#fff' : 'var(--joy-palette-primary-plainColor)',
-              backgroundColor: ownerState.variant === 'solid' ? 'var(--joy-palette-primary-solidBg)' : 'transparent',
-              fontWeight: 'bold',
-            }),
-          }),
-        },
-      },
     },
   });
 };
 
 export const getThemeSpec = (themeId = 'totem', customConfig = null) => {
-  let spec = THEMES[themeId] || THEMES.totem;
+  let base = THEMES[themeId] || THEMES.totem;
   if (themeId === 'custom' && customConfig) {
-      spec = { ...spec, ...customConfig };
+      base = { ...base, ...customConfig };
   }
+  // Return a simplified spec for meta tags etc (prefers current system mode implicitly via derivedSpec)
   return {
-    spec,
-    isDark: spec.mode === 'dark'
+    spec: deriveSpec(base.primary, 'light'), // Default to light spec for reference
+    isDark: false // Mode handled by Joy engine
   };
 };
