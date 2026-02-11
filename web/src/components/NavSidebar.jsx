@@ -146,7 +146,7 @@ export default function NavSidebar({
   const [searchParams, setSearchParams] = useSearchParams();
   const { 
     household, members, vehicles, user, api,
-    onLogout, confirmAction 
+    onLogout, confirmAction, households, onSelectHousehold
   } = useHousehold();
   
   const [activeCategory, setActiveCategory] = useState(null);
@@ -399,6 +399,38 @@ export default function NavSidebar({
                               <SubItem label="Household Settings" to={`/household/${household.id}/settings?tab=2`} emoji={<HomeWork />} active={isSettingsTabActive(2)} onClick={handleSubItemClick} />
                               <SubItem label="Switch Household" to="/select-household" emoji={<HomeWork />} onClick={handleSubItemClick} />
                               
+                              <Box sx={{ pl: 2, pr: 2, pt: 1, pb: 1 }}>
+                                  <Typography level="body-xs" fontWeight="bold" sx={{ mb: 1, color: 'text.tertiary', fontSize: '0.7rem', textTransform: 'uppercase' }}>Available Households</Typography>
+                                  <List sx={{ gap: 0.5, p: 0 }}>
+                                      {households.map(hh => (
+                                          <ListItem key={hh.id}>
+                                              <ListItemButton 
+                                                  selected={hh.id === household.id}
+                                                  onClick={async () => {
+                                                      await onSelectHousehold(hh);
+                                                      navigate(`/household/${hh.id}/dashboard`);
+                                                      if (isMobile && onClose) onClose();
+                                                      else setHoveredCategory(null);
+                                                  }}
+                                                  sx={{ borderRadius: 'sm', py: 0.5 }}
+                                              >
+                                                  <ListItemDecorator>
+                                                      <Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.9rem', bgcolor: getEmojiColor(hh.avatar || '🏠', isDark) }}>
+                                                          {hh.avatar || '🏠'}
+                                                      </Avatar>
+                                                  </ListItemDecorator>
+                                                  <ListItemContent>
+                                                      <Typography level="body-sm" fontWeight={hh.id === household.id ? 'bold' : 'normal'}>
+                                                          {hh.name}
+                                                      </Typography>
+                                                  </ListItemContent>
+                                                  {hh.id === household.id && <CheckCircle color="primary" sx={{ fontSize: '1rem' }} />}
+                                              </ListItemButton>
+                                          </ListItem>
+                                      ))}
+                                  </List>
+                              </Box>
+
                               <Box sx={{ mt: 'auto', pt: 2 }}>
                                 <Divider sx={{ mb: 1 }} />
                                 <SubItem label="Log Out" onClick={() => confirmAction("Log Out", "Are you sure?", onLogout)} emoji={<LogoutIcon color="danger" />} />

@@ -111,11 +111,11 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
       light: {
         palette: {
           background: {
-            body: `hsl(${h}, ${Math.min(s, 15)}%, 98%)`, // Subtle tint
+            body: `hsl(${h}, ${Math.min(s, 30)}%, 96%)`, // Stronger tint
             surface: '#ffffff',
-            level1: `hsl(${h}, ${Math.min(s, 10)}%, 96%)`,
-            level2: `hsl(${h}, ${Math.min(s, 10)}%, 94%)`,
-            level3: `hsl(${h}, ${Math.min(s, 10)}%, 92%)`,
+            level1: `hsl(${h}, ${Math.min(s, 25)}%, 93%)`,
+            level2: `hsl(${h}, ${Math.min(s, 20)}%, 90%)`,
+            level3: `hsl(${h}, ${Math.min(s, 20)}%, 88%)`,
           },
           text: {
             primary: '#111827',

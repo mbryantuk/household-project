@@ -88,6 +88,21 @@ router.get('/households/:id/meal-plans', authenticateToken, requireHouseholdRole
     });
 });
 
+// Assign Meal (Seed Script Alias)
+router.post('/households/:id/meals/plan', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
+    const { date, member_id, meal_id, type } = req.body;
+    if (!date || !member_id || !meal_id) return res.status(400).json({ error: "Missing fields" });
+
+    req.tenantDb.run(
+        "INSERT INTO meal_plans (household_id, date, member_id, meal_id, type) VALUES (?, ?, ?, ?, ?)",
+        [req.params.id, date, member_id, meal_id, type || 'dinner'],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ id: this.lastID });
+        }
+    );
+});
+
 // Assign Meal
 router.post('/households/:id/meal-plans', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     const { date, member_id, meal_id, type } = req.body;

@@ -340,11 +340,83 @@ async function seed() {
         }, token);
         await apiRequest('POST', `/api/households/${hhId}/finance/assignments`, { entity_type: 'credit_card', entity_id: visaRes.data.id, member_id: members.Carol }, token);
 
-        // 8. MEALS
-        const recipes = [
-            { n: "Meatloaf", e: "🍞", t: "dinner" }, { n: "Spaghetti", e: "🍝", t: "dinner" }, { n: "Tacos", e: "🌮", t: "dinner" }
+        // 8. MEALS & MEAL PLAN (2 MONTHS)
+        const allRecipes = [
+            { n: "Meatloaf", e: "🍞", t: "dinner" }, { n: "Spaghetti", e: "🍝", t: "dinner" }, { n: "Tacos", e: "🌮", t: "dinner" },
+            { n: "Pork Chops & Applesauce", e: "🐖", t: "dinner" }, { n: "Roast Beef", e: "🍖", t: "dinner" }, { n: "Fried Chicken", e: "🍗", t: "dinner" },
+            { n: "Lasagna", e: "🥘", t: "dinner" }, { n: "Pizza Night", e: "🍕", t: "dinner" }, { n: "Burgers", e: "🍔", t: "dinner" },
+            { n: "Fish Sticks", e: "🐟", t: "dinner" }, { n: "Mac & Cheese", e: "🧀", t: "dinner" }, { n: "Chili", e: "🥣", t: "dinner" },
+            { n: "Pancakes", e: "🥞", t: "breakfast" }, { n: "Waffles", e: "🧇", t: "breakfast" }, { n: "Scrambled Eggs", e: "🍳", t: "breakfast" },
+            { n: "Bacon & Eggs", e: "🥓", t: "breakfast" }, { n: "Oatmeal", e: "🥣", t: "breakfast" }, { n: "Cereal", e: "🥣", t: "breakfast" },
+            { n: "Ham Sandwich", e: "🥪", t: "lunch" }, { n: "Turkey Sandwich", e: "🥪", t: "lunch" }, { n: "Soup & Salad", e: "🍲", t: "lunch" },
+            { n: "Leftovers", e: "🥡", t: "lunch" }, { n: "Grilled Cheese", e: "🥪", t: "lunch" }
         ];
-        for (const r of recipes) { await apiRequest('POST', `/api/households/${hhId}/meals`, { name: r.n, emoji: r.e, category: r.t }, token); }
+
+        const mealIds = [];
+        for (const r of allRecipes) { 
+            const res = await apiRequest('POST', `/api/households/${hhId}/meals`, { name: r.n, emoji: r.e, category: r.t }, token); 
+            mealIds.push({ id: res.data.id, type: r.t });
+        }
+
+        // Generate Plan for 60 Days
+        const startDate = new Date();
+        for (let i = 0; i < 60; i++) {
+            const date = new Date(startDate);
+            date.setDate(startDate.getDate() + i);
+            const dateStr = date.toISOString().split('T')[0];
+
+            // Dinner (Every night)
+            const dinner = mealIds.filter(m => m.type === 'dinner')[Math.floor(Math.random() * mealIds.filter(m => m.type === 'dinner').length)];
+            await apiRequest('POST', `/api/households/${hhId}/meals/plan`, { date: dateStr, meal_id: dinner.id, type: 'dinner', member_id: members.Alice }, token);
+
+            // Breakfast (Weekends only for big meals, else cereal implicitly)
+            if (date.getDay() === 0 || date.getDay() === 6) {
+                const breakfast = mealIds.filter(m => m.type === 'breakfast')[Math.floor(Math.random() * mealIds.filter(m => m.type === 'breakfast').length)];
+                await apiRequest('POST', `/api/households/${hhId}/meals/plan`, { date: dateStr, meal_id: breakfast.id, type: 'breakfast', member_id: members.Alice }, token);
+            }
+        }
+
+        // 9. CHORES
+        const choreDefs = [
+            { n: "Mow the Lawn", d: "Front and back yard", a: "Greg", f: "weekly", v: 10, e: "🌱" },
+            { n: "Wash the Car", d: "Wash the Station Wagon", a: "Peter", f: "weekly", v: 5, e: "🚗" },
+            { n: "Clean Room", d: "Tidy up and make bed", a: "Marcia", f: "weekly", v: 5, e: "🛏️" },
+            { n: "Clean Room", d: "Tidy up and make bed", a: "Jan", f: "weekly", v: 5, e: "🛏️" },
+            { n: "Clean Room", d: "Tidy up and make bed", a: "Cindy", f: "weekly", v: 3, e: "🛏️" },
+            { n: "Take out Trash", d: "Tuesday nights", a: "Bobby", f: "weekly", v: 2, e: "🗑️" },
+            { n: "Wash Dishes", d: "Help Alice after dinner", a: "Jan", f: "daily", v: 1, e: "🍽️" },
+            { n: "Walk Tiger", d: "Around the block twice", a: "Peter", f: "daily", v: 1, e: "🐕" },
+            { n: "Dust Living Room", d: "Careful with the vase", a: "Marcia", f: "weekly", v: 5, e: "🧹" },
+            { n: "Clean Pool", d: "Skim leaves", a: "Greg", f: "weekly", v: 8, e: "🏊" }
+        ];
+
+        for (const c of choreDefs) {
+            await apiRequest('POST', `/api/households/${hhId}/chores`, {
+                name: c.n, description: c.d, assigned_member_id: members[c.a],
+                frequency: c.f, value: c.v, emoji: c.e, next_due_date: new Date().toISOString().split('T')[0]
+            }, token);
+        }
+
+        // 10. SHOPPING LIST
+        const shoppingItems = [
+            { n: "Milk (3 Gallons)", c: "dairy", q: "3", v: 12 },
+            { n: "Eggs (2 Dozen)", c: "dairy", q: "2", v: 8 },
+            { n: "Bread", c: "bakery", q: "4 loaves", v: 10 },
+            { n: "Ground Beef", c: "meat", q: "5 lbs", v: 25 },
+            { n: "Pork Chops", c: "meat", q: "8 pack", v: 15 },
+            { n: "Apples", c: "produce", q: "1 bag", v: 6 },
+            { n: "Bananas", c: "produce", q: "2 bunches", v: 4 },
+            { n: "Cereal (Sugar Smacks)", c: "general", q: "3 boxes", v: 15 },
+            { n: "Laundry Detergent", c: "household", q: "1 bottle", v: 12 },
+            { n: "Paper Towels", c: "household", q: "6 rolls", v: 8 },
+            { n: "Orange Juice", c: "general", q: "2 cartons", v: 10 }
+        ];
+
+        for (const item of shoppingItems) {
+            await apiRequest('POST', `/api/households/${hhId}/shopping-list`, {
+                name: item.n, category: item.c, quantity: item.q, estimated_cost: item.v
+            }, token);
+        }
 
         console.log(`✅ DEFINITIVE SEED COMPLETE: ID ${hhId}`);
         process.exit(0);

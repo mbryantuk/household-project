@@ -1,15 +1,17 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Box, Typography, FormControl, FormLabel, Input, Button, Stack, Sheet, Grid, Chip, Switch, Divider } from '@mui/joy';
+import { Box, Typography, FormControl, FormLabel, Input, Button, Stack, Sheet, Grid, Chip, Switch, Divider, IconButton, Tooltip } from '@mui/joy';
 import Public from '@mui/icons-material/Public';
 import ViewModule from '@mui/icons-material/ViewModule';
 import CheckCircle from '@mui/icons-material/CheckCircle';
 import Cancel from '@mui/icons-material/Cancel';
+import CloudDownload from '@mui/icons-material/CloudDownload';
+import DataObject from '@mui/icons-material/DataObject';
 
 import { useHousehold } from '../../contexts/HouseholdContext';
 import AppSelect from '../../components/ui/AppSelect';
 
 export default function HouseholdSettings() {
-  const { household, onUpdateHousehold, showNotification, user } = useHousehold();
+  const { household, onUpdateHousehold, showNotification, user, api } = useHousehold();
   const isAdmin = user?.role === 'admin';
 
   const [name, setName] = useState(household?.name || '');
@@ -53,6 +55,50 @@ export default function HouseholdSettings() {
         await onUpdateHousehold({ enabled_modules: JSON.stringify(newModules) });
      } catch {
         setEnabledModules(enabledModules);
+    }
+  };
+
+  const onExportTenant = async () => {
+    try {
+        showNotification(`Preparing export for "${household.name}"...`, "neutral");
+        const res = await api.get(`/admin/households/${household.id}/export`);
+        const filename = res.data.filename;
+        
+        const downloadRes = await api.get(`/admin/backups/download/${filename}`, {
+            responseType: 'blob'
+        });
+        
+        const url = window.URL.createObjectURL(downloadRes.data);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        
+        showNotification(`Export complete.`, "success");
+    } catch (err) {
+        showNotification(err.response?.data?.error || "Failed to export tenant.", "danger");
+    }
+  };
+
+  const onExportJSONTenant = async () => {
+    try {
+        showNotification(`Generating JSON export...`, "neutral");
+        const res = await api.get(`/export/${household.id}`, { responseType: 'blob' });
+        const url = window.URL.createObjectURL(res.data);
+        const link = document.createElement('a');
+        link.href = url;
+        const timestamp = new Date().toISOString().split('T')[0];
+        link.setAttribute('download', `totem-export-hh${household.id}-${timestamp}.json`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        showNotification(`JSON export complete.`, "success");
+    } catch (err) {
+        showNotification(err.response?.data?.error || "Failed to export JSON.", "danger");
     }
   };
 
@@ -128,6 +174,34 @@ export default function HouseholdSettings() {
                         />
                     </Box>
                 ))}
+          </Stack>
+      </Sheet>
+
+      {/* Data Management Section */}
+      <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', bgcolor: 'background.level1' }}>
+          <Typography level="title-md" sx={{ mb: 2 }} startDecorator={<CloudDownload color="primary" />}>Data Management</Typography>
+          <Typography level="body-xs" color="neutral" sx={{ mb: 3 }}>
+              Download a complete copy of your household data.
+          </Typography>
+          <Stack direction="row" spacing={2}>
+              <Button 
+                  variant="outlined" 
+                  color="primary" 
+                  startDecorator={<CloudDownload />}
+                  onClick={onExportTenant}
+                  disabled={!isAdmin}
+              >
+                  Export Archive (ZIP)
+              </Button>
+              <Button 
+                  variant="outlined" 
+                  color="neutral" 
+                  startDecorator={<DataObject />}
+                  onClick={onExportJSONTenant}
+                  disabled={!isAdmin}
+              >
+                  Export Data (JSON)
+              </Button>
           </Stack>
       </Sheet>
 
