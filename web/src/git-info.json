@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Migrate to Signature-only theme strategy, fix dark mode sidebar contrast, and disable frontend automated testing",
-  "date": "Wed 11 Feb 13:48:25 GMT 2026"
+  "commitMessage": "Restore backend tests in nightly suite and finalize frontend test disabling",
+  "date": "Wed 11 Feb 13:55:27 GMT 2026"
 }
