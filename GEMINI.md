@@ -41,6 +41,10 @@
     * **DATA HYGIENE:** Every test run or deployment MUST trigger \`server/scripts/cleanup_test_data.js\`.
     * **PURGE SCOPE:** All test households (except the latest), all test users (except the primary), and all orphan \`.db\` files in \`server/data/\` or \`server/backups/\` MUST be deleted.
 
+6.  **The Responsive Sync Rule:**
+    * **NAVIGATION PARITY:** The side navigation menu (Rail) and the bottom mobile menu MUST be kept in sync.
+    * **ACTION:** Any new top-level module added to the desktop sidebar MUST also be added to the mobile bottom drawer navigation in `HouseholdLayout.jsx`.
+
 ---
 
 ## 1. TECHNICAL SPECIFICATIONS

@@ -22,6 +22,7 @@ import AccountBalance from '@mui/icons-material/AccountBalance';
 import CalendarMonth from '@mui/icons-material/CalendarMonth';
 import Add from '@mui/icons-material/Add';
 import AttachMoney from '@mui/icons-material/AttachMoney';
+import CleaningServices from '@mui/icons-material/CleaningServices';
 
 import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
@@ -285,6 +286,7 @@ export default function HouseholdLayout({
                             <MenuTile icon={<HomeIcon />} label="Household" to="house" onClick={() => setDrawerOpen(false)} />
                             <MenuTile icon={<AccountBalance />} label="Finance" to="finance" onClick={() => setDrawerOpen(false)} />
                             <MenuTile icon={<RestaurantMenu />} label="Meals" to="meals" onClick={() => setDrawerOpen(false)} />
+                            <MenuTile icon={<CleaningServices />} label="Chores" to="chores" onClick={() => setDrawerOpen(false)} />
                             <MenuTile icon={<Add />} label="Shop" to="shopping" onClick={() => setDrawerOpen(false)} />
                         </>
                     ) : (
