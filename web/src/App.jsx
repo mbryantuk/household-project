@@ -67,14 +67,16 @@ const queryClient = new QueryClient({
 
 function AppInner({ 
     themeId, setThemeId, user, setUser, token, setToken, household, setHousehold, 
-    logout, login, mfaLogin, handleLoginSuccess, spec, isDark, onPreviewTheme
+    logout, login, mfaLogin, handleLoginSuccess, spec, isDark, onPreviewTheme,
+    mode, setModePref
 }) {
-  const { setMode } = useColorScheme();
+  const { setMode, mode: currentMode } = useColorScheme();
   
-  // Synchronize MUI mode with theme spec mode
+  // Synchronize MUI mode with user preference
   useEffect(() => {
-    setMode(spec.mode);
-  }, [spec.mode, setMode]);
+    if (mode === 'system') setMode('system');
+    else setMode(mode);
+  }, [mode, setMode]);
 
   // Synchronize browser tab theme color with theme primary color
   useEffect(() => {
@@ -354,11 +356,12 @@ function AppInner({
       await authAxios.put('/auth/profile', updates);
       
       if (updates.theme) setThemeId(updates.theme);
-      if (onPreviewTheme) onPreviewTheme(null); // Clear any active preview after official update
+      if (updates.mode) setModePref(updates.mode);
+      if (onPreviewTheme) onPreviewTheme(null); 
       
-      if (!updates.sticky_note && !updates.theme && !updates.custom_theme) showNotification("Profile updated.", "success");
+      if (!updates.sticky_note && !updates.theme && !updates.custom_theme && !updates.mode) showNotification("Profile updated.", "success");
     } catch (err) { showNotification("Failed to update profile.", "danger"); throw err; }
-  }, [authAxios, user, setUser, setThemeId, showNotification]);
+  }, [authAxios, user, setUser, setThemeId, setModePref, showNotification, onPreviewTheme]);
 
   return (
     <>
@@ -399,6 +402,7 @@ function AppInner({
                 dates={hhDates} onDateAdded={() => household && fetchHhDates(household.id)}
                 onUpdateProfile={handleUpdateProfile} onLogout={logout}
                 themeId={themeId} onThemeChange={(newId) => handleUpdateProfile({ theme: newId })}
+                mode={mode} onModeChange={(newMode) => handleUpdateProfile({ mode: newMode })}
                 installPrompt={installPrompt} onInstall={handleInstall} household={household}
                 onPreviewTheme={onPreviewTheme}
                 />}>
@@ -420,6 +424,7 @@ function AppInner({
                         household={household} users={hhUsers} currentUser={user} api={authAxios}
                         onUpdateHousehold={handleUpdateHouseholdSettings} themeId={themeId}
                         onThemeChange={(newId) => handleUpdateProfile({ theme: newId })}
+                        mode={mode} onModeChange={(newMode) => handleUpdateProfile({ mode: newMode })}
                         showNotification={showNotification} confirmAction={confirmAction} fetchHhUsers={fetchHhUsers}
                         onUpdateProfile={handleUpdateProfile}
                     />} />
@@ -475,6 +480,7 @@ export default function App() {
   });
 
   const [themeId, setThemeId] = useState(user?.theme || 'totem');
+  const [modePref, setModePref] = useState(user?.mode || 'system');
   const [previewThemeId, setPreviewThemeId] = useState(null);
   const [previewCustomConfig, setPreviewCustomConfig] = useState(null);
 
@@ -488,7 +494,8 @@ export default function App() {
   const effectiveThemeId = previewThemeId || themeId;
   const effectiveCustomConfig = previewCustomConfig || customConfig;
 
-  const { spec, isDark } = useMemo(() => getThemeSpec(effectiveThemeId, effectiveCustomConfig), [effectiveThemeId, effectiveCustomConfig]);
+  // Derive spec for non-Joy UI components (if needed)
+  const { spec } = useMemo(() => getThemeSpec(effectiveThemeId, effectiveCustomConfig), [effectiveThemeId, effectiveCustomConfig]);
   const theme = useMemo(() => getMantelTheme(effectiveThemeId, effectiveCustomConfig), [effectiveThemeId, effectiveCustomConfig]);
   
   const handlePreviewTheme = useCallback((id, config = null) => {
@@ -509,6 +516,8 @@ export default function App() {
       }
       
       if (userData.theme) setThemeId(userData.theme);
+      if (userData.mode) setModePref(userData.mode);
+
       if (context === 'household') {
         setHousehold(hhData);
         localStorage.setItem('household', JSON.stringify(hhData));
@@ -531,7 +540,7 @@ export default function App() {
 
   const mfaLogin = useCallback(async (preAuthToken, code) => {
       const res = await axios.post(`${API_URL}/auth/mfa/login`, { preAuthToken, code });
-      handleLoginSuccess(res.data, false); // MFA doesn't usually set rememberMe, or it's inherited
+      handleLoginSuccess(res.data, false); 
   }, [handleLoginSuccess]);
 
   const logout = useCallback(() => {
@@ -546,7 +555,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
-        <CssVarsProvider theme={theme} defaultMode={spec.mode} disableNestedContext>
+        <CssVarsProvider theme={theme} defaultMode="system" modeStorageKey="mantel-mode" disableNestedContext>
             <CssBaseline />
             <AppInner 
                 themeId={themeId} setThemeId={setThemeId} 
@@ -555,7 +564,9 @@ export default function App() {
                 household={household} setHousehold={setHousehold}
                 logout={logout} login={login} mfaLogin={mfaLogin}
                 handleLoginSuccess={handleLoginSuccess}
-                spec={spec} isDark={isDark}
+                spec={spec} isDark={false} // Mode handled internally by Joy and AppInner Effect
+                onPreviewTheme={handlePreviewTheme}
+                mode={modePref} setModePref={setModePref}
             />
         </CssVarsProvider>
       </QueryClientProvider>

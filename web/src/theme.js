@@ -1,62 +1,64 @@
 import { extendTheme } from '@mui/joy/styles';
 
 /**
- * 50 SIGNATURE THEMES (Each with Light & Dark Modes)
- * Colors derived from architectural and natural palettes.
+ * 50 PREMIUM SIGNATURE THEMES
+ * Each theme defines a primary color identity.
+ * System mode automatically handles Light/Dark derivation.
  */
 export const THEMES = {
-  totem: { name: 'Classic', primary: '#374151' },
-  platinum: { name: 'Platinum', primary: '#18181b' },
-  midnight: { name: 'Midnight', primary: '#38bdf8' },
-  obsidian: { name: 'Obsidian', primary: '#f4f4f5' },
-  forest: { name: 'Forest', primary: '#22c55e' },
-  ocean: { name: 'Ocean', primary: '#0284c7' },
-  sunset: { name: 'Sunset', primary: '#ea580c' },
-  space: { name: 'Space', primary: '#6366f1' },
-  jungle: { name: 'Jungle', primary: '#eab308' },
-  mint: { name: 'Mint', primary: '#0d9488' },
-  sakura: { name: 'Sakura', primary: '#db2777' },
-  lavender: { name: 'Lavender', primary: '#8b5cf6' },
-  honey: { name: 'Honey', primary: '#b45309' },
-  lemonade: { name: 'Lemonade', primary: '#84cc16' },
-  candy: { name: 'Candy', primary: '#f472b6' },
-  arctic: { name: 'Arctic', primary: '#06b6d4' },
-  autumn: { name: 'Autumn', primary: '#c2410c' },
-  cotton: { name: 'Cotton', primary: '#38bdf8' },
-  emerald: { name: 'Emerald', primary: '#059669' },
-  berry: { name: 'Berry', primary: '#9d174d' },
-  rose: { name: 'Rose', primary: '#e11d48' },
-  citrus: { name: 'Citrus', primary: '#f59e0b' },
+  totem: { name: 'Mantel Classic', primary: '#374151' },
+  platinum: { name: 'Platinum Mono', primary: '#18181b' },
+  obsidian: { name: 'Obsidian Ink', primary: '#f4f4f5' },
+  midnight: { name: 'Midnight Neon', primary: '#38bdf8' },
+  forest: { name: 'Forest Deep', primary: '#22c55e' },
+  ocean: { name: 'Oceanic Blue', primary: '#0284c7' },
+  sunset: { name: 'Sunset Amber', primary: '#ea580c' },
+  lavender: { name: 'Lavender Mist', primary: '#8b5cf6' },
+  mint: { name: 'Mint Fresh', primary: '#0d9488' },
+  sakura: { name: 'Sakura Pink', primary: '#db2777' },
+  honey: { name: 'Honey Gold', primary: '#b45309' },
+  lemonade: { name: 'Lemonade Lime', primary: '#84cc16' },
+  candy: { name: 'Cotton Candy', primary: '#f472b6' },
+  arctic: { name: 'Arctic Cyan', primary: '#06b6d4' },
+  autumn: { name: 'Autumn Ochre', primary: '#c2410c' },
+  emerald: { name: 'Emerald Isle', primary: '#059669' },
+  berry: { name: 'Wild Berry', primary: '#9d174d' },
+  rose: { name: 'Rose Petal', primary: '#e11d48' },
+  citrus: { name: 'Citrus Zest', primary: '#f59e0b' },
   sky: { name: 'Morning Sky', primary: '#0ea5e9' },
-  matcha: { name: 'Matcha', primary: '#65a30d' },
-  peach: { name: 'Peach', primary: '#fb923c' },
-  lilac: { name: 'Lilac', primary: '#a855f7' },
-  coral: { name: 'Coral', primary: '#f43f5e' },
+  matcha: { name: 'Matcha Tea', primary: '#65a30d' },
+  peach: { name: 'Peach Sorbet', primary: '#fb923c' },
+  lilac: { name: 'Lilac Soft', primary: '#a855f7' },
+  coral: { name: 'Coral Reef', primary: '#f43f5e' },
   pistachio: { name: 'Pistachio', primary: '#10b981' },
-  azure: { name: 'Azure', primary: '#2563eb' },
+  azure: { name: 'Azure Blue', primary: '#2563eb' },
   sunflower: { name: 'Sunflower', primary: '#eab308' },
-  grape: { name: 'Grape', primary: '#9333ea' },
+  grape: { name: 'Grape Soda', primary: '#9333ea' },
   tangerine: { name: 'Tangerine', primary: '#fb923c' },
-  sand: { name: 'Sand', primary: '#a16207' },
-  teal: { name: 'Teal', primary: '#0d9488' },
-  sage: { name: 'Sage', primary: '#15803d' },
-  orchid: { name: 'Orchid', primary: '#d946ef' },
+  sand: { name: 'Desert Sand', primary: '#a16207' },
+  teal: { name: 'Teal Lagoon', primary: '#0d9488' },
+  sage: { name: 'Sage Green', primary: '#15803d' },
+  orchid: { name: 'Orchid Bloom', primary: '#d946ef' },
   periwinkle: { name: 'Periwinkle', primary: '#818cf8' },
   blueberry: { name: 'Blueberry', primary: '#3b82f6' },
-  grass: { name: 'Grass', primary: '#4ade80' },
+  grass: { name: 'Fresh Grass', primary: '#4ade80' },
   seafoam: { name: 'Seafoam', primary: '#2dd4bf' },
   marigold: { name: 'Marigold', primary: '#fbbf24' },
-  plum: { name: 'Plum', primary: '#a21caf' },
-  clay: { name: 'Clay', primary: '#c2410c' },
-  pine: { name: 'Pine', primary: '#166534' },
-  crimson: { name: 'Crimson', primary: '#dc2626' },
-  slate: { name: 'Slate', primary: '#475569' },
+  plum: { name: 'Royal Plum', primary: '#a21caf' },
+  clay: { name: 'Terracotta', primary: '#c2410c' },
+  pine: { name: 'Mountain Pine', primary: '#166534' },
+  crimson: { name: 'Crimson Red', primary: '#dc2626' },
+  slate: { name: 'Slate Steel', primary: '#475569' },
   graphite: { name: 'Graphite', primary: '#27272a' },
-  nordic: { name: 'Nordic', primary: '#5e81ac' },
+  nordic: { name: 'Nordic Snow', primary: '#5e81ac' },
   espresso: { name: 'Espresso', primary: '#44403c' },
-  ink: { name: 'Ink', primary: '#1f2937' },
+  ink: { name: 'Deep Ink', primary: '#1f2937' },
+  cobalt: { name: 'Cobalt Shield', primary: '#1e40af' },
+  amethyst: { name: 'Amethyst', primary: '#7c3aed' },
+  ruby: { name: 'Ruby Gem', primary: '#9f1239' },
+  
   // Special Theme: Custom
-  custom: { name: 'Custom Theme', primary: '#374151', isCustom: true }
+  custom: { name: 'Custom Identity', primary: '#374151', isCustom: true }
 };
 
 export const getEmojiColor = (emoji, isDark = true) => {
@@ -68,9 +70,6 @@ export const getEmojiColor = (emoji, isDark = true) => {
   return `hsl(${hue}, ${isDark ? 50 : 70}%, ${isDark ? 25 : 90}%)`;
 };
 
-/**
- * Derives a full spec from a primary color and mode.
- */
 const deriveSpec = (primary, mode) => {
     const isDark = mode === 'dark';
     if (isDark) {
@@ -99,8 +98,7 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
       base = { ...base, ...customConfig };
   }
 
-  const lightSpec = deriveSpec(base.primary, 'light');
-  const darkSpec = deriveSpec(base.primary, 'dark');
+  const primaryColor = base.primary || '#374151';
 
   return extendTheme({
     fontFamily: {
@@ -112,57 +110,57 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
       light: {
         palette: {
           background: {
-            body: lightSpec.bg,
-            surface: lightSpec.surface,
+            body: '#f9fafb',
+            surface: '#ffffff',
             level1: 'rgba(0,0,0,0.03)',
             level2: 'rgba(0,0,0,0.06)',
             level3: 'rgba(0,0,0,0.09)',
           },
           text: {
-            primary: lightSpec.text,
+            primary: '#111827',
             secondary: 'rgba(0,0,0,0.6)',
           },
           primary: {
-            solidBg: lightSpec.primary,
+            solidBg: primaryColor,
             solidHoverBg: '#000000',
-            plainColor: lightSpec.primary,
-            outlinedColor: lightSpec.primary,
-            outlinedBorder: lightSpec.primary,
-            softBg: `${lightSpec.primary}15`,
+            plainColor: primaryColor,
+            outlinedColor: primaryColor,
+            outlinedBorder: primaryColor,
+            softBg: `${primaryColor}15`,
           },
           neutral: {
-            outlinedBorder: lightSpec.selection,
-            plainColor: lightSpec.text,
+            outlinedBorder: '#f3f4f6',
+            plainColor: '#111827',
           },
-          divider: lightSpec.selection,
+          divider: '#f3f4f6',
         },
       },
       dark: {
         palette: {
           background: {
-            body: darkSpec.bg,
-            surface: darkSpec.surface,
+            body: '#0a0a0a',
+            surface: '#121212',
             level1: 'rgba(255,255,255,0.05)',
             level2: 'rgba(255,255,255,0.1)',
             level3: 'rgba(255,255,255,0.15)',
           },
           text: {
-            primary: darkSpec.text,
+            primary: '#f4f4f5',
             secondary: 'rgba(255,255,255,0.7)',
           },
           primary: {
-            solidBg: darkSpec.primary,
+            solidBg: primaryColor,
             solidHoverBg: '#ffffff',
-            plainColor: darkSpec.primary,
-            outlinedColor: darkSpec.primary,
-            outlinedBorder: darkSpec.primary,
+            plainColor: primaryColor,
+            outlinedColor: primaryColor,
+            outlinedBorder: primaryColor,
             softBg: 'rgba(255,255,255,0.1)',
           },
           neutral: {
-            outlinedBorder: darkSpec.selection,
-            plainColor: darkSpec.text,
+            outlinedBorder: '#1e1e1e',
+            plainColor: '#f4f4f5',
           },
-          divider: darkSpec.selection,
+          divider: '#1e1e1e',
         },
       },
     },
@@ -214,9 +212,8 @@ export const getThemeSpec = (themeId = 'totem', customConfig = null) => {
   if (themeId === 'custom' && customConfig) {
       base = { ...base, ...customConfig };
   }
-  // Return a simplified spec for meta tags etc (prefers current system mode implicitly via derivedSpec)
   return {
-    spec: deriveSpec(base.primary, 'light'), // Default to light spec for reference
-    isDark: false // Mode handled by Joy engine
+    primary: base.primary,
+    spec: deriveSpec(base.primary, 'light')
   };
 };

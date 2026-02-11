@@ -1,13 +1,14 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Box, Typography, Sheet, Stack, Grid, Tooltip, FormControl, FormLabel, Switch, Input, Button, Divider } from '@mui/joy';
+import { Box, Typography, Sheet, Stack, Grid, Tooltip, FormControl, FormLabel, Switch, Input, Button, Divider, RadioGroup, Radio, ListItemDecorator } from '@mui/joy';
 import Palette from '@mui/icons-material/Palette';
 import LightMode from '@mui/icons-material/LightMode';
 import DarkMode from '@mui/icons-material/DarkMode';
+import SettingsBrightness from '@mui/icons-material/SettingsBrightness';
 
 import { useHousehold } from '../../contexts/HouseholdContext';
 import { THEMES } from '../../theme';
 
-const ThemeGrid = ({ themes, themeId, onThemeChange, isDark }) => (
+const ThemeGrid = ({ themes, themeId, onThemeChange }) => (
   <Grid container spacing={2}>
       {themes.map((spec) => (
           <Grid key={spec.id} xs={6} sm={4} md={2.4}>
@@ -45,7 +46,7 @@ const ThemeGrid = ({ themes, themeId, onThemeChange, isDark }) => (
 );
 
 export default function ThemeSettings() {
-  const { user, themeId, onThemeChange, onPreviewTheme, onUpdateProfile, showNotification, isDark } = useHousehold();
+  const { user, themeId, onThemeChange, onPreviewTheme, onUpdateProfile, showNotification, mode, onModeChange } = useHousehold();
 
   // Custom Theme State
   const [customThemeConfig, setCustomThemeConfig] = useState(() => {
@@ -60,7 +61,6 @@ export default function ThemeSettings() {
     return DEFAULT_MANTEL;
   });
 
-  // Effect to update preview when custom config changes
   useEffect(() => {
     if (themeId === 'custom') {
       onPreviewTheme('custom', customThemeConfig);
@@ -82,7 +82,7 @@ export default function ThemeSettings() {
       onPreviewTheme('custom', customThemeConfig);
     } else {
       onThemeChange(id);
-      onPreviewTheme(null); // Clear preview when official theme selected
+      onPreviewTheme(null);
     }
   };
 
@@ -96,13 +96,55 @@ export default function ThemeSettings() {
     <Stack spacing={4}>
       <Box>
         <Typography level="h4">System Appearance</Typography>
-        <Typography level="body-sm">Select a color identity. All Signature themes now support dual Light & Dark modes based on your system preference.</Typography>
+        <Typography level="body-sm">Personalize your workspace with Signature themes and adaptive display modes.</Typography>
       </Box>
+
+      {/* Mode Selection */}
+      <Box>
+          <Typography level="title-lg" sx={{ mb: 2 }}>Display Mode</Typography>
+          <RadioGroup
+            orientation="horizontal"
+            value={mode || 'system'}
+            onChange={(e) => onModeChange(e.target.value)}
+            sx={{
+                gap: 2,
+                '& .MuiRadio-root': {
+                    p: 2,
+                    borderRadius: 'md',
+                    bgcolor: 'background.surface',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    '&.Mui-checked': {
+                        borderColor: 'primary.solidBg',
+                        bgcolor: 'primary.softBg'
+                    }
+                }
+            }}
+          >
+              <Radio value="light" label={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <LightMode /> <Typography level="title-sm">Light</Typography>
+                  </Box>
+              } />
+              <Radio value="dark" label={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <DarkMode /> <Typography level="title-sm">Dark</Typography>
+                  </Box>
+              } />
+              <Radio value="system" label={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <SettingsBrightness /> <Typography level="title-sm">System</Typography>
+                  </Box>
+              } />
+          </RadioGroup>
+      </Box>
+
+      <Divider />
 
       {/* Signature Section */}
       <Box>
         <Typography level="title-lg" startDecorator={<Palette color="primary" />} sx={{ mb: 3 }}>Signature Collection</Typography>
-        <ThemeGrid themes={allThemes} themeId={themeId} onThemeChange={handleThemeSelect} isDark={isDark} />
+        <ThemeGrid themes={allThemes} themeId={themeId} onThemeChange={handleThemeSelect} />
       </Box>
 
       <Divider />
