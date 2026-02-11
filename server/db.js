@@ -27,13 +27,9 @@ const getHouseholdDb = (householdId) => {
 };
 
 const ensureHouseholdSchema = async (db, householdId) => {
-    // Check if a standard table exists
-    const row = await dbGet(db, "SELECT name FROM sqlite_master WHERE type='table' AND name='members'");
-    if (!row) {
-        console.log(`[DB] Initializing schema for household ${householdId}...`);
-        await initializeHouseholdSchema(db);
-        console.log(`[DB] Schema ready for household ${householdId}.`);
-    }
+    // ALWAYS run initializeHouseholdSchema to ensure migrations/new tables are applied
+    // The schema file uses CREATE TABLE IF NOT EXISTS so it's safe.
+    await initializeHouseholdSchema(db);
 };
 
 const dbGet = (db, query, params = []) => new Promise((resolve, reject) => {

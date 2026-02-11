@@ -1,255 +1,166 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Box, Typography, Button, Stack, IconButton, Sheet, Menu, MenuItem, Grid, Divider } from '@mui/joy';
-import Add from '@mui/icons-material/Add';
-import Save from '@mui/icons-material/Save';
-import Edit from '@mui/icons-material/Edit';
-import Close from '@mui/icons-material/Close';
-import Settings from '@mui/icons-material/Settings';
+import React, { useMemo } from 'react';
+import { useNavigate, useOutletContext } from 'react-router-dom';
+import { 
+  Box, Typography, Grid, Card, AspectRatio, IconButton, 
+  Stack, Divider, Sheet, Button
+} from '@mui/joy';
+import { 
+  AccountBalance, Event, RestaurantMenu, ShoppingBag, 
+  Groups, DirectionsCar, Settings, ArrowForward,
+  Payments, CleaningServices, HomeWork, Inventory2
+} from '@mui/icons-material';
+import { getEmojiColor } from '../theme';
+import AppHeader from '../components/ui/AppHeader';
 
-import { Responsive } from 'react-grid-layout/legacy';
-import WidthProvider from '../components/helpers/WidthProvider';
-
-import BirthdaysWidget from '../components/widgets/BirthdaysWidget';
-import EventsWidget from '../components/widgets/EventsWidget';
-import HomeRecurringCostsWidget from '../components/widgets/HomeRecurringCostsWidget';
-import VehiclesWidget from '../components/widgets/VehiclesWidget';
-import NotesWidget from '../components/widgets/NotesWidget';
-import CalculatorWidget from '../components/widgets/CalculatorWidget';
-import FinancialWidget from '../components/widgets/FinancialWidget';
-import TaxWidget from '../components/widgets/TaxWidget';
-import CalendarWidget from '../components/widgets/CalendarWidget';
-import SavingsWidget from '../components/widgets/SavingsWidget';
-import InvestmentsWidget from '../components/widgets/InvestmentsWidget';
-import PensionsWidget from '../components/widgets/PensionsWidget';
-import WealthWidget from '../components/widgets/WealthWidget';
-import BudgetStatusWidget from '../components/widgets/BudgetStatusWidget';
-import ClockWidget from '../components/widgets/ClockWidget';
-
-import IncomeWidget from '../components/widgets/IncomeWidget';
-import BankingWidget from '../components/widgets/BankingWidget';
-import CreditCardWidget from '../components/widgets/CreditCardWidget';
-import LoansWidget from '../components/widgets/LoansWidget';
-import MortgageWidget from '../components/widgets/MortgageWidget';
-import VehicleFinanceWidget from '../components/widgets/VehicleFinanceWidget';
-
-import ErrorBoundary from '../components/ErrorBoundary';
-import WidgetSkeleton from '../components/ui/WidgetSkeleton';
-import { useHousehold } from '../contexts/HouseholdContext';
-
-const ResponsiveGridLayout = WidthProvider(Responsive);
-
-const WIDGET_TYPES = {
-  clock: { component: ClockWidget, label: 'System Clock', defaultH: 4, defaultW: 4 },
-  budget_status: { component: BudgetStatusWidget, label: 'Budget Health', defaultH: 5, defaultW: 4 },
-  wealth: { component: WealthWidget, label: 'Wealth Tracking', defaultH: 7, defaultW: 4 },
-  birthdays: { component: BirthdaysWidget, label: 'Upcoming Birthdays', defaultH: 4, defaultW: 4 },
-  events: { component: EventsWidget, label: 'Calendar Events', defaultH: 4, defaultW: 6 },
-  costs: { component: HomeRecurringCostsWidget, label: 'Monthly Costs', defaultH: 4, defaultW: 6 },
-  vehicles: { component: VehiclesWidget, label: 'Fleet Status', defaultH: 4, defaultW: 4 },
-  notes: { component: NotesWidget, label: 'Sticky Note', defaultH: 4, defaultW: 4 },
-  calc: { component: CalculatorWidget, label: 'Calculator', defaultH: 5, defaultW: 4 },
-  finance: { component: FinancialWidget, label: 'Finance Tools', defaultH: 6, defaultW: 5 },
-  tax: { component: TaxWidget, label: 'Tax Tools', defaultH: 6, defaultW: 5 },
-  calendar: { component: CalendarWidget, label: 'Full Calendar', defaultH: 8, defaultW: 8 },
-  savings: { component: SavingsWidget, label: 'Savings Tracker', defaultH: 4, defaultW: 4 },
-  invest: { component: InvestmentsWidget, label: 'Investments', defaultH: 4, defaultW: 4 },
-  pensions: { component: PensionsWidget, label: 'Pensions', defaultH: 4, defaultW: 4 },
-  
-  income: { component: IncomeWidget, label: 'Income', defaultH: 4, defaultW: 4 },
-  banking: { component: BankingWidget, label: 'Banking', defaultH: 4, defaultW: 4 },
-  credit: { component: CreditCardWidget, label: 'Credit Cards', defaultH: 4, defaultW: 4 },
-  loans: { component: LoansWidget, label: 'Loans', defaultH: 4, defaultW: 4 },
-  mortgage: { component: MortgageWidget, label: 'Mortgages', defaultH: 4, defaultW: 4 },
-  carfin: { component: VehicleFinanceWidget, label: 'Car Finance', defaultH: 4, defaultW: 4 },
-};
-
-const DEFAULT_LAYOUT = [
-  // Primary Row
-  { i: 'clock-1', x: 0, y: 0, w: 4, h: 4, type: 'clock' },
-  { i: 'budget-1', x: 4, y: 0, w: 4, h: 5, type: 'budget_status' },
-  { i: 'wealth-1', x: 8, y: 0, w: 4, h: 7, type: 'wealth' },
-  
-  // Finance Row 1
-  { i: 'income-1', x: 0, y: 4, w: 4, h: 4, type: 'income' },
-  { i: 'banking-1', x: 4, y: 5, w: 4, h: 4, type: 'banking' },
-  { i: 'savings-1', x: 8, y: 7, w: 4, h: 4, type: 'savings' },
-
-  // Interaction Row
-  { i: 'calendar-1', x: 0, y: 8, w: 8, h: 8, type: 'calendar' },
-  { i: 'notes-1', x: 8, y: 11, w: 4, h: 8, type: 'notes' },
-
-  // Finance Row 2 (Liabilities)
-  { i: 'credit-1', x: 0, y: 16, w: 4, h: 4, type: 'credit' },
-  { i: 'loans-1', x: 4, y: 16, w: 4, h: 4, type: 'loans' },
-  { i: 'mortgage-1', x: 8, y: 19, w: 4, h: 4, type: 'mortgage' },
-
-  // Archive Row
-  { i: 'pensions-1', x: 0, y: 20, w: 4, h: 4, type: 'pensions' },
-  { i: 'vehicles-1', x: 4, y: 20, w: 4, h: 4, type: 'vehicles' },
-  { i: 'carfin-1', x: 8, y: 23, w: 4, h: 4, type: 'carfin' },
-  { i: 'birthdays-1', x: 0, y: 24, w: 4, h: 4, type: 'birthdays' },
-];
-
+/**
+ * MANTEL Homepage
+ * Replaces the complex widget dashboard with a clean, high-performance modular entry point.
+ */
 export default function HomeView() {
-  const { members, household, user, dates, onUpdateProfile, api } = useHousehold();
-  const [isEditing, setIsEditing] = useState(false);
-  const [page, setPage] = useState(1);
-  const [isSaving, setIsSaving] = useState(false);
-  const [breakpoint, setBreakpoint] = useState('lg');
-  const [addWidgetAnchor, setAddWidgetAnchor] = useState(null);
+  const navigate = useNavigate();
+  const { household, user, members = [], vehicles = [], isDark } = useOutletContext();
 
-  const [layouts, setLayouts] = useState(() => {
-    if (user?.dashboard_layout) {
-      try {
-        const cloud = typeof user.dashboard_layout === 'string' 
-          ? JSON.parse(user.dashboard_layout) 
-          : user.dashboard_layout;
-        if (cloud && Object.keys(cloud).length > 0) return cloud;
-      } catch (err) { console.error("Cloud Layout Parse Error", err); }
-    }
-    return { 1: DEFAULT_LAYOUT };
-  });
-
-  const currentItems = useMemo(() => {
-    const pageLayout = layouts[page] || { lg: [], md: [], sm: [] };
-    if (Array.isArray(pageLayout)) return pageLayout;
-    return pageLayout[breakpoint] || pageLayout.lg || [];
-  }, [layouts, page, breakpoint]);
-
-  const gridItems = useMemo(() => currentItems.map(item => ({ ...item, static: !isEditing })), [currentItems, isEditing]);
-
-  const handleLayoutChange = (currentLayout, allLayouts) => {
-    if (!isEditing) return;
-    setLayouts(prev => {
-        const pageLayouts = prev[page] || { lg: [], md: [], sm: [] };
-        const updated = {};
-        Object.keys(allLayouts).forEach(bp => {
-            updated[bp] = allLayouts[bp].map(l => {
-                let existing = null;
-                if (Array.isArray(pageLayouts)) {
-                    existing = pageLayouts.find(i => i.i === l.i);
-                } else {
-                    existing = (pageLayouts[bp] || pageLayouts.lg || pageLayouts.md || pageLayouts.sm || []).find(i => i.i === l.i);
-                }
-                return { ...existing, ...l };
-            });
-        });
-        return { ...prev, [page]: updated };
-    });
-  };
-
-  const handleAddWidget = (type) => {
-    const config = WIDGET_TYPES[type];
-    const newId = `${type}-${Date.now()}`;
-    const newItem = {
-        i: newId, x: (currentItems.length * 4) % 12, y: Infinity, w: config.defaultW, h: config.defaultH, type: type,
-        data: {}
-    };
-    
-    setLayouts(prev => {
-        const pageLayouts = prev[page] || { lg: [], md: [], sm: [] };
-        const updated = {};
-        ['lg', 'md', 'sm', 'xs', 'xxs'].forEach(bp => {
-            const base = Array.isArray(pageLayouts) ? pageLayouts : (pageLayouts[bp] || pageLayouts.lg || []);
-            updated[bp] = [...base, newItem];
-        });
-        return { ...prev, [page]: updated };
-    });
-    setAddWidgetAnchor(null);
-  };
-
-  const handleRemoveWidget = (id) => {
-      setLayouts(prev => {
-          const pageLayouts = prev[page];
-          if (Array.isArray(pageLayouts)) {
-              return { ...prev, [page]: pageLayouts.filter(i => i.i !== id) };
-          }
-          const updated = {};
-          Object.keys(pageLayouts).forEach(bp => {
-              updated[bp] = pageLayouts[bp].filter(i => i.i !== id);
-          });
-          return { ...prev, [page]: updated };
-      });
-  };
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    try { 
-        if (onUpdateProfile) {
-            await onUpdateProfile({ dashboard_layout: JSON.stringify(layouts) }); 
-        }
-        setIsEditing(false);
-    } catch (err) { console.error("Failed to save layout", err); }
-    setIsSaving(false);
-  };
-
-  const dateStr = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const dateStr = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  const MODULES = useMemo(() => [
+    { 
+        id: 'finance', label: 'Finance', icon: AccountBalance, color: 'success', 
+        path: 'finance', desc: 'Budget & Assets', emoji: '💰' 
+    },
+    { 
+        id: 'calendar', label: 'Calendar', icon: Event, color: 'danger', 
+        path: 'calendar', desc: 'Events & Renewals', emoji: '📅' 
+    },
+    { 
+        id: 'meals', label: 'Meals', icon: RestaurantMenu, color: 'warning', 
+        path: 'meals', desc: 'Weekly Planner', emoji: '🍝' 
+    },
+    { 
+        id: 'shopping', label: 'Shopping', icon: ShoppingBag, color: 'primary', 
+        path: 'shopping', desc: 'Grocery List', emoji: '🛒' 
+    },
+    { 
+        id: 'people', label: 'People', icon: Groups, color: 'neutral', 
+        path: 'people', desc: 'Resident Directory', emoji: '👤' 
+    },
+    { 
+        id: 'house', label: 'House', icon: HomeWork, color: 'neutral', 
+        path: 'house', desc: 'Property Hub', emoji: '🏠' 
+    },
+    { 
+        id: 'vehicles', label: 'Vehicles', icon: DirectionsCar, color: 'warning', 
+        path: 'vehicles', desc: 'Fleet Status', emoji: '🚗' 
+    },
+    { 
+        id: 'chores', label: 'Chores', icon: CleaningServices, color: 'info', 
+        path: 'chores', desc: 'Task Management', emoji: '🧹' 
+    }
+  ], []);
+
+  const householdStats = useMemo(() => [
+      { label: 'Residents', value: members.length, icon: Groups },
+      { label: 'Vehicles', value: vehicles.length, icon: DirectionsCar },
+      { label: 'Assets', value: 'Active', icon: Inventory2 }
+  ], [members, vehicles]);
 
   return (
-    <Box sx={{ pb: 10, px: { xs: 1, md: 4 }, pt: 2 }}>
-      <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} spacing={2} sx={{ mb: 4 }}>
-        <Box>
-          <Typography level="h2" sx={{ fontWeight: 'lg' }}>{greeting}, {user?.first_name || 'Friend'}</Typography>
-          <Typography level="body-md" color="neutral">{dateStr} • {household?.name}</Typography>
-        </Box>
-        
-        <Box sx={{ display: 'flex', gap: 1 }}>
-            {isEditing ? (
-                <>
-                    <Button variant="soft" startDecorator={<Add />} onClick={(e) => setAddWidgetAnchor(e.currentTarget)}>Add Widget</Button>
-                    <Button variant="solid" color="primary" loading={isSaving} startDecorator={<Save />} onClick={handleSave}>Save Layout</Button>
-                </>
-            ) : (
-                <Button variant="plain" color="neutral" startDecorator={<Settings />} onClick={() => setIsEditing(true)}>Customize</Button>
-            )}
-        </Box>
-      </Stack>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', pb: 10 }}>
+      {/* Welcome Header */}
+      <Box sx={{ mb: 6, pt: 2 }}>
+        <Typography level="h1" sx={{ fontSize: { xs: '2.5rem', md: '3.5rem' }, mb: 1 }}>
+            {greeting}, {user?.first_name || 'Friend'}
+        </Typography>
+        <Typography level="body-lg" color="neutral" sx={{ opacity: 0.8 }}>
+            {dateStr} • {household?.name || 'MANTEL Household'}
+        </Typography>
+      </Box>
 
-      <ResponsiveGridLayout
-          className="layout"
-          layouts={Array.isArray(layouts[page]) ? { lg: layouts[page], md: layouts[page], sm: layouts[page] } : layouts[page]}
-          breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-          cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
-          rowHeight={60}
-          isDraggable={isEditing}
-          isResizable={isEditing}
-          onLayoutChange={handleLayoutChange}
-          onBreakpointChange={setBreakpoint}
-          margin={[24, 24]}
-      >
-          {gridItems.map(item => {
-              const WidgetComponent = WIDGET_TYPES[item.type]?.component;
-              return (
-                  <Box key={item.i} data-grid={{ ...item, static: !isEditing }} sx={{ position: 'relative' }}>
-                      {isEditing && (
-                          <IconButton 
-                              size="sm" variant="solid" color="danger"
-                              onClick={() => handleRemoveWidget(item.i)}
-                              sx={{ position: 'absolute', top: -14, right: -14, zIndex: 100, borderRadius: '50%' }}
-                          >
-                              <Close fontSize="small" />
-                          </IconButton>
-                      )}
-                      <ErrorBoundary>
-                          {WidgetComponent ? <WidgetComponent api={api} household={household} members={members} user={user} dates={dates} onUpdateProfile={onUpdateProfile} /> : <WidgetSkeleton />}
-                      </ErrorBoundary>
-                  </Box>
-              );
-          })}
-      </ResponsiveGridLayout>
+      <Grid container spacing={3}>
+        {/* Module Grid */}
+        <Grid xs={12} md={8}>
+            <Typography level="title-md" sx={{ mb: 2, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Quick Navigation
+            </Typography>
+            <Grid container spacing={2}>
+                {MODULES.map((mod) => (
+                    <Grid xs={6} sm={4} key={mod.id}>
+                        <Card 
+                            variant="outlined" 
+                            onClick={() => navigate(`../${mod.path}`)}
+                            sx={{ 
+                                p: 2, 
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                                '&:hover': { 
+                                    bgcolor: 'background.level1',
+                                    transform: 'translateY(-4px)',
+                                    boxShadow: 'md',
+                                    borderColor: `${mod.color}.300`
+                                }
+                            }}
+                        >
+                            <AspectRatio ratio="1" variant="soft" color={mod.color} sx={{ borderRadius: 'md', mb: 2, width: 48 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <mod.icon />
+                                </Box>
+                            </AspectRatio>
+                            <Box>
+                                <Typography level="title-md">{mod.label}</Typography>
+                                <Typography level="body-xs" color="neutral">{mod.desc}</Typography>
+                            </Box>
+                        </Card>
+                    </Grid>
+                ))}
+            </Grid>
+        </Grid>
 
-      <Menu
-        anchorEl={addWidgetAnchor}
-        open={Boolean(addWidgetAnchor)}
-        onClose={() => setAddWidgetAnchor(null)}
-        placement="bottom-end"
-      >
-        {Object.entries(WIDGET_TYPES).map(([key, config]) => (
-            <MenuItem key={key} onClick={() => handleAddWidget(key)}>{config.label}</MenuItem>
-        ))}
-      </Menu>
+        {/* Status Column */}
+        <Grid xs={12} md={4}>
+            <Stack spacing={3}>
+                <Typography level="title-md" sx={{ mb: -1, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    Household Pulse
+                </Typography>
+                
+                <Sheet variant="outlined" sx={{ p: 2, borderRadius: 'md', bgcolor: 'background.level1' }}>
+                    <Stack spacing={2} divider={<Divider />}>
+                        {householdStats.map((stat, idx) => (
+                            <Box key={idx} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                    <stat.icon color="primary" sx={{ opacity: 0.7 }} />
+                                    <Typography level="body-sm">{stat.label}</Typography>
+                                </Box>
+                                <Typography level="title-sm" fontWeight="bold">{stat.value}</Typography>
+                            </Box>
+                        ))}
+                    </Stack>
+                </Sheet>
+
+                <Card variant="solid" color="primary" invertedColors sx={{ boxShadow: 'lg' }}>
+                    <Typography level="title-lg">MANTEL System</Typography>
+                    <Typography level="body-sm">
+                        Everything is running smoothly. Your local data is encrypted and secure.
+                    </Typography>
+                    <Button 
+                        variant="soft" 
+                        size="sm" 
+                        endDecorator={<ArrowForward />} 
+                        onClick={() => navigate('../settings')}
+                        sx={{ mt: 1, alignSelf: 'flex-start' }}
+                    >
+                        Settings
+                    </Button>
+                </Card>
+
+                <Sheet variant="soft" color="neutral" sx={{ p: 2, borderRadius: 'md', textAlign: 'center' }}>
+                    <Typography level="body-xs" color="neutral">
+                        Dashboard widgets are currently being overhauled. Full customization will return in a future update.
+                    </Typography>
+                </Sheet>
+            </Stack>
+        </Grid>
+      </Grid>
     </Box>
   );
 }

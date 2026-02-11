@@ -10,29 +10,26 @@ const { useTenantDb } = require('../middleware/tenant');
  */
 router.get('/households/:id/shopping-list', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, async (req, res) => {
     try {
+        console.log(`[SHOPPING] Fetching list for household ${req.params.id}`);
         const items = await dbAll(req.tenantDb, "SELECT * FROM shopping_items WHERE household_id = ? ORDER BY is_checked ASC, created_at DESC", [req.params.id]);
         
         // Calculate estimated budget
-        const totalEstimatedCost = items.reduce((sum, item) => sum + (item.estimated_cost || 0), 0);
+        const totalEstimatedCost = (items || []).reduce((sum, item) => sum + (item.estimated_cost || 0), 0);
         
-        req.tenantDb.close(); // Close explicitly or rely on middleware? Middleware doesn't close it automatically unless we handle it. 
-        // My middleware 'useTenantDb' doesn't attach a 'finish' handler.
-        // In other routes, I saw `closeDb(req)`.
-        // I should probably follow that pattern or close it here.
-        // Let's close it here for now.
+        if (req.tenantDb) req.tenantDb.close();
         
         res.json({
-            items,
+            items: items || [],
             summary: {
-                total_items: items.length,
-                pending_items: items.filter(i => !i.is_checked).length,
+                total_items: (items || []).length,
+                pending_items: (items || []).filter(i => !i.is_checked).length,
                 total_estimated_cost: totalEstimatedCost
             }
         });
     } catch (err) {
-        console.error("Failed to fetch shopping list", err);
+        console.error("[SHOPPING] Failed to fetch shopping list", err);
         if (req.tenantDb) req.tenantDb.close();
-        res.status(500).json({ error: "Failed to fetch shopping list" });
+        res.status(500).json({ error: "Failed to fetch shopping list: " + err.message });
     }
 });
 
@@ -43,23 +40,24 @@ router.get('/households/:id/shopping-list', authenticateToken, requireHouseholdR
 router.post('/households/:id/shopping-list', authenticateToken, requireHouseholdRole('member'), useTenantDb, async (req, res) => {
     const { name, quantity, category, estimated_cost } = req.body;
     if (!name) {
-        req.tenantDb.close();
+        if (req.tenantDb) req.tenantDb.close();
         return res.status(400).json({ error: "Item name is required" });
     }
 
     try {
+        console.log(`[SHOPPING] Adding item to household ${req.params.id}: ${name}`);
         const result = await dbRun(req.tenantDb, 
             `INSERT INTO shopping_items (household_id, name, quantity, category, estimated_cost) VALUES (?, ?, ?, ?, ?)`,
             [req.params.id, name, quantity || '1', category || 'general', estimated_cost || 0]
         );
         
         const newItem = await dbGet(req.tenantDb, "SELECT * FROM shopping_items WHERE id = ?", [result.id]);
-        req.tenantDb.close();
+        if (req.tenantDb) req.tenantDb.close();
         res.status(201).json(newItem);
     } catch (err) {
-        console.error("Failed to add shopping item", err);
+        console.error("[SHOPPING] Failed to add shopping item", err);
         if (req.tenantDb) req.tenantDb.close();
-        res.status(500).json({ error: "Failed to add item" });
+        res.status(500).json({ error: "Failed to add item: " + err.message });
     }
 });
 
@@ -72,6 +70,7 @@ router.put('/households/:id/shopping-list/:itemId', authenticateToken, requireHo
     const itemId = req.params.itemId;
 
     try {
+        console.log(`[SHOPPING] Updating item ${itemId} for household ${req.params.id}`);
         // Dynamic update
         let fields = [];
         let values = [];
@@ -82,7 +81,7 @@ router.put('/households/:id/shopping-list/:itemId', authenticateToken, requireHo
         if (estimated_cost !== undefined) { fields.push("estimated_cost = ?"); values.push(estimated_cost); }
         
         if (fields.length === 0) {
-            req.tenantDb.close();
+            if (req.tenantDb) req.tenantDb.close();
             return res.status(400).json({ error: "No fields to update" });
         }
 
@@ -95,12 +94,12 @@ router.put('/households/:id/shopping-list/:itemId', authenticateToken, requireHo
         await dbRun(req.tenantDb, sql, values);
         
         const updatedItem = await dbGet(req.tenantDb, "SELECT * FROM shopping_items WHERE id = ?", [itemId]);
-        req.tenantDb.close();
+        if (req.tenantDb) req.tenantDb.close();
         res.json(updatedItem);
     } catch (err) {
-        console.error("Failed to update shopping item", err);
+        console.error("[SHOPPING] Failed to update shopping item", err);
         if (req.tenantDb) req.tenantDb.close();
-        res.status(500).json({ error: "Failed to update item" });
+        res.status(500).json({ error: "Failed to update item: " + err.message });
     }
 });
 
@@ -110,13 +109,14 @@ router.put('/households/:id/shopping-list/:itemId', authenticateToken, requireHo
  */
 router.delete('/households/:id/shopping-list/clear', authenticateToken, requireHouseholdRole('member'), useTenantDb, async (req, res) => {
     try {
+        console.log(`[SHOPPING] Clearing completed items for household ${req.params.id}`);
         await dbRun(req.tenantDb, "DELETE FROM shopping_items WHERE household_id = ? AND is_checked = 1", [req.params.id]);
-        req.tenantDb.close();
+        if (req.tenantDb) req.tenantDb.close();
         res.json({ message: "Cleared completed items" });
     } catch (err) {
-        console.error("Failed to clear shopping list", err);
+        console.error("[SHOPPING] Failed to clear shopping list", err);
         if (req.tenantDb) req.tenantDb.close();
-        res.status(500).json({ error: "Failed to clear items" });
+        res.status(500).json({ error: "Failed to clear items: " + err.message });
     }
 });
 
@@ -126,13 +126,14 @@ router.delete('/households/:id/shopping-list/clear', authenticateToken, requireH
  */
 router.delete('/households/:id/shopping-list/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, async (req, res) => {
     try {
+        console.log(`[SHOPPING] Deleting item ${req.params.itemId} for household ${req.params.id}`);
         await dbRun(req.tenantDb, "DELETE FROM shopping_items WHERE household_id = ? AND id = ?", [req.params.id, req.params.itemId]);
-        req.tenantDb.close();
+        if (req.tenantDb) req.tenantDb.close();
         res.json({ message: "Item deleted" });
     } catch (err) {
-        console.error("Failed to delete shopping item", err);
+        console.error("[SHOPPING] Failed to delete shopping item", err);
         if (req.tenantDb) req.tenantDb.close();
-        res.status(500).json({ error: "Failed to delete item" });
+        res.status(500).json({ error: "Failed to delete item: " + err.message });
     }
 });
 

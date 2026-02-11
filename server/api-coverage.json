@@ -1,13 +1,13 @@
 {
-  "timestamp": "2026-02-11T13:54:55.166Z",
+  "timestamp": "2026-02-11T22:50:17.723Z",
   "accounts": {
-    "admin": "admin_1770818091845@test.com",
-    "viewer": "viewer_1770818091845@test.com"
+    "admin": "admin_1770850215854@test.com",
+    "viewer": "viewer_1770850215854@test.com"
   },
   "steps": [
-    "13:54:51: Loading Swagger schema for strict sync enforcement.",
-    "13:54:51: Initializing test environment.",
-    "13:54:55: Cleaning up: Deleting test household."
+    "22:50:15: Loading Swagger schema for strict sync enforcement.",
+    "22:50:15: Initializing test environment.",
+    "22:50:17: Cleaning up: Deleting test household."
   ],
   "summary": {
     "total_endpoints": 25,
@@ -52,6 +52,12 @@
       "PUT /households/{id}",
       "GET /households/{id}/details",
       "PUT /households/{id}/details",
+      "GET /households/{id}/chores",
+      "POST /households/{id}/chores",
+      "PUT /households/{id}/chores/{choreId}",
+      "DELETE /households/{id}/chores/{choreId}",
+      "POST /households/{id}/chores/{choreId}/complete",
+      "GET /households/{id}/chores/stats",
       "GET /households/{id}/assets",
       "POST /households/{id}/assets",
       "GET /households/{id}/assets/{itemId}",

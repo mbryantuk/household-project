@@ -145,8 +145,8 @@ export default function NavSidebar({
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { 
-    household, members, vehicles, user, api,
-    onLogout, confirmAction, households, onSelectHousehold
+    household, members = [], vehicles = [], user, api,
+    onLogout, confirmAction, households = [], onSelectHousehold
   } = useHousehold();
   
   const [activeCategory, setActiveCategory] = useState(null);
@@ -180,6 +180,7 @@ export default function NavSidebar({
   }, [household]);
 
   const getCategoryFromPath = useCallback((path) => {
+      if (!path) return null;
       if (path.includes('/people') || path.includes('/pets') || path.includes('/vehicles') || path.includes('/house')) return 'household';
       if (path.includes('/finance')) return 'finance';
       if (path.includes('/calendar')) return 'calendar';
@@ -211,6 +212,7 @@ export default function NavSidebar({
   };
 
   const getFinanceLink = (tab) => {
+      if (!household?.id) return '/';
       const profileId = searchParams.get('financial_profile_id');
       let link = `/household/${household.id}/finance?tab=${tab}`;
       if (profileId) link += `&financial_profile_id=${profileId}`;
@@ -234,17 +236,18 @@ export default function NavSidebar({
     const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
     useEffect(() => {
-        if (currentPanelCategory === 'finance') {
+        if (currentPanelCategory === 'finance' && household?.id) {
             api.get(`/households/${household.id}/finance/profiles`)
                .then(res => setProfiles(res.data))
                .catch(console.error);
         }
-    }, [api, household.id, currentPanelCategory]);
+    }, [api, household?.id, currentPanelCategory]);
 
     const handleCreateProfile = async (e) => {
         e.preventDefault();
+        if (!household?.id) return;
         try {
-            const res = await api.post(`/households/${householdId}/finance/profiles`, {
+            const res = await api.post(`/households/${household.id}/finance/profiles`, {
                 name: newProfileName, emoji: newProfileEmoji, is_default: false
             });
             setProfiles(prev => [...prev, res.data]);
@@ -255,6 +258,7 @@ export default function NavSidebar({
     };
 
     const handleDeleteProfile = async (id) => {
+        if (!household?.id) return;
         if (!confirm("Delete this profile?")) return;
         try {
             await api.delete(`/households/${household.id}/finance/profiles/${id}`);
@@ -266,6 +270,8 @@ export default function NavSidebar({
     };
 
     const isSettingsTabActive = (tab) => location.pathname.includes('/settings') && searchParams.get('tab') === String(tab);
+
+    if (!household) return null;
 
     return (
       <Box 
@@ -467,7 +473,7 @@ export default function NavSidebar({
                               <>
                                   <ListItem sx={{ mt: 1, mb: 0.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', pr: 1 }}>
                                       <Typography level="body-xs" fontWeight="bold" textTransform="uppercase" letterSpacing="1px" sx={{ px: 1, color: 'text.tertiary' }}>PROFILES</Typography>
-                                      <IconButton size="sm" variant="plain" onClick={() => setProfileCreateOpen(true)}><Add fontSize="small" /></IconButton>
+                                      <IconButton size="sm" variant="plain" onClick={() => setProfileCreateOpen(true)} aria-label="Add Profile"><Add fontSize="small" /></IconButton>
                                   </ListItem>
                                   {profiles.map(p => (
                                       <ListItem key={p.id} endAction={p.is_default !== 1 ? (<IconButton size="sm" variant="plain" color="danger" onClick={() => handleDeleteProfile(p.id)} sx={{ opacity: 0, transition: 'opacity 0.2s', '.MuiListItem-root:hover &': { opacity: 1 } }}><Close fontSize="small" /></IconButton>) : null}>
