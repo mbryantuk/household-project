@@ -40,6 +40,7 @@ const PetsView = lazy(() => import('./features/PetsView'));
 const VehiclesView = lazy(() => import('./features/VehiclesView'));
 const ProfileView = lazy(() => import('./features/ProfileView'));
 const FinanceView = lazy(() => import('./features/FinanceView'));
+const ChoresView = lazy(() => import('./features/ChoresView'));
 
 const API_BASE = window.location.origin;
 const API_URL = `${API_BASE}/api`;
@@ -425,6 +426,7 @@ function AppInner({
                     <Route path="profile" element={<ProfileView />} />
                     <Route path="meals" element={<MealPlannerView />} />
                     <Route path="shopping" element={<ShoppingListView />} />
+                    <Route path="chores" element={<ChoresView />} />
                     <Route path="finance" element={<FinanceView />} />
                     <Route path="settings" element={<SettingsView 
                         household={household} users={hhUsers} currentUser={user} api={authAxios}

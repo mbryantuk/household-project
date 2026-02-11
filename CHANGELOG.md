@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.2.183] - 2026-02-11
+### Added
+- **Chores:** Introduced "Chores Tracker" module with assignment, frequency (Daily/Weekly/Monthly), and pocket money tracking.
+- **Gamification:** Added "Earnings Widget" to the Chores view to display total value earned by each member.
+- **Shopping:** Renamed "List" to "Shopping List" and updated the icon to a shopping bag for better clarity.
+
 ## [3.2.182] - 2026-02-11
 ### Fixed
 - **Finance:** Fixed budget payment checkboxes being permanently disabled by correcting the `savingProgress` state initialization.

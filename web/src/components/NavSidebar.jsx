@@ -7,7 +7,7 @@ import {
   Event, Pets, Inventory2, RestaurantMenu, AccountBalance, Close, 
   KeyboardArrowRight, PushPin, PushPinOutlined, HomeWork, Settings as SettingsIcon, 
   Logout as LogoutIcon, Download as DownloadIcon, Home as HomeIcon, ExpandMore, Add, CheckCircle,
-  Palette, Person, Security
+  Palette, Person, Security, CleaningServices, ShoppingBag
 } from '@mui/icons-material';
 
 import { useLocation, useNavigate, NavLink, useSearchParams } from 'react-router-dom';
@@ -184,6 +184,8 @@ export default function NavSidebar({
       if (path.includes('/finance')) return 'finance';
       if (path.includes('/calendar')) return 'calendar';
       if (path.includes('/meals')) return 'meals';
+      if (path.includes('/chores')) return 'chores';
+      if (path.includes('/shopping')) return 'shopping';
       if (path.includes('/dashboard')) return 'dashboard';
       if (path.includes('/settings')) return 'account';
       return null;
@@ -324,7 +326,8 @@ export default function NavSidebar({
               <Box sx={{ width: '100%', flexGrow: 1, overflowY: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
                   <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
                       <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems to={`/household/${household.id}/finance`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
-                      <RailIcon icon={<Add />} label="Shop" category="shopping" to={`/household/${household.id}/shopping`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
+                      <RailIcon icon={<ShoppingBag />} label="Shopping List" category="shopping" to={`/household/${household.id}/shopping`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
+                      <RailIcon icon={<CleaningServices />} label="Chores" category="chores" to={`/household/${household.id}/chores`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                       {enabledModules.includes('meals') && (
                           <RailIcon icon={<RestaurantMenu />} label="Meals" category="meals" to={`/household/${household.id}/meals`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                       )}

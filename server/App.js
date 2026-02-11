@@ -10,6 +10,7 @@ const swaggerDocument = require('./swagger.json');
 
 // Import unified database instance
 const { SECRET_KEY } = require('./config');
+const { globalDb } = require('./db');
 console.log("System Initialized with Secret Key Length:", SECRET_KEY ? SECRET_KEY.length : 0);
 require('./services/crypto'); 
 
@@ -25,6 +26,7 @@ const mealRoutes = require('./routes/meals');
 const financeRoutes = require('./routes/finance');
 const financeProfileRoutes = require('./routes/finance_profiles');
 const shoppingRoutes = require('./routes/shopping');
+const choresRoutes = require('./routes/chores');
 
 const { createBackup, cleanOldBackups } = require('./services/backup');
 
@@ -92,6 +94,7 @@ const allRouters = [
     { path: '/admin', router: adminRoutes },
     { path: '/households/:id/finance/profiles', router: financeProfileRoutes },
     { path: '/households/:id/finance', router: financeRoutes },
+    { path: '/households/:id/chores', router: choresRoutes },
     { path: '/', router: householdRoutes },
     { path: '/', router: memberRoutes },
     { path: '/', router: calendarRoutes },

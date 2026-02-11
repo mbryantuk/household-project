@@ -391,6 +391,29 @@ const TENANT_SCHEMA = [
         estimated_cost REAL DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE TABLE IF NOT EXISTS chores (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        name TEXT,
+        description TEXT,
+        assigned_member_id INTEGER,
+        frequency TEXT, -- 'one_off', 'daily', 'weekly', 'monthly'
+        value REAL DEFAULT 0, -- Pocket money value
+        next_due_date DATE,
+        emoji TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(assigned_member_id) REFERENCES members(id) ON DELETE SET NULL
+    )`,
+    `CREATE TABLE IF NOT EXISTS chore_completions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        chore_id INTEGER,
+        member_id INTEGER,
+        completed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        value_earned REAL DEFAULT 0,
+        FOREIGN KEY(chore_id) REFERENCES chores(id) ON DELETE SET NULL,
+        FOREIGN KEY(member_id) REFERENCES members(id) ON DELETE SET NULL
     )`
 ];
 
@@ -696,6 +719,36 @@ function initializeHouseholdSchema(db) {
                                                 estimated_cost REAL DEFAULT 0,
                                                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                                                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                                            )`);
+                                        }
+                                    });
+
+                                    // 🛠️ MIGRATION: Ensure chores and chore_completions exist
+                                    db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='chores'", (err, row) => {
+                                        if (!row) {
+                                            console.log("🛠️ Migrating household database: Adding chores tables...");
+                                            db.run(`CREATE TABLE IF NOT EXISTS chores (
+                                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                household_id INTEGER,
+                                                name TEXT,
+                                                description TEXT,
+                                                assigned_member_id INTEGER,
+                                                frequency TEXT,
+                                                value REAL DEFAULT 0,
+                                                next_due_date DATE,
+                                                emoji TEXT,
+                                                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                                FOREIGN KEY(assigned_member_id) REFERENCES members(id) ON DELETE SET NULL
+                                            )`);
+                                            db.run(`CREATE TABLE IF NOT EXISTS chore_completions (
+                                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                household_id INTEGER,
+                                                chore_id INTEGER,
+                                                member_id INTEGER,
+                                                completed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                                value_earned REAL DEFAULT 0,
+                                                FOREIGN KEY(chore_id) REFERENCES chores(id) ON DELETE SET NULL,
+                                                FOREIGN KEY(member_id) REFERENCES members(id) ON DELETE SET NULL
                                             )`);
                                         }
                                     });
