@@ -36,6 +36,7 @@ const ROUTE_META = {
   house: { title: 'House' },
   vehicles: { title: 'Vehicles' },
   finance: { title: 'Finance' },
+  shopping: { title: 'Shopping List' },
   meals: { title: 'Meal Planner' },
   settings: { title: 'Settings' },
   profile: { title: 'Profile' }
@@ -111,7 +112,7 @@ export default function HouseholdLayout({
   const isTabActive = (path) => location.pathname.includes(path);
 
   const pageTitle = useMemo(() => {
-    const path = location.pathname;
+    const path = location.pathname || '';
     const parts = path.split('/');
     const section = parts[3];
     return ROUTE_META[section]?.title || activeHousehold?.name || 'MANTEL';
@@ -280,6 +281,7 @@ export default function HouseholdLayout({
                             <MenuTile icon={<HomeIcon />} label="Household" to="house" onClick={() => setDrawerOpen(false)} />
                             <MenuTile icon={<AccountBalance />} label="Finance" to="finance" onClick={() => setDrawerOpen(false)} />
                             <MenuTile icon={<RestaurantMenu />} label="Meals" to="meals" onClick={() => setDrawerOpen(false)} />
+                            <MenuTile icon={<Add />} label="Shop" to="shopping" onClick={() => setDrawerOpen(false)} />
                         </>
                     ) : (
                         households.map(hh => (
@@ -320,8 +322,7 @@ export default function HouseholdLayout({
                                 icon={<SettingsIcon />} 
                                 label="Settings" 
                                 to="settings" 
-                                                                  onClick={() => setDrawerOpen(false)} 
-                                                              />                                onClick={() => setDrawerOpen(false)} 
+                                onClick={() => setDrawerOpen(false)} 
                             />
                             <MenuTile 
                                 icon={<Logout />} 

@@ -5,6 +5,7 @@ test.describe('Core UI Smoke Tests', () => {
     const PASSWORD = 'Password123!';
 
     test.beforeEach(async ({ page }) => {
+        page.on('console', msg => console.log(`[BROWSER] ${msg.text()}`));
         await page.goto('/login');
         await page.fill('input[type="email"]', ADMIN_EMAIL);
         await page.click('button:has-text("Next")');
@@ -41,6 +42,24 @@ test.describe('Core UI Smoke Tests', () => {
 
         await page.click('a[href*="/meals"]');
         await expect(page.locator('h2')).toContainText('Meal Planner');
+    });
+
+    test('Shopping List: Add Item and Budget Estimate', async ({ page }) => {
+        // Navigate
+        await page.goto('/household/60/shopping'); // Direct nav or click sidebar
+        await expect(page.locator('h2')).toContainText('Shopping List');
+
+        // Add Item
+        await page.fill('input[placeholder="Item name (e.g. Milk)"]', 'Playwright Milk');
+        await page.fill('input[placeholder="£ Est."]', '1.50');
+        await page.click('button:has-text("Add")');
+
+        // Verify List
+        await expect(page.locator('text=Playwright Milk')).toBeVisible();
+
+        // Verify Budget Widget
+        const total = page.locator('text=£1.50');
+        await expect(total).toBeVisible();
     });
 
     test('Avatar Menu: Opens Sidebar Panel', async ({ page }) => {

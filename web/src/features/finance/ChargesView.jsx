@@ -302,7 +302,7 @@ export default function ChargesView({ initialTab }) {
             />
 
             <FormControl><FormLabel>Assign To</FormLabel>
-                <Select value={`${formData.object_type}_${formData.object_id || 'null'}`} onChange={(e, val) => { const [type, id] = val.split('_'); setFormData({ ...formData, object_type: type, object_id: id === 'null' ? null : parseInt(id) }); }}>
+                <Select value={`${formData.object_type}_${formData.object_id || 'null'}`} onChange={(e, val) => { if (!val) return; const [type, id] = val.split('_'); setFormData({ ...formData, object_type: type, object_id: id === 'null' ? null : parseInt(id) }); }}>
                     <Option value={`household_null`}>🏠 Household</Option>
                     <Divider>Members</Divider>{members.map(m => <Option key={m.id} value={`member_${m.id}`}>{m.emoji} {m.name}</Option>)}
                     <Divider>Vehicles</Divider>{vehicles.map(v => <Option key={v.id} value={`vehicle_${v.id}`}>{v.emoji || '🚗'} {v.make} {v.model}</Option>)}

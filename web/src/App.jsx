@@ -32,6 +32,7 @@ import HouseholdSelector from './pages/HouseholdSelector';
 const HomeView = lazy(() => import('./features/HomeView'));
 const SettingsView = lazy(() => import('./features/SettingsView'));
 const MealPlannerView = lazy(() => import('./features/MealPlannerView'));
+const ShoppingListView = lazy(() => import('./features/ShoppingListView'));
 const CalendarView = lazy(() => import('./features/CalendarView'));
 const PeopleView = lazy(() => import('./features/PeopleView'));
 const HouseView = lazy(() => import('./features/HouseView'));
@@ -66,7 +67,7 @@ const queryClient = new QueryClient({
 
 function AppInner({ 
     themeId, setThemeId, user, setUser, token, setToken, household, setHousehold, 
-    logout, login, mfaLogin, spec, isDark, onPreviewTheme
+    logout, login, mfaLogin, handleLoginSuccess, spec, isDark, onPreviewTheme
 }) {
   const { setMode } = useColorScheme();
   
@@ -376,7 +377,7 @@ function AppInner({
 
       <Suspense fallback={<PageLoader />}>
         <Routes>
-            <Route path="/login" element={!token ? <Login onLogin={login} onMfaLogin={mfaLogin} /> : <Navigate to="/" />} />
+            <Route path="/login" element={!token ? <Login onLogin={login} onMfaLogin={mfaLogin} onLoginSuccess={handleLoginSuccess} /> : <Navigate to="/" />} />
             <Route path="/register" element={!token ? <Register /> : <Navigate to="/" />} />
             <Route path="/calculator" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
             <Route path="/fin-calculator-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FinancialCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
@@ -413,6 +414,7 @@ function AppInner({
                     <Route path="vehicles/:vehicleId" element={<VehiclesView />} /><Route path="vehicles" element={<VehiclesView />} />
                     <Route path="profile" element={<ProfileView />} />
                     <Route path="meals" element={<MealPlannerView />} />
+                    <Route path="shopping" element={<ShoppingListView />} />
                     <Route path="finance" element={<FinanceView />} />
                     <Route path="settings" element={<SettingsView 
                         household={household} users={hhUsers} currentUser={user} api={authAxios}
@@ -493,14 +495,9 @@ export default function App() {
     setPreviewThemeId(id);
     setPreviewCustomConfig(config);
   }, []);
-  const login = useCallback(async (email, password, rememberMe) => {
-      const res = await axios.post(`${API_URL}/auth/login`, { email, password, rememberMe });
-      
-      if (res.data.mfa_required) {
-          return { mfa_required: true, preAuthToken: res.data.preAuthToken };
-      }
 
-      const { token, role, context, household: hhData, user: userData, system_role } = res.data;
+  const handleLoginSuccess = useCallback((data, rememberMe) => {
+      const { token, role, context, household: hhData, user: userData, system_role } = data;
       const fullUser = { ...userData, role, system_role };
       setToken(token); setUser(fullUser);
       localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(fullUser));
@@ -522,23 +519,20 @@ export default function App() {
       }
   }, []);
 
+  const login = useCallback(async (email, password, rememberMe) => {
+      const res = await axios.post(`${API_URL}/auth/login`, { email, password, rememberMe });
+      
+      if (res.data.mfa_required) {
+          return { mfa_required: true, preAuthToken: res.data.preAuthToken };
+      }
+
+      handleLoginSuccess(res.data, rememberMe);
+  }, [handleLoginSuccess]);
+
   const mfaLogin = useCallback(async (preAuthToken, code) => {
       const res = await axios.post(`${API_URL}/auth/mfa/login`, { preAuthToken, code });
-      const { token, role, context, household: hhData, user: userData, system_role } = res.data;
-      const fullUser = { ...userData, role, system_role };
-      setToken(token); setUser(fullUser);
-      localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(fullUser));
-      
-      if (userData.theme) setThemeId(userData.theme);
-      if (context === 'household') {
-        setHousehold(hhData);
-        localStorage.setItem('household', JSON.stringify(hhData));
-        window.location.href = `/household/${hhData.id}/dashboard`;
-      } else {
-        setHousehold(null); localStorage.removeItem('household');
-        window.location.href = '/select-household';
-      }
-  }, []);
+      handleLoginSuccess(res.data, false); // MFA doesn't usually set rememberMe, or it's inherited
+  }, [handleLoginSuccess]);
 
   const logout = useCallback(() => {
     localStorage.removeItem('token');
@@ -560,6 +554,7 @@ export default function App() {
                 token={token} setToken={setToken} 
                 household={household} setHousehold={setHousehold}
                 logout={logout} login={login} mfaLogin={mfaLogin}
+                handleLoginSuccess={handleLoginSuccess}
                 spec={spec} isDark={isDark}
             />
         </CssVarsProvider>

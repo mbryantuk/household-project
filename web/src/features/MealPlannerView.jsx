@@ -19,7 +19,10 @@ const getStartOfWeek = (date) => {
   return new Date(d.setDate(diff));
 };
 
-const formatDate = (date) => date.toISOString().split('T')[0];
+const formatDate = (date) => {
+  if (!date || !(date instanceof Date)) return '';
+  return date.toISOString().split('T')[0];
+};
 
 export default function MealPlannerView() {
   const { api, id: householdId, members, showNotification } = useOutletContext();

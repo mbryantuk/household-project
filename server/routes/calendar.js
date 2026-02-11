@@ -1,22 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { getHouseholdDb, ensureHouseholdSchema } = require('../db');
+const { getHouseholdDb } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
+const { useTenantDb } = require('../middleware/tenant');
 const { getBankHolidays, getPriorWorkingDay, getNextWorkingDay } = require('../services/bankHolidays');
-
-const useTenantDb = async (req, res, next) => {
-    const hhId = req.params.id;
-    if (!hhId) return res.status(400).json({ error: "Household ID required" });
-    try {
-        const db = getHouseholdDb(hhId);
-        await ensureHouseholdSchema(db, hhId);
-        req.tenantDb = db;
-        req.hhId = hhId;
-        next();
-    } catch (err) {
-        res.status(500).json({ error: "Database initialization failed: " + err.message });
-    }
-};
 
 const closeDb = (req) => {
     if (req.tenantDb) req.tenantDb.close();

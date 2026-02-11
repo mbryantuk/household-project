@@ -31,6 +31,19 @@ const GLOBAL_SCHEMA = [
         is_revoked INTEGER DEFAULT 0,
         FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
     )`,
+    `CREATE TABLE IF NOT EXISTS passkeys (
+        id TEXT PRIMARY KEY, -- Credential ID (base64url)
+        user_id INTEGER,
+        webauthn_user_id TEXT, -- User handle (base64url)
+        public_key TEXT, -- COSE key (base64url)
+        counter INTEGER,
+        device_type TEXT, -- 'singleDevice' or 'multiDevice'
+        backed_up INTEGER,
+        transports TEXT, -- JSON array of transports
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        last_used_at DATETIME,
+        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+    )`,
     `CREATE TABLE IF NOT EXISTS test_results (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         test_type TEXT, -- 'backend', 'frontend'
@@ -365,6 +378,17 @@ const TENANT_SCHEMA = [
         entity_id INTEGER,
         member_id INTEGER,
         PRIMARY KEY (entity_type, entity_id, member_id)
+    )`,
+    `CREATE TABLE IF NOT EXISTS shopping_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        name TEXT NOT NULL,
+        category TEXT DEFAULT 'general',
+        quantity TEXT DEFAULT '1',
+        is_checked INTEGER DEFAULT 0,
+        estimated_cost REAL DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`
 ];
 
@@ -493,6 +517,35 @@ function initializeGlobalSchema(db) {
                 )`);
             }
         });
+
+        // 🛠️ MIGRATION: Ensure passkeys exists
+        db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='passkeys'", (err, row) => {
+            if (!row) {
+                console.log("🛠️ Migrating global database: Adding passkeys table...");
+                db.run(`CREATE TABLE IF NOT EXISTS passkeys (
+                    id TEXT PRIMARY KEY, -- Credential ID (base64url)
+                    user_id INTEGER,
+                    webauthn_user_id TEXT, -- User handle (base64url)
+                    public_key TEXT, -- COSE key (base64url)
+                    counter INTEGER,
+                    device_type TEXT, -- 'singleDevice' or 'multiDevice'
+                    backed_up INTEGER,
+                    transports TEXT, -- JSON array of transports
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    last_used_at DATETIME,
+                    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+                )`);
+            }
+        });
+
+        // 🛠️ MIGRATION: Add current_challenge to users
+        db.all("PRAGMA table_info(users)", (err, rows) => {
+            if (err) return;
+            if (!rows.some(r => r.name === 'current_challenge')) {
+                console.log("🛠️ Migrating users: Adding current_challenge...");
+                db.run("ALTER TABLE users ADD COLUMN current_challenge TEXT");
+            }
+        });
     });
 }
 
@@ -607,6 +660,25 @@ function initializeHouseholdSchema(db) {
                                             });
                                         }
                                     });
+
+                                    // 🛠️ MIGRATION: Ensure shopping_items exists
+                                    db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='shopping_items'", (err, row) => {
+                                        if (!row) {
+                                            console.log("🛠️ Migrating household database: Adding shopping_items table...");
+                                            db.run(`CREATE TABLE IF NOT EXISTS shopping_items (
+                                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                household_id INTEGER,
+                                                name TEXT NOT NULL,
+                                                category TEXT DEFAULT 'general',
+                                                quantity TEXT DEFAULT '1',
+                                                is_checked INTEGER DEFAULT 0,
+                                                estimated_cost REAL DEFAULT 0,
+                                                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                                            )`);
+                                        }
+                                    });
+
                                     resolve();
                                 }
                             });

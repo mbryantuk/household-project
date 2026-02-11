@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Box, Typography, Sheet, Stack, Grid, Tooltip, FormControl, FormLabel, Switch, Input, Button, Divider } from '@mui/joy';
 import Palette from '@mui/icons-material/Palette';
 import LightMode from '@mui/icons-material/LightMode';
@@ -129,12 +129,20 @@ export default function ThemeSettings() {
       <Box>
         <Typography level="title-lg" startDecorator={<Palette color="warning" />} sx={{ mb: 2 }}>Signature Designs</Typography>
         <Typography level="body-sm" sx={{ mb: 2 }}>High-fidelity UI styles with editorial typography and refined depth.</Typography>
+        
+        <Typography level="title-sm" sx={{ mb: 2, mt: 4, textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.6 }}>Premium Light</Typography>
+        <ThemeGrid themes={groupedThemes.light} themeId={themeId} onThemeChange={handleThemeSelect} />
+
+        <Typography level="title-sm" sx={{ mb: 2, mt: 4, textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.6 }}>Premium Dark</Typography>
+        <ThemeGrid themes={groupedThemes.dark} themeId={themeId} onThemeChange={handleThemeSelect} />
+
+        <Typography level="title-sm" sx={{ mb: 2, mt: 4, textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.6 }}>Signature Collector</Typography>
         <ThemeGrid themes={groupedThemes.signature} themeId={themeId} onThemeChange={handleThemeSelect} />
       </Box>
 
       <Divider />
 
-      {/* Special Theme: Custom */}
+      {/* Restore Special Theme: Custom */}
       <Box>
           <Typography level="title-lg" startDecorator={<Palette color="primary" />} sx={{ mb: 2 }}>Laboratory</Typography>
           <Grid container spacing={2}>
@@ -194,18 +202,6 @@ export default function ThemeSettings() {
               </Grid>
           </Sheet>
       )}
-
-      <Stack spacing={4}>
-        <Box>
-          <Typography level="title-lg" startDecorator={<LightMode color="warning" />} sx={{ mb: 2 }}>Light Themes</Typography>
-          <ThemeGrid themes={groupedThemes.light} themeId={themeId} onThemeChange={handleThemeSelect} />
-        </Box>
-        <Divider />
-        <Box>
-          <Typography level="title-lg" startDecorator={<DarkMode color="primary" />} sx={{ mb: 2 }}>Dark Themes</Typography>
-          <ThemeGrid themes={groupedThemes.dark} themeId={themeId} onThemeChange={handleThemeSelect} />
-        </Box>
-      </Stack>
     </Stack>
   );
 }

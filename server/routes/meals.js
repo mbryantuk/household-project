@@ -1,23 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
-const { getHouseholdDb } = require('../db');
+const { useTenantDb } = require('../middleware/tenant');
 
 // --- MEALS ---
 
 // List Meals
-router.get('/households/:id/meals', authenticateToken, requireHouseholdRole('viewer'), (req, res) => {
-    const db = getHouseholdDb(req.params.id);
-    db.all("SELECT * FROM meals WHERE household_id = ?", [req.params.id], (err, rows) => {
+router.get('/households/:id/meals', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
+    req.tenantDb.all("SELECT * FROM meals WHERE household_id = ?", [req.params.id], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });
 
 // Get Single Meal
-router.get('/households/:id/meals/:mealId', authenticateToken, requireHouseholdRole('viewer'), (req, res) => {
-    const db = getHouseholdDb(req.params.id);
-    db.get("SELECT * FROM meals WHERE id = ? AND household_id = ?", [req.params.mealId, req.params.id], (err, row) => {
+router.get('/households/:id/meals/:mealId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
+    req.tenantDb.get("SELECT * FROM meals WHERE id = ? AND household_id = ?", [req.params.mealId, req.params.id], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
         if (!row) return res.status(404).json({ error: "Meal not found" });
         res.json(row);
@@ -25,12 +23,11 @@ router.get('/households/:id/meals/:mealId', authenticateToken, requireHouseholdR
 });
 
 // Create Meal
-router.post('/households/:id/meals', authenticateToken, requireHouseholdRole('member'), (req, res) => {
+router.post('/households/:id/meals', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     const { name, description, emoji } = req.body;
     if (!name) return res.status(400).json({ error: "Name is required" });
 
-    const db = getHouseholdDb(req.params.id);
-    db.run(
+    req.tenantDb.run(
         "INSERT INTO meals (household_id, name, description, emoji) VALUES (?, ?, ?, ?)",
         [req.params.id, name, description, emoji],
         function(err) {
@@ -41,11 +38,10 @@ router.post('/households/:id/meals', authenticateToken, requireHouseholdRole('me
 });
 
 // Update Meal
-router.put('/households/:id/meals/:mealId', authenticateToken, requireHouseholdRole('member'), (req, res) => {
+router.put('/households/:id/meals/:mealId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     const { name, description, emoji } = req.body;
-    const db = getHouseholdDb(req.params.id);
     
-    db.run(
+    req.tenantDb.run(
         "UPDATE meals SET name = ?, description = ?, emoji = ? WHERE id = ? AND household_id = ?",
         [name, description, emoji, req.params.mealId, req.params.id],
         function(err) {
@@ -56,9 +52,8 @@ router.put('/households/:id/meals/:mealId', authenticateToken, requireHouseholdR
 });
 
 // Delete Meal
-router.delete('/households/:id/meals/:mealId', authenticateToken, requireHouseholdRole('member'), (req, res) => {
-    const db = getHouseholdDb(req.params.id);
-    db.run(
+router.delete('/households/:id/meals/:mealId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
+    req.tenantDb.run(
         "DELETE FROM meals WHERE id = ? AND household_id = ?",
         [req.params.mealId, req.params.id],
         function(err) {
@@ -71,9 +66,8 @@ router.delete('/households/:id/meals/:mealId', authenticateToken, requireHouseho
 // --- MEAL PLANS ---
 
 // Get Plans (Range)
-router.get('/households/:id/meal-plans', authenticateToken, requireHouseholdRole('viewer'), (req, res) => {
+router.get('/households/:id/meal-plans', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
     const { start, end } = req.query; // YYYY-MM-DD
-    const db = getHouseholdDb(req.params.id);
     
     let sql = `
         SELECT mp.*, m.name as meal_name, m.emoji as meal_emoji 
@@ -88,19 +82,18 @@ router.get('/households/:id/meal-plans', authenticateToken, requireHouseholdRole
         params.push(start, end);
     }
 
-    db.all(sql, params, (err, rows) => {
+    req.tenantDb.all(sql, params, (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });
 
 // Assign Meal
-router.post('/households/:id/meal-plans', authenticateToken, requireHouseholdRole('member'), (req, res) => {
+router.post('/households/:id/meal-plans', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     const { date, member_id, meal_id, type } = req.body;
     if (!date || !member_id || !meal_id) return res.status(400).json({ error: "Missing fields" });
 
-    const db = getHouseholdDb(req.params.id);
-    db.run(
+    req.tenantDb.run(
         "INSERT INTO meal_plans (household_id, date, member_id, meal_id, type) VALUES (?, ?, ?, ?, ?)",
         [req.params.id, date, member_id, meal_id, type || 'dinner'],
         function(err) {
@@ -111,12 +104,10 @@ router.post('/households/:id/meal-plans', authenticateToken, requireHouseholdRol
 });
 
 // Copy Previous Week
-router.post('/households/:id/meal-plans/copy-previous', authenticateToken, requireHouseholdRole('member'), (req, res) => {
+router.post('/households/:id/meal-plans/copy-previous', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     const { targetDate } = req.body; // Any date in the target week, or specifically the start
     if (!targetDate) return res.status(400).json({ error: "Target date required" });
 
-    const db = getHouseholdDb(req.params.id);
-    
     // Logic: Look back 7 days for the "Source"
     // Let's expand the range to a full week to be safe if they pass Monday.
     const startOfTargetWeek = new Date(targetDate); 
@@ -130,7 +121,7 @@ router.post('/households/:id/meal-plans/copy-previous', authenticateToken, requi
     const endOfSourceWeekStr = endOfSourceWeek.toISOString().split('T')[0];
 
     // 1. Get Source Plans
-    db.all(
+    req.tenantDb.all(
         "SELECT * FROM meal_plans WHERE household_id = ? AND date BETWEEN ? AND ?",
         [req.params.id, startOfSourceWeekStr, endOfSourceWeekStr],
         async (err, rows) => {
@@ -138,7 +129,7 @@ router.post('/households/:id/meal-plans/copy-previous', authenticateToken, requi
             if (rows.length === 0) return res.json({ copiedCount: 0 });
 
             let copiedCount = 0;
-            const stmt = db.prepare("INSERT INTO meal_plans (household_id, date, member_id, meal_id, type) VALUES (?, ?, ?, ?, ?)");
+            const stmt = req.tenantDb.prepare("INSERT INTO meal_plans (household_id, date, member_id, meal_id, type) VALUES (?, ?, ?, ?, ?)");
 
             const processRow = (row) => {
                 return new Promise((resolve, reject) => {
@@ -147,7 +138,7 @@ router.post('/households/:id/meal-plans/copy-previous', authenticateToken, requi
                     newDate.setDate(newDate.getDate() + 7);
                     const newDateStr = newDate.toISOString().split('T')[0];
 
-                    db.get(
+                    req.tenantDb.get(
                         "SELECT id FROM meal_plans WHERE household_id=? AND date=? AND member_id=? AND meal_id=? AND type=?",
                         [req.params.id, newDateStr, row.member_id, row.meal_id, row.type],
                         (checkErr, existing) => {
@@ -179,9 +170,8 @@ router.post('/households/:id/meal-plans/copy-previous', authenticateToken, requi
 });
 
 // Remove Plan Entry
-router.delete('/households/:id/meal-plans/:planId', authenticateToken, requireHouseholdRole('member'), (req, res) => {
-    const db = getHouseholdDb(req.params.id);
-    db.run(
+router.delete('/households/:id/meal-plans/:planId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
+    req.tenantDb.run(
         "DELETE FROM meal_plans WHERE id = ? AND household_id = ?",
         [req.params.planId, req.params.id],
         function(err) {

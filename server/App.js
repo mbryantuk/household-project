@@ -15,6 +15,7 @@ require('./services/crypto');
 
 // Routes
 const authRoutes = require('./routes/auth');
+const passkeyRoutes = require('./routes/auth_passkeys');
 const householdRoutes = require('./routes/households');
 const memberRoutes = require('./routes/members');
 const adminRoutes = require('./routes/admin');
@@ -23,10 +24,17 @@ const detailsRoutes = require('./routes/details');
 const mealRoutes = require('./routes/meals');
 const financeRoutes = require('./routes/finance');
 const financeProfileRoutes = require('./routes/finance_profiles');
+const shoppingRoutes = require('./routes/shopping');
 
 const { createBackup, cleanOldBackups } = require('./services/backup');
 
 const app = express();
+
+// SUPER EARLY DEBUG LOGGING
+app.use((req, res, next) => {
+    console.log(`[EARLY DEBUG] ${req.method} ${req.path} - Headers:`, JSON.stringify(req.headers));
+    next();
+});
 
 // Security Middleware
 app.use(helmet({
@@ -52,15 +60,21 @@ app.use((req, res, next) => {
 });
 
 // Rate Limiter
-const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, 
-    max: 1000, // Increased for stability during rapid test cycles
-    message: "Too many login attempts, please try again later."
+// const authLimiter = rateLimit({
+//     windowMs: 15 * 60 * 1000, 
+//     max: 1000, // Increased for stability during rapid test cycles
+//     message: "Too many login attempts, please try again later."
+// });
+// app.use('/auth/login', authLimiter);
+// app.use('/auth/register', authLimiter);
+// app.use('/api/auth/login', authLimiter);
+// app.use('/api/auth/register', authLimiter);
+
+// DEBUG LOGGING
+app.use((req, res, next) => {
+    console.log(`[DEBUG] ${req.method} ${req.path} - Auth Header: ${req.headers['authorization'] ? 'Present' : 'Missing'}`);
+    next();
 });
-app.use('/auth/login', authLimiter);
-app.use('/auth/register', authLimiter);
-app.use('/api/auth/login', authLimiter);
-app.use('/api/auth/register', authLimiter);
 
 // Logging
 app.use((req, res, next) => {
@@ -74,6 +88,7 @@ app.use((req, res, next) => {
 // We mount everything at both root and /api for maximum compatibility with various proxy setups
 const allRouters = [
     { path: '/auth', router: authRoutes },
+    { path: '/passkeys', router: passkeyRoutes },
     { path: '/admin', router: adminRoutes },
     { path: '/households/:id/finance/profiles', router: financeProfileRoutes },
     { path: '/households/:id/finance', router: financeRoutes },
@@ -82,6 +97,7 @@ const allRouters = [
     { path: '/', router: calendarRoutes },
     { path: '/', router: detailsRoutes },
     { path: '/', router: mealRoutes },
+    { path: '/', router: shoppingRoutes },
     { path: '/export', router: require('./routes/export') }
 ];
 

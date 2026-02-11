@@ -1,14 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { 
-  Box, Sheet, Typography, Input, Button, Alert, Link, Checkbox, FormControl, FormLabel, Avatar, IconButton, Stack
+  Box, Sheet, Typography, Input, Button, Alert, Link, Checkbox, FormControl, FormLabel, Avatar, IconButton, Stack, Divider
 } from '@mui/joy';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { ArrowBack, Visibility, VisibilityOff, Email, Lock } from '@mui/icons-material';
+// import Fingerprint from '@mui/icons-material/Fingerprint';
 import axios from 'axios';
+// import { startAuthentication } from '@simplewebauthn/browser';
 import MantelIcon from '../components/MantelIcon';
 import { getEmojiColor } from '../theme';
 
-export default function Login({ onLogin, onMfaLogin }) {
+export default function Login({ onLogin, onMfaLogin, onLoginSuccess }) {
   const location = useLocation();
   const [step, setStep] = useState(1); // 1: Email, 2: Password, 3: MFA
   const [email, setEmail] = useState(localStorage.getItem('rememberedEmail') || '');
@@ -24,6 +26,28 @@ export default function Login({ onLogin, onMfaLogin }) {
   const [userProfile, setUserProfile] = useState(null);
 
   const message = location.state?.message;
+
+  const handlePasskeyLogin = async () => {
+      setLoading(true);
+      setError('');
+      try {
+          const res = await axios.get(`${window.location.origin}/api/passkeys/login/options?email=${email}`);
+          const options = res.data;
+          const assertion = await startAuthentication(options);
+          const verifyRes = await axios.post(`${window.location.origin}/api/passkeys/login/verify`, {
+              ...assertion, email
+          });
+
+          if (verifyRes.data.verified) {
+              onLoginSuccess(verifyRes.data, rememberMe);
+          }
+      } catch (err) {
+          console.error(err);
+          setError("Passkey login failed. Please try again or use password.");
+      } finally {
+          setLoading(false);
+      }
+  };
 
   const handleLookup = useCallback(async (e) => {
     if (e) e.preventDefault();
@@ -211,6 +235,18 @@ export default function Login({ onLogin, onMfaLogin }) {
                     <Link onClick={handleBack} level="body-xs" underline="hover" sx={{ cursor: 'pointer' }}>Not you?</Link>
                 </Typography>
             </Box>
+
+            {/* <Button 
+                fullWidth variant="soft" color="primary" 
+                startDecorator={<Fingerprint />} 
+                onClick={handlePasskeyLogin}
+                sx={{ mb: 3 }}
+                loading={loading}
+            >
+                Sign in with Passkey
+            </Button>
+
+            <Divider sx={{ mb: 3 }}>OR</Divider> */}
 
             <FormControl required sx={{ mb: 4 }}>
               <FormLabel>Password</FormLabel>

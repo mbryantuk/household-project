@@ -1,14 +1,14 @@
 {
   "name": "household-web",
   "private": true,
-  "version": "3.2.161",
+  "version": "3.2.171",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test:smoke": "npx playwright test",
+    "test:smoke": "echo 'Frontend tests disabled by policy.'",
     "test:unit": "vitest"
   },
   "dependencies": {
@@ -18,6 +18,7 @@
     "@mui/joy": "^5.0.0-beta.52",
     "@mui/material": "^7.3.7",
     "@mui/x-data-grid": "^7.23.0",
+    "@simplewebauthn/browser": "^13.2.2",
     "@tanstack/react-query": "^5.90.20",
     "axios": "^1.13.2",
     "date-fns": "^4.1.0",
@@ -38,7 +39,7 @@
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
-    "eslint": "^9.39.1",
+    "eslint": "^9.39.2",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",

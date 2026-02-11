@@ -14,6 +14,7 @@ import Warning from '@mui/icons-material/Warning';
 import Lock from '@mui/icons-material/Lock';
 
 import { useHousehold } from '../../contexts/HouseholdContext';
+import PasskeyManager from '../../components/PasskeyManager';
 
 export default function SecuritySettings() {
   const { user, api, showNotification, confirmAction, onUpdateProfile } = useHousehold();
@@ -146,7 +147,10 @@ export default function SecuritySettings() {
           )}
       </Sheet>
 
-      {/* 2. Sessions Section */}
+      {/* 2. Passkey Section */}
+      <PasskeyManager api={api} showNotification={showNotification} />
+
+      {/* 3. Sessions Section */}
       <Box>
           <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
               <Typography level="title-md" startDecorator={<Devices color="primary" />}>Active Sessions</Typography>

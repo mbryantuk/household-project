@@ -50,7 +50,7 @@
     "tags": [],
     "updateSnapshots": "missing",
     "updateSourceMethod": "patch",
-    "version": "1.58.0",
+    "version": "1.58.2",
     "workers": 2,
     "webServer": null
   },
@@ -84,7 +84,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "timedOut",
-                      "duration": 60245,
+                      "duration": 60492,
                       "error": {
                         "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
@@ -99,13 +99,13 @@
                             "column": 20,
                             "line": 21
                           },
-                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\u001b[2m    - waiting for\" http://localhost:4001/household/3977/dashboard\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://localhost:4001/household/3977/dashboard\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a new asset'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${creds.householdName}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Assets\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/assets.spec.js:21:20\u001b[22m"
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a new asset'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${creds.householdName}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Assets\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/assets.spec.js:21:20\u001b[22m"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-09T22:50:51.552Z",
+                      "startTime": "2026-02-11T13:24:57.637Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -162,7 +162,7 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "timedOut",
-                      "duration": 60279,
+                      "duration": 60516,
                       "error": {
                         "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
@@ -177,13 +177,13 @@
                             "column": 20,
                             "line": 21
                           },
-                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\u001b[2m    - waiting for\" http://localhost:4001/household/3978/dashboard\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://localhost:4001/household/3978/dashboard\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a recurring cost'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${creds.householdName}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Bills & Costs\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 24 |\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/finance.spec.js:21:20\u001b[22m"
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\u001b[2m    - waiting for\" http://localhost:4001/household/4094/dashboard\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://localhost:4001/household/4094/dashboard\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a recurring cost'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${creds.householdName}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Bills & Costs\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 24 |\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/finance.spec.js:21:20\u001b[22m"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-09T22:50:51.543Z",
+                      "startTime": "2026-02-11T13:24:57.322Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -240,7 +240,7 @@
                       "workerIndex": 2,
                       "parallelIndex": 0,
                       "status": "timedOut",
-                      "duration": 60219,
+                      "duration": 60360,
                       "error": {
                         "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
@@ -255,13 +255,13 @@
                             "column": 20,
                             "line": 21
                           },
-                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\u001b[2m    - waiting for\" http://localhost:4001/household/3979/dashboard\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://localhost:4001/household/3979/dashboard\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a new member'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'People & Residents'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[90m// Add Member\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/members.spec.js:21:20\u001b[22m"
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a new member'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'People & Residents'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[90m// Add Member\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/members.spec.js:21:20\u001b[22m"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-09T22:51:55.632Z",
+                      "startTime": "2026-02-11T13:26:03.511Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -318,7 +318,7 @@
                       "workerIndex": 3,
                       "parallelIndex": 1,
                       "status": "timedOut",
-                      "duration": 60203,
+                      "duration": 60294,
                       "error": {
                         "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
@@ -342,15 +342,15 @@
                       "steps": [
                         {
                           "title": "Register",
-                          "duration": 2008
+                          "duration": 2915
                         },
                         {
                           "title": "Login",
-                          "duration": 553
+                          "duration": 1509
                         },
                         {
                           "title": "Configure House",
-                          "duration": 57520,
+                          "duration": 55700,
                           "error": {
                             "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n",
                             "stack": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:37:24\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:36:20",
@@ -363,7 +363,7 @@
                           }
                         }
                       ],
-                      "startTime": "2026-02-09T22:51:55.556Z",
+                      "startTime": "2026-02-11T13:26:03.552Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -420,52 +420,54 @@
                       "workerIndex": 4,
                       "parallelIndex": 1,
                       "status": "timedOut",
-                      "duration": 60109,
+                      "duration": 60289,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /home/matt/household-project/web/tests/smoke.spec.js:7:10",
-                        "location": {
-                          "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 10,
-                          "line": 7
-                        },
-                        "snippet": "\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 10 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
                       },
                       "errors": [
                         {
-                          "location": {
-                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 10,
-                            "line": 7
-                          },
-                          "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 10 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:7:10\u001b[22m"
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
                         },
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
                             "column": 20,
-                            "line": 13
+                            "line": 19
                           },
-                          "message": "Error: page.waitForURL: Test timeout of 60000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================\n\n\u001b[0m \u001b[90m 11 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mPASSWORD\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 12 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Log In\")'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 13 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'**/dashboard'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 14 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 15 |\u001b[39m\n \u001b[90m 16 |\u001b[39m     test(\u001b[32m'Financial Profiles: Sidebar Accordion and Switching'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:13:20\u001b[22m"
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/finance\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 17 |\u001b[39m     test(\u001b[32m'Financial Profiles: Sidebar Accordion and Switching'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 18 |\u001b[39m         \u001b[90m// Navigate to Finance\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 19 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/finance\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 20 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'**/finance**'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 21 |\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[90m// Check if Sidebar Accordion exists\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:19:20\u001b[22m"
                         }
                       ],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] Content is cached for offline use.\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-09T22:52:58.244Z",
+                      "startTime": "2026-02-11T13:27:07.478Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
                           "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--1945d-bar-Accordion-and-Switching-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--1945d-bar-Accordion-and-Switching-chromium/error-context.md"
                         }
-                      ],
-                      "errorLocation": {
-                        "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 10,
-                        "line": 7
-                      }
+                      ]
                     }
                   ],
                   "status": "unexpected"
@@ -473,7 +475,7 @@
               ],
               "id": "2c14808d47b386fba9eb-d6449fc28ef2b705aa57",
               "file": "smoke.spec.js",
-              "line": 16,
+              "line": 17,
               "column": 5
             },
             {
@@ -492,52 +494,54 @@
                       "workerIndex": 5,
                       "parallelIndex": 0,
                       "status": "timedOut",
-                      "duration": 60125,
+                      "duration": 60325,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /home/matt/household-project/web/tests/smoke.spec.js:7:10",
-                        "location": {
-                          "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 10,
-                          "line": 7
-                        },
-                        "snippet": "\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 10 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
                       },
                       "errors": [
                         {
-                          "location": {
-                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 10,
-                            "line": 7
-                          },
-                          "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 10 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:7:10\u001b[22m"
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
                         },
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
                             "column": 20,
-                            "line": 13
+                            "line": 37
                           },
-                          "message": "Error: page.waitForURL: Test timeout of 60000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================\n\n\u001b[0m \u001b[90m 11 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mPASSWORD\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 12 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Log In\")'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 13 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'**/dashboard'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 14 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 15 |\u001b[39m\n \u001b[90m 16 |\u001b[39m     test(\u001b[32m'Financial Profiles: Sidebar Accordion and Switching'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:13:20\u001b[22m"
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 35 |\u001b[39m\n \u001b[90m 36 |\u001b[39m     test(\u001b[32m'Core Navigation: House Hub, Calendar, Meals'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'Household Hub'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/calendar\"]'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:37:20\u001b[22m"
                         }
                       ],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] Content is cached for offline use.\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-09T22:54:00.738Z",
+                      "startTime": "2026-02-11T13:28:11.375Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
                           "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--ff4ea-on-House-Hub-Calendar-Meals-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--ff4ea-on-House-Hub-Calendar-Meals-chromium/error-context.md"
                         }
-                      ],
-                      "errorLocation": {
-                        "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 10,
-                        "line": 7
-                      }
+                      ]
                     }
                   ],
                   "status": "unexpected"
@@ -545,7 +549,104 @@
               ],
               "id": "2c14808d47b386fba9eb-0850ea6cc76a4a27e073",
               "file": "smoke.spec.js",
-              "line": 35,
+              "line": 36,
+              "column": 5
+            },
+            {
+              "title": "Shopping List: Add Item and Budget Estimate",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 8174,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Playwright Milk')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Playwright Milk')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Playwright Milk')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Playwright Milk')\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:58:60",
+                        "location": {
+                          "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                          "column": 60,
+                          "line": 58
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 56 |\u001b[39m\n \u001b[90m 57 |\u001b[39m         \u001b[90m// Verify List\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 58 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Playwright Milk'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 59 |\u001b[39m\n \u001b[90m 60 |\u001b[39m         \u001b[90m// Verify Budget Widget\u001b[39m\n \u001b[90m 61 |\u001b[39m         \u001b[36mconst\u001b[39m total \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=£1.50'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                            "column": 60,
+                            "line": 58
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Playwright Milk')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Playwright Milk')\u001b[22m\n\n\n\u001b[0m \u001b[90m 56 |\u001b[39m\n \u001b[90m 57 |\u001b[39m         \u001b[90m// Verify List\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 58 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Playwright Milk'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 59 |\u001b[39m\n \u001b[90m 60 |\u001b[39m         \u001b[90m// Verify Budget Widget\u001b[39m\n \u001b[90m 61 |\u001b[39m         \u001b[36mconst\u001b[39m total \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=£1.50'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:58:60\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] Content is cached for offline use.\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] Failed to load resource: the server responded with a status of 500 (Internal Server Error)\n"
+                        },
+                        {
+                          "text": "[BROWSER] Failed to fetch shopping list AxiosError: Request failed with status code 500\n    at T3 (http://localhost:4001/assets/index-D_u_HGvp.js:12:1091)\n    at XMLHttpRequest.L (http://localhost:4001/assets/index-D_u_HGvp.js:12:5953)\n    at xi.request (http://localhost:4001/assets/index-D_u_HGvp.js:14:2094)\n    at async http://localhost:4001/assets/ShoppingListView-h7AVlUxW.js:1:776\n"
+                        },
+                        {
+                          "text": "[BROWSER] Failed to load resource: the server responded with a status of 500 (Internal Server Error)\n"
+                        },
+                        {
+                          "text": "[BROWSER] Failed to fetch shopping list AxiosError: Request failed with status code 500\n    at T3 (http://localhost:4001/assets/index-D_u_HGvp.js:12:1091)\n    at XMLHttpRequest.L (http://localhost:4001/assets/index-D_u_HGvp.js:12:5953)\n    at xi.request (http://localhost:4001/assets/index-D_u_HGvp.js:14:2094)\n    at async http://localhost:4001/assets/ShoppingListView-h7AVlUxW.js:1:776\n"
+                        },
+                        {
+                          "text": "[BROWSER] Failed to load resource: the server responded with a status of 500 (Internal Server Error)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-11T13:29:14.909Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--0ef0a-dd-Item-and-Budget-Estimate-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--0ef0a-dd-Item-and-Budget-Estimate-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                        "column": 60,
+                        "line": 58
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-4581e083312aca0eaae7",
+              "file": "smoke.spec.js",
+              "line": 47,
               "column": 5
             },
             {
@@ -561,54 +662,70 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 6,
+                      "workerIndex": 7,
                       "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 60107,
+                      "status": "failed",
+                      "duration": 4206,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /home/matt/household-project/web/tests/smoke.spec.js:7:10",
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Settings')\nExpected: visible\nError: strict mode violation: getByText('Settings') resolved to 3 elements:\n    1) <div class=\"MuiListItemContent-root css-pvr40b\">Settings</div> aka getByRole('button', { name: '⚙️ Settings' })\n    2) <p class=\"MuiTypography-root MuiTypography-body-sm css-peddd8\">Settings</p> aka locator('p').filter({ hasText: 'Settings' })\n    3) <div id=\"_r_c_\" role=\"tooltip\" data-popper-placement=\"right\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementRight css-cemyjr\">Account & Settings</div> aka getByRole('tooltip', { name: 'Account & Settings' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Settings')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Settings')\nExpected: visible\nError: strict mode violation: getByText('Settings') resolved to 3 elements:\n    1) <div class=\"MuiListItemContent-root css-pvr40b\">Settings</div> aka getByRole('button', { name: '⚙️ Settings' })\n    2) <p class=\"MuiTypography-root MuiTypography-body-sm css-peddd8\">Settings</p> aka locator('p').filter({ hasText: 'Settings' })\n    3) <div id=\"_r_c_\" role=\"tooltip\" data-popper-placement=\"right\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementRight css-cemyjr\">Account & Settings</div> aka getByRole('tooltip', { name: 'Account & Settings' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Settings')\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:71:50",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 10,
-                          "line": 7
+                          "column": 50,
+                          "line": 71
                         },
-                        "snippet": "\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 10 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m 69 |\u001b[39m         \u001b[90m// Verify Sidebar Panel content (Account Header)\u001b[39m\n \u001b[90m 70 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Account'\u001b[39m\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 71 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Settings'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 72 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Switch Household'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 73 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Log Out'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 74 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 10,
-                            "line": 7
+                            "column": 50,
+                            "line": 71
                           },
-                          "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 10 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:7:10\u001b[22m"
-                        },
-                        {
-                          "location": {
-                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 20,
-                            "line": 13
-                          },
-                          "message": "Error: page.waitForURL: Test timeout of 60000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================\n\n\u001b[0m \u001b[90m 11 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mPASSWORD\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 12 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Log In\")'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 13 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'**/dashboard'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 14 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 15 |\u001b[39m\n \u001b[90m 16 |\u001b[39m     test(\u001b[32m'Financial Profiles: Sidebar Accordion and Switching'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:13:20\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Settings')\nExpected: visible\nError: strict mode violation: getByText('Settings') resolved to 3 elements:\n    1) <div class=\"MuiListItemContent-root css-pvr40b\">Settings</div> aka getByRole('button', { name: '⚙️ Settings' })\n    2) <p class=\"MuiTypography-root MuiTypography-body-sm css-peddd8\">Settings</p> aka locator('p').filter({ hasText: 'Settings' })\n    3) <div id=\"_r_c_\" role=\"tooltip\" data-popper-placement=\"right\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementRight css-cemyjr\">Account & Settings</div> aka getByRole('tooltip', { name: 'Account & Settings' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Settings')\u001b[22m\n\n\n\u001b[0m \u001b[90m 69 |\u001b[39m         \u001b[90m// Verify Sidebar Panel content (Account Header)\u001b[39m\n \u001b[90m 70 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Account'\u001b[39m\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 71 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Settings'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 72 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Switch Household'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 73 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Log Out'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 74 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:71:50\u001b[22m"
                         }
                       ],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] Content is cached for offline use.\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] TypeError: Cannot read properties of null (reading 'split')\n    at rG (http://localhost:4001/assets/index-D_u_HGvp.js:97:346153)\n    at s3 (http://localhost:4001/assets/index-D_u_HGvp.js:97:345409)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350472\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350348\n    at Object.ry [as useMemo] (http://localhost:4001/assets/index-D_u_HGvp.js:9:57408)\n    at G6._e.useMemo (http://localhost:4001/assets/index-D_u_HGvp.js:2:9121)\n    at hG (http://localhost:4001/assets/index-D_u_HGvp.js:97:349270)\n    at G1 (http://localhost:4001/assets/index-D_u_HGvp.js:9:48437)\n    at um (http://localhost:4001/assets/index-D_u_HGvp.js:9:71294)\n"
+                        },
+                        {
+                          "text": "[BROWSER] Widget Crash Detected: TypeError: Cannot read properties of null (reading 'split')\n    at rG (http://localhost:4001/assets/index-D_u_HGvp.js:97:346153)\n    at s3 (http://localhost:4001/assets/index-D_u_HGvp.js:97:345409)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350472\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350348\n    at Object.ry [as useMemo] (http://localhost:4001/assets/index-D_u_HGvp.js:9:57408)\n    at G6._e.useMemo (http://localhost:4001/assets/index-D_u_HGvp.js:2:9121)\n    at hG (http://localhost:4001/assets/index-D_u_HGvp.js:97:349270)\n    at G1 (http://localhost:4001/assets/index-D_u_HGvp.js:9:48437)\n    at um (http://localhost:4001/assets/index-D_u_HGvp.js:9:71294) {componentStack: \n    at hG (http://localhost:4001/assets/index-D_u…ocalhost:4001/assets/index-D_u_HGvp.js:97:403245)}\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-09T22:55:03.267Z",
+                      "startTime": "2026-02-11T13:29:26.386Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
                           "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests-Avatar-Menu-Opens-Sidebar-Panel-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests-Avatar-Menu-Opens-Sidebar-Panel-chromium/error-context.md"
                         }
                       ],
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 10,
-                        "line": 7
+                        "column": 50,
+                        "line": 71
                       }
                     }
                   ],
@@ -617,7 +734,7 @@
               ],
               "id": "2c14808d47b386fba9eb-bf93edaa617e6cd82241",
               "file": "smoke.spec.js",
-              "line": 46,
+              "line": 65,
               "column": 5
             },
             {
@@ -633,42 +750,53 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 7,
+                      "workerIndex": 8,
                       "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 60102,
+                      "status": "failed",
+                      "duration": 8960,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /home/matt/household-project/web/tests/smoke.spec.js:7:10",
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Budget Health')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Budget Health')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Budget Health')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Budget Health')\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:79:58",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 10,
-                          "line": 7
+                          "column": 58,
+                          "line": 79
                         },
-                        "snippet": "\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 10 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m 77 |\u001b[39m         \u001b[90m// Budget Health\u001b[39m\n \u001b[90m 78 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Budget Health\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 79 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Budget Health'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 80 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Budget Health\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m \u001b[90m// Close\u001b[39m\n \u001b[90m 81 |\u001b[39m\n \u001b[90m 82 |\u001b[39m         \u001b[90m// Wealth Tracking\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 10,
-                            "line": 7
+                            "column": 58,
+                            "line": 79
                           },
-                          "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 10 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:7:10\u001b[22m"
-                        },
-                        {
-                          "location": {
-                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 20,
-                            "line": 13
-                          },
-                          "message": "Error: page.waitForURL: Test timeout of 60000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================\n\n\u001b[0m \u001b[90m 11 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mPASSWORD\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 12 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Log In\")'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 13 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'**/dashboard'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 14 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 15 |\u001b[39m\n \u001b[90m 16 |\u001b[39m     test(\u001b[32m'Financial Profiles: Sidebar Accordion and Switching'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:13:20\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Budget Health')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Budget Health')\u001b[22m\n\n\n\u001b[0m \u001b[90m 77 |\u001b[39m         \u001b[90m// Budget Health\u001b[39m\n \u001b[90m 78 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Budget Health\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 79 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Budget Health'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 80 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Budget Health\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m \u001b[90m// Close\u001b[39m\n \u001b[90m 81 |\u001b[39m\n \u001b[90m 82 |\u001b[39m         \u001b[90m// Wealth Tracking\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:79:58\u001b[22m"
                         }
                       ],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] Content is cached for offline use.\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] TypeError: Cannot read properties of null (reading 'split')\n    at rG (http://localhost:4001/assets/index-D_u_HGvp.js:97:346153)\n    at s3 (http://localhost:4001/assets/index-D_u_HGvp.js:97:345409)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350472\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350348\n    at Object.ry [as useMemo] (http://localhost:4001/assets/index-D_u_HGvp.js:9:57408)\n    at G6._e.useMemo (http://localhost:4001/assets/index-D_u_HGvp.js:2:9121)\n    at hG (http://localhost:4001/assets/index-D_u_HGvp.js:97:349270)\n    at G1 (http://localhost:4001/assets/index-D_u_HGvp.js:9:48437)\n    at um (http://localhost:4001/assets/index-D_u_HGvp.js:9:71294)\n"
+                        },
+                        {
+                          "text": "[BROWSER] Widget Crash Detected: TypeError: Cannot read properties of null (reading 'split')\n    at rG (http://localhost:4001/assets/index-D_u_HGvp.js:97:346153)\n    at s3 (http://localhost:4001/assets/index-D_u_HGvp.js:97:345409)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350472\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350348\n    at Object.ry [as useMemo] (http://localhost:4001/assets/index-D_u_HGvp.js:9:57408)\n    at G6._e.useMemo (http://localhost:4001/assets/index-D_u_HGvp.js:2:9121)\n    at hG (http://localhost:4001/assets/index-D_u_HGvp.js:97:349270)\n    at G1 (http://localhost:4001/assets/index-D_u_HGvp.js:9:48437)\n    at um (http://localhost:4001/assets/index-D_u_HGvp.js:9:71294) {componentStack: \n    at hG (http://localhost:4001/assets/index-D_u…ocalhost:4001/assets/index-D_u_HGvp.js:97:403245)}\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-09T22:56:05.703Z",
+                      "startTime": "2026-02-11T13:29:33.731Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -679,8 +807,8 @@
                       ],
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 10,
-                        "line": 7
+                        "column": 58,
+                        "line": 79
                       }
                     }
                   ],
@@ -689,7 +817,7 @@
               ],
               "id": "2c14808d47b386fba9eb-dd34f4997caa60953de2",
               "file": "smoke.spec.js",
-              "line": 57,
+              "line": 76,
               "column": 5
             },
             {
@@ -705,54 +833,70 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 8,
+                      "workerIndex": 9,
                       "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 60134,
+                      "status": "failed",
+                      "duration": 9782,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /home/matt/household-project/web/tests/smoke.spec.js:7:10",
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('button[aria-label=\"Export Tenant Data\"]').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('button[aria-label=\"Export Tenant Data\"]').first()\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('button[aria-label=\"Export Tenant Data\"]').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('button[aria-label=\"Export Tenant Data\"]').first()\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:103:36",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 10,
-                          "line": 7
+                          "column": 36,
+                          "line": 103
                         },
-                        "snippet": "\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 10 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m 101 |\u001b[39m         \u001b[90m// Verify Export button exists for at least one tenant\u001b[39m\n \u001b[90m 102 |\u001b[39m         \u001b[36mconst\u001b[39m exportButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Export Tenant Data\"]'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 103 |\u001b[39m         \u001b[36mawait\u001b[39m expect(exportButton)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 104 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 105 |\u001b[39m\n \u001b[90m 106 |\u001b[39m     test(\u001b[32m'Settings: Theme Customization'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 10,
-                            "line": 7
+                            "column": 36,
+                            "line": 103
                           },
-                          "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 10 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:7:10\u001b[22m"
-                        },
-                        {
-                          "location": {
-                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 20,
-                            "line": 13
-                          },
-                          "message": "Error: page.waitForURL: Test timeout of 60000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================\n\n\u001b[0m \u001b[90m 11 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mPASSWORD\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 12 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Log In\")'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 13 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'**/dashboard'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 14 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 15 |\u001b[39m\n \u001b[90m 16 |\u001b[39m     test(\u001b[32m'Financial Profiles: Sidebar Accordion and Switching'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:13:20\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('button[aria-label=\"Export Tenant Data\"]').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('button[aria-label=\"Export Tenant Data\"]').first()\u001b[22m\n\n\n\u001b[0m \u001b[90m 101 |\u001b[39m         \u001b[90m// Verify Export button exists for at least one tenant\u001b[39m\n \u001b[90m 102 |\u001b[39m         \u001b[36mconst\u001b[39m exportButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Export Tenant Data\"]'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 103 |\u001b[39m         \u001b[36mawait\u001b[39m expect(exportButton)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 104 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 105 |\u001b[39m\n \u001b[90m 106 |\u001b[39m     test(\u001b[32m'Settings: Theme Customization'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:103:36\u001b[22m"
                         }
                       ],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] Content is cached for offline use.\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] TypeError: Cannot read properties of null (reading 'split')\n    at rG (http://localhost:4001/assets/index-D_u_HGvp.js:97:346153)\n    at s3 (http://localhost:4001/assets/index-D_u_HGvp.js:97:345409)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350472\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350348\n    at Object.ry [as useMemo] (http://localhost:4001/assets/index-D_u_HGvp.js:9:57408)\n    at G6._e.useMemo (http://localhost:4001/assets/index-D_u_HGvp.js:2:9121)\n    at hG (http://localhost:4001/assets/index-D_u_HGvp.js:97:349270)\n    at G1 (http://localhost:4001/assets/index-D_u_HGvp.js:9:48437)\n    at um (http://localhost:4001/assets/index-D_u_HGvp.js:9:71294)\n"
+                        },
+                        {
+                          "text": "[BROWSER] Widget Crash Detected: TypeError: Cannot read properties of null (reading 'split')\n    at rG (http://localhost:4001/assets/index-D_u_HGvp.js:97:346153)\n    at s3 (http://localhost:4001/assets/index-D_u_HGvp.js:97:345409)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350472\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350348\n    at Object.ry [as useMemo] (http://localhost:4001/assets/index-D_u_HGvp.js:9:57408)\n    at G6._e.useMemo (http://localhost:4001/assets/index-D_u_HGvp.js:2:9121)\n    at hG (http://localhost:4001/assets/index-D_u_HGvp.js:97:349270)\n    at G1 (http://localhost:4001/assets/index-D_u_HGvp.js:9:48437)\n    at um (http://localhost:4001/assets/index-D_u_HGvp.js:9:71294) {componentStack: \n    at hG (http://localhost:4001/assets/index-D_u…ocalhost:4001/assets/index-D_u_HGvp.js:97:403245)}\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-09T22:57:08.113Z",
+                      "startTime": "2026-02-11T13:29:45.742Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
                           "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--9b20d-nistration-Tenant-Export-UI-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--9b20d-nistration-Tenant-Export-UI-chromium/error-context.md"
                         }
                       ],
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 10,
-                        "line": 7
+                        "column": 36,
+                        "line": 103
                       }
                     }
                   ],
@@ -761,7 +905,7 @@
               ],
               "id": "2c14808d47b386fba9eb-c4ea58c008edac3c2fb3",
               "file": "smoke.spec.js",
-              "line": 68,
+              "line": 87,
               "column": 5
             },
             {
@@ -777,42 +921,53 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 9,
+                      "workerIndex": 10,
                       "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 60102,
+                      "status": "failed",
+                      "duration": 9690,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /home/matt/household-project/web/tests/smoke.spec.js:7:10",
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Signature Designs')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Signature Designs')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Signature Designs')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Signature Designs')\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:115:62",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 10,
-                          "line": 7
+                          "column": 62,
+                          "line": 115
                         },
-                        "snippet": "\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 10 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m 113 |\u001b[39m         \n \u001b[90m 114 |\u001b[39m         \u001b[90m// Verify Theme Grid renders\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 115 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Signature Designs'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 116 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Light Themes'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 117 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Dark Themes'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 118 |\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 10,
-                            "line": 7
+                            "column": 62,
+                            "line": 115
                           },
-                          "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n\u001b[0m \u001b[90m  5 |\u001b[39m     \u001b[36mconst\u001b[39m \u001b[33mPASSWORD\u001b[39m \u001b[33m=\u001b[39m \u001b[32m'Password123!'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m  6 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mADMIN_EMAIL\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 10 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Next\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:7:10\u001b[22m"
-                        },
-                        {
-                          "location": {
-                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 20,
-                            "line": 13
-                          },
-                          "message": "Error: page.waitForURL: Test timeout of 60000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/dashboard\" until \"load\"\n============================================================\n\n\u001b[0m \u001b[90m 11 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[type=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mPASSWORD\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 12 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Log In\")'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 13 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'**/dashboard'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 14 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 15 |\u001b[39m\n \u001b[90m 16 |\u001b[39m     test(\u001b[32m'Financial Profiles: Sidebar Accordion and Switching'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:13:20\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Signature Designs')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Signature Designs')\u001b[22m\n\n\n\u001b[0m \u001b[90m 113 |\u001b[39m         \n \u001b[90m 114 |\u001b[39m         \u001b[90m// Verify Theme Grid renders\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 115 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Signature Designs'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 116 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Light Themes'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 117 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Dark Themes'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 118 |\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:115:62\u001b[22m"
                         }
                       ],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] Content is cached for offline use.\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] TypeError: Cannot read properties of null (reading 'split')\n    at rG (http://localhost:4001/assets/index-D_u_HGvp.js:97:346153)\n    at s3 (http://localhost:4001/assets/index-D_u_HGvp.js:97:345409)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350472\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350348\n    at Object.ry [as useMemo] (http://localhost:4001/assets/index-D_u_HGvp.js:9:57408)\n    at G6._e.useMemo (http://localhost:4001/assets/index-D_u_HGvp.js:2:9121)\n    at hG (http://localhost:4001/assets/index-D_u_HGvp.js:97:349270)\n    at G1 (http://localhost:4001/assets/index-D_u_HGvp.js:9:48437)\n    at um (http://localhost:4001/assets/index-D_u_HGvp.js:9:71294)\n"
+                        },
+                        {
+                          "text": "[BROWSER] Widget Crash Detected: TypeError: Cannot read properties of null (reading 'split')\n    at rG (http://localhost:4001/assets/index-D_u_HGvp.js:97:346153)\n    at s3 (http://localhost:4001/assets/index-D_u_HGvp.js:97:345409)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350472\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350348\n    at Object.ry [as useMemo] (http://localhost:4001/assets/index-D_u_HGvp.js:9:57408)\n    at G6._e.useMemo (http://localhost:4001/assets/index-D_u_HGvp.js:2:9121)\n    at hG (http://localhost:4001/assets/index-D_u_HGvp.js:97:349270)\n    at G1 (http://localhost:4001/assets/index-D_u_HGvp.js:9:48437)\n    at um (http://localhost:4001/assets/index-D_u_HGvp.js:9:71294) {componentStack: \n    at hG (http://localhost:4001/assets/index-D_u…ocalhost:4001/assets/index-D_u_HGvp.js:97:403245)}\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-09T22:58:10.486Z",
+                      "startTime": "2026-02-11T13:29:58.780Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -823,8 +978,8 @@
                       ],
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 10,
-                        "line": 7
+                        "column": 62,
+                        "line": 115
                       }
                     }
                   ],
@@ -833,7 +988,7 @@
               ],
               "id": "2c14808d47b386fba9eb-22a936da359947e6e605",
               "file": "smoke.spec.js",
-              "line": 87,
+              "line": 106,
               "column": 5
             }
           ]
@@ -843,11 +998,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-09T22:50:48.495Z",
-    "duration": 502316.235,
+    "startTime": "2026-02-11T13:24:53.814Z",
+    "duration": 314973.54500000004,
     "expected": 0,
     "skipped": 0,
-    "unexpected": 10,
+    "unexpected": 11,
     "flaky": 0
   }
 }
