@@ -12,6 +12,7 @@ const GLOBAL_SCHEMA = [
         sticky_note TEXT,
         budget_settings TEXT,
         theme TEXT DEFAULT 'totem',
+        mode TEXT DEFAULT 'system',
         default_household_id INTEGER,
         last_household_id INTEGER,
         is_test INTEGER DEFAULT 0,
@@ -432,6 +433,15 @@ function initializeGlobalSchema(db) {
                     if (err) console.error("Migration failed:", err.message);
                     else console.log("✅ last_household_id column added.");
                 });
+            }
+        });
+
+        // 🛠️ MIGRATION: Add mode to users
+        db.all("PRAGMA table_info(users)", (err, rows) => {
+            if (err) return;
+            if (!rows.some(r => r.name === 'mode')) {
+                console.log("🛠️ Migrating users: Adding mode...");
+                db.run("ALTER TABLE users ADD COLUMN mode TEXT DEFAULT 'system'");
             }
         });
 
