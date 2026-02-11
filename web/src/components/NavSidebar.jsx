@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { 
   Sheet, List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, 
-  IconButton, Divider, Box, Avatar, Typography, Tooltip, Menu, MenuItem, Accordion, AccordionSummary, AccordionDetails, Modal, ModalDialog, DialogTitle, DialogContent, FormControl, FormLabel, Input, Button, DialogActions
+  IconButton, Divider, Box, Avatar, Typography, Tooltip, Menu, MenuItem, Accordion, AccordionSummary, AccordionDetails, Modal, ModalDialog, DialogTitle, DialogContent, FormControl, FormLabel, Input, Button, DialogActions, useColorScheme
 } from '@mui/joy';
 import { 
   Event, Pets, Inventory2, RestaurantMenu, AccountBalance, Close, 
@@ -19,6 +19,8 @@ const RAIL_WIDTH = 64;
 const PANEL_WIDTH = 260; 
 
 const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, activeCategory, hoveredCategory, onHover, handleNav, isMobile }) => {
+    const { mode } = useColorScheme();
+    const isDark = mode === 'dark';
     const pathMatches = to && location.pathname.includes(to);
     const categoryMatches = activeCategory === category;
     const isHovered = hoveredCategory === category;
@@ -92,7 +94,10 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
     );
 };
 
-const SubItem = ({ label, to, emoji, onClick, isDark, active }) => (
+const SubItem = ({ label, to, emoji, onClick, active }) => {
+    const { mode } = useColorScheme();
+    const isDark = mode === 'dark';
+    return (
     <ListItem>
         <ListItemButton 
           component={to ? NavLink : 'div'} 
@@ -118,7 +123,8 @@ const SubItem = ({ label, to, emoji, onClick, isDark, active }) => (
             <ListItemContent>{label}</ListItemContent>
         </ListItemButton>
     </ListItem>
-);
+    );
+};
 
 const GroupHeader = ({ label }) => (
     <ListItem sx={{ mt: 1, mb: 0.5 }}>
@@ -131,11 +137,13 @@ const GroupHeader = ({ label }) => (
 export default function NavSidebar({ 
     isMobile = false, onClose, installPrompt, onInstall
 }) {
+  const { mode } = useColorScheme();
+  const isDark = mode === 'dark';
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { 
-    household, members, vehicles, user, isDark, api,
+    household, members, vehicles, user, api,
     onLogout, confirmAction 
   } = useHousehold();
   
@@ -232,7 +240,7 @@ export default function NavSidebar({
     const handleCreateProfile = async (e) => {
         e.preventDefault();
         try {
-            const res = await api.post(`/households/${household.id}/finance/profiles`, {
+            const res = await api.post(`/households/${householdId}/finance/profiles`, {
                 name: newProfileName, emoji: newProfileEmoji, is_default: false
             });
             setProfiles(prev => [...prev, res.data]);
@@ -377,18 +385,18 @@ export default function NavSidebar({
                           </Box>
                           
                           <List sx={{ p: 1, gap: 0.5 }}>
-                              <SubItem label="Profile Settings" to={`/household/${household.id}/settings?tab=0`} emoji={<Person />} isDark={isDark} active={isSettingsTabActive(0)} onClick={handleSubItemClick} />
-                              <SubItem label="Security & MFA" to={`/household/${household.id}/settings?tab=1`} emoji={<Security />} isDark={isDark} active={isSettingsTabActive(1)} onClick={handleSubItemClick} />
-                              <SubItem label="Appearance" to={`/household/${household.id}/settings?tab=3`} emoji={<Palette />} isDark={isDark} active={isSettingsTabActive(3)} onClick={handleSubItemClick} />
+                              <SubItem label="Profile Settings" to={`/household/${household.id}/settings?tab=0`} emoji={<Person />} active={isSettingsTabActive(0)} onClick={handleSubItemClick} />
+                              <SubItem label="Security & MFA" to={`/household/${household.id}/settings?tab=1`} emoji={<Security />} active={isSettingsTabActive(1)} onClick={handleSubItemClick} />
+                              <SubItem label="Appearance" to={`/household/${household.id}/settings?tab=3`} emoji={<Palette />} active={isSettingsTabActive(3)} onClick={handleSubItemClick} />
                               
                               <Divider sx={{ my: 1 }} />
                               <GroupHeader label="Workspace" />
-                              <SubItem label="Household Settings" to={`/household/${household.id}/settings?tab=2`} emoji={<HomeWork />} isDark={isDark} active={isSettingsTabActive(2)} onClick={handleSubItemClick} />
-                              <SubItem label="Switch Household" to="/select-household" emoji={<HomeWork />} isDark={isDark} onClick={handleSubItemClick} />
+                              <SubItem label="Household Settings" to={`/household/${household.id}/settings?tab=2`} emoji={<HomeWork />} active={isSettingsTabActive(2)} onClick={handleSubItemClick} />
+                              <SubItem label="Switch Household" to="/select-household" emoji={<HomeWork />} onClick={handleSubItemClick} />
                               
                               <Box sx={{ mt: 'auto', pt: 2 }}>
                                 <Divider sx={{ mb: 1 }} />
-                                <SubItem label="Log Out" onClick={() => confirmAction("Log Out", "Are you sure?", onLogout)} emoji={<LogoutIcon color="danger" />} isDark={isDark} />
+                                <SubItem label="Log Out" onClick={() => confirmAction("Log Out", "Are you sure?", onLogout)} emoji={<LogoutIcon color="danger" />} />
                               </Box>
                           </List>
                       </>
@@ -404,18 +412,18 @@ export default function NavSidebar({
                           {currentPanelCategory === 'household' && (
                               <>
                                   <GroupHeader label="Overview" />
-                                  <SubItem label="House Hub" to={`/household/${household.id}/house`} emoji="🏠" isDark={isDark} onClick={handleSubItemClick} />
+                                  <SubItem label="House Hub" to={`/household/${household.id}/house`} emoji="🏠" onClick={handleSubItemClick} />
                                   <Divider sx={{ my: 1 }} />
                                   <GroupHeader label="Residents" />
-                                  {members.filter(m => m.type !== 'pet').map(m => <SubItem key={m.id} label={m.alias || (m.name || '').split(' ')[0]} to={`/household/${household.id}/people/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
+                                  {members.filter(m => m.type !== 'pet').map(m => <SubItem key={m.id} label={m.alias || (m.name || '').split(' ')[0]} to={`/household/${household.id}/people/${m.id}`} emoji={m.emoji} onClick={handleSubItemClick} />)}
                                   {enabledModules.includes('pets') && (
                                       <>
                                           <Divider sx={{ my: 1 }} /><GroupHeader label="Pets" />
-                                          {members.filter(m => m.type === 'pet').map(m => <SubItem key={m.id} label={m.name} to={`/household/${household.id}/pets/${m.id}`} emoji={m.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
+                                          {members.filter(m => m.type === 'pet').map(m => <SubItem key={m.id} label={m.name} to={`/household/${household.id}/pets/${m.id}`} emoji={m.emoji} onClick={handleSubItemClick} />)}
                                       </>
                                   )}
                                   <Divider sx={{ my: 1 }} /><GroupHeader label="Fleet" />
-                                  {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`/household/${household.id}/vehicles/${v.id}`} emoji={v.emoji} isDark={isDark} onClick={handleSubItemClick} />)}
+                                  {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`/household/${household.id}/vehicles/${v.id}`} emoji={v.emoji} onClick={handleSubItemClick} />)}
                               </>
                           )}
                           {currentPanelCategory === 'finance' && (
@@ -433,18 +441,18 @@ export default function NavSidebar({
                                       </ListItem>
                                   ))}
                                   <Divider sx={{ my: 1 }} />
-                                  <GroupHeader label="Overview" /><SubItem label="Budget" to={getFinanceLink('budget')} emoji="📊" isDark={isDark} onClick={handleSubItemClick} />
+                                  <GroupHeader label="Overview" /><SubItem label="Budget" to={getFinanceLink('budget')} emoji="📊" onClick={handleSubItemClick} />
                                   <Divider sx={{ my: 1 }} /><GroupHeader label="Accounts" />
-                                  <SubItem label="Income" to={getFinanceLink('income')} emoji="💰" isDark={isDark} onClick={handleSubItemClick} />
-                                  <SubItem label="Banking" to={getFinanceLink('banking')} emoji="🏦" isDark={isDark} onClick={handleSubItemClick} />
-                                  <SubItem label="Savings" to={getFinanceLink('savings')} emoji="🐷" isDark={isDark} onClick={handleSubItemClick} />
-                                  <SubItem label="Investments" to={getFinanceLink('invest')} emoji="📈" isDark={isDark} onClick={handleSubItemClick} />
-                                  <SubItem label="Pensions" to={getFinanceLink('pensions')} emoji="👴" isDark={isDark} onClick={handleSubItemClick} />
+                                  <SubItem label="Income" to={getFinanceLink('income')} emoji="💰" onClick={handleSubItemClick} />
+                                  <SubItem label="Banking" to={getFinanceLink('banking')} emoji="🏦" onClick={handleSubItemClick} />
+                                  <SubItem label="Savings" to={getFinanceLink('savings')} emoji="🐷" onClick={handleSubItemClick} />
+                                  <SubItem label="Investments" to={getFinanceLink('invest')} emoji="📈" onClick={handleSubItemClick} />
+                                  <SubItem label="Pensions" to={getFinanceLink('pensions')} emoji="👴" onClick={handleSubItemClick} />
                                   <Divider sx={{ my: 1 }} /><GroupHeader label="Liabilities" />
-                                  <SubItem label="Credit Cards" to={getFinanceLink('credit')} emoji="💳" isDark={isDark} onClick={handleSubItemClick} />
-                                  <SubItem label="Loans" to={getFinanceLink('loans')} emoji="📝" isDark={isDark} onClick={handleSubItemClick} />
-                                  <SubItem label="Car Finance" to={getFinanceLink('car')} emoji="🚗" isDark={isDark} onClick={handleSubItemClick} />
-                                  <SubItem label="Mortgages" to={getFinanceLink('mortgage')} emoji="🏠" isDark={isDark} onClick={handleSubItemClick} />
+                                  <SubItem label="Credit Cards" to={getFinanceLink('credit')} emoji="💳" onClick={handleSubItemClick} />
+                                  <SubItem label="Loans" to={getFinanceLink('loans')} emoji="📝" onClick={handleSubItemClick} />
+                                  <SubItem label="Car Finance" to={getFinanceLink('car')} emoji="🚗" onClick={handleSubItemClick} />
+                                  <SubItem label="Mortgages" to={getFinanceLink('mortgage')} emoji="🏠" onClick={handleSubItemClick} />
                               </>
                           )}
                       </List>

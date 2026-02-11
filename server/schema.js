@@ -30,6 +30,7 @@ const GLOBAL_SCHEMA = [
         last_active DATETIME DEFAULT CURRENT_TIMESTAMP,
         expires_at DATETIME,
         is_revoked INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
     )`,
     `CREATE TABLE IF NOT EXISTS passkeys (
@@ -445,6 +446,15 @@ function initializeGlobalSchema(db) {
             }
         });
 
+        // 🛠️ MIGRATION: Add created_at to user_sessions
+        db.all("PRAGMA table_info(user_sessions)", (err, rows) => {
+            if (err) return;
+            if (!rows.some(r => r.name === 'created_at')) {
+                console.log("🛠️ Migrating user_sessions: Adding created_at...");
+                db.run("ALTER TABLE user_sessions ADD COLUMN created_at DATETIME");
+            }
+        });
+
         // 🛠️ MIGRATION: Add nightly_version_filter to households
         db.all("PRAGMA table_info(households)", (err, rows) => {
             if (err) return console.error("Failed to check households schema", err);
@@ -510,6 +520,7 @@ function initializeGlobalSchema(db) {
                     last_active DATETIME DEFAULT CURRENT_TIMESTAMP,
                     expires_at DATETIME,
                     is_revoked INTEGER DEFAULT 0,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
                 )`);
             }

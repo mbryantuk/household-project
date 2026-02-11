@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useLayoutEffect, useCallback } from 'react';
 import { 
-  Box, IconButton, Tooltip, Sheet, Typography, Divider, Chip, Stack
+  Box, IconButton, Tooltip, Sheet, Typography, Divider, Chip, Stack, useColorScheme
 } from '@mui/joy';
 import Wifi from '@mui/icons-material/Wifi';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
@@ -85,7 +85,9 @@ const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, activeWi
 };
 
 export default function UtilityBar() {
-  const { user, api, dates, onDateAdded, onUpdateProfile, isDark, statusBarData, activeHouseholdId, household } = useHousehold();
+  const { mode } = useColorScheme();
+  const isDark = mode === 'dark';
+  const { user, api, dates, onDateAdded, onUpdateProfile, statusBarData, activeHouseholdId, household } = useHousehold();
   const scrollRef = useRef(null);
   const [activeWidget, setActiveWidget] = useState(null); 
   const [poppedOut, setPoppedOut] = useState({});
@@ -109,15 +111,17 @@ export default function UtilityBar() {
         variant="soft"
         sx={{
             width: '100%', minHeight: 40, display: 'flex', alignItems: 'center',
-            bgcolor: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(12px)',
-            borderTop: '1px solid', borderColor: 'rgba(0,0,0,0.08)', zIndex: 900, 
-            [theme => theme.getColorSchemeSelector('dark')]: { bgcolor: 'rgba(19, 19, 24, 0.8)', borderColor: 'rgba(255,255,255,0.1)' }
+            bgcolor: isDark ? '#111111' : 'rgba(255, 255, 255, 0.8)', 
+            backdropFilter: 'blur(12px)',
+            borderTop: '1px solid', 
+            borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)', 
+            zIndex: 900
         }}
     >
         <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
             <Box ref={scrollRef} sx={{ display: 'flex', height: '100%', overflowX: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
                 <WidgetWrapper id="notes" label="Notes" icon={NoteAlt} color="warning" width={320} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <PostItNote isDocked onClose={() => setActiveWidget(null)} user={user} onUpdateProfile={onUpdateProfile} onPopout={() => handlePopout('notes', '/note-window')} />
+                    <PostItNote isDocked onClose={() => setActiveWidget(null)} user={user} onUpdateProfile={handleUpdateProfile} onPopout={() => handlePopout('notes', '/note-window')} />
                 </WidgetWrapper>
                 <WidgetWrapper id="calc" label="Calculator" icon={Calculate} color="primary" width={300} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
                     <FloatingCalculator isDocked onClose={() => setActiveWidget(null)} isDark={isDark} onPopout={() => handlePopout('calc', '/calculator')} />

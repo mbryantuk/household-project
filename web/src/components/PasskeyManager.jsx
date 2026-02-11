@@ -18,7 +18,7 @@ export default function PasskeyManager({ api, showNotification }) {
 
     const fetchPasskeys = async () => {
         try {
-            const res = await api.get('/auth/passkeys');
+            const res = await api.get('/passkeys');
             setPasskeys(res.data);
         } catch (err) {
             console.error("Failed to fetch passkeys", err);

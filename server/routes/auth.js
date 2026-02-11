@@ -96,7 +96,6 @@ async function finalizeLogin(user, req, res, rememberMe = false) {
 
 /**
  * POST /register
- * SaaS Signup: Create Tenant + Admin User
  */
 router.post('/register', async (req, res) => {
     const { householdName, email, password, firstName, lastName, is_test } = req.body;
@@ -116,24 +115,20 @@ router.post('/register', async (req, res) => {
     }
 
     try {
-        // 1. Check if email exists
         const existingUser = await dbGet(globalDb, `SELECT id FROM users WHERE email = ?`, [email]);
         if (existingUser) return res.status(409).json({ error: "Email already registered" });
 
-        // Auto-mark as test if in test environment or using test email prefix
         let finalIsTest = (is_test || process.env.NODE_ENV === 'test') ? 1 : 0;
         if (email.startsWith('smoke_') || email.startsWith('routing_') || email.startsWith('test_')) {
             finalIsTest = 1;
         }
 
-        // 2. Create Household
         const hhResult = await dbRun(globalDb, 
             `INSERT INTO households (name, is_test) VALUES (?, ?)`, 
             [householdName, finalIsTest]
         );
         const householdId = hhResult.id;
 
-        // 3. Create Admin User
         const passwordHash = bcrypt.hashSync(password, 8);
         const userResult = await dbRun(globalDb,
             `INSERT INTO users (email, password_hash, first_name, last_name, system_role, default_household_id, is_test, is_active) VALUES (?, ?, ?, ?, 'user', ?, ?, 1)`,
@@ -141,13 +136,11 @@ router.post('/register', async (req, res) => {
         );
         const userId = userResult.id;
 
-        // 4. Link User to Household as Admin
         await dbRun(globalDb,
             `INSERT INTO user_households (user_id, household_id, role) VALUES (?, ?, 'admin')`,
             [userId, householdId]
         );
 
-        // 5. Initialize Household DB
         const hhDb = getHouseholdDb(householdId);
         hhDb.close();
 
@@ -161,7 +154,6 @@ router.post('/register', async (req, res) => {
 
 /**
  * POST /lookup
- * Public route to fetch avatar/name for personalized login
  */
 router.post('/lookup', async (req, res) => {
     const { email, username } = req.body;
@@ -195,7 +187,6 @@ router.post('/login', async (req, res) => {
         const isValid = bcrypt.compareSync(password, user.password_hash);
         if (!isValid) return res.status(401).json({ error: "Invalid credentials" });
 
-        // Check MFA
         if (user.mfa_enabled) {
             const preAuthToken = jwt.sign({ preAuthId: user.id, type: 'mfa_pending', rememberMe }, SECRET_KEY, { expiresIn: '5m' });
             return res.json({ mfa_required: true, preAuthToken });
@@ -234,59 +225,6 @@ router.post('/mfa/login', async (req, res) => {
 });
 
 /**
- * MFA SETUP
- */
-router.post('/mfa/setup', authenticateToken, async (req, res) => {
-    try {
-        const user = await dbGet(globalDb, `SELECT email, mfa_enabled FROM users WHERE id = ?`, [req.user.id]);
-        if (user.mfa_enabled) return res.status(400).json({ error: "MFA already enabled" });
-
-        const secret = authenticator.generateSecret();
-        const otpauth = authenticator.keyuri(user.email, 'Totem', secret);
-        const qrCodeUrl = await qrcode.toDataURL(otpauth);
-
-        // Store secret temporarily (encrypted)
-        await dbRun(globalDb, `UPDATE users SET mfa_secret = ? WHERE id = ?`, [secret, req.user.id]);
-
-        res.json({ secret, qrCodeUrl });
-    } catch (err) {
-        res.status(500).json({ error: "MFA setup failed" });
-    }
-});
-
-router.post('/mfa/verify', authenticateToken, async (req, res) => {
-    const { code } = req.body;
-    try {
-        const user = await dbGet(globalDb, `SELECT mfa_secret FROM users WHERE id = ?`, [req.user.id]);
-        const isValid = authenticator.verify({ token: code, secret: user.mfa_secret });
-        
-        if (isValid) {
-            await dbRun(globalDb, `UPDATE users SET mfa_enabled = 1 WHERE id = ?`, [req.user.id]);
-            res.json({ message: "MFA enabled successfully" });
-        } else {
-            res.status(400).json({ error: "Invalid verification code" });
-        }
-    } catch (err) {
-        res.status(500).json({ error: "Verification failed" });
-    }
-});
-
-router.post('/mfa/disable', authenticateToken, async (req, res) => {
-    const { password } = req.body;
-    try {
-        const user = await dbGet(globalDb, `SELECT password_hash FROM users WHERE id = ?`, [req.user.id]);
-        if (!bcrypt.compareSync(password, user.password_hash)) {
-            return res.status(401).json({ error: "Invalid password" });
-        }
-
-        await dbRun(globalDb, `UPDATE users SET mfa_enabled = 0, mfa_secret = NULL WHERE id = ?`, [req.user.id]);
-        res.json({ message: "MFA disabled" });
-    } catch (err) {
-        res.status(500).json({ error: "Disable failed" });
-    }
-});
-
-/**
  * SESSION MANAGEMENT
  */
 router.get('/sessions', authenticateToken, async (req, res) => {
@@ -299,7 +237,6 @@ router.get('/sessions', authenticateToken, async (req, res) => {
             [req.user.id]
         );
         
-        // Mark current session
         const processed = sessions.map(s => ({
             ...s,
             isCurrent: s.id === req.user.sid
@@ -307,6 +244,7 @@ router.get('/sessions', authenticateToken, async (req, res) => {
         
         res.json(processed);
     } catch (err) {
+        console.error("Fetch sessions error:", err);
         res.status(500).json({ error: "Failed to fetch sessions" });
     }
 });
@@ -317,15 +255,6 @@ router.delete('/sessions/:sessionId', authenticateToken, async (req, res) => {
         res.json({ message: "Session revoked" });
     } catch (err) {
         res.status(500).json({ error: "Failed to revoke session" });
-    }
-});
-
-router.delete('/sessions', authenticateToken, async (req, res) => {
-    try {
-        await dbRun(globalDb, `UPDATE user_sessions SET is_revoked = 1 WHERE user_id = ? AND id != ?`, [req.user.id, req.user.sid]);
-        res.json({ message: "All other sessions revoked" });
-    } catch (err) {
-        res.status(500).json({ error: "Failed to revoke sessions" });
     }
 });
 
@@ -358,13 +287,14 @@ router.put('/profile', authenticateToken, async (req, res) => {
     let fields = [];
     let values = [];
 
-    if (email) { fields.push('email = ?'); values.push(email); }
-    if (password) { fields.push('password_hash = ?'); values.push(bcrypt.hashSync(password, 8)); }
+    if (email !== undefined) { fields.push('email = ?'); values.push(email); }
+    if (password !== undefined && password !== '') { fields.push('password_hash = ?'); values.push(bcrypt.hashSync(password, 8)); }
     
-    const fName = first_name || firstName;
-    const lName = last_name || lastName;
-    if (fName) { fields.push('first_name = ?'); values.push(fName); }
-    if (lName) { fields.push('last_name = ?'); values.push(lName); }
+    const fName = first_name !== undefined ? first_name : firstName;
+    const lName = last_name !== undefined ? last_name : lastName;
+    
+    if (fName !== undefined) { fields.push('first_name = ?'); values.push(fName); }
+    if (lName !== undefined) { fields.push('last_name = ?'); values.push(lName); }
     
     if (avatar !== undefined) { fields.push('avatar = ?'); values.push(avatar); }
     if (theme !== undefined) { fields.push('theme = ?'); values.push(theme); }
@@ -372,6 +302,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
     if (custom_theme !== undefined) { fields.push('custom_theme = ?'); values.push(custom_theme); }
     if (sticky_note !== undefined) { fields.push('sticky_note = ?'); values.push(sticky_note); }
     if (default_household_id !== undefined) { fields.push('default_household_id = ?'); values.push(default_household_id); }
+    
     if (dashboard_layout !== undefined) { 
         fields.push('dashboard_layout = ?'); 
         values.push(typeof dashboard_layout === 'string' ? dashboard_layout : JSON.stringify(dashboard_layout)); 
@@ -381,7 +312,10 @@ router.put('/profile', authenticateToken, async (req, res) => {
         values.push(typeof budget_settings === 'string' ? budget_settings : JSON.stringify(budget_settings));
     }
 
-    if (fields.length === 0) return res.status(400).json({ error: "Nothing to update" });
+    if (fields.length === 0) {
+        console.error("Update Profile Error: Nothing to update. Body:", req.body);
+        return res.status(400).json({ error: "Nothing to update" });
+    }
 
     values.push(req.user.id);
 
@@ -389,6 +323,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
         await dbRun(globalDb, `UPDATE users SET ${fields.join(', ')} WHERE id = ?`, values);
         res.json({ message: "Profile updated" });
     } catch (err) {
+        console.error("Update Profile SQL Error:", err);
         res.status(500).json({ error: err.message });
     }
 });
@@ -415,7 +350,6 @@ router.get('/my-households', authenticateToken, async (req, res) => {
 
 /**
  * POST /token
- * Refresh token with new household context
  */
 router.post('/token', authenticateToken, async (req, res) => {
     const { householdId } = req.body;

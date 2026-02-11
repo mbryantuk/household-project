@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix 400 error on profile update and finalize Dark/Light/System mode integration",
-  "date": "Wed 11 Feb 14:46:22 GMT 2026"
+  "commitMessage": "Fix dark mode contrast, passkey 404, session 500, and rename Signature to Colour Collection (Migration Fix)",
+  "date": "Wed 11 Feb 15:17:25 GMT 2026"
 }

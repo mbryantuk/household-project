@@ -145,9 +145,9 @@ export default function ThemeSettings() {
 
       <Divider />
 
-      {/* Signature Section */}
+      {/* Colour Section */}
       <Box>
-        <Typography level="title-lg" startDecorator={<Palette color="primary" />} sx={{ mb: 3 }}>Signature Collection</Typography>
+        <Typography level="title-lg" startDecorator={<Palette color="primary" />} sx={{ mb: 3 }}>Colour Collection</Typography>
         <ThemeGrid themes={allThemes} themeId={themeId} onThemeChange={handleThemeSelect} />
       </Box>
 
@@ -184,6 +184,19 @@ export default function ThemeSettings() {
           <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', mb: 4, bgcolor: 'background.level1' }}>
               <Typography level="title-md" sx={{ mb: 2 }} startDecorator={<Palette color="primary" />}>Custom Theme Builder</Typography>
               <Grid container spacing={3}>
+                  <Grid xs={12} sm={6} md={4}>
+                      <FormControl>
+                          <FormLabel>Mode</FormLabel>
+                          <Stack direction="row" spacing={1} alignItems="center">
+                              <Typography level="body-xs">Light</Typography>
+                              <Switch 
+                                  checked={customThemeConfig.mode === 'dark'} 
+                                  onChange={(e) => setCustomThemeConfig({...customThemeConfig, mode: e.target.checked ? 'dark' : 'light'})}
+                              />
+                              <Typography level="body-xs">Dark</Typography>
+                          </Stack>
+                      </FormControl>
+                  </Grid>
                   <Grid xs={12} sm={6} md={4}>
                       <FormControl>
                           <FormLabel>Primary Color</FormLabel>

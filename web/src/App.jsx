@@ -67,11 +67,17 @@ const queryClient = new QueryClient({
 
 function AppInner({ 
     themeId, setThemeId, user, setUser, token, setToken, household, setHousehold, 
-    logout, login, mfaLogin, handleLoginSuccess, spec, isDark, onPreviewTheme,
+    logout, login, mfaLogin, handleLoginSuccess, spec, onPreviewTheme,
     mode, setModePref, onModeChange
 }) {
-  const { setMode, mode: currentMode } = useColorScheme();
+  const { setMode, mode: currentMode, systemMode } = useColorScheme();
   
+  // Real-time dark mode detection for legacy components
+  const isDark = useMemo(() => {
+      if (currentMode === 'system') return systemMode === 'dark';
+      return currentMode === 'dark';
+  }, [currentMode, systemMode]);
+
   // Synchronize MUI mode with user preference
   useEffect(() => {
     if (mode === 'system') setMode('system');
@@ -494,9 +500,8 @@ export default function App() {
   const effectiveThemeId = previewThemeId || themeId;
   const effectiveCustomConfig = previewCustomConfig || customConfig;
 
-  // Derive spec for non-Joy UI components (if needed)
-  const { spec } = useMemo(() => getThemeSpec(effectiveThemeId, effectiveCustomConfig), [effectiveThemeId, effectiveCustomConfig]);
   const theme = useMemo(() => getMantelTheme(effectiveThemeId, effectiveCustomConfig), [effectiveThemeId, effectiveCustomConfig]);
+  const { spec } = useMemo(() => getThemeSpec(effectiveThemeId, effectiveCustomConfig, modePref), [effectiveThemeId, effectiveCustomConfig, modePref]);
   
   const handlePreviewTheme = useCallback((id, config = null) => {
     setPreviewThemeId(id);
@@ -564,7 +569,7 @@ export default function App() {
                 household={household} setHousehold={setHousehold}
                 logout={logout} login={login} mfaLogin={mfaLogin}
                 handleLoginSuccess={handleLoginSuccess}
-                spec={spec} isDark={false} 
+                spec={spec} 
                 onPreviewTheme={handlePreviewTheme}
                 mode={modePref} setModePref={setModePref}
                 onModeChange={setModePref}
