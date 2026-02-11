@@ -3,7 +3,6 @@ import { extendTheme } from '@mui/joy/styles';
 /**
  * 50 PREMIUM SIGNATURE THEMES
  * Each theme defines a primary color identity.
- * System mode automatically handles Light/Dark derivation.
  */
 export const THEMES = {
   totem: { name: 'Classic', primary: '#374151' },
@@ -56,8 +55,32 @@ export const THEMES = {
   nordic: { name: 'Nordic', primary: '#5e81ac' },
   espresso: { name: 'Espresso', primary: '#44403c' },
   ink: { name: 'Ink', primary: '#1f2937' },
-  // Special Theme: Custom
   custom: { name: 'Custom Theme', primary: '#374151', isCustom: true }
+};
+
+/**
+ * Utility to convert hex to HSL for tinting
+ */
+const hexToHsl = (hex) => {
+  let r = 0, g = 0, b = 0;
+  if (hex.length === 4) {
+    r = "0x" + hex[1] + hex[1]; g = "0x" + hex[2] + hex[2]; b = "0x" + hex[3] + hex[3];
+  } else if (hex.length === 7) {
+    r = "0x" + hex[1] + hex[2]; g = "0x" + hex[3] + hex[4]; b = "0x" + hex[5] + hex[6];
+  }
+  r /= 255; g /= 255; b /= 255;
+  let cmin = Math.min(r, g, b), cmax = Math.max(r, g, b), delta = cmax - cmin, h = 0, s = 0, l = 0;
+  if (delta === 0) h = 0;
+  else if (cmax === r) h = ((g - b) / delta) % 6;
+  else if (cmax === g) h = (b - r) / delta + 2;
+  else h = (r - g) / delta + 4;
+  h = Math.round(h * 60);
+  if (h < 0) h += 360;
+  l = (cmax + cmin) / 2;
+  s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
+  s = +(s * 100).toFixed(1);
+  l = +(l * 100).toFixed(1);
+  return { h, s, l };
 };
 
 export const getEmojiColor = (emoji, isDark = true) => {
@@ -69,31 +92,6 @@ export const getEmojiColor = (emoji, isDark = true) => {
   return `hsl(${hue}, ${isDark ? 50 : 70}%, ${isDark ? 25 : 90}%)`;
 };
 
-/**
- * Derives a full spec from a primary color and mode.
- */
-const deriveSpec = (primary, mode) => {
-    const isDark = mode === 'dark';
-    if (isDark) {
-        return {
-            mode: 'dark',
-            primary,
-            bg: '#0a0a0a',
-            surface: '#121212',
-            selection: '#1e1e1e',
-            text: '#f4f4f5'
-        };
-    }
-    return {
-        mode: 'light',
-        primary,
-        bg: '#f9fafb',
-        surface: '#ffffff',
-        selection: '#f3f4f6',
-        text: '#111827'
-    };
-};
-
 export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
   let base = THEMES[themeId] || THEMES.totem;
   if (themeId === 'custom' && customConfig) {
@@ -101,6 +99,7 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
   }
 
   const primaryColor = base.primary || '#374151';
+  const { h, s } = hexToHsl(primaryColor);
 
   return extendTheme({
     fontFamily: {
@@ -112,11 +111,11 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
       light: {
         palette: {
           background: {
-            body: '#f9fafb',
+            body: `hsl(${h}, ${Math.min(s, 15)}%, 98%)`, // Subtle tint
             surface: '#ffffff',
-            level1: 'rgba(0,0,0,0.03)',
-            level2: 'rgba(0,0,0,0.06)',
-            level3: 'rgba(0,0,0,0.09)',
+            level1: `hsl(${h}, ${Math.min(s, 10)}%, 96%)`,
+            level2: `hsl(${h}, ${Math.min(s, 10)}%, 94%)`,
+            level3: `hsl(${h}, ${Math.min(s, 10)}%, 92%)`,
           },
           text: {
             primary: '#111827',
@@ -131,20 +130,20 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
             softBg: `${primaryColor}15`,
           },
           neutral: {
-            outlinedBorder: '#f3f4f6',
+            outlinedBorder: `hsl(${h}, ${Math.min(s, 10)}%, 94%)`,
             plainColor: '#111827',
           },
-          divider: '#f3f4f6',
+          divider: `hsl(${h}, ${Math.min(s, 10)}%, 94%)`,
         },
       },
       dark: {
         palette: {
           background: {
-            body: '#0a0a0a',
-            surface: '#121212',
-            level1: 'rgba(255,255,255,0.05)',
-            level2: 'rgba(255,255,255,0.1)',
-            level3: 'rgba(255,255,255,0.15)',
+            body: `hsl(${h}, ${Math.min(s, 10)}%, 4%)`, // Deep dark base
+            surface: `hsl(${h}, ${Math.min(s, 8)}%, 7%)`,
+            level1: `hsl(${h}, ${Math.min(s, 8)}%, 10%)`,
+            level2: `hsl(${h}, ${Math.min(s, 8)}%, 12%)`,
+            level3: `hsl(${h}, ${Math.min(s, 8)}%, 14%)`,
           },
           text: {
             primary: '#f4f4f5',
@@ -159,10 +158,10 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
             softBg: 'rgba(255,255,255,0.1)',
           },
           neutral: {
-            outlinedBorder: '#1e1e1e',
+            outlinedBorder: `hsl(${h}, ${Math.min(s, 8)}%, 15%)`,
             plainColor: '#f4f4f5',
           },
-          divider: '#1e1e1e',
+          divider: `hsl(${h}, ${Math.min(s, 8)}%, 15%)`,
         },
       },
     },
@@ -214,8 +213,18 @@ export const getThemeSpec = (themeId = 'totem', customConfig = null, mode = 'lig
   if (themeId === 'custom' && customConfig) {
       base = { ...base, ...customConfig };
   }
+  const primaryColor = base.primary;
+  const isDark = mode === 'dark';
+  
   return {
-    primary: base.primary,
-    spec: deriveSpec(base.primary, mode)
+    primary: primaryColor,
+    spec: {
+        mode,
+        primary: primaryColor,
+        bg: isDark ? '#050505' : '#f9fafb',
+        surface: isDark ? '#0a0a0a' : '#ffffff',
+        selection: isDark ? '#1a1a1a' : '#f3f4f6',
+        text: isDark ? '#f4f4f5' : '#111827'
+    }
   };
 };

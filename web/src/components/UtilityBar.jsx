@@ -111,10 +111,10 @@ export default function UtilityBar() {
         variant="soft"
         sx={{
             width: '100%', minHeight: 40, display: 'flex', alignItems: 'center',
-            bgcolor: isDark ? '#111111' : 'rgba(255, 255, 255, 0.8)', 
+            bgcolor: isDark ? '#000000' : 'rgba(255, 255, 255, 0.8)', 
             backdropFilter: 'blur(12px)',
             borderTop: '1px solid', 
-            borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)', 
+            borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.08)', 
             zIndex: 900
         }}
     >
