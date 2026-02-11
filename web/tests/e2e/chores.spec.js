@@ -29,7 +29,7 @@ test.describe('Chores & Gamification Flow', () => {
 
   test('should view, add, complete, and delete a chore', async ({ page }) => {
     // 1. Navigate to Chores
-    await page.getByText('Chores').click();
+    await page.getByText('Chores').first().click();
     await page.waitForURL(/\/chores/);
     await expect(page.locator('h2', { hasText: 'Chores Tracker' })).toBeVisible();
 

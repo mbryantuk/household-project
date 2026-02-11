@@ -229,7 +229,7 @@ export default function HouseView() {
                     variant="outlined" 
                     sx={{ 
                         borderRadius: 'md', p: 2, bgcolor: 'background.surface', boxShadow: 'sm',
-                        height: '100%'
+                        height: { xs: 'auto', md: '100%' }
                     }}
                 >
                     <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

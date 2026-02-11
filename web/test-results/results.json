@@ -80,7 +80,7 @@
           "specs": [
             {
               "title": "should view, add, complete, and delete a chore",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -93,28 +93,9 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 11419,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('tr').filter({ hasText: 'Test Chore 1770843818987' })\nExpected: not visible\nReceived: visible\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('tr').filter({ hasText: 'Test Chore 1770843818987' })\u001b[22m\n\u001b[2m    9 × locator resolved to <tr>…</tr>\u001b[22m\n\u001b[2m      - unexpected value \"visible\"\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('tr').filter({ hasText: 'Test Chore 1770843818987' })\nExpected: not visible\nReceived: visible\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('tr').filter({ hasText: 'Test Chore 1770843818987' })\u001b[22m\n\u001b[2m    9 × locator resolved to <tr>…</tr>\u001b[22m\n\u001b[2m      - unexpected value \"visible\"\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/chores.spec.js:69:65",
-                        "location": {
-                          "file": "/home/matt/household-project/web/tests/e2e/chores.spec.js",
-                          "column": 65,
-                          "line": 69
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 67 |\u001b[39m\n \u001b[90m 68 |\u001b[39m     \u001b[90m// 7. Verify Row Gone\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 69 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'tr'\u001b[39m\u001b[33m,\u001b[39m { hasText\u001b[33m:\u001b[39m taskName }))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 70 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 71 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 72 |\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/home/matt/household-project/web/tests/e2e/chores.spec.js",
-                            "column": 65,
-                            "line": 69
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('tr').filter({ hasText: 'Test Chore 1770843818987' })\nExpected: not visible\nReceived: visible\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('tr').filter({ hasText: 'Test Chore 1770843818987' })\u001b[22m\n\u001b[2m    9 × locator resolved to <tr>…</tr>\u001b[22m\n\u001b[2m      - unexpected value \"visible\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 67 |\u001b[39m\n \u001b[90m 68 |\u001b[39m     \u001b[90m// 7. Verify Row Gone\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 69 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'tr'\u001b[39m\u001b[33m,\u001b[39m { hasText\u001b[33m:\u001b[39m taskName }))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 70 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 71 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 72 |\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/chores.spec.js:69:65\u001b[22m"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 10799,
+                      "errors": [],
                       "stdout": [
                         {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
@@ -126,36 +107,20 @@
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "Dashboard loaded.\n"
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
                         {
-                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "Dashboard loaded.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-11T21:03:34.323Z",
+                      "startTime": "2026-02-11T21:21:54.639Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/home/matt/household-project/web/test-results/e2e-chores-Chores-Gamifica-c83dc-complete-and-delete-a-chore-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/home/matt/household-project/web/test-results/e2e-chores-Chores-Gamifica-c83dc-complete-and-delete-a-chore-chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/home/matt/household-project/web/tests/e2e/chores.spec.js",
-                        "column": 65,
-                        "line": 69
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "362ddf8274dc1e38045d-c673e8d16a93d253fa04",
@@ -170,11 +135,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-11T21:03:27.572Z",
-    "duration": 18540.808,
-    "expected": 0,
+    "startTime": "2026-02-11T21:21:47.150Z",
+    "duration": 19008.871,
+    "expected": 1,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 0,
     "flaky": 0
   }
 }
