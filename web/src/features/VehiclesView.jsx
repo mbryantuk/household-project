@@ -24,7 +24,7 @@ const VEHICLE_TYPES = [
 
 export default function VehiclesView() {
   const navigate = useNavigate();
-  const { api, id: householdId, household, user: currentUser, showNotification, confirmAction, fetchVehicles: refreshSidebar, vehicles: contextVehicles = [] } = useOutletContext();
+  const { api, id: householdId, household, user: currentUser, showNotification, confirmAction, fetchVehicles: refreshSidebar } = useOutletContext();
   const { vehicleId } = useParams();
 
   const enabledModules = useMemo(() => {

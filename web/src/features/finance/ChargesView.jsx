@@ -9,7 +9,6 @@ import {
 import { Add, Edit, Delete } from '@mui/icons-material';
 import { format, parseISO } from 'date-fns';
 import MetadataFormFields from '../../components/ui/MetadataFormFields';
-import { METADATA_SCHEMAS } from '../../utils/financeSchemas';
 
 const formatCurrency = (val, currencyCode = 'GBP') => {
     const num = parseFloat(val) || 0;
@@ -52,7 +51,7 @@ const FREQUENCIES = [
 ];
 
 export default function ChargesView({ initialTab }) {
-  const { household, api, members: contextMembers = [], vehicles: contextVehicles = [], assets: contextAssets = [] } = useOutletContext();
+  const { household, api } = useOutletContext();
   const householdId = household?.id;
   const [charges, setCharges] = useState([]);
   const [activeTab, setActiveTab] = useState(() => {

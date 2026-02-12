@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState } from 'react';
 import { Box, Typography, FormControl, FormLabel, Input, Button, Stack, Sheet, Grid, Chip, Switch, Divider, IconButton, Tooltip } from '@mui/joy';
 import Public from '@mui/icons-material/Public';
 import ViewModule from '@mui/icons-material/ViewModule';
@@ -30,7 +30,7 @@ export default function HouseholdSettings() {
     try {
       await onUpdateHousehold({ name });
       showNotification('Household name updated!', 'success');
-    } catch(e) {
+    } catch {
       showNotification('Failed to update household', 'danger');
     }
   };
@@ -97,8 +97,8 @@ export default function HouseholdSettings() {
         link.remove();
         window.URL.revokeObjectURL(url);
         showNotification(`JSON export complete.`, "success");
-    } catch (err) {
-        showNotification(err.response?.data?.error || "Failed to export JSON.", "danger");
+    } catch {
+        showNotification("Failed to export JSON.", "danger");
     }
   };
 

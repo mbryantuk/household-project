@@ -73,12 +73,12 @@ export default function BankingView({ financialProfileId }) {
     accounts.find(a => String(a.id) === String(selectedAccountId)),
   [accounts, selectedAccountId]);
 
-  const setAccountId = (id) => {
+  const setAccountId = useCallback((id) => {
     const newParams = new URLSearchParams(location.search);
     if (id) newParams.set('selectedAccountId', id);
     else newParams.delete('selectedAccountId');
     navigate(`?${newParams.toString()}`, { replace: true });
-  };
+  }, [location.search, navigate]);
 
   const [selectedMembers, setSelectedMembers] = useState([]);
 
@@ -130,7 +130,7 @@ export default function BankingView({ financialProfileId }) {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = useCallback(async (id) => {
     if (!window.confirm("Delete this account permanently?")) return;
     try {
       await api.delete(`/households/${householdId}/finance/current-accounts/${id}`);
@@ -139,7 +139,7 @@ export default function BankingView({ financialProfileId }) {
     } catch {
       alert("Failed to delete account");
     }
-  };
+  }, [api, householdId, fetchData, selectedAccountId, setAccountId]);
 
   const handleAssignMember = async (memberId) => {
       try {
@@ -237,7 +237,7 @@ export default function BankingView({ financialProfileId }) {
             </Box>
         )
     }
-  ], [isDark, getAssignees, isAdmin]);
+  ], [isDark, getAssignees, isAdmin, handleDelete, setAccountId]);
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 

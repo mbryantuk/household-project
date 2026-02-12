@@ -9,7 +9,6 @@ import {
   Groups, DirectionsCar, Settings, ArrowForward,
   Payments, CleaningServices, HomeWork, Inventory2
 } from '@mui/icons-material';
-import { getEmojiColor } from '../theme';
 import AppHeader from '../components/ui/AppHeader';
 
 /**
@@ -18,7 +17,7 @@ import AppHeader from '../components/ui/AppHeader';
  */
 export default function HomeView() {
   const navigate = useNavigate();
-  const { household, user, members = [], vehicles = [], isDark } = useOutletContext();
+  const { household, user, members = [], vehicles = [] } = useOutletContext();
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";

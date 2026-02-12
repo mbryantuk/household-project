@@ -83,40 +83,40 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 60395,
+                      "status": "failed",
+                      "duration": 7965,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('£2,450,000')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('£2,450,000')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('£2,450,000')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('£2,450,000')\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:431:57\n    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:430:20",
+                        "location": {
+                          "file": "/home/matt/household-project/web/tests/e2e/brady_full_state.spec.js",
+                          "column": 57,
+                          "line": 431
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 429 |\u001b[39m     test(\u001b[32m'Dashboard & House Details'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 430 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Verify Valuation'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 431 |\u001b[39m              \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'£2,450,000'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 432 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 433 |\u001b[39m         \n \u001b[90m 434 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Verify Address/Property Type'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[0m"
                       },
                       "errors": [
                         {
-                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
-                        },
-                        {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/e2e/brady_full_state.spec.js",
-                            "column": 24,
-                            "line": 435
+                            "column": 57,
+                            "line": 431
                           },
-                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 433 |\u001b[39m         \n \u001b[90m 434 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Verify Address/Property Type'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 435 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Navigate to house hub\u001b[39m\n \u001b[90m     |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 436 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Brady Residence'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 437 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Spectrum'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 438 |\u001b[39m         })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:435:24\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:434:20\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('£2,450,000')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('£2,450,000')\u001b[22m\n\n\n\u001b[0m \u001b[90m 429 |\u001b[39m     test(\u001b[32m'Dashboard & House Details'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 430 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Verify Valuation'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 431 |\u001b[39m              \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'£2,450,000'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 432 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 433 |\u001b[39m         \n \u001b[90m 434 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Verify Address/Property Type'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:431:57\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:430:20\u001b[22m"
                         }
                       ],
                       "stdout": [
                         {
-                          "text": "🚀 LAUNCHING E2E SEED: The Brady Bunch (E2E) v3.2.0 [2026-02-11 13:30:21]\n"
+                          "text": "🚀 LAUNCHING E2E SEED: The Brady Bunch (E2E) v3.2.0 [2026-02-12 08:37:57]\n"
                         },
                         {
                           "text": "✅ E2E SEED COMPLETE\n"
                         },
                         {
-                          "text": "🧹 MAINTENANCE: Keeping household 4098 for demos.\n"
+                          "text": "🧹 MAINTENANCE: Keeping household 4299 for demos.\n"
                         },
                         {
-                          "text": "Found 1 old E2E households to clean up.\n"
-                        },
-                        {
-                          "text": "Deleting old E2E household: The Brady Bunch (E2E) v3.2.0 [2026-02-11 13:15:47] (4093)\n"
+                          "text": "Found 0 old E2E households to clean up.\n"
                         }
                       ],
                       "stderr": [],
@@ -124,24 +124,20 @@
                       "steps": [
                         {
                           "title": "Verify Valuation",
-                          "duration": 61
-                        },
-                        {
-                          "title": "Verify Address/Property Type",
-                          "duration": 57184,
+                          "duration": 5017,
                           "error": {
-                            "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n",
-                            "stack": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:435:24\n    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:434:20",
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('£2,450,000')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('£2,450,000')\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('£2,450,000')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('£2,450,000')\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:431:57\n    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:430:20",
                             "location": {
                               "file": "/home/matt/household-project/web/tests/e2e/brady_full_state.spec.js",
-                              "column": 24,
-                              "line": 435
+                              "column": 57,
+                              "line": 431
                             },
-                            "snippet": "\u001b[0m \u001b[90m 433 |\u001b[39m         \n \u001b[90m 434 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Verify Address/Property Type'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 435 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Navigate to house hub\u001b[39m\n \u001b[90m     |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 436 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Brady Residence'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 437 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Spectrum'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 438 |\u001b[39m         })\u001b[33m;\u001b[39m\u001b[0m"
+                            "snippet": "\u001b[0m \u001b[90m 429 |\u001b[39m     test(\u001b[32m'Dashboard & House Details'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 430 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Verify Valuation'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 431 |\u001b[39m              \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'£2,450,000'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 432 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 433 |\u001b[39m         \n \u001b[90m 434 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Verify Address/Property Type'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[0m"
                           }
                         }
                       ],
-                      "startTime": "2026-02-11T13:30:21.348Z",
+                      "startTime": "2026-02-12T08:37:57.864Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -154,7 +150,12 @@
                           "contentType": "text/markdown",
                           "path": "/home/matt/household-project/web/test-results/e2e-brady_full_state-Brady-69093-E2E-Dashboard-House-Details-chromium/error-context.md"
                         }
-                      ]
+                      ],
+                      "errorLocation": {
+                        "file": "/home/matt/household-project/web/tests/e2e/brady_full_state.spec.js",
+                        "column": 57,
+                        "line": 431
+                      }
                     }
                   ],
                   "status": "unexpected"
@@ -181,7 +182,7 @@
                       "workerIndex": 1,
                       "parallelIndex": 0,
                       "status": "timedOut",
-                      "duration": 60280,
+                      "duration": 60236,
                       "error": {
                         "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
@@ -201,24 +202,24 @@
                       ],
                       "stdout": [
                         {
-                          "text": "🚀 LAUNCHING E2E SEED: The Brady Bunch (E2E) v3.2.0 [2026-02-11 13:31:26]\n"
+                          "text": "🚀 LAUNCHING E2E SEED: The Brady Bunch (E2E) v3.2.0 [2026-02-12 08:38:12]\n"
                         },
                         {
                           "text": "✅ E2E SEED COMPLETE\n"
                         },
                         {
-                          "text": "🧹 MAINTENANCE: Keeping household 4099 for demos.\n"
+                          "text": "🧹 MAINTENANCE: Keeping household 4300 for demos.\n"
                         },
                         {
                           "text": "Found 1 old E2E households to clean up.\n"
                         },
                         {
-                          "text": "Deleting old E2E household: The Brady Bunch (E2E) v3.2.0 [2026-02-11 13:30:21] (4098)\n"
+                          "text": "Deleting old E2E household: The Brady Bunch (E2E) v3.2.0 [2026-02-12 08:37:57] (4299)\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-11T13:31:26.760Z",
+                      "startTime": "2026-02-12T08:38:12.177Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -258,7 +259,7 @@
                       "workerIndex": 2,
                       "parallelIndex": 0,
                       "status": "timedOut",
-                      "duration": 60337,
+                      "duration": 60264,
                       "error": {
                         "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
@@ -278,24 +279,24 @@
                       ],
                       "stdout": [
                         {
-                          "text": "🚀 LAUNCHING E2E SEED: The Brady Bunch (E2E) v3.2.0 [2026-02-11 13:32:32]\n"
+                          "text": "🚀 LAUNCHING E2E SEED: The Brady Bunch (E2E) v3.2.0 [2026-02-12 08:39:18]\n"
                         },
                         {
                           "text": "✅ E2E SEED COMPLETE\n"
                         },
                         {
-                          "text": "🧹 MAINTENANCE: Keeping household 4100 for demos.\n"
+                          "text": "🧹 MAINTENANCE: Keeping household 4301 for demos.\n"
                         },
                         {
                           "text": "Found 1 old E2E households to clean up.\n"
                         },
                         {
-                          "text": "Deleting old E2E household: The Brady Bunch (E2E) v3.2.0 [2026-02-11 13:31:26] (4099)\n"
+                          "text": "Deleting old E2E household: The Brady Bunch (E2E) v3.2.0 [2026-02-12 08:38:12] (4300)\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-11T13:32:32.332Z",
+                      "startTime": "2026-02-12T08:39:18.464Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -335,7 +336,7 @@
                       "workerIndex": 3,
                       "parallelIndex": 0,
                       "status": "timedOut",
-                      "duration": 60392,
+                      "duration": 60250,
                       "error": {
                         "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
@@ -355,24 +356,24 @@
                       ],
                       "stdout": [
                         {
-                          "text": "🚀 LAUNCHING E2E SEED: The Brady Bunch (E2E) v3.2.0 [2026-02-11 13:33:38]\n"
+                          "text": "🚀 LAUNCHING E2E SEED: The Brady Bunch (E2E) v3.2.0 [2026-02-12 08:40:25]\n"
                         },
                         {
                           "text": "✅ E2E SEED COMPLETE\n"
                         },
                         {
-                          "text": "🧹 MAINTENANCE: Keeping household 4101 for demos.\n"
+                          "text": "🧹 MAINTENANCE: Keeping household 4302 for demos.\n"
                         },
                         {
                           "text": "Found 1 old E2E households to clean up.\n"
                         },
                         {
-                          "text": "Deleting old E2E household: The Brady Bunch (E2E) v3.2.0 [2026-02-11 13:32:32] (4100)\n"
+                          "text": "Deleting old E2E household: The Brady Bunch (E2E) v3.2.0 [2026-02-12 08:39:18] (4301)\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-11T13:33:38.138Z",
+                      "startTime": "2026-02-12T08:40:25.119Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -412,7 +413,7 @@
                       "workerIndex": 4,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 8300,
+                      "duration": 8414,
                       "error": {
                         "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('body')\nTimeout: 5000ms\nExpected pattern: \u001b[32m/Jan 28|28th Jan/\u001b[39m\nReceived string:  \u001b[31m\"········\u001b[39m\n\u001b[31m\"\u001b[39m\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('body')\u001b[22m\n\u001b[2m    8 × locator resolved to <body>…</body>\u001b[22m\n\u001b[2m      - unexpected value \"\u001b[22m\n\u001b[2m    \u001b[22m\n\u001b[2m  \u001b[22m\n\u001b[2m\"\u001b[22m\n",
                         "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('body')\nTimeout: 5000ms\nExpected pattern: \u001b[32m/Jan 28|28th Jan/\u001b[39m\nReceived string:  \u001b[31m\"········\u001b[39m\n\u001b[31m\"\u001b[39m\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('body')\u001b[22m\n\u001b[2m    8 × locator resolved to <body>…</body>\u001b[22m\n\u001b[2m      - unexpected value \"\u001b[22m\n\u001b[2m    \u001b[22m\n\u001b[2m  \u001b[22m\n\u001b[2m\"\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:484:48\n    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:483:20",
@@ -435,19 +436,19 @@
                       ],
                       "stdout": [
                         {
-                          "text": "🚀 LAUNCHING E2E SEED: The Brady Bunch (E2E) v3.2.0 [2026-02-11 13:34:44]\n"
+                          "text": "🚀 LAUNCHING E2E SEED: The Brady Bunch (E2E) v3.2.0 [2026-02-12 08:41:31]\n"
                         },
                         {
                           "text": "✅ E2E SEED COMPLETE\n"
                         },
                         {
-                          "text": "🧹 MAINTENANCE: Keeping household 4102 for demos.\n"
+                          "text": "🧹 MAINTENANCE: Keeping household 4303 for demos.\n"
                         },
                         {
                           "text": "Found 1 old E2E households to clean up.\n"
                         },
                         {
-                          "text": "Deleting old E2E household: The Brady Bunch (E2E) v3.2.0 [2026-02-11 13:33:38] (4101)\n"
+                          "text": "Deleting old E2E household: The Brady Bunch (E2E) v3.2.0 [2026-02-12 08:40:25] (4302)\n"
                         }
                       ],
                       "stderr": [],
@@ -455,7 +456,7 @@
                       "steps": [
                         {
                           "title": "Verify Cycle Start",
-                          "duration": 5026,
+                          "duration": 5023,
                           "error": {
                             "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('body')\nTimeout: 5000ms\nExpected pattern: \u001b[32m/Jan 28|28th Jan/\u001b[39m\nReceived string:  \u001b[31m\"········\u001b[39m\n\u001b[31m\"\u001b[39m\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('body')\u001b[22m\n\u001b[2m    8 × locator resolved to <body>…</body>\u001b[22m\n\u001b[2m      - unexpected value \"\u001b[22m\n\u001b[2m    \u001b[22m\n\u001b[2m  \u001b[22m\n\u001b[2m\"\u001b[22m\n",
                             "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('body')\nTimeout: 5000ms\nExpected pattern: \u001b[32m/Jan 28|28th Jan/\u001b[39m\nReceived string:  \u001b[31m\"········\u001b[39m\n\u001b[31m\"\u001b[39m\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('body')\u001b[22m\n\u001b[2m    8 × locator resolved to <body>…</body>\u001b[22m\n\u001b[2m      - unexpected value \"\u001b[22m\n\u001b[2m    \u001b[22m\n\u001b[2m  \u001b[22m\n\u001b[2m\"\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:484:48\n    at /home/matt/household-project/web/tests/e2e/brady_full_state.spec.js:483:20",
@@ -468,7 +469,7 @@
                           }
                         }
                       ],
-                      "startTime": "2026-02-11T13:34:44.080Z",
+                      "startTime": "2026-02-12T08:41:31.526Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -499,8 +500,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-11T13:30:18.602Z",
-    "duration": 276203.05799999996,
+    "startTime": "2026-02-12T08:37:54.196Z",
+    "duration": 228977.24,
     "expected": 0,
     "skipped": 0,
     "unexpected": 5,

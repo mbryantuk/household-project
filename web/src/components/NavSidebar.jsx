@@ -19,9 +19,6 @@ const RAIL_WIDTH = 64;
 const PANEL_WIDTH = 260; 
 
 const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, activeCategory, hoveredCategory, onHover, handleNav, isMobile }) => {
-    const { mode, systemMode } = useColorScheme();
-    const isDark = mode === 'dark' || (mode === 'system' && systemMode === 'dark');
-    
     const pathMatches = to && location.pathname.includes(to);
     const categoryMatches = activeCategory === category;
     const isHovered = hoveredCategory === category;
@@ -40,8 +37,11 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
         return (
           <ListItem sx={{ px: 0 }}>
               <ListItemButton 
+                  component={to ? NavLink : 'div'}
+                  to={to}
                   selected={isActive}
                   onClick={handleClick}
+                  aria-label={label}
                   sx={{ 
                       borderRadius: 'sm', gap: 2,
                       '&.Mui-selected': { 
@@ -64,9 +64,12 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
     return (
           <ListItem sx={{ p: 0 }}>
               <ListItemButton 
+                  component={to ? NavLink : 'div'}
+                  to={to}
                   selected={isActive}
                   onClick={handleClick}
                   onMouseEnter={handleMouseEnter}
+                  aria-label={label}
                   sx={{ 
                       borderRadius: 'md', justifyContent: 'center', px: 0, 
                       flexDirection: 'column', gap: 0.5, py: 1, width: 56, 
@@ -149,7 +152,6 @@ export default function NavSidebar({
     onLogout, confirmAction, households = [], onSelectHousehold
   } = useHousehold();
   
-  const [activeCategory, setActiveCategory] = useState(null);
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [isPinned, setIsPinned] = useState(localStorage.getItem('nav_pinned') === 'true');
   const [userMenuAnchor, setUserMenuAnchor] = useState(null);
@@ -192,9 +194,7 @@ export default function NavSidebar({
       return null;
   }, []);
 
-  useEffect(() => {
-      setActiveCategory(getCategoryFromPath(location.pathname));
-  }, [location.pathname, getCategoryFromPath]);
+  const activeCategory = useMemo(() => getCategoryFromPath(location.pathname), [location.pathname, getCategoryFromPath]);
 
   const handleNav = (to, category, hasSubItems) => {
       if (to) {
@@ -203,7 +203,6 @@ export default function NavSidebar({
           if (!hasSubItems && isMobile && onClose) onClose();
       }
       if (!hasSubItems) setHoveredCategory(null);
-      setActiveCategory(category);
   };
 
   const handleSubItemClick = () => {

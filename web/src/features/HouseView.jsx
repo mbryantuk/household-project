@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Card, Avatar, Divider, Stack, 
@@ -15,26 +15,30 @@ import { getEmojiColor } from '../theme';
 
 const formatCurrency = (val) => (parseFloat(val) || 0).toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });
 
-const StatCard = ({ label, value, icon: Icon, color = 'primary' }) => (
-    <Card variant="soft" color={color} size="sm" sx={{ flex: 1, minWidth: 120 }}>
-        <Stack direction="row" spacing={1.5} alignItems="center">
-            <Avatar size="sm" variant="solid" color={color}>
-                <Icon fontSize="small" />
-            </Avatar>
-            <Box>
-                <Typography level="body-xs" fontWeight="bold" sx={{ opacity: 0.8 }}>{label}</Typography>
-                <Typography level="title-md">{value}</Typography>
-            </Box>
-        </Stack>
-    </Card>
-);
+const StatCard = ({ label, value, icon, color = 'primary' }) => {
+    const IconComp = icon;
+    return (
+        <Card variant="soft" color={color} size="sm" sx={{ flex: 1, minWidth: 120 }}>
+            <Stack direction="row" spacing={1.5} alignItems="center">
+                <Avatar size="sm" variant="solid" color={color}>
+                    <IconComp fontSize="small" />
+                </Avatar>
+                <Box>
+                    <Typography level="body-xs" fontWeight="bold" sx={{ opacity: 0.8 }}>{label}</Typography>
+                    <Typography level="title-md">{value}</Typography>
+                </Box>
+            </Stack>
+        </Card>
+    );
+};
 
-const ResidentGroup = ({ title, icon: Icon, members = [], isDark, navigate }) => {
+const ResidentGroup = ({ title, icon, members = [], isDark, navigate }) => {
+    const IconComp = icon;
     if (members.length === 0) return null;
     return (
         <Box sx={{ mb: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, px: 1 }}>
-                <Icon fontSize="small" color="primary" />
+                <IconComp fontSize="small" color="primary" />
                 <Typography level="title-sm" textTransform="uppercase" letterSpacing="1px" fontWeight="bold">
                     {title} <Box component="span" sx={{ opacity: 0.5, ml: 1 }}>({members.length})</Box>
                 </Typography>

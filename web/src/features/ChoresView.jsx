@@ -134,7 +134,7 @@ export default function ChoresView() {
           }
           setIsModalOpen(false);
           fetchData();
-      } catch (_err) {
+      } catch {
           showNotification("Operation failed", "danger");
       }
   };
@@ -145,7 +145,7 @@ export default function ChoresView() {
           await api.delete(`/households/${household.id}/chores/${id}`);
           setChores(prev => prev.filter(c => c.id !== id));
           showNotification("Chore deleted", "neutral");
-      } catch (_err) {
+      } catch {
           showNotification("Failed to delete", "danger");
       }
   };
@@ -164,7 +164,7 @@ export default function ChoresView() {
           showNotification(`Completed: ${chore.name} (+${formatCurrency(chore.value)})`, "success");
           // Play sound?
           fetchData();
-      } catch (_err) {
+      } catch {
           showNotification("Failed to complete chore", "danger");
           fetchData(); // Revert
       }

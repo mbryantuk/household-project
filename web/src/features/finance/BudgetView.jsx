@@ -13,7 +13,7 @@ import {
   Assignment, ElectricBolt, AccountBalance as BankIcon, Add, Shield,
   ShoppingBag, ChevronLeft, ChevronRight, ArrowDropDown, RestartAlt, Receipt,
   DirectionsCar, DeleteForever, Sort, Search, ExpandMore, TrendingUp, Block, RequestQuote,
-  FilterAlt, GroupWork, Warning, CalendarMonth
+  FilterAlt, GroupWork, Warning, CalendarMonth, Restore
 } from '@mui/icons-material';
 import {
   format, addMonths, startOfMonth, setDate, differenceInDays,
@@ -220,7 +220,7 @@ const IncomeSourceCard = ({ inc, onUpdate, onDelete }) => {
 };
 
 export default function BudgetView({ financialProfileId }) {
-  const { api, id: householdId, isDark, showNotification, members = [], setStatusBarData, confirmAction, household } = useOutletContext();
+  const { api, id: householdId, isDark, showNotification, members = [], setStatusBarData, confirmAction } = useOutletContext();
   const [loading, setLoading] = useState(true);
   const [savingProgress, setSavingProgress] = useState(new Set());
   const [viewDate, setViewDate] = useState(new Date());
@@ -793,7 +793,7 @@ export default function BudgetView({ financialProfileId }) {
       };
 
       return { startDate, endDate, label, cycleKey, progressPct, daysRemaining, cycleDuration, groupList, skipped, budgetLabelDate, incomeGroup, eventsPerDay };
-  }, [incomes, liabilities, progress, viewDate, getPriorWorkingDay, getAdjustedDate, savingsPots, getNextWorkingDay, members, sortConfig, searchQuery, groupBy, filterEntity, hidePaid, calendarDates, bankHolidays, financialProfileId]);
+  }, [incomes, liabilities, progress, viewDate, getPriorWorkingDay, getAdjustedDate, savingsPots, getNextWorkingDay, members, sortConfig, searchQuery, groupBy, filterEntity, filterAccount, hidePaid, calendarDates, bankHolidays, financialProfileId]);
 
   const currentCycleRecord = useMemo(() => cycles.find(c => c.cycle_start === cycleData?.cycleKey), [cycles, cycleData]);
   
@@ -1251,7 +1251,6 @@ export default function BudgetView({ financialProfileId }) {
   if (!cycleData) return <Box sx={{ p: 4, textAlign: 'center' }}><Typography level="h4">No Primary Income Set</Typography><Button sx={{ mt: 2 }} onClick={fetchData}>Refresh</Button></Box>;
 
   const incomeGroup = cycleData.incomeGroup;
-  const otherGroups = cycleData.groupList;
 
   const renderItemRow = (exp) => {
       const rel = getRelativeDateLabel(exp.computedDate);

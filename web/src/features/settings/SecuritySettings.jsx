@@ -19,7 +19,6 @@ import PasskeyManager from '../../components/PasskeyManager';
 export default function SecuritySettings() {
   const { user, api, showNotification, confirmAction, onUpdateProfile } = useHousehold();
   const [sessions, setSessions] = useState([]);
-  const [loadingSessions, setLoadingSessions] = useState(false);
 
   // MFA State
   const [mfaModalOpen, setMfaModalOpen] = useState(false);
@@ -33,14 +32,11 @@ export default function SecuritySettings() {
   const [password, setPassword] = useState('');
 
   const fetchSessions = useCallback(async () => {
-    setLoadingSessions(true);
     try {
       const res = await api.get('/auth/sessions');
       setSessions(res.data);
     } catch {
       showNotification("Failed to load sessions.", "danger");
-    } finally {
-      setLoadingSessions(false);
     }
   }, [api, showNotification]);
 
@@ -86,7 +82,7 @@ export default function SecuritySettings() {
         setMfaData(res.data);
         setMfaStep(1);
         setMfaModalOpen(true);
-    } catch (err) {
+    } catch {
         showNotification("MFA setup failed.", "danger");
     }
   };
@@ -98,7 +94,7 @@ export default function SecuritySettings() {
         showNotification("Multi-factor authentication enabled!", "success");
         setMfaModalOpen(false);
         onUpdateProfile({ mfa_enabled: true }); // Update local state
-    } catch (err) {
+    } catch {
         showNotification("Invalid code. Please try again.", "danger");
     } finally {
         setVerifying(false);
@@ -112,7 +108,7 @@ export default function SecuritySettings() {
         setDisableModalOpen(false);
         setPassword('');
         onUpdateProfile({ mfa_enabled: false });
-    } catch (err) {
+    } catch {
         showNotification("Invalid password.", "danger");
     }
   };

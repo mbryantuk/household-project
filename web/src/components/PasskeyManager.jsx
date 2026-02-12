@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { startRegistration } from '@simplewebauthn/browser';
 import { 
     Box, Typography, Button, Stack, Sheet, List, ListItem, 
@@ -14,16 +14,16 @@ export default function PasskeyManager({ api, showNotification }) {
 
     useEffect(() => {
         fetchPasskeys();
-    }, [api]);
+    }, [api, fetchPasskeys]);
 
-    const fetchPasskeys = async () => {
+    const fetchPasskeys = useCallback(async () => {
         try {
             const res = await api.get('/passkeys');
             setPasskeys(res.data);
         } catch (err) {
             console.error("Failed to fetch passkeys", err);
         }
-    };
+    }, [api]);
 
     const handleRegister = async () => {
         setLoading(true);
@@ -54,7 +54,7 @@ export default function PasskeyManager({ api, showNotification }) {
             await api.delete(`/passkeys/${id}`);
             setPasskeys(prev => prev.filter(pk => pk.id !== id));
             showNotification('Passkey removed.', 'success');
-        } catch (err) {
+        } catch {
             showNotification('Failed to remove passkey.', 'danger');
         }
     };

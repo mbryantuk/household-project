@@ -7,9 +7,8 @@ import {
 } from '@mui/joy';
 import { 
   Add, Delete, Clear, ShoppingBag, AttachMoney, 
-  Calculate, CheckCircle
+  Calculate
 } from '@mui/icons-material';
-import { getEmojiColor } from '../theme';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -19,7 +18,6 @@ const formatCurrency = (val) => {
 export default function ShoppingListView() {
   const { api, household, showNotification } = useOutletContext();
   const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [newItemName, setNewItemName] = useState('');
   const [newItemCost, setNewItemCost] = useState('');
   const [newItemQty, setNewItemQty] = useState('1');
@@ -37,13 +35,11 @@ export default function ShoppingListView() {
       setItems(res.data.items || []);
     } catch (err) {
       console.error("Failed to fetch shopping list", err);
-    } finally {
-      setLoading(false);
     }
-  }, [api, household?.id]);
+  }, [api, household]);
 
   useEffect(() => {
-    fetchList();
+    Promise.resolve().then(() => fetchList());
   }, [fetchList]);
 
   const handleAddItem = async (e) => {
@@ -62,7 +58,7 @@ export default function ShoppingListView() {
         setNewItemQty('1');
         fetchList();
         showNotification("Item added", "success");
-    } catch (err) {
+    } catch {
         showNotification("Failed to add item", "danger");
     }
   };

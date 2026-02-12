@@ -203,7 +203,7 @@ export default function RecurringChargesWidget({
                 <td>
                     <Box sx={{ display: 'flex', gap: 0.5 }}>
                         <IconButton size="sm" variant="plain" onClick={() => handleEdit(c)}><Edit fontSize="small" /></IconButton>
-                        <IconButton size="sm" variant="plain" color="danger" onClick={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/recurring-costs/${c.id}`).then(fetchCharges))}><Delete fontSize="small" /></IconButton>
+                        <IconButton size="sm" variant="plain" color="danger" onClick={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/recurring-costs/${c.id}`).then(fetchData))}><Delete fontSize="small" /></IconButton>
                     </Box>
                 </td>
               </tr>

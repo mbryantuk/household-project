@@ -18,7 +18,7 @@ test.describe('UI Flow: Finance', () => {
     });
 
     test('User can add a recurring cost', async ({ page }) => {
-        await page.click('a[href*="/house"]');
+        await page.getByRole('link', { name: 'House' }).click();
         await page.click(`text=${creds.householdName}`);
         await page.click('button:has-text("Bills & Costs")');
 

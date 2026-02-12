@@ -60,7 +60,7 @@ export default function BudgetStatusWidget({ api, household }) {
   }, [fetchData]);
 
   const projection = useMemo(() => {
-    const { incomes, recurring_costs, credit_cards, progress, cycles, current_accounts, bank_holidays } = financeData;
+    const { incomes, recurring_costs, progress, cycles, current_accounts, bank_holidays } = financeData;
     
     if (!incomes || incomes.length === 0) return null;
     

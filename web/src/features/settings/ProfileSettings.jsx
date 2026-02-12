@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
     Box, Typography, FormControl, FormLabel, Input, Button, Stack, Avatar, IconButton, 
-    Tooltip, Sheet, List, ListItem, ListItemContent, Chip,
+    Sheet, List, ListItem, ListItemContent, Chip,
     Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Select, Option, Grid
 } from '@mui/joy';
 import Edit from '@mui/icons-material/Edit';
@@ -20,7 +20,7 @@ export default function ProfileSettings() {
   // Profile State
   const [firstName, setFirstName] = useState(user?.first_name || '');
   const [lastName, setLastName] = useState(user?.last_name || '');
-  const [email, setEmail] = useState(user?.email || '');
+  const [email] = useState(user?.email || '');
   const [avatar, setAvatar] = useState(user?.avatar || '👤');
   const [saving, setSaving] = useState(false);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
@@ -36,7 +36,7 @@ export default function ProfileSettings() {
     try {
       await onUpdateProfile({ first_name: firstName, last_name: lastName, email, avatar });
       showNotification('Profile updated successfully!', 'success');
-    } catch (err) {
+    } catch {
       showNotification('Failed to update profile', 'danger');
     } finally {
       setSaving(false);
@@ -57,7 +57,7 @@ export default function ProfileSettings() {
         }
         setIsInviteModalOpen(false);
         setInviteData({ email: '', first_name: '', last_name: '', role: 'member', password: '' });
-    } catch (err) {
+    } catch {
         showNotification("Failed to send invitation.", "danger");
     } finally {
         setInviteLoading(false);

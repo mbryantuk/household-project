@@ -84,7 +84,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "timedOut",
-                      "duration": 60492,
+                      "duration": 60419,
                       "error": {
                         "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
@@ -105,7 +105,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-11T13:24:57.637Z",
+                      "startTime": "2026-02-12T08:32:42.177Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -162,7 +162,7 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "timedOut",
-                      "duration": 60516,
+                      "duration": 60255,
                       "error": {
                         "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
@@ -177,13 +177,13 @@
                             "column": 20,
                             "line": 21
                           },
-                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\u001b[2m    - waiting for\" http://localhost:4001/household/4094/dashboard\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://localhost:4001/household/4094/dashboard\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a recurring cost'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${creds.householdName}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Bills & Costs\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 24 |\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/finance.spec.js:21:20\u001b[22m"
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a recurring cost'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${creds.householdName}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Bills & Costs\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 24 |\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/finance.spec.js:21:20\u001b[22m"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-11T13:24:57.322Z",
+                      "startTime": "2026-02-12T08:32:42.526Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -238,9 +238,9 @@
                   "results": [
                     {
                       "workerIndex": 2,
-                      "parallelIndex": 0,
+                      "parallelIndex": 1,
                       "status": "timedOut",
-                      "duration": 60360,
+                      "duration": 60271,
                       "error": {
                         "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
@@ -255,13 +255,13 @@
                             "column": 20,
                             "line": 21
                           },
-                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a new member'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'People & Residents'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[90m// Add Member\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/members.spec.js:21:20\u001b[22m"
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\u001b[2m    - waiting for\" http://localhost:4001/household/4297/dashboard\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://localhost:4001/household/4297/dashboard\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a new member'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'People & Residents'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[90m// Add Member\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/members.spec.js:21:20\u001b[22m"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-11T13:26:03.511Z",
+                      "startTime": "2026-02-12T08:33:47.915Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -316,9 +316,9 @@
                   "results": [
                     {
                       "workerIndex": 3,
-                      "parallelIndex": 1,
+                      "parallelIndex": 0,
                       "status": "timedOut",
-                      "duration": 60294,
+                      "duration": 60290,
                       "error": {
                         "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
@@ -342,15 +342,15 @@
                       "steps": [
                         {
                           "title": "Register",
-                          "duration": 2915
+                          "duration": 2596
                         },
                         {
                           "title": "Login",
-                          "duration": 1509
+                          "duration": 914
                         },
                         {
                           "title": "Configure House",
-                          "duration": 55700,
+                          "duration": 56541,
                           "error": {
                             "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n",
                             "stack": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:37:24\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:36:20",
@@ -363,7 +363,7 @@
                           }
                         }
                       ],
-                      "startTime": "2026-02-11T13:26:03.552Z",
+                      "startTime": "2026-02-12T08:33:47.687Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -418,9 +418,9 @@
                   "results": [
                     {
                       "workerIndex": 4,
-                      "parallelIndex": 1,
+                      "parallelIndex": 0,
                       "status": "timedOut",
-                      "duration": 60289,
+                      "duration": 60270,
                       "error": {
                         "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
@@ -454,7 +454,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-11T13:27:07.478Z",
+                      "startTime": "2026-02-12T08:34:51.641Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -494,7 +494,7 @@
                       "workerIndex": 5,
                       "parallelIndex": 0,
                       "status": "timedOut",
-                      "duration": 60325,
+                      "duration": 60243,
                       "error": {
                         "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
@@ -509,7 +509,7 @@
                             "column": 20,
                             "line": 37
                           },
-                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 35 |\u001b[39m\n \u001b[90m 36 |\u001b[39m     test(\u001b[32m'Core Navigation: House Hub, Calendar, Meals'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'Household Hub'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/calendar\"]'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:37:20\u001b[22m"
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\u001b[2m    - waiting for\" http://localhost:4001/household/4277/dashboard\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://localhost:4001/household/4277/dashboard\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 35 |\u001b[39m\n \u001b[90m 36 |\u001b[39m     test(\u001b[32m'Core Navigation: House Hub, Calendar, Meals'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'Household Hub'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/calendar\"]'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:37:20\u001b[22m"
                         }
                       ],
                       "stdout": [
@@ -528,7 +528,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-11T13:28:11.375Z",
+                      "startTime": "2026-02-12T08:35:55.290Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -568,25 +568,25 @@
                       "workerIndex": 6,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 8174,
+                      "duration": 2499,
                       "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Playwright Milk')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Playwright Milk')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Playwright Milk')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Playwright Milk')\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:58:60",
+                        "message": "Error: page.goto: Navigation to \"http://localhost:4001/household/60/shopping\" is interrupted by another navigation to \"http://localhost:4001/household/4277/dashboard\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/household/60/shopping\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: Navigation to \"http://localhost:4001/household/60/shopping\" is interrupted by another navigation to \"http://localhost:4001/household/4277/dashboard\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/household/60/shopping\", waiting until \"load\"\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:49:20",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 60,
-                          "line": 58
+                          "column": 20,
+                          "line": 49
                         },
-                        "snippet": "\u001b[0m \u001b[90m 56 |\u001b[39m\n \u001b[90m 57 |\u001b[39m         \u001b[90m// Verify List\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 58 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Playwright Milk'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 59 |\u001b[39m\n \u001b[90m 60 |\u001b[39m         \u001b[90m// Verify Budget Widget\u001b[39m\n \u001b[90m 61 |\u001b[39m         \u001b[36mconst\u001b[39m total \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=£1.50'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m 47 |\u001b[39m     test(\u001b[32m'Shopping List: Add Item and Budget Estimate'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 48 |\u001b[39m         \u001b[90m// Navigate\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 49 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/household/60/shopping'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Direct nav or click sidebar\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 50 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'Shopping List'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 51 |\u001b[39m\n \u001b[90m 52 |\u001b[39m         \u001b[90m// Add Item\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 60,
-                            "line": 58
+                            "column": 20,
+                            "line": 49
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Playwright Milk')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Playwright Milk')\u001b[22m\n\n\n\u001b[0m \u001b[90m 56 |\u001b[39m\n \u001b[90m 57 |\u001b[39m         \u001b[90m// Verify List\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 58 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Playwright Milk'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 59 |\u001b[39m\n \u001b[90m 60 |\u001b[39m         \u001b[90m// Verify Budget Widget\u001b[39m\n \u001b[90m 61 |\u001b[39m         \u001b[36mconst\u001b[39m total \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=£1.50'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:58:60\u001b[22m"
+                          "message": "Error: page.goto: Navigation to \"http://localhost:4001/household/60/shopping\" is interrupted by another navigation to \"http://localhost:4001/household/4277/dashboard\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/household/60/shopping\", waiting until \"load\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 47 |\u001b[39m     test(\u001b[32m'Shopping List: Add Item and Budget Estimate'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 48 |\u001b[39m         \u001b[90m// Navigate\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 49 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/household/60/shopping'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Direct nav or click sidebar\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 50 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'Shopping List'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 51 |\u001b[39m\n \u001b[90m 52 |\u001b[39m         \u001b[90m// Add Item\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:49:20\u001b[22m"
                         }
                       ],
                       "stdout": [
@@ -601,26 +601,11 @@
                         },
                         {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[BROWSER] Failed to load resource: the server responded with a status of 500 (Internal Server Error)\n"
-                        },
-                        {
-                          "text": "[BROWSER] Failed to fetch shopping list AxiosError: Request failed with status code 500\n    at T3 (http://localhost:4001/assets/index-D_u_HGvp.js:12:1091)\n    at XMLHttpRequest.L (http://localhost:4001/assets/index-D_u_HGvp.js:12:5953)\n    at xi.request (http://localhost:4001/assets/index-D_u_HGvp.js:14:2094)\n    at async http://localhost:4001/assets/ShoppingListView-h7AVlUxW.js:1:776\n"
-                        },
-                        {
-                          "text": "[BROWSER] Failed to load resource: the server responded with a status of 500 (Internal Server Error)\n"
-                        },
-                        {
-                          "text": "[BROWSER] Failed to fetch shopping list AxiosError: Request failed with status code 500\n    at T3 (http://localhost:4001/assets/index-D_u_HGvp.js:12:1091)\n    at XMLHttpRequest.L (http://localhost:4001/assets/index-D_u_HGvp.js:12:5953)\n    at xi.request (http://localhost:4001/assets/index-D_u_HGvp.js:14:2094)\n    at async http://localhost:4001/assets/ShoppingListView-h7AVlUxW.js:1:776\n"
-                        },
-                        {
-                          "text": "[BROWSER] Failed to load resource: the server responded with a status of 500 (Internal Server Error)\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-11T13:29:14.909Z",
+                      "startTime": "2026-02-12T08:36:58.919Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -636,8 +621,8 @@
                       ],
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 60,
-                        "line": 58
+                        "column": 20,
+                        "line": 49
                       }
                     }
                   ],
@@ -665,25 +650,25 @@
                       "workerIndex": 7,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 4206,
+                      "duration": 8248,
                       "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Settings')\nExpected: visible\nError: strict mode violation: getByText('Settings') resolved to 3 elements:\n    1) <div class=\"MuiListItemContent-root css-pvr40b\">Settings</div> aka getByRole('button', { name: '⚙️ Settings' })\n    2) <p class=\"MuiTypography-root MuiTypography-body-sm css-peddd8\">Settings</p> aka locator('p').filter({ hasText: 'Settings' })\n    3) <div id=\"_r_c_\" role=\"tooltip\" data-popper-placement=\"right\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementRight css-cemyjr\">Account & Settings</div> aka getByRole('tooltip', { name: 'Account & Settings' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Settings')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Settings')\nExpected: visible\nError: strict mode violation: getByText('Settings') resolved to 3 elements:\n    1) <div class=\"MuiListItemContent-root css-pvr40b\">Settings</div> aka getByRole('button', { name: '⚙️ Settings' })\n    2) <p class=\"MuiTypography-root MuiTypography-body-sm css-peddd8\">Settings</p> aka locator('p').filter({ hasText: 'Settings' })\n    3) <div id=\"_r_c_\" role=\"tooltip\" data-popper-placement=\"right\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementRight css-cemyjr\">Account & Settings</div> aka getByRole('tooltip', { name: 'Account & Settings' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Settings')\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:71:50",
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Account', { exact: true }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Account', { exact: true }).first()\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Account', { exact: true }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Account', { exact: true }).first()\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:70:74",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 50,
-                          "line": 71
+                          "column": 74,
+                          "line": 70
                         },
-                        "snippet": "\u001b[0m \u001b[90m 69 |\u001b[39m         \u001b[90m// Verify Sidebar Panel content (Account Header)\u001b[39m\n \u001b[90m 70 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Account'\u001b[39m\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 71 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Settings'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 72 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Switch Household'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 73 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Log Out'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 74 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m 68 |\u001b[39m         \n \u001b[90m 69 |\u001b[39m         \u001b[90m// Verify Sidebar Panel content (Account Header)\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 70 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Account'\u001b[39m\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 71 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Settings'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 72 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Switch Household'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 73 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Log Out'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 50,
-                            "line": 71
+                            "column": 74,
+                            "line": 70
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Settings')\nExpected: visible\nError: strict mode violation: getByText('Settings') resolved to 3 elements:\n    1) <div class=\"MuiListItemContent-root css-pvr40b\">Settings</div> aka getByRole('button', { name: '⚙️ Settings' })\n    2) <p class=\"MuiTypography-root MuiTypography-body-sm css-peddd8\">Settings</p> aka locator('p').filter({ hasText: 'Settings' })\n    3) <div id=\"_r_c_\" role=\"tooltip\" data-popper-placement=\"right\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementRight css-cemyjr\">Account & Settings</div> aka getByRole('tooltip', { name: 'Account & Settings' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Settings')\u001b[22m\n\n\n\u001b[0m \u001b[90m 69 |\u001b[39m         \u001b[90m// Verify Sidebar Panel content (Account Header)\u001b[39m\n \u001b[90m 70 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Account'\u001b[39m\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 71 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Settings'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 72 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Switch Household'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 73 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Log Out'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 74 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:71:50\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Account', { exact: true }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Account', { exact: true }).first()\u001b[22m\n\n\n\u001b[0m \u001b[90m 68 |\u001b[39m         \n \u001b[90m 69 |\u001b[39m         \u001b[90m// Verify Sidebar Panel content (Account Header)\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 70 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Account'\u001b[39m\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 71 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Settings'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 72 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Switch Household'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 73 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Log Out'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:70:74\u001b[22m"
                         }
                       ],
                       "stdout": [
@@ -698,17 +683,11 @@
                         },
                         {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[BROWSER] TypeError: Cannot read properties of null (reading 'split')\n    at rG (http://localhost:4001/assets/index-D_u_HGvp.js:97:346153)\n    at s3 (http://localhost:4001/assets/index-D_u_HGvp.js:97:345409)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350472\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350348\n    at Object.ry [as useMemo] (http://localhost:4001/assets/index-D_u_HGvp.js:9:57408)\n    at G6._e.useMemo (http://localhost:4001/assets/index-D_u_HGvp.js:2:9121)\n    at hG (http://localhost:4001/assets/index-D_u_HGvp.js:97:349270)\n    at G1 (http://localhost:4001/assets/index-D_u_HGvp.js:9:48437)\n    at um (http://localhost:4001/assets/index-D_u_HGvp.js:9:71294)\n"
-                        },
-                        {
-                          "text": "[BROWSER] Widget Crash Detected: TypeError: Cannot read properties of null (reading 'split')\n    at rG (http://localhost:4001/assets/index-D_u_HGvp.js:97:346153)\n    at s3 (http://localhost:4001/assets/index-D_u_HGvp.js:97:345409)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350472\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350348\n    at Object.ry [as useMemo] (http://localhost:4001/assets/index-D_u_HGvp.js:9:57408)\n    at G6._e.useMemo (http://localhost:4001/assets/index-D_u_HGvp.js:2:9121)\n    at hG (http://localhost:4001/assets/index-D_u_HGvp.js:97:349270)\n    at G1 (http://localhost:4001/assets/index-D_u_HGvp.js:9:48437)\n    at um (http://localhost:4001/assets/index-D_u_HGvp.js:9:71294) {componentStack: \n    at hG (http://localhost:4001/assets/index-D_u…ocalhost:4001/assets/index-D_u_HGvp.js:97:403245)}\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-11T13:29:26.386Z",
+                      "startTime": "2026-02-12T08:37:05.039Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -724,8 +703,8 @@
                       ],
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 50,
-                        "line": 71
+                        "column": 74,
+                        "line": 70
                       }
                     }
                   ],
@@ -753,10 +732,10 @@
                       "workerIndex": 8,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 8960,
+                      "duration": 3151,
                       "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Budget Health')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Budget Health')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Budget Health')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Budget Health')\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:79:58",
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Budget Health')\nExpected: visible\nError: strict mode violation: locator('text=Budget Health') resolved to 2 elements:\n    1) <p class=\"MuiTypography-root MuiTypography-title-lg css-14eokod\">Budget Health</p> aka locator('#root').getByText('Budget Health')\n    2) <div id=\"_r_i_\" role=\"tooltip\" data-popper-escaped=\"\" data-popper-placement=\"top\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementBottom css-14urjzx\">Budget Health</div> aka getByRole('tooltip', { name: 'Budget Health' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Budget Health')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Budget Health')\nExpected: visible\nError: strict mode violation: locator('text=Budget Health') resolved to 2 elements:\n    1) <p class=\"MuiTypography-root MuiTypography-title-lg css-14eokod\">Budget Health</p> aka locator('#root').getByText('Budget Health')\n    2) <div id=\"_r_i_\" role=\"tooltip\" data-popper-escaped=\"\" data-popper-placement=\"top\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementBottom css-14urjzx\">Budget Health</div> aka getByRole('tooltip', { name: 'Budget Health' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Budget Health')\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:79:58",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/smoke.spec.js",
                           "column": 58,
@@ -771,7 +750,7 @@
                             "column": 58,
                             "line": 79
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Budget Health')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Budget Health')\u001b[22m\n\n\n\u001b[0m \u001b[90m 77 |\u001b[39m         \u001b[90m// Budget Health\u001b[39m\n \u001b[90m 78 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Budget Health\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 79 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Budget Health'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 80 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Budget Health\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m \u001b[90m// Close\u001b[39m\n \u001b[90m 81 |\u001b[39m\n \u001b[90m 82 |\u001b[39m         \u001b[90m// Wealth Tracking\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:79:58\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Budget Health')\nExpected: visible\nError: strict mode violation: locator('text=Budget Health') resolved to 2 elements:\n    1) <p class=\"MuiTypography-root MuiTypography-title-lg css-14eokod\">Budget Health</p> aka locator('#root').getByText('Budget Health')\n    2) <div id=\"_r_i_\" role=\"tooltip\" data-popper-escaped=\"\" data-popper-placement=\"top\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementBottom css-14urjzx\">Budget Health</div> aka getByRole('tooltip', { name: 'Budget Health' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Budget Health')\u001b[22m\n\n\n\u001b[0m \u001b[90m 77 |\u001b[39m         \u001b[90m// Budget Health\u001b[39m\n \u001b[90m 78 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Budget Health\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 79 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Budget Health'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 80 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Budget Health\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m \u001b[90m// Close\u001b[39m\n \u001b[90m 81 |\u001b[39m\n \u001b[90m 82 |\u001b[39m         \u001b[90m// Wealth Tracking\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:79:58\u001b[22m"
                         }
                       ],
                       "stdout": [
@@ -786,23 +765,22 @@
                         },
                         {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[BROWSER] TypeError: Cannot read properties of null (reading 'split')\n    at rG (http://localhost:4001/assets/index-D_u_HGvp.js:97:346153)\n    at s3 (http://localhost:4001/assets/index-D_u_HGvp.js:97:345409)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350472\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350348\n    at Object.ry [as useMemo] (http://localhost:4001/assets/index-D_u_HGvp.js:9:57408)\n    at G6._e.useMemo (http://localhost:4001/assets/index-D_u_HGvp.js:2:9121)\n    at hG (http://localhost:4001/assets/index-D_u_HGvp.js:97:349270)\n    at G1 (http://localhost:4001/assets/index-D_u_HGvp.js:9:48437)\n    at um (http://localhost:4001/assets/index-D_u_HGvp.js:9:71294)\n"
-                        },
-                        {
-                          "text": "[BROWSER] Widget Crash Detected: TypeError: Cannot read properties of null (reading 'split')\n    at rG (http://localhost:4001/assets/index-D_u_HGvp.js:97:346153)\n    at s3 (http://localhost:4001/assets/index-D_u_HGvp.js:97:345409)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350472\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350348\n    at Object.ry [as useMemo] (http://localhost:4001/assets/index-D_u_HGvp.js:9:57408)\n    at G6._e.useMemo (http://localhost:4001/assets/index-D_u_HGvp.js:2:9121)\n    at hG (http://localhost:4001/assets/index-D_u_HGvp.js:97:349270)\n    at G1 (http://localhost:4001/assets/index-D_u_HGvp.js:9:48437)\n    at um (http://localhost:4001/assets/index-D_u_HGvp.js:9:71294) {componentStack: \n    at hG (http://localhost:4001/assets/index-D_u…ocalhost:4001/assets/index-D_u_HGvp.js:97:403245)}\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-11T13:29:33.731Z",
+                      "startTime": "2026-02-12T08:37:16.728Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
                           "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests-Utility-Bar-Persistent-Widgets-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests-Utility-Bar-Persistent-Widgets-chromium/error-context.md"
                         }
                       ],
                       "errorLocation": {
@@ -836,7 +814,7 @@
                       "workerIndex": 9,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 9782,
+                      "duration": 9197,
                       "error": {
                         "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('button[aria-label=\"Export Tenant Data\"]').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('button[aria-label=\"Export Tenant Data\"]').first()\u001b[22m\n",
                         "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('button[aria-label=\"Export Tenant Data\"]').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('button[aria-label=\"Export Tenant Data\"]').first()\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:103:36",
@@ -869,17 +847,11 @@
                         },
                         {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[BROWSER] TypeError: Cannot read properties of null (reading 'split')\n    at rG (http://localhost:4001/assets/index-D_u_HGvp.js:97:346153)\n    at s3 (http://localhost:4001/assets/index-D_u_HGvp.js:97:345409)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350472\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350348\n    at Object.ry [as useMemo] (http://localhost:4001/assets/index-D_u_HGvp.js:9:57408)\n    at G6._e.useMemo (http://localhost:4001/assets/index-D_u_HGvp.js:2:9121)\n    at hG (http://localhost:4001/assets/index-D_u_HGvp.js:97:349270)\n    at G1 (http://localhost:4001/assets/index-D_u_HGvp.js:9:48437)\n    at um (http://localhost:4001/assets/index-D_u_HGvp.js:9:71294)\n"
-                        },
-                        {
-                          "text": "[BROWSER] Widget Crash Detected: TypeError: Cannot read properties of null (reading 'split')\n    at rG (http://localhost:4001/assets/index-D_u_HGvp.js:97:346153)\n    at s3 (http://localhost:4001/assets/index-D_u_HGvp.js:97:345409)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350472\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350348\n    at Object.ry [as useMemo] (http://localhost:4001/assets/index-D_u_HGvp.js:9:57408)\n    at G6._e.useMemo (http://localhost:4001/assets/index-D_u_HGvp.js:2:9121)\n    at hG (http://localhost:4001/assets/index-D_u_HGvp.js:97:349270)\n    at G1 (http://localhost:4001/assets/index-D_u_HGvp.js:9:48437)\n    at um (http://localhost:4001/assets/index-D_u_HGvp.js:9:71294) {componentStack: \n    at hG (http://localhost:4001/assets/index-D_u…ocalhost:4001/assets/index-D_u_HGvp.js:97:403245)}\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-11T13:29:45.742Z",
+                      "startTime": "2026-02-12T08:37:23.151Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -924,7 +896,7 @@
                       "workerIndex": 10,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 9690,
+                      "duration": 9109,
                       "error": {
                         "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Signature Designs')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Signature Designs')\u001b[22m\n",
                         "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Signature Designs')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Signature Designs')\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:115:62",
@@ -957,23 +929,22 @@
                         },
                         {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
-                        },
-                        {
-                          "text": "[BROWSER] TypeError: Cannot read properties of null (reading 'split')\n    at rG (http://localhost:4001/assets/index-D_u_HGvp.js:97:346153)\n    at s3 (http://localhost:4001/assets/index-D_u_HGvp.js:97:345409)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350472\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350348\n    at Object.ry [as useMemo] (http://localhost:4001/assets/index-D_u_HGvp.js:9:57408)\n    at G6._e.useMemo (http://localhost:4001/assets/index-D_u_HGvp.js:2:9121)\n    at hG (http://localhost:4001/assets/index-D_u_HGvp.js:97:349270)\n    at G1 (http://localhost:4001/assets/index-D_u_HGvp.js:9:48437)\n    at um (http://localhost:4001/assets/index-D_u_HGvp.js:9:71294)\n"
-                        },
-                        {
-                          "text": "[BROWSER] Widget Crash Detected: TypeError: Cannot read properties of null (reading 'split')\n    at rG (http://localhost:4001/assets/index-D_u_HGvp.js:97:346153)\n    at s3 (http://localhost:4001/assets/index-D_u_HGvp.js:97:345409)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350472\n    at Array.forEach (<anonymous>)\n    at http://localhost:4001/assets/index-D_u_HGvp.js:97:350348\n    at Object.ry [as useMemo] (http://localhost:4001/assets/index-D_u_HGvp.js:9:57408)\n    at G6._e.useMemo (http://localhost:4001/assets/index-D_u_HGvp.js:2:9121)\n    at hG (http://localhost:4001/assets/index-D_u_HGvp.js:97:349270)\n    at G1 (http://localhost:4001/assets/index-D_u_HGvp.js:9:48437)\n    at um (http://localhost:4001/assets/index-D_u_HGvp.js:9:71294) {componentStack: \n    at hG (http://localhost:4001/assets/index-D_u…ocalhost:4001/assets/index-D_u_HGvp.js:97:403245)}\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-11T13:29:58.780Z",
+                      "startTime": "2026-02-12T08:37:35.413Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
                           "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests-Settings-Theme-Customization-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests-Settings-Theme-Customization-chromium/error-context.md"
                         }
                       ],
                       "errorLocation": {
@@ -998,8 +969,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-11T13:24:53.814Z",
-    "duration": 314973.54500000004,
+    "startTime": "2026-02-12T08:32:37.950Z",
+    "duration": 306908.907,
     "expected": 0,
     "skipped": 0,
     "unexpected": 11,

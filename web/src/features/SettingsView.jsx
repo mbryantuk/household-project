@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Typography, Tabs, TabList, Tab, TabPanel, Sheet, Divider, Button } from '@mui/joy';
 import Person from '@mui/icons-material/Person';
@@ -22,18 +21,10 @@ export default function SettingsView() {
   const queryParams = new URLSearchParams(location.search);
   const tabParam = parseInt(queryParams.get('tab')) || 0;
 
-  const [index, setIndex] = useState(tabParam);
   const { user } = useHousehold();
   const isAdmin = user?.role === 'admin';
 
-  useEffect(() => {
-    if (tabParam !== index) {
-        setIndex(tabParam);
-    }
-  }, [tabParam]);
-
   const handleTabChange = (e, val) => {
-    setIndex(val);
     navigate(`?tab=${val}`, { replace: true });
   };
 
@@ -43,7 +34,7 @@ export default function SettingsView() {
 
       <Tabs 
         orientation="vertical" 
-        value={index} 
+        value={tabParam} 
         onChange={handleTabChange}
         sx={{ bgcolor: 'transparent' }}
       >

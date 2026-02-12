@@ -73,18 +73,9 @@ export default function HouseholdLayout({
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const [activeHousehold, setActiveHousehold] = useState(household);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState('main');
 
-  // Quick Action State
-  const [quickActionAnchor, setQuickActionAnchor] = useState(null);
-
-  // Sync local active household with prop from App
-  useEffect(() => {
-    if (household) setActiveHousehold(household);
-  }, [household]);
-  
   // New: Global Status Bar State
   const [statusBarData, setStatusBarData] = useState(null);
 
@@ -99,18 +90,12 @@ export default function HouseholdLayout({
       // Guard: Only switch if the App's current household doesn't match the URL
       if (!household || household.id !== effectiveHousehold.id) {
           onSelectHousehold(effectiveHousehold);
-          setActiveHousehold(effectiveHousehold);
-      } else {
-          // If already matched, ensure local state is synced
-          if (!activeHousehold || activeHousehold.id !== effectiveHousehold.id) {
-            setActiveHousehold(effectiveHousehold);
-          }
       }
     } else if (households && households.length > 0) {
       // Only redirect if we have loaded households and the target isn't found/valid
       navigate('/');
     }
-  }, [id, households, onSelectHousehold, navigate, household, activeHousehold]);
+  }, [id, households, onSelectHousehold, navigate, household]);
 
   const isTabActive = (path) => location.pathname.includes(path);
 
@@ -118,11 +103,11 @@ export default function HouseholdLayout({
     const path = location.pathname || '';
     const parts = path.split('/');
     const section = parts[3];
-    return ROUTE_META[section]?.title || activeHousehold?.name || 'MANTEL';
-  }, [location.pathname, activeHousehold]);
+    return ROUTE_META[section]?.title || household?.name || 'MANTEL';
+  }, [location.pathname, household]);
 
   const contextValue = {
-      household: activeHousehold,
+      household: household,
       members,
       vehicles,
       api,
@@ -146,11 +131,6 @@ export default function HouseholdLayout({
       onDateAdded,
       statusBarData,
       setStatusBarData
-  };
-
-  const toggleQuickAction = (event) => {
-    if (quickActionAnchor) setQuickActionAnchor(null);
-    else setQuickActionAnchor(event.currentTarget);
   };
 
   return (
@@ -218,7 +198,7 @@ export default function HouseholdLayout({
                     confirmAction,
                     onUpdateProfile,
                     setStatusBarData,
-                    household: activeHousehold
+                    household: household
                 }} />
             </Box>
 
@@ -303,7 +283,7 @@ export default function HouseholdLayout({
                                 } 
                                 label={hh.name} 
                                 onClick={async () => { await onSelectHousehold(hh); navigate(`/household/${hh.id}/dashboard`); setDrawerOpen(false); setActiveMenu('main'); }} 
-                                sx={{ bgcolor: hh.id === activeHousehold?.id ? 'primary.softBg' : 'background.level1' }}
+                                sx={{ bgcolor: hh.id === household?.id ? 'primary.softBg' : 'background.level1' }}
                             />
                         ))
                     )}
@@ -347,21 +327,4 @@ export default function HouseholdLayout({
         </Box>
     </HouseholdProvider>
   );
-}
-
-function MenuTile({ icon, label, to, onClick, sx = {} }) {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const isActive = to && location.pathname.includes(to);
-    
-    return (
-        <Stack 
-          alignItems="center" spacing={1} 
-          onClick={() => { if (to) navigate(to); if (onClick) onClick(); }}
-          sx={{ p: 2, borderRadius: 'xl', bgcolor: isActive ? 'primary.softBg' : 'background.level1', cursor: 'pointer', transition: 'all 0.2s', '&:active': { transform: 'scale(0.95)', bgcolor: 'primary.softBg' }, ...sx }}
-        >
-            <Box sx={{ color: isActive ? 'primary.solidBg' : 'neutral.plainColor' }}>{icon}</Box>
-            <Typography level="body-sm" sx={{ fontWeight: isActive ? 'bold' : 'normal' }}>{label}</Typography>
-        </Stack>
-    );
 }

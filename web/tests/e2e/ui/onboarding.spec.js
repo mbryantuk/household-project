@@ -1,6 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('UI Flow: Onboarding', () => {
+    test.beforeEach(async ({ page }) => {
+        page.on('console', msg => console.log(`[BROWSER] ${msg.text()}`));
+        page.on('pageerror', err => console.log(`[BROWSER ERROR] ${err.message}`));
+    });
+
     test('User can register and configure household details', async ({ page }) => {
         const RUN_ID = Date.now();
         const EMAIL = `onboard.${RUN_ID}@test.com`;
@@ -34,7 +39,11 @@ test.describe('UI Flow: Onboarding', () => {
 
         // 3. Configure House Details
         await test.step('Configure House', async () => {
-            await page.click('a[href*="/house"]');
+            console.log("DEBUG: Page content before waiting for link:");
+            console.log(await page.content());
+            const houseLink = page.getByRole('link', { name: 'House' });
+            await expect(houseLink).toBeVisible({ timeout: 10000 });
+            await houseLink.click();
             await expect(page.locator('h2').filter({ hasText: 'Household Hub' })).toBeVisible();
             await page.click(`text=${HOUSE_NAME}`);
             

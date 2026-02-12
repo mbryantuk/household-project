@@ -68,9 +68,10 @@ const queryClient = new QueryClient({
 
 function AppInner({ 
     themeId, setThemeId, user, setUser, token, setToken, household, setHousehold, 
-    logout, login, mfaLogin, handleLoginSuccess, spec, onPreviewTheme,
-    mode, setModePref, onModeChange
+    logout, login, mfaLogin, spec, onPreviewTheme,
+    mode, setModePref
 }) {
+  console.log(`[APP] Init - Token: ${token ? 'Present' : 'Missing'}, Household: ${household?.id || 'None'}`);
   const { setMode, mode: currentMode, systemMode } = useColorScheme();
   
   // Real-time dark mode detection for legacy components
@@ -239,6 +240,7 @@ function AppInner({
     if (!token) return;
     try {
       const res = await authAxios.get('/auth/my-households');
+      console.log(`[APP] Fetched ${res.data?.length || 0} households`);
       setHouseholds(res.data || []);
     } catch (err) {
       console.error("Failed to fetch households", err);
@@ -422,7 +424,7 @@ function AppInner({
 
       <Suspense fallback={<PageLoader />}>
         <Routes>
-            <Route path="/login" element={!token ? <Login onLogin={login} onMfaLogin={mfaLogin} onLoginSuccess={handleLoginSuccess} /> : <Navigate to="/" />} />
+            <Route path="/login" element={!token ? <Login onLogin={login} onMfaLogin={mfaLogin} /> : <Navigate to="/" />} />
             <Route path="/register" element={!token ? <Register /> : <Navigate to="/" />} />
             <Route path="/calculator" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
             <Route path="/fin-calculator-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FinancialCalculator isPopout={true} onClose={() => window.close()} /></Box>} />

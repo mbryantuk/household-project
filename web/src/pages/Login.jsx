@@ -10,7 +10,7 @@ import axios from 'axios';
 import MantelIcon from '../components/MantelIcon';
 import { getEmojiColor } from '../theme';
 
-export default function Login({ onLogin, onMfaLogin, onLoginSuccess }) {
+export default function Login({ onLogin, onMfaLogin }) {
   const location = useLocation();
   const [step, setStep] = useState(1); // 1: Email, 2: Password, 3: MFA
   const [email, setEmail] = useState(localStorage.getItem('rememberedEmail') || '');
@@ -27,6 +27,7 @@ export default function Login({ onLogin, onMfaLogin, onLoginSuccess }) {
 
   const message = location.state?.message;
 
+  /*
   const handlePasskeyLogin = async () => {
       setLoading(true);
       setError('');
@@ -48,6 +49,7 @@ export default function Login({ onLogin, onMfaLogin, onLoginSuccess }) {
           setLoading(false);
       }
   };
+  */
 
   const handleLookup = useCallback(async (e) => {
     if (e) e.preventDefault();

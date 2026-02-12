@@ -18,7 +18,7 @@ test.describe('UI Flow: Assets', () => {
     });
 
     test('User can add a new asset', async ({ page }) => {
-        await page.click('a[href*="/house"]');
+        await page.getByRole('link', { name: 'House' }).click();
         await page.click(`text=${creds.householdName}`);
         await page.click('button:has-text("Assets")');
         

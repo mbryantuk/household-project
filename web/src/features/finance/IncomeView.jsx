@@ -78,12 +78,12 @@ export default function IncomeView({ financialProfileId }) {
     }
   }, [selectedIncome, selectedIncomeId]);
 
-  const setIncomeId = (id) => {
+  const setIncomeId = useCallback((id) => {
     const newParams = new URLSearchParams(location.search);
     if (id) newParams.set('selectedIncomeId', id);
     else newParams.delete('selectedIncomeId');
     navigate(`?${newParams.toString()}`, { replace: true });
-  };
+  }, [location.search, navigate]);
 
   const getMemberName = useCallback((id) => {
       const m = members.find(m => m.id === parseInt(id));
@@ -188,7 +188,7 @@ export default function IncomeView({ financialProfileId }) {
             </Box>
         )
     }
-  ], [isDark, getBankName, getMemberName]);
+  ], [isDark, getBankName, getMemberName, handleDelete, setIncomeId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -215,14 +215,7 @@ export default function IncomeView({ financialProfileId }) {
     }
   };
 
-  const setPrimaryDirect = async (item) => {
-      try {
-          await api.put(`/households/${householdId}/finance/income/${item.id}`, { ...item, is_primary: 1 });
-          fetchData();
-      } catch (err) { console.error("Failed to set primary income", err); }
-  };
-
-  const handleDelete = async (id) => {
+  const handleDelete = useCallback(async (id) => {
     if (!window.confirm("Delete this income source?")) return;
     try {
       await api.delete(`/households/${householdId}/finance/income/${id}`);
@@ -231,7 +224,7 @@ export default function IncomeView({ financialProfileId }) {
     } catch {
       alert("Failed to delete income source");
     }
-  };
+  }, [api, householdId, fetchData, selectedIncomeId, setIncomeId]);
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 

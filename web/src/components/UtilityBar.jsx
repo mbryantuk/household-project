@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, useLayoutEffect, useCallback } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import { 
-  Box, IconButton, Tooltip, Sheet, Typography, Divider, Chip, Stack, useColorScheme
+  Box, IconButton, Tooltip, Sheet, Typography, Divider, Stack, useColorScheme
 } from '@mui/joy';
 import Wifi from '@mui/icons-material/Wifi';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
@@ -20,7 +20,6 @@ import HomeIcon from '@mui/icons-material/Home';
 import DirectionsCar from '@mui/icons-material/DirectionsCar';
 import Speed from '@mui/icons-material/Speed';
 
-import { useNavigate } from 'react-router-dom';
 import FloatingCalculator from './FloatingCalculator';
 import FloatingCalendar from './FloatingCalendar';
 import FinancialCalculator from './FinancialCalculator';
@@ -54,7 +53,7 @@ const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, activeWi
             let calcLeft = rect.left;
             if (calcLeft + widgetWidth > screenWidth) calcLeft = screenWidth - widgetWidth - 10;
             if (calcLeft < 10) calcLeft = 10;
-            setLeftPos(calcLeft);
+            requestAnimationFrame(() => setLeftPos(calcLeft));
         }
     }, [isOpen, width]);
 

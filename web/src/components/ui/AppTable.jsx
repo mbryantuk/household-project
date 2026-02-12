@@ -1,10 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Box, Sheet, Typography } from '@mui/joy';
 import { styled } from '@mui/joy/styles';
 import StatusBar from './StatusBar';
 
-const StyledDataGridContainer = styled(Sheet)(({ theme }) => ({
+const StyledDataGridContainer = styled(Sheet)(() => ({
   height: 500,
   width: '100%',
   '& .MuiDataGrid-root': {
@@ -54,7 +54,7 @@ export default function AppTable({
     loading = false,
     ...props 
 }) {
-  const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
+  const [rowSelectionModel, setRowSelectionModel] = useState([]);
 
   const selectedRows = useMemo(() => {
     return rows.filter(r => rowSelectionModel.includes(r.id));
