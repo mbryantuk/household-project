@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix TypeError reading borderRadius by completing theme radius object and adding Material UI shim",
-  "date": "Thu 12 Feb 16:38:40 GMT 2026"
+  "commitMessage": "Final definitive Fix for theme TypeError by removing TableCell object from all color schemes",
+  "date": "Thu 12 Feb 16:45:30 GMT 2026"
 }
