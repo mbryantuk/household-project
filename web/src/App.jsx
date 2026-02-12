@@ -324,6 +324,7 @@ function AppInner({
       (response) => {
         const serverVersion = response.headers['x-api-version'];
         if (serverVersion && serverVersion !== pkg.version) {
+           console.warn(`[AUTH] Version mismatch! Client: ${pkg.version}, Server: ${serverVersion}`);
            logout();
            window.location.reload();
         }
@@ -334,12 +335,14 @@ function AppInner({
             const { status, data } = error.response;
             const serverVersion = error.response.headers['x-api-version'];
             if (serverVersion && serverVersion !== pkg.version) {
+                console.warn(`[AUTH] Version mismatch on error! Client: ${pkg.version}, Server: ${serverVersion}`);
                 logout();
                 window.location.reload();
                 return Promise.reject(error);
             }
 
             if (status === 401 || status === 403) {
+                console.warn(`[AUTH] Session expired (${status}). Logging out.`);
                 if (window.location.pathname !== '/login') {
                     logout();
                 }

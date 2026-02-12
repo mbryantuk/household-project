@@ -7,6 +7,7 @@ const path = require('path');
 const cron = require('node-cron');
 const { apiReference } = require('@scalar/express-api-reference');
 const swaggerDocument = require('./swagger.json');
+const pkg = require('./package.json');
 
 // Import unified database instance
 const { SECRET_KEY } = require('./config');
@@ -47,6 +48,12 @@ app.use(helmet({
 }));
 app.use(cors());
 app.use(express.json());
+
+// Global Version Header
+app.use((req, res, next) => {
+    res.setHeader('x-api-version', pkg.version);
+    next();
+});
 
 // Maintenance Mode Middleware
 app.use((req, res, next) => {

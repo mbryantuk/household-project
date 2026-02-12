@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix UI test locators, sidebar navigation links, and backend export tests",
-  "date": "Thu 12 Feb 09:24:35 GMT 2026"
+  "commitMessage": "Global version header middleware",
+  "date": "Thu 12 Feb 09:33:48 GMT 2026"
 }
