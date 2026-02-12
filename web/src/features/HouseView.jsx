@@ -164,7 +164,7 @@ export default function HouseView() {
                 <Button 
                     variant="solid" color="primary" size="sm" 
                     startDecorator={<Edit />}
-                    onClick={() => navigate(`/household/${household?.id}/settings?tab=2`)}
+                    onClick={() => navigate(`/household/${household?.id}/house/details`)}
                 >
                     Edit Property
                 </Button>

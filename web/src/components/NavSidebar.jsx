@@ -455,6 +455,7 @@ export default function NavSidebar({
                           <>
                               <GroupHeader label="Overview" />
                               <SubItem label="House Hub" to={`/household/${household.id}/house`} emoji="🏠" onClick={handleSubItemClick} />
+                              <SubItem label="Property Details" to={`/household/${household.id}/house/details`} emoji="📋" onClick={handleSubItemClick} />
                               <SubItem label="People & Residents" to={`/household/${household.id}/people`} emoji="👥" onClick={handleSubItemClick} />
                               <Divider sx={{ my: 1 }} />
                               <GroupHeader label="Residents" />

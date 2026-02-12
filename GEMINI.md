@@ -136,12 +136,12 @@ Every feature or maintenance pass MUST satisfy the following gates before deploy
     * **Requirement:** All 200+ test cases across Finance, Assets, Members, and Meals must pass.
     * **Cleanup:** Automatically triggers `test:tidy`.
 
-4.  **Frontend Smoke Test (Two-Stage):**
+4.  **Frontend Smoke Test (Optional / Manual Only):**
+    *   **Status:** Skipped by default (as per user instruction 2026-02-12).
+    *   **Manual Trigger:** `cd web && npx playwright test tests/smoke.spec.js`
     *   **Stage 1: Routing & Availability**
-        *   **Command:** `cd web && npx playwright test tests/routing.spec.js`
         *   **Purpose:** Rapidly verify all major modules (Finance, People, House, etc.) are reachable and rendering.
     *   **Stage 2: Comprehensive Lifecycle**
-        *   **Command:** `cd web && npx playwright test tests/smoke.spec.js`
         *   **Purpose:** Full end-to-end verification of data entry, financial matrix calculations, and multi-entity links.
     *   **Cleanup:** Automatically triggers `test:tidy`.
 

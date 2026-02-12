@@ -30,7 +30,7 @@ test.describe('Core UI Smoke Tests', () => {
         await page.click('button:has-text("Create")');
 
         // Verify it was created and selected
-        await expect(page.locator('text=Smoke Test Profile')).toBeVisible();
+        await expect(page.locator('button[role="combobox"]').filter({ hasText: 'Smoke Test Profile' })).toBeVisible();
         await expect(page).toHaveURL(/.*financial_profile_id=.*/);
     });
 
@@ -48,10 +48,28 @@ test.describe('Core UI Smoke Tests', () => {
         await expect(page.locator('h2')).toContainText('Meal Planner');
     });
 
+    test('Core Navigation: Property Details', async ({ page }) => {
+        await page.getByRole('link', { name: 'House' }).click();
+        const link = page.locator('text=Property Details');
+        await expect(link).toBeVisible({ timeout: 10000 });
+        await link.click();
+        
+        await expect(page.locator('h2').filter({ hasText: 'Property Identity' })).toBeVisible();
+        await expect(page.getByText('Property Type')).toBeVisible();
+        
+        // Check tabs
+        await page.click('text=Technical & Utilities');
+        await expect(page.locator('h2').filter({ hasText: 'Technical & Utilities' })).toBeVisible();
+        await expect(page.getByText('Broadband Provider')).toBeVisible();
+        
+        await page.click('text=Recurring Costs');
+        await expect(page.getByText('Household Recurring Costs')).toBeVisible();
+    });
+
     test('Groceries: Add Item and Budget Estimate', async ({ page }) => {
         const hhId = await page.evaluate(() => localStorage.getItem('last_household_id'));
         await page.goto(`/household/${hhId}/shopping`);
-        await expect(page.locator('h2')).toContainText('Groceries');
+        await expect(page.getByRole('heading', { name: 'Groceries' })).toBeVisible();
 
         // Add Item
         await page.fill('input[placeholder="Item name (e.g. Milk)"]', 'Playwright Milk');
@@ -71,7 +89,7 @@ test.describe('Core UI Smoke Tests', () => {
         await page.locator('button[aria-label="Account"]').click();
         
         // Verify Sidebar Panel content (Account Header)
-        await expect(page.getByText('Personal Preferences', { exact: true }).first()).toBeVisible();
+        await expect(page.getByText('Profile Settings', { exact: true }).first()).toBeVisible();
         await expect(page.getByText('Household Settings')).toBeVisible();
         await expect(page.getByText('Switch Household')).toBeVisible();
         await expect(page.getByText('Log Out')).toBeVisible();
@@ -91,7 +109,9 @@ test.describe('Core UI Smoke Tests', () => {
     test('Admin: System Administration & Tenant Export UI', async ({ page }) => {
         // Navigate to Settings
         await page.locator('button[aria-label="Account"]').click();
-        await page.click('text=Household Settings');
+        const settingsLink = page.locator('text=Household Settings');
+        await expect(settingsLink).toBeVisible({ timeout: 10000 });
+        await settingsLink.click();
         await page.waitForURL('**/settings**');
 
         // Check for Admin Tools tab
@@ -109,14 +129,18 @@ test.describe('Core UI Smoke Tests', () => {
 
     test('Settings: Theme Customization', async ({ page }) => {
         // Navigate to Settings > Appearance
-        await page.locator('button:has(.MuiAvatar-root)').last().click();
-        await page.click('text=Settings');
+        await page.locator('button[aria-label="Account"]').click();
+        const settingsLink = page.locator('text=Settings');
+        await expect(settingsLink).toBeVisible({ timeout: 10000 });
+        await settingsLink.click();
         await page.waitForURL('**/settings**');
         
-        await page.click('text=Appearance');
+        const appearanceTab = page.locator('text=Appearance');
+        await expect(appearanceTab).toBeVisible();
+        await appearanceTab.click();
         
         // Verify Theme Grid renders
-        await expect(page.locator('text=Signature Designs')).toBeVisible();
+        await expect(page.locator('text=Signature Designs')).toBeVisible({ timeout: 10000 });
         await expect(page.locator('text=Light Themes')).toBeVisible();
         await expect(page.locator('text=Dark Themes')).toBeVisible();
 

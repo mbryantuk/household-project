@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Box, Sheet, Typography } from '@mui/joy';
-import { styled } from '@mui/joy/styles';
 import StatusBar from './StatusBar';
 
 /**

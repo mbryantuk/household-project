@@ -78,10 +78,11 @@ export default function RecurringChargesWidget({
     if (!householdId) return;
     setLoading(true);
     try {
+      const params = { object_type: entityType };
+      if (entityId && entityId !== 'null') params.object_id = entityId;
+
       const [chargeRes, accRes] = await Promise.all([
-          api.get(`/households/${householdId}/finance/recurring-costs`, {
-            params: { object_type: entityType, object_id: entityId }
-          }),
+          api.get(`/households/${householdId}/finance/recurring-costs`, { params }),
           api.get(`/households/${householdId}/finance/current-accounts`)
       ]);
       setCharges(chargeRes.data);

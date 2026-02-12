@@ -104,8 +104,15 @@ export default function ChargesView({ initialTab }) {
   }, [householdId, api]);
 
   useEffect(() => {
-    fetchCharges();
-    fetchEntities();
+    let mounted = true;
+    const load = async () => {
+        try {
+            await fetchCharges();
+            if (mounted) await fetchEntities();
+        } catch (e) { console.error(e); }
+    };
+    load();
+    return () => { mounted = false; };
   }, [fetchCharges, fetchEntities]);
 
   const handleSave = async () => {

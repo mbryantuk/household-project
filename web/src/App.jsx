@@ -43,6 +43,7 @@ const ProfileView = lazy(() => import('./features/ProfileView'));
 const FinanceView = lazy(() => import('./features/FinanceView'));
 const ChoresView = lazy(() => import('./features/ChoresView'));
 const AssetsView = lazy(() => import('./features/AssetsView'));
+const HouseholdDetailsView = lazy(() => import('./features/HouseholdDetailsView'));
 
 const API_BASE = window.location.origin;
 const API_URL = `${API_BASE}/api`;
@@ -462,6 +463,7 @@ function AppInner({
                     <Route path="pets/:petId" element={<PetsView />} /><Route path="pets" element={<PetsView />} />
                     <Route path="house/assets/:assetId" element={<AssetsView />} />
                     <Route path="house/assets" element={<AssetsView />} />
+                    <Route path="house/details" element={<HouseholdDetailsView />} />
                     <Route path="house/:houseId" element={<HouseView />} />
                     <Route path="house" element={<HouseView />} />
                     <Route path="vehicles/:vehicleId" element={<VehiclesView />} /><Route path="vehicles" element={<VehiclesView />} />

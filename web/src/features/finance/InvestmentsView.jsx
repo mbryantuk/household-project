@@ -40,7 +40,14 @@ export default function InvestmentsView({ financialProfileId }) {
   }, [api, householdId, financialProfileId]);
 
   useEffect(() => {
-    fetchInvestments();
+    let mounted = true;
+    const load = async () => {
+        try {
+             await fetchInvestments();
+        } catch (e) { console.error(e); }
+    };
+    if (mounted) load();
+    return () => { mounted = false; };
   }, [fetchInvestments]);
 
   const selectedInvestment = useMemo(() => 
@@ -49,21 +56,16 @@ export default function InvestmentsView({ financialProfileId }) {
 
   useEffect(() => {
     if (selectedInvestment) {
-      setFormData(prev => {
-          if (prev.name === selectedInvestment.name && 
-              prev.platform === selectedInvestment.platform && 
-              prev.current_value === selectedInvestment.current_value &&
-              prev.total_invested === selectedInvestment.total_invested &&
-              prev.emoji === selectedInvestment.emoji) return prev;
-          return {
-            name: selectedInvestment.name || '', 
-            platform: selectedInvestment.platform || '',
-            current_value: selectedInvestment.current_value || 0, 
-            total_invested: selectedInvestment.total_invested || 0,
-            emoji: selectedInvestment.emoji || '📈'
-          };
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFormData({
+        name: selectedInvestment.name || '', 
+        platform: selectedInvestment.platform || '',
+        current_value: selectedInvestment.current_value || 0, 
+        total_invested: selectedInvestment.total_invested || 0,
+        emoji: selectedInvestment.emoji || '📈'
       });
     } else if (selectedInvestmentId === 'new') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         name: '', platform: '', current_value: 0, total_invested: 0, emoji: '📈'
       });

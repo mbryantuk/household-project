@@ -42,11 +42,13 @@ export default function FinanceView() {
           // Auto-select default if no param
           if (!profileParam && res.data.length > 0) {
              const def = res.data.find(p => p.is_default) || res.data[0];
-             navigate(`?tab=${tabParam || 'budget'}&financial_profile_id=${def.id}`, { replace: true });
+             const newParams = new URLSearchParams(location.search);
+             newParams.set('financial_profile_id', def.id);
+             navigate(`?${newParams.toString()}`, { replace: true });
           }
        })
        .catch(err => console.error("Failed to fetch profiles", err));
-  }, [api, householdId, profileParam, tabParam, navigate]);
+  }, [api, householdId, profileParam, location.search, navigate]);
 
   const handleCreateProfile = async (data) => {
       try {
@@ -65,6 +67,21 @@ export default function FinanceView() {
   const handleProfileSelect = (id) => {
       const newParams = new URLSearchParams(location.search);
       newParams.set('financial_profile_id', id);
+      navigate(`?${newParams.toString()}`);
+  };
+
+  const handleCardClick = (key) => {
+      let targetProfileId = profileParam;
+      if (!targetProfileId && profiles.length > 0) {
+          const def = profiles.find(p => p.is_default) || profiles[0];
+          targetProfileId = def.id;
+      }
+      navigate(`?tab=${key}&financial_profile_id=${targetProfileId || ''}`);
+  };
+
+  const handleBack = () => {
+      const newParams = new URLSearchParams(location.search);
+      newParams.delete('tab');
       navigate(`?${newParams.toString()}`);
   };
 
@@ -130,7 +147,7 @@ export default function FinanceView() {
             <Grid xs={12} sm={6} md={4} lg={3} key={key}>
               <Card 
                 variant="outlined" 
-                onClick={() => navigate(`?tab=${key}&financial_profile_id=${profileParam || ''}`)} 
+                onClick={() => handleCardClick(key)} 
                 sx={{ 
                     p: 3, gap: 2, alignItems: 'center', cursor: 'pointer', 
                     transition: 'all 0.2s',
@@ -162,7 +179,7 @@ export default function FinanceView() {
     <Box sx={{ width: '100%' }}>
         <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <IconButton variant="outlined" color="neutral" onClick={() => navigate('.')}>
+            <IconButton variant="outlined" color="neutral" onClick={handleBack}>
                 <ArrowBack />
             </IconButton>
             <Typography level="title-lg" sx={{ ml: 1 }}>Back to Overview</Typography>
