@@ -7,7 +7,8 @@ import {
   Event, Pets, Inventory2, RestaurantMenu, AccountBalance, Close, 
   KeyboardArrowRight, PushPin, PushPinOutlined, HomeWork, Settings as SettingsIcon, 
   Logout as LogoutIcon, Download as DownloadIcon, Home as HomeIcon, ExpandMore, Add, CheckCircle,
-  Palette, Person, Security, CleaningServices, ShoppingBag
+  Palette, Person, Security, CleaningServices, ShoppingBag,
+  LightMode, DarkMode, SettingsBrightness
 } from '@mui/icons-material';
 
 import { useLocation, useNavigate, NavLink, useSearchParams } from 'react-router-dom';
@@ -15,6 +16,7 @@ import { isToday, parseISO } from 'date-fns';
 import { getEmojiColor } from '../theme';
 import { useHousehold } from '../contexts/HouseholdContext';
 import EmojiPicker from './EmojiPicker';
+import { ToggleButtonGroup } from '@mui/joy';
 
 const RAIL_WIDTH = 72; 
 const PANEL_WIDTH = 280; 
@@ -569,6 +571,21 @@ export default function NavSidebar({
                                           <Typography level="title-sm">{user?.first_name} {user?.last_name}</Typography>
                                           <Typography level="body-xs" color="neutral">{user?.email}</Typography>
                                       </Box>
+                                  </Box>
+
+                                  <Box sx={{ mb: 2 }}>
+                                      <Typography level="body-xs" fontWeight="bold" sx={{ mb: 1, color: 'text.tertiary', fontSize: '0.7rem', textTransform: 'uppercase' }}>Theme Mode</Typography>
+                                      <ToggleButtonGroup 
+                                          variant="soft" 
+                                          size="sm" 
+                                          value={mode} 
+                                          onChange={(e, v) => v && onModeChange(v)}
+                                          sx={{ width: '100%', justifyContent: 'center' }}
+                                      >
+                                          <Button value="light" sx={{ flex: 1 }} startDecorator={<LightMode />}>Light</Button>
+                                          <Button value="dark" sx={{ flex: 1 }} startDecorator={<DarkMode />}>Dark</Button>
+                                          <Button value="system" sx={{ flex: 1 }} startDecorator={<SettingsBrightness />}>System</Button>
+                                      </ToggleButtonGroup>
                                   </Box>
                               </Box>
                               

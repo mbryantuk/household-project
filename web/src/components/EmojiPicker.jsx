@@ -3,12 +3,13 @@ import { Modal, ModalDialog, DialogTitle, DialogContent, Box, useColorScheme } f
 import Picker from 'emoji-picker-react';
 
 export default function EmojiPicker({ open, onClose, onEmojiSelect, title = "Select Emoji", isDark }) {
-  const { mode } = useColorScheme();
+  const { mode, systemMode } = useColorScheme();
 
   // Determine theme: use prop if provided, otherwise sync with MUI mode
+  const resolvedMode = mode === 'system' ? systemMode : mode;
   const currentTheme = isDark !== undefined 
     ? (isDark ? 'dark' : 'light') 
-    : (mode === 'dark' ? 'dark' : 'light');
+    : (resolvedMode === 'dark' ? 'dark' : 'light');
 
   return (
     <Modal open={open} onClose={onClose}>
