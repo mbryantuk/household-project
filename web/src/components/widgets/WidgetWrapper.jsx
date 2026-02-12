@@ -8,6 +8,7 @@ export default function WidgetWrapper({ title, icon, color = 'primary', children
       flexDirection: 'column',
       borderLeft: '6px solid',
       borderColor: (theme) => {
+          if (!theme.vars || !theme.vars.palette) return color;
           const paletteColor = theme.vars.palette[color];
           if (!paletteColor) return color;
           return paletteColor[500] || paletteColor.solidBg || color;
@@ -21,6 +22,7 @@ export default function WidgetWrapper({ title, icon, color = 'primary', children
           {icon && (
             <Box sx={{ 
               color: (theme) => {
+                  if (!theme.vars || !theme.vars.palette) return color;
                   const paletteColor = theme.vars.palette[color];
                   if (!paletteColor) return color;
                   return paletteColor[500] || paletteColor.solidBg || color;

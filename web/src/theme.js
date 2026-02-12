@@ -58,9 +58,6 @@ export const THEMES = {
   custom: { name: 'Custom Theme', primary: '#374151', isCustom: true }
 };
 
-/**
- * Utility to convert hex to HSL for tinting
- */
 const hexToHsl = (hex) => {
   let r = 0, g = 0, b = 0;
   if (hex.length === 4) {
@@ -86,7 +83,6 @@ const hexToHsl = (hex) => {
 export const getEmojiColor = (emoji, isDark = true) => {
   if (!emoji) return isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
   let hash = 0;
-  // Robust conversion: ensure string and handle potential failures
   const str = String(emoji || '');
   for (let i = 0; i < str.length; i++) {
       hash = str.charCodeAt(i) + ((hash << 5) - hash);
@@ -109,7 +105,6 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
         body: '"DM Sans", var(--joy-fontFamily-fallback)',
         display: '"DM Serif Display", serif',
     },
-    // Standard Joy UI radius keys + explicit pixel values
     radius: { 
         xs: '2px',
         sm: '4px', 
@@ -117,7 +112,6 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
         lg: '12px', 
         xl: '16px' 
     },
-    // Material UI Shim: Some components (like DataGrid) expect this structure
     shape: {
         borderRadius: 8
     },
@@ -125,7 +119,7 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
       light: {
         palette: {
           background: {
-            body: `hsl(${h}, ${Math.min(s, 30)}%, 96%)`, // Stronger tint
+            body: `hsl(${h}, ${Math.min(s, 30)}%, 96%)`,
             surface: '#ffffff',
             level1: `hsl(${h}, ${Math.min(s, 25)}%, 93%)`,
             level2: `hsl(${h}, ${Math.min(s, 20)}%, 90%)`,
@@ -152,7 +146,7 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
             outlinedColor: primaryColor,
             outlinedBorder: primaryColor,
             softBg: `${primaryColor}15`,
-            main: primaryColor, // Shim for Material UI
+            main: primaryColor,
           },
           neutral: {
             outlinedBorder: `hsl(${h}, ${Math.min(s, 10)}%, 94%)`,
@@ -164,7 +158,7 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
       dark: {
         palette: {
           background: {
-            body: `hsl(${h}, ${Math.min(s, 10)}%, 4%)`, // Deep dark base
+            body: `hsl(${h}, ${Math.min(s, 10)}%, 4%)`,
             surface: `hsl(${h}, ${Math.min(s, 8)}%, 7%)`,
             level1: `hsl(${h}, ${Math.min(s, 8)}%, 10%)`,
             level2: `hsl(${h}, ${Math.min(s, 8)}%, 12%)`,
@@ -181,7 +175,7 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
             outlinedColor: primaryColor,
             outlinedBorder: primaryColor,
             softBg: 'rgba(255,255,255,0.1)',
-            main: primaryColor, // Shim for Material UI
+            main: primaryColor,
           },
           neutral: {
             outlinedBorder: `hsl(${h}, ${Math.min(s, 8)}%, 15%)`,

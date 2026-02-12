@@ -170,25 +170,25 @@ export default function MealPlannerView() {
       setSelectedMemberIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   };
 
-  // --- RECEIPIE BOOK VIEW ---
+  // --- RECIPE BOOK VIEW ---
   if (activeTab === 'library') {
       return (
         <Box sx={{ p: 2 }}>
             <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Box>
-                    <Typography level="h2" startDecorator={<MenuBook />}>Receipie book</Typography>
+                    <Typography level="h2" startDecorator={<MenuBook />}>Recipe book</Typography>
                     <Typography level="body-md" color="neutral">Browse and manage your household recipes.</Typography>
                 </Box>
                 <Stack direction="row" spacing={1}>
                     <Button variant="outlined" color="neutral" onClick={() => setSearchParams({ tab: 'planner' })}>Back to Planner</Button>
-                    <Button startDecorator={<Add />} onClick={() => { setEditMeal(null); setTempMealEmoji('🍝'); setAssignModalOpen(false); setIsLibraryOpen(true); }}>New Receipie</Button>
+                    <Button startDecorator={<Add />} onClick={() => { setEditMeal(null); setTempMealEmoji('🍝'); setAssignModalOpen(false); setIsLibraryOpen(true); }}>New Recipe</Button>
                 </Stack>
             </Box>
 
             <Grid container spacing={2}>
                 {meals.length === 0 && (
                     <Grid xs={12}>
-                        <Typography level="body-lg" textAlign="center" sx={{ py: 10, opacity: 0.5 }}>Your receipie book is empty. Add some meals to get started!</Typography>
+                        <Typography level="body-lg" textAlign="center" sx={{ py: 10, opacity: 0.5 }}>Your recipe book is empty. Add some meals to get started!</Typography>
                     </Grid>
                 )}
                 {meals.map(meal => (
@@ -213,7 +213,7 @@ export default function MealPlannerView() {
             {/* Library Form (Uses the same drawer for consistency but could be a modal here) */}
             <Drawer anchor="right" open={isLibraryOpen} onClose={() => setIsLibraryOpen(false)} slotProps={{ content: { sx: { width: '100%', maxWidth: 400, p: 2 } } }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography level="h3">{editMeal ? 'Edit Receipie' : 'New Receipie'}</Typography>
+                    <Typography level="h3">{editMeal ? 'Edit Recipe' : 'New Recipe'}</Typography>
                     <IconButton onClick={() => setIsLibraryOpen(false)}><Close /></IconButton>
                 </Box>
                 <form onSubmit={handleCreateMeal}>

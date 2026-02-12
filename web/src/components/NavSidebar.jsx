@@ -559,7 +559,7 @@ export default function NavSidebar({
                           <Box sx={{ p: 1 }}>
                               <GroupHeader label="Meal Plan" />
                               <SubItem label="Meal Planner" to={`/household/${household.id}/meals`} emoji="🍱" onClick={handleSubItemClick} />
-                              <SubItem label="Receipie book" to={`/household/${household.id}/meals?tab=library`} emoji="📖" onClick={handleSubItemClick} />
+                              <SubItem label="Recipe book" to={`/household/${household.id}/meals?tab=library`} emoji="📖" onClick={handleSubItemClick} />
                           </Box>
                       )}
 
