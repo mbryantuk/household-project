@@ -10,7 +10,7 @@ import {
   Wifi, Bolt, WaterDrop, Construction,
   InfoOutlined, TrendingUp, CalendarMonth,
   Add, ArrowForward, Pets, ChildCare, Person,
-  Receipt, Settings
+  Receipt, Settings, Apartment
 } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
 
@@ -33,46 +33,51 @@ const StatCard = ({ label, value, icon, color = 'primary' }) => {
     );
 };
 
-const ResidentGroup = ({ title, icon, members = [], isDark, navigate }) => {
+const ResidentGrid = ({ title, icon, members = [], isDark, navigate, onAdd }) => {
     const IconComp = icon;
-    if (members.length === 0) return null;
     return (
-        <Box sx={{ mb: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, px: 1 }}>
-                <IconComp fontSize="small" color="primary" />
-                <Typography level="title-sm" textTransform="uppercase" letterSpacing="1px" fontWeight="bold">
-                    {title} <Box component="span" sx={{ opacity: 0.5, ml: 1 }}>({members.length})</Box>
+        <Card variant="outlined" sx={{ boxShadow: 'sm', mb: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography level="title-md" startDecorator={<IconComp color="primary" />}>
+                    {title} <Box component="span" sx={{ opacity: 0.5, ml: 1, fontSize: '0.8rem' }}>({members.length})</Box>
                 </Typography>
+                <IconButton size="sm" variant="plain" onClick={onAdd} color="primary"><Add /></IconButton>
             </Box>
-            <Stack spacing={1}>
+            <Grid container spacing={2}>
+                {members.length === 0 && (
+                    <Grid xs={12}>
+                        <Typography level="body-sm" color="neutral" textAlign="center" sx={{ py: 2, border: '1px dashed', borderColor: 'divider', borderRadius: 'sm' }}>
+                            No {title.toLowerCase()} recorded.
+                        </Typography>
+                    </Grid>
+                )}
                 {members.map(m => (
-                    <Card 
-                        key={m.id} 
-                        variant="outlined" 
-                        onClick={() => navigate(`/household/${m.household_id}/${m.type === 'pet' ? 'pets' : 'people'}/${m.id}`)}
-                        sx={{ 
-                            p: 1, 
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                            '&:hover': { bgcolor: 'background.level1', transform: 'translateX(4px)', borderColor: 'primary.300' }
-                        }}
-                    >
-                        <Stack direction="row" spacing={1.5} alignItems="center">
-                            <Avatar size="sm" sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji}</Avatar>
-                            <ListItemContent>
-                                <Typography level="title-sm">{m.alias || m.name}</Typography>
+                    <Grid key={m.id} xs={12} sm={6}>
+                        <Sheet 
+                            variant="soft" 
+                            onClick={() => navigate(`/household/${m.household_id}/${m.type === 'pet' ? 'pets' : 'people'}/${m.id}`)}
+                            sx={{ 
+                                p: 1.5, borderRadius: 'md', display: 'flex', alignItems: 'center', gap: 2,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                                '&:hover': { bgcolor: 'primary.softBg', transform: 'translateX(4px)' }
+                            }}
+                        >
+                            <Avatar size="md" sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji}</Avatar>
+                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                                <Typography level="title-sm" noWrap>{m.alias || m.name}</Typography>
                                 {m.dob && (
                                     <Typography level="body-xs" sx={{ opacity: 0.6 }}>
                                         {new Date().getFullYear() - new Date(m.dob).getFullYear()} Years Old
                                     </Typography>
                                 )}
-                            </ListItemContent>
-                            <ArrowForward sx={{ fontSize: '1rem', opacity: 0.3 }} />
-                        </Stack>
-                    </Card>
+                            </Box>
+                            <IconButton size="sm" variant="plain"><ArrowForward fontSize="small" /></IconButton>
+                        </Sheet>
+                    </Grid>
                 ))}
-            </Stack>
-        </Box>
+            </Grid>
+        </Card>
     );
 };
 
@@ -86,7 +91,7 @@ export default function HouseView() {
     } catch { return ['pets', 'vehicles', 'meals']; }
   }, [household]);
 
-  // Group Residents
+  // Group Residents (Strictly Excluding Pets from People groups)
   const groups = useMemo(() => {
     return {
         adults: members.filter(m => m.type === 'adult'),
@@ -137,6 +142,13 @@ export default function HouseView() {
                     Settings
                 </Button>
                 <Button 
+                    variant="outlined" color="primary" size="sm" 
+                    startDecorator={<Apartment />}
+                    onClick={() => navigate(`/household/${household?.id}/assets/new`)}
+                >
+                    Add Property
+                </Button>
+                <Button 
                     variant="solid" color="primary" size="sm" 
                     startDecorator={<Receipt />}
                     onClick={() => navigate(`/household/${household?.id}/finance?tab=charges`)}
@@ -147,8 +159,8 @@ export default function HouseView() {
         </Box>
 
         <Grid container spacing={3}>
-            {/* Left Column: Property & Inventory Stats */}
-            <Grid xs={12} md={7} lg={8}>
+            {/* Main Content Area */}
+            <Grid xs={12} md={8}>
                 <Stack spacing={3}>
                     {/* Financial Overview */}
                     <Card variant="outlined" sx={{ boxShadow: 'sm' }}>
@@ -171,30 +183,34 @@ export default function HouseView() {
                         </Grid>
                     </Card>
 
+                    {/* Residents Section (Unifying styling) */}
+                    <ResidentGrid title="Adults" icon={Person} members={groups.adults} isDark={isDark} navigate={navigate} onAdd={() => navigate(`/household/${household.id}/people/new`)} />
+                    <ResidentGrid title="Children" icon={ChildCare} members={groups.children} isDark={isDark} navigate={navigate} onAdd={() => navigate(`/household/${household.id}/people/new`)} />
+
                     {/* Fleet Section */}
                     {enabledModules.includes('vehicles') && (
                         <Card variant="outlined" sx={{ boxShadow: 'sm' }}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                                <Typography level="title-md" startDecorator={<DirectionsCar color="primary" />}>Fleet & Vehicles</Typography>
-                                <Button size="sm" variant="plain" endDecorator={<ArrowForward />} onClick={() => navigate(`/household/${household.id}/vehicles`)}>Manage Fleet</Button>
+                                <Typography level="title-md" startDecorator={<DirectionsCar color="primary" />}>Fleet & Vehicles <Box component="span" sx={{ opacity: 0.5, ml: 1, fontSize: '0.8rem' }}>({vehicles.length})</Box></Typography>
+                                <IconButton size="sm" variant="plain" onClick={() => navigate(`/household/${household.id}/vehicles/new`)} color="primary"><Add /></IconButton>
                             </Box>
                             <Grid container spacing={2}>
                                 {vehicles.length === 0 && (
                                     <Grid xs={12}>
                                         <Typography level="body-sm" color="neutral" textAlign="center" sx={{ py: 2, border: '1px dashed', borderColor: 'divider', borderRadius: 'sm' }}>
-                                            No vehicles registered in the fleet.
+                                            No vehicles registered.
                                         </Typography>
                                     </Grid>
                                 )}
                                 {vehicles.map(v => (
                                     <Grid key={v.id} xs={12} sm={6}>
-                                        <Sheet variant="soft" sx={{ p: 1.5, borderRadius: 'md', display: 'flex', alignItems: 'center', gap: 2 }}>
+                                        <Sheet variant="soft" sx={{ p: 1.5, borderRadius: 'md', display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer', transition: 'all 0.2s', '&:hover': { bgcolor: 'primary.softBg', transform: 'translateX(4px)' } }} onClick={() => navigate(`/household/${household.id}/vehicles/${v.id}`)}>
                                             <Avatar size="md" sx={{ bgcolor: getEmojiColor(v.emoji || '🚗', isDark) }}>{v.emoji || '🚗'}</Avatar>
                                             <Box sx={{ flex: 1, minWidth: 0 }}>
                                                 <Typography level="title-sm" noWrap>{v.make} {v.model}</Typography>
                                                 <Typography level="body-xs" color="neutral">{v.registration || 'No Plate'}</Typography>
                                             </Box>
-                                            <IconButton size="sm" variant="plain" onClick={() => navigate(`/household/${household.id}/vehicles/${v.id}`)}><ArrowForward fontSize="small" /></IconButton>
+                                            <IconButton size="sm" variant="plain"><ArrowForward fontSize="small" /></IconButton>
                                         </Sheet>
                                     </Grid>
                                 ))}
@@ -206,139 +222,87 @@ export default function HouseView() {
                     {enabledModules.includes('pets') && (
                         <Card variant="outlined" sx={{ boxShadow: 'sm' }}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                                <Typography level="title-md" startDecorator={<Pets color="primary" />}>Pets & Animals</Typography>
-                                <Button size="sm" variant="plain" endDecorator={<ArrowForward />} onClick={() => navigate(`/household/${household.id}/pets`)}>All Pets</Button>
+                                <Typography level="title-md" startDecorator={<Pets color="primary" />}>Pets & Animals <Box component="span" sx={{ opacity: 0.5, ml: 1, fontSize: '0.8rem' }}>({groups.pets.length})</Box></Typography>
+                                <IconButton size="sm" variant="plain" onClick={() => navigate(`/household/${household.id}/pets/new`)} color="primary"><Add /></IconButton>
                             </Box>
                             <Grid container spacing={2}>
                                 {groups.pets.length === 0 && (
                                     <Grid xs={12}>
                                         <Typography level="body-sm" color="neutral" textAlign="center" sx={{ py: 2, border: '1px dashed', borderColor: 'divider', borderRadius: 'sm' }}>
-                                            No pets found in the household.
+                                            No pets found.
                                         </Typography>
                                     </Grid>
                                 )}
                                 {groups.pets.map(p => (
                                     <Grid key={p.id} xs={12} sm={6}>
-                                        <Sheet variant="soft" sx={{ p: 1.5, borderRadius: 'md', display: 'flex', alignItems: 'center', gap: 2 }}>
+                                        <Sheet variant="soft" sx={{ p: 1.5, borderRadius: 'md', display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer', transition: 'all 0.2s', '&:hover': { bgcolor: 'primary.softBg', transform: 'translateX(4px)' } }} onClick={() => navigate(`/household/${household.id}/pets/${p.id}`)}>
                                             <Avatar size="md" sx={{ bgcolor: getEmojiColor(p.emoji || '🐾', isDark) }}>{p.emoji || '🐾'}</Avatar>
                                             <Box sx={{ flex: 1, minWidth: 0 }}>
                                                 <Typography level="title-sm" noWrap>{p.name}</Typography>
                                                 <Typography level="body-xs" color="neutral">{p.species} • {p.breed || 'Mixed'}</Typography>
                                             </Box>
-                                            <IconButton size="sm" variant="plain" onClick={() => navigate(`/household/${household.id}/pets/${p.id}`)}><ArrowForward fontSize="small" /></IconButton>
+                                            <IconButton size="sm" variant="plain"><ArrowForward fontSize="small" /></IconButton>
                                         </Sheet>
                                     </Grid>
                                 ))}
                             </Grid>
                         </Card>
                     )}
-
-                    {/* Technical Specs & Utilities */}
-                    <Grid container spacing={3}>
-                        <Grid xs={12} sm={6}>
-                            <Card variant="outlined" sx={{ height: '100%', boxShadow: 'sm' }}>
-                                <Typography level="title-md" startDecorator={<Wifi color="primary" />} sx={{ mb: 2 }}>Tech & Utilities</Typography>
-                                <List size="sm" sx={{ '--ListItem-paddingLeft': '0px' }}>
-                                    <ListItem>
-                                        <ListItemDecorator><Wifi color="primary" /></ListItemDecorator>
-                                        <ListItemContent>
-                                            <Typography level="body-xs" fontWeight="bold">Broadband</Typography>
-                                            <Typography level="body-sm">{household?.broadband_provider || 'Not Set'}</Typography>
-                                        </ListItemContent>
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItemDecorator><Bolt color="warning" /></ListItemDecorator>
-                                        <ListItemContent>
-                                            <Typography level="body-xs" fontWeight="bold">Energy Meter</Typography>
-                                            <Typography level="body-sm">{household?.energy_account || 'Not Set'}</Typography>
-                                        </ListItemContent>
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItemDecorator><WaterDrop color="info" /></ListItemDecorator>
-                                        <ListItemContent>
-                                            <Typography level="body-xs" fontWeight="bold">Water Supply</Typography>
-                                            <Typography level="body-sm">Metered Supply</Typography>
-                                        </ListItemContent>
-                                    </ListItem>
-                                </List>
-                            </Card>
-                        </Grid>
-                        <Grid xs={12} sm={6}>
-                            <Card variant="outlined" sx={{ height: '100%', boxShadow: 'sm' }}>
-                                <Typography level="title-md" startDecorator={<Construction color="neutral" />} sx={{ mb: 2 }}>Inventory Summary</Typography>
-                                <Stack spacing={1.5}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Typography level="body-sm" startDecorator={<Inventory2 />}>High Value Assets</Typography>
-                                        <Chip size="sm" variant="soft" color="primary">Linked Records</Chip>
-                                    </Box>
-                                    <Divider />
-                                    <Button 
-                                        variant="plain" size="sm" 
-                                        endDecorator={<ArrowForward />} 
-                                        fullWidth 
-                                        onClick={() => navigate('assets')}
-                                        sx={{ justifyContent: 'space-between', px: 1 }}
-                                    >
-                                        View Full Inventory
-                                    </Button>
-                                </Stack>
-                            </Card>
-                        </Grid>
-                    </Grid>
                 </Stack>
             </Grid>
 
-            {/* Right Column: Residents (Categorized) */}
-            <Grid xs={12} md={5} lg={4}>
-                <Sheet 
-                    variant="outlined" 
-                    sx={{ 
-                        borderRadius: 'md', p: 2, bgcolor: 'background.surface', boxShadow: 'sm',
-                        height: { xs: 'auto', md: '100%' }
-                    }}
-                >
-                    <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography level="title-lg" startDecorator={<Groups />}>Residents</Typography>
-                        <Tooltip title="Add Resident" variant="soft">
-                            <IconButton size="sm" variant="plain" onClick={() => navigate(`/household/${household.id}/people/new`)}>
-                                <Add />
-                            </IconButton>
-                        </Tooltip>
-                    </Box>
+            {/* Sidebar Column: Utils & Assets */}
+            <Grid xs={12} md={4}>
+                <Stack spacing={3}>
+                    {/* Technical Specs & Utilities */}
+                    <Card variant="outlined" sx={{ boxShadow: 'sm' }}>
+                        <Typography level="title-md" startDecorator={<Wifi color="primary" />} sx={{ mb: 2 }}>Tech & Utilities</Typography>
+                        <List size="sm" sx={{ '--ListItem-paddingLeft': '0px' }}>
+                            <ListItem>
+                                <ListItemDecorator><Wifi color="primary" /></ListItemDecorator>
+                                <ListItemContent>
+                                    <Typography level="body-xs" fontWeight="bold">Broadband</Typography>
+                                    <Typography level="body-sm">{household?.broadband_provider || 'Not Set'}</Typography>
+                                </ListItemContent>
+                            </ListItem>
+                            <ListItem>
+                                <ListItemDecorator><Bolt color="warning" /></ListItemDecorator>
+                                <ListItemContent>
+                                    <Typography level="body-xs" fontWeight="bold">Energy Meter</Typography>
+                                    <Typography level="body-sm">{household?.energy_account || 'Not Set'}</Typography>
+                                </ListItemContent>
+                            </ListItem>
+                            <ListItem>
+                                <ListItemDecorator><WaterDrop color="info" /></ListItemDecorator>
+                                <ListItemContent>
+                                    <Typography level="body-xs" fontWeight="bold">Water Supply</Typography>
+                                    <Typography level="body-sm">Metered Supply</Typography>
+                                </ListItemContent>
+                            </ListItem>
+                        </List>
+                    </Card>
 
-                    <ResidentGroup 
-                        title="Adults" 
-                        icon={Person} 
-                        members={groups.adults} 
-                        isDark={isDark} 
-                        navigate={navigate} 
-                    />
-                    
-                    <ResidentGroup 
-                        title="Children" 
-                        icon={ChildCare} 
-                        members={groups.children} 
-                        isDark={isDark} 
-                        navigate={navigate} 
-                    />
-
-                    {enabledModules.includes('pets') && (
-                        <ResidentGroup 
-                            title="Pets" 
-                            icon={Pets} 
-                            members={groups.pets} 
-                            isDark={isDark} 
-                            navigate={navigate} 
-                        />
-                    )}
-
-                    {members.length === 0 && (
-                        <Box sx={{ textAlign: 'center', py: 4, opacity: 0.5 }}>
-                            <Groups sx={{ fontSize: '3rem', mb: 1 }} />
-                            <Typography level="body-sm">No residents found.</Typography>
-                        </Box>
-                    )}
-                </Sheet>
+                    {/* Inventory Summary */}
+                    <Card variant="outlined" sx={{ boxShadow: 'sm' }}>
+                        <Typography level="title-md" startDecorator={<Construction color="neutral" />} sx={{ mb: 2 }}>Inventory Summary</Typography>
+                        <Stack spacing={1.5}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Typography level="body-sm" startDecorator={<Inventory2 />}>High Value Assets</Typography>
+                                <Chip size="sm" variant="soft" color="primary">Linked Records</Chip>
+                            </Box>
+                            <Divider />
+                            <Button 
+                                variant="plain" size="sm" 
+                                endDecorator={<ArrowForward />} 
+                                fullWidth 
+                                onClick={() => navigate(`/household/${household.id}/house/assets`)}
+                                sx={{ justifyContent: 'space-between', px: 1 }}
+                            >
+                                View Full Inventory
+                            </Button>
+                        </Stack>
+                    </Card>
+                </Stack>
             </Grid>
         </Grid>
     </Box>

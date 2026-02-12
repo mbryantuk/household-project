@@ -4,7 +4,7 @@ import { Box, Typography, Sheet, Grid, Card, IconButton } from '@mui/joy';
 import { 
   Payments, AccountBalance, Savings, CreditCard, RequestQuote, Home, 
   TrendingUp, HourglassBottom, PieChart, ArrowBack, ChevronRight, 
-  DirectionsCar
+  DirectionsCar, Receipt
 } from '@mui/icons-material';
 
 import AppHeader from '../components/ui/AppHeader';

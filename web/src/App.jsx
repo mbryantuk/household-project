@@ -41,6 +41,7 @@ const VehiclesView = lazy(() => import('./features/VehiclesView'));
 const ProfileView = lazy(() => import('./features/ProfileView'));
 const FinanceView = lazy(() => import('./features/FinanceView'));
 const ChoresView = lazy(() => import('./features/ChoresView'));
+const AssetsView = lazy(() => import('./features/AssetsView'));
 
 const API_BASE = window.location.origin;
 const API_URL = `${API_BASE}/api`;
@@ -458,8 +459,8 @@ function AppInner({
                     <Route path="calendar" element={<CalendarView showNotification={showNotification} confirmAction={confirmAction} />} />
                     <Route path="people/:personId" element={<PeopleView />} /><Route path="people" element={<PeopleView />} />
                     <Route path="pets/:petId" element={<PetsView />} /><Route path="pets" element={<PetsView />} />
-                    <Route path="house/:houseId/assets/:assetId" element={<HouseView />} />
-                    <Route path="house/:houseId/assets" element={<HouseView />} />
+                    <Route path="house/assets/:assetId" element={<AssetsView />} />
+                    <Route path="house/assets" element={<AssetsView />} />
                     <Route path="house/:houseId" element={<HouseView />} />
                     <Route path="house" element={<HouseView />} />
                     <Route path="vehicles/:vehicleId" element={<VehiclesView />} /><Route path="vehicles" element={<VehiclesView />} />

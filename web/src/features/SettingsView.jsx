@@ -1,5 +1,6 @@
+import React, { lazy, Suspense } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Box, Typography, Tabs, TabList, Tab, TabPanel, Sheet, Divider, Button } from '@mui/joy';
+import { Box, Typography, Tabs, TabList, Tab, TabPanel, Sheet, Divider, Button, LinearProgress } from '@mui/joy';
 import Person from '@mui/icons-material/Person';
 import Home from '@mui/icons-material/Home';
 import Palette from '@mui/icons-material/Palette';
@@ -9,11 +10,12 @@ import Code from '@mui/icons-material/Code';
 import OpenInNew from '@mui/icons-material/OpenInNew';
 
 import { useHousehold } from '../contexts/HouseholdContext';
-import ProfileSettings from './settings/ProfileSettings';
-import HouseholdSettings from './settings/HouseholdSettings';
-import ThemeSettings from './settings/ThemeSettings';
-import AdminSettings from './settings/AdminSettings';
-import SecuritySettings from './settings/SecuritySettings';
+
+const ProfileSettings = lazy(() => import('./settings/ProfileSettings'));
+const HouseholdSettings = lazy(() => import('./settings/HouseholdSettings'));
+const ThemeSettings = lazy(() => import('./settings/ThemeSettings'));
+const AdminSettings = lazy(() => import('./settings/AdminSettings'));
+const SecuritySettings = lazy(() => import('./settings/SecuritySettings'));
 
 export default function SettingsView() {
   const location = useLocation();
@@ -103,45 +105,47 @@ export default function SettingsView() {
 
             {/* Content Area */}
             <Box sx={{ flex: 1, p: { xs: 2, md: 4 }, bgcolor: 'background.surface', overflowY: 'auto' }}>
-                <TabPanel value={0} sx={{ p: 0 }}>
-                    <ProfileSettings />
-                </TabPanel>
-                <TabPanel value={1} sx={{ p: 0 }}>
-                    <SecuritySettings />
-                </TabPanel>
-                <TabPanel value={2} sx={{ p: 0 }}>
-                    <HouseholdSettings />
-                </TabPanel>
-                <TabPanel value={3} sx={{ p: 0 }}>
-                    <ThemeSettings />
-                </TabPanel>
-                <TabPanel value={4} sx={{ p: 0 }}>
-                    <Box>
-                        <Typography level="h4" sx={{ mb: 2 }}>API Access & Documentation</Typography>
-                        <Typography level="body-md" sx={{ mb: 3 }}>
-                            Explore the Totem Household SaaS API documentation. Use this reference to integrate with external tools or build custom extensions.
-                        </Typography>
-                        
-                        <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <Box>
-                                <Typography level="title-md">Swagger UI</Typography>
-                                <Typography level="body-sm" color="neutral">Interactive API documentation (OpenAPI 3.0)</Typography>
-                            </Box>
-                            <Button 
-                                component="a" 
-                                href="/api-docs" 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                endDecorator={<OpenInNew />}
-                            >
-                                Open Docs
-                            </Button>
-                        </Sheet>
-                    </Box>
-                </TabPanel>
-                <TabPanel value={5} sx={{ p: 0 }}>
-                    <AdminSettings />
-                </TabPanel>
+                <Suspense fallback={<Box sx={{ p: 4 }}><LinearProgress /></Box>}>
+                    <TabPanel value={0} sx={{ p: 0 }}>
+                        <ProfileSettings />
+                    </TabPanel>
+                    <TabPanel value={1} sx={{ p: 0 }}>
+                        <SecuritySettings />
+                    </TabPanel>
+                    <TabPanel value={2} sx={{ p: 0 }}>
+                        <HouseholdSettings />
+                    </TabPanel>
+                    <TabPanel value={3} sx={{ p: 0 }}>
+                        <ThemeSettings />
+                    </TabPanel>
+                    <TabPanel value={4} sx={{ p: 0 }}>
+                        <Box>
+                            <Typography level="h4" sx={{ mb: 2 }}>API Access & Documentation</Typography>
+                            <Typography level="body-md" sx={{ mb: 3 }}>
+                                Explore the Totem Household SaaS API documentation. Use this reference to integrate with external tools or build custom extensions.
+                            </Typography>
+                            
+                            <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Box>
+                                    <Typography level="title-md">Swagger UI</Typography>
+                                    <Typography level="body-sm" color="neutral">Interactive API documentation (OpenAPI 3.0)</Typography>
+                                </Box>
+                                <Button 
+                                    component="a" 
+                                    href="/api-docs" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    endDecorator={<OpenInNew />}
+                                >
+                                    Open Docs
+                                </Button>
+                            </Sheet>
+                        </Box>
+                    </TabPanel>
+                    <TabPanel value={5} sx={{ p: 0 }}>
+                        <AdminSettings />
+                    </TabPanel>
+                </Suspense>
             </Box>
         </Sheet>
       </Tabs>
