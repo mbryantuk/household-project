@@ -20,6 +20,7 @@ import LoansView from './finance/LoansView';
 import MortgagesView from './finance/MortgagesView';
 import VehicleFinanceView from './finance/VehicleFinanceView';
 import BudgetView from './finance/BudgetView';
+import ChargesView from './finance/ChargesView';
 
 import FinancialProfileSelector from '../components/ui/FinancialProfileSelector';
 
@@ -69,6 +70,7 @@ export default function FinanceView() {
 
   const viewMap = useMemo(() => ({
     budget: { label: 'Monthly Budget', icon: PieChart, desc: 'Analyze your financial health and spending limits.' },
+    charges: { label: 'Recurring Charges', icon: Receipt, desc: 'Manage bills, insurance, and subscriptions.' },
     income: { label: 'Income Sources', icon: Payments, desc: 'Manage salary, contracting, and other income streams.' },
     banking: { label: 'Current Accounts', icon: AccountBalance, desc: 'Track balances, overdrafts, and account holders.' },
     savings: { label: 'Savings & Pots', icon: Savings, desc: 'Monitor savings goals and rainy day funds.' },
@@ -89,6 +91,7 @@ export default function FinanceView() {
       const props = { financialProfileId: profileParam };
 
       if (activeTabKey === 'budget') return <BudgetView {...props} />;
+      if (activeTabKey === 'charges') return <ChargesView {...props} />;
       if (activeTabKey === 'income') return <IncomeView {...props} />;
       if (activeTabKey === 'banking') return <BankingView {...props} />;
       if (activeTabKey === 'savings') return <SavingsView {...props} />;
