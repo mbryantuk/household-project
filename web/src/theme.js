@@ -109,7 +109,18 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
         body: '"DM Sans", var(--joy-fontFamily-fallback)',
         display: '"DM Serif Display", serif',
     },
-    radius: { sm: '4px', md: '8px', lg: '12px', xl: '16px' },
+    // Standard Joy UI radius keys + explicit pixel values
+    radius: { 
+        xs: '2px',
+        sm: '4px', 
+        md: '8px', 
+        lg: '12px', 
+        xl: '16px' 
+    },
+    // Material UI Shim: Some components (like DataGrid) expect this structure
+    shape: {
+        borderRadius: 8
+    },
     colorSchemes: {
       light: {
         palette: {
@@ -141,15 +152,13 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
             outlinedColor: primaryColor,
             outlinedBorder: primaryColor,
             softBg: `${primaryColor}15`,
+            main: primaryColor, // Shim for Material UI
           },
           neutral: {
             outlinedBorder: `hsl(${h}, ${Math.min(s, 10)}%, 94%)`,
             plainColor: '#111827',
           },
           divider: `hsl(${h}, ${Math.min(s, 10)}%, 94%)`,
-          TableCell: {
-            border: `hsl(${h}, ${Math.min(s, 10)}%, 94%)`,
-          },
         },
       },
       dark: {
@@ -172,15 +181,13 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
             outlinedColor: primaryColor,
             outlinedBorder: primaryColor,
             softBg: 'rgba(255,255,255,0.1)',
+            main: primaryColor, // Shim for Material UI
           },
           neutral: {
             outlinedBorder: `hsl(${h}, ${Math.min(s, 8)}%, 15%)`,
             plainColor: '#f4f4f5',
           },
           divider: `hsl(${h}, ${Math.min(s, 8)}%, 15%)`,
-          TableCell: {
-            border: `hsl(${h}, ${Math.min(s, 8)}%, 15%)`,
-          },
         },
       },
     },
@@ -203,7 +210,7 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
       },
       JoyCard: {
         styleOverrides: {
-          root: ({ theme }) => ({
+          root: {
             backgroundColor: 'var(--joy-palette-background-surface)',
             backdropFilter: 'blur(16px)',
             borderColor: 'var(--joy-palette-divider)',
@@ -213,12 +220,12 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
             '&:hover': { 
                 boxShadow: 'var(--joy-shadow-md)',
             }
-          }),
+          },
         },
       },
       JoySheet: {
         styleOverrides: {
-          root: ({ ownerState, theme }) => ({
+          root: ({ ownerState }) => ({
             ...(ownerState.variant === 'outlined' && {
                 borderColor: 'var(--joy-palette-divider)',
                 backgroundColor: 'var(--joy-palette-background-surface)',
@@ -234,13 +241,13 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
       },
       JoyModalDialog: {
         styleOverrides: {
-          root: ({ theme }) => ({
+          root: {
             backgroundColor: 'var(--joy-palette-background-surface)',
             backdropFilter: 'blur(20px)',
             borderColor: 'var(--joy-palette-divider)',
             boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
-            borderRadius: 'xl',
-          }),
+            borderRadius: 'var(--joy-radius-xl)',
+          },
         },
       },
     },
