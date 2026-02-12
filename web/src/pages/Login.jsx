@@ -7,7 +7,7 @@ import { ArrowBack, Visibility, VisibilityOff, Email, Lock } from '@mui/icons-ma
 // import Fingerprint from '@mui/icons-material/Fingerprint';
 import axios from 'axios';
 // import { startAuthentication } from '@simplewebauthn/browser';
-import HearthIcon from '../components/HearthIcon';
+import HearthstoneIcon from '../components/HearthstoneIcon';
 import { getEmojiColor } from '../theme';
 
 export default function Login({ onLogin, onMfaLogin }) {
@@ -158,9 +158,9 @@ export default function Login({ onLogin, onMfaLogin }) {
         }}
       >
         <Box sx={{ mb: 1, display: 'flex', justifyContent: 'center' }}>
-            <HearthIcon colorway="default" sx={{ fontSize: 48 }} />
+            <HearthstoneIcon colorway="default" sx={{ fontSize: 48 }} />
         </Box>
-        <Typography level="h3" sx={{ fontWeight: 'xl', mb: 0.5, letterSpacing: '0.1em' }}>HEARTH</Typography>
+        <Typography level="h3" sx={{ fontWeight: 'xl', mb: 0.5, letterSpacing: '0.1em' }}>HEARTHSTONE</Typography>
         <Typography level="body-xs" color="neutral" sx={{ mb: 4, textTransform: 'uppercase', fontWeight: 'bold' }}>Household Management</Typography>
 
         {message && <Alert color="success" variant="soft" sx={{ mb: 3, textAlign: 'left' }}>{message}</Alert>}
@@ -169,7 +169,7 @@ export default function Login({ onLogin, onMfaLogin }) {
         {step === 1 ? (
           <form onSubmit={handleLookup}>
             <Typography level="h4" sx={{ mb: 1, textAlign: 'left' }}>Sign In</Typography>
-            <Typography level="body-sm" sx={{ mb: 3, textAlign: 'left' }}>Use your Hearth account</Typography>
+            <Typography level="body-sm" sx={{ mb: 3, textAlign: 'left' }}>Use your Hearthstone account</Typography>
             
             <FormControl required sx={{ mb: 3 }}>
               <FormLabel>Email Address</FormLabel>
@@ -332,7 +332,7 @@ export default function Login({ onLogin, onMfaLogin }) {
 
         <Box sx={{ mt: 4, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
             <Typography level="body-xs" color="neutral">
-                &copy; {new Date().getFullYear()} Hearth Household Systems. All rights reserved.
+                &copy; {new Date().getFullYear()} Hearthstone Household Systems. All rights reserved.
             </Typography>
         </Box>
       </Sheet>

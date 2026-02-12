@@ -11,7 +11,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import pkg from '../package.json';
 
 // Theme and Local Components
-import { getHearthTheme, getThemeSpec, THEMES } from './theme';
+import { getHearthstoneTheme, getThemeSpec, THEMES } from './theme';
 import FloatingCalculator from './components/FloatingCalculator';
 import FloatingCalendar from './components/FloatingCalendar';
 import FloatingSavings from './components/FloatingSavings';
@@ -404,12 +404,12 @@ function AppInner({
       await authAxios.put('/auth/profile', updates);
       
       if (updates.theme) setThemeId(updates.theme);
-      if (updates.mode) setModePref(updates.mode);
+      if (updates.mode) onModeChange(updates.mode);
       if (onPreviewTheme) onPreviewTheme(null); 
       
       if (!updates.sticky_note && !updates.theme && !updates.custom_theme && !updates.mode) showNotification("Profile updated.", "success");
     } catch (err) { showNotification("Failed to update profile.", "danger"); throw err; }
-  }, [authAxios, user, setUser, setThemeId, setModePref, showNotification, onPreviewTheme]);
+  }, [authAxios, user, setUser, setThemeId, onModeChange, showNotification, onPreviewTheme]);
 
   return (
     <>
@@ -543,7 +543,7 @@ export default function App() {
   const effectiveThemeId = previewThemeId || themeId;
   const effectiveCustomConfig = previewCustomConfig || customConfig;
 
-  const theme = useMemo(() => getHearthTheme(effectiveThemeId, effectiveCustomConfig), [effectiveThemeId, effectiveCustomConfig]);
+  const theme = useMemo(() => getHearthstoneTheme(effectiveThemeId, effectiveCustomConfig), [effectiveThemeId, effectiveCustomConfig]);
   const { spec } = useMemo(() => getThemeSpec(effectiveThemeId, effectiveCustomConfig, modePref), [effectiveThemeId, effectiveCustomConfig, modePref]);
   
   const handlePreviewTheme = useCallback((id, config = null) => {
@@ -603,7 +603,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
-        <CssVarsProvider theme={theme} defaultMode="system" modeStorageKey="hearth-mode" disableNestedContext>
+        <CssVarsProvider theme={theme} defaultMode="system" modeStorageKey="hearthstone-mode" disableNestedContext>
             <CssBaseline />
             <AppInner 
                 themeId={themeId} setThemeId={setThemeId} 

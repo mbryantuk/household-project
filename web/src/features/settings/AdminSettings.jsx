@@ -363,12 +363,22 @@ export default function AdminSettings() {
             <Grid container spacing={3}>
                 <Grid xs={12} md={7}>
                     <Stack spacing={3}>
-                        <Box>
-                            <Typography level="title-lg" startDecorator={<Verified color="primary" />}>Hearth Household OS</Typography>
-                            <Typography level="body-sm" sx={{ mt: 1 }}>
-                                HEARTH (Hearth) is a next-generation household management engine designed for absolute data privacy and multi-tenant isolation.
-                            </Typography>
-                        </Box>
+          <Box sx={{ flex: 1 }}>
+              <Typography level="title-lg" startDecorator={<Verified color="primary" />}>Hearthstone Household OS</Typography>
+              <Typography level="body-sm" color="neutral" sx={{ mb: 2 }}>Build 2026.02.12.001 (Production Stone)</Typography>
+              
+              <Typography level="body-md" sx={{ mb: 2, lineHeight: 1.6 }}>
+                  HEARTHSTONE (Hearthstone) is a next-generation household management engine designed for absolute data privacy and multi-tenant isolation.
+              </Typography>
+              
+              <Sheet variant="soft" color="neutral" sx={{ p: 2, borderRadius: 'md', mb: 3 }}>
+                  <Typography level="body-xs" component="div" sx={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 1 }}>
+                      <b>Core Engine:</b> V4.2.0-STABLE
+                      <b>Architecture:</b> Monolithic Stone
+                      <b>Database:</b> SQLite (Optimized for Hearthstone V4 Architecture)
+                  </Typography>
+              </Sheet>
+          </Box>
 
                         <Divider />
 
@@ -378,7 +388,7 @@ export default function AdminSettings() {
                                 <b>Lead Architect:</b> Matt Bryant<br />
                                 <b>Framework:</b> MUI Joy UI & React<br />
                                 <b>Core Icons:</b> Google Material Symbols<br />
-                                <b>Database:</b> SQLite (Optimized for Hearth V3 Architecture)
+                                <b>Database:</b> SQLite (Optimized for Hearthside V3 Architecture)
                             </Typography>
                         </Box>
 

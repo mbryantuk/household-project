@@ -95,7 +95,7 @@ export const getEmojiColor = (emoji, isDark = true) => {
   return `hsl(${hue}, ${isDark ? 50 : 70}%, ${isDark ? 25 : 90}%)`;
 };
 
-export const getHearthTheme = (themeId = 'hearth', customConfig = null) => {
+export const getHearthstoneTheme = (themeId = 'hearth', customConfig = null) => {
   let base = THEMES[themeId] || THEMES.hearth;
   if (themeId === 'custom' && customConfig) {
       base = { ...base, ...customConfig };

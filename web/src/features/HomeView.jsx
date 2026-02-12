@@ -12,7 +12,7 @@ import {
 import AppHeader from '../components/ui/AppHeader';
 
 /**
- * HEARTH Homepage
+ * HEARTHSIDE Homepage
  * Replaces the complex widget dashboard with a clean, high-performance modular entry point.
  */
 export default function HomeView() {
@@ -72,7 +72,7 @@ export default function HomeView() {
             {greeting}, {user?.first_name || 'Friend'}
         </Typography>
         <Typography level="body-lg" color="neutral" sx={{ opacity: 0.8 }}>
-            {dateStr} • {household?.name || 'HEARTH Household'}
+            {dateStr} • {household?.name || 'HEARTHSTONE Household'}
         </Typography>
       </Box>
 
@@ -137,7 +137,7 @@ export default function HomeView() {
                 </Sheet>
 
                 <Card variant="solid" color="primary" invertedColors sx={{ boxShadow: 'lg' }}>
-                    <Typography level="title-lg">HEARTH System</Typography>
+                    <Typography level="title-lg">HEARTHSTONE System</Typography>
                     <Typography level="body-sm">
                         Everything is running smoothly. Your local data is encrypted and secure.
                     </Typography>
