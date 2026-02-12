@@ -135,7 +135,13 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
   };
 
   return (
-    <Container maxWidth="md" sx={{ py: 8 }}>
+    <Box sx={{ 
+        minHeight: '100vh', 
+        bgcolor: 'background.body', 
+        backgroundImage: 'radial-gradient(circle at 50% 50%, var(--joy-palette-primary-softBg) 0%, var(--joy-palette-background-body) 100%)',
+        py: 8 
+    }}>
+    <Container maxWidth="md">
       <Box sx={{ mb: 6, textAlign: 'center' }}>
         <Typography level="h1" fontWeight="xl" mb={1}>Welcome back, {currentUser?.first_name || currentUser?.username}</Typography>
         <Typography level="title-lg" textColor="text.secondary">Select a household to continue</Typography>
@@ -234,5 +240,6 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
         </ModalDialog>
       </Modal>
     </Container>
+    </Box>
   );
 }

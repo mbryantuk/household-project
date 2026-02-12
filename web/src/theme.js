@@ -197,23 +197,44 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
       },
       JoyCard: {
         styleOverrides: {
-          root: {
-            backgroundColor: 'var(--joy-palette-background-surface)',
-            borderColor: 'var(--joy-palette-divider)',
+          root: ({ theme }) => ({
+            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(20, 20, 20, 0.6)' : 'rgba(255, 255, 255, 0.7)',
+            backdropFilter: 'blur(16px)',
+            borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
             boxShadow: 'var(--joy-shadow-sm)',
             borderRadius: 'var(--joy-radius-md)',
-            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-            '&:hover': { boxShadow: 'var(--joy-shadow-md)' }
-          },
+            transition: 'transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease',
+            '&:hover': { 
+                boxShadow: 'var(--joy-shadow-md)',
+                backgroundColor: theme.palette.mode === 'dark' ? 'rgba(30, 30, 30, 0.7)' : 'rgba(255, 255, 255, 0.85)',
+            }
+          }),
         },
       },
       JoySheet: {
         styleOverrides: {
-          root: ({ ownerState }) => ({
+          root: ({ ownerState, theme }) => ({
             ...(ownerState.variant === 'outlined' && {
-                borderColor: 'var(--joy-palette-divider)',
+                borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                backgroundColor: theme.palette.mode === 'dark' ? 'rgba(10, 10, 10, 0.5)' : 'rgba(255, 255, 255, 0.6)',
+                backdropFilter: 'blur(12px)',
                 borderRadius: 'var(--joy-radius-md)',
             }),
+            ...(ownerState.variant === 'soft' && {
+                backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
+                backdropFilter: 'blur(8px)',
+            }),
+          }),
+        },
+      },
+      JoyModalDialog: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(15, 15, 15, 0.8)' : 'rgba(255, 255, 255, 0.85)',
+            backdropFilter: 'blur(20px)',
+            borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+            borderRadius: 'xl',
           }),
         },
       },

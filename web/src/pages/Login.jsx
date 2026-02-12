@@ -154,9 +154,7 @@ export default function Login({ onLogin, onMfaLogin }) {
           textAlign: 'center', 
           borderRadius: 'xl',
           boxShadow: 'xl',
-          bgcolor: 'background.surface',
-          border: '1px solid',
-          borderColor: 'divider'
+          // bgcolor: 'background.surface', // Removed to use global glass effect
         }}
       >
         <Box sx={{ mb: 1, display: 'flex', justifyContent: 'center' }}>

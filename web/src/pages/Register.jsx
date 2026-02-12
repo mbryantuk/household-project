@@ -64,7 +64,8 @@ export default function Register() {
       alignItems: 'center', 
       justifyContent: 'center', 
       bgcolor: 'background.body',
-      p: 2
+      p: 2,
+      backgroundImage: 'radial-gradient(circle at 50% 50%, var(--joy-palette-primary-softBg) 0%, var(--joy-palette-background-body) 100%)'
     }}>
       <Sheet 
         variant="outlined" 
@@ -72,9 +73,9 @@ export default function Register() {
           p: 4, 
           width: '100%', 
           maxWidth: 500, 
-          borderRadius: 'md', 
+          borderRadius: 'xl', 
           textAlign: 'center',
-          boxShadow: 'md' 
+          boxShadow: 'xl' 
         }}
       >
         <MantelIcon sx={{ fontSize: 50, mb: 2 }} colorway="default" />

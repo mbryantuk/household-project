@@ -188,7 +188,10 @@ export default function HouseholdLayout({
             display: 'flex', 
             height: '100dvh', 
             flexDirection: { xs: 'column', md: 'row' },
-            bgcolor: 'background.body'
+            bgcolor: 'background.body',
+            background: isDark 
+                ? 'linear-gradient(135deg, #050505 0%, #111111 100%)' 
+                : 'linear-gradient(135deg, #f9fafb 0%, #f0f2f5 100%)',
         }}>
         
         <NavSidebar installPrompt={installPrompt} onInstall={onInstall} />

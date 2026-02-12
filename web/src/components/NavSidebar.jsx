@@ -331,13 +331,13 @@ export default function NavSidebar({
               sx={{
                   width: isMobile ? '100%' : RAIL_WIDTH,
                   borderRight: '1px solid',
-                  borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.08)',
+                  borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
                   display: 'flex', flexDirection: 'column',
                   justifyContent: 'space-between',
                   alignItems: isMobile ? 'stretch' : 'center',
                   pt: 1.5, pb: 1.5, 
-                  bgcolor: isDark ? '#000000' : 'rgba(255, 255, 255, 0.95)',
-                  backdropFilter: 'blur(12px)',
+                  bgcolor: isDark ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)',
+                  backdropFilter: 'blur(20px)',
                   zIndex: 2600, height: '100dvh'
               }}
           >
@@ -421,9 +421,9 @@ export default function NavSidebar({
                       position: (isMobile || !isPinned) ? 'absolute' : 'relative',
                       left: (isMobile || !isPinned) ? RAIL_WIDTH : 'auto', 
                       top: 0, zIndex: 2100, borderRight: '1px solid',
-                      borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.08)',
-                      bgcolor: isDark ? '#050505' : 'rgba(255, 255, 255, 0.98)',
-                      backdropFilter: 'blur(12px)',
+                      borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+                      bgcolor: isDark ? 'rgba(5, 5, 5, 0.6)' : 'rgba(255, 255, 255, 0.6)',
+                      backdropFilter: 'blur(24px)',
                       height: '100dvh', display: 'flex', flexDirection: 'column',
                       boxShadow: (!isPinned && !isMobile) ? '8px 0 24px rgba(0,0,0,0.15)' : 'none'
                   }}

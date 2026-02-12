@@ -64,9 +64,12 @@ const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, activeWi
           {isOpen && (
               <Box sx={{ 
                   position: 'fixed', bottom: 42, left: leftPos, width: width || 250, 
-                  maxHeight: 'calc(100vh - 60px)', bgcolor: 'background.surface', 
+                  maxHeight: 'calc(100vh - 60px)', 
+                  bgcolor: isDark ? 'rgba(20, 20, 20, 0.8)' : 'rgba(255, 255, 255, 0.85)', 
+                  backdropFilter: 'blur(20px)',
                   borderTopLeftRadius: 'md', borderTopRightRadius: 'md', 
-                  border: '1px solid', borderColor: 'divider', boxShadow: 'lg', zIndex: 2005,
+                  border: '1px solid', borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
+                  boxShadow: 'lg', zIndex: 2005,
                   display: 'flex', flexDirection: 'column', overflow: 'hidden'
               }}>{children}</Box>
           )}
@@ -111,10 +114,10 @@ export default function UtilityBar() {
         variant="soft"
         sx={{
             width: '100%', minHeight: 40, display: 'flex', alignItems: 'center',
-            bgcolor: isDark ? '#000000' : 'rgba(255, 255, 255, 0.8)', 
-            backdropFilter: 'blur(12px)',
+            bgcolor: isDark ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)', 
+            backdropFilter: 'blur(20px)',
             borderTop: '1px solid', 
-            borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.08)', 
+            borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)', 
             zIndex: 900
         }}
     >
