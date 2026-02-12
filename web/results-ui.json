@@ -84,7 +84,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "timedOut",
-                      "duration": 60419,
+                      "duration": 60277,
                       "error": {
                         "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
@@ -97,15 +97,15 @@
                           "location": {
                             "file": "/home/matt/household-project/web/tests/e2e/ui/assets.spec.js",
                             "column": 20,
-                            "line": 21
+                            "line": 23
                           },
-                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a new asset'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${creds.householdName}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Assets\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/assets.spec.js:21:20\u001b[22m"
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Assets\")')\u001b[22m\n\n\n\u001b[0m \u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'House'\u001b[39m })\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${creds.householdName}`\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Assets\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m         \n \u001b[90m 25 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Add Asset\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 26 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#asset-form'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/assets.spec.js:23:20\u001b[22m"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-12T08:32:42.177Z",
+                      "startTime": "2026-02-12T10:09:55.570Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -162,7 +162,7 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "timedOut",
-                      "duration": 60255,
+                      "duration": 60378,
                       "error": {
                         "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
@@ -175,15 +175,15 @@
                           "location": {
                             "file": "/home/matt/household-project/web/tests/e2e/ui/finance.spec.js",
                             "column": 20,
-                            "line": 21
+                            "line": 23
                           },
-                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a recurring cost'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${creds.householdName}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Bills & Costs\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 24 |\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/finance.spec.js:21:20\u001b[22m"
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Bills & Costs\")')\u001b[22m\n\n\n\u001b[0m \u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'House'\u001b[39m })\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${creds.householdName}`\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Bills & Costs\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m\n \u001b[90m 25 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Add Cost\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 26 |\u001b[39m         \u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/finance.spec.js:23:20\u001b[22m"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-12T08:32:42.526Z",
+                      "startTime": "2026-02-12T10:09:55.881Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -238,30 +238,33 @@
                   "results": [
                     {
                       "workerIndex": 2,
-                      "parallelIndex": 1,
-                      "status": "timedOut",
-                      "duration": 60271,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 9967,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('People & Residents')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('People & Residents')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('People & Residents')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('People & Residents')\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/ui/members.spec.js:22:60",
+                        "location": {
+                          "file": "/home/matt/household-project/web/tests/e2e/ui/members.spec.js",
+                          "column": 60,
+                          "line": 22
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a new member'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'House'\u001b[39m })\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'People & Residents'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 23 |\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[90m// Add Member\u001b[39m\n \u001b[90m 25 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Add Adult'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
-                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
-                        },
-                        {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/e2e/ui/members.spec.js",
-                            "column": 20,
-                            "line": 21
+                            "column": 60,
+                            "line": 22
                           },
-                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\u001b[2m    - waiting for\" http://localhost:4001/household/4297/dashboard\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://localhost:4001/household/4297/dashboard\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a new member'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'People & Residents'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[90m// Add Member\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/members.spec.js:21:20\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('People & Residents')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('People & Residents')\u001b[22m\n\n\n\u001b[0m \u001b[90m 20 |\u001b[39m     test(\u001b[32m'User can add a new member'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 21 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'House'\u001b[39m })\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'People & Residents'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 23 |\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[90m// Add Member\u001b[39m\n \u001b[90m 25 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Add Adult'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/members.spec.js:22:60\u001b[22m"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-12T08:33:47.915Z",
+                      "startTime": "2026-02-12T10:11:01.121Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -274,7 +277,12 @@
                           "contentType": "text/markdown",
                           "path": "/home/matt/household-project/web/test-results/e2e-ui-members-UI-Flow-Members-User-can-add-a-new-member-chromium/error-context.md"
                         }
-                      ]
+                      ],
+                      "errorLocation": {
+                        "file": "/home/matt/household-project/web/tests/e2e/ui/members.spec.js",
+                        "column": 60,
+                        "line": 22
+                      }
                     }
                   ],
                   "status": "unexpected"
@@ -316,54 +324,106 @@
                   "results": [
                     {
                       "workerIndex": 3,
-                      "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 60290,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 11007,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h2').filter({ hasText: 'Household Hub' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h2').filter({ hasText: 'Household Hub' })\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h2').filter({ hasText: 'Household Hub' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h2').filter({ hasText: 'Household Hub' })\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:47:83\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:41:9",
+                        "location": {
+                          "file": "/home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js",
+                          "column": 83,
+                          "line": 47
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 45 |\u001b[39m             \u001b[36mawait\u001b[39m expect(houseLink)\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 46 |\u001b[39m             \u001b[36mawait\u001b[39m houseLink\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 47 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[32m'Household Hub'\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 48 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${HOUSE_NAME}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 49 |\u001b[39m             \n \u001b[90m 50 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"General Details\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
-                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
-                        },
-                        {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js",
-                            "column": 24,
-                            "line": 37
+                            "column": 83,
+                            "line": 47
                           },
-                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 35 |\u001b[39m         \u001b[90m// 3. Configure House Details\u001b[39m\n \u001b[90m 36 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Configure House'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[32m'Household Hub'\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${HOUSE_NAME}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 40 |\u001b[39m             \u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:37:24\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:36:20\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h2').filter({ hasText: 'Household Hub' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h2').filter({ hasText: 'Household Hub' })\u001b[22m\n\n\n\u001b[0m \u001b[90m 45 |\u001b[39m             \u001b[36mawait\u001b[39m expect(houseLink)\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 46 |\u001b[39m             \u001b[36mawait\u001b[39m houseLink\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 47 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[32m'Household Hub'\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 48 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${HOUSE_NAME}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 49 |\u001b[39m             \n \u001b[90m 50 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"General Details\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:47:83\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:41:9\u001b[22m"
                         }
                       ],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Missing, Household: None\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] Content is cached for offline use.\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Missing, Household: None\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Missing, Household: None\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4365\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4365\n"
+                        },
+                        {
+                          "text": "DEBUG: Page content before waiting for link:\n"
+                        },
+                        {
+                          "text": "<!DOCTYPE html><html lang=\"en\"><head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    \n    <title>Mantel | Household OS [DEBUG-1]</title>\n    <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n    <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin=\"\">\n    <link href=\"https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&amp;family=DM+Serif+Display:ital@0;1&amp;display=swap\" rel=\"stylesheet\">\n    <link rel=\"manifest\" href=\"/manifest.json\" crossorigin=\"use-credentials\">\n    <meta name=\"theme-color\" content=\"#644AC9\">\n\n    <meta name=\"mobile-web-app-capable\" content=\"yes\">\n    <meta name=\"apple-mobile-web-app-status-bar-style\" content=\"black-translucent\">\n    <meta name=\"apple-mobile-web-app-title\" content=\"Totem\">\n    <link rel=\"apple-touch-icon\" href=\"/favicon.png\">\n    <script type=\"module\" crossorigin=\"\" src=\"/assets/index-CFZyDL7n.js\"></script>\n    <link rel=\"stylesheet\" crossorigin=\"\" href=\"/assets/index-BfitWg9R.css\">\n  </head>\n  <body>\n    <div id=\"root\"></div>\n  \n</body></html>\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4365\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4365\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Fetched 1 households\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4365\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4365\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
                       "steps": [
                         {
                           "title": "Register",
-                          "duration": 2596
+                          "duration": 3044
                         },
                         {
                           "title": "Login",
-                          "duration": 914
+                          "duration": 907
                         },
                         {
                           "title": "Configure House",
-                          "duration": 56541,
+                          "duration": 6471,
                           "error": {
-                            "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n",
-                            "stack": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:37:24\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:36:20",
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h2').filter({ hasText: 'Household Hub' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h2').filter({ hasText: 'Household Hub' })\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h2').filter({ hasText: 'Household Hub' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h2').filter({ hasText: 'Household Hub' })\u001b[22m\n\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:47:83\n    at /home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js:41:9",
                             "location": {
                               "file": "/home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js",
-                              "column": 24,
-                              "line": 37
+                              "column": 83,
+                              "line": 47
                             },
-                            "snippet": "\u001b[0m \u001b[90m 35 |\u001b[39m         \u001b[90m// 3. Configure House Details\u001b[39m\n \u001b[90m 36 |\u001b[39m         \u001b[36mawait\u001b[39m test\u001b[33m.\u001b[39mstep(\u001b[32m'Configure House'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[32m'Household Hub'\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${HOUSE_NAME}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 40 |\u001b[39m             \u001b[0m"
+                            "snippet": "\u001b[0m \u001b[90m 45 |\u001b[39m             \u001b[36mawait\u001b[39m expect(houseLink)\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 46 |\u001b[39m             \u001b[36mawait\u001b[39m houseLink\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 47 |\u001b[39m             \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[32m'Household Hub'\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 48 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m`text=${HOUSE_NAME}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 49 |\u001b[39m             \n \u001b[90m 50 |\u001b[39m             \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"General Details\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
                           }
                         }
                       ],
-                      "startTime": "2026-02-12T08:33:47.687Z",
+                      "startTime": "2026-02-12T10:11:01.170Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -376,7 +436,12 @@
                           "contentType": "text/markdown",
                           "path": "/home/matt/household-project/web/test-results/e2e-ui-onboarding-UI-Flow--be0c3-configure-household-details-chromium/error-context.md"
                         }
-                      ]
+                      ],
+                      "errorLocation": {
+                        "file": "/home/matt/household-project/web/tests/e2e/ui/onboarding.spec.js",
+                        "column": 83,
+                        "line": 47
+                      }
                     }
                   ],
                   "status": "unexpected"
@@ -384,7 +449,7 @@
               ],
               "id": "2eb59c7f471b63d604d1-13d666cf3e8d5d4a0fdb",
               "file": "e2e/ui/onboarding.spec.js",
-              "line": 4,
+              "line": 9,
               "column": 5
             }
           ]
@@ -419,26 +484,32 @@
                     {
                       "workerIndex": 4,
                       "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 60270,
+                      "status": "failed",
+                      "duration": 8394,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=SWITCH PROFILE')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=SWITCH PROFILE')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=SWITCH PROFILE')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=SWITCH PROFILE')\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:25:33",
+                        "location": {
+                          "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                          "column": 33,
+                          "line": 25
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 23 |\u001b[39m         \u001b[90m// Check if Sidebar Accordion exists\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[36mconst\u001b[39m accordion \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=SWITCH PROFILE'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 25 |\u001b[39m         \u001b[36mawait\u001b[39m expect(accordion)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 26 |\u001b[39m\n \u001b[90m 27 |\u001b[39m         \u001b[90m// Create a New Profile\u001b[39m\n \u001b[90m 28 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Add\")'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Inside accordion\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
-                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
-                        },
-                        {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 20,
-                            "line": 19
+                            "column": 33,
+                            "line": 25
                           },
-                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/finance\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 17 |\u001b[39m     test(\u001b[32m'Financial Profiles: Sidebar Accordion and Switching'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 18 |\u001b[39m         \u001b[90m// Navigate to Finance\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 19 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/finance\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 20 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'**/finance**'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 21 |\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[90m// Check if Sidebar Accordion exists\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:19:20\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=SWITCH PROFILE')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=SWITCH PROFILE')\u001b[22m\n\n\n\u001b[0m \u001b[90m 23 |\u001b[39m         \u001b[90m// Check if Sidebar Accordion exists\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[36mconst\u001b[39m accordion \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=SWITCH PROFILE'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 25 |\u001b[39m         \u001b[36mawait\u001b[39m expect(accordion)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 26 |\u001b[39m\n \u001b[90m 27 |\u001b[39m         \u001b[90m// Create a New Profile\u001b[39m\n \u001b[90m 28 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Add\")'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Inside accordion\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:25:33\u001b[22m"
                         }
                       ],
                       "stdout": [
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Missing, Household: None\n"
+                        },
                         {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
@@ -446,15 +517,39 @@
                           "text": "[BROWSER] Content is cached for offline use.\n"
                         },
                         {
-                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[BROWSER] [APP] Init - Token: Missing, Household: None\n"
                         },
                         {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Fetched 2 households\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-12T08:34:51.641Z",
+                      "startTime": "2026-02-12T10:11:15.254Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -467,7 +562,12 @@
                           "contentType": "text/markdown",
                           "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--1945d-bar-Accordion-and-Switching-chromium/error-context.md"
                         }
-                      ]
+                      ],
+                      "errorLocation": {
+                        "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                        "column": 33,
+                        "line": 25
+                      }
                     }
                   ],
                   "status": "unexpected"
@@ -475,7 +575,7 @@
               ],
               "id": "2c14808d47b386fba9eb-d6449fc28ef2b705aa57",
               "file": "smoke.spec.js",
-              "line": 17,
+              "line": 18,
               "column": 5
             },
             {
@@ -493,26 +593,32 @@
                     {
                       "workerIndex": 5,
                       "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 60243,
+                      "status": "failed",
+                      "duration": 8078,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h2')\nExpected substring: \u001b[32m\"Household Hub\"\u001b[39m\nReceived string:    \u001b[31m\"The Brady Bunch (API) v3.2.198 [2026-02-12 10:09:10]\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h2')\u001b[22m\n\u001b[2m    6 × locator resolved to <h2 class=\"MuiTypography-root MuiTypography-h2 css-ebjddl\">The Brady Bunch (API) v3.2.198 [2026-02-12 10:09:…</h2>\u001b[22m\n\u001b[2m      - unexpected value \"The Brady Bunch (API) v3.2.198 [2026-02-12 10:09:10]\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h2')\nExpected substring: \u001b[32m\"Household Hub\"\u001b[39m\nReceived string:    \u001b[31m\"The Brady Bunch (API) v3.2.198 [2026-02-12 10:09:10]\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h2')\u001b[22m\n\u001b[2m    6 × locator resolved to <h2 class=\"MuiTypography-root MuiTypography-h2 css-ebjddl\">The Brady Bunch (API) v3.2.198 [2026-02-12 10:09:…</h2>\u001b[22m\n\u001b[2m      - unexpected value \"The Brady Bunch (API) v3.2.198 [2026-02-12 10:09:10]\"\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:39:42",
+                        "location": {
+                          "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                          "column": 42,
+                          "line": 39
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 37 |\u001b[39m     test(\u001b[32m'Core Navigation: House Hub, Calendar, Meals'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 38 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'House'\u001b[39m })\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 39 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'Household Hub'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 40 |\u001b[39m\n \u001b[90m 41 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Calendar'\u001b[39m })\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 42 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'Calendar'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
-                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
-                        },
-                        {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 20,
-                            "line": 37
+                            "column": 42,
+                            "line": 39
                           },
-                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/house\"]')\u001b[22m\n\u001b[2m    - waiting for\" http://localhost:4001/household/4277/dashboard\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://localhost:4001/household/4277/dashboard\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 35 |\u001b[39m\n \u001b[90m 36 |\u001b[39m     test(\u001b[32m'Core Navigation: House Hub, Calendar, Meals'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/house\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'Household Hub'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'a[href*=\"/calendar\"]'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:37:20\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h2')\nExpected substring: \u001b[32m\"Household Hub\"\u001b[39m\nReceived string:    \u001b[31m\"The Brady Bunch (API) v3.2.198 [2026-02-12 10:09:10]\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h2')\u001b[22m\n\u001b[2m    6 × locator resolved to <h2 class=\"MuiTypography-root MuiTypography-h2 css-ebjddl\">The Brady Bunch (API) v3.2.198 [2026-02-12 10:09:…</h2>\u001b[22m\n\u001b[2m      - unexpected value \"The Brady Bunch (API) v3.2.198 [2026-02-12 10:09:10]\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 37 |\u001b[39m     test(\u001b[32m'Core Navigation: House Hub, Calendar, Meals'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 38 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'House'\u001b[39m })\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 39 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'Household Hub'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 40 |\u001b[39m\n \u001b[90m 41 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Calendar'\u001b[39m })\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 42 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'Calendar'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:39:42\u001b[22m"
                         }
                       ],
                       "stdout": [
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Missing, Household: None\n"
+                        },
                         {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
@@ -520,15 +626,39 @@
                           "text": "[BROWSER] Content is cached for offline use.\n"
                         },
                         {
-                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[BROWSER] [APP] Init - Token: Missing, Household: None\n"
                         },
                         {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Fetched 2 households\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-12T08:35:55.290Z",
+                      "startTime": "2026-02-12T10:11:26.783Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -541,7 +671,12 @@
                           "contentType": "text/markdown",
                           "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests--ff4ea-on-House-Hub-Calendar-Meals-chromium/error-context.md"
                         }
-                      ]
+                      ],
+                      "errorLocation": {
+                        "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                        "column": 42,
+                        "line": 39
+                      }
                     }
                   ],
                   "status": "unexpected"
@@ -549,7 +684,7 @@
               ],
               "id": "2c14808d47b386fba9eb-0850ea6cc76a4a27e073",
               "file": "smoke.spec.js",
-              "line": 36,
+              "line": 37,
               "column": 5
             },
             {
@@ -568,28 +703,31 @@
                       "workerIndex": 6,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 2499,
+                      "duration": 3885,
                       "error": {
-                        "message": "Error: page.goto: Navigation to \"http://localhost:4001/household/60/shopping\" is interrupted by another navigation to \"http://localhost:4001/household/4277/dashboard\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/household/60/shopping\", waiting until \"load\"\u001b[22m\n",
-                        "stack": "Error: page.goto: Navigation to \"http://localhost:4001/household/60/shopping\" is interrupted by another navigation to \"http://localhost:4001/household/4277/dashboard\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/household/60/shopping\", waiting until \"load\"\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:49:20",
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=£1.50')\nExpected: visible\nError: strict mode violation: locator('text=£1.50') resolved to 2 elements:\n    1) <p class=\"MuiTypography-root MuiTypography-title-lg MuiTypography-colorSuccess css-w2xuch\">£1.50</p> aka getByText('£').first()\n    2) <p class=\"MuiTypography-root MuiTypography-body-sm css-cns24k\">£1.50</p> aka getByText('£').nth(2)\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=£1.50')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=£1.50')\nExpected: visible\nError: strict mode violation: locator('text=£1.50') resolved to 2 elements:\n    1) <p class=\"MuiTypography-root MuiTypography-title-lg MuiTypography-colorSuccess css-w2xuch\">£1.50</p> aka getByText('£').first()\n    2) <p class=\"MuiTypography-root MuiTypography-body-sm css-cns24k\">£1.50</p> aka getByText('£').nth(2)\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=£1.50')\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:63:29",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 20,
-                          "line": 49
+                          "column": 29,
+                          "line": 63
                         },
-                        "snippet": "\u001b[0m \u001b[90m 47 |\u001b[39m     test(\u001b[32m'Shopping List: Add Item and Budget Estimate'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 48 |\u001b[39m         \u001b[90m// Navigate\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 49 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/household/60/shopping'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Direct nav or click sidebar\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 50 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'Shopping List'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 51 |\u001b[39m\n \u001b[90m 52 |\u001b[39m         \u001b[90m// Add Item\u001b[39m\u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m 61 |\u001b[39m         \u001b[90m// Verify Budget Widget\u001b[39m\n \u001b[90m 62 |\u001b[39m         \u001b[36mconst\u001b[39m total \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=£1.50'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 63 |\u001b[39m         \u001b[36mawait\u001b[39m expect(total)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 64 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 65 |\u001b[39m\n \u001b[90m 66 |\u001b[39m     test(\u001b[32m'Avatar Menu: Opens Sidebar Panel'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 20,
-                            "line": 49
+                            "column": 29,
+                            "line": 63
                           },
-                          "message": "Error: page.goto: Navigation to \"http://localhost:4001/household/60/shopping\" is interrupted by another navigation to \"http://localhost:4001/household/4277/dashboard\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/household/60/shopping\", waiting until \"load\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 47 |\u001b[39m     test(\u001b[32m'Shopping List: Add Item and Budget Estimate'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 48 |\u001b[39m         \u001b[90m// Navigate\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 49 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/household/60/shopping'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Direct nav or click sidebar\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 50 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'Shopping List'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 51 |\u001b[39m\n \u001b[90m 52 |\u001b[39m         \u001b[90m// Add Item\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:49:20\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=£1.50')\nExpected: visible\nError: strict mode violation: locator('text=£1.50') resolved to 2 elements:\n    1) <p class=\"MuiTypography-root MuiTypography-title-lg MuiTypography-colorSuccess css-w2xuch\">£1.50</p> aka getByText('£').first()\n    2) <p class=\"MuiTypography-root MuiTypography-body-sm css-cns24k\">£1.50</p> aka getByText('£').nth(2)\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=£1.50')\u001b[22m\n\n\n\u001b[0m \u001b[90m 61 |\u001b[39m         \u001b[90m// Verify Budget Widget\u001b[39m\n \u001b[90m 62 |\u001b[39m         \u001b[36mconst\u001b[39m total \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=£1.50'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 63 |\u001b[39m         \u001b[36mawait\u001b[39m expect(total)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 64 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 65 |\u001b[39m\n \u001b[90m 66 |\u001b[39m     test(\u001b[32m'Avatar Menu: Opens Sidebar Panel'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:63:29\u001b[22m"
                         }
                       ],
                       "stdout": [
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Missing, Household: None\n"
+                        },
                         {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
@@ -597,15 +735,45 @@
                           "text": "[BROWSER] Content is cached for offline use.\n"
                         },
                         {
-                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[BROWSER] [APP] Init - Token: Missing, Household: None\n"
                         },
                         {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Fetched 2 households\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-12T08:36:58.919Z",
+                      "startTime": "2026-02-12T10:11:37.910Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -621,8 +789,8 @@
                       ],
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 20,
-                        "line": 49
+                        "column": 29,
+                        "line": 63
                       }
                     }
                   ],
@@ -631,7 +799,7 @@
               ],
               "id": "2c14808d47b386fba9eb-4581e083312aca0eaae7",
               "file": "smoke.spec.js",
-              "line": 47,
+              "line": 48,
               "column": 5
             },
             {
@@ -650,28 +818,31 @@
                       "workerIndex": 7,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 8248,
+                      "duration": 8035,
                       "error": {
                         "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Account', { exact: true }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Account', { exact: true }).first()\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Account', { exact: true }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Account', { exact: true }).first()\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:70:74",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Account', { exact: true }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Account', { exact: true }).first()\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:71:74",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/smoke.spec.js",
                           "column": 74,
-                          "line": 70
+                          "line": 71
                         },
-                        "snippet": "\u001b[0m \u001b[90m 68 |\u001b[39m         \n \u001b[90m 69 |\u001b[39m         \u001b[90m// Verify Sidebar Panel content (Account Header)\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 70 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Account'\u001b[39m\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 71 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Settings'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 72 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Switch Household'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 73 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Log Out'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m 69 |\u001b[39m         \n \u001b[90m 70 |\u001b[39m         \u001b[90m// Verify Sidebar Panel content (Account Header)\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 71 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Account'\u001b[39m\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 72 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Settings'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 73 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Switch Household'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 74 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Log Out'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
                             "column": 74,
-                            "line": 70
+                            "line": 71
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Account', { exact: true }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Account', { exact: true }).first()\u001b[22m\n\n\n\u001b[0m \u001b[90m 68 |\u001b[39m         \n \u001b[90m 69 |\u001b[39m         \u001b[90m// Verify Sidebar Panel content (Account Header)\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 70 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Account'\u001b[39m\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 71 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Settings'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 72 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Switch Household'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 73 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Log Out'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:70:74\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Account', { exact: true }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Account', { exact: true }).first()\u001b[22m\n\n\n\u001b[0m \u001b[90m 69 |\u001b[39m         \n \u001b[90m 70 |\u001b[39m         \u001b[90m// Verify Sidebar Panel content (Account Header)\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 71 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Account'\u001b[39m\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 72 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Settings'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 73 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Switch Household'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 74 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Log Out'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:71:74\u001b[22m"
                         }
                       ],
                       "stdout": [
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Missing, Household: None\n"
+                        },
                         {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
@@ -679,15 +850,39 @@
                           "text": "[BROWSER] Content is cached for offline use.\n"
                         },
                         {
-                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[BROWSER] [APP] Init - Token: Missing, Household: None\n"
                         },
                         {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Fetched 2 households\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-12T08:37:05.039Z",
+                      "startTime": "2026-02-12T10:11:44.959Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -704,7 +899,7 @@
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/smoke.spec.js",
                         "column": 74,
-                        "line": 70
+                        "line": 71
                       }
                     }
                   ],
@@ -713,12 +908,12 @@
               ],
               "id": "2c14808d47b386fba9eb-bf93edaa617e6cd82241",
               "file": "smoke.spec.js",
-              "line": 65,
+              "line": 66,
               "column": 5
             },
             {
               "title": "Utility Bar: Persistent Widgets",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -731,29 +926,13 @@
                     {
                       "workerIndex": 8,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 3151,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Budget Health')\nExpected: visible\nError: strict mode violation: locator('text=Budget Health') resolved to 2 elements:\n    1) <p class=\"MuiTypography-root MuiTypography-title-lg css-14eokod\">Budget Health</p> aka locator('#root').getByText('Budget Health')\n    2) <div id=\"_r_i_\" role=\"tooltip\" data-popper-escaped=\"\" data-popper-placement=\"top\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementBottom css-14urjzx\">Budget Health</div> aka getByRole('tooltip', { name: 'Budget Health' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Budget Health')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Budget Health')\nExpected: visible\nError: strict mode violation: locator('text=Budget Health') resolved to 2 elements:\n    1) <p class=\"MuiTypography-root MuiTypography-title-lg css-14eokod\">Budget Health</p> aka locator('#root').getByText('Budget Health')\n    2) <div id=\"_r_i_\" role=\"tooltip\" data-popper-escaped=\"\" data-popper-placement=\"top\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementBottom css-14urjzx\">Budget Health</div> aka getByRole('tooltip', { name: 'Budget Health' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Budget Health')\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:79:58",
-                        "location": {
-                          "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 58,
-                          "line": 79
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 77 |\u001b[39m         \u001b[90m// Budget Health\u001b[39m\n \u001b[90m 78 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Budget Health\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 79 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Budget Health'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 80 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Budget Health\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m \u001b[90m// Close\u001b[39m\n \u001b[90m 81 |\u001b[39m\n \u001b[90m 82 |\u001b[39m         \u001b[90m// Wealth Tracking\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 58,
-                            "line": 79
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Budget Health')\nExpected: visible\nError: strict mode violation: locator('text=Budget Health') resolved to 2 elements:\n    1) <p class=\"MuiTypography-root MuiTypography-title-lg css-14eokod\">Budget Health</p> aka locator('#root').getByText('Budget Health')\n    2) <div id=\"_r_i_\" role=\"tooltip\" data-popper-escaped=\"\" data-popper-placement=\"top\" class=\"base-Popper-root MuiTooltip-root MuiTooltip-sizeMd MuiTooltip-colorNeutral MuiTooltip-variantSoft MuiTooltip-tooltipPlacementBottom css-14urjzx\">Budget Health</div> aka getByRole('tooltip', { name: 'Budget Health' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Budget Health')\u001b[22m\n\n\n\u001b[0m \u001b[90m 77 |\u001b[39m         \u001b[90m// Budget Health\u001b[39m\n \u001b[90m 78 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Budget Health\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 79 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Budget Health'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 80 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Budget Health\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m \u001b[90m// Close\u001b[39m\n \u001b[90m 81 |\u001b[39m\n \u001b[90m 82 |\u001b[39m         \u001b[90m// Wealth Tracking\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:79:58\u001b[22m"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 3503,
+                      "errors": [],
                       "stdout": [
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Missing, Household: None\n"
+                        },
                         {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
@@ -761,41 +940,46 @@
                           "text": "[BROWSER] Content is cached for offline use.\n"
                         },
                         {
-                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[BROWSER] [APP] Init - Token: Missing, Household: None\n"
                         },
                         {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Fetched 2 households\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-12T08:37:16.728Z",
+                      "startTime": "2026-02-12T10:11:56.002Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests-Utility-Bar-Persistent-Widgets-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Core-UI-Smoke-Tests-Utility-Bar-Persistent-Widgets-chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 58,
-                        "line": 79
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-dd34f4997caa60953de2",
               "file": "smoke.spec.js",
-              "line": 76,
+              "line": 77,
               "column": 5
             },
             {
@@ -811,31 +995,34 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 9,
+                      "workerIndex": 8,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 9197,
+                      "duration": 8689,
                       "error": {
                         "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('button[aria-label=\"Export Tenant Data\"]').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('button[aria-label=\"Export Tenant Data\"]').first()\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('button[aria-label=\"Export Tenant Data\"]').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('button[aria-label=\"Export Tenant Data\"]').first()\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:103:36",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('button[aria-label=\"Export Tenant Data\"]').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('button[aria-label=\"Export Tenant Data\"]').first()\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:104:36",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/smoke.spec.js",
                           "column": 36,
-                          "line": 103
+                          "line": 104
                         },
-                        "snippet": "\u001b[0m \u001b[90m 101 |\u001b[39m         \u001b[90m// Verify Export button exists for at least one tenant\u001b[39m\n \u001b[90m 102 |\u001b[39m         \u001b[36mconst\u001b[39m exportButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Export Tenant Data\"]'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 103 |\u001b[39m         \u001b[36mawait\u001b[39m expect(exportButton)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 104 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 105 |\u001b[39m\n \u001b[90m 106 |\u001b[39m     test(\u001b[32m'Settings: Theme Customization'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m 102 |\u001b[39m         \u001b[90m// Verify Export button exists for at least one tenant\u001b[39m\n \u001b[90m 103 |\u001b[39m         \u001b[36mconst\u001b[39m exportButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Export Tenant Data\"]'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 104 |\u001b[39m         \u001b[36mawait\u001b[39m expect(exportButton)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 105 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 106 |\u001b[39m\n \u001b[90m 107 |\u001b[39m     test(\u001b[32m'Settings: Theme Customization'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
                             "column": 36,
-                            "line": 103
+                            "line": 104
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('button[aria-label=\"Export Tenant Data\"]').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('button[aria-label=\"Export Tenant Data\"]').first()\u001b[22m\n\n\n\u001b[0m \u001b[90m 101 |\u001b[39m         \u001b[90m// Verify Export button exists for at least one tenant\u001b[39m\n \u001b[90m 102 |\u001b[39m         \u001b[36mconst\u001b[39m exportButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Export Tenant Data\"]'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 103 |\u001b[39m         \u001b[36mawait\u001b[39m expect(exportButton)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 104 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 105 |\u001b[39m\n \u001b[90m 106 |\u001b[39m     test(\u001b[32m'Settings: Theme Customization'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:103:36\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('button[aria-label=\"Export Tenant Data\"]').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('button[aria-label=\"Export Tenant Data\"]').first()\u001b[22m\n\n\n\u001b[0m \u001b[90m 102 |\u001b[39m         \u001b[90m// Verify Export button exists for at least one tenant\u001b[39m\n \u001b[90m 103 |\u001b[39m         \u001b[36mconst\u001b[39m exportButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Export Tenant Data\"]'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 104 |\u001b[39m         \u001b[36mawait\u001b[39m expect(exportButton)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 105 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 106 |\u001b[39m\n \u001b[90m 107 |\u001b[39m     test(\u001b[32m'Settings: Theme Customization'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:104:36\u001b[22m"
                         }
                       ],
                       "stdout": [
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Missing, Household: None\n"
+                        },
                         {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
@@ -843,15 +1030,42 @@
                           "text": "[BROWSER] Content is cached for offline use.\n"
                         },
                         {
-                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[BROWSER] [APP] Init - Token: Missing, Household: None\n"
                         },
                         {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Fetched 2 households\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-12T08:37:23.151Z",
+                      "startTime": "2026-02-12T10:11:59.791Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -868,7 +1082,7 @@
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/smoke.spec.js",
                         "column": 36,
-                        "line": 103
+                        "line": 104
                       }
                     }
                   ],
@@ -877,7 +1091,7 @@
               ],
               "id": "2c14808d47b386fba9eb-c4ea58c008edac3c2fb3",
               "file": "smoke.spec.js",
-              "line": 87,
+              "line": 88,
               "column": 5
             },
             {
@@ -893,31 +1107,34 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 10,
+                      "workerIndex": 9,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 9109,
+                      "duration": 8739,
                       "error": {
                         "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Signature Designs')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Signature Designs')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Signature Designs')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Signature Designs')\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:115:62",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Signature Designs')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Signature Designs')\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:116:62",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/smoke.spec.js",
                           "column": 62,
-                          "line": 115
+                          "line": 116
                         },
-                        "snippet": "\u001b[0m \u001b[90m 113 |\u001b[39m         \n \u001b[90m 114 |\u001b[39m         \u001b[90m// Verify Theme Grid renders\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 115 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Signature Designs'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 116 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Light Themes'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 117 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Dark Themes'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 118 |\u001b[39m\u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m 114 |\u001b[39m         \n \u001b[90m 115 |\u001b[39m         \u001b[90m// Verify Theme Grid renders\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 116 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Signature Designs'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 117 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Light Themes'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 118 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Dark Themes'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 119 |\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
                             "column": 62,
-                            "line": 115
+                            "line": 116
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Signature Designs')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Signature Designs')\u001b[22m\n\n\n\u001b[0m \u001b[90m 113 |\u001b[39m         \n \u001b[90m 114 |\u001b[39m         \u001b[90m// Verify Theme Grid renders\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 115 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Signature Designs'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 116 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Light Themes'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 117 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Dark Themes'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 118 |\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:115:62\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Signature Designs')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Signature Designs')\u001b[22m\n\n\n\u001b[0m \u001b[90m 114 |\u001b[39m         \n \u001b[90m 115 |\u001b[39m         \u001b[90m// Verify Theme Grid renders\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 116 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Signature Designs'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 117 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Light Themes'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 118 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Dark Themes'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 119 |\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:116:62\u001b[22m"
                         }
                       ],
                       "stdout": [
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Missing, Household: None\n"
+                        },
                         {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
                         },
@@ -925,15 +1142,42 @@
                           "text": "[BROWSER] Content is cached for offline use.\n"
                         },
                         {
-                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                          "text": "[BROWSER] [APP] Init - Token: Missing, Household: None\n"
                         },
                         {
                           "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] SW registered: ServiceWorkerRegistration\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Fetched 2 households\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
+                        },
+                        {
+                          "text": "[BROWSER] [APP] Init - Token: Present, Household: 4344\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-12T08:37:35.413Z",
+                      "startTime": "2026-02-12T10:12:11.339Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -950,7 +1194,7 @@
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/smoke.spec.js",
                         "column": 62,
-                        "line": 115
+                        "line": 116
                       }
                     }
                   ],
@@ -959,7 +1203,7 @@
               ],
               "id": "2c14808d47b386fba9eb-22a936da359947e6e605",
               "file": "smoke.spec.js",
-              "line": 106,
+              "line": 107,
               "column": 5
             }
           ]
@@ -969,11 +1213,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-12T08:32:37.950Z",
-    "duration": 306908.907,
-    "expected": 0,
+    "startTime": "2026-02-12T10:09:51.718Z",
+    "duration": 148722.149,
+    "expected": 1,
     "skipped": 0,
-    "unexpected": 11,
+    "unexpected": 10,
     "flaky": 0
   }
 }

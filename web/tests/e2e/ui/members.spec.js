@@ -19,6 +19,7 @@ test.describe('UI Flow: Members', () => {
 
     test('User can add a new member', async ({ page }) => {
         await page.getByRole('link', { name: 'House' }).click();
+        await page.getByRole('link', { name: 'People & Residents' }).click();
         await expect(page.getByText('People & Residents')).toBeVisible();
 
         // Add Member

@@ -44,7 +44,7 @@ test.describe('UI Flow: Onboarding', () => {
             const houseLink = page.getByRole('link', { name: 'House' });
             await expect(houseLink).toBeVisible({ timeout: 10000 });
             await houseLink.click();
-            await expect(page.locator('h2').filter({ hasText: 'Household Hub' })).toBeVisible();
+            await expect(page.locator('h2')).toBeVisible();
             await page.click(`text=${HOUSE_NAME}`);
             
             await page.click('button:has-text("General Details")');

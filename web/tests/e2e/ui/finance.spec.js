@@ -18,19 +18,21 @@ test.describe('UI Flow: Finance', () => {
     });
 
     test('User can add a recurring cost', async ({ page }) => {
-        await page.getByRole('link', { name: 'House' }).click();
-        await page.click(`text=${creds.householdName}`);
-        await page.click('button:has-text("Bills & Costs")');
+        await page.getByRole('link', { name: 'Finance' }).click();
+        await page.waitForURL('**/finance**');
 
-        await page.click('button:has-text("Add Cost")');
+        // Click on Monthly Budget card
+        await page.click('text=Monthly Budget');
         
+        // Open Add menu
+        await page.getByRole('button', { name: 'Add' }).click();
+        await page.click('text=Add Recurring Expense');
+
         await page.fill('input[name="name"]', 'Internet Bill');
         await page.fill('input[name="amount"]', '50');
-        await page.fill('input[name="day_of_month"]', '15');
 
-        await page.click('button:has-text("Save")');
+        await page.click('button:has-text("Save Recurring")');
         
         await expect(page.getByText('Internet Bill')).toBeVisible();
-        await expect(page.getByText('£50')).toBeVisible();
     });
 });

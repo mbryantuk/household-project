@@ -11,12 +11,13 @@ import {
 } from '@mui/icons-material';
 
 import { useLocation, useNavigate, NavLink, useSearchParams } from 'react-router-dom';
+import { isToday, parseISO } from 'date-fns';
 import { getEmojiColor } from '../theme';
 import { useHousehold } from '../contexts/HouseholdContext';
 import EmojiPicker from './EmojiPicker';
 
-const RAIL_WIDTH = 64; 
-const PANEL_WIDTH = 260; 
+const RAIL_WIDTH = 72; 
+const PANEL_WIDTH = 280; 
 
 const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, activeCategory, hoveredCategory, onHover, handleNav, isMobile }) => {
     const pathMatches = to && location.pathname.includes(to);
@@ -72,8 +73,8 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
                   aria-label={label}
                   sx={{ 
                       borderRadius: 'md', justifyContent: 'center', px: 0, 
-                      flexDirection: 'column', gap: 0.5, py: 1, width: 56, 
-                      mx: 'auto', minHeight: 60,
+                      flexDirection: 'column', gap: 1, py: 1.5, width: 64, 
+                      mx: 'auto', minHeight: 68,
                       '&.Mui-selected': { 
                           bgcolor: 'primary.softBg', 
                           color: 'primary.solidBg' 
@@ -82,13 +83,13 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
               >
                   <ListItemDecorator sx={{ 
                       display: 'flex', justifyContent: 'center', m: 0, 
-                      '& svg': { fontSize: '1.4rem' },
+                      '& svg': { fontSize: '1.6rem' },
                       color: isActive ? 'primary.solidBg' : 'text.secondary' 
                   }}>
                       {icon}
                   </ListItemDecorator>
                   <Typography level="body-xs" sx={{ 
-                      fontSize: '10px', 
+                      fontSize: '11px', 
                       fontWeight: isActive ? '700' : '500', 
                       color: isActive ? 'primary.solidBg' : 'text.secondary', 
                       textAlign: 'center' 
@@ -109,7 +110,9 @@ const SubItem = ({ label, to, emoji, onClick, active }) => {
           onClick={onClick}
           selected={active}
           sx={{ 
-              borderRadius: 'sm',
+              borderRadius: 'md',
+              py: 1,
+              gap: 1.5,
               '&.Mui-selected': {
                   bgcolor: 'primary.softBg',
                   color: 'primary.solidBg',
@@ -120,11 +123,11 @@ const SubItem = ({ label, to, emoji, onClick, active }) => {
             <ListItemDecorator>
               {emoji ? (
                   typeof emoji === 'string' ? (
-                    <Avatar size="sm" sx={{ '--Avatar-size': '24px', fontSize: '1rem', bgcolor: getEmojiColor(emoji, isDark) }}>{emoji}</Avatar>
+                    <Avatar size="sm" sx={{ '--Avatar-size': '32px', fontSize: '1.2rem', bgcolor: getEmojiColor(emoji, isDark) }}>{emoji}</Avatar>
                   ) : emoji
               ) : <KeyboardArrowRight />}
             </ListItemDecorator>
-            <ListItemContent>{label}</ListItemContent>
+            <ListItemContent sx={{ fontSize: '0.95rem' }}>{label}</ListItemContent>
         </ListItemButton>
     </ListItem>
     );
@@ -226,7 +229,7 @@ export default function NavSidebar({
   };
 
     const currentPanelCategory = (hoveredCategory || (isPinned ? activeCategory : null));
-    const showPanel = currentPanelCategory && ['household', 'finance', 'account'].includes(currentPanelCategory);
+    const showPanel = !!currentPanelCategory;
 
     const [profiles, setProfiles] = useState([]);
     const [profileCreateOpen, setProfileCreateOpen] = useState(false);
@@ -234,13 +237,54 @@ export default function NavSidebar({
     const [newProfileEmoji, setNewProfileEmoji] = useState('💰');
     const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
+    // Sidebar Data States
+    const [todayEvents, setTodayEvents] = useState([]);
+    const [pendingChores, setPendingChores] = useState([]);
+    const [quickShopItem, setQuickShopItem] = useState('');
+
     useEffect(() => {
-        if (currentPanelCategory === 'finance' && household?.id) {
+        if (!household?.id) return;
+
+        if (currentPanelCategory === 'finance') {
             api.get(`/households/${household.id}/finance/profiles`)
                .then(res => setProfiles(res.data))
                .catch(console.error);
         }
+
+        if (currentPanelCategory === 'calendar') {
+            api.get(`/households/${household.id}/dates`)
+               .then(res => {
+                   const todayStr = new Date().toISOString().split('T')[0];
+                   setTodayEvents((res.data || []).filter(d => d.date?.startsWith(todayStr)));
+               })
+               .catch(console.error);
+        }
+
+        if (currentPanelCategory === 'chores') {
+            api.get(`/households/${household.id}/chores`)
+               .then(res => {
+                   setPendingChores((res.data || []).filter(c => {
+                       if (!c.next_due_date) return false;
+                       return isToday(parseISO(c.next_due_date));
+                   }));
+               })
+               .catch(console.error);
+        }
     }, [api, household?.id, currentPanelCategory]);
+
+    const handleQuickShopAdd = async (e) => {
+        if (e.key === 'Enter' && quickShopItem.trim()) {
+            try {
+                await api.post(`/households/${household.id}/shopping`, { name: quickShopItem });
+                setQuickShopItem('');
+                if (location.pathname.includes('/shopping')) {
+                    // Force refresh if on page? Better to use a global state or bus, 
+                    // but for now simple message
+                    navigate(location.pathname, { replace: true });
+                }
+            } catch (err) { console.error(err); }
+        }
+    };
 
     const handleCreateProfile = async (e) => {
         e.preventDefault();
@@ -305,15 +349,18 @@ export default function NavSidebar({
                       </Box>
                   )}
   
-                  <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'center' }}>
+                  <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
                       <Tooltip title="Dashboard" variant="soft" placement="right">
                           <Avatar 
                               variant="soft" color="primary" size="lg"
-                              onClick={() => { navigate(`/household/${household.id}/dashboard`); setHoveredCategory(null); }}
+                              onClick={() => { navigate(`/household/${household.id}/dashboard`); setHoveredCategory('dashboard'); }}
+                              onMouseEnter={() => !isMobile && setHoveredCategory('dashboard')}
                               sx={{ 
                                   bgcolor: getEmojiColor(household?.avatar || '🏠', isDark),
                                   fontSize: '1.5rem', fontWeight: 'bold', cursor: 'pointer',
-                                  transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.1)' }
+                                  transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.1)' },
+                                  border: (activeCategory === 'dashboard') ? '2px solid' : 'none',
+                                  borderColor: 'primary.solidBg'
                               }}
                           >
                               {household?.avatar || '🏠'}
@@ -321,15 +368,15 @@ export default function NavSidebar({
                       </Tooltip>
                   </Box>
                   
-                  <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
+                  <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '8px', width: '100%', px: isMobile ? 1 : 0 }}>
                       <RailIcon icon={<HomeIcon />} label="House" category="household" hasSubItems to={`/household/${household.id}/house`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                       <RailIcon icon={<Event />} label="Calendar" category="calendar" to={`/household/${household.id}/calendar`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                   </List>
-                  <Divider sx={{ my: 1, width: isMobile ? '100%' : 40, mx: 'auto' }} />
+                  <Divider sx={{ my: 1.5, width: isMobile ? '100%' : 40, mx: 'auto' }} />
               </Box>
   
               <Box sx={{ width: '100%', flexGrow: 1, overflowY: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
-                  <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '4px', width: '100%', px: isMobile ? 1 : 0 }}>
+                  <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '8px', width: '100%', px: isMobile ? 1 : 0 }}>
                       <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems to={`/household/${household.id}/finance`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                       <RailIcon icon={<ShoppingBag />} label="Shopping List" category="shopping" to={`/household/${household.id}/shopping`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                       <RailIcon icon={<CleaningServices />} label="Chores" category="chores" to={`/household/${household.id}/chores`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
@@ -339,8 +386,8 @@ export default function NavSidebar({
                   </List>
               </Box>
   
-              <Box sx={{ width: '100%', mt: 'auto', pt: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                  <Box sx={{ width: '100%', px: 1.5 }}><Divider sx={{ mb: 1 }} /></Box>
+              <Box sx={{ width: '100%', mt: 'auto', pt: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                  <Box sx={{ width: '100%', px: 1.5 }}><Divider sx={{ mb: 1.5 }} /></Box>
                   {installPrompt && (
                       <Tooltip title="Install App" variant="soft" placement="right">
                           <IconButton variant="soft" color="success" onClick={onInstall} size="sm"><DownloadIcon /></IconButton>
@@ -349,11 +396,13 @@ export default function NavSidebar({
                   <Tooltip title={isMobile ? "Account" : "Account & Settings"} variant="soft" placement="right">
                       <IconButton 
                           variant="plain" 
+                          aria-label="Account"
                           color={(hoveredCategory === 'account' || activeCategory === 'account') ? 'primary' : 'neutral'}
                           onClick={(e) => {
                               if (isMobile) setUserMenuAnchor(userMenuAnchor ? null : e.currentTarget);
                               else setHoveredCategory(hoveredCategory === 'account' ? null : 'account');
                           }}
+                          onMouseEnter={() => !isMobile && setHoveredCategory('account')}
                           sx={{ p: 0.5, borderRadius: '50%', bgcolor: (userMenuAnchor || hoveredCategory === 'account' || activeCategory === 'account') ? 'primary.softBg' : 'transparent' }}
                       >
                           <Avatar size="sm" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark), width: 32, height: 32, fontSize: '1rem' }}>
@@ -379,127 +428,200 @@ export default function NavSidebar({
                       boxShadow: (!isPinned && !isMobile) ? '8px 0 24px rgba(0,0,0,0.15)' : 'none'
                   }}
               >
-                  {currentPanelCategory === 'account' ? (
-                      <>
-                          <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
-                              <Typography level="title-md" textTransform="uppercase" letterSpacing="1px">Personal Preferences</Typography>
-                          </Box>
-                          <Box sx={{ p: 2 }}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                                  <Avatar size="lg" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark) }}>{user?.avatar || user?.first_name?.[0]}</Avatar>
-                                  <Box>
-                                      <Typography level="title-sm">{user?.first_name} {user?.last_name}</Typography>
-                                      <Typography level="body-xs" color="neutral">{user?.email}</Typography>
-                                  </Box>
-                              </Box>
-                          </Box>
-                          
-                          <List sx={{ p: 1, gap: 0.5 }}>
-                              <SubItem label="Profile Settings" to={`/household/${household.id}/settings?tab=0`} emoji={<Person />} active={isSettingsTabActive(0)} onClick={handleSubItemClick} />
-                              <SubItem label="Security & MFA" to={`/household/${household.id}/settings?tab=1`} emoji={<Security />} active={isSettingsTabActive(1)} onClick={handleSubItemClick} />
-                              <SubItem label="Appearance" to={`/household/${household.id}/settings?tab=3`} emoji={<Palette />} active={isSettingsTabActive(3)} onClick={handleSubItemClick} />
-                              
-                              <Divider sx={{ my: 1 }} />
-                              <GroupHeader label="Workspace" />
-                              <SubItem label="Household Settings" to={`/household/${household.id}/settings?tab=2`} emoji={<HomeWork />} active={isSettingsTabActive(2)} onClick={handleSubItemClick} />
-                              <SubItem label="Switch Household" to="/select-household" emoji={<HomeWork />} onClick={handleSubItemClick} />
-                              
-                              <Box sx={{ pl: 2, pr: 2, pt: 1, pb: 1 }}>
-                                  <Typography level="body-xs" fontWeight="bold" sx={{ mb: 1, color: 'text.tertiary', fontSize: '0.7rem', textTransform: 'uppercase' }}>Available Households</Typography>
-                                  <List sx={{ gap: 0.5, p: 0 }}>
-                                      {households.map(hh => (
-                                          <ListItem key={hh.id}>
-                                              <ListItemButton 
-                                                  selected={hh.id === household.id}
-                                                  onClick={async () => {
-                                                      await onSelectHousehold(hh);
-                                                      navigate(`/household/${hh.id}/dashboard`);
-                                                      if (isMobile && onClose) onClose();
-                                                      else setHoveredCategory(null);
-                                                  }}
-                                                  sx={{ borderRadius: 'sm', py: 0.5 }}
-                                              >
-                                                  <ListItemDecorator>
-                                                      <Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.9rem', bgcolor: getEmojiColor(hh.avatar || '🏠', isDark) }}>
-                                                          {hh.avatar || '🏠'}
-                                                      </Avatar>
-                                                  </ListItemDecorator>
-                                                  <ListItemContent>
-                                                      <Typography level="body-sm" fontWeight={hh.id === household.id ? 'bold' : 'normal'}>
-                                                          {hh.name}
-                                                      </Typography>
-                                                  </ListItemContent>
-                                                  {hh.id === household.id && <CheckCircle color="primary" sx={{ fontSize: '1rem' }} />}
-                                              </ListItemButton>
-                                          </ListItem>
-                                      ))}
-                                  </List>
-                              </Box>
+                  <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography level="title-md" textTransform="uppercase" letterSpacing="1px">{currentPanelCategory}</Typography>
+                      <IconButton size="sm" variant={isPinned ? "solid" : "plain"} color={isPinned ? "primary" : "neutral"} onClick={togglePin}>
+                          {isPinned ? <PushPin /> : <PushPinOutlined />}
+                      </IconButton>
+                  </Box>
 
-                              <Box sx={{ mt: 'auto', pt: 2 }}>
-                                <Divider sx={{ mb: 1 }} />
-                                <SubItem label="Log Out" onClick={() => confirmAction("Log Out", "Are you sure?", onLogout)} emoji={<LogoutIcon color="danger" />} />
+                  <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>
+                      {currentPanelCategory === 'dashboard' && (
+                          <List sx={{ gap: 1 }}>
+                              <SubItem label="Overview" to={`/household/${household.id}/dashboard`} emoji="🏠" onClick={handleSubItemClick} />
+                              <Divider sx={{ my: 1 }} />
+                              <Typography level="body-xs" sx={{ px: 2, mb: 1, opacity: 0.6 }}>QUICK STATS</Typography>
+                              <Box sx={{ px: 2 }}>
+                                  <Typography level="title-sm">{household.name}</Typography>
+                                  <Typography level="body-xs">Role: {user.role}</Typography>
                               </Box>
                           </List>
-                      </>
-                  ) : (
-                      <>
-                      <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <Typography level="title-md" textTransform="uppercase" letterSpacing="1px">{currentPanelCategory}</Typography>
-                          <IconButton size="sm" variant={isPinned ? "solid" : "plain"} color={isPinned ? "primary" : "neutral"} onClick={togglePin}>
-                              {isPinned ? <PushPin /> : <PushPinOutlined />}
-                          </IconButton>
-                      </Box>
-                      <List sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>
-                          {currentPanelCategory === 'household' && (
-                              <>
-                                  <GroupHeader label="Overview" />
-                                  <SubItem label="House Hub" to={`/household/${household.id}/house`} emoji="🏠" onClick={handleSubItemClick} />
-                                  <Divider sx={{ my: 1 }} />
-                                  <GroupHeader label="Residents" />
-                                  {members.filter(m => m.type !== 'pet').map(m => <SubItem key={m.id} label={m.alias || (m.name || '').split(' ')[0]} to={`/household/${household.id}/people/${m.id}`} emoji={m.emoji} onClick={handleSubItemClick} />)}
-                                  {enabledModules.includes('pets') && (
-                                      <>
-                                          <Divider sx={{ my: 1 }} /><GroupHeader label="Pets" />
-                                          {members.filter(m => m.type === 'pet').map(m => <SubItem key={m.id} label={m.name} to={`/household/${household.id}/pets/${m.id}`} emoji={m.emoji} onClick={handleSubItemClick} />)}
-                                      </>
-                                  )}
-                                  <Divider sx={{ my: 1 }} /><GroupHeader label="Fleet" />
-                                  {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`/household/${household.id}/vehicles/${v.id}`} emoji={v.emoji} onClick={handleSubItemClick} />)}
-                              </>
-                          )}
-                          {currentPanelCategory === 'finance' && (
-                              <>
-                                  <ListItem sx={{ mt: 1, mb: 0.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', pr: 1 }}>
-                                      <Typography level="body-xs" fontWeight="bold" textTransform="uppercase" letterSpacing="1px" sx={{ px: 1, color: 'text.tertiary' }}>PROFILES</Typography>
-                                      <IconButton size="sm" variant="plain" onClick={() => setProfileCreateOpen(true)} aria-label="Add Profile"><Add fontSize="small" /></IconButton>
-                                  </ListItem>
-                                  {profiles.map(p => (
-                                      <ListItem key={p.id} endAction={p.is_default !== 1 ? (<IconButton size="sm" variant="plain" color="danger" onClick={() => handleDeleteProfile(p.id)} sx={{ opacity: 0, transition: 'opacity 0.2s', '.MuiListItem-root:hover &': { opacity: 1 } }}><Close fontSize="small" /></IconButton>) : null}>
-                                          <ListItemButton selected={String(searchParams.get('financial_profile_id')) === String(p.id)} onClick={() => handleProfileSelect(p.id)} sx={{ borderRadius: 'sm' }}>
-                                              <ListItemDecorator>{p.emoji}</ListItemDecorator>
-                                              <ListItemContent>{p.name}</ListItemContent>
+                      )}
+
+                      {currentPanelCategory === 'household' && (
+                          <>
+                              <GroupHeader label="Overview" />
+                              <SubItem label="House Hub" to={`/household/${household.id}/house`} emoji="🏠" onClick={handleSubItemClick} />
+                              <SubItem label="People & Residents" to={`/household/${household.id}/people`} emoji="👥" onClick={handleSubItemClick} />
+                              <Divider sx={{ my: 1 }} />
+                              <GroupHeader label="Residents" />
+                              {members.filter(m => m.type !== 'pet').map(m => <SubItem key={m.id} label={m.alias || (m.name || '').split(' ')[0]} to={`/household/${household.id}/people/${m.id}`} emoji={m.emoji} onClick={handleSubItemClick} />)}
+                              {enabledModules.includes('pets') && (
+                                  <>
+                                      <Divider sx={{ my: 1 }} /><GroupHeader label="Pets" />
+                                      {members.filter(m => m.type === 'pet').map(m => <SubItem key={m.id} label={m.name} to={`/household/${household.id}/pets/${m.id}`} emoji={m.emoji} onClick={handleSubItemClick} />)}
+                                  </>
+                              )}
+                              <Divider sx={{ my: 1 }} /><GroupHeader label="Fleet" />
+                              {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`/household/${household.id}/vehicles/${v.id}`} emoji={v.emoji} onClick={handleSubItemClick} />)}
+                          </>
+                      )}
+
+                      {currentPanelCategory === 'calendar' && (
+                          <Box sx={{ p: 1 }}>
+                              <Button fullWidth startDecorator={<Add />} onClick={() => navigate(`/household/${household.id}/calendar`)} sx={{ mb: 2 }}>New Event</Button>
+                              <GroupHeader label="Today's Events" />
+                              <List sx={{ gap: 0.5 }}>
+                                  {todayEvents.length === 0 && <Typography level="body-xs" sx={{ px: 2, opacity: 0.5 }}>Nothing scheduled today.</Typography>}
+                                  {todayEvents.map(e => (
+                                      <ListItem key={e.id}>
+                                          <ListItemButton onClick={() => navigate(`/household/${household.id}/calendar`)}>
+                                              <ListItemDecorator>{e.emoji || '📅'}</ListItemDecorator>
+                                              <ListItemContent>{e.title}</ListItemContent>
                                           </ListItemButton>
                                       </ListItem>
                                   ))}
+                              </List>
+                              <Divider sx={{ my: 2 }} />
+                              <SubItem label="View Full Calendar" to={`/household/${household.id}/calendar`} emoji="📅" onClick={handleSubItemClick} />
+                          </Box>
+                      )}
+
+                      {currentPanelCategory === 'finance' && (
+                          <>
+                              <ListItem sx={{ mt: 1, mb: 0.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', pr: 1 }}>
+                                  <Typography level="body-xs" fontWeight="bold" textTransform="uppercase" letterSpacing="1px" sx={{ px: 1, color: 'text.tertiary' }}>PROFILES</Typography>
+                                  <IconButton size="sm" variant="plain" onClick={() => setProfileCreateOpen(true)} aria-label="Add Profile"><Add fontSize="small" /></IconButton>
+                              </ListItem>
+                              {profiles.map(p => (
+                                  <ListItem key={p.id} endAction={p.is_default !== 1 ? (<IconButton size="sm" variant="plain" color="danger" onClick={() => handleDeleteProfile(p.id)} sx={{ opacity: 0, transition: 'opacity 0.2s', '.MuiListItem-root:hover &': { opacity: 1 } }}><Close fontSize="small" /></IconButton>) : null}>
+                                      <ListItemButton selected={String(searchParams.get('financial_profile_id')) === String(p.id)} onClick={() => handleProfileSelect(p.id)} sx={{ borderRadius: 'sm' }}>
+                                          <ListItemDecorator>{p.emoji}</ListItemDecorator>
+                                          <ListItemContent>{p.name}</ListItemContent>
+                                      </ListItemButton>
+                                  </ListItem>
+                              ))}
+                              <Divider sx={{ my: 1 }} />
+                              <GroupHeader label="Overview" /><SubItem label="Budget" to={getFinanceLink('budget')} emoji="📊" onClick={handleSubItemClick} />
+                              <Divider sx={{ my: 1 }} /><GroupHeader label="Accounts" />
+                              <SubItem label="Income" to={getFinanceLink('income')} emoji="💰" onClick={handleSubItemClick} />
+                              <SubItem label="Banking" to={getFinanceLink('banking')} emoji="🏦" onClick={handleSubItemClick} />
+                              <SubItem label="Savings" to={getFinanceLink('savings')} emoji="🐷" onClick={handleSubItemClick} />
+                              <SubItem label="Investments" to={getFinanceLink('invest')} emoji="📈" onClick={handleSubItemClick} />
+                              <SubItem label="Pensions" to={getFinanceLink('pensions')} emoji="👴" onClick={handleSubItemClick} />
+                              <Divider sx={{ my: 1 }} /><GroupHeader label="Liabilities" />
+                              <SubItem label="Credit Cards" to={getFinanceLink('credit')} emoji="💳" onClick={handleSubItemClick} />
+                              <SubItem label="Loans" to={getFinanceLink('loans')} emoji="📝" onClick={handleSubItemClick} />
+                              <SubItem label="Car Finance" to={getFinanceLink('car')} emoji="🚗" onClick={handleSubItemClick} />
+                              <SubItem label="Mortgages" to={getFinanceLink('mortgage')} emoji="🏠" onClick={handleSubItemClick} />
+                          </>
+                      )}
+
+                      {currentPanelCategory === 'shopping' && (
+                          <Box sx={{ p: 1 }}>
+                              <Typography level="body-xs" sx={{ px: 1, mb: 1, fontWeight: 'bold' }}>QUICK ADD</Typography>
+                              <Input 
+                                  placeholder="Type and press Enter..." 
+                                  value={quickShopItem}
+                                  onChange={e => setQuickShopItem(e.target.value)}
+                                  onKeyDown={handleQuickShopAdd}
+                                  sx={{ mb: 2 }}
+                              />
+                              <Divider sx={{ my: 1 }} />
+                              <SubItem label="Open Full List" to={`/household/${household.id}/shopping`} emoji="🛒" onClick={handleSubItemClick} />
+                          </Box>
+                      )}
+
+                      {currentPanelCategory === 'chores' && (
+                          <Box sx={{ p: 1 }}>
+                              <Button fullWidth startDecorator={<Add />} onClick={() => navigate(`/household/${household.id}/chores`)} sx={{ mb: 2 }}>Add Task</Button>
+                              <GroupHeader label="Due Today" />
+                              <List sx={{ gap: 0.5 }}>
+                                  {pendingChores.length === 0 && <Typography level="body-xs" sx={{ px: 2, opacity: 0.5 }}>All chores complete!</Typography>}
+                                  {pendingChores.map(c => (
+                                      <ListItem key={c.id}>
+                                          <ListItemButton onClick={() => navigate(`/household/${household.id}/chores`)}>
+                                              <ListItemDecorator>{c.emoji || '🧹'}</ListItemDecorator>
+                                              <ListItemContent>{c.name}</ListItemContent>
+                                          </ListItemButton>
+                                      </ListItem>
+                                  ))}
+                              </List>
+                              <Divider sx={{ my: 2 }} />
+                              <SubItem label="View All Chores" to={`/household/${household.id}/chores`} emoji="🧹" onClick={handleSubItemClick} />
+                          </Box>
+                      )}
+
+                      {currentPanelCategory === 'meals' && (
+                          <Box sx={{ p: 1 }}>
+                              <GroupHeader label="Meal Plan" />
+                              <SubItem label="Meal Planner" to={`/household/${household.id}/meals`} emoji="🍱" onClick={handleSubItemClick} />
+                              <SubItem label="Recipe Book" to={`/household/${household.id}/meals`} emoji="📖" onClick={handleSubItemClick} />
+                          </Box>
+                      )}
+
+                      {currentPanelCategory === 'account' && (
+                          <>
+                              <Box sx={{ p: 2 }}>
+                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                                      <Avatar size="lg" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark) }}>{user?.avatar || user?.first_name?.[0]}</Avatar>
+                                      <Box>
+                                          <Typography level="title-sm">{user?.first_name} {user?.last_name}</Typography>
+                                          <Typography level="body-xs" color="neutral">{user?.email}</Typography>
+                                      </Box>
+                                  </Box>
+                              </Box>
+                              
+                              <List sx={{ p: 1, gap: 0.5 }}>
+                                  <SubItem label="Profile Settings" to={`/household/${household.id}/settings?tab=0`} emoji={<Person />} active={isSettingsTabActive(0)} onClick={handleSubItemClick} />
+                                  <SubItem label="Security & MFA" to={`/household/${household.id}/settings?tab=1`} emoji={<Security />} active={isSettingsTabActive(1)} onClick={handleSubItemClick} />
+                                  <SubItem label="Appearance" to={`/household/${household.id}/settings?tab=3`} emoji={<Palette />} active={isSettingsTabActive(3)} onClick={handleSubItemClick} />
+                                  
                                   <Divider sx={{ my: 1 }} />
-                                  <GroupHeader label="Overview" /><SubItem label="Budget" to={getFinanceLink('budget')} emoji="📊" onClick={handleSubItemClick} />
-                                  <Divider sx={{ my: 1 }} /><GroupHeader label="Accounts" />
-                                  <SubItem label="Income" to={getFinanceLink('income')} emoji="💰" onClick={handleSubItemClick} />
-                                  <SubItem label="Banking" to={getFinanceLink('banking')} emoji="🏦" onClick={handleSubItemClick} />
-                                  <SubItem label="Savings" to={getFinanceLink('savings')} emoji="🐷" onClick={handleSubItemClick} />
-                                  <SubItem label="Investments" to={getFinanceLink('invest')} emoji="📈" onClick={handleSubItemClick} />
-                                  <SubItem label="Pensions" to={getFinanceLink('pensions')} emoji="👴" onClick={handleSubItemClick} />
-                                  <Divider sx={{ my: 1 }} /><GroupHeader label="Liabilities" />
-                                  <SubItem label="Credit Cards" to={getFinanceLink('credit')} emoji="💳" onClick={handleSubItemClick} />
-                                  <SubItem label="Loans" to={getFinanceLink('loans')} emoji="📝" onClick={handleSubItemClick} />
-                                  <SubItem label="Car Finance" to={getFinanceLink('car')} emoji="🚗" onClick={handleSubItemClick} />
-                                  <SubItem label="Mortgages" to={getFinanceLink('mortgage')} emoji="🏠" onClick={handleSubItemClick} />
-                              </>
-                          )}
-                      </List>
-                      </>
-                  )}
+                                  <GroupHeader label="Workspace" />
+                                  <SubItem label="Household Settings" to={`/household/${household.id}/settings?tab=2`} emoji={<HomeWork />} active={isSettingsTabActive(2)} onClick={handleSubItemClick} />
+                                  <SubItem label="Switch Household" to="/select-household" emoji={<HomeWork />} onClick={handleSubItemClick} />
+                                  
+                                  <Box sx={{ pl: 2, pr: 2, pt: 1, pb: 1 }}>
+                                      <Typography level="body-xs" fontWeight="bold" sx={{ mb: 1, color: 'text.tertiary', fontSize: '0.7rem', textTransform: 'uppercase' }}>Available Households</Typography>
+                                      <List sx={{ gap: 0.5, p: 0 }}>
+                                          {households.map(hh => (
+                                              <ListItem key={hh.id}>
+                                                  <ListItemButton 
+                                                      selected={hh.id === household.id}
+                                                      onClick={async () => {
+                                                          await onSelectHousehold(hh);
+                                                          navigate(`/household/${hh.id}/dashboard`);
+                                                          if (isMobile && onClose) onClose();
+                                                          else setHoveredCategory(null);
+                                                      }}
+                                                      sx={{ borderRadius: 'sm', py: 0.5 }}
+                                                  >
+                                                      <ListItemDecorator>
+                                                          <Avatar size="sm" sx={{ width: 24, height: 24, fontSize: '0.9rem', bgcolor: getEmojiColor(hh.avatar || '🏠', isDark) }}>
+                                                              {hh.avatar || '🏠'}
+                                                          </Avatar>
+                                                      </ListItemDecorator>
+                                                      <ListItemContent>
+                                                          <Typography level="body-sm" fontWeight={hh.id === household.id ? 'bold' : 'normal'}>
+                                                              {hh.name}
+                                                          </Typography>
+                                                      </ListItemContent>
+                                                      {hh.id === household.id && <CheckCircle color="primary" sx={{ fontSize: '1rem' }} />}
+                                                  </ListItemButton>
+                                              </ListItem>
+                                          ))}
+                                      </List>
+                                  </Box>
+
+                                  <Box sx={{ mt: 'auto', pt: 2 }}>
+                                    <Divider sx={{ mb: 1 }} />
+                                    <SubItem label="Log Out" onClick={() => confirmAction("Log Out", "Are you sure?", onLogout)} emoji={<LogoutIcon color="danger" />} />
+                                  </Box>
+                              </List>
+                          </>
+                      )}
+                  </Box>
               </Sheet>
           )}
   

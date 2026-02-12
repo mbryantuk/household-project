@@ -43,6 +43,55 @@ const ROUTE_META = {
   profile: { title: 'Profile' }
 };
 
+const MenuTile = ({ icon, label, to, onClick, sx = {} }) => {
+  const navigate = useNavigate();
+  return (
+    <Box 
+      onClick={() => {
+        if (to) navigate(to);
+        if (onClick) onClick();
+      }}
+      sx={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        p: 1.5,
+        borderRadius: 'xl',
+        bgcolor: 'background.level1',
+        gap: 1,
+        cursor: 'pointer',
+        transition: 'all 0.2s',
+        '&:hover': {
+          bgcolor: 'primary.softBg',
+          transform: 'translateY(-2px)'
+        },
+        '&:active': {
+          transform: 'scale(0.95)'
+        },
+        ...sx
+      }}
+    >
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        width: 44, 
+        height: 44, 
+        borderRadius: '12px',
+        bgcolor: 'background.surface',
+        boxShadow: 'sm',
+        color: 'primary.plainColor'
+      }}>
+        {icon}
+      </Box>
+      <Typography level="body-xs" sx={{ fontWeight: 'md', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+        {label}
+      </Typography>
+    </Box>
+  );
+};
+
 export default function HouseholdLayout({
   households = [],
   onSelectHousehold,

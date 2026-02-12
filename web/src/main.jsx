@@ -14,7 +14,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 )
 
 // Register Service Worker with update detection
-if ('serviceWorker' in navigator && false) {
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then(reg => {

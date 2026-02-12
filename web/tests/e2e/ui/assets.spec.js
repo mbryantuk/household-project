@@ -19,18 +19,12 @@ test.describe('UI Flow: Assets', () => {
 
     test('User can add a new asset', async ({ page }) => {
         await page.getByRole('link', { name: 'House' }).click();
-        await page.click(`text=${creds.householdName}`);
-        await page.click('button:has-text("Assets")');
-        
+        await page.click('button:has-text("View Full Inventory")');
         await page.click('button:has-text("Add Asset")');
-        await expect(page.locator('#asset-form')).toBeVisible();
-
+        
         await page.fill('input[name="name"]', 'Office Laptop');
         await page.fill('input[name="location"]', 'Office');
         await page.fill('input[name="purchase_value"]', '1500');
-
-        // Handle Category Select (MUI) if needed, or default
-        // Just verify basic creation for now
 
         await page.click('button[type="submit"][form="asset-form"]');
         

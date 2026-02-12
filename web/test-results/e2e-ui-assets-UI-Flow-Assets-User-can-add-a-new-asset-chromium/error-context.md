@@ -1,0 +1,169 @@
+# Page snapshot
+
+```yaml
+- main [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e7]:
+      - generic [ref=e8]:
+        - generic "Dashboard" [ref=e10] [cursor=pointer]: 🏠
+        - list [ref=e11]:
+          - listitem [ref=e12]:
+            - link "House" [ref=e13] [cursor=pointer]:
+              - /url: /household/4390/house
+              - img [ref=e15]
+              - generic [ref=e17]: House
+          - listitem [ref=e18]:
+            - link "Calendar" [ref=e19] [cursor=pointer]:
+              - /url: /household/4390/calendar
+              - img [ref=e21]
+              - generic [ref=e23]: Calendar
+        - separator [ref=e24]
+      - list [ref=e26]:
+        - listitem [ref=e27]:
+          - link "Finance" [ref=e28] [cursor=pointer]:
+            - /url: /household/4390/finance
+            - img [ref=e30]
+            - generic [ref=e32]: Finance
+        - listitem [ref=e33]:
+          - link "Shopping List" [ref=e34] [cursor=pointer]:
+            - /url: /household/4390/shopping
+            - img [ref=e36]
+            - generic [ref=e38]: Shopping List
+        - listitem [ref=e39]:
+          - link "Chores" [ref=e40] [cursor=pointer]:
+            - /url: /household/4390/chores
+            - img [ref=e42]
+            - generic [ref=e44]: Chores
+        - listitem [ref=e45]:
+          - link "Meals" [ref=e46] [cursor=pointer]:
+            - /url: /household/4390/meals
+            - img [ref=e48]
+            - generic [ref=e50]: Meals
+      - generic [ref=e51]:
+        - separator [ref=e53]
+        - button "Account" [ref=e54] [cursor=pointer]:
+          - generic [ref=e55]: T
+    - generic [ref=e56]:
+      - main [ref=e57]:
+        - generic [ref=e58]:
+          - generic [ref=e59]:
+            - generic [ref=e60]:
+              - generic [ref=e61]: 🏠
+              - generic [ref=e62]:
+                - heading "Assets House 1770892141236" [level=2] [ref=e63]
+                - paragraph [ref=e64]:
+                  - img [ref=e66]
+                  - text: Built N/A • Freehold
+            - generic [ref=e68]:
+              - button "Calendar" [ref=e69] [cursor=pointer]:
+                - img [ref=e71]
+                - text: Calendar
+              - button "Edit House" [ref=e73] [cursor=pointer]:
+                - img [ref=e75]
+                - text: Edit House
+          - generic [ref=e77]:
+            - generic [ref=e79]:
+              - generic [ref=e80]:
+                - paragraph [ref=e81]:
+                  - img [ref=e83]
+                  - text: Market Valuation
+                - generic [ref=e85]:
+                  - generic [ref=e88]:
+                    - img [ref=e90]
+                    - generic [ref=e92]:
+                      - generic [ref=e93]: Current Value
+                      - paragraph [ref=e94]: £0.00
+                  - generic [ref=e97]:
+                    - img [ref=e99]
+                    - generic [ref=e101]:
+                      - generic [ref=e102]: Purchase Price
+                      - paragraph [ref=e103]: £0.00
+                  - generic [ref=e106]:
+                    - img [ref=e108]
+                    - generic [ref=e110]:
+                      - generic [ref=e111]: Estimated Growth
+                      - paragraph [ref=e112]: +£0.00
+              - generic [ref=e113]:
+                - generic [ref=e115]:
+                  - paragraph [ref=e116]:
+                    - img [ref=e118]
+                    - text: Tech & Utilities
+                  - list [ref=e120]:
+                    - listitem [ref=e121]:
+                      - img [ref=e123]
+                      - generic [ref=e125]:
+                        - generic [ref=e126]: Broadband
+                        - paragraph [ref=e127]: Not Set
+                    - listitem [ref=e128]:
+                      - img [ref=e130]
+                      - generic [ref=e132]:
+                        - generic [ref=e133]: Energy Meter
+                        - paragraph [ref=e134]: Not Set
+                    - listitem [ref=e135]:
+                      - img [ref=e137]
+                      - generic [ref=e139]:
+                        - generic [ref=e140]: Water Supply
+                        - paragraph [ref=e141]: Metered Supply
+                - generic [ref=e143]:
+                  - paragraph [ref=e144]:
+                    - img [ref=e146]
+                    - text: Inventory Summary
+                  - generic [ref=e148]:
+                    - generic [ref=e149]:
+                      - paragraph [ref=e150]:
+                        - img [ref=e152]
+                        - text: Fleet Size
+                      - generic [ref=e155]: 0 Vehicles
+                    - separator [ref=e156]
+                    - generic [ref=e157]:
+                      - paragraph [ref=e158]:
+                        - img [ref=e160]
+                        - text: High Value Assets
+                      - generic [ref=e163]: Linked Records
+                    - separator [ref=e164]
+                    - button "View Full Inventory" [active] [ref=e165] [cursor=pointer]:
+                      - text: View Full Inventory
+                      - img [ref=e167]
+            - generic [ref=e170]:
+              - generic [ref=e171]:
+                - paragraph [ref=e172]:
+                  - img [ref=e174]
+                  - text: Residents
+                - button "Add Resident" [ref=e176] [cursor=pointer]:
+                  - img [ref=e177]
+              - generic [ref=e179]:
+                - img [ref=e180]
+                - paragraph [ref=e182]: No residents found.
+      - generic [ref=e186]:
+        - button "Notes" [ref=e188] [cursor=pointer]:
+          - img [ref=e189]
+        - button "Calculator" [ref=e192] [cursor=pointer]:
+          - img [ref=e193]
+        - separator
+        - button "Income" [ref=e196] [cursor=pointer]:
+          - img [ref=e197]
+        - button "Banking" [ref=e200] [cursor=pointer]:
+          - img [ref=e201]
+        - button "Savings & Pots" [ref=e204] [cursor=pointer]:
+          - img [ref=e205]
+        - button "Investments" [ref=e208] [cursor=pointer]:
+          - img [ref=e209]
+        - button "Pensions" [ref=e212] [cursor=pointer]:
+          - img [ref=e213]
+        - button "Credit Cards" [ref=e216] [cursor=pointer]:
+          - img [ref=e217]
+        - button "Personal Loans" [ref=e220] [cursor=pointer]:
+          - img [ref=e221]
+        - button "Mortgages" [ref=e225] [cursor=pointer]:
+          - img [ref=e226]
+        - button "Car Finance" [ref=e229] [cursor=pointer]:
+          - img [ref=e230]
+        - separator
+        - button "Budget Health" [ref=e233] [cursor=pointer]:
+          - img [ref=e234]
+        - button "Wealth Tracking" [ref=e237] [cursor=pointer]:
+          - img [ref=e238]
+        - separator
+        - button "Calendar" [ref=e241] [cursor=pointer]:
+          - img [ref=e242]
+```

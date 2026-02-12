@@ -1,0 +1,103 @@
+# Page snapshot
+
+```yaml
+- main [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e7]:
+      - generic [ref=e8]:
+        - generic "Dashboard" [ref=e10] [cursor=pointer]: 🏠
+        - list [ref=e11]:
+          - listitem [ref=e12]:
+            - link "House" [ref=e13] [cursor=pointer]:
+              - /url: /household/4391/house
+              - img [ref=e15]
+              - generic [ref=e17]: House
+          - listitem [ref=e18]:
+            - link "Calendar" [ref=e19] [cursor=pointer]:
+              - /url: /household/4391/calendar
+              - img [ref=e21]
+              - generic [ref=e23]: Calendar
+        - separator [ref=e24]
+      - list [ref=e26]:
+        - listitem [ref=e27]:
+          - link "Finance" [ref=e28] [cursor=pointer]:
+            - /url: /household/4391/finance
+            - img [ref=e30]
+            - generic [ref=e32]: Finance
+        - listitem [ref=e33]:
+          - link "Shopping List" [ref=e34] [cursor=pointer]:
+            - /url: /household/4391/shopping
+            - img [ref=e36]
+            - generic [ref=e38]: Shopping List
+        - listitem [ref=e39]:
+          - link "Chores" [ref=e40] [cursor=pointer]:
+            - /url: /household/4391/chores
+            - img [ref=e42]
+            - generic [ref=e44]: Chores
+        - listitem [ref=e45]:
+          - link "Meals" [ref=e46] [cursor=pointer]:
+            - /url: /household/4391/meals
+            - img [ref=e48]
+            - generic [ref=e50]: Meals
+      - generic [ref=e51]:
+        - separator [ref=e53]
+        - button "Account" [ref=e54] [cursor=pointer]:
+          - generic [ref=e55]: T
+    - generic [ref=e56]:
+      - main [ref=e57]:
+        - generic [ref=e58]:
+          - generic [ref=e59]:
+            - heading "People & Residents" [level=2] [ref=e60]
+            - paragraph [ref=e61]: Select a resident to manage their details.
+          - generic [ref=e62]:
+            - generic [ref=e63]:
+              - heading "Adults" [level=4] [ref=e65]
+              - generic [ref=e71] [cursor=pointer]:
+                - button [ref=e72]:
+                  - img [ref=e73]
+                - paragraph [ref=e75]: Add Adult
+            - generic [ref=e76]:
+              - heading "Children" [level=4] [ref=e78]
+              - generic [ref=e84] [cursor=pointer]:
+                - button [ref=e85]:
+                  - img [ref=e86]
+                - paragraph [ref=e88]: Add Child
+            - generic [ref=e89]:
+              - heading "Pets" [level=4] [ref=e91]
+              - generic [ref=e97] [cursor=pointer]:
+                - button [ref=e98]:
+                  - img [ref=e99]
+                - paragraph [ref=e101]: Add Pet
+      - generic [ref=e105]:
+        - button "Notes" [ref=e107] [cursor=pointer]:
+          - img [ref=e108]
+        - button "Calculator" [ref=e111] [cursor=pointer]:
+          - img [ref=e112]
+        - separator
+        - button "Income" [ref=e115] [cursor=pointer]:
+          - img [ref=e116]
+        - button "Banking" [ref=e119] [cursor=pointer]:
+          - img [ref=e120]
+        - button "Savings & Pots" [ref=e123] [cursor=pointer]:
+          - img [ref=e124]
+        - button "Investments" [ref=e127] [cursor=pointer]:
+          - img [ref=e128]
+        - button "Pensions" [ref=e131] [cursor=pointer]:
+          - img [ref=e132]
+        - button "Credit Cards" [ref=e135] [cursor=pointer]:
+          - img [ref=e136]
+        - button "Personal Loans" [ref=e139] [cursor=pointer]:
+          - img [ref=e140]
+        - button "Mortgages" [ref=e144] [cursor=pointer]:
+          - img [ref=e145]
+        - button "Car Finance" [ref=e148] [cursor=pointer]:
+          - img [ref=e149]
+        - separator
+        - button "Budget Health" [ref=e152] [cursor=pointer]:
+          - img [ref=e153]
+        - button "Wealth Tracking" [ref=e156] [cursor=pointer]:
+          - img [ref=e157]
+        - separator
+        - button "Calendar" [ref=e160] [cursor=pointer]:
+          - img [ref=e161]
+```

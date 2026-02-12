@@ -135,6 +135,42 @@ router.delete('/households/:id', authenticateToken, requireHouseholdRole('admin'
 });
 
 /**
+ * DELETE /households/:id/leave
+ * Allow a user to remove themselves from a household.
+ * Cannot leave if they are the ONLY admin.
+ */
+router.delete('/households/:id/leave', authenticateToken, async (req, res) => {
+    const householdId = parseInt(req.params.id);
+    const userId = req.user.id;
+
+    try {
+        // 1. Verify membership and role
+        const link = await dbGet(globalDb, `SELECT role FROM user_households WHERE user_id = ? AND household_id = ?`, [userId, householdId]);
+        if (!link) return res.status(404).json({ error: "Membership not found" });
+
+        // 2. If admin, check if sole admin
+        if (link.role === 'admin') {
+            const adminCount = await dbGet(globalDb, `SELECT COUNT(*) as count FROM user_households WHERE household_id = ? AND role = 'admin'`, [householdId]);
+            if (adminCount.count <= 1) {
+                return res.status(400).json({ error: "Cannot leave household as the sole administrator. Delete the household or assign another admin first." });
+            }
+        }
+
+        // 3. Delete the link
+        await dbRun(globalDb, `DELETE FROM user_households WHERE user_id = ? AND household_id = ?`, [userId, householdId]);
+
+        // 4. Nullify pointers if this was their active household
+        await dbRun(globalDb, `UPDATE users SET default_household_id = NULL WHERE id = ? AND default_household_id = ?`, [userId, householdId]);
+        await dbRun(globalDb, `UPDATE users SET last_household_id = NULL WHERE id = ? AND last_household_id = ?`, [userId, householdId]);
+
+        res.json({ message: "You have left the household." });
+    } catch (err) {
+        console.error(`[Leave Error] User ${userId} leaving HH ${householdId}:`, err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/**
  * POST /households/:id/select
  * Persist the last household the user accessed.
  */

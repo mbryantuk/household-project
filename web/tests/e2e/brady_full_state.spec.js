@@ -428,7 +428,7 @@ test.describe('Brady Bunch Full System State E2E', () => {
 
     test('Dashboard & House Details', async ({ page }) => {
         await test.step('Verify Valuation', async () => {
-             await expect(page.getByText('£2,450,000')).toBeVisible();
+             await expect(page.getByText(/£2,450,000/)).toBeVisible();
         });
         
         await test.step('Verify Address/Property Type', async () => {
@@ -442,9 +442,9 @@ test.describe('Brady Bunch Full System State E2E', () => {
         await page.click('a[href*="/house"]');
         
         await test.step('Verify Member Count', async () => {
-             await expect(page.getByText('Mike')).toBeVisible();
-             await expect(page.getByText('Tiger')).toBeVisible();
-             await expect(page.getByText('Fluffy')).toBeVisible();
+             await expect(page.getByText('Mike').first()).toBeVisible();
+             await expect(page.getByText('Tiger').first()).toBeVisible();
+             await expect(page.getByText('Fluffy').first()).toBeVisible();
         });
 
         await test.step('Verify Pet Emoji', async () => {
@@ -478,7 +478,8 @@ test.describe('Brady Bunch Full System State E2E', () => {
     });
 
     test('Budget Cycle', async ({ page }) => {
-        await page.goto('/finance/budget'); // Direct nav or click
+        await page.click('a[href="/finance"]');
+        await page.click('text=Monthly Budget');
 
         await test.step('Verify Cycle Start', async () => {
             await expect(page.locator('body')).toContainText(/Jan 28|28th Jan/);

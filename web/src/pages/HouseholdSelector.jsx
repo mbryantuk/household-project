@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Box, Typography, Card, CardContent, CardActions, Button, 
   AspectRatio, Grid, Container, IconButton, Stack, Tooltip,
-  Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, FormControl, FormLabel, Input
+  Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, FormControl, FormLabel, Input, Divider
 } from '@mui/joy';
 import Add from '@mui/icons-material/Add';
 import ArrowForward from '@mui/icons-material/ArrowForward';
@@ -10,6 +10,7 @@ import Logout from '@mui/icons-material/Logout';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import FileDownload from '@mui/icons-material/FileDownload';
 import DataObject from '@mui/icons-material/DataObject';
+import ExitToApp from '@mui/icons-material/ExitToApp';
 import { useNavigate } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
 
@@ -41,7 +42,7 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
 
   const handleDeleteHousehold = async (e, hh) => {
     e.stopPropagation();
-    const confirmed = window.confirm(`⚠️ Are you sure you want to DELETE ${hh.name}? This action is permanent.`);
+    const confirmed = window.confirm(`⚠️ Are you sure you want to DELETE ${hh.name}? This action is permanent and will destroy all data.`);
     if (confirmed) {
         try {
             await api.delete(`/households/${hh.id}`);
@@ -54,18 +55,29 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
     }
   };
 
+  const handleLeaveHousehold = async (e, hh) => {
+    e.stopPropagation();
+    const confirmed = window.confirm(`Are you sure you want to leave ${hh.name}? You will lose access until invited back.`);
+    if (confirmed) {
+        try {
+            await api.delete(`/households/${hh.id}/leave`);
+            showNotification(`You have left "${hh.name}".`, "success");
+            fetchHouseholds();
+        } catch (error) {
+            const msg = error.response?.data?.error || "Failed to leave household.";
+            showNotification(msg, "danger");
+        }
+    }
+  };
+
   const handleExportHousehold = async (e, hh) => {
     e.stopPropagation();
     showNotification(`Preparing export for ${hh.name}...`, "neutral");
     try {
-        // 1. Trigger Backup
         const createRes = await api.post(`/households/${hh.id}/backups`);
         const { filename } = createRes.data;
-
-        // 2. Download File
         const downloadRes = await api.get(`/households/${hh.id}/backups/${filename}`, { responseType: 'blob' });
         
-        // 3. Trigger Browser Download
         const url = window.URL.createObjectURL(new Blob([downloadRes.data]));
         const link = document.createElement('a');
         link.href = url;
@@ -135,58 +147,44 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
             <Card variant="outlined" sx={{ 
                 '--Card-padding': '24px', 
                 cursor: 'pointer',
-                position: 'relative',
                 transition: 'transform 0.2s, box-shadow 0.2s',
                 '&:hover': { transform: 'translateY(-4px)', boxShadow: 'md', borderColor: 'primary.outlinedBorder' }
             }} onClick={() => handleSelect(hh)}>
               
-              {hh.role === 'admin' && (
-                  <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 2, display: 'flex', gap: 0.5 }}>
-                      <Tooltip title="Export Data (ZIP)" variant="soft" color="primary">
-                          <IconButton 
-                            variant="plain" 
-                            color="primary" 
-                            size="sm"
-                            onClick={(e) => handleExportHousehold(e, hh)}
-                          >
-                              <FileDownload />
-                          </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Export Data (JSON)" variant="soft" color="primary">
-                          <IconButton 
-                            variant="plain" 
-                            color="primary" 
-                            size="sm"
-                            onClick={(e) => handleExportJSON(e, hh)}
-                          >
-                              <DataObject />
-                          </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Delete Household" variant="soft" color="danger">
-                          <IconButton 
-                            variant="plain" 
-                            color="danger" 
-                            size="sm"
-                            onClick={(e) => handleDeleteHousehold(e, hh)}
-                          >
-                              <DeleteForever />
-                          </IconButton>
-                      </Tooltip>
-                  </Box>
-              )}
-
               <AspectRatio ratio="1" variant="soft" sx={{ borderRadius: '50%', mb: 2, bgcolor: getEmojiColor(hh.avatar || '🏠') }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem' }}>
                     {hh.avatar || '🏠'}
                 </Box>
               </AspectRatio>
+
               <CardContent sx={{ textAlign: 'center' }}>
                 <Typography level="title-lg">{hh.name}</Typography>
                 <Typography level="body-xs" textColor="text.tertiary">Role: {hh.role?.toUpperCase()}</Typography>
               </CardContent>
-              <CardActions sx={{ justifyContent: 'center', mt: 1 }}>
-                <Button variant="soft" color="primary" endDecorator={<ArrowForward />}>Open</Button>
-              </CardActions>
+
+              <Divider sx={{ my: 1.5 }} />
+
+              <Stack direction="row" spacing={1} justifyContent="center">
+                  {hh.role === 'admin' && (
+                      <>
+                        <Tooltip title="Export ZIP" variant="soft">
+                            <IconButton variant="soft" color="primary" size="sm" onClick={(e) => handleExportHousehold(e, hh)}><FileDownload /></IconButton>
+                        </Tooltip>
+                        <Tooltip title="Export JSON" variant="soft">
+                            <IconButton variant="soft" color="primary" size="sm" onClick={(e) => handleExportJSON(e, hh)}><DataObject /></IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete Household" variant="soft">
+                            <IconButton variant="soft" color="danger" size="sm" onClick={(e) => handleDeleteHousehold(e, hh)}><DeleteForever /></IconButton>
+                        </Tooltip>
+                      </>
+                  )}
+                  {hh.role !== 'admin' && (
+                      <Tooltip title="Leave Household" variant="soft">
+                          <IconButton variant="soft" color="danger" size="sm" onClick={(e) => handleLeaveHousehold(e, hh)}><ExitToApp /></IconButton>
+                      </Tooltip>
+                  )}
+                  <Button variant="solid" color="primary" size="sm" endDecorator={<ArrowForward />} onClick={() => handleSelect(hh)} sx={{ ml: 'auto' }}>Open</Button>
+              </Stack>
             </Card>
           </Grid>
         ))}
