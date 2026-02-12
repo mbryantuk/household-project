@@ -4,46 +4,6 @@ import { Box, Sheet, Typography } from '@mui/joy';
 import { styled } from '@mui/joy/styles';
 import StatusBar from './StatusBar';
 
-const StyledDataGridContainer = styled(Sheet)(({ theme }) => {
-  const vars = theme?.vars || { palette: { text: {}, background: {}, primary: {} }, fontFamily: {}, radius: {} };
-  return {
-    height: 500,
-    width: '100%',
-    '& .MuiDataGrid-root': {
-      border: 'none',
-      color: vars.palette.text.primary || 'inherit',
-      fontFamily: vars.fontFamily.body || 'inherit',
-      '& .MuiDataGrid-cell': {
-        borderColor: vars.palette.divider || 'rgba(0,0,0,0.1)',
-      },
-      '& .MuiDataGrid-columnHeaders': {
-        backgroundColor: vars.palette.background.level1 || 'rgba(0,0,0,0.05)',
-        borderColor: vars.palette.divider || 'rgba(0,0,0,0.1)',
-        color: vars.palette.text.secondary || 'inherit',
-        textTransform: 'uppercase',
-        fontSize: '0.75rem',
-        fontWeight: 'bold',
-        letterSpacing: '0.1em',
-      },
-      '& .MuiDataGrid-footerContainer': {
-        display: 'none', // We use our own StatusBar
-      },
-      '& .MuiDataGrid-row:hover': {
-        backgroundColor: vars.palette.background.level1 || 'rgba(0,0,0,0.05)',
-      },
-      '& .MuiDataGrid-row.Mui-selected': {
-        backgroundColor: vars.palette.primary.softBg || 'rgba(0,0,0,0.1)',
-        '&:hover': {
-          backgroundColor: vars.palette.primary.softBg || 'rgba(0,0,0,0.1)',
-        },
-      },
-      '& .MuiCheckbox-root': {
-          color: vars.palette.primary.solidBg || 'inherit',
-      }
-    },
-  };
-});
-
 /**
  * AppTable - Joy UI wrapper for MUI X Data Grid.
  * Mandatory: Sorting, Filtering, and Inline Editing support.
@@ -71,7 +31,47 @@ export default function AppTable({
 
   return (
     <Box sx={{ width: '100%' }}>
-        <StyledDataGridContainer variant="outlined" sx={{ borderRadius: 'sm', overflow: 'hidden' }}>
+        <Sheet 
+            variant="outlined" 
+            sx={{ 
+                height: 500,
+                width: '100%',
+                borderRadius: 'sm', 
+                overflow: 'hidden',
+                '& .MuiDataGrid-root': {
+                    border: 'none',
+                    color: 'text.primary',
+                    fontFamily: 'body',
+                    '& .MuiDataGrid-cell': {
+                        borderColor: 'divider',
+                    },
+                    '& .MuiDataGrid-columnHeaders': {
+                        backgroundColor: 'background.level1',
+                        borderColor: 'divider',
+                        color: 'text.secondary',
+                        textTransform: 'uppercase',
+                        fontSize: '0.75rem',
+                        fontWeight: 'bold',
+                        letterSpacing: '0.1em',
+                    },
+                    '& .MuiDataGrid-footerContainer': {
+                        display: 'none', // We use our own StatusBar
+                    },
+                    '& .MuiDataGrid-row:hover': {
+                        backgroundColor: 'background.level1',
+                    },
+                    '& .MuiDataGrid-row.Mui-selected': {
+                        backgroundColor: 'primary.softBg',
+                        '&:hover': {
+                            backgroundColor: 'primary.softBg',
+                        },
+                    },
+                    '& .MuiCheckbox-root': {
+                        color: 'primary.solidBg',
+                    }
+                }
+            }}
+        >
             <DataGrid
                 rows={rows}
                 columns={columns}
@@ -90,7 +90,7 @@ export default function AppTable({
                 }}
                 {...props}
             />
-        </StyledDataGridContainer>
+        </Sheet>
         <StatusBar 
             count={selectedRows.length > 0 ? selectedRows.length : rows.length} 
             sum={totalSum}

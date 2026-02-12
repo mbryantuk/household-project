@@ -147,6 +147,9 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
             plainColor: '#111827',
           },
           divider: `hsl(${h}, ${Math.min(s, 10)}%, 94%)`,
+          TableCell: {
+            border: `hsl(${h}, ${Math.min(s, 10)}%, 94%)`,
+          },
         },
       },
       dark: {
@@ -175,6 +178,9 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
             plainColor: '#f4f4f5',
           },
           divider: `hsl(${h}, ${Math.min(s, 8)}%, 15%)`,
+          TableCell: {
+            border: `hsl(${h}, ${Math.min(s, 8)}%, 15%)`,
+          },
         },
       },
     },

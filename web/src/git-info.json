@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix finance errors, sidebar reset issue, and rename Shopping List to Groceries",
-  "date": "Thu 12 Feb 15:08:34 GMT 2026"
+  "commitMessage": "Fix TypeError reading border in FinanceView by cleaning up theme palette and styleOverrides",
+  "date": "Thu 12 Feb 16:27:44 GMT 2026"
 }
