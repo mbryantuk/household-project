@@ -1,6 +1,6 @@
 # User Stories & Functional Requirements
 
-This document catalogs the user stories for the Household Management System ("Totem"), derived from the existing codebase capabilities. It serves as the "source of truth" for rebuilding or refactoring features without incurring technical debt.
+This document catalogs the user stories for the Household Management System ("Hearth"), derived from the existing codebase capabilities. It serves as the "source of truth" for rebuilding or refactoring features without incurring technical debt.
 
 ## 1. Authentication & Onboarding
 

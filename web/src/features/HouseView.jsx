@@ -1,16 +1,16 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useState, useCallback } from 'react';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Card, Avatar, Divider, Stack, 
   Chip, List, ListItem, ListItemContent, ListItemDecorator, 
-  Button, IconButton, Tooltip, Sheet
+  Button, IconButton, Tooltip, Sheet, CircularProgress
 } from '@mui/joy';
 import { 
   Home, Groups, DirectionsCar, Inventory2, 
   Wifi, Bolt, WaterDrop, Construction,
   InfoOutlined, TrendingUp, CalendarMonth,
   Add, ArrowForward, Pets, ChildCare, Person,
-  Receipt, Settings, Apartment
+  Receipt, Settings, Apartment, Assignment
 } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
 
@@ -82,14 +82,41 @@ const ResidentGrid = ({ title, icon, members = [], isDark, navigate, onAdd }) =>
 };
 
 export default function HouseView() {
-  const { household, members = [], vehicles = [], isDark } = useOutletContext();
+  const { api, household, members = [], vehicles = [], isDark } = useOutletContext();
   const navigate = useNavigate();
+  const [recurringCosts, setRecurringCosts] = useState([]);
+  const [loadingCosts, setLoadingCosts] = useState(true);
+  const [houseDetails, setHouseDetails] = useState(null);
+
+  const fetchHouseData = useCallback(async () => {
+      try {
+          const [costsRes, detailRes] = await Promise.all([
+              api.get(`/households/${household.id}/finance/recurring-costs`),
+              api.get(`/households/${household.id}/details`)
+          ]);
+          setRecurringCosts(costsRes.data || []);
+          setHouseDetails(detailRes.data);
+      } catch (err) {
+          console.error("Failed to fetch house data", err);
+      } finally {
+          setLoadingCosts(false);
+      }
+  }, [api, household.id]);
+
+  useEffect(() => {
+      fetchHouseData();
+  }, [fetchHouseData]);
 
   const enabledModules = useMemo(() => {
     try {
         return household?.enabled_modules ? JSON.parse(household.enabled_modules) : ['pets', 'vehicles', 'meals'];
     } catch { return ['pets', 'vehicles', 'meals']; }
   }, [household]);
+
+  // Filter costs assigned to the household
+  const houseCosts = useMemo(() => {
+      return recurringCosts.filter(c => c.object_type === 'household' || !c.object_type);
+  }, [recurringCosts]);
 
   // Group Residents (Strictly Excluding Pets from People groups)
   const groups = useMemo(() => {
@@ -100,8 +127,8 @@ export default function HouseView() {
     };
   }, [members]);
 
-  const assetValue = household?.current_valuation || 0;
-  const purchasePrice = household?.purchase_price || 0;
+  const assetValue = houseDetails?.current_valuation || 0;
+  const purchasePrice = houseDetails?.purchase_price || 0;
   const growth = assetValue - purchasePrice;
 
   return (
@@ -122,7 +149,7 @@ export default function HouseView() {
                 <Box>
                     <Typography level="h2">{household?.name || 'House Hub'}</Typography>
                     <Typography level="body-sm" color="neutral" startDecorator={<Home />}>
-                        Built {household?.construction_year || 'N/A'} • {household?.tenure || 'Freehold'}
+                        {houseDetails?.property_type || 'Property'} • {houseDetails?.tenure || 'Freehold'}
                     </Typography>
                 </Box>
             </Box>
@@ -135,25 +162,11 @@ export default function HouseView() {
                     Calendar
                 </Button>
                 <Button 
-                    variant="outlined" color="neutral" size="sm" 
-                    startDecorator={<Settings />}
+                    variant="solid" color="primary" size="sm" 
+                    startDecorator={<Edit />}
                     onClick={() => navigate(`/household/${household?.id}/settings?tab=2`)}
                 >
-                    Settings
-                </Button>
-                <Button 
-                    variant="outlined" color="primary" size="sm" 
-                    startDecorator={<Apartment />}
-                    onClick={() => navigate(`/household/${household?.id}/assets/new`)}
-                >
-                    Add Property
-                </Button>
-                <Button 
-                    variant="solid" color="primary" size="sm" 
-                    startDecorator={<Receipt />}
-                    onClick={() => navigate(`/household/${household?.id}/finance?tab=charges`)}
-                >
-                    Bills & Costs
+                    Edit Property
                 </Button>
             </Stack>
         </Box>
@@ -181,6 +194,39 @@ export default function HouseView() {
                                 />
                             </Grid>
                         </Grid>
+                    </Card>
+
+                    {/* House Recurring Costs */}
+                    <Card variant="outlined" sx={{ boxShadow: 'sm' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                            <Typography level="title-md" startDecorator={<Assignment color="primary" />}>Property Recurring Costs <Box component="span" sx={{ opacity: 0.5, ml: 1, fontSize: '0.8rem' }}>({houseCosts.length})</Box></Typography>
+                            <Button size="sm" variant="plain" startDecorator={<Receipt />} onClick={() => navigate(`/household/${household.id}/finance?tab=charges`)}>Manage All</Button>
+                        </Box>
+                        {loadingCosts ? (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}><CircularProgress size="sm" /></Box>
+                        ) : (
+                            <Grid container spacing={2}>
+                                {houseCosts.length === 0 && (
+                                    <Grid xs={12}>
+                                        <Typography level="body-sm" color="neutral" textAlign="center" sx={{ py: 2, border: '1px dashed', borderColor: 'divider', borderRadius: 'sm' }}>
+                                            No recurring costs assigned to this property.
+                                        </Typography>
+                                    </Grid>
+                                )}
+                                {houseCosts.map(c => (
+                                    <Grid key={c.id} xs={12} sm={6}>
+                                        <Sheet variant="soft" sx={{ p: 1.5, borderRadius: 'md', display: 'flex', alignItems: 'center', gap: 2 }}>
+                                            <Avatar size="sm" sx={{ bgcolor: getEmojiColor(c.emoji || '🧾', isDark) }}>{c.emoji || '🧾'}</Avatar>
+                                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                                                <Typography level="title-sm" noWrap>{c.name}</Typography>
+                                                <Typography level="body-xs" color="neutral" textTransform="capitalize">{c.frequency}</Typography>
+                                            </Box>
+                                            <Typography level="title-sm" fontWeight="bold">{formatCurrency(c.amount)}</Typography>
+                                        </Sheet>
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        )}
                     </Card>
 
                     {/* Residents Section (Unifying styling) */}
@@ -284,7 +330,10 @@ export default function HouseView() {
 
                     {/* Inventory Summary */}
                     <Card variant="outlined" sx={{ boxShadow: 'sm' }}>
-                        <Typography level="title-md" startDecorator={<Construction color="neutral" />} sx={{ mb: 2 }}>Inventory Summary</Typography>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                            <Typography level="title-md" startDecorator={<Construction color="neutral" />}>Inventory Summary</Typography>
+                            <IconButton size="sm" variant="plain" onClick={() => navigate(`/household/${household.id}/house/assets/new`)} color="primary"><Add /></IconButton>
+                        </Box>
                         <Stack spacing={1.5}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <Typography level="body-sm" startDecorator={<Inventory2 />}>High Value Assets</Typography>

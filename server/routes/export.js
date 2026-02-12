@@ -43,7 +43,7 @@ router.get('/:id', authenticateToken, requireHouseholdRole('admin'), async (req,
                 version: "1.0",
                 exported_at: new Date().toISOString(),
                 household_id: householdId,
-                source: "Totem Tenant Export"
+                source: "Hearth Tenant Export"
             },
             household,
             users,
@@ -52,7 +52,7 @@ router.get('/:id', authenticateToken, requireHouseholdRole('admin'), async (req,
 
         // 4. Send response
         res.setHeader('Content-Type', 'application/json');
-        res.setHeader('Content-Disposition', `attachment; filename=totem-export-hh${householdId}-${new Date().toISOString().split('T')[0]}.json`);
+        res.setHeader('Content-Disposition', `attachment; filename=hearth-export-hh${householdId}-${new Date().toISOString().split('T')[0]}.json`);
         res.json(exportPackage);
 
     } catch (error) {

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Totem Nightly Deployment Script
+# Hearth Nightly Deployment Script
 # Automatically runs every midnight
 
 set -e

@@ -50,15 +50,15 @@ export default function ThemeSettings() {
 
   // Custom Theme State
   const [customThemeConfig, setCustomThemeConfig] = useState(() => {
-    const DEFAULT_MANTEL = { primary: '#374151' };
+    const DEFAULT_HEARTH = { primary: '#374151' };
     if (user?.custom_theme) {
       try {
         return typeof user.custom_theme === 'string' 
           ? JSON.parse(user.custom_theme) 
           : user.custom_theme;
-      } catch { return DEFAULT_MANTEL; }
+      } catch { return DEFAULT_HEARTH; }
     }
-    return DEFAULT_MANTEL;
+    return DEFAULT_HEARTH;
   });
 
   useEffect(() => {

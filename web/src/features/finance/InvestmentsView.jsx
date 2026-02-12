@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Box, Typography, Button, Sheet, Divider, Table, IconButton, 
+  Box, Typography, Button, Sheet, Divider, IconButton, 
   Modal, ModalDialog, ModalClose, FormControl, FormLabel, Input, 
-  Stack, Avatar
+  Stack, Avatar, Grid, Card, Chip
 } from '@mui/joy';
-import { Add, Edit, Delete, TrendingUp } from '@mui/icons-material';
+import { Add, Edit, Delete, ArrowUpward, ArrowDownward, TrendingUp as TrendingUpIcon } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 
@@ -40,7 +40,6 @@ export default function InvestmentsView({ financialProfileId }) {
   }, [api, householdId, financialProfileId]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchInvestments();
   }, [fetchInvestments]);
 
@@ -50,7 +49,6 @@ export default function InvestmentsView({ financialProfileId }) {
 
   useEffect(() => {
     if (selectedInvestment) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         name: selectedInvestment.name || '', 
         platform: selectedInvestment.platform || '',
@@ -95,39 +93,59 @@ export default function InvestmentsView({ financialProfileId }) {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography level="h2" startDecorator={<TrendingUp />}>Investments</Typography>
+        <Typography level="h2" startDecorator={<TrendingUpIcon />}>Investments</Typography>
         <Button startDecorator={<Add />} onClick={() => setInvestmentId('new')}>Add Investment</Button>
       </Box>
 
-      <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
-        <Table hoverRow>
-          <thead>
-            <tr>
-              <th style={{ width: 40 }}></th>
-              <th>Name</th>
-              <th>Platform</th>
-              <th style={{ textAlign: 'right' }}>Current Value</th>
-              <th style={{ width: 100 }}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {investments.map(inv => (
-              <tr key={inv.id}>
-                <td><Avatar size="sm" sx={{ bgcolor: getEmojiColor(inv.emoji, isDark) }}>{inv.emoji}</Avatar></td>
-                <td><Typography fontWeight="lg">{inv.name}</Typography></td>
-                <td>{inv.platform}</td>
-                <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{formatCurrency(inv.current_value, household?.currency)}</td>
-                <td>
-                  <Box sx={{ display: 'flex', gap: 0.5 }}>
-                    <IconButton size="sm" onClick={() => setInvestmentId(inv.id)}><Edit /></IconButton>
-                    <IconButton size="sm" color="danger" onClick={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/investments/${inv.id}`).then(() => { fetchInvestments(); if (selectedInvestmentId === String(inv.id)) setInvestmentId(null); }))}><Delete /></IconButton>
-                  </Box>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </Sheet>
+      <Grid container spacing={2}>
+          {investments.length === 0 && (
+              <Grid xs={12}>
+                  <Typography level="body-lg" textAlign="center" sx={{ py: 10, opacity: 0.5 }}>No investments recorded yet.</Typography>
+              </Grid>
+          )}
+          {investments.map(inv => {
+              const gain = inv.current_value - inv.total_invested;
+              const gainPct = inv.total_invested > 0 ? (gain / inv.total_invested) * 100 : 0;
+              const isUp = gain >= 0;
+
+              return (
+                <Grid key={inv.id} xs={12} sm={6} md={4} lg={3}>
+                    <Card variant="outlined" sx={{ height: '100%', transition: 'transform 0.2s', '&:hover': { transform: 'translateY(-4px)', boxShadow: 'md' } }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <Avatar size="lg" sx={{ bgcolor: getEmojiColor(inv.emoji, isDark), fontSize: '1.5rem' }}>{inv.emoji}</Avatar>
+                            <Stack direction="row">
+                                <IconButton size="sm" variant="plain" onClick={() => setInvestmentId(inv.id)}><Edit /></IconButton>
+                                <IconButton size="sm" variant="plain" color="danger" onClick={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/investments/${inv.id}`).then(() => fetchInvestments()))}><Delete /></IconButton>
+                            </Stack>
+                        </Box>
+                        <Box sx={{ mt: 2 }}>
+                            <Typography level="title-lg" noWrap>{inv.name}</Typography>
+                            <Typography level="body-xs" color="neutral" textTransform="uppercase">{inv.platform || 'Direct'}</Typography>
+                        </Box>
+                        <Divider sx={{ my: 1.5 }} />
+                        <Box sx={{ mb: 1 }}>
+                            <Typography level="body-xs" color="neutral">Current Value</Typography>
+                            <Typography level="h3" sx={{ fontWeight: 'xl' }}>{formatCurrency(inv.current_value, household?.currency)}</Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Box>
+                                <Typography level="body-xs" color="neutral">Invested</Typography>
+                                <Typography level="body-sm" fontWeight="bold">{formatCurrency(inv.total_invested, household?.currency)}</Typography>
+                            </Box>
+                            <Chip 
+                                size="sm" 
+                                variant="soft" 
+                                color={isUp ? 'success' : 'danger'}
+                                startDecorator={isUp ? <ArrowUpward sx={{ fontSize: '0.8rem' }} /> : <ArrowDownward sx={{ fontSize: '0.8rem' }} />}
+                            >
+                                {Math.abs(gainPct).toFixed(1)}%
+                            </Chip>
+                        </Box>
+                    </Card>
+                </Grid>
+              );
+          })}
+      </Grid>
 
       <Modal open={Boolean(selectedInvestmentId)} onClose={() => setInvestmentId(null)}>
         <ModalDialog sx={{ maxWidth: 500, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>

@@ -26,6 +26,17 @@ export default function HouseholdSettings() {
       } catch { return ['pets', 'vehicles', 'meals']; }
   });
 
+  const [houseDetails, setHouseDetails] = useState({
+      property_type: '', construction_year: '', tenure: 'Freehold',
+      council_tax_band: '', purchase_price: 0, current_valuation: 0
+  });
+
+  useEffect(() => {
+      api.get(`/households/${household.id}/details`).then(res => {
+          if (res.data) setHouseDetails(res.data);
+      }).catch(console.error);
+  }, [api, household.id]);
+
   const handleSaveGeneral = async () => {
     try {
       await onUpdateHousehold({ name });
@@ -33,6 +44,15 @@ export default function HouseholdSettings() {
     } catch {
       showNotification('Failed to update household', 'danger');
     }
+  };
+
+  const handleSaveProperty = async () => {
+      try {
+          await api.put(`/households/${household.id}/details`, houseDetails);
+          showNotification('Property details updated!', 'success');
+      } catch {
+          showNotification('Failed to update property details', 'danger');
+      }
   };
 
   const handleSaveRegional = async () => {
@@ -91,7 +111,7 @@ export default function HouseholdSettings() {
         const link = document.createElement('a');
         link.href = url;
         const timestamp = new Date().toISOString().split('T')[0];
-        link.setAttribute('download', `totem-export-hh${household.id}-${timestamp}.json`);
+        link.setAttribute('download', `hearth-export-hh${household.id}-${timestamp}.json`);
         document.body.appendChild(link);
         link.click();
         link.remove();
@@ -119,6 +139,53 @@ export default function HouseholdSettings() {
             </FormControl>
             <Button onClick={handleSaveGeneral} disabled={!isAdmin} sx={{ alignSelf: 'flex-start' }}>Update Name</Button>
           </Stack>
+      </Sheet>
+
+      {/* Property Details Section */}
+      <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', bgcolor: 'background.level1' }}>
+          <Typography level="title-md" sx={{ mb: 2 }}>Property Details</Typography>
+          <Grid container spacing={2}>
+              <Grid xs={12} sm={6}>
+                  <FormControl>
+                      <FormLabel>Property Type</FormLabel>
+                      <Input value={houseDetails.property_type || ''} onChange={(e) => setHouseDetails({...houseDetails, property_type: e.target.value})} placeholder="e.g. Semi-Detached House" disabled={!isAdmin} />
+                  </FormControl>
+              </Grid>
+              <Grid xs={12} sm={6}>
+                  <FormControl>
+                      <FormLabel>Construction Year</FormLabel>
+                      <Input type="number" value={houseDetails.construction_year || ''} onChange={(e) => setHouseDetails({...houseDetails, construction_year: e.target.value})} placeholder="e.g. 1995" disabled={!isAdmin} />
+                  </FormControl>
+              </Grid>
+              <Grid xs={12} sm={6}>
+                  <AppSelect 
+                    label="Tenure" 
+                    value={houseDetails.tenure || 'Freehold'} 
+                    onChange={(v) => setHouseDetails({...houseDetails, tenure: v})}
+                    options={[{ value: 'Freehold', label: 'Freehold' }, { value: 'Leasehold', label: 'Leasehold' }]}
+                    disabled={!isAdmin}
+                  />
+              </Grid>
+              <Grid xs={12} sm={6}>
+                  <FormControl>
+                      <FormLabel>Council Tax Band</FormLabel>
+                      <Input value={houseDetails.council_tax_band || ''} onChange={(e) => setHouseDetails({...houseDetails, council_tax_band: e.target.value})} placeholder="e.g. D" disabled={!isAdmin} />
+                  </FormControl>
+              </Grid>
+              <Grid xs={12} sm={6}>
+                  <FormControl>
+                      <FormLabel>Purchase Price (£)</FormLabel>
+                      <Input type="number" value={houseDetails.purchase_price || 0} onChange={(e) => setHouseDetails({...houseDetails, purchase_price: e.target.value})} disabled={!isAdmin} />
+                  </FormControl>
+              </Grid>
+              <Grid xs={12} sm={6}>
+                  <FormControl>
+                      <FormLabel>Current Valuation (£)</FormLabel>
+                      <Input type="number" value={houseDetails.current_valuation || 0} onChange={(e) => setHouseDetails({...houseDetails, current_valuation: e.target.value})} disabled={!isAdmin} />
+                  </FormControl>
+              </Grid>
+          </Grid>
+          <Button sx={{ mt: 3 }} onClick={handleSaveProperty} disabled={!isAdmin}>Save Property Details</Button>
       </Sheet>
 
       {/* Regional Section */}

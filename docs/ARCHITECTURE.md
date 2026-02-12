@@ -1,6 +1,6 @@
 # Solution Architecture
 
-Totem is architected as a **Self-Contained Multi-Tenant SaaS** designed for deployment on low-cost hardware (e.g., Raspberry Pi) or cloud containers. It prioritizes data privacy, low latency, and ease of backup.
+Hearth is architected as a **Self-Contained Multi-Tenant SaaS** designed for deployment on low-cost hardware (e.g., Raspberry Pi) or cloud containers. It prioritizes data privacy, low latency, and ease of backup.
 
 ---
 
@@ -64,7 +64,7 @@ graph TD
 ## 4. DevOps & Reliability
 
 ### "Nightly" Philosophy
-Totem employs a **Nightly Quality Gate**:
+Hearth employs a **Nightly Quality Gate**:
 1.  **Automated Smoke Tests:** Run every night via cron.
 2.  **Database Health:** `cleanup_test_data.js` runs to purge transient test artifacts.
 3.  **Reporting:** Results are stored in the `test_results` table and surfaced in the Settings UI.

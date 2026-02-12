@@ -5,7 +5,7 @@ PROJECT_ROOT=~/household-project
 FRONTEND_DIR=$PROJECT_ROOT/web  # <--- Change this if your folder is 'client'
 SERVER_DIR=$PROJECT_ROOT/server
 
-echo "🚀 Starting Totem Unified Deployment..."
+echo "🚀 Starting Hearth Unified Deployment..."
 
 # 1. Build the Frontend
 echo "📦 Building Frontend..."
@@ -29,7 +29,7 @@ npm install
 # If you use PM2 (recommended for background running)
 if command -v pm2 &> /dev/null
 then
-    pm2 restart totem-server || pm2 start server.js --name totem-server
+    pm2 restart hearth-server || pm2 start server.js --name hearth-server
 else
     echo "⚠️ PM2 not found, starting with standard Node..."
     node server.js

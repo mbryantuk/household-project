@@ -102,7 +102,7 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
         const link = document.createElement('a');
         link.href = url;
         const timestamp = new Date().toISOString().split('T')[0];
-        link.setAttribute('download', `totem-export-hh${hh.id}-${timestamp}.json`);
+        link.setAttribute('download', `hearth-export-hh${hh.id}-${timestamp}.json`);
         document.body.appendChild(link);
         link.click();
         link.parentNode.removeChild(link);

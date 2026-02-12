@@ -173,7 +173,7 @@ ${title} - Detailed Breakdown:
     }
 
     const mailOptions = {
-        from: `"Totem Nightly Bot" <${user}>`,
+        from: `"Hearth Nightly Bot" <${user}>`,
         to: to,
         subject: `🌙 Nightly System Health Report (v${version}): ${backendPassed && frontendPassed ? '🟢 PASS' : '🔴 FAIL'}`,
         text: `The nightly comprehensive test suite has completed.\n` +

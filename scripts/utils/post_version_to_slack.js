@@ -106,7 +106,7 @@ ${commitMessage}`
             elements: [
                 {
                     type: "mrkdwn",
-                    text: `📅 ${new Date().toLocaleString()}   |   🛡️ Totem DevOps`
+                    text: `📅 ${new Date().toLocaleString()}   |   🛡️ Hearth DevOps`
                 }
             ]
         }

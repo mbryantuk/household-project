@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Box, Typography, Button, Sheet, Divider, Table, IconButton, 
+  Box, Typography, Button, Sheet, Divider, IconButton, 
   Modal, ModalDialog, ModalClose, FormControl, FormLabel, Input, 
-  Stack, Avatar, Checkbox, Grid, Chip, AvatarGroup
+  Stack, Avatar, Checkbox, Grid, Chip, AvatarGroup, Card
 } from '@mui/joy';
-import { Add, Edit, Delete, RequestQuote } from '@mui/icons-material';
+import { Add, Edit, Delete, RequestQuote, ArrowForward } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 
@@ -57,7 +57,6 @@ export default function LoansView({ financialProfileId }) {
   }, [api, householdId, financialProfileId]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchLoans();
   }, [fetchLoans]);
 
@@ -67,7 +66,6 @@ export default function LoansView({ financialProfileId }) {
 
   useEffect(() => {
     if (selectedLoan) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         lender: selectedLoan.lender || '', 
         loan_type: selectedLoan.loan_type || '',
@@ -119,7 +117,6 @@ export default function LoansView({ financialProfileId }) {
       const res = await api[isNew ? 'post' : 'put'](url, payload);
       const itemId = isNew ? res.data.id : selectedLoanId;
 
-      // Handle Assignments
       const currentIds = isNew ? [] : getAssignees(itemId).map(m => m.id);
       const toAdd = selectedMembers.filter(id => !currentIds.includes(id));
       const toRemove = currentIds.filter(id => !selectedMembers.includes(id));
@@ -138,55 +135,53 @@ export default function LoansView({ financialProfileId }) {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography level="h2" startDecorator={<RequestQuote />}>Loans</Typography>
+        <Typography level="h2" startDecorator={<RequestQuote />}>Loans & Debts</Typography>
         {isAdmin && <Button startDecorator={<Add />} onClick={() => setLoanId('new')}>Add Loan</Button>}
       </Box>
 
-      <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
-        <Table hoverRow>
-          <thead>
-            <tr>
-              <th style={{ width: 40 }}></th>
-              <th>Lender</th>
-              <th>Type</th>
-              <th style={{ textAlign: 'right' }}>Total</th>
-              <th style={{ textAlign: 'right' }}>Balance</th>
-              <th style={{ textAlign: 'right' }}>Payment</th>
-              <th style={{ textAlign: 'right', width: 80 }}>Day</th>
-              <th>Assignees</th>
-              <th style={{ width: 100 }}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {loans.map(loan => (
-              <tr key={loan.id}>
-                <td><Avatar size="sm" sx={{ bgcolor: getEmojiColor(loan.emoji, isDark) }}>{loan.emoji}</Avatar></td>
-                <td><Typography fontWeight="lg">{loan.lender}</Typography></td>
-                <td>{loan.loan_type}</td>
-                <td style={{ textAlign: 'right' }}>{formatCurrency(loan.total_amount, household?.currency)}</td>
-                <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{formatCurrency(loan.remaining_balance, household?.currency)}</td>
-                <td style={{ textAlign: 'right' }}>{formatCurrency(loan.monthly_payment, household?.currency)}</td>
-                <td style={{ textAlign: 'right' }}>{loan.payment_day || '-'}</td>
-                <td>
-                    <AvatarGroup size="sm">
-                        {getAssignees(loan.id).map(m => (
-                            <Avatar key={m.id} src={m.avatar}>{m.emoji}</Avatar>
-                        ))}
-                    </AvatarGroup>
-                </td>
-                <td>
-                  {isAdmin && (
-                    <Box sx={{ display: 'flex', gap: 0.5 }}>
-                      <IconButton size="sm" onClick={() => setLoanId(loan.id)}><Edit /></IconButton>
-                      <IconButton size="sm" color="danger" onClick={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/loans/${loan.id}`).then(() => { fetchLoans(); if (selectedLoanId === String(loan.id)) setLoanId(null); }))}><Delete /></IconButton>
-                    </Box>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </Sheet>
+      <Grid container spacing={2}>
+          {loans.length === 0 && (
+              <Grid xs={12}>
+                  <Typography level="body-lg" textAlign="center" sx={{ py: 10, opacity: 0.5 }}>No active loans found.</Typography>
+              </Grid>
+          )}
+          {loans.map(loan => (
+              <Grid key={loan.id} xs={12} sm={6} md={4}>
+                  <Card variant="outlined" sx={{ transition: 'transform 0.2s', '&:hover': { transform: 'translateY(-4px)', boxShadow: 'md' } }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <Avatar size="lg" sx={{ bgcolor: getEmojiColor(loan.emoji, isDark), fontSize: '1.5rem' }}>{loan.emoji}</Avatar>
+                          <Stack direction="row">
+                              <IconButton size="sm" variant="plain" onClick={() => setLoanId(loan.id)}><Edit /></IconButton>
+                              <IconButton size="sm" variant="plain" color="danger" onClick={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/loans/${loan.id}`).then(() => fetchLoans()))}><Delete /></IconButton>
+                          </Stack>
+                      </Box>
+                      <Box sx={{ mt: 2 }}>
+                          <Typography level="title-lg">{loan.lender}</Typography>
+                          <Typography level="body-xs" color="neutral" textTransform="uppercase" letterSpacing="sm">{loan.loan_type}</Typography>
+                      </Box>
+                      <Divider sx={{ my: 1.5 }} />
+                      <Grid container spacing={1}>
+                          <Grid xs={6}>
+                              <Typography level="body-xs" color="neutral">Remaining</Typography>
+                              <Typography level="title-md" fontWeight="bold">{formatCurrency(loan.remaining_balance, household?.currency)}</Typography>
+                          </Grid>
+                          <Grid xs={6}>
+                              <Typography level="body-xs" color="neutral">Monthly</Typography>
+                              <Typography level="title-md">{formatCurrency(loan.monthly_payment, household?.currency)}</Typography>
+                          </Grid>
+                      </Grid>
+                      <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <AvatarGroup size="sm" sx={{ '--AvatarGroup-gap': '-4px' }}>
+                              {getAssignees(loan.id).map(m => (
+                                  <Avatar key={m.id} src={m.avatar} sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji}</Avatar>
+                              ))}
+                          </AvatarGroup>
+                          {loan.payment_day && <Chip size="sm" variant="soft" color="neutral">Day {loan.payment_day}</Chip>}
+                      </Box>
+                  </Card>
+              </Grid>
+          ))}
+      </Grid>
 
       <Modal open={Boolean(selectedLoanId)} onClose={() => setLoanId(null)}>
         <ModalDialog sx={{ maxWidth: 600, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>

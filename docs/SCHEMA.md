@@ -1,6 +1,6 @@
 # Database Schema Reference
 
-Totem uses a **Hybrid Multi-Tenant Database Architecture**. 
+Hearth uses a **Hybrid Multi-Tenant Database Architecture**. 
 *   **Global Registry (`global.db`):** Manages users, authentication, system configuration, and the directory of households.
 *   **Tenant Databases (`household-{id}.db`):** Each household has its own isolated SQLite database containing its private data (members, assets, finance, etc.).
 

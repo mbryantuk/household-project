@@ -86,7 +86,7 @@ async function sendBackendReport() {
     }
 
     const mailOptions = {
-        from: `"Totem Backend Bot" <${user}>`,
+        from: `"Hearth Backend Bot" <${user}>`,
         to: to,
         subject: `🛡️ Backend Security Report (v${version}): ${cov.summary.failed === 0 ? '🟢 PASS' : '🔴 FAIL'}`,
         text: body

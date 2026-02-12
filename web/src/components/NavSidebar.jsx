@@ -146,15 +146,16 @@ const GroupHeader = ({ label }) => (
 export default function NavSidebar({ 
     isMobile = false, onClose, installPrompt, onInstall
 }) {
-  const { mode, systemMode } = useColorScheme();
-  const isDark = mode === 'dark' || (mode === 'system' && systemMode === 'dark');
+  const { mode: muiMode, systemMode } = useColorScheme();
+  const isDark = muiMode === 'dark' || (muiMode === 'system' && systemMode === 'dark');
   
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { 
     household, members = [], vehicles = [], user, api,
-    onLogout, confirmAction, households = [], onSelectHousehold
+    onLogout, confirmAction, households = [], onSelectHousehold,
+    mode, onModeChange
   } = useHousehold();
   
   const [hoveredCategory, setHoveredCategory] = useState(null);
@@ -355,7 +356,7 @@ export default function NavSidebar({
                       <Tooltip title="Dashboard" variant="soft" placement="right">
                           <Avatar 
                               variant="soft" color="primary" size="lg"
-                              onClick={() => { navigate(`/household/${household.id}/dashboard`); setHoveredCategory('dashboard'); }}
+                              onClick={() => { navigate(`/household/${household.id}/dashboard`); setHoveredCategory(null); }}
                               onMouseEnter={() => !isMobile && setHoveredCategory('dashboard')}
                               sx={{ 
                                   bgcolor: getEmojiColor(household?.avatar || '🏠', isDark),
@@ -558,7 +559,7 @@ export default function NavSidebar({
                           <Box sx={{ p: 1 }}>
                               <GroupHeader label="Meal Plan" />
                               <SubItem label="Meal Planner" to={`/household/${household.id}/meals`} emoji="🍱" onClick={handleSubItemClick} />
-                              <SubItem label="Recipe Book" to={`/household/${household.id}/meals`} emoji="📖" onClick={handleSubItemClick} />
+                              <SubItem label="Receipie book" to={`/household/${household.id}/meals?tab=library`} emoji="📖" onClick={handleSubItemClick} />
                           </Box>
                       )}
 

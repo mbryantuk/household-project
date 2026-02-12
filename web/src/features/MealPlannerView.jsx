@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useSearchParams } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Table, IconButton, Button, Modal, ModalDialog, DialogTitle, 
   DialogContent, DialogActions, Input, FormControl, FormLabel, Avatar, Select, Option,
-  Stack, Chip, Drawer, Checkbox, List, ListItem
+  Stack, Chip, Drawer, Checkbox, List, ListItem, Grid
 } from '@mui/joy';
 import { 
   ArrowBack, ArrowForward, Add, Edit, Delete, Restaurant,
-  Close, CheckCircle
+  Close, CheckCircle, MenuBook
 } from '@mui/icons-material';
 import EmojiPicker from '../components/EmojiPicker';
 
@@ -25,13 +25,15 @@ const formatDate = (date) => {
 };
 
 export default function MealPlannerView() {
-  const { api, id: householdId, members, showNotification } = useOutletContext();
+  const { api, id: householdId, members, showNotification, isDark } = useOutletContext();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'planner';
   
   const [currentWeekStart, setCurrentWeekStart] = useState(getStartOfWeek(new Date()));
   const [meals, setMeals] = useState([]);
   const [plans, setPlans] = useState([]);
   
-  // Library Drawer
+  // Library Drawer (for planner view)
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [editMeal, setEditMeal] = useState(null);
   const [mealEmojiPickerOpen, setMealEmojiPickerOpen] = useState(false);
@@ -62,9 +64,9 @@ export default function MealPlannerView() {
   useEffect(() => {
     Promise.resolve().then(() => {
         fetchMeals();
-        fetchPlans();
+        if (activeTab === 'planner') fetchPlans();
     });
-  }, [fetchMeals, fetchPlans]);
+  }, [fetchMeals, fetchPlans, activeTab]);
 
   const handleCreateMeal = async (e) => {
     e.preventDefault();
@@ -74,18 +76,18 @@ export default function MealPlannerView() {
     try {
         if (editMeal?.id) {
             await api.put(`/households/${householdId}/meals/${editMeal.id}`, data);
-            showNotification("Meal updated.", "success");
+            showNotification("Recipe updated.", "success");
         } else {
             await api.post(`/households/${householdId}/meals`, data);
-            showNotification("Meal created.", "success");
+            showNotification("Recipe created.", "success");
         }
         fetchMeals();
         setEditMeal(null);
-    } catch { showNotification("Failed to save meal.", "danger"); }
+    } catch { showNotification("Failed to save recipe.", "danger"); }
   };
 
   const handleDeleteMeal = async (id) => {
-      if(!window.confirm("Delete this meal?")) return;
+      if(!window.confirm("Delete this recipe?")) return;
       try {
           await api.delete(`/households/${householdId}/meals/${id}`);
           fetchMeals();
@@ -168,6 +170,68 @@ export default function MealPlannerView() {
       setSelectedMemberIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   };
 
+  // --- RECEIPIE BOOK VIEW ---
+  if (activeTab === 'library') {
+      return (
+        <Box sx={{ p: 2 }}>
+            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Box>
+                    <Typography level="h2" startDecorator={<MenuBook />}>Receipie book</Typography>
+                    <Typography level="body-md" color="neutral">Browse and manage your household recipes.</Typography>
+                </Box>
+                <Stack direction="row" spacing={1}>
+                    <Button variant="outlined" color="neutral" onClick={() => setSearchParams({ tab: 'planner' })}>Back to Planner</Button>
+                    <Button startDecorator={<Add />} onClick={() => { setEditMeal(null); setTempMealEmoji('🍝'); setAssignModalOpen(false); setIsLibraryOpen(true); }}>New Receipie</Button>
+                </Stack>
+            </Box>
+
+            <Grid container spacing={2}>
+                {meals.length === 0 && (
+                    <Grid xs={12}>
+                        <Typography level="body-lg" textAlign="center" sx={{ py: 10, opacity: 0.5 }}>Your receipie book is empty. Add some meals to get started!</Typography>
+                    </Grid>
+                )}
+                {meals.map(meal => (
+                    <Grid key={meal.id} xs={12} sm={6} md={4} lg={3}>
+                        <Card variant="outlined" sx={{ height: '100%', transition: 'transform 0.2s', '&:hover': { transform: 'translateY(-4px)', boxShadow: 'md' } }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <Avatar size="lg" sx={{ fontSize: '2rem', bgcolor: 'background.level1' }}>{meal.emoji}</Avatar>
+                                <Stack direction="row">
+                                    <IconButton size="sm" variant="plain" onClick={() => { setEditMeal(meal); setTempMealEmoji(meal.emoji); setIsLibraryOpen(true); }}><Edit /></IconButton>
+                                    <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDeleteMeal(meal.id)}><Delete /></IconButton>
+                                </Stack>
+                            </Box>
+                            <Box sx={{ mt: 2 }}>
+                                <Typography level="title-lg">{meal.name}</Typography>
+                                <Typography level="body-sm" color="neutral" sx={{ mt: 1, minHeight: '3em' }}>{meal.description || 'No ingredients or description recorded.'}</Typography>
+                            </Box>
+                        </Card>
+                    </Grid>
+                ))}
+            </Grid>
+
+            {/* Library Form (Uses the same drawer for consistency but could be a modal here) */}
+            <Drawer anchor="right" open={isLibraryOpen} onClose={() => setIsLibraryOpen(false)} slotProps={{ content: { sx: { width: '100%', maxWidth: 400, p: 2 } } }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography level="h3">{editMeal ? 'Edit Receipie' : 'New Receipie'}</Typography>
+                    <IconButton onClick={() => setIsLibraryOpen(false)}><Close /></IconButton>
+                </Box>
+                <form onSubmit={handleCreateMeal}>
+                    <Stack spacing={2}>
+                        <Box sx={{ display: 'flex', gap: 2 }}>
+                            <IconButton variant="outlined" onClick={() => setMealEmojiPickerOpen(true)} sx={{ width: 48, height: 48, fontSize: '1.5rem' }}>{tempMealEmoji}</IconButton>
+                            <FormControl required sx={{ flexGrow: 1 }}><FormLabel>Name</FormLabel><Input name="name" defaultValue={editMeal?.name} autoFocus /></FormControl>
+                        </Box>
+                        <FormControl><FormLabel>Ingredients / Description</FormLabel><Input name="description" defaultValue={editMeal?.description} multiline rows={4} /></FormControl>
+                        <Button type="submit" size="lg">{editMeal ? 'Update' : 'Create'}</Button>
+                    </Stack>
+                </form>
+            </Drawer>
+            <EmojiPicker open={mealEmojiPickerOpen} onClose={() => setMealEmojiPickerOpen(false)} onEmojiSelect={(e) => { setTempMealEmoji(e); setMealEmojiPickerOpen(false); }} />
+        </Box>
+      );
+  }
+
   return (
     <Box sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
       
@@ -202,10 +266,10 @@ export default function MealPlannerView() {
                 <Button 
                     variant="soft" 
                     startDecorator={<Restaurant />} 
-                    onClick={() => { setEditMeal(null); setTempMealEmoji('🍝'); setIsLibraryOpen(true); }}
+                    onClick={() => setSearchParams({ tab: 'library' })}
                     sx={{ flex: 1, whiteSpace: 'nowrap' }}
                 >
-                    Library
+                    Recipe Book
                 </Button>
             </Stack>
 
@@ -367,58 +431,6 @@ export default function MealPlannerView() {
             })}
         </Stack>
       </Box>
-
-      {/* LIBRARY DRAWER */}
-      <Drawer 
-        anchor="right" 
-        open={isLibraryOpen} 
-        onClose={() => setIsLibraryOpen(false)}
-        slotProps={{ content: { sx: { width: '100%', maxWidth: 400, p: 2 } } }}
-      >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography level="h3">Meal Library</Typography>
-            <IconButton onClick={() => setIsLibraryOpen(false)}><Close /></IconButton>
-        </Box>
-        
-        {/* ADD/EDIT FORM */}
-        <Sheet variant="outlined" sx={{ p: 2, borderRadius: 'md', mb: 3 }}>
-            <form onSubmit={handleCreateMeal}>
-                <Stack spacing={2}>
-                    <Typography level="title-sm">{editMeal ? 'Edit Meal' : 'Add New Meal'}</Typography>
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                        <IconButton variant="outlined" onClick={() => setMealEmojiPickerOpen(true)} sx={{ width: 40, height: 40, fontSize: '1.5rem' }}>
-                            {tempMealEmoji}
-                        </IconButton>
-                        <Input name="name" placeholder="Meal Name" defaultValue={editMeal?.name} required sx={{ flexGrow: 1 }} />
-                    </Box>
-                    <Input name="description" placeholder="Description / Ingredients" defaultValue={editMeal?.description} />
-                    <Stack direction="row" spacing={1}>
-                        <Button type="submit" fullWidth>{editMeal ? 'Update' : 'Create'}</Button>
-                        {editMeal && <Button color="neutral" onClick={() => { setEditMeal(null); setTempMealEmoji('🍝'); }}>Cancel</Button>}
-                    </Stack>
-                </Stack>
-            </form>
-        </Sheet>
-
-        {/* LIST */}
-        <Stack spacing={1} sx={{ overflow: 'auto', flexGrow: 1 }}>
-            {meals.map(meal => (
-                <Sheet key={meal.id} variant="soft" sx={{ p: 1.5, borderRadius: 'sm', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Typography fontSize="xl">{meal.emoji}</Typography>
-                        <Box>
-                            <Typography level="title-sm">{meal.name}</Typography>
-                            <Typography level="body-xs">{meal.description}</Typography>
-                        </Box>
-                    </Box>
-                    <Box>
-                        <IconButton size="sm" aria-label="Edit" onClick={() => { setEditMeal(meal); setTempMealEmoji(meal.emoji); }}><Edit /></IconButton>
-                        <IconButton size="sm" color="danger" aria-label="Delete" onClick={() => handleDeleteMeal(meal.id)}><Delete /></IconButton>
-                    </Box>
-                </Sheet>
-            ))}
-        </Stack>
-      </Drawer>
 
       {/* ASSIGN MODAL */}
       <Modal open={assignModalOpen} onClose={() => setAssignModalOpen(false)}>

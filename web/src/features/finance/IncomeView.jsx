@@ -95,6 +95,17 @@ export default function IncomeView({ financialProfileId }) {
       return b ? (b.bank_name + ' ' + b.account_name) : '-';
   }, [bankAccounts]);
 
+  const handleDelete = useCallback(async (id) => {
+    if (!window.confirm("Delete this income source?")) return;
+    try {
+      await api.delete(`/households/${householdId}/finance/income/${id}`);
+      fetchData();
+      if (selectedIncomeId === String(id)) setIncomeId(null);
+    } catch {
+      alert("Failed to delete income source");
+    }
+  }, [api, householdId, fetchData, selectedIncomeId, setIncomeId]);
+
   // DATA GRID COLUMNS
   const columns = useMemo(() => [
     { 
@@ -189,42 +200,6 @@ export default function IncomeView({ financialProfileId }) {
         )
     }
   ], [isDark, getBankName, getMemberName, handleDelete, setIncomeId]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
-    data.is_primary = data.is_primary === "1" ? 1 : 0;
-    data.emoji = selectedEmoji; // Inject selected emoji
-    data.financial_profile_id = financialProfileId; // Inject profile ID
-
-    try {
-      if (selectedIncomeId === 'new') {
-        await api.post(`/households/${householdId}/finance/income`, data);
-        showNotification("Income added.", "success");
-        await fetchData();
-        setIncomeId(null);
-      } else {
-        await api.put(`/households/${householdId}/finance/income/${selectedIncomeId}`, data);
-        showNotification("Income updated.", "success");
-        await fetchData();
-        setIncomeId(null);
-      }
-    } catch (err) {
-      showNotification("Failed to save: " + err.message, "danger");
-    }
-  };
-
-  const handleDelete = useCallback(async (id) => {
-    if (!window.confirm("Delete this income source?")) return;
-    try {
-      await api.delete(`/households/${householdId}/finance/income/${id}`);
-      fetchData();
-      if (selectedIncomeId === String(id)) setIncomeId(null);
-    } catch {
-      alert("Failed to delete income source");
-    }
-  }, [api, householdId, fetchData, selectedIncomeId, setIncomeId]);
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 

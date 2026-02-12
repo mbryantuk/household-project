@@ -1,4 +1,4 @@
-const CACHE_NAME = 'totem-cache-v5';
+const CACHE_NAME = 'hearth-cache-v5';
 const ASSETS = [
   '/',
   '/index.html',

@@ -4,7 +4,7 @@ import {
   Box, Sheet, Typography, Input, Button, Alert, Link, FormControl, FormLabel, Stack, Avatar, IconButton
 } from '@mui/joy';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import MantelIcon from '../components/MantelIcon';
+import HearthIcon from '../components/HearthIcon';
 import EmojiPicker from '../components/EmojiPicker';
 import { PhotoCamera } from '@mui/icons-material';
 
@@ -78,12 +78,12 @@ export default function Register() {
           boxShadow: 'xl' 
         }}
       >
-        <MantelIcon sx={{ fontSize: 50, mb: 2 }} colorway="default" />
+        <HearthIcon sx={{ fontSize: 50, mb: 2 }} colorway="default" />
         <Typography level="h3" sx={{ fontWeight: 'bold', mb: 1 }}>
           Create your Household
         </Typography>
         <Typography level="body-sm" color="neutral" sx={{ mb: 3 }}>
-          Start your journey with Mantel.
+          Start your journey with Hearth.
         </Typography>
 
         {error && <Alert color="danger" sx={{ mb: 3, textAlign: 'left' }}>{error}</Alert>}

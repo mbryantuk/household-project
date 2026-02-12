@@ -5,7 +5,7 @@ import { extendTheme } from '@mui/joy/styles';
  * Each theme defines a primary color identity.
  */
 export const THEMES = {
-  totem: { name: 'Classic', primary: '#374151' },
+  hearth: { name: 'Classic', primary: '#374151' },
   platinum: { name: 'Platinum', primary: '#18181b' },
   obsidian: { name: 'Obsidian', primary: '#f4f4f5' },
   midnight: { name: 'Midnight', primary: '#38bdf8' },
@@ -95,8 +95,8 @@ export const getEmojiColor = (emoji, isDark = true) => {
   return `hsl(${hue}, ${isDark ? 50 : 70}%, ${isDark ? 25 : 90}%)`;
 };
 
-export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
-  let base = THEMES[themeId] || THEMES.totem;
+export const getHearthTheme = (themeId = 'hearth', customConfig = null) => {
+  let base = THEMES[themeId] || THEMES.hearth;
   if (themeId === 'custom' && customConfig) {
       base = { ...base, ...customConfig };
   }
@@ -198,15 +198,14 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
       JoyCard: {
         styleOverrides: {
           root: ({ theme }) => ({
-            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(20, 20, 20, 0.6)' : 'rgba(255, 255, 255, 0.7)',
+            backgroundColor: 'var(--joy-palette-background-surface)',
             backdropFilter: 'blur(16px)',
-            borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+            borderColor: 'var(--joy-palette-divider)',
             boxShadow: 'var(--joy-shadow-sm)',
             borderRadius: 'var(--joy-radius-md)',
             transition: 'transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease',
             '&:hover': { 
                 boxShadow: 'var(--joy-shadow-md)',
-                backgroundColor: theme.palette.mode === 'dark' ? 'rgba(30, 30, 30, 0.7)' : 'rgba(255, 255, 255, 0.85)',
             }
           }),
         },
@@ -215,13 +214,13 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
         styleOverrides: {
           root: ({ ownerState, theme }) => ({
             ...(ownerState.variant === 'outlined' && {
-                borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-                backgroundColor: theme.palette.mode === 'dark' ? 'rgba(10, 10, 10, 0.5)' : 'rgba(255, 255, 255, 0.6)',
+                borderColor: 'var(--joy-palette-divider)',
+                backgroundColor: 'var(--joy-palette-background-surface)',
                 backdropFilter: 'blur(12px)',
                 borderRadius: 'var(--joy-radius-md)',
             }),
             ...(ownerState.variant === 'soft' && {
-                backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
+                backgroundColor: 'var(--joy-palette-background-level1)',
                 backdropFilter: 'blur(8px)',
             }),
           }),
@@ -230,9 +229,9 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
       JoyModalDialog: {
         styleOverrides: {
           root: ({ theme }) => ({
-            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(15, 15, 15, 0.8)' : 'rgba(255, 255, 255, 0.85)',
+            backgroundColor: 'var(--joy-palette-background-surface)',
             backdropFilter: 'blur(20px)',
-            borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
+            borderColor: 'var(--joy-palette-divider)',
             boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
             borderRadius: 'xl',
           }),
@@ -242,8 +241,8 @@ export const getMantelTheme = (themeId = 'totem', customConfig = null) => {
   });
 };
 
-export const getThemeSpec = (themeId = 'totem', customConfig = null, mode = 'light') => {
-  let base = THEMES[themeId] || THEMES.totem;
+export const getThemeSpec = (themeId = 'hearth', customConfig = null, mode = 'light') => {
+  let base = THEMES[themeId] || THEMES.hearth;
   if (themeId === 'custom' && customConfig) {
       base = { ...base, ...customConfig };
   }

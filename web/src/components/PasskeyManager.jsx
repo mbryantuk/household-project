@@ -12,10 +12,6 @@ export default function PasskeyManager({ api, showNotification }) {
     const [passkeys, setPasskeys] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        fetchPasskeys();
-    }, [api, fetchPasskeys]);
-
     const fetchPasskeys = useCallback(async () => {
         try {
             const res = await api.get('/passkeys');
@@ -24,6 +20,10 @@ export default function PasskeyManager({ api, showNotification }) {
             console.error("Failed to fetch passkeys", err);
         }
     }, [api]);
+
+    useEffect(() => {
+        fetchPasskeys();
+    }, [api, fetchPasskeys]);
 
     const handleRegister = async () => {
         setLoading(true);

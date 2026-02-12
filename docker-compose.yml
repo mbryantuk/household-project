@@ -1,9 +1,9 @@
 services:
-  totem-app:
+  hearth-app:
     build: 
       context: .
       dockerfile: Dockerfile # Use the unified Dockerfile we just created
-    container_name: totem-app
+    container_name: hearth-app
     ports:
       - "4001:4001"
     volumes:

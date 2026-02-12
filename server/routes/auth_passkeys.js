@@ -10,7 +10,7 @@ const { globalDb } = require('../db');
 const jwt = require('jsonwebtoken');
 const { SECRET_KEY, authenticateToken } = require('../middleware/auth');
 
-const RP_NAME = 'Totem Household';
+const RP_NAME = 'Hearth Household';
 const RP_ID = process.env.RP_ID || 'localhost';
 const ORIGIN = process.env.ORIGIN || `http://${RP_ID}:5173`; // Default to Vite dev server
 

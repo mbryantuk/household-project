@@ -267,9 +267,9 @@ export default function BudgetView({ financialProfileId }) {
   const [currentBalance, setCurrentBalance] = useState('');
   const [selectedAccountId, setSelectedAccountId] = useState(null);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (silent = false) => {
     if (!financialProfileId) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     try {
       const q = `?financial_profile_id=${financialProfileId}`;
       const [ 
@@ -315,7 +315,7 @@ export default function BudgetView({ financialProfileId }) {
       setSavingsPots(potRes.data || []);
       setBankHolidays(holidayRes.data || []);
       setCalendarDates(dateRes.data || []);
-    } catch (err) { console.error("Failed to fetch budget data", err); } finally { setLoading(false); }
+    } catch (err) { console.error("Failed to fetch budget data", err); } finally { if (!silent) setLoading(false); }
   }, [api, householdId, financialProfileId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
@@ -860,7 +860,7 @@ export default function BudgetView({ financialProfileId }) {
               actual_date: actualDate,
               financial_profile_id: financialProfileId
           });
-          fetchData();
+          fetchData(true);
       } catch (err) { console.error("Failed to update actual amount", err); }
   };
 
@@ -900,7 +900,7 @@ export default function BudgetView({ financialProfileId }) {
           } else { 
               await api.post(`/households/${householdId}/finance/budget-progress`, { cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: 1, actual_amount: amount, financial_profile_id: financialProfileId }); 
           }
-          fetchData();
+          fetchData(true);
       } catch (err) { 
           console.error("Failed to toggle paid status", err); 
           // Revert on error
@@ -945,7 +945,7 @@ export default function BudgetView({ financialProfileId }) {
           try {
               await api.post(`/households/${householdId}/finance/budget-progress`, { cycle_start: cycleData.cycleKey, item_key: itemKey, is_paid: -1, actual_amount: 0, financial_profile_id: financialProfileId });
               showNotification("Item skipped.", "success");
-              fetchData();
+              fetchData(true);
           } catch { showNotification("Failed.", "danger"); }
       });
   };
@@ -954,7 +954,7 @@ export default function BudgetView({ financialProfileId }) {
       try {
           await api.delete(`/households/${householdId}/finance/budget-progress/${cycleData.cycleKey}/${itemKey}?financial_profile_id=${financialProfileId}`);
           showNotification("Item restored.", "success");
-          fetchData();
+          fetchData(true);
       } catch { showNotification("Failed.", "danger"); }
   };
 

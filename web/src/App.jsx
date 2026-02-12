@@ -11,7 +11,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import pkg from '../package.json';
 
 // Theme and Local Components
-import { getMantelTheme, getThemeSpec, THEMES } from './theme';
+import { getHearthTheme, getThemeSpec, THEMES } from './theme';
 import FloatingCalculator from './components/FloatingCalculator';
 import FloatingCalendar from './components/FloatingCalendar';
 import FloatingSavings from './components/FloatingSavings';
@@ -70,7 +70,7 @@ const queryClient = new QueryClient({
 function AppInner({ 
     themeId, setThemeId, user, setUser, token, setToken, household, setHousehold, 
     logout, login, mfaLogin, spec, onPreviewTheme,
-    mode, setModePref
+    mode, onModeChange
 }) {
   console.log(`[APP] Init - Token: ${token ? 'Present' : 'Missing'}, Household: ${household?.id || 'None'}`);
   const { setMode, mode: currentMode, systemMode } = useColorScheme();
@@ -528,7 +528,7 @@ export default function App() {
     try { return JSON.parse(localStorage.getItem('household')) || null; } catch { return null; }
   });
 
-  const [themeId, setThemeId] = useState(user?.theme || 'totem');
+  const [themeId, setThemeId] = useState(user?.theme || 'hearth');
   const [modePref, setModePref] = useState(user?.mode || 'system');
   const [previewThemeId, setPreviewThemeId] = useState(null);
   const [previewCustomConfig, setPreviewCustomConfig] = useState(null);
@@ -543,7 +543,7 @@ export default function App() {
   const effectiveThemeId = previewThemeId || themeId;
   const effectiveCustomConfig = previewCustomConfig || customConfig;
 
-  const theme = useMemo(() => getMantelTheme(effectiveThemeId, effectiveCustomConfig), [effectiveThemeId, effectiveCustomConfig]);
+  const theme = useMemo(() => getHearthTheme(effectiveThemeId, effectiveCustomConfig), [effectiveThemeId, effectiveCustomConfig]);
   const { spec } = useMemo(() => getThemeSpec(effectiveThemeId, effectiveCustomConfig, modePref), [effectiveThemeId, effectiveCustomConfig, modePref]);
   
   const handlePreviewTheme = useCallback((id, config = null) => {
@@ -603,7 +603,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
-        <CssVarsProvider theme={theme} defaultMode="system" modeStorageKey="mantel-mode" disableNestedContext>
+        <CssVarsProvider theme={theme} defaultMode="system" modeStorageKey="hearth-mode" disableNestedContext>
             <CssBaseline />
             <AppInner 
                 themeId={themeId} setThemeId={setThemeId} 

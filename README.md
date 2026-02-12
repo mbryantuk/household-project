@@ -1,6 +1,6 @@
-# Totem: Multi-Tenant Household Management System
+# Hearth: Multi-Tenant Household Management System
 
-Totem is a high-performance, multi-tenant Household Management SaaS designed with an **Asset-First** approach. It treats every household item not just as data, but as a financial asset that integrates directly into a monthly budget and maintenance forecast.
+Hearth is a high-performance, multi-tenant Household Management SaaS designed with an **Asset-First** approach. It treats every household item not just as data, but as a financial asset that integrates directly into a monthly budget and maintenance forecast.
 
 ## 🚀 Key Features
 
@@ -101,7 +101,7 @@ For deeper technical details, please refer to the internal documentation:
 
 ## 🐛 Debug Mode
 
-Totem includes a dual-layer debug system for troubleshooting:
+Hearth includes a dual-layer debug system for troubleshooting:
 
 1.  **Household Debug Mode:** Enabled via **Settings > Household Settings**. This enables verbose logging in the browser console (Axios requests/responses) and detailed server-side request logging for all members of that household.
 2.  **System Debug Mode:** Enabled by setting the environment variable `DEBUG=true` on the server. This provides low-level logging for all incoming traffic, including headers and auth-header presence, regardless of household settings.

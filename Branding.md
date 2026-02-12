@@ -1,29 +1,28 @@
-# Brand Identity: MANTEL
+# Brand Identity: HEARTH
 
-**Tagline:** *The center of your household.*
+**Tagline:** *The heart of your household.*
 
 ## Core Concept
-The mantel is the shelf above the hearth. In a traditional home, it is the centerpiece—the strong, structural shelf where families display what matters most (photos, heirlooms, clocks). It represents stability, warmth, and a place for valuable assets.
+The hearth is the traditional heart of the home—the source of warmth, nourishment, and community. It represents the central point where the family gathers, where assets are managed, and where the foundation of the household is maintained.
 
 ## Visual Language
-* **Vibe:** Solid, Structural, Warm, Premium.
-* **Voice:** "Architectural" but "Domestic". We don't just "track data"; we "support the household."
+* **Vibe:** Solid, Warm, Premium, Foundational.
+* **Voice:** "Supportive" and "Reliable". We don't just "track data"; we "nourish the household."
 
 ## Color Palette
-* **Primary (Structure):** `#374151` (Warm Charcoal) - Represents the hearth/slate.
-* **Accent (Value):** `#D97706` (Copper/Amber) - Represents warmth and gold/wealth.
-* **Action:** `#4F46E5` (Indigo) - Retained for high-contrast UI buttons.
+* **Primary (Foundation):** `#374151` (Zinc/Slate) - Represents the hearth's structural stone.
+* **Accent (Vitality):** `#EA580C` (Flame Orange) - Represents warmth and life.
+* **Action:** `#4F46E5` (Indigo) - Standard high-contrast UI action color.
 
 ## UI Styles
-### 1. The Architectural Standard (Default)
-Clean, functional, and structural. Uses Slate/Charcoal and White. Focused on clarity and stability.
+### 1. The Hearth Standard (Default)
+Clean, functional, and foundational. Uses Zinc and White. Focused on clarity and long-term stability.
 
-### 2. Premium Architectural (Signature)
+### 2. Signature Series (Premium)
 Editorial-grade UI for high-end households.
-* **Themes:** `Mantel Platinum` (Light), `Mantel Obsidian` (Dark), `Mantel Midnight` (Dark), `Mantel Forest` (Dark).
-* **Typography:** Uses serif fonts (*DM Serif Display*) for headings to evoke a "Premium Ledger" or "Editorial" feel.
-* **Depth:** Subtle glassmorphism, soft layering with refined shadows, and generous whitespace.
-* **Materials:** Zinc-based palettes with high-contrast accents.
+* **Themes:** `Hearth Platinum`, `Hearth Obsidian`, `Hearth Midnight`.
+* **Typography:** Uses serif fonts (*DM Serif Display*) for headings to evoke a sense of tradition and value.
+* **Depth:** Extensive use of glassmorphism, soft layering, and high-blur backgrounds.
 
 ## Logo Concept
-A stylized, flat line (the shelf) with a semi-circle arch resting on top of it (the hearth/clock), forming a subtle "M" shape.
+A stylized arch (the hearth) with a central spark or flame, forming a foundational "H" shape.

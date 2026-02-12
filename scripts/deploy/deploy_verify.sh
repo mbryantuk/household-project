@@ -1,5 +1,5 @@
 #!/bin/bash
-# Totem Deployment Script (High-Speed)
+# Hearth Deployment Script (High-Speed)
 # Usage: ./deploy_verify.sh [commit_message]
 
 set -e

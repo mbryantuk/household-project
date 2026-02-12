@@ -1,4 +1,4 @@
-name: Totem CI
+name: Hearth CI
 
 on:
   push:
