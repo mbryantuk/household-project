@@ -4,12 +4,11 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup
+  AvatarGroup, Sheet, Table
 } from '@mui/joy';
 import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
-import AppTable from '../../components/ui/AppTable';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -87,7 +86,6 @@ export default function BankingView({ financialProfileId }) {
           setSelectedMembers(getAssignees(selectedAccount.id).map(m => m.id));
           setSelectedEmoji(selectedAccount.emoji || '💰');
       } else if (selectedAccountId === 'new') {
-          // Default to current user or first adult
           const defaultMember = members.find(m => m.id === currentUser?.id) || members.find(m => m.type !== 'pet');
           setSelectedMembers(defaultMember ? [defaultMember.id] : []);
           setSelectedEmoji('💰');
@@ -161,84 +159,6 @@ export default function BankingView({ financialProfileId }) {
       } catch (err) { console.error("Removal failed", err); }
   };
 
-  // DATA GRID COLUMNS
-  const columns = useMemo(() => [
-    { 
-        field: 'emoji', 
-        headerName: '', 
-        width: 60,
-        renderCell: (params) => (
-            <Avatar size="sm" sx={{ bgcolor: getEmojiColor(params.value || (params.row.bank_name||'?')[0], isDark) }}>
-                {params.value || (params.row.bank_name||'?')[0]}
-            </Avatar>
-        )
-    },
-    { 
-        field: 'bank_name', 
-        headerName: 'Bank / Name', 
-        flex: 1,
-        renderCell: (params) => (
-            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}>
-                <Typography level="body-md" sx={{ fontWeight: 'lg' }}>{params.value}</Typography>
-                <Typography level="body-xs" color="neutral">{params.row.account_name}</Typography>
-            </Box>
-        )
-    },
-    { field: 'sort_code', headerName: 'Sort Code', width: 120, valueFormatter: (params) => params || '??-??-??' },
-    { 
-        field: 'account_number', 
-        headerName: 'Account No.', 
-        width: 150,
-        valueFormatter: (params) => params ? `•••• ${params.slice(-4)}` : '••••'
-    },
-    { 
-        field: 'overdraft_limit', 
-        headerName: 'Overdraft', 
-        width: 130,
-        valueFormatter: (params) => params ? formatCurrency(params) : '-'
-    },
-    { 
-        field: 'current_balance', 
-        headerName: 'Balance', 
-        width: 150,
-        renderCell: (params) => (
-            <Typography fontWeight="bold" color={params.value < 0 ? 'danger' : 'success'} sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-                {formatCurrency(params.value)}
-            </Typography>
-        )
-    },
-    { 
-        field: 'holders', 
-        headerName: 'Holders', 
-        width: 150,
-        renderCell: (params) => (
-            <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-                <AvatarGroup size="sm" sx={{ '--AvatarGroup-gap': '-4px' }}>
-                    {getAssignees(params.row.id).map(m => (
-                        <Avatar key={m.id} sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji || m.name[0]}</Avatar>
-                    ))}
-                    {isAdmin && (
-                        <IconButton size="sm" onClick={() => setAssignItem(params.row)} sx={{ borderRadius: '50%' }}><GroupAdd fontSize="small" /></IconButton>
-                    )}
-                </AvatarGroup>
-            </Box>
-        )
-    },
-    {
-        field: 'actions',
-        headerName: 'Actions',
-        width: 100,
-        sortable: false,
-        filterable: false,
-        renderCell: (params) => (
-            <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end', alignItems: 'center', height: '100%' }}>
-                <IconButton size="sm" variant="plain" onClick={() => setAccountId(params.row.id)}><Edit /></IconButton>
-                <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(params.row.id)}><Delete /></IconButton>
-            </Box>
-        )
-    }
-  ], [isDark, getAssignees, isAdmin, handleDelete, setAccountId]);
-
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
     return (
@@ -264,13 +184,63 @@ export default function BankingView({ financialProfileId }) {
         </Box>
 
       {!isMobile ? (
-        <AppTable 
-            rows={accounts} 
-            columns={columns} 
-            sumField="current_balance" 
-            sumLabel="Total Balance"
-            loading={loading}
-        />
+        <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto' }}>
+            <Table hoverRow>
+                <thead>
+                    <tr>
+                        <th style={{ width: 60 }}></th>
+                        <th>Bank / Name</th>
+                        <th>Sort Code</th>
+                        <th>Account No.</th>
+                        <th>Overdraft</th>
+                        <th style={{ textAlign: 'right' }}>Balance</th>
+                        <th>Holders</th>
+                        <th style={{ width: 100 }}></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {accounts.map((row) => (
+                        <tr key={row.id}>
+                            <td>
+                                <Avatar size="sm" sx={{ bgcolor: getEmojiColor(row.emoji || (row.bank_name||'?')[0], isDark) }}>
+                                    {row.emoji || (row.bank_name||'?')[0]}
+                                </Avatar>
+                            </td>
+                            <td>
+                                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                    <Typography level="body-md" sx={{ fontWeight: 'lg' }}>{row.bank_name}</Typography>
+                                    <Typography level="body-xs" color="neutral">{row.account_name}</Typography>
+                                </Box>
+                            </td>
+                            <td>{row.sort_code || '??-??-??'}</td>
+                            <td>{row.account_number ? `•••• ${row.account_number.slice(-4)}` : '••••'}</td>
+                            <td>{row.overdraft_limit ? formatCurrency(row.overdraft_limit) : '-'}</td>
+                            <td style={{ textAlign: 'right' }}>
+                                <Typography fontWeight="bold" color={row.current_balance < 0 ? 'danger' : 'success'}>
+                                    {formatCurrency(row.current_balance)}
+                                </Typography>
+                            </td>
+                            <td>
+                                <AvatarGroup size="sm" sx={{ '--AvatarGroup-gap': '-4px' }}>
+                                    {getAssignees(row.id).map(m => (
+                                        <Avatar key={m.id} sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji || m.name[0]}</Avatar>
+                                    ))}
+                                    {isAdmin && (
+                                        <IconButton size="sm" onClick={() => setAssignItem(row)} sx={{ borderRadius: '50%' }}><GroupAdd fontSize="small" /></IconButton>
+                                    )}
+                                </AvatarGroup>
+                            </td>
+                            <td>
+                                <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
+                                    <IconButton size="sm" variant="plain" onClick={() => setAccountId(row.id)}><Edit /></IconButton>
+                                    <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(row.id)}><Delete /></IconButton>
+                                </Box>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </Table>
+        </Sheet>
       ) : (
         <Grid container spacing={2}>
             {accounts.map(a => (

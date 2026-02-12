@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix recipe typo and provide definitive resolution for theme TypeErrors",
-  "date": "Thu 12 Feb 16:57:17 GMT 2026"
+  "commitMessage": "Fix MealPlanner Card import and migrate Finance views to native Joy Table for stability",
+  "date": "Thu 12 Feb 17:05:09 GMT 2026"
 }
