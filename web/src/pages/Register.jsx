@@ -4,9 +4,10 @@ import {
   Box, Sheet, Typography, Input, Button, Alert, Link, FormControl, FormLabel, Stack, Avatar, IconButton
 } from '@mui/joy';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import HearthstoneIcon from '../components/HearthstoneIcon';
+import AppIcon from '../components/AppIcon';
 import EmojiPicker from '../components/EmojiPicker';
 import { PhotoCamera } from '@mui/icons-material';
+import { APP_NAME } from '../constants';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -78,12 +79,12 @@ export default function Register() {
           boxShadow: 'xl' 
         }}
       >
-        <HearthstoneIcon sx={{ fontSize: 50, mb: 2 }} colorway="default" />
+        <AppIcon sx={{ fontSize: 50, mb: 2 }} colorway="default" />
         <Typography level="h3" sx={{ fontWeight: 'bold', mb: 1 }}>
           Create your Household
         </Typography>
         <Typography level="body-sm" color="neutral" sx={{ mb: 3 }}>
-          Start your journey with Hearthstone.
+          Start your journey with {APP_NAME}.
         </Typography>
 
         {error && <Alert color="danger" sx={{ mb: 3, textAlign: 'left' }}>{error}</Alert>}

@@ -10,10 +10,10 @@ import {
   Payments, CleaningServices, HomeWork, Inventory2
 } from '@mui/icons-material';
 import AppHeader from '../components/ui/AppHeader';
+import { APP_NAME } from '../constants';
 
 /**
- * HEARTHSIDE Homepage
- * Replaces the complex widget dashboard with a clean, high-performance modular entry point.
+ * HEARTHSTONE Homepage
  */
 export default function HomeView() {
   const navigate = useNavigate();
@@ -72,7 +72,7 @@ export default function HomeView() {
             {greeting}, {user?.first_name || 'Friend'}
         </Typography>
         <Typography level="body-lg" color="neutral" sx={{ opacity: 0.8 }}>
-            {dateStr} • {household?.name || 'HEARTHSTONE Household'}
+            {dateStr} • {household?.name || `${APP_NAME.toUpperCase()} Household`}
         </Typography>
       </Box>
 
@@ -137,7 +137,7 @@ export default function HomeView() {
                 </Sheet>
 
                 <Card variant="solid" color="primary" invertedColors sx={{ boxShadow: 'lg' }}>
-                    <Typography level="title-lg">HEARTHSTONE System</Typography>
+                    <Typography level="title-lg">{APP_NAME.toUpperCase()} System</Typography>
                     <Typography level="body-sm">
                         Everything is running smoothly. Your local data is encrypted and secure.
                     </Typography>

@@ -20,7 +20,7 @@ const formatCurrency = (val) => {
 };
 
 export default function IncomeView({ financialProfileId }) {
-  const { api, id: householdId, user: currentUser, isDark, members, showNotification } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
@@ -94,6 +94,29 @@ export default function IncomeView({ financialProfileId }) {
       const b = bankAccounts.find(b => b.id === parseInt(id));
       return b ? (b.bank_name + ' ' + b.account_name) : '-';
   }, [bankAccounts]);
+
+  const handleSubmit = async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const data = Object.fromEntries(fd.entries());
+      data.emoji = selectedEmoji;
+      data.is_primary = data.is_primary ? 1 : 0;
+      data.nearest_working_day = data.nearest_working_day ? 1 : 0;
+      data.financial_profile_id = financialProfileId;
+
+      try {
+          if (selectedIncomeId === 'new') {
+              await api.post(`/households/${householdId}/finance/income`, data);
+          } else {
+              await api.put(`/households/${householdId}/finance/income/${selectedIncomeId}`, data);
+          }
+          fetchData();
+          setIncomeId(null);
+      } catch (err) {
+          console.error("Failed to save income", err);
+          alert("Failed to save: " + (err.response?.data?.error || err.message));
+      }
+  };
 
   const handleDelete = useCallback(async (id) => {
     if (!window.confirm("Delete this income source?")) return;

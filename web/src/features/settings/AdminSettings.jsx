@@ -13,6 +13,7 @@ import CloudDownload from '@mui/icons-material/CloudDownload';
 import DataObject from '@mui/icons-material/DataObject';
 
 import { useHousehold } from '../../contexts/HouseholdContext';
+import { APP_NAME, APP_VERSION } from '../../constants';
 import AppSelect from '../../components/ui/AppSelect';
 import pkg from '../../../package.json';
 import gitInfo from '../../git-info.json';
@@ -364,18 +365,18 @@ export default function AdminSettings() {
                 <Grid xs={12} md={7}>
                     <Stack spacing={3}>
           <Box sx={{ flex: 1 }}>
-              <Typography level="title-lg" startDecorator={<Verified color="primary" />}>Hearthstone Household OS</Typography>
-              <Typography level="body-sm" color="neutral" sx={{ mb: 2 }}>Build 2026.02.12.001 (Production Stone)</Typography>
+              <Typography level="title-lg" startDecorator={<Verified color="primary" />}>{APP_NAME} Household OS</Typography>
+              <Typography level="body-sm" color="neutral" sx={{ mb: 2 }}>Build {new Date().toISOString().split('T')[0].replace(/-/g, '.')} (Production Stone)</Typography>
               
               <Typography level="body-md" sx={{ mb: 2, lineHeight: 1.6 }}>
-                  HEARTHSTONE (Hearthstone) is a next-generation household management engine designed for absolute data privacy and multi-tenant isolation.
+                  {APP_NAME.toUpperCase()} ({APP_NAME}) is a next-generation household management engine designed for absolute data privacy and multi-tenant isolation.
               </Typography>
               
               <Sheet variant="soft" color="neutral" sx={{ p: 2, borderRadius: 'md', mb: 3 }}>
                   <Typography level="body-xs" component="div" sx={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 1 }}>
-                      <b>Core Engine:</b> V4.2.0-STABLE
+                      <b>Core Engine:</b> V{APP_VERSION}-STABLE
                       <b>Architecture:</b> Monolithic Stone
-                      <b>Database:</b> SQLite (Optimized for Hearthstone V4 Architecture)
+                      <b>Database:</b> SQLite (Optimized for {APP_NAME} V4 Architecture)
                   </Typography>
               </Sheet>
           </Box>
@@ -388,7 +389,7 @@ export default function AdminSettings() {
                                 <b>Lead Architect:</b> Matt Bryant<br />
                                 <b>Framework:</b> MUI Joy UI & React<br />
                                 <b>Core Icons:</b> Google Material Symbols<br />
-                                <b>Database:</b> SQLite (Optimized for Hearthside V3 Architecture)
+                                <b>Database:</b> SQLite (Optimized for {APP_NAME} V4 Architecture)
                             </Typography>
                         </Box>
 

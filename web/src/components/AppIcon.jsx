@@ -1,6 +1,6 @@
 import { SvgIcon } from '@mui/joy';
 
-export default function HearthstoneIcon({ sx, ...props }) {
+export default function AppIcon({ sx, ...props }) {
   const primary = `var(--joy-palette-primary-solidBg)`;
 
   return (

@@ -50,15 +50,15 @@ export default function ThemeSettings() {
 
   // Custom Theme State
   const [customThemeConfig, setCustomThemeConfig] = useState(() => {
-    const DEFAULT_HEARTHSTONE = { primary: '#374151' };
+    const DEFAULT_THEME_CONFIG = { primary: '#374151' };
     if (user?.custom_theme) {
       try {
         return typeof user.custom_theme === 'string' 
           ? JSON.parse(user.custom_theme) 
           : user.custom_theme;
-      } catch { return DEFAULT_HEARTHSTONE; }
+      } catch { return DEFAULT_THEME_CONFIG; }
     }
-    return DEFAULT_HEARTHSTONE;
+    return DEFAULT_THEME_CONFIG;
   });
 
   useEffect(() => {

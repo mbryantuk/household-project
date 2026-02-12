@@ -25,7 +25,7 @@ const formatDate = (date) => {
 };
 
 export default function MealPlannerView() {
-  const { api, id: householdId, members, showNotification, isDark } = useOutletContext();
+  const { api, id: householdId, members, showNotification } = useOutletContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'planner';
   

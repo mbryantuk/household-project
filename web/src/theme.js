@@ -95,7 +95,7 @@ export const getEmojiColor = (emoji, isDark = true) => {
   return `hsl(${hue}, ${isDark ? 50 : 70}%, ${isDark ? 25 : 90}%)`;
 };
 
-export const getHearthstoneTheme = (themeId = 'hearth', customConfig = null) => {
+export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
   let base = THEMES[themeId] || THEMES.hearth;
   if (themeId === 'custom' && customConfig) {
       base = { ...base, ...customConfig };
@@ -197,7 +197,7 @@ export const getHearthstoneTheme = (themeId = 'hearth', customConfig = null) => 
       },
       JoyCard: {
         styleOverrides: {
-          root: ({ theme }) => ({
+          root: () => ({
             backgroundColor: 'var(--joy-palette-background-surface)',
             backdropFilter: 'blur(16px)',
             borderColor: 'var(--joy-palette-divider)',
@@ -212,7 +212,7 @@ export const getHearthstoneTheme = (themeId = 'hearth', customConfig = null) => 
       },
       JoySheet: {
         styleOverrides: {
-          root: ({ ownerState, theme }) => ({
+          root: ({ ownerState }) => ({
             ...(ownerState.variant === 'outlined' && {
                 borderColor: 'var(--joy-palette-divider)',
                 backgroundColor: 'var(--joy-palette-background-surface)',
@@ -228,7 +228,7 @@ export const getHearthstoneTheme = (themeId = 'hearth', customConfig = null) => 
       },
       JoyModalDialog: {
         styleOverrides: {
-          root: ({ theme }) => ({
+          root: () => ({
             backgroundColor: 'var(--joy-palette-background-surface)',
             backdropFilter: 'blur(20px)',
             borderColor: 'var(--joy-palette-divider)',

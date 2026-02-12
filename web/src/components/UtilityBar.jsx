@@ -39,8 +39,11 @@ import BudgetStatusWidget from './widgets/BudgetStatusWidget';
 import WealthWidget from './widgets/WealthWidget';
 
 import { useHousehold } from '../contexts/HouseholdContext';
+import { APP_NAME } from '../constants';
 
 const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, activeWidget, poppedOut, toggleWidget }) => {
+    const { mode, systemMode } = useColorScheme();
+    const isDark = mode === 'dark' || (mode === 'system' && systemMode === 'dark');
     const isOpen = activeWidget === id && !poppedOut[id];
     const buttonRef = useRef(null);
     const [leftPos, setLeftPos] = useState(0);
@@ -104,7 +107,7 @@ export default function UtilityBar() {
   };
 
   const handlePopout = (widget, url) => {
-      popoutRefs.current[widget] = window.open(url, `Mantel${widget}`, 'width=450,height=600');
+      popoutRefs.current[widget] = window.open(url, `${APP_NAME}${widget}`, 'width=450,height=600');
       setPoppedOut(prev => ({ ...prev, [widget]: true }));
       setActiveWidget(null);
   };

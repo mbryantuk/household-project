@@ -28,6 +28,7 @@ import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
 import { getEmojiColor } from '../theme';
 import { HouseholdProvider } from '../contexts/HouseholdContext';
+import { APP_NAME } from '../constants';
 
 const ROUTE_META = {
   dashboard: { title: 'Dashboard' },
@@ -152,7 +153,7 @@ export default function HouseholdLayout({
     const path = location.pathname || '';
     const parts = path.split('/');
     const section = parts[3];
-    return ROUTE_META[section]?.title || household?.name || 'HEARTHSTONE';
+    return ROUTE_META[section]?.title || household?.name || APP_NAME.toUpperCase();
   }, [location.pathname, household]);
 
   const contextValue = {
