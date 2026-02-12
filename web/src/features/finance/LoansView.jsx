@@ -66,15 +66,25 @@ export default function LoansView({ financialProfileId }) {
 
   useEffect(() => {
     if (selectedLoan) {
-      setFormData({
-        lender: selectedLoan.lender || '', 
-        loan_type: selectedLoan.loan_type || '',
-        total_amount: selectedLoan.total_amount || 0,
-        remaining_balance: selectedLoan.remaining_balance || 0, 
-        monthly_payment: selectedLoan.monthly_payment || 0,
-        payment_day: selectedLoan.payment_day || '',
-        nearest_working_day: selectedLoan.nearest_working_day ?? 1,
-        emoji: selectedLoan.emoji || '📝'
+      setFormData(prev => {
+          if (prev.lender === selectedLoan.lender && 
+              prev.loan_type === selectedLoan.loan_type && 
+              prev.total_amount === selectedLoan.total_amount &&
+              prev.remaining_balance === selectedLoan.remaining_balance &&
+              prev.monthly_payment === selectedLoan.monthly_payment &&
+              prev.payment_day === selectedLoan.payment_day &&
+              prev.nearest_working_day === selectedLoan.nearest_working_day &&
+              prev.emoji === selectedLoan.emoji) return prev;
+          return {
+            lender: selectedLoan.lender || '', 
+            loan_type: selectedLoan.loan_type || '',
+            total_amount: selectedLoan.total_amount || 0,
+            remaining_balance: selectedLoan.remaining_balance || 0, 
+            monthly_payment: selectedLoan.monthly_payment || 0,
+            payment_day: selectedLoan.payment_day || '',
+            nearest_working_day: selectedLoan.nearest_working_day ?? 1,
+            emoji: selectedLoan.emoji || '📝'
+          };
       });
       setSelectedMembers(getAssignees(selectedLoan.id).map(m => m.id));
     } else if (selectedLoanId === 'new') {

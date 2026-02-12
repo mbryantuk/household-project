@@ -104,7 +104,6 @@ export default function ChargesView({ initialTab }) {
   }, [householdId, api]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCharges();
     fetchEntities();
   }, [fetchCharges, fetchEntities]);

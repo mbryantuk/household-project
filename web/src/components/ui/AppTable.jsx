@@ -4,42 +4,45 @@ import { Box, Sheet, Typography } from '@mui/joy';
 import { styled } from '@mui/joy/styles';
 import StatusBar from './StatusBar';
 
-const StyledDataGridContainer = styled(Sheet)(() => ({
-  height: 500,
-  width: '100%',
-  '& .MuiDataGrid-root': {
-    border: 'none',
-    color: 'var(--joy-palette-text-primary)',
-    fontFamily: 'var(--joy-fontFamily-body)',
-    '& .MuiDataGrid-cell': {
-      borderColor: 'var(--joy-palette-divider)',
-    },
-    '& .MuiDataGrid-columnHeaders': {
-      backgroundColor: 'var(--joy-palette-background-level1)',
-      borderColor: 'var(--joy-palette-divider)',
-      color: 'var(--joy-palette-text-secondary)',
-      textTransform: 'uppercase',
-      fontSize: '0.75rem',
-      fontWeight: 'bold',
-      letterSpacing: '0.1em',
-    },
-    '& .MuiDataGrid-footerContainer': {
-      display: 'none', // We use our own StatusBar
-    },
-    '& .MuiDataGrid-row:hover': {
-      backgroundColor: 'var(--joy-palette-background-level1)',
-    },
-    '& .MuiDataGrid-row.Mui-selected': {
-      backgroundColor: 'var(--joy-palette-primary-softBg)',
-      '&:hover': {
-        backgroundColor: 'var(--joy-palette-primary-softBg)',
+const StyledDataGridContainer = styled(Sheet)(({ theme }) => {
+  const vars = theme?.vars || { palette: { text: {}, background: {}, primary: {} }, fontFamily: {}, radius: {} };
+  return {
+    height: 500,
+    width: '100%',
+    '& .MuiDataGrid-root': {
+      border: 'none',
+      color: vars.palette.text.primary || 'inherit',
+      fontFamily: vars.fontFamily.body || 'inherit',
+      '& .MuiDataGrid-cell': {
+        borderColor: vars.palette.divider || 'rgba(0,0,0,0.1)',
       },
+      '& .MuiDataGrid-columnHeaders': {
+        backgroundColor: vars.palette.background.level1 || 'rgba(0,0,0,0.05)',
+        borderColor: vars.palette.divider || 'rgba(0,0,0,0.1)',
+        color: vars.palette.text.secondary || 'inherit',
+        textTransform: 'uppercase',
+        fontSize: '0.75rem',
+        fontWeight: 'bold',
+        letterSpacing: '0.1em',
+      },
+      '& .MuiDataGrid-footerContainer': {
+        display: 'none', // We use our own StatusBar
+      },
+      '& .MuiDataGrid-row:hover': {
+        backgroundColor: vars.palette.background.level1 || 'rgba(0,0,0,0.05)',
+      },
+      '& .MuiDataGrid-row.Mui-selected': {
+        backgroundColor: vars.palette.primary.softBg || 'rgba(0,0,0,0.1)',
+        '&:hover': {
+          backgroundColor: vars.palette.primary.softBg || 'rgba(0,0,0,0.1)',
+        },
+      },
+      '& .MuiCheckbox-root': {
+          color: vars.palette.primary.solidBg || 'inherit',
+      }
     },
-    '& .MuiCheckbox-root': {
-        color: 'var(--joy-palette-primary-solidBg)',
-    }
-  },
-}));
+  };
+});
 
 /**
  * AppTable - Joy UI wrapper for MUI X Data Grid.

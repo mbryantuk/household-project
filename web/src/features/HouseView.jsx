@@ -10,7 +10,7 @@ import {
   Wifi, Bolt, WaterDrop, Construction,
   InfoOutlined, TrendingUp, CalendarMonth,
   Add, ArrowForward, Pets, ChildCare, Person,
-  Receipt, Settings, Apartment, Assignment
+  Receipt, Settings, Apartment, Assignment, Edit
 } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
 

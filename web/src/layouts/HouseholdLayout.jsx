@@ -38,7 +38,7 @@ const ROUTE_META = {
   house: { title: 'House' },
   vehicles: { title: 'Vehicles' },
   finance: { title: 'Finance' },
-  shopping: { title: 'Shopping List' },
+  shopping: { title: 'Groceries' },
   meals: { title: 'Meal Planner' },
   settings: { title: 'Settings' },
   profile: { title: 'Profile' }

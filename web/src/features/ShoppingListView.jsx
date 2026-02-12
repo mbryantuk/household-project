@@ -116,7 +116,7 @@ export default function ShoppingListView() {
         {/* Header */}
         <Box sx={{ mb: 4, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
             <Box>
-                <Typography level="h2" startDecorator={<ShoppingBag />}>Shopping List</Typography>
+                <Typography level="h2" startDecorator={<ShoppingBag />}>Groceries</Typography>
                 <Typography level="body-md" color="neutral">Manage your weekly grocery needs.</Typography>
             </Box>
             

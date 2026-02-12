@@ -197,7 +197,7 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
       },
       JoyCard: {
         styleOverrides: {
-          root: () => ({
+          root: ({ theme }) => ({
             backgroundColor: 'var(--joy-palette-background-surface)',
             backdropFilter: 'blur(16px)',
             borderColor: 'var(--joy-palette-divider)',
@@ -212,7 +212,7 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
       },
       JoySheet: {
         styleOverrides: {
-          root: ({ ownerState }) => ({
+          root: ({ ownerState, theme }) => ({
             ...(ownerState.variant === 'outlined' && {
                 borderColor: 'var(--joy-palette-divider)',
                 backgroundColor: 'var(--joy-palette-background-surface)',
@@ -228,7 +228,7 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
       },
       JoyModalDialog: {
         styleOverrides: {
-          root: () => ({
+          root: ({ theme }) => ({
             backgroundColor: 'var(--joy-palette-background-surface)',
             backdropFilter: 'blur(20px)',
             borderColor: 'var(--joy-palette-divider)',

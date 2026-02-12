@@ -48,10 +48,10 @@ test.describe('Core UI Smoke Tests', () => {
         await expect(page.locator('h2')).toContainText('Meal Planner');
     });
 
-    test('Shopping List: Add Item and Budget Estimate', async ({ page }) => {
-        // Navigate
-        await page.getByRole('link', { name: 'Shopping List' }).click();
-        await expect(page.locator('h2')).toContainText('Shopping List');
+    test('Groceries: Add Item and Budget Estimate', async ({ page }) => {
+        const hhId = await page.evaluate(() => localStorage.getItem('last_household_id'));
+        await page.goto(`/household/${hhId}/shopping`);
+        await expect(page.locator('h2')).toContainText('Groceries');
 
         // Add Item
         await page.fill('input[placeholder="Item name (e.g. Milk)"]', 'Playwright Milk');

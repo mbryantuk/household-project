@@ -49,12 +49,19 @@ export default function InvestmentsView({ financialProfileId }) {
 
   useEffect(() => {
     if (selectedInvestment) {
-      setFormData({
-        name: selectedInvestment.name || '', 
-        platform: selectedInvestment.platform || '',
-        current_value: selectedInvestment.current_value || 0, 
-        total_invested: selectedInvestment.total_invested || 0,
-        emoji: selectedInvestment.emoji || '📈'
+      setFormData(prev => {
+          if (prev.name === selectedInvestment.name && 
+              prev.platform === selectedInvestment.platform && 
+              prev.current_value === selectedInvestment.current_value &&
+              prev.total_invested === selectedInvestment.total_invested &&
+              prev.emoji === selectedInvestment.emoji) return prev;
+          return {
+            name: selectedInvestment.name || '', 
+            platform: selectedInvestment.platform || '',
+            current_value: selectedInvestment.current_value || 0, 
+            total_invested: selectedInvestment.total_invested || 0,
+            emoji: selectedInvestment.emoji || '📈'
+          };
       });
     } else if (selectedInvestmentId === 'new') {
       setFormData({

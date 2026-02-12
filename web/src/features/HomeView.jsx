@@ -37,7 +37,7 @@ export default function HomeView() {
         path: 'meals', desc: 'Weekly Planner', emoji: '🍝' 
     },
     { 
-        id: 'shopping', label: 'Shopping', icon: ShoppingBag, color: 'primary', 
+        id: 'shopping', label: 'Groceries', icon: ShoppingBag, color: 'primary', 
         path: 'shopping', desc: 'Grocery List', emoji: '🛒' 
     },
     { 
