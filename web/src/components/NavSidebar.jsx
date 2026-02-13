@@ -75,23 +75,28 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
                   aria-label={label}
                   sx={{ 
                       borderRadius: 'md', justifyContent: 'center', px: 0, 
-                      flexDirection: 'column', gap: 1, py: 1.5, width: 64, 
-                      mx: 'auto', minHeight: 68,
+                      flexDirection: 'column', gap: 0.5, py: 1, width: 56, 
+                      mx: 'auto', minHeight: 60,
+                      transition: 'all 0.2s',
                       '&.Mui-selected': { 
                           bgcolor: 'primary.softBg', 
-                          color: 'primary.solidBg' 
+                          color: 'primary.solidBg',
+                          transform: 'scale(0.95)'
+                      },
+                      '&:hover': {
+                          bgcolor: 'background.level1'
                       }
                   }}
               >
                   <ListItemDecorator sx={{ 
                       display: 'flex', justifyContent: 'center', m: 0, 
-                      '& svg': { fontSize: '1.6rem' },
+                      '& svg': { fontSize: '1.5rem' },
                       color: isActive ? 'primary.solidBg' : 'text.secondary' 
                   }}>
                       {icon}
                   </ListItemDecorator>
                   <Typography level="body-xs" sx={{ 
-                      fontSize: '11px', 
+                      fontSize: '10px', 
                       fontWeight: isActive ? '700' : '500', 
                       color: isActive ? 'primary.solidBg' : 'text.secondary', 
                       textAlign: 'center' 
@@ -376,7 +381,7 @@ export default function NavSidebar({
                       <RailIcon icon={<HomeIcon />} label="House" category="household" hasSubItems to={`/household/${household.id}/house`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                       <RailIcon icon={<Event />} label="Calendar" category="calendar" to={`/household/${household.id}/calendar`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                   </List>
-                  <Divider sx={{ my: 1.5, width: isMobile ? '100%' : 40, mx: 'auto' }} />
+                  <Divider sx={{ my: 1.5, width: isMobile ? '100%' : 48, mx: 'auto', bgcolor: isDark ? 'neutral.700' : 'neutral.300', height: '2px' }} />
               </Box>
   
               <Box sx={{ width: '100%', flexGrow: 1, overflowY: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>

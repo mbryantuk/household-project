@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Enhancements: Breadcrumbs, Map, Card Layouts, Sidebar Fix",
-  "date": "Fri 13 Feb 09:29:34 GMT 2026"
+  "commitMessage": "Migrate HouseholdDetailsView to GenericObjectView + Sidebar Refinements",
+  "date": "Fri 13 Feb 09:39:32 GMT 2026"
 }

@@ -20,7 +20,8 @@ export default function GenericObjectView({
   fields = [], costSegments = [], initialData = null, 
   endpoint, onSave, onDelete, onCancel,
   scope: { isAdmin, showNotification, confirmAction },
-  title, subtitle, extraTabs = [], defaultValues = {}
+  title, subtitle, extraTabs = [], defaultValues = {},
+  customSubmit
 }) {
   const isNew = id === 'new';
   const [loading, setLoading] = useState(!isNew && !initialData);
@@ -60,18 +61,25 @@ export default function GenericObjectView({
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (isNew) {
-        const res = await api.post(endpoint, data);
-        showNotification("Created successfully.", "success");
-        if (onSave) onSave(res.data);
+      if (customSubmit) {
+          await customSubmit(data, isNew);
+          if (onSave) onSave(data);
       } else {
-        await api.put(`${endpoint}/${id}`, data);
-        showNotification("Updated successfully.", "success");
-        if (onSave) onSave(data);
+          if (isNew) {
+            const res = await api.post(endpoint, data);
+            showNotification("Created successfully.", "success");
+            if (onSave) onSave(res.data);
+          } else {
+            await api.put(`${endpoint}/${id}`, data);
+            showNotification("Updated successfully.", "success");
+            if (onSave) onSave(data);
+          }
       }
     } catch (err) {
       console.error(err);
-      showNotification("Failed to save.", "danger");
+      // Let customSubmit handle its own specific error notifications if it wants, 
+      // but generic fallback here.
+      if (!customSubmit) showNotification("Failed to save.", "danger");
     }
   };
 
