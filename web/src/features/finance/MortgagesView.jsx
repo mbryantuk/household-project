@@ -5,7 +5,7 @@ import {
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
   Avatar, Sheet, Dropdown, Menu, MenuButton, MenuItem, Checkbox, IconButton
 } from '@mui/joy';
-import { Add, Sell, AccountBalanceWallet, ArrowDropDown } from '@mui/icons-material';
+import { Add, Sell, AccountBalanceWallet, ArrowDropDown, Edit } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import AppSelect from '../../components/ui/AppSelect';
@@ -247,7 +247,7 @@ export default function MortgagesView({ financialProfileId }) {
             isDark={isDark}
             action={isAdmin && (
                 <Dropdown>
-                    <MenuButton variant="solid" color="primary" startDecorator={<Add />} endDecorator={<ArrowDropDown />}>Add New</MenuButton>
+                    <MenuButton variant="solid" color="primary" startDecorator={<Add />} endDecorator={<ArrowDropDown />} sx={{ height: '44px' }}>Add New</MenuButton>
                     <Menu placement="bottom-end">
                         <MenuItem onClick={() => setMortgageId('new', 'mortgage')}>Add Mortgage</MenuItem>
                         <MenuItem onClick={() => setMortgageId('new', 'equity')}>Add Equity Loan</MenuItem>
@@ -349,7 +349,6 @@ export default function MortgagesView({ financialProfileId }) {
         </Stack>
 
         <Modal open={Boolean(selectedMortgageId)} onClose={() => setMortgageId(null)}>
-            {/* ... Modal content remains mostly same, just ensuring correct layout in main cards ... */}
             <ModalDialog sx={{ width: '100%', maxWidth: 700, maxHeight: '95vh', overflowY: 'auto' }}>
                 <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
                     <Box sx={{ position: 'relative' }}>

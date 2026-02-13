@@ -4,7 +4,7 @@ import {
   Box, Typography, Grid, Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider, Avatar, LinearProgress, Checkbox, IconButton
 } from '@mui/joy';
-import { Add } from '@mui/icons-material';
+import { Add, Edit } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import ModuleHeader from '../../components/ui/ModuleHeader';
@@ -143,7 +143,7 @@ export default function CreditCardsView({ financialProfileId }) {
             emoji="💳"
             isDark={isDark}
             action={isAdmin && (
-                <Button startDecorator={<Add />} onClick={() => setCardId('new')}>
+                <Button variant="solid" startDecorator={<Add />} onClick={() => setCardId('new')} sx={{ height: '44px' }}>
                     Add Card
                 </Button>
             )}

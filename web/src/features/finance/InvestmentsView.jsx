@@ -15,7 +15,7 @@ const formatCurrency = (val, currencyCode = 'GBP') => {
     const num = parseFloat(val) || 0;
     let code = currencyCode === '£' ? 'GBP' : (currencyCode === '$' ? 'USD' : (currencyCode || 'GBP'));
     try {
-        return num.toLocaleString('en-GB', { style: 'currency', currency: code, minimumFractionDigits: 2 });
+        return num.toLocaleString('en-GB', { style: 'currency', currency: code, minimumFractionDigits: 2, maximumFractionDigits: 2 });
     } catch { return `£${num.toFixed(2)}`; }
 };
 
@@ -109,7 +109,7 @@ export default function InvestmentsView({ financialProfileId }) {
           emoji="📈"
           isDark={isDark}
           action={
-              <Button startDecorator={<Add />} onClick={() => setInvestmentId('new')}>Add Investment</Button>
+              <Button variant="solid" startDecorator={<Add />} onClick={() => setInvestmentId('new')} sx={{ height: '44px' }}>Add Investment</Button>
           }
       />
 

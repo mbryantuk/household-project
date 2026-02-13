@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
-  FormControl, FormLabel, Stack, CircularProgress, Divider,
+  FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
   Avatar, IconButton, LinearProgress, Accordion, AccordionSummary, AccordionDetails, Table, Card
 } from '@mui/joy';
 import { Edit, Delete, Add, ExpandMore, Savings, TrendingUp, Remove } from '@mui/icons-material';
@@ -27,7 +27,7 @@ export default function SavingsView({ financialProfileId }) {
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
   const selectedAccountId = queryParams.get('selectedAccountId');
-  const selectedPotId = queryParams.get('selectedPotId');
+  const selectedPotId = queryParam.get('selectedPotId');
 
   const [accounts, setAccounts] = useState([]);
   const [pots, setPots] = useState({}); // Map of savingsId -> [pots]
@@ -241,12 +241,12 @@ export default function SavingsView({ financialProfileId }) {
   return (
     <Box>
         <ModuleHeader 
-            title="Savings"
+            title="Savings & Pots"
             description="Monitor savings goals and rainy day funds."
             emoji="💰"
             isDark={isDark}
             action={isAdmin && (
-                <Button startDecorator={<Add />} onClick={() => setAccountId('new')}>
+                <Button variant="solid" startDecorator={<Add />} onClick={() => setAccountId('new')} sx={{ height: '44px' }}>
                     Add Savings Account
                 </Button>
             )}

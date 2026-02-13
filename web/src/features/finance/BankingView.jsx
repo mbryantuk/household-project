@@ -161,7 +161,7 @@ export default function BankingView({ financialProfileId }) {
             emoji="💳"
             isDark={isDark}
             action={isAdmin && (
-                <Button variant="solid" startDecorator={<Add />} onClick={() => setAccountId('new')}>
+                <Button variant="solid" startDecorator={<Add />} onClick={() => setAccountId('new')} sx={{ height: '44px' }}>
                     Add Account
                 </Button>
             )}

@@ -9,7 +9,8 @@ import {
 import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
-import AppSelect from '../../components/ui/AppSelect';
+import ModuleHeader from '../../components/ui/ModuleHeader';
+import FinanceCard from '../../components/ui/FinanceCard';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -55,14 +56,15 @@ export default function AgreementsView({ isSubscriptions = false, financialProfi
     if (!financialProfileId) return;
     setLoading(true);
     try {
+      const endpoint = isSubscriptions ? 'subscriptions' : 'agreements';
       const [res, assRes] = await Promise.all([
-          api.get(`/households/${householdId}/finance/agreements?financial_profile_id=${financialProfileId}`),
-          api.get(`/households/${householdId}/finance/assignments?entity_type=finance_agreements`)
+          api.get(`/households/${householdId}/finance/${endpoint}?financial_profile_id=${financialProfileId}`),
+          api.get(`/households/${householdId}/finance/assignments?entity_type=${isSubscriptions ? 'subscription' : 'agreement'}`)
       ]);
       setItems(res.data || []);
       setAssignments(assRes.data || []);
     } catch (err) { console.error("Failed to fetch agreements", err); } finally { setLoading(false); }
-  }, [api, householdId, financialProfileId]);
+  }, [api, householdId, financialProfileId, isSubscriptions]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -84,22 +86,25 @@ export default function AgreementsView({ isSubscriptions = false, financialProfi
     data.financial_profile_id = financialProfileId;
 
     try {
+      const endpoint = isSubscriptions ? 'subscriptions' : 'agreements';
       let itemId = selectedAgreementId;
       if (selectedAgreementId === 'new') {
-        const res = await api.post(`/households/${householdId}/finance/agreements`, data);
+        const res = await api.post(`/households/${householdId}/finance/${endpoint}`, data);
         itemId = res.data.id;
-        showNotification("Agreement added.", "success");
+        showNotification("Item added.", "success");
       } else {
-        await api.put(`/households/${householdId}/finance/agreements/${itemId}`, data);
-        showNotification("Agreement updated.", "success");
+        await api.put(`/households/${householdId}/finance/${endpoint}/${itemId}`, data);
+        showNotification("Item updated.", "success");
       }
+
+      const entityType = isSubscriptions ? 'subscription' : 'agreement';
       const currentIds = selectedAgreementId === 'new' ? [] : getAssignees(itemId).map(m => m.id);
       const toAdd = selectedMembers.filter(id => !currentIds.includes(id));
       await Promise.all(toAdd.map(mid => api.post(`/households/${householdId}/finance/assignments`, {
-          entity_type: 'finance_agreements', entity_id: itemId, member_id: mid
+          entity_type: entityType, entity_id: itemId, member_id: mid
       })));
       const toRemove = currentIds.filter(id => !selectedMembers.includes(id));
-      await Promise.all(toRemove.map(mid => api.delete(`/households/${householdId}/finance/assignments/finance_agreements/${itemId}/${mid}`)));
+      await Promise.all(toRemove.map(mid => api.delete(`/households/${householdId}/finance/assignments/${entityType}/${itemId}/${mid}`)));
       
       await fetchData();
       setAgreementId(null);
@@ -108,8 +113,9 @@ export default function AgreementsView({ isSubscriptions = false, financialProfi
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this item?")) return;
+    const endpoint = isSubscriptions ? 'subscriptions' : 'agreements';
     try { 
-        await api.delete(`/households/${householdId}/finance/agreements/${id}`); 
+        await api.delete(`/households/${householdId}/finance/${endpoint}/${id}`); 
         fetchData(); 
         if (selectedAgreementId === String(id)) setAgreementId(null);
     } catch { alert("Failed to delete"); }
@@ -118,17 +124,20 @@ export default function AgreementsView({ isSubscriptions = false, financialProfi
   const handleAssignMember = async (memberId) => {
       try {
           await api.post(`/households/${householdId}/finance/assignments`, {
-              entity_type: 'finance_agreements', entity_id: assignItem.id, member_id: memberId
+              entity_type: isSubscriptions ? 'subscription' : 'agreement',
+              entity_id: assignItem.id,
+              member_id: memberId
           });
-          const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=finance_agreements`);
+          const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=${isSubscriptions ? 'subscription' : 'agreement'}`);
           setAssignments(assRes.data || []);
       } catch (err) { console.error("Assignment failed", err); }
   };
 
   const handleUnassignMember = async (memberId) => {
       try {
-          await api.delete(`/households/${householdId}/finance/assignments/finance_agreements/${assignItem.id}/${memberId}`);
-          const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=finance_agreements`);
+          const type = isSubscriptions ? 'subscription' : 'agreement';
+          await api.delete(`/households/${householdId}/finance/assignments/${type}/${assignItem.id}/${memberId}`);
+          const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=${type}`);
           setAssignments(assRes.data || []);
       } catch (err) { console.error("Removal failed", err); }
   };
@@ -137,94 +146,52 @@ export default function AgreementsView({ isSubscriptions = false, financialProfi
 
   return (
     <Box>
-        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-            <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                    {isSubscriptions ? 'Subscriptions' : 'Agreements & Contracts'}
-                </Typography>
-                <Typography level="body-md" color="neutral">
-                    {isSubscriptions ? 'Manage rolling services and digital subscriptions.' : 'Track fixed-term contracts and financial obligations.'}
-                </Typography>
-            </Box>
-            {isAdmin && (
-                <Button startDecorator={<Add />} onClick={() => setAgreementId('new')}>
+        <ModuleHeader 
+            title={isSubscriptions ? "Subscriptions" : "Agreements"}
+            description={isSubscriptions ? "Manage your recurring services." : "Manage contracts and legal agreements."}
+            emoji={isSubscriptions ? "📺" : "📄"}
+            isDark={isDark}
+            action={isAdmin && (
+                <Button variant="solid" startDecorator={<Add />} onClick={() => setAgreementId('new')} sx={{ height: '44px' }}>
                     Add {isSubscriptions ? 'Subscription' : 'Agreement'}
                 </Button>
             )}
-        </Box>
+        />
 
         <Grid container spacing={3}>
-            {items.map(item => {
-                const total = parseFloat(item.total_amount) || 0;
-                const remaining = parseFloat(item.remaining_balance) || 0;
-                const progress = total > 0 ? ((total - remaining) / total) * 100 : 0;
-
-                return (
-                    <Grid xs={12} lg={6} xl={4} key={item.id}>
-                        <Card variant="outlined" sx={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                <Avatar size="lg" sx={{ bgcolor: getEmojiColor(item.emoji || (isSubscriptions ? '📱' : '📄'), isDark) }}>
-                                    {item.emoji || (isSubscriptions ? '📱' : '📄')}
-                                </Avatar>
-                                <Box sx={{ flexGrow: 1 }}>
-                                    <Typography level="title-lg">{item.agreement_name}</Typography>
-                                    <Typography level="body-sm" color="neutral">{item.provider}</Typography>
-                                </Box>
-                                <Box sx={{ textAlign: 'right' }}>
-                                    {remaining > 0 ? (
-                                        <>
-                                            <Typography level="h3" color="danger">{formatCurrency(remaining)}</Typography>
-                                            <Typography level="body-xs" color="neutral">of {formatCurrency(total)}</Typography>
-                                        </>
-                                    ) : (
-                                        <Typography level="h3">{formatCurrency(item.monthly_payment)}<Typography level="body-xs" color="neutral">/mo</Typography></Typography>
-                                    )}
-                                </Box>
-                            </Box>
-
-                            {total > 0 && (
-                                <Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                        <Typography level="body-xs">Contract Progress</Typography>
-                                        <Typography level="body-xs" fontWeight="bold">{progress.toFixed(2)}%</Typography>
-                                    </Box>
-                                    <LinearProgress determinate value={Math.min(progress, 100)} color="success" />
-                                </Box>
-                            )}
-
-                            <Grid container spacing={2}>
-                                <Grid xs={6}>
-                                    <Typography level="body-xs" color="neutral">Monthly Payment</Typography>
-                                    <Typography level="body-sm">{formatCurrency(item.monthly_payment)}</Typography>
-                                </Grid>
-                                <Grid xs={6}>
-                                    <Typography level="body-xs" color="neutral">Payment Day</Typography>
-                                    <Typography level="body-sm">{item.payment_day || '-'}</Typography>
-                                </Grid>
-                                <Grid xs={12}>
-                                    <Typography level="body-xs" color="neutral">Period</Typography>
-                                    <Typography level="body-sm">{item.start_date || 'N/A'} to {item.end_date || 'Ongoing'}</Typography>
-                                </Grid>
-                            </Grid>
-
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 'auto', pt: 2 }}>
-                                <AvatarGroup size="sm">
-                                    {getAssignees(item.id).map(m => (
-                                        <Avatar key={m.id} sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji}</Avatar>
-                                    ))}
-                                    <IconButton size="sm" onClick={() => setAssignItem(item)} sx={{ borderRadius: '50%' }}><GroupAdd /></IconButton>
-                                </AvatarGroup>
-                                <IconButton size="sm" onClick={() => setAgreementId(item.id)}><Edit /></IconButton>
-                            </Box>
-                        </Card>
-                    </Grid>
-                );
-            })}
+            {items.map(item => (
+                <Grid xs={12} lg={6} xl={4} key={item.id}>
+                    <FinanceCard
+                        title={item.agreement_name}
+                        subtitle={item.provider}
+                        emoji={item.emoji || (isSubscriptions ? '📺' : '📄')}
+                        isDark={isDark}
+                        balance={item.monthly_payment}
+                        balanceColor="neutral"
+                        subValue={item.frequency}
+                        assignees={getAssignees(item.id)}
+                        onAssign={() => setAssignItem(item)}
+                        onEdit={() => setAgreementId(item.id)}
+                        onDelete={() => handleDelete(item.id)}
+                    >
+                        <Typography level="body-xs" color="neutral">End/Renewal: {item.end_date || 'Ongoing'}</Typography>
+                    </FinanceCard>
+                </Grid>
+            ))}
         </Grid>
 
         <Modal open={Boolean(selectedAgreementId)} onClose={() => setAgreementId(null)}>
             <ModalDialog sx={{ width: '100%', maxWidth: 500 }}>
-                <DialogTitle>{selectedAgreementId === 'new' ? (isSubscriptions ? 'Add Subscription' : 'Add Agreement') : 'Edit Details'}</DialogTitle>
+                <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
+                    <Box sx={{ position: 'relative' }}>
+                        <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(selectedEmoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => setEmojiPicker(true)}>{selectedEmoji}</Avatar>
+                        <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => setEmojiPicker(true)}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
+                    </Box>
+                    <Box sx={{ flexGrow: 1 }}>
+                        <DialogTitle>{selectedAgreementId === 'new' ? (isSubscriptions ? 'Add Subscription' : 'Add Agreement') : 'Edit Details'}</DialogTitle>
+                        <Typography level="body-sm" color="neutral">Manage your household contracts.</Typography>
+                    </Box>
+                </Box>
                 <DialogContent>
                     <form onSubmit={handleSubmit}>
                         <Stack spacing={2} sx={{ mt: 1 }}>
@@ -280,13 +247,6 @@ export default function AgreementsView({ isSubscriptions = false, financialProfi
                                 </Grid>
                             </Grid>
 
-                            <FormControl><FormLabel>Emoji</FormLabel>
-                                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                    <Button variant="outlined" color="neutral" onClick={() => setEmojiPicker(true)} sx={{ minWidth: 48 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(selectedEmoji, isDark) }}>{selectedEmoji}</Avatar></Button>
-                                    <input type="hidden" name="emoji" value={selectedEmoji} />
-                                </Box>
-                            </FormControl>
-                            
                             <FormControl><FormLabel>Assign Members</FormLabel>
                                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                                     {members.filter(m => m.type !== 'pet').map(m => {
@@ -300,7 +260,7 @@ export default function AgreementsView({ isSubscriptions = false, financialProfi
                             {selectedAgreementId !== 'new' && <Button color="danger" variant="soft" onClick={() => handleDelete(selectedAgreement.id)}>Delete</Button>}
                             <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
                                 <Button variant="plain" color="neutral" onClick={() => setAgreementId(null)}>Cancel</Button>
-                                <Button type="submit">Save</Button>
+                                <Button type="submit" color="primary">Save</Button>
                             </Box>
                         </Box>
                     </form>

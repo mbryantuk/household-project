@@ -152,7 +152,7 @@ export default function LoansView({ financialProfileId }) {
           emoji="📝"
           isDark={isDark}
           action={isAdmin && (
-              <Button startDecorator={<Add />} onClick={() => setLoanId('new')}>Add Loan</Button>
+              <Button variant="solid" startDecorator={<Add />} onClick={() => setLoanId('new')} sx={{ height: '44px' }}>Add Loan</Button>
           )}
       />
 

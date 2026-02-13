@@ -4,7 +4,7 @@ import {
   Box, Typography, Grid, Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider, Avatar, Checkbox, IconButton
 } from '@mui/joy';
-import { Add } from '@mui/icons-material';
+import { Add, Edit } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import ModuleHeader from '../../components/ui/ModuleHeader';
@@ -155,7 +155,7 @@ export default function PensionsView({ financialProfileId }) {
             emoji="⏳"
             isDark={isDark}
             action={isAdmin && (
-                <Button startDecorator={<Add />} onClick={() => setPensionId('new')}>
+                <Button variant="solid" startDecorator={<Add />} onClick={() => setPensionId('new')} sx={{ height: '44px' }}>
                     Add Pension
                 </Button>
             )}
