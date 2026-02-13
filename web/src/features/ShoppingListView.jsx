@@ -112,9 +112,9 @@ export default function ShoppingListView() {
   }, [items, budgetLimit]);
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', pb: 10 }}>
+    <Box sx={{ width: '100%', mx: 'auto', pb: 10 }}>
         {/* Header */}
-        <Box sx={{ mb: 4, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Box>
                 <Typography level="h2" startDecorator={<ShoppingBag />}>Groceries</Typography>
                 <Typography level="body-md" color="neutral">Manage your weekly grocery needs.</Typography>

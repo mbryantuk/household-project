@@ -30,7 +30,7 @@ export default function SettingsView() {
   };
 
   return (
-    <Box sx={{ flex: 1, width: '100%', maxWidth: 1200, mx: 'auto', p: { xs: 1, md: 2 } }}>
+    <Box sx={{ flex: 1, width: '100%', mx: 'auto', p: { xs: 1, md: 2 } }}>
       <Typography level="h2" sx={{ mb: 4, fontWeight: 'lg' }}>Control Center</Typography>
 
       <Tabs 

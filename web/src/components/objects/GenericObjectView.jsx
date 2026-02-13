@@ -118,10 +118,10 @@ export default function GenericObjectView({
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
   return (
-    <Box sx={{ maxWidth: '1200px', mx: 'auto', pb: 10 }}>
+    <Box sx={{ width: '100%', mx: 'auto', pb: 10 }}>
       {/* Breadcrumbs */}
       <Breadcrumbs separator={<ChevronRight fontSize="sm" />} sx={{ px: 0, mb: 2 }}>
-        <Link color="neutral" href={`/household/${householdId}/dashboard`}><Home /></Link>
+        <Link color="neutral" href={`/household/${householdId}/house`}><Home /></Link>
         <Typography color="neutral" sx={{ textTransform: 'capitalize' }}>{type}s</Typography>
         <Typography color="primary" fontWeight="lg">{resolvedTitle}</Typography>
       </Breadcrumbs>

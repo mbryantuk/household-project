@@ -142,7 +142,7 @@ export default function HouseView() {
   }, [household]);
 
   return (
-    <Box sx={{ maxWidth: '1400px', mx: 'auto', pb: 8 }}>
+    <Box sx={{ width: '100%', mx: 'auto', pb: 8 }}>
         {/* Breadcrumbs */}
         <Breadcrumbs separator={<ChevronRight fontSize="sm" />} sx={{ px: 0, mb: 2 }}>
             <Link color="neutral" href={`/household/${household.id}/dashboard`}><Home /></Link>

@@ -65,7 +65,7 @@ export default function HomeView() {
   ], [members, vehicles]);
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', pb: 10 }}>
+    <Box sx={{ width: '100%', mx: 'auto', pb: 10 }}>
       {/* Welcome Header */}
       <Box sx={{ mb: 6, pt: 2 }}>
         <Typography level="h1" sx={{ fontSize: { xs: '2.5rem', md: '3.5rem' }, mb: 1 }}>

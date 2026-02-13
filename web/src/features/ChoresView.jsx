@@ -171,9 +171,9 @@ export default function ChoresView() {
   };
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', pb: 10 }}>
+    <Box sx={{ width: '100%', mx: 'auto', pb: 10 }}>
         {/* Header */}
-        <Box sx={{ mb: 4, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
+        <Box sx={{  mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Box>
                 <Typography level="h2" startDecorator={<CleaningServices />}>Chores Tracker</Typography>
                 <Typography level="body-md" color="neutral">Assign tasks, track completion, and manage pocket money.</Typography>
