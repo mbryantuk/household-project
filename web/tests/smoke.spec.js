@@ -34,15 +34,12 @@ test.describe('Core UI Smoke Tests', () => {
         await expect(page).toHaveURL(/.*financial_profile_id=.*/);
     });
 
-    test('Core Navigation: House Hub, Calendar, Meals', async ({ page }) => {
+    test('Core Navigation: House Hub, Meals', async ({ page }) => {
         await page.getByRole('link', { name: 'House' }).click();
         // The header contains either 'House Hub' or the Household Name
         await expect(page.locator('h2')).toBeVisible();
         const headerText = await page.locator('h2').innerText();
         expect(headerText.length).toBeGreaterThan(0);
-
-        await page.getByRole('link', { name: 'Calendar' }).click();
-        await expect(page.locator('h2')).toContainText('Calendar');
 
         await page.getByRole('link', { name: 'Meals' }).click();
         await expect(page.locator('h2')).toContainText('Meal Planner');

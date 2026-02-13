@@ -3,7 +3,7 @@ import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  Avatar, Sheet, Dropdown, Menu, MenuButton, MenuItem, Checkbox
+  Avatar, Sheet, Dropdown, Menu, MenuButton, MenuItem, Checkbox, IconButton
 } from '@mui/joy';
 import { Add, Sell, AccountBalanceWallet, ArrowDropDown } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';

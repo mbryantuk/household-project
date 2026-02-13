@@ -84,26 +84,19 @@ const ResidentGrid = ({ title, icon, members = [], isDark, navigate, onAdd }) =>
 export default function HouseView() {
   const { api, household, members = [], vehicles = [], isDark } = useOutletContext();
   const navigate = useNavigate();
-  const [recurringCosts, setRecurringCosts] = useState([]);
-  const [loadingCosts, setLoadingCosts] = useState(true);
   const [houseDetails, setHouseDetails] = useState(null);
 
   const fetchHouseData = useCallback(async () => {
       try {
-          const [costsRes, detailRes] = await Promise.all([
-              api.get(`/households/${household.id}/finance/recurring-costs`),
-              api.get(`/households/${household.id}/details`)
-          ]);
-          setRecurringCosts(costsRes.data || []);
+          const detailRes = await api.get(`/households/${household.id}/details`);
           setHouseDetails(detailRes.data);
       } catch (err) {
           console.error("Failed to fetch house data", err);
-      } finally {
-          setLoadingCosts(false);
       }
   }, [api, household.id]);
 
   useEffect(() => {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchHouseData();
   }, [fetchHouseData]);
 
@@ -112,11 +105,6 @@ export default function HouseView() {
         return household?.enabled_modules ? JSON.parse(household.enabled_modules) : ['pets', 'vehicles', 'meals'];
     } catch { return ['pets', 'vehicles', 'meals']; }
   }, [household]);
-
-  // Filter costs assigned to the household
-  const houseCosts = useMemo(() => {
-      return recurringCosts.filter(c => c.object_type === 'household' || !c.object_type);
-  }, [recurringCosts]);
 
   // Group Residents (Strictly Excluding Pets from People groups)
   const groups = useMemo(() => {
@@ -171,13 +159,6 @@ export default function HouseView() {
             </Box>
             <Stack direction="row" spacing={1}>
                 <Button 
-                    variant="outlined" color="neutral" size="sm" 
-                    startDecorator={<CalendarMonth />}
-                    onClick={() => navigate(`/household/${household?.id}/calendar`)}
-                >
-                    Calendar
-                </Button>
-                <Button 
                     variant="solid" color="primary" size="sm" 
                     startDecorator={<Edit />}
                     onClick={() => navigate(`/household/${household?.id}/house/details`)}
@@ -210,39 +191,6 @@ export default function HouseView() {
                                 />
                             </Grid>
                         </Grid>
-                    </Card>
-
-                    {/* House Recurring Costs */}
-                    <Card variant="outlined" sx={{ boxShadow: 'sm' }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                            <Typography level="title-md" startDecorator={<Assignment color="primary" />}>Property Recurring Costs <Box component="span" sx={{ opacity: 0.5, ml: 1, fontSize: '0.8rem' }}>({houseCosts.length})</Box></Typography>
-                            <Button size="sm" variant="plain" startDecorator={<Receipt />} onClick={() => navigate(`/household/${household.id}/finance?tab=charges`)}>Manage All</Button>
-                        </Box>
-                        {loadingCosts ? (
-                            <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}><CircularProgress size="sm" /></Box>
-                        ) : (
-                            <Grid container spacing={2}>
-                                {houseCosts.length === 0 && (
-                                    <Grid xs={12}>
-                                        <Typography level="body-sm" color="neutral" textAlign="center" sx={{ py: 2, border: '1px dashed', borderColor: 'divider', borderRadius: 'sm' }}>
-                                            No recurring costs assigned to this property.
-                                        </Typography>
-                                    </Grid>
-                                )}
-                                {houseCosts.map(c => (
-                                    <Grid key={c.id} xs={12} sm={6}>
-                                        <Sheet variant="soft" sx={{ p: 1.5, borderRadius: 'md', display: 'flex', alignItems: 'center', gap: 2 }}>
-                                            <Avatar size="sm" sx={{ bgcolor: getEmojiColor(c.emoji || '🧾', isDark) }}>{c.emoji || '🧾'}</Avatar>
-                                            <Box sx={{ flex: 1, minWidth: 0 }}>
-                                                <Typography level="title-sm" noWrap>{c.name}</Typography>
-                                                <Typography level="body-xs" color="neutral" textTransform="capitalize">{c.frequency}</Typography>
-                                            </Box>
-                                            <Typography level="title-sm" fontWeight="bold">{formatCurrency(c.amount)}</Typography>
-                                        </Sheet>
-                                    </Grid>
-                                ))}
-                            </Grid>
-                        )}
                     </Card>
 
                     {/* Residents Section (Unifying styling) */}
@@ -338,58 +286,6 @@ export default function HouseView() {
                                 <Button variant="plain" size="sm" onClick={() => navigate(`/household/${household.id}/house/details`)}>Set Address</Button>
                             </Box>
                         )}
-                    </Card>
-
-                    {/* Technical Specs & Utilities */}
-                    <Card variant="outlined" sx={{ boxShadow: 'sm' }}>
-                        <Typography level="title-md" startDecorator={<Wifi color="primary" />} sx={{ mb: 2 }}>Tech & Utilities</Typography>
-                        <List size="sm" sx={{ '--ListItem-paddingLeft': '0px' }}>
-                            <ListItem>
-                                <ListItemDecorator><Wifi color="primary" /></ListItemDecorator>
-                                <ListItemContent>
-                                    <Typography level="body-xs" fontWeight="bold">Broadband</Typography>
-                                    <Typography level="body-sm">{household?.broadband_provider || 'Not Set'}</Typography>
-                                </ListItemContent>
-                            </ListItem>
-                            <ListItem>
-                                <ListItemDecorator><Bolt color="warning" /></ListItemDecorator>
-                                <ListItemContent>
-                                    <Typography level="body-xs" fontWeight="bold">Energy Meter</Typography>
-                                    <Typography level="body-sm">{household?.energy_account || 'Not Set'}</Typography>
-                                </ListItemContent>
-                            </ListItem>
-                            <ListItem>
-                                <ListItemDecorator><WaterDrop color="info" /></ListItemDecorator>
-                                <ListItemContent>
-                                    <Typography level="body-xs" fontWeight="bold">Water Supply</Typography>
-                                    <Typography level="body-sm">Metered Supply</Typography>
-                                </ListItemContent>
-                            </ListItem>
-                        </List>
-                    </Card>
-
-                    {/* Inventory Summary */}
-                    <Card variant="outlined" sx={{ boxShadow: 'sm' }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                            <Typography level="title-md" startDecorator={<Construction color="neutral" />}>Inventory Summary</Typography>
-                            <IconButton size="sm" variant="plain" onClick={() => navigate(`/household/${household.id}/house/assets/new`)} color="primary"><Add /></IconButton>
-                        </Box>
-                        <Stack spacing={1.5}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <Typography level="body-sm" startDecorator={<Inventory2 />}>High Value Assets</Typography>
-                                <Chip size="sm" variant="soft" color="primary">Linked Records</Chip>
-                            </Box>
-                            <Divider />
-                            <Button 
-                                variant="plain" size="sm" 
-                                endDecorator={<ArrowForward />} 
-                                fullWidth 
-                                onClick={() => navigate(`/household/${household.id}/house/assets`)}
-                                sx={{ justifyContent: 'space-between', px: 1 }}
-                            >
-                                View Full Inventory
-                            </Button>
-                        </Stack>
                     </Card>
                 </Stack>
             </Grid>

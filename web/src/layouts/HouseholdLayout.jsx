@@ -32,7 +32,6 @@ import { APP_NAME } from '../constants';
 
 const ROUTE_META = {
   dashboard: { title: 'Dashboard' },
-  calendar: { title: 'Calendar' },
   people: { title: 'People' },
   pets: { title: 'Pets' },
   house: { title: 'House' },
@@ -352,7 +351,6 @@ export default function HouseholdLayout({
                             
                             <MenuTile icon={<AccountBalance />} label="Finance" to="tools/finance" onClick={() => setDrawerOpen(false)} />
                             <MenuTile icon={<Payments />} label="Tax" to="tools/tax" onClick={() => setDrawerOpen(false)} />
-                            <MenuTile icon={<CalendarMonth />} label="Cal" to="tools/calendar" onClick={() => setDrawerOpen(false)} />
                         </Box>
 
                         <Typography level="title-lg" sx={{ mt: 2, mb: 1 }}>Admin</Typography>

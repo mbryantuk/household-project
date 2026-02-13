@@ -195,7 +195,6 @@ export default function NavSidebar({
   const getCategoryFromPath = useCallback((path) => {
       if (!path) return null;
       if (path.includes('/finance')) return 'finance';
-      if (path.includes('/calendar')) return 'calendar';
       if (path.includes('/meals')) return 'meals';
       if (path.includes('/chores')) return 'chores';
       if (path.includes('/shopping')) return 'shopping';
@@ -247,7 +246,6 @@ export default function NavSidebar({
     const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
     // Sidebar Data States
-    const [todayEvents, setTodayEvents] = useState([]);
     const [pendingChores, setPendingChores] = useState([]);
     const [quickShopItem, setQuickShopItem] = useState('');
 
@@ -257,15 +255,6 @@ export default function NavSidebar({
         if (currentPanelCategory === 'finance') {
             api.get(`/households/${household.id}/finance/profiles`)
                .then(res => setProfiles(res.data))
-               .catch(console.error);
-        }
-
-        if (currentPanelCategory === 'calendar') {
-            api.get(`/households/${household.id}/dates`)
-               .then(res => {
-                   const todayStr = new Date().toISOString().split('T')[0];
-                   setTodayEvents((res.data || []).filter(d => d.date?.startsWith(todayStr)));
-               })
                .catch(console.error);
         }
 
@@ -379,7 +368,6 @@ export default function NavSidebar({
                   
                   <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '8px', width: '100%', px: isMobile ? 1 : 0 }}>
                       <RailIcon icon={<HomeIcon />} label="House" category="household" hasSubItems to={`/household/${household.id}/house`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
-                      <RailIcon icon={<Event />} label="Calendar" category="calendar" to={`/household/${household.id}/calendar`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                   </List>
                   <Divider sx={{ my: 1.5, width: isMobile ? '100%' : 48, mx: 'auto', bgcolor: isDark ? 'neutral.700' : 'neutral.300', height: '2px' }} />
               </Box>
@@ -475,26 +463,6 @@ export default function NavSidebar({
                               <Divider sx={{ my: 1 }} /><GroupHeader label="Fleet" />
                               {vehicles.map(v => <SubItem key={v.id} label={`${v.make} ${v.model}`} to={`/household/${household.id}/vehicles/${v.id}`} emoji={v.emoji} onClick={handleSubItemClick} />)}
                           </>
-                      )}
-
-                      {currentPanelCategory === 'calendar' && (
-                          <Box sx={{ p: 1 }}>
-                              <Button fullWidth startDecorator={<Add />} onClick={() => navigate(`/household/${household.id}/calendar`)} sx={{ mb: 2 }}>New Event</Button>
-                              <GroupHeader label="Today's Events" />
-                              <List sx={{ gap: 0.5 }}>
-                                  {todayEvents.length === 0 && <Typography level="body-xs" sx={{ px: 2, opacity: 0.5 }}>Nothing scheduled today.</Typography>}
-                                  {todayEvents.map(e => (
-                                      <ListItem key={e.id}>
-                                          <ListItemButton onClick={() => navigate(`/household/${household.id}/calendar`)}>
-                                              <ListItemDecorator>{e.emoji || '📅'}</ListItemDecorator>
-                                              <ListItemContent>{e.title}</ListItemContent>
-                                          </ListItemButton>
-                                      </ListItem>
-                                  ))}
-                              </List>
-                              <Divider sx={{ my: 2 }} />
-                              <SubItem label="View Full Calendar" to={`/household/${household.id}/calendar`} emoji="📅" onClick={handleSubItemClick} />
-                          </Box>
                       )}
 
                       {currentPanelCategory === 'finance' && (

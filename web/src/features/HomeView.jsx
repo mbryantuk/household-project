@@ -29,10 +29,6 @@ export default function HomeView() {
         path: 'finance', desc: 'Budget & Assets', emoji: '💰' 
     },
     { 
-        id: 'calendar', label: 'Calendar', icon: Event, color: 'danger', 
-        path: 'calendar', desc: 'Events & Renewals', emoji: '📅' 
-    },
-    { 
         id: 'meals', label: 'Meals', icon: RestaurantMenu, color: 'warning', 
         path: 'meals', desc: 'Weekly Planner', emoji: '🍝' 
     },

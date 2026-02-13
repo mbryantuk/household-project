@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Standardize finance cards and module headers across all views",
-  "date": "Fri 13 Feb 13:38:56 GMT 2026"
+  "commitMessage": "UI: Removed Calendar links and Hub widgets (Recurring Costs, Tech, Inventory Summary)",
+  "date": "Fri 13 Feb 14:00:55 GMT 2026"
 }

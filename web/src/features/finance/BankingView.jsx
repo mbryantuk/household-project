@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
-  FormControl, FormLabel, Stack, Chip, CircularProgress, Divider, Avatar
+  FormControl, FormLabel, Stack, Chip, CircularProgress, Divider, Avatar, IconButton
 } from '@mui/joy';
 import { Add, Edit } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
