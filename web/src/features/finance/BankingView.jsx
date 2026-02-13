@@ -4,7 +4,7 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup, Sheet, Table
+  AvatarGroup
 } from '@mui/joy';
 import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
@@ -30,14 +30,6 @@ export default function BankingView({ financialProfileId }) {
   // Emoji State
   const [emojiPicker, setEmojiPicker] = useState({ open: false, type: null });
   const [selectedEmoji, setSelectedEmoji] = useState('💰');
-
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 900);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
   
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'member';
 
@@ -183,91 +175,49 @@ export default function BankingView({ financialProfileId }) {
           )}
         </Box>
 
-      {!isMobile ? (
-        <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto' }}>
-            <Table hoverRow>
-                <thead>
-                    <tr>
-                        <th style={{ width: 60 }}></th>
-                        <th>Bank / Name</th>
-                        <th>Sort Code</th>
-                        <th>Account No.</th>
-                        <th>Overdraft</th>
-                        <th style={{ textAlign: 'right' }}>Balance</th>
-                        <th>Holders</th>
-                        <th style={{ width: 100 }}></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {accounts.map((row) => (
-                        <tr key={row.id}>
-                            <td>
-                                <Avatar size="sm" sx={{ bgcolor: getEmojiColor(row.emoji || (row.bank_name||'?')[0], isDark) }}>
-                                    {row.emoji || (row.bank_name||'?')[0]}
-                                </Avatar>
-                            </td>
-                            <td>
-                                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                                    <Typography level="body-md" sx={{ fontWeight: 'lg' }}>{row.bank_name}</Typography>
-                                    <Typography level="body-xs" color="neutral">{row.account_name}</Typography>
-                                </Box>
-                            </td>
-                            <td>{row.sort_code || '??-??-??'}</td>
-                            <td>{row.account_number ? `•••• ${row.account_number.slice(-4)}` : '••••'}</td>
-                            <td>{row.overdraft_limit ? formatCurrency(row.overdraft_limit) : '-'}</td>
-                            <td style={{ textAlign: 'right' }}>
-                                <Typography fontWeight="bold" color={row.current_balance < 0 ? 'danger' : 'success'}>
-                                    {formatCurrency(row.current_balance)}
-                                </Typography>
-                            </td>
-                            <td>
-                                <AvatarGroup size="sm" sx={{ '--AvatarGroup-gap': '-4px' }}>
-                                    {getAssignees(row.id).map(m => (
-                                        <Avatar key={m.id} sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji || m.name[0]}</Avatar>
-                                    ))}
-                                    {isAdmin && (
-                                        <IconButton size="sm" onClick={() => setAssignItem(row)} sx={{ borderRadius: '50%' }}><GroupAdd fontSize="small" /></IconButton>
-                                    )}
-                                </AvatarGroup>
-                            </td>
-                            <td>
-                                <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-                                    <IconButton size="sm" variant="plain" onClick={() => setAccountId(row.id)}><Edit /></IconButton>
-                                    <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(row.id)}><Delete /></IconButton>
-                                </Box>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
-        </Sheet>
-      ) : (
         <Grid container spacing={2}>
             {accounts.map(a => (
-            <Grid xs={12} key={a.id}>
-                <Card variant="outlined" sx={{ flexDirection: 'row', gap: 2 }}>
+            <Grid xs={12} sm={6} md={4} key={a.id}>
+                <Card variant="outlined" sx={{ flexDirection: 'row', gap: 2, height: '100%' }}>
                     <Avatar size="lg" sx={{ bgcolor: getEmojiColor(a.emoji || (a.bank_name||'?')[0], isDark) }}>
                         {a.emoji || (a.bank_name||'?')[0]}
                     </Avatar>
-                    <Box sx={{ flexGrow: 1 }}>
-                        <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{a.bank_name}</Typography>
-                        <Typography level="body-sm">{a.account_name}</Typography>
-                        <Typography level="body-xs" fontWeight="bold">{formatCurrency(a.current_balance)}</Typography>
-                        <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
-                             {getAssignees(a.id).map(m => (
-                                <Chip key={m.id} size="sm" variant="soft">{m.alias || m.name}</Chip>
-                            ))}
-                            <IconButton size="sm" onClick={() => setAssignItem(a)}><GroupAdd /></IconButton>
+                    <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                        <Typography level="title-md" sx={{ fontWeight: 'lg' }} noWrap>{a.bank_name}</Typography>
+                        <Typography level="body-sm" noWrap>{a.account_name}</Typography>
+                        
+                        <Stack direction="row" spacing={1} sx={{ mt: 1, mb: 1 }}>
+                            <Typography level="body-xs" fontWeight="bold" color={a.current_balance < 0 ? 'danger' : 'success'}>
+                                {formatCurrency(a.current_balance)}
+                            </Typography>
+                            {a.overdraft_limit > 0 && (
+                                <Typography level="body-xs" color="neutral">
+                                    (OD: {formatCurrency(a.overdraft_limit)})
+                                </Typography>
+                            )}
+                        </Stack>
+
+                        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                             <AvatarGroup size="sm" sx={{ '--AvatarGroup-gap': '-4px' }}>
+                                {getAssignees(a.id).map(m => (
+                                    <Avatar key={m.id} src={m.avatar} sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji || m.name[0]}</Avatar>
+                                ))}
+                            </AvatarGroup>
+                            <IconButton size="sm" onClick={() => setAssignItem(a)} sx={{ borderRadius: '50%' }}><GroupAdd fontSize="small" /></IconButton>
                         </Box>
                     </Box>
-                    <IconButton variant="plain" onClick={() => setAccountId(a.id)}>
-                        <Edit />
-                    </IconButton>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        <IconButton variant="plain" onClick={() => setAccountId(a.id)}>
+                            <Edit />
+                        </IconButton>
+                        <IconButton variant="plain" color="danger" onClick={() => handleDelete(a.id)}>
+                            <Delete />
+                        </IconButton>
+                    </Box>
                 </Card>
             </Grid>
             ))}
         </Grid>
-      )}
 
       {/* EDIT MODAL */}
       <Modal open={Boolean(selectedAccountId)} onClose={() => setAccountId(null)}>

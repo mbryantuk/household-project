@@ -29,17 +29,9 @@ export default function IncomeView({ financialProfileId }) {
   const [bankAccounts, setBankAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
-  
   // Emoji State
   const [selectedEmoji, setSelectedEmoji] = useState('💰');
   const [emojiPicker, setEmojiPicker] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 900);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
   
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'member';
 
@@ -88,11 +80,6 @@ export default function IncomeView({ financialProfileId }) {
       const m = members.find(m => m.id === parseInt(id));
       return m ? (m.alias || m.name) : 'Unassigned';
   }, [members]);
-
-  const getBankName = useCallback((id) => {
-      const b = bankAccounts.find(b => b.id === parseInt(id));
-      return b ? (b.bank_name + ' ' + b.account_name) : '-';
-  }, [bankAccounts]);
 
   const handleSubmit = async (e) => {
       e.preventDefault();
@@ -154,88 +141,23 @@ export default function IncomeView({ financialProfileId }) {
           </Box>
         </Box>
 
-      {!isMobile ? (
-        <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto' }}>
-            <Table hoverRow sx={{ '& tr > td': { verticalAlign: 'middle' } }}>
-                <thead>
-                    <tr>
-                        <th style={{ width: 60 }}></th>
-                        <th>Employer / Source</th>
-                        <th>Type</th>
-                        <th style={{ textAlign: 'right' }}>Net (Pay)</th>
-                        <th>Freq</th>
-                        <th>Next Payday</th>
-                        <th>Assignee</th>
-                        <th style={{ width: 100 }}></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {incomeList.map((row) => {
-                        const nextPayDate = getNextPayday(row.payment_day);
-                        return (
-                            <tr key={row.id}>
-                                <td>
-                                    <Avatar size="sm" sx={{ bgcolor: getEmojiColor(row.emoji || (row.employer||'?')[0], isDark) }}>
-                                        {row.emoji || (row.employer||'?')[0]}
-                                    </Avatar>
-                                </td>
-                                <td>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <Typography level="body-md" sx={{ fontWeight: 'lg' }}>{row.employer}</Typography>
-                                        {row.is_primary === 1 && <Chip size="sm" color="primary" variant="solid" startDecorator={<Star sx={{ fontSize: '0.8rem' }}/>}>PRIMARY</Chip>}
-                                    </Box>
-                                    <Typography level="body-xs" color="neutral">{getBankName(row.bank_account_id)}</Typography>
-                                </td>
-                                <td>
-                                    <Stack direction="row" spacing={0.5}>
-                                        <Chip size="sm" variant="soft">{row.employment_type}</Chip>
-                                        {row.work_type === 'part_time' && <Chip size="sm" color="warning">PT</Chip>}
-                                    </Stack>
-                                </td>
-                                <td style={{ textAlign: 'right' }}>
-                                    <Typography fontWeight="bold" color="success">
-                                        {formatCurrency(row.amount)}
-                                    </Typography>
-                                </td>
-                                <td>{row.frequency}</td>
-                                <td>
-                                    {nextPayDate ? (
-                                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                                            <Typography level="body-sm" fontWeight="bold">{format(nextPayDate, 'do MMM')}</Typography>
-                                            <Typography level="body-xs" color="neutral">{getDaysUntil(nextPayDate)} days</Typography>
-                                        </Box>
-                                    ) : '-'}
-                                </td>
-                                <td>{getMemberName(row.member_id)}</td>
-                                <td>
-                                    <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-                                        <IconButton size="sm" variant="plain" onClick={() => setIncomeId(row.id)}><Edit /></IconButton>
-                                        <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(row.id)}><Delete /></IconButton>
-                                    </Box>
-                                </td>
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </Table>
-        </Sheet>
-      ) : (
         <Grid container spacing={2}>
             {incomeList.map(a => {
                 const nextPayDate = getNextPayday(a.payment_day);
                 return (
-                <Grid xs={12} key={a.id}>
+                <Grid xs={12} sm={6} key={a.id}>
                     <Card variant="outlined" sx={{ flexDirection: 'row', gap: 2, p: 2, minHeight: '80px', borderLeft: a.is_primary ? '4px solid' : undefined, borderLeftColor: 'primary.solidBg' }}>
                         <Avatar size="lg" sx={{ bgcolor: getEmojiColor(a.emoji || (a.employer||'?')[0], isDark) }}>
                             {a.emoji || (a.employer||'?')[0]}
                         </Avatar>
-                        <Box sx={{ flexGrow: 1 }}>
+                        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Typography level="title-md" sx={{ fontWeight: 'lg' }}>{a.employer}</Typography>
+                                <Typography level="title-md" sx={{ fontWeight: 'lg' }} noWrap>{a.employer}</Typography>
                                 {a.is_primary === 1 && <Star color="primary" sx={{ fontSize: '1rem' }} />}
                             </Box>
                             <Typography level="body-sm">{a.role}</Typography>
-                            <Box sx={{ display: 'flex', gap: 1, mt: 1, flexWrap: 'wrap' }}>
+                            
+                            <Stack direction="row" spacing={1} sx={{ mt: 1, mb: 1, flexWrap: 'wrap', gap: 0.5 }}>
                                 <Chip size="sm" color="success">Net: {formatCurrency(a.amount)}</Chip>
                                 <Chip size="sm" variant="outlined">{a.frequency}</Chip>
                                 {nextPayDate && (
@@ -244,17 +166,21 @@ export default function IncomeView({ financialProfileId }) {
                                     </Chip>
                                 )}
                                 <Chip size="sm" variant="soft">{getMemberName(a.member_id)}</Chip>
-                            </Box>
+                            </Stack>
                         </Box>
-                        <IconButton variant="plain" onClick={() => setIncomeId(a.id)} sx={{ minHeight: '44px', minWidth: '44px' }}>
-                            <Edit />
-                        </IconButton>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            <IconButton variant="plain" onClick={() => setIncomeId(a.id)}>
+                                <Edit />
+                            </IconButton>
+                            <IconButton variant="plain" color="danger" onClick={() => handleDelete(a.id)}>
+                                <Delete />
+                            </IconButton>
+                        </Box>
                     </Card>
                 </Grid>
                 );
             })}
         </Grid>
-      )}
 
       <Modal open={Boolean(selectedIncomeId)} onClose={() => setIncomeId(null)}>
         <ModalDialog sx={{ maxWidth: 800, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>

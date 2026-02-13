@@ -189,7 +189,6 @@ export default function NavSidebar({
 
   const getCategoryFromPath = useCallback((path) => {
       if (!path) return null;
-      if (path.includes('/people') || path.includes('/pets') || path.includes('/vehicles') || path.includes('/house')) return 'household';
       if (path.includes('/finance')) return 'finance';
       if (path.includes('/calendar')) return 'calendar';
       if (path.includes('/meals')) return 'meals';
@@ -197,6 +196,8 @@ export default function NavSidebar({
       if (path.includes('/shopping')) return 'shopping';
       if (path.includes('/dashboard')) return 'dashboard';
       if (path.includes('/settings')) return 'account';
+      // Check for house/people/pets last or use stricter matching
+      if (path.match(/\/house($|\/)/) || path.includes('/people') || path.includes('/pets') || path.includes('/vehicles')) return 'household';
       return null;
   }, []);
 

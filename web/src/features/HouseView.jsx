@@ -3,14 +3,14 @@ import { useOutletContext, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Card, Avatar, Divider, Stack, 
   Chip, List, ListItem, ListItemContent, ListItemDecorator, 
-  Button, IconButton, Tooltip, Sheet, CircularProgress
+  Button, IconButton, Tooltip, Sheet, CircularProgress, Breadcrumbs, Link
 } from '@mui/joy';
 import { 
   Home, Groups, DirectionsCar, Inventory2, 
   Wifi, Bolt, WaterDrop, Construction,
   InfoOutlined, TrendingUp, CalendarMonth,
   Add, ArrowForward, Pets, ChildCare, Person,
-  Receipt, Settings, Apartment, Assignment, Edit
+  Receipt, Settings, Apartment, Assignment, Edit, ChevronRight
 } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
 
@@ -131,8 +131,24 @@ export default function HouseView() {
   const purchasePrice = houseDetails?.purchase_price || 0;
   const growth = assetValue - purchasePrice;
 
+  // Address for Map
+  const address = useMemo(() => {
+      const parts = [
+          household.address_street,
+          household.address_city,
+          household.address_zip
+      ].filter(Boolean);
+      return parts.join(', ');
+  }, [household]);
+
   return (
     <Box sx={{ maxWidth: '1400px', mx: 'auto', pb: 8 }}>
+        {/* Breadcrumbs */}
+        <Breadcrumbs separator={<ChevronRight fontSize="sm" />} sx={{ px: 0, mb: 2 }}>
+            <Link color="neutral" href={`/household/${household.id}/dashboard`}><Home /></Link>
+            <Typography color="primary" fontWeight="lg">House Hub</Typography>
+        </Breadcrumbs>
+
         {/* Header Section: The Property Passport */}
         <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -300,6 +316,30 @@ export default function HouseView() {
             {/* Sidebar Column: Utils & Assets */}
             <Grid xs={12} md={4}>
                 <Stack spacing={3}>
+                    {/* Location Map */}
+                    <Card variant="outlined" sx={{ boxShadow: 'sm', p: 0, overflow: 'hidden' }}>
+                        <Box sx={{ p: 2, pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Typography level="title-md" startDecorator={<Home color="primary" />}>Location</Typography>
+                        </Box>
+                        {address ? (
+                            <Box sx={{ width: '100%', height: 200, bgcolor: 'background.level2' }}>
+                                <iframe
+                                    width="100%"
+                                    height="100%"
+                                    style={{ border: 0 }}
+                                    loading="lazy"
+                                    referrerPolicy="no-referrer-when-downgrade"
+                                    src={`https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`}
+                                />
+                            </Box>
+                        ) : (
+                            <Box sx={{ p: 2, textAlign: 'center' }}>
+                                <Typography level="body-sm" color="neutral">Address not set.</Typography>
+                                <Button variant="plain" size="sm" onClick={() => navigate(`/household/${household.id}/house/details`)}>Set Address</Button>
+                            </Box>
+                        )}
+                    </Card>
+
                     {/* Technical Specs & Utilities */}
                     <Card variant="outlined" sx={{ boxShadow: 'sm' }}>
                         <Typography level="title-md" startDecorator={<Wifi color="primary" />} sx={{ mb: 2 }}>Tech & Utilities</Typography>
