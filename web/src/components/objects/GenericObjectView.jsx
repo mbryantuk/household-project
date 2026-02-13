@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { 
   Box, Typography, Sheet, Tabs, TabList, Tab, Input, Button, 
   FormControl, FormLabel, Grid, IconButton, Tooltip, CircularProgress,
-  Divider, Select, Option
+  Divider, Card, Avatar, Stack, Chip, Breadcrumbs, Link
 } from '@mui/joy';
 import { 
-  Delete, Payments, Info, Save, ArrowBack
+  Delete, Payments, Info, Save, ArrowBack, Edit, Home, ChevronRight
 } from '@mui/icons-material';
 import RecurringChargesWidget from '../ui/RecurringChargesWidget';
 import EmojiPicker from '../EmojiPicker';
@@ -14,24 +14,6 @@ import AppSelect from '../ui/AppSelect';
 /**
  * GenericObjectView
  * Centralized component for editing any household object (Member, Vehicle, Pet, Asset, etc.)
- * 
- * Props:
- * @param {string} type - 'member', 'vehicle', 'pet', 'asset', 'household'
- * @param {string|number} id - Object ID or 'new'
- * @param {string} householdId - Current household ID
- * @param {Object} api - Axios instance
- * @param {Array} fields - Field definitions for the Identity form
- * @param {Array} costSegments - Categories for Recurring Costs
- * @param {Object} initialData - Optional initial data (if already fetched)
- * @param {string} endpoint - API endpoint base (e.g. `/households/1/members`)
- * @param {Function} onSave - Callback after successful save
- * @param {Function} onDelete - Callback after successful delete
- * @param {Function} onCancel - Callback for back button
- * @param {Object} scope - Context object (isAdmin, showNotification, confirmAction)
- * @param {string} title - Page title (or function returning title based on data)
- * @param {string} subtitle - Page subtitle
- * @param {Array} extraTabs - Optional extra tabs [{ id, label, icon, content }]
- * @param {Object} defaultValues - Default values for new objects
  */
 export default function GenericObjectView({
   type, id, householdId, api, 
@@ -109,63 +91,95 @@ export default function GenericObjectView({
     );
   };
 
+  // Group fields into sections
+  const formSections = useMemo(() => {
+      const sections = [{ title: 'General Info', fields: [] }];
+      fields.forEach(f => {
+          if (f.type === 'header') {
+              sections.push({ title: f.label, fields: [] });
+          } else if (f.type !== 'emoji') { // Emoji is handled in Hero
+              sections[sections.length - 1].fields.push(f);
+          }
+      });
+      return sections.filter(s => s.fields.length > 0);
+  }, [fields]);
+
+  const emojiField = fields.find(f => f.type === 'emoji');
+  const resolvedTitle = typeof title === 'function' ? title(data) : (isNew ? `Add ${type}` : (data.name || data.alias || data.make || 'Details'));
+
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
-  // Resolve Title
-  const resolvedTitle = typeof title === 'function' ? title(data) : (isNew ? `Add ${type}` : (data.name || data.alias || data.make || 'Details'));
-  const resolvedSubtitle = subtitle || (isNew ? 'Enter details below.' : 'View and manage details.');
-
   return (
-    <Box>
-      {/* Header */}
-      <Box sx={{ 
-          mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-          flexWrap: 'wrap', gap: 2 
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            {onCancel && (
-                <IconButton variant="outlined" onClick={onCancel}>
-                    <ArrowBack />
+    <Box sx={{ maxWidth: '1200px', mx: 'auto', pb: 10 }}>
+      {/* Breadcrumbs */}
+      <Breadcrumbs separator={<ChevronRight fontSize="sm" />} sx={{ px: 0, mb: 2 }}>
+        <Link color="neutral" href={`/household/${householdId}/dashboard`}><Home /></Link>
+        <Typography color="neutral" sx={{ textTransform: 'capitalize' }}>{type}s</Typography>
+        <Typography color="primary" fontWeight="lg">{resolvedTitle}</Typography>
+      </Breadcrumbs>
+
+      {/* Hero Header Card */}
+      <Card variant="soft" color="primary" invertedColors sx={{ mb: 4, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 3, alignItems: 'center' }}>
+        <Box sx={{ position: 'relative' }}>
+            <Avatar 
+                sx={{ 
+                    width: 80, height: 80, fontSize: '3rem',
+                    bgcolor: 'background.surface',
+                    cursor: emojiField ? 'pointer' : 'default',
+                    boxShadow: 'md'
+                }}
+                onClick={() => emojiField && setEmojiPickerOpen(true)}
+            >
+                {emojiField ? (data[emojiField.name] || '📦') : (data.name?.[0] || '📦')}
+            </Avatar>
+            {emojiField && (
+                <IconButton 
+                    size="sm" 
+                    variant="solid" 
+                    color="primary" 
+                    sx={{ position: 'absolute', bottom: -5, right: -5, borderRadius: '50%' }}
+                    onClick={() => setEmojiPickerOpen(true)}
+                >
+                    <Edit fontSize="small" />
                 </IconButton>
             )}
-            <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                    {resolvedTitle}
-                </Typography>
-                <Typography level="body-md" color="neutral">
-                    {resolvedSubtitle}
-                </Typography>
-            </Box>
         </Box>
-        <Box>
+        <Box sx={{ flex: 1, textAlign: { xs: 'center', sm: 'left' } }}>
+            <Typography level="h2">{resolvedTitle}</Typography>
+            <Typography level="body-md" sx={{ opacity: 0.8 }}>{subtitle || (isNew ? 'New Entry' : 'Details & Configuration')}</Typography>
+            {!isNew && (
+                <Stack direction="row" spacing={1} sx={{ mt: 1, justifyContent: { xs: 'center', sm: 'flex-start' } }}>
+                    <Chip size="sm" variant="outlined">ID: {id}</Chip>
+                    {data.type && <Chip size="sm" variant="solid" color="neutral">{data.type}</Chip>}
+                </Stack>
+            )}
+        </Box>
+        <Box sx={{ display: 'flex', gap: 1 }}>
             {!isNew && isAdmin && (
-                <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={handleDelete}>
+                <Button color="danger" variant="solid" startDecorator={<Delete />} onClick={handleDelete}>
                     Remove
                 </Button>
             )}
         </Box>
-      </Box>
+      </Card>
 
-      <Sheet variant="outlined" sx={{ borderRadius: 'md', minHeight: '600px', overflow: 'hidden' }}>
+      {/* Main Content Area */}
+      <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'hidden', bgcolor: 'background.body' }}>
         {!isNew && (
-            <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} sx={{ bgcolor: 'transparent' }}>
-                <TabList 
-                    variant="plain" 
-                    sx={{ 
-                        p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: 2, mt: 2, 
-                        overflow: 'auto',
-                        '&::-webkit-scrollbar': { display: 'none' },
-                        whiteSpace: 'nowrap'
-                    }}
-                >
-                    <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}>
+            <Tabs 
+                value={activeTab} 
+                onChange={(e, v) => setActiveTab(v)} 
+                sx={{ bgcolor: 'transparent', borderBottom: '1px solid', borderColor: 'divider' }}
+            >
+                <TabList sx={{ p: 0, gap: 0 }}>
+                    <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color="primary" sx={{ flex: 1, py: 2 }}>
                         <Info sx={{ mr: 1 }}/> Identity
                     </Tab>
-                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}>
+                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color="primary" sx={{ flex: 1, py: 2 }}>
                         <Payments sx={{ mr: 1 }}/> Recurring Costs
                     </Tab>
                     {extraTabs.map((tab, idx) => (
-                        <Tab key={tab.id} variant={activeTab === 2 + idx ? 'solid' : 'plain'} color={activeTab === 2 + idx ? 'primary' : 'neutral'} sx={{ flex: 'none' }}>
+                        <Tab key={tab.id} variant={activeTab === 2 + idx ? 'solid' : 'plain'} color="primary" sx={{ flex: 1, py: 2 }}>
                              {tab.icon && <tab.icon sx={{ mr: 1 }} />} {tab.label}
                         </Tab>
                     ))}
@@ -173,49 +187,16 @@ export default function GenericObjectView({
             </Tabs>
         )}
 
-        <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
+        <Box sx={{ p: { xs: 2, sm: 4 }, bgcolor: 'background.surface' }}>
           {(activeTab === 0 || isNew) && (
-            <Box>
-                {!isNew && <Box sx={{ mb: 4 }}>
-                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                        Identity
-                    </Typography>
-                    <Typography level="body-md" color="neutral">Core identification and properties.</Typography>
-                </Box>}
-                
-                <form onSubmit={handleSubmit}>
-                    <Grid container spacing={3}>
-                        {/* Emoji Picker Special Case */}
-                        {fields.find(f => f.type === 'emoji') && (() => {
-                            const emojiField = fields.find(f => f.type === 'emoji');
-                            return (
-                                <Grid xs={12} md={2}>
-                                    <Tooltip title="Pick an emoji" variant="soft">
-                                        <IconButton 
-                                            onClick={() => setEmojiPickerOpen(true)} 
-                                            variant="outlined"
-                                            sx={{ width: 80, height: 80, borderRadius: 'xl' }}
-                                        >
-                                            <Typography level="h1">{data[emojiField.name] || '📦'}</Typography>
-                                        </IconButton>
-                                    </Tooltip>
-                                </Grid>
-                            );
-                        })()}
-
-                        <Grid xs={12} md={fields.some(f => f.type === 'emoji') ? 10 : 12}>
+            <form onSubmit={handleSubmit}>
+                <Stack spacing={3}>
+                    {formSections.map((section, sIdx) => (
+                        <Card key={sIdx} variant="outlined" sx={{ p: 3, borderRadius: 'md', boxShadow: 'sm' }}>
+                            <Typography level="title-lg" sx={{ mb: 2, color: 'primary.500' }}>{section.title}</Typography>
                             <Grid container spacing={2}>
-                                {fields.filter(f => f.type !== 'emoji').map((field, idx) => {
+                                {section.fields.map((field) => {
                                     const span = field.gridSpan || { xs: 12, md: 6 };
-                                    
-                                    if (field.type === 'header') {
-                                        return (
-                                            <Grid key={idx} xs={12}>
-                                                <Divider sx={{ my: 1 }}>{field.label}</Divider>
-                                            </Grid>
-                                        );
-                                    }
-
                                     return (
                                         <Grid key={field.name} xs={span.xs || 12} md={span.md || 6} lg={span.lg}>
                                             {field.type === 'select' ? (
@@ -246,16 +227,17 @@ export default function GenericObjectView({
                                     );
                                 })}
                             </Grid>
-                        </Grid>
+                        </Card>
+                    ))}
 
-                        <Grid xs={12}>
-                            <Button type="submit" variant="solid" size="lg" startDecorator={<Save />}>
-                                {isNew ? `Create ${type}` : 'Save Changes'}
-                            </Button>
-                        </Grid>
-                    </Grid>
-                </form>
-            </Box>
+                    <Box sx={{ pt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                        {onCancel && <Button variant="plain" color="neutral" onClick={onCancel}>Cancel</Button>}
+                        <Button type="submit" variant="solid" size="lg" startDecorator={<Save />}>
+                            {isNew ? `Create ${type}` : 'Save Changes'}
+                        </Button>
+                    </Box>
+                </Stack>
+            </form>
           )}
 
           {activeTab === 1 && !isNew && (
@@ -286,7 +268,6 @@ export default function GenericObjectView({
         open={emojiPickerOpen} 
         onClose={() => setEmojiPickerOpen(false)} 
         onEmojiSelect={(emoji) => {
-            const emojiField = fields.find(f => f.type === 'emoji');
             if (emojiField) {
                 handleChange(emojiField.name, emoji);
             }
