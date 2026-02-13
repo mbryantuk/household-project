@@ -1,23 +1,18 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { 
-  Box, Typography, Grid, Card, Avatar, IconButton, 
-  Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
-  FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  Sheet, Table, Tabs, TabList, Tab
+  Box, Typography, Sheet, Table, Grid, Card, Avatar, Chip, IconButton, Input, Button, CircularProgress 
 } from '@mui/joy';
-import { Edit, Delete, Add, Search, Inventory, Payments, Info } from '@mui/icons-material';
+import { Edit, Delete, Add, Search } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
-import AppSelect from '../components/ui/AppSelect';
-import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
+import GenericObjectView from '../components/objects/GenericObjectView';
 
 export default function AssetsView() {
-  const { api, id: householdId, user: currentUser, isDark, showNotification, confirmAction, household } = useOutletContext();
-  const { assetId, houseId } = useParams();
+  const { api, id: householdId, user: currentUser, isDark, showNotification, confirmAction } = useOutletContext();
+  const { assetId } = useParams();
   const navigate = useNavigate();
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState(0);
   
   // Sorting & Filtering State
   const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
@@ -87,43 +82,73 @@ export default function AssetsView() {
       </th>
   );
 
-  const closeModal = () => {
-      navigate(`/household/${householdId}/house/${houseId}`, { replace: true });
-  };
+  const FIELDS = [
+    { name: 'emoji', type: 'emoji' },
+    { name: 'name', label: 'Asset Name', required: true, gridSpan: { md: 6 } },
+    { name: 'category', label: 'Category', type: 'select', options: [
+        { value: 'Appliance', label: 'Appliance' },
+        { value: 'Electronics', label: 'Electronics' },
+        { value: 'Furniture', label: 'Furniture' },
+        { value: 'Tool', label: 'Tool' },
+        { value: 'Property', label: 'Property / Real Estate' },
+        { value: 'Other', label: 'Other' },
+    ], gridSpan: { md: 6 } },
+    
+    { name: 'insurance_status', label: 'Insurance Status', type: 'select', options: [
+        { value: 'insured', label: 'Insured' },
+        { value: 'uninsured', label: 'Uninsured' },
+        { value: 'self-insured', label: 'Self-Insured' },
+    ], gridSpan: { md: 6 } },
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
+    { name: 'location', label: 'Location', gridSpan: { md: 6 } },
+    { name: 'manufacturer', label: 'Manufacturer', gridSpan: { md: 6 } },
+    { name: 'model_number', label: 'Model Number', gridSpan: { md: 6 } },
 
-    try {
-      if (assetId === 'new') {
-        await api.post(`/households/${householdId}/assets`, data);
-        showNotification("Asset added.", "success");
-        await fetchAssets();
-        closeModal();
-      } else {
-        await api.put(`/households/${householdId}/assets/${assetId}`, data);
-        showNotification("Asset updated.", "success");
-        await fetchAssets();
-        closeModal();
-      }
-    } catch {
-      showNotification("Failed to save asset", "danger");
-    }
-  };
+    { type: 'header', label: 'Financials' },
+    { name: 'purchase_value', label: 'Purchase Value (£)', type: 'number', step: '0.01', gridSpan: { xs: 6, md: 3 } },
+    { name: 'monthly_maintenance_cost', label: 'Monthly Maintenance (£)', type: 'number', step: '0.01', gridSpan: { xs: 6, md: 3 } },
+    { name: 'notes', label: 'Notes', gridSpan: { md: 6 } }
+  ];
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this asset permanently?")) return;
-    try {
-      await api.delete(`/households/${householdId}/assets/${id}`);
-      fetchAssets();
-      if (assetId) closeModal();
-    } catch {
-      showNotification("Failed to delete asset", "danger");
-    }
-  };
+  const COST_SEGMENTS = [
+      { id: 'warranty', label: 'Warranty' },
+      { id: 'insurance', label: 'Insurance' },
+      { id: 'service', label: 'Service / Maintenance' },
+      { id: 'subscription', label: 'Subscription' },
+      { id: 'other', label: 'Other' }
+  ];
 
+  // --- DETAIL VIEW ---
+  if (assetId) {
+      return (
+        <GenericObjectView
+            key={assetId}
+            type="asset"
+            id={assetId}
+            householdId={householdId}
+            api={api}
+            endpoint={`/households/${householdId}/assets`}
+            initialData={selectedAsset}
+            defaultValues={{ 
+                emoji: '📦', category: 'Appliance', insurance_status: 'uninsured', 
+                name: '', location: '', manufacturer: '', model_number: '', notes: '' 
+            }}
+            fields={FIELDS}
+            costSegments={COST_SEGMENTS}
+            onSave={() => fetchAssets()}
+            onDelete={() => {
+                fetchAssets();
+                navigate('..');
+            }}
+            onCancel={() => navigate('..')}
+            scope={{ isAdmin, showNotification, confirmAction }}
+            title={(data) => assetId === 'new' ? 'New Asset' : data.name}
+            subtitle={assetId === 'new' ? 'Register a new item.' : 'Manage inventory details.'}
+        />
+      );
+  }
+
+  // --- LIST VIEW ---
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
     return (
@@ -150,7 +175,7 @@ export default function AssetsView() {
                 sx={{ width: { xs: '100%', sm: 250 } }}
               />
               {isAdmin && (
-                  <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('assets/new')}>
+                  <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>
                       Add Asset
                   </Button>
               )}
@@ -173,7 +198,7 @@ export default function AssetsView() {
                 </thead>
                 <tbody>
                     {processedAssets.map((row) => (
-                        <tr key={row.id}>
+                        <tr key={row.id} style={{ cursor: 'pointer' }} onClick={() => navigate(`${row.id}`)}>
                             <td>
                                 <Avatar size="sm" sx={{ bgcolor: getEmojiColor(row.emoji || row.name[0], isDark) }}>
                                     {row.emoji || row.name[0]}
@@ -197,8 +222,7 @@ export default function AssetsView() {
                             </td>
                             {isAdmin && (
                                 <td style={{ textAlign: 'right' }}>
-                                    <IconButton size="sm" variant="plain" aria-label="Edit" onClick={() => navigate(`assets/${row.id}`)}><Edit /></IconButton>
-                                    <IconButton size="sm" variant="plain" color="danger" aria-label="Delete" onClick={() => handleDelete(row.id)}><Delete /></IconButton>
+                                    <IconButton size="sm" variant="plain" aria-label="Edit" onClick={(e) => { e.stopPropagation(); navigate(`${row.id}`); }}><Edit /></IconButton>
                                 </td>
                             )}
                         </tr>
@@ -211,7 +235,7 @@ export default function AssetsView() {
         <Grid container spacing={2}>
             {processedAssets.map(a => (
             <Grid xs={12} key={a.id}>
-                <Card variant="outlined" sx={{ flexDirection: 'row', gap: 2 }}>
+                <Card variant="outlined" sx={{ flexDirection: 'row', gap: 2 }} onClick={() => navigate(`${a.id}`)}>
                     <Avatar size="lg" sx={{ bgcolor: getEmojiColor(a.emoji || a.name[0], isDark) }}>
                         {a.emoji || a.name[0]}
                     </Avatar>
@@ -225,7 +249,7 @@ export default function AssetsView() {
                             </Chip>
                         </Box>
                     </Box>
-                    <IconButton variant="plain" onClick={() => navigate(`assets/${a.id}`)}>
+                    <IconButton variant="plain" onClick={(e) => { e.stopPropagation(); navigate(`${a.id}`); }}>
                         <Edit />
                     </IconButton>
                 </Card>
@@ -233,142 +257,6 @@ export default function AssetsView() {
             ))}
         </Grid>
       )}
-
-      {/* EDIT/DETAIL MODAL */}
-      <Modal open={Boolean(assetId)} onClose={closeModal}>
-        <ModalDialog sx={{ maxWidth: 800, width: '100%', p: 0, overflow: 'hidden' }}>
-            <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2, bgcolor: 'background.level1' }}>
-                <Avatar size="lg" sx={{ bgcolor: getEmojiColor(selectedAsset?.name || 'A', isDark) }}>{selectedAsset?.emoji || selectedAsset?.name?.[0] || <Inventory />}</Avatar>
-                <Box>
-                    <Typography level="h3">{assetId === 'new' ? 'New Asset' : selectedAsset?.name}</Typography>
-                    <Typography level="body-sm" color="neutral">{selectedAsset?.category} • {selectedAsset?.location || 'No Location'}</Typography>
-                </Box>
-            </Box>
-
-            <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)}>
-                <TabList variant="plain" sx={{ px: 2, bgcolor: 'background.level1' }}>
-                    <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'}><Info sx={{ mr: 1 }} /> Identity</Tab>
-                    {assetId !== 'new' && (
-                        <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}><Payments sx={{ mr: 1 }} /> Recurring Costs</Tab>
-                    )}
-                </TabList>
-                <Box sx={{ p: 3, minHeight: 400, overflowY: 'auto' }}>
-                    {activeTab === 0 && (
-                        <form id="asset-form" onSubmit={handleSubmit}>
-                            <Grid container spacing={2}>
-                                <Grid xs={12} md={6}>
-                                    <FormControl required>
-                                        <FormLabel>Asset Name</FormLabel>
-                                        <Input name="name" defaultValue={selectedAsset?.name} />
-                                    </FormControl>
-                                </Grid>
-                                <Grid xs={12} md={6}>
-                                    <AppSelect 
-                                        label="Category"
-                                        name="category"
-                                        defaultValue={selectedAsset?.category || 'Appliance'}
-                                        options={[
-                                            { value: 'Appliance', label: 'Appliance' },
-                                            { value: 'Electronics', label: 'Electronics' },
-                                            { value: 'Furniture', label: 'Furniture' },
-                                            { value: 'Tool', label: 'Tool' },
-                                            { value: 'Property', label: 'Property / Real Estate' },
-                                            { value: 'Other', label: 'Other' },
-                                        ]}
-                                    />
-                                </Grid>
-                                
-                                <Grid xs={12} md={6}>
-                                    <AppSelect 
-                                        label="Insurance Status"
-                                        name="insurance_status"
-                                        defaultValue={selectedAsset?.insurance_status || 'uninsured'}
-                                        options={[
-                                            { value: 'insured', label: 'Insured' },
-                                            { value: 'uninsured', label: 'Uninsured' },
-                                            { value: 'self-insured', label: 'Self-Insured' },
-                                        ]}
-                                    />
-                                </Grid>
-
-                                <Grid xs={12} md={6}>
-                                    <FormControl>
-                                        <FormLabel>Location</FormLabel>
-                                        <Input name="location" defaultValue={selectedAsset?.location} />
-                                    </FormControl>
-                                </Grid>
-                                <Grid xs={12} md={6}>
-                                    <FormControl>
-                                        <FormLabel>Manufacturer</FormLabel>
-                                        <Input name="manufacturer" defaultValue={selectedAsset?.manufacturer} />
-                                    </FormControl>
-                                </Grid>
-                                <Grid xs={12} md={6}>
-                                    <FormControl>
-                                        <FormLabel>Model Number</FormLabel>
-                                        <Input name="model_number" defaultValue={selectedAsset?.model_number} />
-                                    </FormControl>
-                                </Grid>
-
-                                <Grid xs={12}><Divider>Financials</Divider></Grid>
-                                
-                                <Grid xs={6} md={3}>
-                                    <FormControl>
-                                        <FormLabel>Purchase Value (£)</FormLabel>
-                                        <Input name="purchase_value" type="number" step="0.01" defaultValue={selectedAsset?.purchase_value} />
-                                    </FormControl>
-                                </Grid>
-                                <Grid xs={6} md={3}>
-                                    <FormControl>
-                                        <FormLabel>Monthly Maintenance (£)</FormLabel>
-                                        <Input name="monthly_maintenance_cost" type="number" step="0.01" defaultValue={selectedAsset?.monthly_maintenance_cost} />
-                                    </FormControl>
-                                </Grid>
-                                <Grid xs={6} md={3}>
-                                    <FormControl>
-                                        <FormLabel>Notes</FormLabel>
-                                        <Input name="notes" defaultValue={selectedAsset?.notes} />
-                                    </FormControl>
-                                </Grid>
-                                <Grid xs={6} md={3}>
-                                    <FormControl>
-                                        <FormLabel>Emoji</FormLabel>
-                                        <Input name="emoji" defaultValue={selectedAsset?.emoji} />
-                                    </FormControl>
-                                </Grid>
-                            </Grid>
-                        </form>
-                    )}
-                    {activeTab === 1 && assetId !== 'new' && (
-                        <RecurringChargesWidget 
-                            api={api} 
-                            householdId={householdId} 
-                            household={household}
-                            entityType="asset" 
-                            entityId={assetId} 
-                            segments={[
-                                { id: 'warranty', label: 'Warranty' },
-                                { id: 'insurance', label: 'Insurance' },
-                                { id: 'service', label: 'Service / Maintenance' },
-                                { id: 'subscription', label: 'Subscription' },
-                                { id: 'other', label: 'Other' }
-                            ]}
-                            title="Asset Costs"
-                            showNotification={showNotification}
-                            confirmAction={confirmAction}
-                        />
-                    )}
-                </Box>
-            </Tabs>
-            <Divider />
-            <DialogActions sx={{ p: 2 }}>
-                <Button variant="plain" color="neutral" onClick={() => navigate('../assets', { replace: true })}>Cancel</Button>
-                {activeTab === 0 && (
-                    <Button type="submit" form="asset-form" variant="solid">Save Asset</Button>
-                )}
-            </DialogActions>
-        </ModalDialog>
-      </Modal>
     </Box>
   );
 }

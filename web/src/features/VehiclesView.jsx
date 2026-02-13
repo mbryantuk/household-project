@@ -1,16 +1,7 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
-import { 
-  Box, Typography, Sheet, Divider, Tabs, TabList, Tab, Input, Button, 
-  FormControl, FormLabel,
-  Tooltip, IconButton, Grid, CircularProgress
-} from '@mui/joy';
-import { 
-  Delete, Add, Info, Payments, PhotoCamera
-} from '@mui/icons-material';
-import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
-import EmojiPicker from '../components/EmojiPicker';
-import AppSelect from '../components/ui/AppSelect';
+import { Box, Typography, Sheet, Grid, Button } from '@mui/joy';
+import GenericObjectView from '../components/objects/GenericObjectView';
 
 const VEHICLE_TYPES = [
     { value: 'Car', label: 'Car' },
@@ -24,113 +15,13 @@ const VEHICLE_TYPES = [
 
 export default function VehiclesView() {
   const navigate = useNavigate();
-  const { api, id: householdId, household, user: currentUser, showNotification, confirmAction, fetchVehicles: refreshSidebar } = useOutletContext();
+  const { api, id: householdId, user: currentUser, showNotification, confirmAction, fetchVehicles: refreshSidebar, vehicles = [] } = useOutletContext();
   const { vehicleId } = useParams();
-
-  const enabledModules = useMemo(() => {
-    try {
-        return household?.enabled_modules ? JSON.parse(household.enabled_modules) : ['pets', 'vehicles', 'meals'];
-    } catch { return ['pets', 'vehicles', 'meals']; }
-  }, [household]);
-
-  useEffect(() => {
-    if (!enabledModules.includes('vehicles')) {
-        navigate(`/household/${householdId}/house`, { replace: true });
-    }
-  }, [enabledModules, navigate, householdId]);
-
-  const [activeTab, setActiveTab] = useState(0);
-  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
-  const [selectedEmoji, setSelectedEmoji] = useState('🚗');
-  
-  const [vehicles, setVehicles] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const [vehicleType, setVehicleType] = useState('Car');
-
   const isAdmin = currentUser?.role === 'admin';
-
-  const fetchVehiclesList = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await api.get(`/households/${householdId}/vehicles`);
-      setVehicles(res.data || []);
-    } catch (err) {
-      console.error("Failed to fetch vehicles", err);
-    } finally {
-      setLoading(false);
-    }
-  }, [api, householdId]);
 
   const selectedVehicle = useMemo(() => 
     vehicles.find(v => v.id === parseInt(vehicleId)), 
   [vehicles, vehicleId]);
-
-  useEffect(() => {
-    if (selectedVehicle) {
-        Promise.resolve().then(() => {
-            setSelectedEmoji(selectedVehicle.emoji || '🚗');
-            setVehicleType(selectedVehicle.type || 'Car');
-        });
-    } else if (vehicleId === 'new') {
-        Promise.resolve().then(() => {
-            setSelectedEmoji('🚗');
-            setVehicleType('Car');
-        });
-    }
-  }, [selectedVehicle, vehicleId]);
-
-  useEffect(() => { fetchVehiclesList(); }, [fetchVehiclesList]);
-
-  const handleSubmitVehicle = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
-    data.emoji = selectedEmoji;
-    data.type = vehicleType;
-
-    try {
-      if (vehicleId === 'new') {
-        const res = await api.post(`/households/${householdId}/vehicles`, data);
-        showNotification("Vehicle added.", "success");
-        
-        // Manual update for immediate availability
-        setVehicles(prev => [...prev, res.data]);
-        
-        // Await synchronization
-        await Promise.all([
-            refreshSidebar(),
-            fetchVehiclesList()
-        ]);
-        
-        navigate(`/household/${householdId}/house`, { replace: true });
-      } else {
-        await api.put(`/households/${householdId}/vehicles/${vehicleId}`, data);
-        showNotification("Vehicle updated.", "success");
-        fetchVehiclesList();
-        refreshSidebar();
-      }
-    } catch {
-      showNotification("Error saving vehicle.", "danger");
-    }
-  };
-
-  const handleDeleteVehicle = () => {
-    confirmAction(
-        "Remove Vehicle",
-        `Permanently remove ${selectedVehicle.make} ${selectedVehicle.model} from the fleet? All history and financial data will be lost.`,
-        async () => {
-            try {
-                await api.delete(`/households/${householdId}/vehicles/${vehicleId}`);
-                showNotification("Vehicle removed.", "neutral");
-                refreshSidebar();
-                navigate('..');
-            } catch {
-                showNotification("Failed to delete.", "danger");
-            }
-        }
-    );
-  };
 
   const groupedVehicles = useMemo(() => {
     const groups = {};
@@ -142,10 +33,37 @@ export default function VehiclesView() {
     return groups;
   }, [vehicles]);
 
-  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
+  const FIELDS = [
+    { name: 'emoji', type: 'emoji' },
+    { name: 'type', label: 'Type', type: 'select', options: VEHICLE_TYPES, required: true, gridSpan: { md: 5 } },
+    { name: 'make', label: 'Make', required: true, gridSpan: { md: 5 } },
+    { name: 'model', label: 'Model', required: true, gridSpan: { md: 5 } },
+    { name: 'registration', label: 'Registration', gridSpan: { md: 4 } },
+    
+    { type: 'header', label: 'Asset Valuation' },
+    { name: 'purchase_value', label: 'Purchase Value (£)', type: 'number', gridSpan: { xs: 6, md: 3 } },
+    { name: 'current_value', label: 'Current Value (£)', type: 'number', gridSpan: { xs: 6, md: 3 } },
+    { name: 'replacement_cost', label: 'Replacement Cost (£)', type: 'number', gridSpan: { xs: 6, md: 3 } },
+    { name: 'depreciation_rate', label: 'Depreciation %', type: 'number', gridSpan: { xs: 6, md: 3 } },
 
-  if (vehicleId !== 'new' && !selectedVehicle) {
-    return (
+    { type: 'header', label: 'Maintenance Schedule' },
+    { name: 'mot_due', label: 'MOT Due Date', type: 'date', gridSpan: { md: 4 } },
+    { name: 'tax_due', label: 'Tax Due Date', type: 'date', gridSpan: { md: 4 } }
+  ];
+
+  const COST_SEGMENTS = [
+      { id: 'vehicle_finance', label: 'Finance' },
+      { id: 'insurance', label: 'Insurance' },
+      { id: 'vehicle_service', label: 'Service / Plan' },
+      { id: 'vehicle_tax', label: 'Tax' },
+      { id: 'vehicle_mot', label: 'MOT' },
+      { id: 'vehicle_fuel', label: 'Fuel' },
+      { id: 'vehicle_breakdown', label: 'Breakdown' },
+      { id: 'other', label: 'Other' }
+  ];
+
+  if (!vehicleId) {
+     return (
         <Box>
             <Box sx={{ 
                 mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
@@ -161,7 +79,7 @@ export default function VehiclesView() {
               </Box>
               <Box>
                   {isAdmin && (
-                      <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>Add Vehicle</Button>
+                      <Button variant="solid" onClick={() => navigate('new')}>Add Vehicle</Button>
                   )}
               </Box>
             </Box>
@@ -203,177 +121,26 @@ export default function VehiclesView() {
   }
 
   return (
-    <Box key={vehicleId}>
-      <Box sx={{ 
-          mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-          flexWrap: 'wrap', gap: 2 
-      }}>
-        <Box>
-            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-                {vehicleId === 'new' ? 'Add New Vehicle' : `${selectedVehicle.make} ${selectedVehicle.model}`}
-            </Typography>
-            <Typography level="body-md" color="neutral">
-                {vehicleId === 'new' ? 'Enter vehicle details below.' : 'View and manage vehicle details.'}
-            </Typography>
-        </Box>
-        <Box>
-            {vehicleId !== 'new' && isAdmin && (
-                <Button color="danger" variant="soft" startDecorator={<Delete />} onClick={handleDeleteVehicle}>Remove Vehicle</Button>
-            )}
-        </Box>
-      </Box>
-
-      <Sheet variant="outlined" sx={{ borderRadius: 'md', minHeight: '600px', overflow: 'hidden' }}>
-        {vehicleId !== 'new' && (
-            <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} sx={{ bgcolor: 'transparent' }}>
-                <TabList 
-                    variant="plain" 
-                    sx={{ 
-                        p: 1, gap: 1, borderRadius: 'md', bgcolor: 'background.level1', mx: 2, mt: 2, 
-                        overflow: 'auto',
-                        '&::-webkit-scrollbar': { display: 'none' },
-                        whiteSpace: 'nowrap'
-                    }}
-                >
-                    <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Info sx={{ mr: 1 }}/> Identity</Tab>
-                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'} sx={{ flex: 'none' }}><Payments sx={{ mr: 1 }}/> Vehicle Costs</Tab>
-                </TabList>
-            </Tabs>
-        )}
-
-        <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
-          {(activeTab === 0 || vehicleId === 'new') && (
-            <Box>
-                <form onSubmit={handleSubmitVehicle}>
-                <Grid container spacing={3}>
-                    <Grid xs={12} md={2}>
-                        <IconButton 
-                            onClick={() => setEmojiPickerOpen(true)} 
-                            variant="outlined"
-                            sx={{ width: 80, height: 80, borderRadius: 'xl', position: 'relative' }}
-                        >
-                            <Typography level="h1">{selectedEmoji}</Typography>
-                            <PhotoCamera sx={{ position: 'absolute', bottom: -5, right: -5, fontSize: '1.2rem', color: 'primary.solidBg' }} />
-                        </IconButton>
-                    </Grid>
-                    <Grid xs={12} md={5}>
-                        <AppSelect 
-                            label="Type" 
-                            options={VEHICLE_TYPES} 
-                            value={vehicleType} 
-                            onChange={setVehicleType}
-                            required
-                        />
-                    </Grid>
-                    <Grid xs={12} md={5}>
-                        <FormControl required>
-                            <FormLabel>Make</FormLabel>
-                            <Input name="make" defaultValue={selectedVehicle?.make} />
-                        </FormControl>
-                    </Grid>
-                    <Grid xs={12} md={5}>
-                        <FormControl required>
-                            <FormLabel>Model</FormLabel>
-                            <Input name="model" defaultValue={selectedVehicle?.model} />
-                        </FormControl>
-                    </Grid>
-                    <Grid xs={12} md={4}>
-                        <FormControl>
-                            <FormLabel>Registration</FormLabel>
-                            <Input name="registration" defaultValue={selectedVehicle?.registration} />
-                        </FormControl>
-                    </Grid>
-                    
-                    <Grid xs={12}><Divider>Asset Valuation</Divider></Grid>
-                    <Grid xs={6} md={3}>
-                        <FormControl>
-                            <FormLabel>Purchase Value (£)</FormLabel>
-                            <Input name="purchase_value" type="number" defaultValue={selectedVehicle?.purchase_value} />
-                        </FormControl>
-                    </Grid>
-                    <Grid xs={6} md={3}>
-                        <FormControl>
-                            <FormLabel>Current Value (£)</FormLabel>
-                            <Input name="current_value" type="number" defaultValue={selectedVehicle?.current_value} />
-                        </FormControl>
-                    </Grid>
-                    <Grid xs={6} md={3}>
-                        <FormControl>
-                            <FormLabel>Replacement Cost (£)</FormLabel>
-                            <Input name="replacement_cost" type="number" defaultValue={selectedVehicle?.replacement_cost} />
-                        </FormControl>
-                    </Grid>
-                    <Grid xs={6} md={3}>
-                        <FormControl>
-                            <FormLabel>Annual Depreciation %</FormLabel>
-                            <Input name="depreciation_rate" type="number" defaultValue={selectedVehicle?.depreciation_rate} />
-                        </FormControl>
-                    </Grid>
-
-                    {vehicleId !== 'new' && (
-                        <>
-                            <Grid xs={12}><Divider>Maintenance Schedule</Divider></Grid>
-                            <Grid xs={12} md={4}>
-                                <FormControl>
-                                    <FormLabel>MOT Due Date</FormLabel>
-                                    <Input name="mot_due" type="date" defaultValue={selectedVehicle?.mot_due} />
-                                </FormControl>
-                            </Grid>
-                            <Grid xs={12} md={4}>
-                                <FormControl>
-                                    <FormLabel>Tax Due Date</FormLabel>
-                                    <Input name="tax_due" type="date" defaultValue={selectedVehicle?.tax_due} />
-                                </FormControl>
-                            </Grid>
-                        </>
-                    )}
-                    
-                    <Grid xs={12}>
-                    <Button type="submit" variant="solid" size="lg">
-                        {vehicleId === 'new' ? 'Create Vehicle' : 'Update Details'}
-                    </Button>
-                    </Grid>
-                </Grid>
-                </form>
-            </Box>
-          )}
-
-          {activeTab === 1 && vehicleId !== 'new' && (
-            <Box>
-              <RecurringChargesWidget 
-                api={api} 
-                householdId={householdId} 
-                household={household}
-                entityType="vehicle" 
-                entityId={vehicleId} 
-                segments={[
-                    { id: 'vehicle_finance', label: 'Finance' },
-                    { id: 'insurance', label: 'Insurance' },
-                    { id: 'vehicle_service', label: 'Service / Plan' },
-                    { id: 'vehicle_tax', label: 'Tax' },
-                    { id: 'vehicle_mot', label: 'MOT' },
-                    { id: 'vehicle_fuel', label: 'Fuel' },
-                    { id: 'vehicle_breakdown', label: 'Breakdown' },
-                    { id: 'other', label: 'Other' }
-                ]}
-                title="Vehicle Costs"
-                showNotification={showNotification}
-                confirmAction={confirmAction}
-              />
-            </Box>
-          )}
-        </Box>
-      </Sheet>
-
-      <EmojiPicker 
-        open={emojiPickerOpen} 
-        onClose={() => setEmojiPickerOpen(false)} 
-        onEmojiSelect={(emoji) => {
-            setSelectedEmoji(emoji);
-            setEmojiPickerOpen(false);
+    <GenericObjectView
+        key={vehicleId}
+        type="vehicle"
+        id={vehicleId}
+        householdId={householdId}
+        api={api}
+        endpoint={`/households/${householdId}/vehicles`}
+        initialData={selectedVehicle}
+        defaultValues={{ emoji: '🚗', type: 'Car', make: '', model: '' }}
+        fields={FIELDS}
+        costSegments={COST_SEGMENTS}
+        onSave={() => refreshSidebar()}
+        onDelete={() => {
+            refreshSidebar();
+            navigate('..');
         }}
-        title="Select Vehicle Emoji"
-      />
-    </Box>
+        onCancel={() => navigate('..')}
+        scope={{ isAdmin, showNotification, confirmAction }}
+        title={(data) => vehicleId === 'new' ? 'Add New Vehicle' : `${data.make} ${data.model}`}
+        subtitle={vehicleId === 'new' ? 'Enter vehicle details below.' : 'View and manage vehicle details.'}
+    />
   );
 }
