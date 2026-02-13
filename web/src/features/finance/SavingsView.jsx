@@ -27,7 +27,7 @@ export default function SavingsView({ financialProfileId }) {
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
   const selectedAccountId = queryParams.get('selectedAccountId');
-  const selectedPotId = queryParam.get('selectedPotId');
+  const selectedPotId = queryParams.get('selectedPotId');
 
   const [accounts, setAccounts] = useState([]);
   const [pots, setPots] = useState({}); // Map of savingsId -> [pots]
