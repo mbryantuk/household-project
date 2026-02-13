@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Box, Typography, Grid, Card, Avatar, IconButton, 
-  Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
-  FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup
+  Box, Typography, Grid, Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
+  FormControl, FormLabel, Stack, Chip, CircularProgress, Divider, Avatar
 } from '@mui/joy';
-import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
+import { Add, Edit } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
+import ModuleHeader from '../../components/ui/ModuleHeader';
+import FinanceCard from '../../components/ui/FinanceCard';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -155,66 +155,45 @@ export default function BankingView({ financialProfileId }) {
 
     return (
       <Box sx={{ overflowX: 'hidden' }}>
-        <Box sx={{ 
-            mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-            flexWrap: 'wrap', gap: 2 
-        }}>
-          <Box>
-            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-              Current Accounts
-            </Typography>
-            <Typography level="body-md" color="neutral">
-              Track balances, overdrafts, and account holders.
-            </Typography>
-          </Box>
-          
-          {isAdmin && (
-              <Button variant="solid" startDecorator={<Add />} onClick={() => setAccountId('new')}>
-                  Add Account
-              </Button>
-          )}
-        </Box>
+        <ModuleHeader 
+            title="Current Accounts"
+            description="Track balances, overdrafts, and account holders."
+            emoji="💳"
+            isDark={isDark}
+            action={isAdmin && (
+                <Button variant="solid" startDecorator={<Add />} onClick={() => setAccountId('new')}>
+                    Add Account
+                </Button>
+            )}
+        />
 
-        <Grid container spacing={2}>
+        <Grid container spacing={3}>
             {accounts.map(a => (
-            <Grid xs={12} sm={6} md={4} key={a.id}>
-                <Card variant="outlined" sx={{ flexDirection: 'row', gap: 2, height: '100%' }}>
-                    <Avatar size="lg" sx={{ bgcolor: getEmojiColor(a.emoji || (a.bank_name||'?')[0], isDark) }}>
-                        {a.emoji || (a.bank_name||'?')[0]}
-                    </Avatar>
-                    <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                        <Typography level="title-md" sx={{ fontWeight: 'lg' }} noWrap>{a.bank_name}</Typography>
-                        <Typography level="body-sm" noWrap>{a.account_name}</Typography>
-                        
-                        <Stack direction="row" spacing={1} sx={{ mt: 1, mb: 1 }}>
-                            <Typography level="body-xs" fontWeight="bold" color={a.current_balance < 0 ? 'danger' : 'success'}>
-                                {formatCurrency(a.current_balance)}
-                            </Typography>
-                            {a.overdraft_limit > 0 && (
-                                <Typography level="body-xs" color="neutral">
-                                    (OD: {formatCurrency(a.overdraft_limit)})
-                                </Typography>
-                            )}
-                        </Stack>
-
-                        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                             <AvatarGroup size="sm" sx={{ '--AvatarGroup-gap': '-4px' }}>
-                                {getAssignees(a.id).map(m => (
-                                    <Avatar key={m.id} src={m.avatar} sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji || m.name[0]}</Avatar>
-                                ))}
-                            </AvatarGroup>
-                            <IconButton size="sm" onClick={() => setAssignItem(a)} sx={{ borderRadius: '50%' }}><GroupAdd fontSize="small" /></IconButton>
-                        </Box>
-                    </Box>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                        <IconButton variant="plain" onClick={() => setAccountId(a.id)}>
-                            <Edit />
-                        </IconButton>
-                        <IconButton variant="plain" color="danger" onClick={() => handleDelete(a.id)}>
-                            <Delete />
-                        </IconButton>
-                    </Box>
-                </Card>
+            <Grid xs={12} lg={6} xl={4} key={a.id}>
+                <FinanceCard
+                    title={a.bank_name}
+                    subtitle={a.account_name}
+                    emoji={a.emoji || (a.bank_name||'?')[0]}
+                    isDark={isDark}
+                    balance={a.current_balance}
+                    balanceColor={a.current_balance < 0 ? 'danger' : 'success'}
+                    subValue={a.overdraft_limit > 0 ? `OD: ${formatCurrency(a.overdraft_limit)}` : null}
+                    assignees={getAssignees(a.id)}
+                    onAssign={() => setAssignItem(a)}
+                    onEdit={() => setAccountId(a.id)}
+                    onDelete={() => handleDelete(a.id)}
+                >
+                    <Grid container spacing={1}>
+                        <Grid xs={6}>
+                            <Typography level="body-xs" color="neutral">Sort Code</Typography>
+                            <Typography level="body-sm">{a.sort_code || '-'}</Typography>
+                        </Grid>
+                        <Grid xs={6}>
+                            <Typography level="body-xs" color="neutral">Account No</Typography>
+                            <Typography level="body-sm">{a.account_number || '-'}</Typography>
+                        </Grid>
+                    </Grid>
+                </FinanceCard>
             </Grid>
             ))}
         </Grid>

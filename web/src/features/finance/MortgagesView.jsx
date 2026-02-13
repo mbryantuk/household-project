@@ -1,15 +1,16 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Box, Typography, Grid, Card, Avatar, IconButton, 
-  Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
+  Box, Typography, Grid, Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup, LinearProgress, Table, Sheet, Dropdown, Menu, MenuButton, MenuItem, Checkbox
+  Avatar, Sheet, Dropdown, Menu, MenuButton, MenuItem, Checkbox
 } from '@mui/joy';
-import { Edit, Delete, Add, GroupAdd, TrendingUp, Sell, AccountBalanceWallet, ArrowDropDown } from '@mui/icons-material';
+import { Add, Sell, AccountBalanceWallet, ArrowDropDown } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import AppSelect from '../../components/ui/AppSelect';
+import ModuleHeader from '../../components/ui/ModuleHeader';
+import FinanceCard from '../../components/ui/FinanceCard';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -239,12 +240,12 @@ export default function MortgagesView({ financialProfileId }) {
 
   return (
     <Box>
-        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-            <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Mortgages & Equity</Typography>
-                <Typography level="body-md" color="neutral">Track loans secured against your properties.</Typography>
-            </Box>
-            {isAdmin && (
+        <ModuleHeader 
+            title="Mortgages & Equity"
+            description="Track loans secured against your properties."
+            emoji="🏠"
+            isDark={isDark}
+            action={isAdmin && (
                 <Dropdown>
                     <MenuButton variant="solid" color="primary" startDecorator={<Add />} endDecorator={<ArrowDropDown />}>Add New</MenuButton>
                     <Menu placement="bottom-end">
@@ -253,7 +254,7 @@ export default function MortgagesView({ financialProfileId }) {
                     </Menu>
                 </Dropdown>
             )}
-        </Box>
+        />
 
         <Stack spacing={4}>
             {groupedMortgages.map(prop => {
@@ -292,87 +293,52 @@ export default function MortgagesView({ financialProfileId }) {
                                 const sharePercent = originalPrice > 0 ? (originalLoan / originalPrice) * 100 : 0;
                                 const currentRedemption = (prop.valuation * (sharePercent / 100));
                                 
-                                const progress = !isEquityType && (parseFloat(mort.total_amount) || 0) > 0 ? ((parseFloat(mort.total_amount) - main) / parseFloat(mort.total_amount)) * 100 : 0;
                                 const h2bData = isEquityType ? calculateH2BProjections(mort.equity_loan_amount, mort.equity_loan_start_date, mort.equity_loan_cpi_rate) : null;
 
                                 return (
                                     <Grid xs={12} lg={isEquityType ? 12 : 6} key={mort.id}>
-                                        <Card variant="outlined" sx={{ p: 2, height: '100%' }}>
-                                            <Grid container spacing={2}>
-                                                <Grid xs={12} md={isEquityType ? 4 : 12}>
-                                                    <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center' }}>
-                                                        <Avatar size="lg" sx={{ bgcolor: getEmojiColor(mort.emoji || (isEquityType ? '💰' : '🏠'), isDark) }}>{mort.emoji || (isEquityType ? '💰' : '🏠')}</Avatar>
-                                                        <Box sx={{ flexGrow: 1 }}>
-                                                            <Typography level="title-md">{mort.lender}</Typography>
-                                                            <Typography level="body-xs" color="neutral">{isEquityType ? `Equity Loan (${sharePercent.toFixed(1)}%)` : 'Mortgage Part'}</Typography>
-                                                            {isEquityType && (sharePercent > 50) && (
-                                                                <Typography level="body-xs" color="danger" fontWeight="bold">⚠️ High Equity Share (&gt;50%)</Typography>
-                                                            )}
-                                                        </Box>
-                                                        <Box sx={{ textAlign: 'right' }}>
-                                                            <Typography level="title-md" color="danger">{formatCurrency(isEquityType ? currentRedemption : main)}</Typography>
-                                                            <Typography level="body-xs" fontWeight="bold">{isEquityType ? 'Est. Redemption' : formatPercent(mort.interest_rate)}</Typography>
-                                                        </Box>
-                                                    </Box>
-
-                                                    {!isEquityType && (
-                                                        <Box sx={{ mb: 2 }}><LinearProgress determinate value={Math.min(progress, 100)} color="success" sx={{ height: 6, borderRadius: 3 }} /></Box>
-                                                    )}
-
-                                                    <Grid container spacing={1}>
-                                                        <Grid xs={4}><Typography level="body-xs" color="neutral">Monthly</Typography><Typography level="body-sm" fontWeight="bold">{formatCurrency(mort.monthly_payment)}</Typography></Grid>
-                                                        <Grid xs={4}><Typography level="body-xs" color="neutral">Day</Typography><Typography level="body-sm" fontWeight="bold">{mort.payment_day || '-'}</Typography></Grid>
-                                                        <Grid xs={4}><Typography level="body-xs" color="neutral">{isEquityType ? 'Started' : 'Term'}</Typography><Typography level="body-sm" fontWeight="bold">{isEquityType ? (mort.equity_loan_start_date || 'N/A') : (mort.term_years ? (mort.term_months > 0 ? `${mort.term_years}y ${mort.term_months}m` : `${mort.term_years}y`) : 'N/A')}</Typography></Grid>
-                                                    </Grid>
-
-                                                    {isEquityType && (
-                                                        <Stack spacing={1} mt={2}>
-                                                            <Sheet variant="soft" color="warning" sx={{ p: 1.5, borderRadius: 'sm' }}>
-                                                                <Typography level="title-sm" startDecorator={<Sell />}>Redemption Scenario</Typography>
-                                                                <Typography level="body-xs">Based on {formatCurrency(prop.valuation)} valuation, the government's share is <b>{formatCurrency(currentRedemption)}</b>.</Typography>
-                                                            </Sheet>
-                                                            <Sheet variant="soft" color="neutral" sx={{ p: 1.5, borderRadius: 'sm' }}>
-                                                                <Typography level="title-sm" startDecorator={<AccountBalanceWallet />}>Interest Paid</Typography>
-                                                                <Typography level="body-xs">To date (approx): <b>{formatCurrency(h2bData?.totalPaidSoFar)}</b></Typography>
-                                                                <Typography level="body-xs" color="neutral">Projected 25y total: {formatCurrency(h2bData?.totalProjectedLife)}</Typography>
-                                                            </Sheet>
-                                                        </Stack>
-                                                    )}
+                                        <FinanceCard
+                                            title={mort.lender}
+                                            subtitle={isEquityType ? `Equity Loan (${sharePercent.toFixed(1)}%)` : 'Mortgage Part'}
+                                            emoji={mort.emoji || (isEquityType ? '💰' : '🏠')}
+                                            isDark={isDark}
+                                            balance={isEquityType ? currentRedemption : main}
+                                            balanceColor="danger"
+                                            subValue={isEquityType ? 'Est. Redemption' : formatPercent(mort.interest_rate)}
+                                            assignees={getAssignees(mort.id)}
+                                            onAssign={() => setAssignItem(mort)}
+                                            onEdit={() => setMortgageId(mort.id)}
+                                            onDelete={() => handleDelete(mort.id)}
+                                        >
+                                            <Grid container spacing={1}>
+                                                <Grid xs={isEquityType ? 2 : 4}>
+                                                    <Typography level="body-xs" color="neutral">Monthly</Typography>
+                                                    <Typography level="body-sm" fontWeight="bold">{formatCurrency(mort.monthly_payment)}</Typography>
                                                 </Grid>
-
-                                                {isEquityType && h2bData && (
-                                                    <Grid xs={12} md={8}>
-                                                        <Sheet variant="outlined" sx={{ p: 1, borderRadius: 'sm', height: '100%', maxHeight: 350, overflowY: 'auto' }}>
-                                                            <Typography level="title-sm" sx={{ mb: 1, position: 'sticky', top: 0, bgcolor: 'background.surface', zIndex: 1 }} startDecorator={<TrendingUp />}>25-Year Interest Breakdown (RPI + 1%)</Typography>
-                                                            <Table size="sm" stickyHeader sx={{ '--TableCell-paddingX': '8px' }}>
-                                                                <thead><tr><th>Year</th><th>Period</th><th>Rate</th><th>Monthly</th><th>Annual</th><th>Status</th></tr></thead>
-                                                                <tbody>
-                                                                    {h2bData.projections.map((p, idx) => (
-                                                                        <tr key={idx} style={p.isCurrent ? { backgroundColor: 'var(--joy-palette-warning-softBg)' } : {}}>
-                                                                            <td>{p.year}</td><td style={{ whiteSpace: 'nowrap' }}>{p.period}</td><td>{p.rate}</td><td>{formatCurrency(p.fee/12)}</td><td>{formatCurrency(p.fee)}</td>
-                                                                            <td>
-                                                                                <Typography level="body-xs" fontWeight="bold" color={p.isCurrent ? "primary" : "neutral"}>{p.status}</Typography>
-                                                                            </td>
-                                                                        </tr>
-                                                                    ))}
-                                                                </tbody>
-                                                            </Table>
-                                                        </Sheet>
-                                                    </Grid>
-                                                )}
+                                                <Grid xs={isEquityType ? 2 : 4}>
+                                                    <Typography level="body-xs" color="neutral">Day</Typography>
+                                                    <Typography level="body-sm" fontWeight="bold">{mort.payment_day || '-'}</Typography>
+                                                </Grid>
+                                                <Grid xs={isEquityType ? 2 : 4}>
+                                                    <Typography level="body-xs" color="neutral">{isEquityType ? 'Started' : 'Term'}</Typography>
+                                                    <Typography level="body-sm" fontWeight="bold">{isEquityType ? (mort.equity_loan_start_date || 'N/A') : (mort.term_years ? (mort.term_months > 0 ? `${mort.term_years}y ${mort.term_months}m` : `${mort.term_years}y`) : 'N/A')}</Typography>
+                                                </Grid>
                                             </Grid>
 
-                                            {!isEquityType && (mort.follow_on_rate > 0 || mort.follow_on_payment > 0) && (
-                                                <Sheet variant="soft" sx={{ mt: 2, p: 1, borderRadius: 'sm', bgcolor: 'background.level1' }}>
-                                                    <Typography level="body-xs" color="neutral" startDecorator={<TrendingUp sx={{ fontSize: '0.9rem' }}/>}>After fixed rate: <b>{formatPercent(mort.follow_on_rate)}</b> ({formatCurrency(mort.follow_on_payment)}/mo)</Typography>
-                                                </Sheet>
+                                            {isEquityType && (
+                                                <Stack spacing={1} mt={2}>
+                                                    <Sheet variant="soft" color="warning" sx={{ p: 1.5, borderRadius: 'sm' }}>
+                                                        <Typography level="title-sm" startDecorator={<Sell />}>Redemption Scenario</Typography>
+                                                        <Typography level="body-xs">Based on {formatCurrency(prop.valuation)} valuation, the government's share is <b>{formatCurrency(currentRedemption)}</b>.</Typography>
+                                                    </Sheet>
+                                                    <Sheet variant="soft" color="neutral" sx={{ p: 1.5, borderRadius: 'sm' }}>
+                                                        <Typography level="title-sm" startDecorator={<AccountBalanceWallet />}>Interest Paid</Typography>
+                                                        <Typography level="body-xs">To date (approx): <b>{formatCurrency(h2bData?.totalPaidSoFar)}</b></Typography>
+                                                        <Typography level="body-xs" color="neutral">Projected 25y total: {formatCurrency(h2bData?.totalProjectedLife)}</Typography>
+                                                    </Sheet>
+                                                </Stack>
                                             )}
-
-                                            <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                <AvatarGroup size="sm">{getAssignees(mort.id).map(m => (<Avatar key={m.id} sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji}</Avatar>))}<IconButton size="sm" onClick={() => setAssignItem(mort)} sx={{ borderRadius: '50%' }}><GroupAdd /></IconButton></AvatarGroup>
-                                                <Box><IconButton size="sm" variant="plain" onClick={() => setMortgageId(mort.id)}><Edit /></IconButton><IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(mort.id)}><Delete /></IconButton></Box>
-                                            </Box>
-                                        </Card>
+                                        </FinanceCard>
                                     </Grid>
                                 );
                             })}
@@ -383,6 +349,7 @@ export default function MortgagesView({ financialProfileId }) {
         </Stack>
 
         <Modal open={Boolean(selectedMortgageId)} onClose={() => setMortgageId(null)}>
+            {/* ... Modal content remains mostly same, just ensuring correct layout in main cards ... */}
             <ModalDialog sx={{ width: '100%', maxWidth: 700, maxHeight: '95vh', overflowY: 'auto' }}>
                 <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
                     <Box sx={{ position: 'relative' }}>
@@ -474,7 +441,8 @@ export default function MortgagesView({ financialProfileId }) {
                             const isAssigned = getAssignees(assignItem?.id).some(a => a.id === m.id);
                             return (
                                 <Box key={m.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 'sm' }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Avatar size="sm" sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji}</Avatar><Typography>{m.alias || m.name}</Typography></Box>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Avatar size="sm" sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji}</Avatar><Typography>{m.alias || m.name}</Typography></Box>
                                     {isAssigned ? <Button size="sm" color="danger" variant="soft" onClick={() => handleUnassignMember(m.id)}>Remove</Button> : <Button size="sm" variant="soft" onClick={() => handleAssignMember(m.id)}>Assign</Button>}
                                 </Box>
                             );

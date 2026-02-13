@@ -1,22 +1,17 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Box, Typography, Grid, Card, Avatar, IconButton, 
-  Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
-  FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  Checkbox, Sheet
+  Box, Typography, Grid, Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
+  FormControl, FormLabel, Stack, Checkbox, CircularProgress, Divider, Avatar, IconButton
 } from '@mui/joy';
-import { Edit, Delete, Add, Star } from '@mui/icons-material';
+import { Add, Star, Edit } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { getEmojiColor } from '../../theme';
 import AppSelect from '../../components/ui/AppSelect';
 import EmojiPicker from '../../components/EmojiPicker';
+import ModuleHeader from '../../components/ui/ModuleHeader';
+import FinanceCard from '../../components/ui/FinanceCard';
 import { getNextPayday, getDaysUntil } from '../../utils/dateUtils';
-
-const formatCurrency = (val) => {
-    const num = parseFloat(val) || 0;
-    return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-};
 
 export default function IncomeView({ financialProfileId }) {
   const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
@@ -76,9 +71,8 @@ export default function IncomeView({ financialProfileId }) {
     navigate(`?${newParams.toString()}`, { replace: true });
   }, [location.search, navigate]);
 
-  const getMemberName = useCallback((id) => {
-      const m = members.find(m => m.id === parseInt(id));
-      return m ? (m.alias || m.name) : 'Unassigned';
+  const getMember = useCallback((id) => {
+      return members.find(m => m.id === parseInt(id));
   }, [members]);
 
   const handleSubmit = async (e) => {
@@ -115,68 +109,64 @@ export default function IncomeView({ financialProfileId }) {
     }
   }, [api, householdId, fetchData, selectedIncomeId, setIncomeId]);
 
+  const formatCurrency = (val) => {
+    const num = parseFloat(val) || 0;
+    return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
     return (
       <Box sx={{ overflowX: 'hidden' }}>
-        <Box sx={{ 
-            mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-            flexWrap: 'wrap', gap: 2 
-        }}>
-          <Box>
-            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-              Income Sources
-            </Typography>
-            <Typography level="body-md" color="neutral">
-              Manage salary, contracting, and other income streams.
-            </Typography>
-          </Box>
-          
-          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-              {isAdmin && (
-                  <Button variant="solid" startDecorator={<Add />} onClick={() => setIncomeId('new')} sx={{ height: '44px' }}>
-                      Add Income
-                  </Button>
-              )}
-          </Box>
-        </Box>
+        <ModuleHeader 
+            title="Income Sources"
+            description="Manage salary, contracting, and other income streams."
+            emoji="💰"
+            isDark={isDark}
+            action={isAdmin && (
+                <Button variant="solid" startDecorator={<Add />} onClick={() => setIncomeId('new')} sx={{ height: '44px' }}>
+                    Add Income
+                </Button>
+            )}
+        />
 
-        <Grid container spacing={2}>
+        <Grid container spacing={3}>
             {incomeList.map(a => {
                 const nextPayDate = getNextPayday(a.payment_day);
+                const assignedMember = getMember(a.member_id);
+
                 return (
-                <Grid xs={12} sm={6} key={a.id}>
-                    <Card variant="outlined" sx={{ flexDirection: 'row', gap: 2, p: 2, minHeight: '80px', borderLeft: a.is_primary ? '4px solid' : undefined, borderLeftColor: 'primary.solidBg' }}>
-                        <Avatar size="lg" sx={{ bgcolor: getEmojiColor(a.emoji || (a.employer||'?')[0], isDark) }}>
-                            {a.emoji || (a.employer||'?')[0]}
-                        </Avatar>
-                        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                <Grid xs={12} lg={6} xl={4} key={a.id}>
+                    <FinanceCard
+                        title={
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Typography level="title-md" sx={{ fontWeight: 'lg' }} noWrap>{a.employer}</Typography>
+                                {a.employer}
                                 {a.is_primary === 1 && <Star color="primary" sx={{ fontSize: '1rem' }} />}
                             </Box>
-                            <Typography level="body-sm">{a.role}</Typography>
-                            
-                            <Stack direction="row" spacing={1} sx={{ mt: 1, mb: 1, flexWrap: 'wrap', gap: 0.5 }}>
-                                <Chip size="sm" color="success">Net: {formatCurrency(a.amount)}</Chip>
-                                <Chip size="sm" variant="outlined">{a.frequency}</Chip>
-                                {nextPayDate && (
-                                    <Chip size="sm" variant="outlined" color="primary">
-                                        Next: {format(nextPayDate, 'do MMM')} ({getDaysUntil(nextPayDate)}d)
-                                    </Chip>
-                                )}
-                                <Chip size="sm" variant="soft">{getMemberName(a.member_id)}</Chip>
-                            </Stack>
-                        </Box>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                            <IconButton variant="plain" onClick={() => setIncomeId(a.id)}>
-                                <Edit />
-                            </IconButton>
-                            <IconButton variant="plain" color="danger" onClick={() => handleDelete(a.id)}>
-                                <Delete />
-                            </IconButton>
-                        </Box>
-                    </Card>
+                        }
+                        subtitle={a.role}
+                        emoji={a.emoji || (a.employer||'?')[0]}
+                        isDark={isDark}
+                        balance={a.amount}
+                        balanceColor="success"
+                        subValue={a.frequency}
+                        assignees={assignedMember ? [assignedMember] : []}
+                        onEdit={() => setIncomeId(a.id)}
+                        onDelete={() => handleDelete(a.id)}
+                    >
+                        <Grid container spacing={1}>
+                            <Grid xs={6}>
+                                <Typography level="body-xs" color="neutral">Next Payday</Typography>
+                                <Typography level="body-sm" fontWeight="bold">
+                                    {nextPayDate ? `${format(nextPayDate, 'do MMM')} (${getDaysUntil(nextPayDate)}d)` : 'N/A'}
+                                </Typography>
+                            </Grid>
+                            <Grid xs={6}>
+                                <Typography level="body-xs" color="neutral">Gross Annual</Typography>
+                                <Typography level="body-sm">{a.gross_annual_salary ? formatCurrency(a.gross_annual_salary) : '-'}</Typography>
+                            </Grid>
+                        </Grid>
+                    </FinanceCard>
                 </Grid>
                 );
             })}

@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Box, Typography, Grid, Card, Avatar, IconButton, 
-  Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
-  FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup, LinearProgress, Checkbox
+  Box, Typography, Grid, Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
+  FormControl, FormLabel, Stack, Chip, CircularProgress, Divider, Avatar, LinearProgress, Checkbox
 } from '@mui/joy';
-import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
+import { Add } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import AppSelect from '../../components/ui/AppSelect';
+import ModuleHeader from '../../components/ui/ModuleHeader';
+import FinanceCard from '../../components/ui/FinanceCard';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -141,17 +141,17 @@ export default function VehicleFinanceView({ financialProfileId }) {
 
   return (
     <Box>
-        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-            <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Car Finance</Typography>
-                <Typography level="body-md" color="neutral">Track loans and leases for your fleet.</Typography>
-            </Box>
-            {isAdmin && (
+        <ModuleHeader 
+            title="Car Finance"
+            description="Track loans and leases for your fleet."
+            emoji="🚗"
+            isDark={isDark}
+            action={isAdmin && (
                 <Button startDecorator={<Add />} onClick={() => setFinanceId('new')}>
                     Add Agreement
                 </Button>
             )}
-        </Box>
+        />
 
         <Grid container spacing={3}>
             {finances.map(fin => {
@@ -162,23 +162,19 @@ export default function VehicleFinanceView({ financialProfileId }) {
 
                 return (
                     <Grid xs={12} lg={6} xl={4} key={fin.id}>
-                        <Card variant="outlined" sx={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                <Avatar size="lg" sx={{ bgcolor: getEmojiColor(fin.emoji || '🚗', isDark) }}>
-                                    {fin.emoji || '🚗'}
-                                </Avatar>
-                                <Box sx={{ flexGrow: 1 }}>
-                                    <Typography level="title-md">{fin.provider}</Typography>
-                                    <Typography level="body-sm" color="neutral">
-                                        {vehicle ? `${vehicle.make} ${vehicle.model}` : 'Unlinked Vehicle'}
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ textAlign: 'right' }}>
-                                    <Typography level="h3" color="danger">{formatCurrency(remaining)}</Typography>
-                                    <Typography level="body-xs" color="neutral">of {formatCurrency(total)}</Typography>
-                                </Box>
-                            </Box>
-
+                        <FinanceCard
+                            title={fin.provider}
+                            subtitle={vehicle ? `${vehicle.make} ${vehicle.model}` : 'Unlinked Vehicle'}
+                            emoji={fin.emoji || '🚗'}
+                            isDark={isDark}
+                            balance={remaining}
+                            balanceColor="danger"
+                            subValue={`of ${formatCurrency(total)}`}
+                            assignees={getAssignees(fin.id)}
+                            onAssign={() => setAssignItem(fin)}
+                            onEdit={() => setFinanceId(fin.id)}
+                            onDelete={() => handleDelete(fin.id)}
+                        >
                             <Box>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                                     <Typography level="body-xs">Payoff Progress</Typography>
@@ -187,7 +183,7 @@ export default function VehicleFinanceView({ financialProfileId }) {
                                 <LinearProgress determinate value={Math.min(progress, 100)} color="success" />
                             </Box>
 
-                            <Grid container spacing={2}>
+                            <Grid container spacing={1} sx={{ mt: 1 }}>
                                 <Grid xs={6}>
                                     <Typography level="body-xs" color="neutral">Monthly Payment</Typography>
                                     <Typography level="body-sm">{formatCurrency(fin.monthly_payment)}</Typography>
@@ -196,22 +192,8 @@ export default function VehicleFinanceView({ financialProfileId }) {
                                     <Typography level="body-xs" color="neutral">Interest Rate</Typography>
                                     <Typography level="body-sm">{formatPercent(fin.interest_rate)}</Typography>
                                 </Grid>
-                                <Grid xs={12}>
-                                    <Typography level="body-xs" color="neutral">Term</Typography>
-                                    <Typography level="body-sm">{fin.start_date} to {fin.end_date || 'Ongoing'}</Typography>
-                                </Grid>
                             </Grid>
-
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 'auto', pt: 2 }}>
-                                <AvatarGroup size="sm">
-                                    {getAssignees(fin.id).map(m => (
-                                        <Avatar key={m.id} sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji}</Avatar>
-                                    ))}
-                                    <IconButton size="sm" onClick={() => setAssignItem(fin)} sx={{ borderRadius: '50%' }}><GroupAdd /></IconButton>
-                                </AvatarGroup>
-                                <IconButton size="sm" onClick={() => setFinanceId(fin.id)}><Edit /></IconButton>
-                            </Box>
-                        </Card>
+                        </FinanceCard>
                     </Grid>
                 );
             })}

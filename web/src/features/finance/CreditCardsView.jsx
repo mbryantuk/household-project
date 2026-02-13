@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Box, Typography, Grid, Card, Avatar, IconButton, 
-  Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
-  FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup, LinearProgress, Checkbox
+  Box, Typography, Grid, Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
+  FormControl, FormLabel, Stack, Chip, CircularProgress, Divider, Avatar, LinearProgress, Checkbox
 } from '@mui/joy';
-import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
+import { Add } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
+import ModuleHeader from '../../components/ui/ModuleHeader';
+import FinanceCard from '../../components/ui/FinanceCard';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -137,17 +137,17 @@ export default function CreditCardsView({ financialProfileId }) {
 
   return (
     <Box>
-        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-            <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Credit Cards</Typography>
-                <Typography level="body-md" color="neutral">Track credit utilization and repayments.</Typography>
-            </Box>
-            {isAdmin && (
+        <ModuleHeader 
+            title="Credit Cards"
+            description="Track credit utilization and repayments."
+            emoji="💳"
+            isDark={isDark}
+            action={isAdmin && (
                 <Button startDecorator={<Add />} onClick={() => setCardId('new')}>
                     Add Card
                 </Button>
             )}
-        </Box>
+        />
 
         <Grid container spacing={3}>
             {cards.map(card => {
@@ -157,21 +157,19 @@ export default function CreditCardsView({ financialProfileId }) {
 
                 return (
                     <Grid xs={12} lg={6} xl={4} key={card.id}>
-                        <Card variant="outlined" sx={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                <Avatar size="lg" sx={{ bgcolor: getEmojiColor(card.emoji || '💳', isDark) }}>
-                                    {card.emoji || '💳'}
-                                </Avatar>
-                                <Box sx={{ flexGrow: 1 }}>
-                                    <Typography level="title-lg">{card.card_name}</Typography>
-                                    <Typography level="body-sm" color="neutral">{card.provider}</Typography>
-                                </Box>
-                                <Box sx={{ textAlign: 'right' }}>
-                                    <Typography level="h3" color={utilization > 80 ? 'danger' : 'neutral'}>{formatCurrency(balance)}</Typography>
-                                    <Typography level="body-xs" color="neutral">of {formatCurrency(limit)} limit</Typography>
-                                </Box>
-                            </Box>
-
+                        <FinanceCard
+                            title={card.card_name}
+                            subtitle={card.provider}
+                            emoji={card.emoji || '💳'}
+                            isDark={isDark}
+                            balance={balance}
+                            balanceColor={utilization > 80 ? 'danger' : 'neutral'}
+                            subValue={`Limit: ${formatCurrency(limit)}`}
+                            assignees={getAssignees(card.id)}
+                            onAssign={() => setAssignItem(card)}
+                            onEdit={() => setCardId(card.id)}
+                            onDelete={() => handleDelete(card.id)}
+                        >
                             <Box>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                                     <Typography level="body-xs">Utilization</Typography>
@@ -180,7 +178,7 @@ export default function CreditCardsView({ financialProfileId }) {
                                 <LinearProgress determinate value={Math.min(utilization, 100)} color={utilization > 80 ? 'danger' : (utilization > 50 ? 'warning' : 'success')} />
                             </Box>
 
-                            <Grid container spacing={2}>
+                            <Grid container spacing={2} sx={{ mt: 1 }}>
                                 <Grid xs={6}>
                                     <Typography level="body-xs" color="neutral">APR</Typography>
                                     <Typography level="body-sm">{formatPercent(card.apr)}</Typography>
@@ -190,17 +188,7 @@ export default function CreditCardsView({ financialProfileId }) {
                                     <Typography level="body-sm">{card.payment_day || '-'}</Typography>
                                 </Grid>
                             </Grid>
-
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 'auto', pt: 2 }}>
-                                <AvatarGroup size="sm">
-                                    {getAssignees(card.id).map(m => (
-                                        <Avatar key={m.id} sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji}</Avatar>
-                                    ))}
-                                    <IconButton size="sm" onClick={() => setAssignItem(card)} sx={{ borderRadius: '50%' }}><GroupAdd /></IconButton>
-                                </AvatarGroup>
-                                <IconButton size="sm" onClick={() => setCardId(card.id)}><Edit /></IconButton>
-                            </Box>
-                        </Card>
+                        </FinanceCard>
                     </Grid>
                 );
             })}
@@ -210,8 +198,8 @@ export default function CreditCardsView({ financialProfileId }) {
             <ModalDialog sx={{ width: '100%', maxWidth: 500, maxHeight: '95vh', overflowY: 'auto' }}>
                 <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
                     <Box sx={{ position: 'relative' }}>
-                        <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(selectedEmoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => setEmojiPicker(true)}>{selectedEmoji}</Avatar>
-                        <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => setEmojiPicker(true)}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
+                        <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(selectedEmoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => setEmojiPicker({ open: true, type: 'account' })}>{selectedEmoji}</Avatar>
+                        <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => setEmojiPicker({ open: true, type: 'account' })}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
                     </Box>
                     <Box sx={{ flexGrow: 1 }}>
                         <DialogTitle>{selectedCardId === 'new' ? 'Add Card' : 'Edit Card'}</DialogTitle>

@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Box, Typography, Button, Sheet, Divider, IconButton, 
+  Box, Typography, Button, Divider, IconButton, 
   Modal, ModalDialog, ModalClose, FormControl, FormLabel, Input, 
-  Stack, Avatar, Checkbox, Grid, Chip, AvatarGroup, Card
+  Stack, Avatar, Checkbox, Grid, Chip
 } from '@mui/joy';
-import { Add, Edit, Delete, RequestQuote, ArrowForward } from '@mui/icons-material';
+import { Add, Edit } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
+import ModuleHeader from '../../components/ui/ModuleHeader';
+import FinanceCard from '../../components/ui/FinanceCard';
 
 const formatCurrency = (val, currencyCode = 'GBP') => {
     const num = parseFloat(val) || 0;
@@ -144,51 +146,48 @@ export default function LoansView({ financialProfileId }) {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography level="h2" startDecorator={<RequestQuote />}>Loans & Debts</Typography>
-        {isAdmin && <Button startDecorator={<Add />} onClick={() => setLoanId('new')}>Add Loan</Button>}
-      </Box>
+      <ModuleHeader 
+          title="Loans & Debts"
+          description="Track personal loans and debts."
+          emoji="📝"
+          isDark={isDark}
+          action={isAdmin && (
+              <Button startDecorator={<Add />} onClick={() => setLoanId('new')}>Add Loan</Button>
+          )}
+      />
 
-      <Grid container spacing={2}>
+      <Grid container spacing={3}>
           {loans.length === 0 && (
               <Grid xs={12}>
                   <Typography level="body-lg" textAlign="center" sx={{ py: 10, opacity: 0.5 }}>No active loans found.</Typography>
               </Grid>
           )}
           {loans.map(loan => (
-              <Grid key={loan.id} xs={12} sm={6} md={4}>
-                  <Card variant="outlined" sx={{ transition: 'transform 0.2s', '&:hover': { transform: 'translateY(-4px)', boxShadow: 'md' } }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                          <Avatar size="lg" sx={{ bgcolor: getEmojiColor(loan.emoji, isDark), fontSize: '1.5rem' }}>{loan.emoji}</Avatar>
-                          <Stack direction="row">
-                              <IconButton size="sm" variant="plain" onClick={() => setLoanId(loan.id)}><Edit /></IconButton>
-                              <IconButton size="sm" variant="plain" color="danger" onClick={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/loans/${loan.id}`).then(() => fetchLoans()))}><Delete /></IconButton>
-                          </Stack>
-                      </Box>
-                      <Box sx={{ mt: 2 }}>
-                          <Typography level="title-lg">{loan.lender}</Typography>
-                          <Typography level="body-xs" color="neutral" textTransform="uppercase" letterSpacing="sm">{loan.loan_type}</Typography>
-                      </Box>
-                      <Divider sx={{ my: 1.5 }} />
+              <Grid key={loan.id} xs={12} lg={6} xl={4}>
+                  <FinanceCard
+                      title={loan.lender}
+                      subtitle={loan.loan_type}
+                      emoji={loan.emoji}
+                      isDark={isDark}
+                      balance={loan.remaining_balance}
+                      balanceColor="danger"
+                      currency={household?.currency}
+                      subValue={loan.payment_day ? <Chip size="sm" variant="soft" color="neutral">Day {loan.payment_day}</Chip> : null}
+                      assignees={getAssignees(loan.id)}
+                      onEdit={() => setLoanId(loan.id)}
+                      onDelete={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/loans/${loan.id}`).then(() => fetchLoans()))}
+                  >
                       <Grid container spacing={1}>
                           <Grid xs={6}>
-                              <Typography level="body-xs" color="neutral">Remaining</Typography>
-                              <Typography level="title-md" fontWeight="bold">{formatCurrency(loan.remaining_balance, household?.currency)}</Typography>
+                              <Typography level="body-xs" color="neutral">Total Loan</Typography>
+                              <Typography level="body-sm">{formatCurrency(loan.total_amount, household?.currency)}</Typography>
                           </Grid>
                           <Grid xs={6}>
                               <Typography level="body-xs" color="neutral">Monthly</Typography>
-                              <Typography level="title-md">{formatCurrency(loan.monthly_payment, household?.currency)}</Typography>
+                              <Typography level="body-sm" fontWeight="bold">{formatCurrency(loan.monthly_payment, household?.currency)}</Typography>
                           </Grid>
                       </Grid>
-                      <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <AvatarGroup size="sm" sx={{ '--AvatarGroup-gap': '-4px' }}>
-                              {getAssignees(loan.id).map(m => (
-                                  <Avatar key={m.id} src={m.avatar} sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji}</Avatar>
-                              ))}
-                          </AvatarGroup>
-                          {loan.payment_day && <Chip size="sm" variant="soft" color="neutral">Day {loan.payment_day}</Chip>}
-                      </Box>
-                  </Card>
+                  </FinanceCard>
               </Grid>
           ))}
       </Grid>

@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Box, Typography, Button, Sheet, Divider, IconButton, 
+  Box, Typography, Button, Divider, IconButton, 
   Modal, ModalDialog, ModalClose, FormControl, FormLabel, Input, 
-  Stack, Avatar, Grid, Card, Chip
+  Stack, Avatar, Grid, Chip
 } from '@mui/joy';
-import { Add, Edit, Delete, ArrowUpward, ArrowDownward, TrendingUp as TrendingUpIcon } from '@mui/icons-material';
+import { Add, Edit, ArrowUpward, ArrowDownward } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
+import ModuleHeader from '../../components/ui/ModuleHeader';
+import FinanceCard from '../../components/ui/FinanceCard';
 
 const formatCurrency = (val, currencyCode = 'GBP') => {
     const num = parseFloat(val) || 0;
@@ -101,12 +103,17 @@ export default function InvestmentsView({ financialProfileId }) {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography level="h2" startDecorator={<TrendingUpIcon />}>Investments</Typography>
-        <Button startDecorator={<Add />} onClick={() => setInvestmentId('new')}>Add Investment</Button>
-      </Box>
+      <ModuleHeader 
+          title="Investments"
+          description="Track stock market and crypto assets."
+          emoji="📈"
+          isDark={isDark}
+          action={
+              <Button startDecorator={<Add />} onClick={() => setInvestmentId('new')}>Add Investment</Button>
+          }
+      />
 
-      <Grid container spacing={2}>
+      <Grid container spacing={3}>
           {investments.length === 0 && (
               <Grid xs={12}>
                   <Typography level="body-lg" textAlign="center" sx={{ py: 10, opacity: 0.5 }}>No investments recorded yet.</Typography>
@@ -118,29 +125,16 @@ export default function InvestmentsView({ financialProfileId }) {
               const isUp = gain >= 0;
 
               return (
-                <Grid key={inv.id} xs={12} sm={6} md={4} lg={3}>
-                    <Card variant="outlined" sx={{ height: '100%', transition: 'transform 0.2s', '&:hover': { transform: 'translateY(-4px)', boxShadow: 'md' } }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                            <Avatar size="lg" sx={{ bgcolor: getEmojiColor(inv.emoji, isDark), fontSize: '1.5rem' }}>{inv.emoji}</Avatar>
-                            <Stack direction="row">
-                                <IconButton size="sm" variant="plain" onClick={() => setInvestmentId(inv.id)}><Edit /></IconButton>
-                                <IconButton size="sm" variant="plain" color="danger" onClick={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/investments/${inv.id}`).then(() => fetchInvestments()))}><Delete /></IconButton>
-                            </Stack>
-                        </Box>
-                        <Box sx={{ mt: 2 }}>
-                            <Typography level="title-lg" noWrap>{inv.name}</Typography>
-                            <Typography level="body-xs" color="neutral" textTransform="uppercase">{inv.platform || 'Direct'}</Typography>
-                        </Box>
-                        <Divider sx={{ my: 1.5 }} />
-                        <Box sx={{ mb: 1 }}>
-                            <Typography level="body-xs" color="neutral">Current Value</Typography>
-                            <Typography level="h3" sx={{ fontWeight: 'xl' }}>{formatCurrency(inv.current_value, household?.currency)}</Typography>
-                        </Box>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Box>
-                                <Typography level="body-xs" color="neutral">Invested</Typography>
-                                <Typography level="body-sm" fontWeight="bold">{formatCurrency(inv.total_invested, household?.currency)}</Typography>
-                            </Box>
+                <Grid key={inv.id} xs={12} lg={6} xl={4}>
+                    <FinanceCard
+                        title={inv.name}
+                        subtitle={inv.platform || 'Direct'}
+                        emoji={inv.emoji}
+                        isDark={isDark}
+                        balance={inv.current_value}
+                        balanceColor="success"
+                        currency={household?.currency}
+                        subValue={
                             <Chip 
                                 size="sm" 
                                 variant="soft" 
@@ -149,8 +143,23 @@ export default function InvestmentsView({ financialProfileId }) {
                             >
                                 {Math.abs(gainPct).toFixed(1)}%
                             </Chip>
-                        </Box>
-                    </Card>
+                        }
+                        onEdit={() => setInvestmentId(inv.id)}
+                        onDelete={() => confirmAction("Delete?", "Are you sure?", () => api.delete(`/households/${householdId}/finance/investments/${inv.id}`).then(() => fetchInvestments()))}
+                    >
+                        <Grid container spacing={1}>
+                            <Grid xs={6}>
+                                <Typography level="body-xs" color="neutral">Total Invested</Typography>
+                                <Typography level="body-sm">{formatCurrency(inv.total_invested, household?.currency)}</Typography>
+                            </Grid>
+                            <Grid xs={6}>
+                                <Typography level="body-xs" color="neutral">Net Gain/Loss</Typography>
+                                <Typography level="body-sm" color={isUp ? 'success' : 'danger'}>
+                                    {isUp ? '+' : ''}{formatCurrency(gain, household?.currency)}
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                    </FinanceCard>
                 </Grid>
               );
           })}

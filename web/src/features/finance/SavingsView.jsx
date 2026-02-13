@@ -1,14 +1,15 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Box, Typography, Grid, Card, Avatar, IconButton, 
-  Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
-  FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup, Checkbox, Accordion, AccordionSummary, AccordionDetails, LinearProgress, Table
+  Box, Typography, Grid, Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
+  FormControl, FormLabel, Stack, CircularProgress, Divider,
+  Avatar, IconButton, LinearProgress, Accordion, AccordionSummary, AccordionDetails, Table, Card
 } from '@mui/joy';
-import { Edit, Delete, Add, GroupAdd, ExpandMore, Savings, TrendingUp, Remove } from '@mui/icons-material';
+import { Edit, Delete, Add, ExpandMore, Savings, TrendingUp, Remove } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
+import ModuleHeader from '../../components/ui/ModuleHeader';
+import FinanceCard from '../../components/ui/FinanceCard';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -239,17 +240,17 @@ export default function SavingsView({ financialProfileId }) {
 
   return (
     <Box>
-        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-            <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Savings</Typography>
-                <Typography level="body-md" color="neutral">Monitor savings goals and rainy day funds.</Typography>
-            </Box>
-            {isAdmin && (
+        <ModuleHeader 
+            title="Savings"
+            description="Monitor savings goals and rainy day funds."
+            emoji="💰"
+            isDark={isDark}
+            action={isAdmin && (
                 <Button startDecorator={<Add />} onClick={() => setAccountId('new')}>
                     Add Savings Account
                 </Button>
             )}
-        </Box>
+        />
 
         <Grid container spacing={3}>
             {accounts.map(acc => {
@@ -260,24 +261,25 @@ export default function SavingsView({ financialProfileId }) {
 
                 return (
                     <Grid xs={12} lg={6} xl={4} key={acc.id}>
-                        <Card variant="outlined" sx={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                <Avatar size="lg" sx={{ bgcolor: getEmojiColor(acc.emoji || '💰', isDark) }}>{acc.emoji || '💰'}</Avatar>
-                                <Box sx={{ flexGrow: 1 }}>
-                                    <Typography level="title-lg">{acc.institution}</Typography>
-                                    <Typography level="body-sm">{acc.account_name}</Typography>
-                                </Box>
-                                <Box sx={{ textAlign: 'right' }}>
-                                    <Typography level="h3" color="success">{formatCurrency(acc.current_balance)}</Typography>
-                                    <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end', mb: 0.5 }}>
-                                        <IconButton size="sm" variant="soft" color="danger" onClick={() => setAdjustAccount({ account: acc, type: 'remove' })}><Remove fontSize="small" /></IconButton>
-                                        <IconButton size="sm" variant="soft" color="success" onClick={() => setAdjustAccount({ account: acc, type: 'add' })}><Add fontSize="small" /></IconButton>
-                                    </Box>
-                                    <Typography level="body-xs" color="neutral">{formatPercent(acc.interest_rate)} AER</Typography>
-                                </Box>
-                            </Box>
-                            <Divider />
-                            <Box sx={{ flexGrow: 1 }}>
+                        <FinanceCard
+                            title={acc.institution}
+                            subtitle={acc.account_name}
+                            emoji={acc.emoji || '💰'}
+                            isDark={isDark}
+                            balance={acc.current_balance}
+                            balanceColor="success"
+                            subValue={`${formatPercent(acc.interest_rate)} AER`}
+                            assignees={getAssignees(acc.id)}
+                            onAssign={() => setAssignItem(acc)}
+                            onEdit={() => setAccountId(acc.id)}
+                            onDelete={() => handleAccountDelete(acc.id)}
+                            onAddFunds={() => setAdjustAccount({ account: acc, type: 'add' })}
+                            onRemoveFunds={() => setAdjustAccount({ account: acc, type: 'remove' })}
+                            extraActions={
+                                <Button size="sm" variant="plain" onClick={() => setPotId(acc.id, 'new')} startDecorator={<Add />}>Add Pot</Button>
+                            }
+                        >
+                            <Box>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                                     <Typography level="title-sm" startDecorator={<Savings fontSize="sm" />}>Pots</Typography>
                                     {unallocated > 0.01 && (
@@ -309,15 +311,12 @@ export default function SavingsView({ financialProfileId }) {
                                     })}
                                 </Stack>
                             </Box>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 'auto', pt: 2 }}>
-                                <AvatarGroup size="sm">{getAssignees(acc.id).map(m => (<Avatar key={m.id} sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji}</Avatar>))}<IconButton size="sm" onClick={() => setAssignItem(acc)} sx={{ borderRadius: '50%' }}><GroupAdd /></IconButton></AvatarGroup>
-                                <Box><Button size="sm" variant="plain" onClick={() => setPotId(acc.id, 'new')} startDecorator={<Add />}>Add Pot</Button><IconButton size="sm" onClick={() => setAccountId(acc.id)}><Edit /></IconButton></Box>
-                            </Box>
-                            <Accordion variant="outlined" sx={{ borderRadius: 'sm' }}>
+                            
+                            <Accordion variant="outlined" sx={{ borderRadius: 'sm', mt: 2 }}>
                                 <AccordionSummary expandIcon={<ExpandMore />}><Typography level="title-sm" startDecorator={<TrendingUp />}>Forecast (3 Years)</Typography></AccordionSummary>
                                 <AccordionDetails sx={{ overflowX: 'auto' }}><Table size="sm" sx={{ minWidth: 250 }}><thead><tr><th>Year</th><th style={{ textAlign: 'right' }}>Projected</th><th style={{ textAlign: 'right' }}>Growth</th></tr></thead><tbody>{forecast.map(f => (<tr key={f.year}><td>Year {f.year}</td><td style={{ textAlign: 'right' }}>{formatCurrency(f.amount)}</td><td style={{ textAlign: 'right' }}>+{formatCurrency(f.amount - acc.current_balance)}</td></tr>))}</tbody></Table></AccordionDetails>
                             </Accordion>
-                        </Card>
+                        </FinanceCard>
                     </Grid>
                 );
             })}

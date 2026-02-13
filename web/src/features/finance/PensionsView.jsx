@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Box, Typography, Grid, Card, Avatar, IconButton, 
-  Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
-  FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup, Checkbox
+  Box, Typography, Grid, Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
+  FormControl, FormLabel, Stack, Chip, CircularProgress, Divider, Avatar, Checkbox
 } from '@mui/joy';
-import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
+import { Add } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
+import ModuleHeader from '../../components/ui/ModuleHeader';
+import FinanceCard from '../../components/ui/FinanceCard';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -149,17 +149,17 @@ export default function PensionsView({ financialProfileId }) {
 
   return (
     <Box>
-        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-            <Box>
-                <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>Pensions</Typography>
-                <Typography level="body-md" color="neutral">Plan for your future retirement.</Typography>
-            </Box>
-            {isAdmin && (
+        <ModuleHeader 
+            title="Pensions"
+            description="Plan for your future retirement."
+            emoji="⏳"
+            isDark={isDark}
+            action={isAdmin && (
                 <Button startDecorator={<Add />} onClick={() => setPensionId('new')}>
                     Add Pension
                 </Button>
             )}
-        </Box>
+        />
 
         <Grid container spacing={3}>
             {pensions.map(pen => {
@@ -168,40 +168,30 @@ export default function PensionsView({ financialProfileId }) {
 
                 return (
                     <Grid xs={12} lg={6} xl={4} key={pen.id}>
-                        <Card variant="outlined" sx={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                <Avatar size="lg" sx={{ bgcolor: getEmojiColor(pen.emoji || '⏳', isDark) }}>
-                                    {pen.emoji || '⏳'}
-                                </Avatar>
-                                <Box sx={{ flexGrow: 1 }}>
-                                    <Typography level="title-md">{pen.plan_name || 'Unnamed Plan'}</Typography>
-                                    <Typography level="body-sm" color="neutral">{pen.provider} • {pen.type || 'Other'}</Typography>
-                                </Box>
-                                <Box sx={{ textAlign: 'right' }}>
-                                    <Typography level="h3" color="primary">{formatCurrency(currentValue)}</Typography>
-                                    <Typography level="body-xs" color="neutral">
-                                        +{formatCurrency(monthlyContribution)}/mo
-                                    </Typography>
-                                </Box>
-                            </Box>
-
-                            <Divider />
-
-                            <Box>
-                                <Typography level="body-xs" color="neutral">Account Number</Typography>
-                                <Typography level="body-sm">{pen.account_number || '••••••••'}</Typography>
-                            </Box>
-
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 'auto', pt: 2 }}>
-                                <AvatarGroup size="sm">
-                                    {getAssignees(pen.id).map(m => (
-                                        <Avatar key={m.id} sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji}</Avatar>
-                                    ))}
-                                    <IconButton size="sm" onClick={() => setAssignItem(pen)} sx={{ borderRadius: '50%' }}><GroupAdd /></IconButton>
-                                </AvatarGroup>
-                                <IconButton size="sm" onClick={() => setPensionId(pen.id)}><Edit /></IconButton>
-                            </Box>
-                        </Card>
+                        <FinanceCard
+                            title={pen.plan_name || 'Unnamed Plan'}
+                            subtitle={pen.provider}
+                            emoji={pen.emoji || '⏳'}
+                            isDark={isDark}
+                            balance={currentValue}
+                            balanceColor="success"
+                            subValue={`+${formatCurrency(monthlyContribution)}/mo`}
+                            assignees={getAssignees(pen.id)}
+                            onAssign={() => setAssignItem(pen)}
+                            onEdit={() => setPensionId(pen.id)}
+                            onDelete={() => handleDelete(pen.id)}
+                        >
+                            <Grid container spacing={1}>
+                                <Grid xs={6}>
+                                    <Typography level="body-xs" color="neutral">Type</Typography>
+                                    <Typography level="body-sm">{pen.type || 'Other'}</Typography>
+                                </Grid>
+                                <Grid xs={6}>
+                                    <Typography level="body-xs" color="neutral">Account</Typography>
+                                    <Typography level="body-sm">{pen.account_number || '-'}</Typography>
+                                </Grid>
+                            </Grid>
+                        </FinanceCard>
                     </Grid>
                 );
             })}
