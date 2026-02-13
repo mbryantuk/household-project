@@ -262,7 +262,7 @@ export default function CreditCardsView({ financialProfileId }) {
                             />
                         </Grid>
                             </Grid>
-                            <FormControl><FormLabel>Assign Members</FormLabel>
+                            <FormControl><FormLabel>Assign Cardholders</FormLabel>
                                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                                     {members.filter(m => m.type !== 'pet').map(m => {
                                         const isSelected = selectedMembers.includes(m.id);

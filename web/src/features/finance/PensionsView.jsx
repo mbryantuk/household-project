@@ -274,7 +274,7 @@ export default function PensionsView({ financialProfileId }) {
                                 </Grid>
                             </Grid>
                             <FormControl>
-                                <FormLabel>Assign Members</FormLabel>
+                                <FormLabel>Assign Owner</FormLabel>
                                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                                     {members.filter(m => m.type !== 'pet').map(m => {
                                         const isSelected = selectedMembers.includes(m.id);

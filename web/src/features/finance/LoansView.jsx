@@ -286,10 +286,9 @@ export default function LoansView({ financialProfileId }) {
                         onChange={e => setFormData({ ...formData, nearest_working_day: e.target.checked ? 1 : 0 })}
                     />
                 </Grid>
-                <Grid xs={12}>
-                    <FormControl>
-                        <FormLabel>Assign Members</FormLabel>
-                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                                        <Grid xs={12}>
+                                            <FormControl><FormLabel>Assign Borrowers</FormLabel>
+                                                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                             {members.filter(m => m.type !== 'pet').map(m => {
                                 const isSelected = selectedMembers.includes(m.id);
                                 return (

@@ -4,15 +4,17 @@ import {
   Box, Typography, FormControl, FormLabel, Input, Switch, Button, CircularProgress, Divider, Stack, Grid, Sheet 
 } from '@mui/joy';
 import { 
-  Wifi, LocalAtm, Language, Save, ViewModule, CloudDownload, DataObject
+  Wifi, LocalAtm, Language, Save, ViewModule, CloudDownload, DataObject, Settings
 } from '@mui/icons-material';
 import GenericObjectView from '../components/objects/GenericObjectView';
 import AppSelect from '../components/ui/AppSelect';
+import FinanceSchemaEditor from './settings/FinanceSchemaEditor';
 
 export default function HouseholdDetailsView() {
   const { api, id: householdId, household, onUpdateHousehold, user: currentUser, showNotification, confirmAction } = useOutletContext();
   const [loading, setLoading] = useState(true);
   const [initialData, setInitialData] = useState(null);
+  const [schemaData, setSchemaData] = useState({});
 
   const isAdmin = currentUser?.role === 'admin';
 
@@ -104,6 +106,7 @@ export default function HouseholdDetailsView() {
       };
       
       setInitialData(mergedData);
+      setSchemaData(household?.metadata_schema ? JSON.parse(household.metadata_schema) : {});
     } catch (err) {
       console.error("Failed to fetch household details", err);
       showNotification("Failed to load household details.", "danger");
@@ -126,7 +129,8 @@ export default function HouseholdDetailsView() {
             address_zip: data.address_zip,
             decimals: parseInt(data.decimals),
             auto_backup: data.auto_backup ? 1 : 0,
-            backup_retention: parseInt(data.backup_retention)
+            backup_retention: parseInt(data.backup_retention),
+            metadata_schema: JSON.stringify(schemaData)
           };
           
           const tenantPayload = {
@@ -296,6 +300,22 @@ export default function HouseholdDetailsView() {
                       </Box>
                   </Stack>
               </form>
+          )
+      },
+      {
+          id: 'finance_config',
+          label: 'Finance Config',
+          icon: Settings,
+          content: (data, handleChange, handleSubmit) => (
+              <Stack spacing={3}>
+                  <FinanceSchemaEditor 
+                      metadataSchema={schemaData} 
+                      onChange={setSchemaData}
+                  />
+                  <Box sx={{ pt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                      <Button onClick={handleSubmit} variant="solid" size="lg" startDecorator={<Save />}>Save Configuration</Button>
+                  </Box>
+              </Stack>
           )
       },
       {
