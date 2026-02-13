@@ -1,6 +1,5 @@
-import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Box, Typography, Tabs, TabList, Tab, TabPanel, Sheet, Divider, Button } from '@mui/joy';
+import { Box, Typography, Tabs, TabList, Tab, TabPanel, Sheet, Divider, Button, ListItemButton, ListItemDecorator } from '@mui/joy';
 import Person from '@mui/icons-material/Person';
 import Home from '@mui/icons-material/Home';
 import Palette from '@mui/icons-material/Palette';
@@ -11,7 +10,6 @@ import OpenInNew from '@mui/icons-material/OpenInNew';
 
 import { useHousehold } from '../contexts/HouseholdContext';
 import ProfileSettings from './settings/ProfileSettings';
-import HouseholdSettings from './settings/HouseholdSettings';
 import ThemeSettings from './settings/ThemeSettings';
 import AdminSettings from './settings/AdminSettings';
 import SecuritySettings from './settings/SecuritySettings';
@@ -22,7 +20,7 @@ export default function SettingsView() {
   const queryParams = new URLSearchParams(location.search);
   const tabParam = parseInt(queryParams.get('tab')) || 0;
 
-  const { user } = useHousehold();
+  const { user, household } = useHousehold();
   const isAdmin = user?.role === 'admin';
 
   const handleTabChange = (e, val) => {
@@ -79,9 +77,17 @@ export default function SettingsView() {
                 </Tab>
 
                 <Typography level="title-xs" sx={{ mt: 3, mb: 1, px: 1, color: 'neutral.500', fontWeight: 'bold', letterSpacing: '1px' }}>HOUSEHOLD</Typography>
-                <Tab variant="plain" color="neutral">
-                    <Home sx={{ mr: 2 }} /> General
-                </Tab>
+                
+                <ListItemButton 
+                    variant="plain" 
+                    color="neutral" 
+                    onClick={() => navigate(`/household/${household?.id}/house/details`)}
+                    sx={{ justifyContent: 'flex-start', py: 1.5, borderRadius: '8px', fontWeight: 'md', fontSize: 'sm' }}
+                >
+                    <ListItemDecorator sx={{ color: 'text.secondary' }}><Home /></ListItemDecorator>
+                    General
+                </ListItemButton>
+
                 <Tab variant="plain" color="neutral">
                     <Palette sx={{ mr: 2 }} /> Appearance
                 </Tab>
@@ -110,13 +116,11 @@ export default function SettingsView() {
                 <TabPanel value={1} sx={{ p: 0 }}>
                     <SecuritySettings />
                 </TabPanel>
+                {/* Index 2 skipped (Redirect) */}
                 <TabPanel value={2} sx={{ p: 0 }}>
-                    <HouseholdSettings />
-                </TabPanel>
-                <TabPanel value={3} sx={{ p: 0 }}>
                     <ThemeSettings />
                 </TabPanel>
-                <TabPanel value={4} sx={{ p: 0 }}>
+                <TabPanel value={3} sx={{ p: 0 }}>
                     <Box>
                         <Typography level="h4" sx={{ mb: 2 }}>API Access & Documentation</Typography>
                         <Typography level="body-md" sx={{ mb: 3 }}>
@@ -140,7 +144,7 @@ export default function SettingsView() {
                         </Sheet>
                     </Box>
                 </TabPanel>
-                <TabPanel value={5} sx={{ p: 0 }}>
+                <TabPanel value={4} sx={{ p: 0 }}>
                     <AdminSettings />
                 </TabPanel>
             </Box>

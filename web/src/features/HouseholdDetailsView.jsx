@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { 
-  Box, Typography, FormControl, FormLabel, Input, Switch, Button, CircularProgress, Divider, Stack, Grid 
+  Box, Typography, FormControl, FormLabel, Input, Switch, Button, CircularProgress, Divider, Stack, Grid, Sheet 
 } from '@mui/joy';
 import { 
-  Wifi, LocalAtm, Language, Save
+  Wifi, LocalAtm, Language, Save, ViewModule, CloudDownload, DataObject
 } from '@mui/icons-material';
 import GenericObjectView from '../components/objects/GenericObjectView';
 import AppSelect from '../components/ui/AppSelect';
@@ -16,21 +16,80 @@ export default function HouseholdDetailsView() {
 
   const isAdmin = currentUser?.role === 'admin';
 
-  // Fetch both Global (Household) and Tenant (HouseDetails) data and merge them
+  // Feature Modules State (Local)
+  const [enabledModules, setEnabledModules] = useState(() => {
+      try {
+          return household?.enabled_modules ? JSON.parse(household.enabled_modules) : ['pets', 'vehicles', 'meals'];
+      } catch { return ['pets', 'vehicles', 'meals']; }
+  });
+
+  const toggleModule = async (module) => {
+    if (!isAdmin) return;
+    const newModules = enabledModules.includes(module) 
+        ? enabledModules.filter(m => m !== module)
+        : [...enabledModules, module];
+    
+    setEnabledModules(newModules);
+    try {
+        await onUpdateHousehold({ enabled_modules: JSON.stringify(newModules) });
+        showNotification(`${module} module ${newModules.includes(module) ? 'enabled' : 'disabled'}.`, "success");
+     } catch {
+        setEnabledModules(enabledModules); // Revert
+        showNotification("Failed to update modules.", "danger");
+    }
+  };
+
+  const onExportTenant = async () => {
+    try {
+        showNotification(`Preparing export for "${household.name}"...`, "neutral");
+        const res = await api.get(`/admin/households/${household.id}/export`);
+        const filename = res.data.filename;
+        
+        const downloadRes = await api.get(`/admin/backups/download/${filename}`, {
+            responseType: 'blob'
+        });
+        
+        const url = window.URL.createObjectURL(downloadRes.data);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        
+        showNotification(`Export complete.`, "success");
+    } catch (err) {
+        showNotification(err.response?.data?.error || "Failed to export tenant.", "danger");
+    }
+  };
+
+  const onExportJSONTenant = async () => {
+    try {
+        showNotification(`Generating JSON export...`, "neutral");
+        const res = await api.get(`/export/${household.id}`, { responseType: 'blob' });
+        const url = window.URL.createObjectURL(res.data);
+        const link = document.createElement('a');
+        link.href = url;
+        const timestamp = new Date().toISOString().split('T')[0];
+        link.setAttribute('download', `hearth-export-hh${household.id}-${timestamp}.json`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        showNotification(`JSON export complete.`, "success");
+    } catch {
+        showNotification("Failed to export JSON.", "danger");
+    }
+  };
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const res = await api.get(`/households/${householdId}/details`);
       const houseDetails = res.data || {};
       
-      // Merge: priority to houseDetails, fallback to household context
-      // Note: household context might be stale if we just updated, but for initial load it's fine.
-      // Better to rely on what the API returns for details, but we need the 'household' object properties (name, avatar etc)
-      // which are on the `households` table, not `house_details`.
-      // The context `household` object has the global props.
-      
       const mergedData = {
-        // Global Props (from Context/Household Table)
         name: household?.name || '',
         avatar: household?.avatar || '🏠',
         currency: household?.currency || '£',
@@ -41,8 +100,6 @@ export default function HouseholdDetailsView() {
         decimals: household?.decimals ?? 2,
         auto_backup: household?.auto_backup ?? 1,
         backup_retention: household?.backup_retention ?? 7,
-        
-        // Tenant Props (from HouseDetails Table)
         ...houseDetails
       };
       
@@ -57,10 +114,8 @@ export default function HouseholdDetailsView() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  // Custom Submit Handler to split data back into two API calls
   const handleSave = async (data) => {
       try {
-          // 1. Global Update
           const globalPayload = {
             name: data.name,
             avatar: data.avatar,
@@ -74,7 +129,6 @@ export default function HouseholdDetailsView() {
             backup_retention: parseInt(data.backup_retention)
           };
           
-          // 2. Tenant Update
           const tenantPayload = {
             property_type: data.property_type,
             construction_year: data.construction_year,
@@ -90,20 +144,17 @@ export default function HouseholdDetailsView() {
             notes: data.notes
           };
 
-          // Execute parallel
           await Promise.all([
               onUpdateHousehold(globalPayload),
               api.put(`/households/${householdId}/details`, tenantPayload)
           ]);
           
           showNotification("Household properties updated.", "success");
-          
-          // Refresh data to ensure sync
           await fetchData();
       } catch (err) {
           console.error("Save error", err);
           showNotification("Failed to save changes.", "danger");
-          throw err; // Re-throw to let GenericView know if needed (though current implementation handles error inside)
+          throw err;
       }
   };
 
@@ -181,8 +232,8 @@ export default function HouseholdDetailsView() {
       },
       {
           id: 'settings',
-          label: 'Settings',
-          icon: LocalAtm, // Using LocalAtm as generic settings/context icon
+          label: 'Context',
+          icon: LocalAtm, 
           content: (data, handleChange, handleSubmit) => (
               <form onSubmit={handleSubmit}>
                   <Stack spacing={3}>
@@ -246,6 +297,51 @@ export default function HouseholdDetailsView() {
                   </Stack>
               </form>
           )
+      },
+      {
+          id: 'modules',
+          label: 'Modules & Data',
+          icon: ViewModule,
+          content: () => (
+              <Stack spacing={4}>
+                  <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', bgcolor: 'background.level1' }}>
+                      <Typography level="title-md" sx={{ mb: 1 }} startDecorator={<ViewModule color="primary" />}>Feature Modules</Typography>
+                      <Typography level="body-xs" color="neutral" sx={{ mb: 3 }}>
+                          Disabling a module hides its associated data and prevents new entries. Existing data is preserved.
+                      </Typography>
+                      <Stack spacing={2}>
+                            {['pets', 'vehicles', 'meals'].map(mod => (
+                                <Box key={mod} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <Box>
+                                        <Typography level="title-sm" textTransform="capitalize">{mod}</Typography>
+                                        <Typography level="body-xs" color="neutral">Enable or disable {mod} tracking.</Typography>
+                                    </Box>
+                                    <Switch 
+                                        checked={enabledModules.includes(mod)}
+                                        onChange={() => toggleModule(mod)}
+                                        disabled={!isAdmin}
+                                    />
+                                </Box>
+                            ))}
+                      </Stack>
+                  </Sheet>
+
+                  <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', bgcolor: 'background.level1' }}>
+                      <Typography level="title-md" sx={{ mb: 2 }} startDecorator={<CloudDownload color="primary" />}>Data Export</Typography>
+                      <Typography level="body-xs" color="neutral" sx={{ mb: 3 }}>
+                          Download a complete copy of your household data.
+                      </Typography>
+                      <Stack direction="row" spacing={2}>
+                          <Button variant="outlined" color="primary" startDecorator={<CloudDownload />} onClick={onExportTenant} disabled={!isAdmin}>
+                              Export Archive (ZIP)
+                          </Button>
+                          <Button variant="outlined" color="neutral" startDecorator={<DataObject />} onClick={onExportJSONTenant} disabled={!isAdmin}>
+                              Export Data (JSON)
+                          </Button>
+                      </Stack>
+                  </Sheet>
+              </Stack>
+          )
       }
   ];
 
@@ -269,7 +365,7 @@ export default function HouseholdDetailsView() {
         id={householdId}
         householdId={householdId}
         api={api}
-        endpoint={`/households/${householdId}/details`} // Dummy endpoint as we override submit
+        endpoint={`/households/${householdId}/details`} 
         initialData={initialData}
         fields={FIELDS}
         costSegments={COST_SEGMENTS}
@@ -277,9 +373,6 @@ export default function HouseholdDetailsView() {
         scope={{ isAdmin, showNotification, confirmAction }}
         title="Household Properties"
         subtitle="Manage your home's technical, financial, and regional details."
-        // We need to implement custom submit in GenericObjectView first, but for now we can intercept via onSave? 
-        // No, GenericObjectView calls API directly. 
-        // I need to add `customSubmit` prop to GenericObjectView.
         customSubmit={handleSave} 
     />
   );

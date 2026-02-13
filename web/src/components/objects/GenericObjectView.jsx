@@ -130,13 +130,17 @@ export default function GenericObjectView({
       {/* Hero Header Card */}
       <Card 
         variant="solid" 
-        color="primary" 
-        invertedColors 
         sx={{ 
             mb: 4, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 3, alignItems: 'center',
-            bgcolor: 'neutral.800', // Dark by default
-            '[data-joy-color-scheme="light"] &': { bgcolor: 'common.white', color: 'common.black', border: '1px solid', borderColor: 'neutral.200' },
-            '[data-joy-color-scheme="dark"] &': { bgcolor: 'neutral.900', color: 'common.white' }
+            bgcolor: 'neutral.900',
+            color: 'common.white',
+            '[data-joy-color-scheme="light"] &': { 
+                bgcolor: 'common.white', 
+                color: 'text.primary', 
+                border: '1px solid', 
+                borderColor: 'neutral.200',
+                boxShadow: 'sm'
+            }
         }}
       >
         <Box sx={{ position: 'relative' }}>
@@ -146,7 +150,9 @@ export default function GenericObjectView({
                     bgcolor: 'background.surface',
                     cursor: emojiField ? 'pointer' : 'default',
                     boxShadow: 'md',
-                    color: 'text.primary'
+                    color: 'text.primary',
+                    border: '1px solid',
+                    borderColor: 'neutral.outlinedBorder'
                 }}
                 onClick={() => emojiField && setEmojiPickerOpen(true)}
             >
