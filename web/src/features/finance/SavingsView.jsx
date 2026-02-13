@@ -2,14 +2,13 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Card, Avatar, IconButton, 
-  Button, Modal, ModalDialog, DialogTitle, DialogContent, Input,
+  Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup, LinearProgress, Accordion, AccordionSummary, AccordionDetails, Table, Checkbox, DialogActions
+  AvatarGroup, Checkbox, Accordion, AccordionSummary, AccordionDetails, LinearProgress
 } from '@mui/joy';
 import { Edit, Delete, Add, GroupAdd, ExpandMore, Savings, TrendingUp, Remove } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
-import AppSelect from '../../components/ui/AppSelect';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
