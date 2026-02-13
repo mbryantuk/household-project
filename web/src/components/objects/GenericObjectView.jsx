@@ -248,7 +248,7 @@ export default function GenericObjectView({
                 entityType={type} 
                 entityId={id} 
                 segments={typeof costSegments === 'function' ? costSegments(data) : costSegments}
-                title={`${type} Recurring Costs`}
+                title={`${resolvedTitle.endsWith('s') ? resolvedTitle + "'" : resolvedTitle + "'s"} Recurring Costs`}
                 showNotification={showNotification}
                 confirmAction={confirmAction}
             />
