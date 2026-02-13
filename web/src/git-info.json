@@ -1,4 +1,4 @@
 {
-  "commitMessage": "UI/UX Enhancements for GenericObjectView",
-  "date": "Fri 13 Feb 09:05:32 GMT 2026"
+  "commitMessage": "Fix missing IconButton import in HouseholdDetailsView",
+  "date": "Fri 13 Feb 09:13:01 GMT 2026"
 }
