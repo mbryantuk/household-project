@@ -604,8 +604,11 @@ export default function NavSidebar({
                                   
                                   <Divider sx={{ my: 1 }} />
                                   <GroupHeader label="Workspace" />
-                                  <SubItem label="Household Settings" to={`/household/${household.id}/settings?tab=2`} emoji={<HomeWork />} active={isSettingsTabActive(2)} onClick={handleSubItemClick} />
-                                  <SubItem label="Switch Household" to="/select-household" emoji={<HomeWork />} onClick={handleSubItemClick} />
+                                  <SubItem label="Settings" to={`/household/${household.id}/settings`} emoji={<SettingsIcon />} onClick={handleSubItemClick} />
+                                  
+                                  {(user?.system_role === 'admin' || user?.role === 'admin') && (
+                                      <SubItem label="Add New Household" to="/select-household" emoji={<Add />} onClick={handleSubItemClick} />
+                                  )}
                                   
                                   <Box sx={{ pl: 2, pr: 2, pt: 1, pb: 1 }}>
                                       <Typography level="body-xs" fontWeight="bold" sx={{ mb: 1, color: 'text.tertiary', fontSize: '0.7rem', textTransform: 'uppercase' }}>Available Households</Typography>
