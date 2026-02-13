@@ -4,7 +4,7 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  Checkbox, Sheet, Table
+  Checkbox, Sheet
 } from '@mui/joy';
 import { Edit, Delete, Add, Star } from '@mui/icons-material';
 import { format } from 'date-fns';
