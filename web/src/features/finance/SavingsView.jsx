@@ -4,7 +4,7 @@ import {
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup, Checkbox, Accordion, AccordionSummary, AccordionDetails, LinearProgress
+  AvatarGroup, Checkbox, Accordion, AccordionSummary, AccordionDetails, LinearProgress, Table
 } from '@mui/joy';
 import { Edit, Delete, Add, GroupAdd, ExpandMore, Savings, TrendingUp, Remove } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
