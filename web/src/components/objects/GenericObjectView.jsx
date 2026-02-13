@@ -121,20 +121,32 @@ export default function GenericObjectView({
     <Box sx={{ width: '100%', mx: 'auto', pb: 10 }}>
       {/* Breadcrumbs */}
       <Breadcrumbs separator={<ChevronRight fontSize="sm" />} sx={{ px: 0, mb: 2 }}>
-        <Link color="neutral" href={`/household/${householdId}/house`}><Home /></Link>
+        <Link color="neutral" href={`/household/${householdId}/dashboard`}><Home /></Link>
+        <Link color="neutral" href={`/household/${householdId}/house`} underline="hover">House Hub</Link>
         <Typography color="neutral" sx={{ textTransform: 'capitalize' }}>{type}s</Typography>
         <Typography color="primary" fontWeight="lg">{resolvedTitle}</Typography>
       </Breadcrumbs>
 
       {/* Hero Header Card */}
-      <Card variant="soft" color="primary" invertedColors sx={{ mb: 4, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 3, alignItems: 'center' }}>
+      <Card 
+        variant="solid" 
+        color="primary" 
+        invertedColors 
+        sx={{ 
+            mb: 4, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 3, alignItems: 'center',
+            bgcolor: 'neutral.800', // Dark by default
+            '[data-joy-color-scheme="light"] &': { bgcolor: 'common.white', color: 'common.black', border: '1px solid', borderColor: 'neutral.200' },
+            '[data-joy-color-scheme="dark"] &': { bgcolor: 'neutral.900', color: 'common.white' }
+        }}
+      >
         <Box sx={{ position: 'relative' }}>
             <Avatar 
                 sx={{ 
                     width: 80, height: 80, fontSize: '3rem',
                     bgcolor: 'background.surface',
                     cursor: emojiField ? 'pointer' : 'default',
-                    boxShadow: 'md'
+                    boxShadow: 'md',
+                    color: 'text.primary'
                 }}
                 onClick={() => emojiField && setEmojiPickerOpen(true)}
             >
