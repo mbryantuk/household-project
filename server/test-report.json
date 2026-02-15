@@ -26,52 +26,9 @@
     "unmatched": 0,
     "updated": 0
   },
-  "startTime": 1771027428760,
+  "startTime": 1771113788424,
   "success": false,
   "testResults": [
-    {
-      "leaks": false,
-      "numFailingTests": 0,
-      "numPassingTests": 1,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1771027445645,
-        "runtime": 16782,
-        "slow": true,
-        "start": 1771027428863
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/brady_seed.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "👪 Master Seed: The Brady Bunch"
-          ],
-          "duration": 14958,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "👪 Master Seed: The Brady Bunch Should successfully seed the entire Brady Bunch household via API",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 14,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "Should successfully seed the entire Brady Bunch household via API"
-        }
-      ],
-      "failureMessage": null
-    },
     {
       "leaks": false,
       "numFailingTests": 6,
@@ -80,10 +37,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771027446167,
-        "runtime": 488,
+        "end": 1771113790463,
+        "runtime": 1946,
         "slow": false,
-        "start": 1771027445679
+        "start": 1771113788517
       },
       "skipped": false,
       "snapshot": {
@@ -101,7 +58,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 12,
+          "duration": 24,
           "failureDetails": [
             {
               "matcherResult": {
@@ -128,7 +85,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 12,
+          "duration": 18,
           "failureDetails": [
             {
               "matcherResult": {
@@ -155,7 +112,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 12,
+          "duration": 25,
           "failureDetails": [
             {
               "matcherResult": {
@@ -182,7 +139,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 10,
+          "duration": 16,
           "failureDetails": [
             {
               "matcherResult": {
@@ -209,7 +166,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 18,
+          "duration": 14,
           "failureDetails": [
             {
               "matcherResult": {
@@ -236,7 +193,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 19,
+          "duration": 26,
           "failureDetails": [
             {
               "matcherResult": {
@@ -264,63 +221,16 @@
     },
     {
       "leaks": false,
-      "numFailingTests": 1,
-      "numPassingTests": 0,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1771027446729,
-        "runtime": 317,
-        "slow": false,
-        "start": 1771027446412
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/performance/concurrency.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "⚡ SQLite Concurrency Stress"
-          ],
-          "duration": 0,
-          "failureDetails": [
-            {}
-          ],
-          "failureMessages": [
-            "TypeError: Cannot read properties of undefined (reading 'default_household_id')\n    at Object.default_household_id (/home/matt/household-project/server/tests/performance/concurrency.test.js:17:39)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
-          ],
-          "fullName": "⚡ SQLite Concurrency Stress 🧬 WAL Mode Concurrency (20 Parallel Writes)",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 0,
-          "retryReasons": [],
-          "status": "failed",
-          "title": "🧬 WAL Mode Concurrency (20 Parallel Writes)"
-        }
-      ],
-      "failureMessage": "  ● ⚡ SQLite Concurrency Stress › 🧬 WAL Mode Concurrency (20 Parallel Writes)\n\n    TypeError: Cannot read properties of undefined (reading 'default_household_id')\n\n      15 |         const login = await request(app).post('/api/auth/login').send({ email: ADMIN_EMAIL, password: PASSWORD });\n      16 |         token = login.body.token;\n    > 17 |         householdId = login.body.user.default_household_id;\n         |                                       ^\n      18 |         \n      19 |         if (!householdId) {\n      20 |             const hList = await request(app).get('/api/auth/my-households').set('Authorization', `Bearer ${token}`);\n\n      at Object.default_household_id (tests/performance/concurrency.test.js:17:39)\n"
-    },
-    {
-      "leaks": false,
       "numFailingTests": 6,
       "numPassingTests": 0,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771027447106,
-        "runtime": 369,
+        "end": 1771113791143,
+        "runtime": 391,
         "slow": false,
-        "start": 1771027446737
+        "start": 1771113790752
       },
       "skipped": false,
       "snapshot": {
@@ -338,7 +248,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 1,
+          "duration": 0,
           "failureDetails": [
             {}
           ],
@@ -453,16 +363,157 @@
     },
     {
       "leaks": false,
+      "numFailingTests": 2,
+      "numPassingTests": 1,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1771113791537,
+        "runtime": 387,
+        "slow": false,
+        "start": 1771113791150
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/finance_routing.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "💰 Finance Routing Verification"
+          ],
+          "duration": 21,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/pots should not return 404",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "GET /api/households/:id/finance/savings/pots should not return 404"
+        },
+        {
+          "ancestorTitles": [
+            "💰 Finance Routing Verification"
+          ],
+          "duration": 11,
+          "failureDetails": [
+            {
+              "matcherResult": {
+                "message": "expect(received).toBeDefined()\n\nReceived: undefined",
+                "pass": false
+              }
+            }
+          ],
+          "failureMessages": [
+            "Error: expect(received).toBeDefined()\n\nReceived: undefined\n    at Object.toBeDefined (/home/matt/household-project/server/tests/finance_routing.test.js:53:24)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/:itemId should still work for valid items",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "failed",
+          "title": "GET /api/households/:id/finance/savings/:itemId should still work for valid items"
+        },
+        {
+          "ancestorTitles": [
+            "💰 Finance Routing Verification"
+          ],
+          "duration": 7,
+          "failureDetails": [
+            {
+              "matcherResult": {
+                "actual": 403,
+                "expected": 404,
+                "message": "expect(received).toBe(expected) // Object.is equality\n\nExpected: 404\nReceived: 403",
+                "name": "toBe",
+                "pass": false
+              }
+            }
+          ],
+          "failureMessages": [
+            "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 404\nReceived: 403\n    at Object.toBe (/home/matt/household-project/server/tests/finance_routing.test.js:68:28)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/999999 should return 404",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "failed",
+          "title": "GET /api/households/:id/finance/savings/999999 should return 404"
+        }
+      ],
+      "failureMessage": "  ● 💰 Finance Routing Verification › GET /api/households/:id/finance/savings/:itemId should still work for valid items\n\n    expect(received).toBeDefined()\n\n    Received: undefined\n\n      51 |         \n      52 |         const itemId = createRes.body.id;\n    > 53 |         expect(itemId).toBeDefined();\n         |                        ^\n      54 |\n      55 |         const res = await request(app)\n      56 |             .get(`/api/households/${householdId}/finance/savings/${itemId}`)\n\n      at Object.toBeDefined (tests/finance_routing.test.js:53:24)\n\n  ● 💰 Finance Routing Verification › GET /api/households/:id/finance/savings/999999 should return 404\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 404\n    Received: 403\n\n      66 |             .set('Authorization', `Bearer ${token}`);\n      67 |         \n    > 68 |         expect(res.status).toBe(404);\n         |                            ^\n      69 |     });\n      70 | });\n\n      at Object.toBe (tests/finance_routing.test.js:68:28)\n"
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 1,
+      "numPassingTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1771113791939,
+        "runtime": 341,
+        "slow": false,
+        "start": 1771113791598
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/performance/concurrency.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "⚡ SQLite Concurrency Stress"
+          ],
+          "duration": 0,
+          "failureDetails": [
+            {}
+          ],
+          "failureMessages": [
+            "TypeError: Cannot read properties of undefined (reading 'default_household_id')\n    at Object.default_household_id (/home/matt/household-project/server/tests/performance/concurrency.test.js:17:39)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "fullName": "⚡ SQLite Concurrency Stress 🧬 WAL Mode Concurrency (20 Parallel Writes)",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "failed",
+          "title": "🧬 WAL Mode Concurrency (20 Parallel Writes)"
+        }
+      ],
+      "failureMessage": "  ● ⚡ SQLite Concurrency Stress › 🧬 WAL Mode Concurrency (20 Parallel Writes)\n\n    TypeError: Cannot read properties of undefined (reading 'default_household_id')\n\n      15 |         const login = await request(app).post('/api/auth/login').send({ email: ADMIN_EMAIL, password: PASSWORD });\n      16 |         token = login.body.token;\n    > 17 |         householdId = login.body.user.default_household_id;\n         |                                       ^\n      18 |         \n      19 |         if (!householdId) {\n      20 |             const hList = await request(app).get('/api/auth/my-households').set('Authorization', `Bearer ${token}`);\n\n      at Object.default_household_id (tests/performance/concurrency.test.js:17:39)\n"
+    },
+    {
+      "leaks": false,
       "numFailingTests": 4,
       "numPassingTests": 0,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771027447453,
-        "runtime": 298,
+        "end": 1771113792246,
+        "runtime": 302,
         "slow": false,
-        "start": 1771027447155
+        "start": 1771113791944
       },
       "skipped": false,
       "snapshot": {
@@ -537,7 +588,7 @@
           "ancestorTitles": [
             "🛡️ Advanced System Integrity & Security"
           ],
-          "duration": 0,
+          "duration": 1,
           "failureDetails": [
             {}
           ],
@@ -563,10 +614,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771027447738,
-        "runtime": 278,
+        "end": 1771113792543,
+        "runtime": 292,
         "slow": false,
-        "start": 1771027447460
+        "start": 1771113792251
       },
       "skipped": false,
       "snapshot": {
@@ -578,245 +629,52 @@
         "unmatched": 0,
         "updated": 0
       },
-      "testFilePath": "/home/matt/household-project/server/tests/security/destroy_tenant.test.js",
+      "testFilePath": "/home/matt/household-project/server/tests/export.spec.js",
       "testResults": [
         {
           "ancestorTitles": [
-            "💣 Tenant Destruction & Cleanup"
-          ],
-          "duration": 1,
-          "failureDetails": [
-            {}
-          ],
-          "failureMessages": [
-            "TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.id (/home/matt/household-project/server/tests/security/destroy_tenant.test.js:26:34)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
-          ],
-          "fullName": "💣 Tenant Destruction & Cleanup 🧨 Destroy Tenant: Regular Admin should remove all traces",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 0,
-          "retryReasons": [],
-          "status": "failed",
-          "title": "🧨 Destroy Tenant: Regular Admin should remove all traces"
-        },
-        {
-          "ancestorTitles": [
-            "💣 Tenant Destruction & Cleanup"
+            "GET /api/export/:household_id"
           ],
           "duration": 0,
           "failureDetails": [
             {}
           ],
           "failureMessages": [
-            "TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.id (/home/matt/household-project/server/tests/security/destroy_tenant.test.js:26:34)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+            "Error: Failed to seed household: {\"error\":\"System Upgrade in Progress\",\"message\":\"We are currently performing a scheduled maintenance. Please try again in a few minutes.\"}\n    at seedHousehold (/home/matt/household-project/server/tests/utils.js:14:15)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/home/matt/household-project/server/tests/export.spec.js:11:17)"
           ],
-          "fullName": "💣 Tenant Destruction & Cleanup 👑 Destroy Tenant: System Admin should be able to destroy ANY household",
+          "fullName": "GET /api/export/:household_id should return 404 if household_id is missing (route not matched)",
           "invocations": 1,
           "location": null,
           "numPassingAsserts": 0,
           "retryReasons": [],
           "status": "failed",
-          "title": "👑 Destroy Tenant: System Admin should be able to destroy ANY household"
-        }
-      ],
-      "failureMessage": "  ● 💣 Tenant Destruction & Cleanup › 🧨 Destroy Tenant: Regular Admin should remove all traces\n\n    TypeError: Cannot read properties of undefined (reading 'id')\n\n      24 |         const login = await request(app).post('/api/auth/login').send({ email: ADMIN_EMAIL, password: PASSWORD });\n      25 |         token = login.body.token;\n    > 26 |         userId = login.body.user.id;\n         |                                  ^\n      27 |         \n      28 |         const hList = await request(app).get('/api/auth/my-households').set('Authorization', `Bearer ${token}`);\n      29 |         householdId = hList.body[0]?.id;\n\n      at Object.id (tests/security/destroy_tenant.test.js:26:34)\n\n  ● 💣 Tenant Destruction & Cleanup › 👑 Destroy Tenant: System Admin should be able to destroy ANY household\n\n    TypeError: Cannot read properties of undefined (reading 'id')\n\n      24 |         const login = await request(app).post('/api/auth/login').send({ email: ADMIN_EMAIL, password: PASSWORD });\n      25 |         token = login.body.token;\n    > 26 |         userId = login.body.user.id;\n         |                                  ^\n      27 |         \n      28 |         const hList = await request(app).get('/api/auth/my-households').set('Authorization', `Bearer ${token}`);\n      29 |         householdId = hList.body[0]?.id;\n\n      at Object.id (tests/security/destroy_tenant.test.js:26:34)\n"
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
-      "numPassingTests": 5,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1771027448929,
-        "runtime": 1186,
-        "slow": false,
-        "start": 1771027447743
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/performance/load.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "Performance & Speed Tests"
-          ],
-          "duration": 26,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Performance & Speed Tests should measure login speed (Heavy Bcrypt)",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should measure login speed (Heavy Bcrypt)"
+          "title": "should return 404 if household_id is missing (route not matched)"
         },
         {
           "ancestorTitles": [
-            "Performance & Speed Tests"
+            "GET /api/export/:household_id"
           ],
-          "duration": 153,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Performance & Speed Tests should measure GET assets speed (Plain Read)",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should measure GET assets speed (Plain Read)"
-        },
-        {
-          "ancestorTitles": [
-            "Performance & Speed Tests"
-          ],
-          "duration": 143,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Performance & Speed Tests should measure GET finance savings speed (Decryption Overhead)",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should measure GET finance savings speed (Decryption Overhead)"
-        },
-        {
-          "ancestorTitles": [
-            "Performance & Speed Tests"
-          ],
-          "duration": 52,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Performance & Speed Tests should measure POST asset speed (Plain Write)",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should measure POST asset speed (Plain Write)"
-        },
-        {
-          "ancestorTitles": [
-            "Performance & Speed Tests"
-          ],
-          "duration": 513,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Performance & Speed Tests should handle \"Load\" (Concurrent requests)",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should handle \"Load\" (Concurrent requests)"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 2,
-      "numPassingTests": 1,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1771027452019,
-        "runtime": 360,
-        "slow": false,
-        "start": 1771027451659
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/finance_routing.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "💰 Finance Routing Verification"
-          ],
-          "duration": 8,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/pots should not return 404",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "GET /api/households/:id/finance/savings/pots should not return 404"
-        },
-        {
-          "ancestorTitles": [
-            "💰 Finance Routing Verification"
-          ],
-          "duration": 7,
+          "duration": 0,
           "failureDetails": [
-            {
-              "matcherResult": {
-                "message": "expect(received).toBeDefined()\n\nReceived: undefined",
-                "pass": false
-              }
-            }
+            {}
           ],
           "failureMessages": [
-            "Error: expect(received).toBeDefined()\n\nReceived: undefined\n    at Object.toBeDefined (/home/matt/household-project/server/tests/finance_routing.test.js:53:24)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+            "Error: Failed to seed household: {\"error\":\"System Upgrade in Progress\",\"message\":\"We are currently performing a scheduled maintenance. Please try again in a few minutes.\"}\n    at seedHousehold (/home/matt/household-project/server/tests/utils.js:14:15)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/home/matt/household-project/server/tests/export.spec.js:11:17)"
           ],
-          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/:itemId should still work for valid items",
+          "fullName": "GET /api/export/:household_id should return 200 and export data if household_id is valid",
           "invocations": 1,
           "location": null,
           "numPassingAsserts": 0,
           "retryReasons": [],
           "status": "failed",
-          "title": "GET /api/households/:id/finance/savings/:itemId should still work for valid items"
-        },
-        {
-          "ancestorTitles": [
-            "💰 Finance Routing Verification"
-          ],
-          "duration": 6,
-          "failureDetails": [
-            {
-              "matcherResult": {
-                "actual": 403,
-                "expected": 404,
-                "message": "expect(received).toBe(expected) // Object.is equality\n\nExpected: 404\nReceived: 403",
-                "name": "toBe",
-                "pass": false
-              }
-            }
-          ],
-          "failureMessages": [
-            "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 404\nReceived: 403\n    at Object.toBe (/home/matt/household-project/server/tests/finance_routing.test.js:68:28)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
-          ],
-          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/999999 should return 404",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 0,
-          "retryReasons": [],
-          "status": "failed",
-          "title": "GET /api/households/:id/finance/savings/999999 should return 404"
+          "title": "should return 200 and export data if household_id is valid"
         }
       ],
-      "failureMessage": "  ● 💰 Finance Routing Verification › GET /api/households/:id/finance/savings/:itemId should still work for valid items\n\n    expect(received).toBeDefined()\n\n    Received: undefined\n\n      51 |         \n      52 |         const itemId = createRes.body.id;\n    > 53 |         expect(itemId).toBeDefined();\n         |                        ^\n      54 |\n      55 |         const res = await request(app)\n      56 |             .get(`/api/households/${householdId}/finance/savings/${itemId}`)\n\n      at Object.toBeDefined (tests/finance_routing.test.js:53:24)\n\n  ● 💰 Finance Routing Verification › GET /api/households/:id/finance/savings/999999 should return 404\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 404\n    Received: 403\n\n      66 |             .set('Authorization', `Bearer ${token}`);\n      67 |         \n    > 68 |         expect(res.status).toBe(404);\n         |                            ^\n      69 |     });\n      70 | });\n\n      at Object.toBe (tests/finance_routing.test.js:68:28)\n"
+      "failureMessage": "  ● GET /api/export/:household_id › should return 404 if household_id is missing (route not matched)\n\n    Failed to seed household: {\"error\":\"System Upgrade in Progress\",\"message\":\"We are currently performing a scheduled maintenance. Please try again in a few minutes.\"}\n\n      12 |         \n      13 |     if (regRes.status !== 201) {\n    > 14 |         throw new Error(`Failed to seed household: ${JSON.stringify(regRes.body)}`);\n         |               ^\n      15 |     }\n      16 |     \n      17 |     // Login to get token and household info\n\n      at seedHousehold (tests/utils.js:14:15)\n      at Object.<anonymous> (tests/export.spec.js:11:17)\n\n  ● GET /api/export/:household_id › should return 200 and export data if household_id is valid\n\n    Failed to seed household: {\"error\":\"System Upgrade in Progress\",\"message\":\"We are currently performing a scheduled maintenance. Please try again in a few minutes.\"}\n\n      12 |         \n      13 |     if (regRes.status !== 201) {\n    > 14 |         throw new Error(`Failed to seed household: ${JSON.stringify(regRes.body)}`);\n         |               ^\n      15 |     }\n      16 |     \n      17 |     // Login to get token and household info\n\n      at seedHousehold (tests/utils.js:14:15)\n      at Object.<anonymous> (tests/export.spec.js:11:17)\n\n\n  ● Test suite failed to run\n\n    TypeError: Cannot read properties of undefined (reading 'id')\n\n      35 |   afterAll(async () => {\n      36 |     // Clean up\n    > 37 |     await dbRun(globalDb, 'DELETE FROM user_households WHERE household_id = ?', [household.id]);\n         |                                                                                            ^\n      38 |     await dbRun(globalDb, 'DELETE FROM households WHERE id = ?', [household.id]);\n      39 |   });\n      40 | });\n\n      at Object.id (tests/export.spec.js:37:92)\n",
+      "testExecError": {
+        "message": "",
+        "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.id (/home/matt/household-project/server/tests/export.spec.js:37:92)\n    at Promise.then.completed (/home/matt/household-project/server/node_modules/jest-circus/build/utils.js:298:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/matt/household-project/server/node_modules/jest-circus/build/utils.js:231:10)\n    at _callCircusHook (/home/matt/household-project/server/node_modules/jest-circus/build/run.js:281:40)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at _runTestsForDescribeBlock (/home/matt/household-project/server/node_modules/jest-circus/build/run.js:154:7)\n    at _runTestsForDescribeBlock (/home/matt/household-project/server/node_modules/jest-circus/build/run.js:121:9)\n    at run (/home/matt/household-project/server/node_modules/jest-circus/build/run.js:71:3)\n    at runAndTransformResultsToJestFormat (/home/matt/household-project/server/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)\n    at jestAdapter (/home/matt/household-project/server/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)\n    at runTestInternal (/home/matt/household-project/server/node_modules/jest-runner/build/runTest.js:367:16)\n    at runTest (/home/matt/household-project/server/node_modules/jest-runner/build/runTest.js:444:34)"
+      }
     },
     {
       "leaks": false,
@@ -826,10 +684,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771027452352,
-        "runtime": 279,
+        "end": 1771113792851,
+        "runtime": 302,
         "slow": false,
-        "start": 1771027452073
+        "start": 1771113792549
       },
       "skipped": false,
       "snapshot": {
@@ -885,7 +743,7 @@
           "ancestorTitles": [
             "🛡️ Tenant Export Verification"
           ],
-          "duration": 1,
+          "duration": 0,
           "failureDetails": [
             {}
           ],
@@ -911,10 +769,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771027452625,
-        "runtime": 267,
+        "end": 1771113793142,
+        "runtime": 287,
         "slow": false,
-        "start": 1771027452358
+        "start": 1771113792855
       },
       "skipped": false,
       "snapshot": {
@@ -926,118 +784,48 @@
         "unmatched": 0,
         "updated": 0
       },
-      "testFilePath": "/home/matt/household-project/server/tests/export_json.spec.js",
+      "testFilePath": "/home/matt/household-project/server/tests/security/destroy_tenant.test.js",
       "testResults": [
         {
           "ancestorTitles": [
-            "🚀 JSON Tenant Export Verification"
+            "💣 Tenant Destruction & Cleanup"
           ],
           "duration": 0,
           "failureDetails": [
             {}
           ],
           "failureMessages": [
-            "TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.id (/home/matt/household-project/server/tests/export_json.spec.js:27:47)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+            "TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.id (/home/matt/household-project/server/tests/security/destroy_tenant.test.js:26:34)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
           ],
-          "fullName": "🚀 JSON Tenant Export Verification GET /api/export/:id should return a full JSON package",
+          "fullName": "💣 Tenant Destruction & Cleanup 🧨 Destroy Tenant: Regular Admin should remove all traces",
           "invocations": 1,
           "location": null,
           "numPassingAsserts": 0,
           "retryReasons": [],
           "status": "failed",
-          "title": "GET /api/export/:id should return a full JSON package"
+          "title": "🧨 Destroy Tenant: Regular Admin should remove all traces"
         },
         {
           "ancestorTitles": [
-            "🚀 JSON Tenant Export Verification"
+            "💣 Tenant Destruction & Cleanup"
           ],
           "duration": 0,
           "failureDetails": [
             {}
           ],
           "failureMessages": [
-            "TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.id (/home/matt/household-project/server/tests/export_json.spec.js:27:47)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+            "TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.id (/home/matt/household-project/server/tests/security/destroy_tenant.test.js:26:34)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
           ],
-          "fullName": "🚀 JSON Tenant Export Verification Unauthorized user should not be able to export",
+          "fullName": "💣 Tenant Destruction & Cleanup 👑 Destroy Tenant: System Admin should be able to destroy ANY household",
           "invocations": 1,
           "location": null,
           "numPassingAsserts": 0,
           "retryReasons": [],
           "status": "failed",
-          "title": "Unauthorized user should not be able to export"
+          "title": "👑 Destroy Tenant: System Admin should be able to destroy ANY household"
         }
       ],
-      "failureMessage": "  ● 🚀 JSON Tenant Export Verification › GET /api/export/:id should return a full JSON package\n\n    TypeError: Cannot read properties of undefined (reading 'id')\n\n      25 |         \n      26 |         token = loginRes.body.token;\n    > 27 |         householdId = loginRes.body.household.id;\n         |                                               ^\n      28 |\n      29 |         // 3. Add some data to the tenant DB\n      30 |         await request(app)\n\n      at Object.id (tests/export_json.spec.js:27:47)\n\n  ● 🚀 JSON Tenant Export Verification › Unauthorized user should not be able to export\n\n    TypeError: Cannot read properties of undefined (reading 'id')\n\n      25 |         \n      26 |         token = loginRes.body.token;\n    > 27 |         householdId = loginRes.body.household.id;\n         |                                               ^\n      28 |\n      29 |         // 3. Add some data to the tenant DB\n      30 |         await request(app)\n\n      at Object.id (tests/export_json.spec.js:27:47)\n"
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 2,
-      "numPassingTests": 0,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1771027452927,
-        "runtime": 298,
-        "slow": false,
-        "start": 1771027452629
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/export.spec.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "GET /api/export/:household_id"
-          ],
-          "duration": 1,
-          "failureDetails": [
-            {}
-          ],
-          "failureMessages": [
-            "Error: Failed to seed household: {\"error\":\"System Upgrade in Progress\",\"message\":\"We are currently performing a scheduled maintenance. Please try again in a few minutes.\"}\n    at seedHousehold (/home/matt/household-project/server/tests/utils.js:14:15)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/home/matt/household-project/server/tests/export.spec.js:11:17)"
-          ],
-          "fullName": "GET /api/export/:household_id should return 404 if household_id is missing (route not matched)",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 0,
-          "retryReasons": [],
-          "status": "failed",
-          "title": "should return 404 if household_id is missing (route not matched)"
-        },
-        {
-          "ancestorTitles": [
-            "GET /api/export/:household_id"
-          ],
-          "duration": 0,
-          "failureDetails": [
-            {}
-          ],
-          "failureMessages": [
-            "Error: Failed to seed household: {\"error\":\"System Upgrade in Progress\",\"message\":\"We are currently performing a scheduled maintenance. Please try again in a few minutes.\"}\n    at seedHousehold (/home/matt/household-project/server/tests/utils.js:14:15)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/home/matt/household-project/server/tests/export.spec.js:11:17)"
-          ],
-          "fullName": "GET /api/export/:household_id should return 200 and export data if household_id is valid",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 0,
-          "retryReasons": [],
-          "status": "failed",
-          "title": "should return 200 and export data if household_id is valid"
-        }
-      ],
-      "failureMessage": "  ● GET /api/export/:household_id › should return 404 if household_id is missing (route not matched)\n\n    Failed to seed household: {\"error\":\"System Upgrade in Progress\",\"message\":\"We are currently performing a scheduled maintenance. Please try again in a few minutes.\"}\n\n      12 |         \n      13 |     if (regRes.status !== 201) {\n    > 14 |         throw new Error(`Failed to seed household: ${JSON.stringify(regRes.body)}`);\n         |               ^\n      15 |     }\n      16 |     \n      17 |     // Login to get token and household info\n\n      at seedHousehold (tests/utils.js:14:15)\n      at Object.<anonymous> (tests/export.spec.js:11:17)\n\n  ● GET /api/export/:household_id › should return 200 and export data if household_id is valid\n\n    Failed to seed household: {\"error\":\"System Upgrade in Progress\",\"message\":\"We are currently performing a scheduled maintenance. Please try again in a few minutes.\"}\n\n      12 |         \n      13 |     if (regRes.status !== 201) {\n    > 14 |         throw new Error(`Failed to seed household: ${JSON.stringify(regRes.body)}`);\n         |               ^\n      15 |     }\n      16 |     \n      17 |     // Login to get token and household info\n\n      at seedHousehold (tests/utils.js:14:15)\n      at Object.<anonymous> (tests/export.spec.js:11:17)\n\n\n  ● Test suite failed to run\n\n    TypeError: Cannot read properties of undefined (reading 'id')\n\n      35 |   afterAll(async () => {\n      36 |     // Clean up\n    > 37 |     await dbRun(globalDb, 'DELETE FROM user_households WHERE household_id = ?', [household.id]);\n         |                                                                                            ^\n      38 |     await dbRun(globalDb, 'DELETE FROM households WHERE id = ?', [household.id]);\n      39 |   });\n      40 | });\n\n      at Object.id (tests/export.spec.js:37:92)\n",
-      "testExecError": {
-        "message": "",
-        "stack": "TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.id (/home/matt/household-project/server/tests/export.spec.js:37:92)\n    at Promise.then.completed (/home/matt/household-project/server/node_modules/jest-circus/build/utils.js:298:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/home/matt/household-project/server/node_modules/jest-circus/build/utils.js:231:10)\n    at _callCircusHook (/home/matt/household-project/server/node_modules/jest-circus/build/run.js:281:40)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at _runTestsForDescribeBlock (/home/matt/household-project/server/node_modules/jest-circus/build/run.js:154:7)\n    at _runTestsForDescribeBlock (/home/matt/household-project/server/node_modules/jest-circus/build/run.js:121:9)\n    at run (/home/matt/household-project/server/node_modules/jest-circus/build/run.js:71:3)\n    at runAndTransformResultsToJestFormat (/home/matt/household-project/server/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)\n    at jestAdapter (/home/matt/household-project/server/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)\n    at runTestInternal (/home/matt/household-project/server/node_modules/jest-runner/build/runTest.js:367:16)\n    at runTest (/home/matt/household-project/server/node_modules/jest-runner/build/runTest.js:444:34)"
-      }
+      "failureMessage": "  ● 💣 Tenant Destruction & Cleanup › 🧨 Destroy Tenant: Regular Admin should remove all traces\n\n    TypeError: Cannot read properties of undefined (reading 'id')\n\n      24 |         const login = await request(app).post('/api/auth/login').send({ email: ADMIN_EMAIL, password: PASSWORD });\n      25 |         token = login.body.token;\n    > 26 |         userId = login.body.user.id;\n         |                                  ^\n      27 |         \n      28 |         const hList = await request(app).get('/api/auth/my-households').set('Authorization', `Bearer ${token}`);\n      29 |         householdId = hList.body[0]?.id;\n\n      at Object.id (tests/security/destroy_tenant.test.js:26:34)\n\n  ● 💣 Tenant Destruction & Cleanup › 👑 Destroy Tenant: System Admin should be able to destroy ANY household\n\n    TypeError: Cannot read properties of undefined (reading 'id')\n\n      24 |         const login = await request(app).post('/api/auth/login').send({ email: ADMIN_EMAIL, password: PASSWORD });\n      25 |         token = login.body.token;\n    > 26 |         userId = login.body.user.id;\n         |                                  ^\n      27 |         \n      28 |         const hList = await request(app).get('/api/auth/my-households').set('Authorization', `Bearer ${token}`);\n      29 |         householdId = hList.body[0]?.id;\n\n      at Object.id (tests/security/destroy_tenant.test.js:26:34)\n"
     },
     {
       "leaks": false,
@@ -1047,10 +835,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771027453211,
-        "runtime": 278,
+        "end": 1771113793428,
+        "runtime": 280,
         "slow": false,
-        "start": 1771027452933
+        "start": 1771113793148
       },
       "skipped": false,
       "snapshot": {
@@ -1092,16 +880,228 @@
     },
     {
       "leaks": false,
+      "numFailingTests": 2,
+      "numPassingTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1771113793724,
+        "runtime": 290,
+        "slow": false,
+        "start": 1771113793434
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/export_json.spec.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "🚀 JSON Tenant Export Verification"
+          ],
+          "duration": 1,
+          "failureDetails": [
+            {}
+          ],
+          "failureMessages": [
+            "TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.id (/home/matt/household-project/server/tests/export_json.spec.js:27:47)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "fullName": "🚀 JSON Tenant Export Verification GET /api/export/:id should return a full JSON package",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "failed",
+          "title": "GET /api/export/:id should return a full JSON package"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 JSON Tenant Export Verification"
+          ],
+          "duration": 0,
+          "failureDetails": [
+            {}
+          ],
+          "failureMessages": [
+            "TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.id (/home/matt/household-project/server/tests/export_json.spec.js:27:47)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "fullName": "🚀 JSON Tenant Export Verification Unauthorized user should not be able to export",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 0,
+          "retryReasons": [],
+          "status": "failed",
+          "title": "Unauthorized user should not be able to export"
+        }
+      ],
+      "failureMessage": "  ● 🚀 JSON Tenant Export Verification › GET /api/export/:id should return a full JSON package\n\n    TypeError: Cannot read properties of undefined (reading 'id')\n\n      25 |         \n      26 |         token = loginRes.body.token;\n    > 27 |         householdId = loginRes.body.household.id;\n         |                                               ^\n      28 |\n      29 |         // 3. Add some data to the tenant DB\n      30 |         await request(app)\n\n      at Object.id (tests/export_json.spec.js:27:47)\n\n  ● 🚀 JSON Tenant Export Verification › Unauthorized user should not be able to export\n\n    TypeError: Cannot read properties of undefined (reading 'id')\n\n      25 |         \n      26 |         token = loginRes.body.token;\n    > 27 |         householdId = loginRes.body.household.id;\n         |                                               ^\n      28 |\n      29 |         // 3. Add some data to the tenant DB\n      30 |         await request(app)\n\n      at Object.id (tests/export_json.spec.js:27:47)\n"
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 1,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1771113824034,
+        "runtime": 30299,
+        "slow": true,
+        "start": 1771113793735
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/brady_seed.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "👪 Master Seed: The Brady Bunch"
+          ],
+          "duration": 30041,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "👪 Master Seed: The Brady Bunch Should successfully seed the entire Brady Bunch household via API",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 14,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "Should successfully seed the entire Brady Bunch household via API"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 5,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1771113825270,
+        "runtime": 1227,
+        "slow": false,
+        "start": 1771113824043
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/performance/load.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "Performance & Speed Tests"
+          ],
+          "duration": 24,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Performance & Speed Tests should measure login speed (Heavy Bcrypt)",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should measure login speed (Heavy Bcrypt)"
+        },
+        {
+          "ancestorTitles": [
+            "Performance & Speed Tests"
+          ],
+          "duration": 161,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Performance & Speed Tests should measure GET assets speed (Plain Read)",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should measure GET assets speed (Plain Read)"
+        },
+        {
+          "ancestorTitles": [
+            "Performance & Speed Tests"
+          ],
+          "duration": 124,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Performance & Speed Tests should measure GET finance savings speed (Decryption Overhead)",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should measure GET finance savings speed (Decryption Overhead)"
+        },
+        {
+          "ancestorTitles": [
+            "Performance & Speed Tests"
+          ],
+          "duration": 46,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Performance & Speed Tests should measure POST asset speed (Plain Write)",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should measure POST asset speed (Plain Write)"
+        },
+        {
+          "ancestorTitles": [
+            "Performance & Speed Tests"
+          ],
+          "duration": 554,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Performance & Speed Tests should handle \"Load\" (Concurrent requests)",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should handle \"Load\" (Concurrent requests)"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
       "numFailingTests": 0,
       "numPassingTests": 4,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771027453578,
-        "runtime": 358,
+        "end": 1771113828695,
+        "runtime": 561,
         "slow": false,
-        "start": 1771027453220
+        "start": 1771113828134
       },
       "skipped": false,
       "snapshot": {
@@ -1134,7 +1134,7 @@
           "ancestorTitles": [
             "Security Audit Proof of Concept"
           ],
-          "duration": 24,
+          "duration": 245,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Security Audit Proof of Concept Vulnerability 2: Path Traversal in Backup Download (FIXED)",
@@ -1149,7 +1149,7 @@
           "ancestorTitles": [
             "Security Audit Proof of Concept"
           ],
-          "duration": 25,
+          "duration": 18,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Security Audit Proof of Concept Vulnerability 3: Admin Escalation - Adding user to another household (FIXED)",
@@ -1186,10 +1186,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771027453887,
-        "runtime": 304,
+        "end": 1771113829026,
+        "runtime": 326,
         "slow": false,
-        "start": 1771027453583
+        "start": 1771113828700
       },
       "skipped": false,
       "snapshot": {
@@ -1207,7 +1207,7 @@
           "ancestorTitles": [
             "Profile API"
           ],
-          "duration": 15,
+          "duration": 16,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Profile API should retrieve the user profile with custom_theme",
@@ -1237,7 +1237,7 @@
           "ancestorTitles": [
             "Profile API"
           ],
-          "duration": 9,
+          "duration": 10,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Profile API should update the custom_theme",
@@ -1259,10 +1259,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771027453938,
-        "runtime": 46,
+        "end": 1771113829078,
+        "runtime": 48,
         "slow": false,
-        "start": 1771027453892
+        "start": 1771113829030
       },
       "skipped": false,
       "snapshot": {
@@ -1310,7 +1310,7 @@
           "ancestorTitles": [
             "Frontend Build Smoke Test"
           ],
-          "duration": 1,
+          "duration": 0,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Frontend Build Smoke Test JS bundle should be referenced",
