@@ -1,18 +1,19 @@
 {
-  "timestamp": "2026-02-15T20:10:29.825Z",
+  "timestamp": "2026-02-15T20:24:41.469Z",
   "accounts": {
-    "admin": "admin_1771186227649@test.com",
-    "viewer": "viewer_1771186227649@test.com"
+    "admin": "admin_1771187079772@test.com",
+    "viewer": "viewer_1771187079772@test.com"
   },
   "steps": [
-    "20:10:27: Loading Swagger schema for strict sync enforcement.",
-    "20:10:27: Initializing test environment.",
-    "20:10:29: Cleaning up: Deleting test household."
+    "20:24:39: Loading Swagger schema for strict sync enforcement.",
+    "20:24:39: Initializing test environment.",
+    "20:24:41: Cleaning up: Deleting test household."
   ],
   "summary": {
-    "total_endpoints": 65,
-    "passed": 65,
-    "failed": 0
+    "total_endpoints": 81,
+    "passed": 81,
+    "failed": 0,
+    "swagger_coverage_pct": "91.0"
   },
   "results": {
     "GET /auth/profile": "PASS",
@@ -35,10 +36,26 @@
     "GET /households/{id}/finance/income/{itemId}": "PASS",
     "PUT /households/{id}/finance/income/{itemId}": "PASS",
     "DELETE /households/{id}/finance/income/{itemId}": "PASS",
+    "POST /households/{id}/finance/credit-cards": "PASS",
     "GET /households/{id}/finance/credit-cards": "PASS",
+    "GET /households/{id}/finance/credit-cards/{itemId}": "PASS",
+    "PUT /households/{id}/finance/credit-cards/{itemId}": "PASS",
+    "DELETE /households/{id}/finance/credit-cards/{itemId}": "PASS",
+    "POST /households/{id}/finance/investments": "PASS",
     "GET /households/{id}/finance/investments": "PASS",
+    "GET /households/{id}/finance/investments/{itemId}": "PASS",
+    "PUT /households/{id}/finance/investments/{itemId}": "PASS",
+    "DELETE /households/{id}/finance/investments/{itemId}": "PASS",
+    "POST /households/{id}/finance/pensions": "PASS",
     "GET /households/{id}/finance/pensions": "PASS",
+    "GET /households/{id}/finance/pensions/{itemId}": "PASS",
+    "PUT /households/{id}/finance/pensions/{itemId}": "PASS",
+    "DELETE /households/{id}/finance/pensions/{itemId}": "PASS",
+    "POST /households/{id}/finance/savings": "PASS",
     "GET /households/{id}/finance/savings": "PASS",
+    "GET /households/{id}/finance/savings/{itemId}": "PASS",
+    "PUT /households/{id}/finance/savings/{itemId}": "PASS",
+    "DELETE /households/{id}/finance/savings/{itemId}": "PASS",
     "GET /households/{id}/meals": "PASS",
     "POST /households/{id}/chores": "PASS",
     "GET /households/{id}/chores": "PASS",
@@ -91,22 +108,6 @@
       "GET /households/{id}",
       "PUT /households/{id}",
       "POST /households/{id}/chores/{itemId}/complete",
-      "POST /households/{id}/finance/credit-cards",
-      "GET /households/{id}/finance/credit-cards/{itemId}",
-      "PUT /households/{id}/finance/credit-cards/{itemId}",
-      "DELETE /households/{id}/finance/credit-cards/{itemId}",
-      "POST /households/{id}/finance/investments",
-      "GET /households/{id}/finance/investments/{itemId}",
-      "PUT /households/{id}/finance/investments/{itemId}",
-      "DELETE /households/{id}/finance/investments/{itemId}",
-      "POST /households/{id}/finance/pensions",
-      "GET /households/{id}/finance/pensions/{itemId}",
-      "PUT /households/{id}/finance/pensions/{itemId}",
-      "DELETE /households/{id}/finance/pensions/{itemId}",
-      "POST /households/{id}/finance/savings",
-      "GET /households/{id}/finance/savings/{itemId}",
-      "PUT /households/{id}/finance/savings/{itemId}",
-      "DELETE /households/{id}/finance/savings/{itemId}",
       "POST /households/{id}/meals"
     ]
   }

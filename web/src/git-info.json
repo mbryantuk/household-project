@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Purge all frontend tests and artifacts (Fix Dockerfile)",
-  "date": "Sun 15 Feb 20:13:15 GMT 2026"
+  "commitMessage": "Fix API coverage calculation and add missing finance tests",
+  "date": "Sun 15 Feb 20:26:41 GMT 2026"
 }
