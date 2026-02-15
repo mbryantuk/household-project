@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-const LOG_FILE = '/tmp/brady_lifecycle.log';
+const LOG_FILE = process.env.LOG_FILE || '/tmp/brady_lifecycle.log';
 const stepStartTimes = new Map();
 
 export const logStep = (stepName, message = '') => {

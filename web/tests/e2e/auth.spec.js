@@ -40,7 +40,7 @@ test.describe('Authentication Flow', () => {
     // We increase timeout here because initial login might take a moment to fetch profile
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
     // Verify dashboard loaded (Greeting)
-    await expect(page.locator('h2').first()).toBeVisible();
+    await expect(page.locator('h1').first()).toBeVisible();
   });
 
   test('should logout successfully', async ({ page }) => {
@@ -53,7 +53,7 @@ test.describe('Authentication Flow', () => {
     await page.waitForURL(/\/dashboard/);
 
     // Click Account Avatar in Sidebar (bottom on desktop)
-    await page.locator('button[title="Account & Settings"]').click();
+    await page.getByLabel('Account').click();
     
     // Click Logout
     await page.locator('div[role="button"]:has-text("Log Out")').click();
@@ -72,7 +72,7 @@ test.describe('Authentication Flow', () => {
     await page.click('button:has-text("Log In")');
 
     await expect(page).toHaveURL(/\/dashboard/);
-    await expect(page.locator('h2')).toContainText(householdName);
+    await expect(page.getByText(householdName)).toBeVisible();
   });
 
   test('should show error on invalid credentials', async ({ page }) => {

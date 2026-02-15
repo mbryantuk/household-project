@@ -1,0 +1,205 @@
+# Page snapshot
+
+```yaml
+- main [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - generic [ref=e8]:
+          - generic "Dashboard" [ref=e10] [cursor=pointer]: 🏠
+          - list [ref=e11]:
+            - listitem [ref=e12]:
+              - link "House" [ref=e13] [cursor=pointer]:
+                - /url: /household/4663/house
+                - img [ref=e15]
+                - generic [ref=e17]: House
+          - separator [ref=e18]
+        - list [ref=e20]:
+          - listitem [ref=e21]:
+            - link "Finance" [ref=e22] [cursor=pointer]:
+              - /url: /household/4663/finance
+              - img [ref=e24]
+              - generic [ref=e26]: Finance
+          - listitem [ref=e27]:
+            - link "Groceries" [ref=e28] [cursor=pointer]:
+              - /url: /household/4663/shopping
+              - img [ref=e30]
+              - generic [ref=e32]: Groceries
+          - listitem [ref=e33]:
+            - link "Chores" [ref=e34] [cursor=pointer]:
+              - /url: /household/4663/chores
+              - img [ref=e36]
+              - generic [ref=e38]: Chores
+          - listitem [ref=e39]:
+            - link "Meals" [ref=e40] [cursor=pointer]:
+              - /url: /household/4663/meals
+              - img [ref=e42]
+              - generic [ref=e44]: Meals
+        - generic [ref=e45]:
+          - separator [ref=e47]
+          - button "Account" [ref=e48] [cursor=pointer]:
+            - generic [ref=e49]: T
+      - generic [ref=e50]:
+        - generic [ref=e51]:
+          - paragraph [ref=e52]: finance
+          - button [ref=e53] [cursor=pointer]:
+            - img [ref=e54]
+        - generic [ref=e56]:
+          - listitem [ref=e57]:
+            - generic [ref=e58]: PROFILES
+            - button "Add Profile" [ref=e59] [cursor=pointer]:
+              - img [ref=e60]
+          - separator [ref=e62]
+          - listitem [ref=e63]:
+            - generic [ref=e64]: Overview
+          - listitem [ref=e65]:
+            - link "📊 Budget" [ref=e66] [cursor=pointer]:
+              - /url: /household/4663/finance?tab=budget
+              - generic [ref=e68]: 📊
+              - generic [ref=e69]: Budget
+          - separator [ref=e70]
+          - listitem [ref=e71]:
+            - generic [ref=e72]: Accounts
+          - listitem [ref=e73]:
+            - link "💰 Income" [ref=e74] [cursor=pointer]:
+              - /url: /household/4663/finance?tab=income
+              - generic [ref=e76]: 💰
+              - generic [ref=e77]: Income
+          - listitem [ref=e78]:
+            - link "🏦 Banking" [ref=e79] [cursor=pointer]:
+              - /url: /household/4663/finance?tab=banking
+              - generic [ref=e81]: 🏦
+              - generic [ref=e82]: Banking
+          - listitem [ref=e83]:
+            - link "🐷 Savings" [ref=e84] [cursor=pointer]:
+              - /url: /household/4663/finance?tab=savings
+              - generic [ref=e86]: 🐷
+              - generic [ref=e87]: Savings
+          - listitem [ref=e88]:
+            - link "📈 Investments" [ref=e89] [cursor=pointer]:
+              - /url: /household/4663/finance?tab=invest
+              - generic [ref=e91]: 📈
+              - generic [ref=e92]: Investments
+          - listitem [ref=e93]:
+            - link "👴 Pensions" [ref=e94] [cursor=pointer]:
+              - /url: /household/4663/finance?tab=pensions
+              - generic [ref=e96]: 👴
+              - generic [ref=e97]: Pensions
+          - separator [ref=e98]
+          - listitem [ref=e99]:
+            - generic [ref=e100]: Liabilities
+          - listitem [ref=e101]:
+            - link "💳 Credit Cards" [ref=e102] [cursor=pointer]:
+              - /url: /household/4663/finance?tab=credit
+              - generic [ref=e104]: 💳
+              - generic [ref=e105]: Credit Cards
+          - listitem [ref=e106]:
+            - link "📝 Loans" [ref=e107] [cursor=pointer]:
+              - /url: /household/4663/finance?tab=loans
+              - generic [ref=e109]: 📝
+              - generic [ref=e110]: Loans
+          - listitem [ref=e111]:
+            - link "🚗 Car Finance" [ref=e112] [cursor=pointer]:
+              - /url: /household/4663/finance?tab=car
+              - generic [ref=e114]: 🚗
+              - generic [ref=e115]: Car Finance
+          - listitem [ref=e116]:
+            - link "🏠 Mortgages" [ref=e117] [cursor=pointer]:
+              - /url: /household/4663/finance?tab=mortgage
+              - generic [ref=e119]: 🏠
+              - generic [ref=e120]: Mortgages
+    - generic [ref=e121]:
+      - main [ref=e122]:
+        - generic [ref=e123]:
+          - generic [ref=e125]:
+            - heading "Financial Matrix" [level=2] [ref=e126]
+            - paragraph [ref=e127]: Select a domain to manage your household wealth and liabilities.
+          - generic [ref=e128]:
+            - generic [ref=e130] [cursor=pointer]:
+              - generic [ref=e131]: M
+              - generic [ref=e132]:
+                - paragraph [ref=e133]: Monthly Budget
+                - generic [ref=e134]: Analyze your financial health and spending limits.
+            - generic [ref=e136] [cursor=pointer]:
+              - generic [ref=e137]: R
+              - generic [ref=e138]:
+                - paragraph [ref=e139]: Recurring Charges
+                - generic [ref=e140]: Manage bills, insurance, and subscriptions.
+            - generic [ref=e142] [cursor=pointer]:
+              - generic [ref=e143]: I
+              - generic [ref=e144]:
+                - paragraph [ref=e145]: Income Sources
+                - generic [ref=e146]: Manage salary, contracting, and other income streams.
+            - generic [ref=e148] [cursor=pointer]:
+              - generic [ref=e149]: C
+              - generic [ref=e150]:
+                - paragraph [ref=e151]: Current Accounts
+                - generic [ref=e152]: Track balances, overdrafts, and account holders.
+            - generic [ref=e154] [cursor=pointer]:
+              - generic [ref=e155]: S
+              - generic [ref=e156]:
+                - paragraph [ref=e157]: Savings & Pots
+                - generic [ref=e158]: Monitor savings goals and rainy day funds.
+            - generic [ref=e160] [cursor=pointer]:
+              - generic [ref=e161]: I
+              - generic [ref=e162]:
+                - paragraph [ref=e163]: Investments
+                - generic [ref=e164]: Monitor stocks, bonds, and crypto assets.
+            - generic [ref=e166] [cursor=pointer]:
+              - generic [ref=e167]: P
+              - generic [ref=e168]:
+                - paragraph [ref=e169]: Pensions
+                - generic [ref=e170]: Plan for your future retirement.
+            - generic [ref=e172] [cursor=pointer]:
+              - generic [ref=e173]: C
+              - generic [ref=e174]:
+                - paragraph [ref=e175]: Credit Cards
+                - generic [ref=e176]: Track credit utilization and repayments.
+            - generic [ref=e178] [cursor=pointer]:
+              - generic [ref=e179]: P
+              - generic [ref=e180]:
+                - paragraph [ref=e181]: Personal Loans
+                - generic [ref=e182]: Manage unsecured debts and repayment schedules.
+            - generic [ref=e184] [cursor=pointer]:
+              - generic [ref=e185]: M
+              - generic [ref=e186]:
+                - paragraph [ref=e187]: Mortgage & Equity
+                - generic [ref=e188]: Track property loans and home equity.
+            - generic [ref=e190] [cursor=pointer]:
+              - generic [ref=e191]: C
+              - generic [ref=e192]:
+                - paragraph [ref=e193]: Car Finance
+                - generic [ref=e194]: Track loans and leases for your fleet.
+      - generic [ref=e198]:
+        - button "Notes" [ref=e200] [cursor=pointer]:
+          - img [ref=e201]
+        - button "Calculator" [ref=e204] [cursor=pointer]:
+          - img [ref=e205]
+        - separator
+        - button "Income" [ref=e208] [cursor=pointer]:
+          - img [ref=e209]
+        - button "Banking" [ref=e212] [cursor=pointer]:
+          - img [ref=e213]
+        - button "Savings & Pots" [ref=e216] [cursor=pointer]:
+          - img [ref=e217]
+        - button "Investments" [ref=e220] [cursor=pointer]:
+          - img [ref=e221]
+        - button "Pensions" [ref=e224] [cursor=pointer]:
+          - img [ref=e225]
+        - button "Credit Cards" [ref=e228] [cursor=pointer]:
+          - img [ref=e229]
+        - button "Personal Loans" [ref=e232] [cursor=pointer]:
+          - img [ref=e233]
+        - button "Mortgages" [ref=e237] [cursor=pointer]:
+          - img [ref=e238]
+        - button "Car Finance" [ref=e241] [cursor=pointer]:
+          - img [ref=e242]
+        - separator
+        - button "Budget Health" [ref=e245] [cursor=pointer]:
+          - img [ref=e246]
+        - button "Wealth Tracking" [ref=e249] [cursor=pointer]:
+          - img [ref=e250]
+        - separator
+        - button "Calendar" [ref=e253] [cursor=pointer]:
+          - img [ref=e254]
+```

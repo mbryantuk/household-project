@@ -10,11 +10,7 @@ SKIP_PURGE=false
 SKIP_EMAIL=false
 VERSION_FILTER=""
 export RUN_ID="RUN_$(date +%s)"
-export LOG_FILE="/tmp/brady_lifecycle.log"
 EXIT_CODE=0
-
-# Initialize Log
-echo "=== NIGHTLY RUN $RUN_ID STARTED ===" > $LOG_FILE
 
 # Detect Environment
 if [ -f "/.dockerenv" ]; then
@@ -26,6 +22,15 @@ else
     IS_CONTAINER=false
     PROJECT_ROOT="/home/matt/household-project"
 fi
+
+# Initialize Log
+mkdir -p "$PROJECT_ROOT/logs"
+export LOG_FILE="$PROJECT_ROOT/logs/nightly_last_run.log"
+# Redirect stdout (1) and stderr (2) to a subshell that tees to the log file
+exec > >(tee -i "$LOG_FILE") 2>&1
+
+echo "=== NIGHTLY RUN $RUN_ID STARTED ==="
+echo "📝 Verbose Log: $LOG_FILE"
 
 # Parse arguments
 while [[ "$#" -gt 0 ]]; do
@@ -63,7 +68,7 @@ fi
 # 1. Refresh Containers
 if [ "$SKIP_DOCKER" = false ] && [ "$IS_CONTAINER" = false ]; then
     echo "🚀 [1/6] Refreshing containers..."
-    if ! docker compose up -d --build > /dev/null 2>&1; then
+    if ! docker compose up -d --build; then
         echo "❌ Docker Compose Failed. Aborting."
         exit 1
     fi
@@ -74,7 +79,7 @@ fi
 if [ "$SKIP_BACKEND" = false ]; then
     echo "🏗️  [2/6] Running Backend Tests..."
     cd "$PROJECT_ROOT/server"
-    if npm test -- --json --outputFile=test-report.json > test-results.log 2>&1; then
+    if npm test -- --json --outputFile=test-report.json; then
         echo "   🟢 Backend: SUCCESS"
         cd "$PROJECT_ROOT"
         node scripts/ops/record_test_results.js backend "success" || true
@@ -123,23 +128,23 @@ else
     # STAGE 1-3: Legacy Lifecycle Tests (Removed/Missing)
     # run_stage "Stage 1: Foundation" ...
     
-    # STAGE 4: INDEPENDENT UI FLOWS
-    run_stage "Stage 4: UI Flow Verification (Onboarding, Members, Assets, Finance)" \
-        "CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-ui.json npx playwright test tests/e2e/ui/ tests/smoke.spec.js --reporter=list,json" \
-        "$PROJECT_ROOT/web/results-ui.json" \
-        "frontend_ui_flows"
+    # STAGE 3.5: UNIT TESTS
+    run_stage "Stage 3.5: Unit Tests" \
+        "npx vitest run tests/unit --reporter=json --outputFile=test-results/unit.json" \
+        "$PROJECT_ROOT/web/test-results/unit.json" \
+        "frontend_unit"
 
-    # DEMO SEED CHECK (Optional, but ensures the demo script works)
-    run_stage "Stage 5: Demo Seed Integrity (Brady)" \
-        "CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-demo.json npx playwright test tests/e2e/brady_full_state.spec.js --reporter=list,json" \
-        "$PROJECT_ROOT/web/results-demo.json" \
-        "frontend_demo_seed"
+    # STAGE 4: ALL E2E & COMPONENT TESTS
+    run_stage "Stage 4: End-to-End Verification (All)" \
+        "CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-all.json npx playwright test tests/e2e tests/smoke.spec.js tests/settings.spec.js" \
+        "$PROJECT_ROOT/web/results-all.json" \
+        "frontend_e2e_all"
 fi
 
 # 4. Cleanup
 echo "🧹 [4/6] Cleaning up test data..."
 cd "$PROJECT_ROOT"
-node server/scripts/cleanup_test_data.js > /dev/null 2>&1 || true
+node server/scripts/cleanup_test_data.js || true
 echo "✅ Cleanup complete."
 
 # 5. Report
@@ -154,7 +159,7 @@ fi
 # 6. Docker Prune
 if [ "$SKIP_PURGE" = false ] && [ "$IS_CONTAINER" = false ]; then
     echo "🧹 [6/6] Purging Docker cache..."
-    docker system prune -f > /dev/null 2>&1 || true
+    docker system prune -f || true
     echo "✅ Reclaimed space."
 fi
 

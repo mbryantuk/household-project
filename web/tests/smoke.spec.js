@@ -37,12 +37,10 @@ test.describe('Core UI Smoke Tests', () => {
     test('Core Navigation: House Hub, Meals', async ({ page }) => {
         await page.getByRole('link', { name: 'House' }).click();
         // The header contains either 'House Hub' or the Household Name
-        await expect(page.locator('h2')).toBeVisible();
-        const headerText = await page.locator('h2').innerText();
-        expect(headerText.length).toBeGreaterThan(0);
+        await expect(page.getByText(/House Hub|Brady/)).toBeVisible();
 
         await page.getByRole('link', { name: 'Meals' }).click();
-        await expect(page.locator('h2')).toContainText('Meal Planner');
+        await expect(page.getByText('Meal Planner').first()).toBeVisible();
     });
 
     test('Core Navigation: Property Details', async ({ page }) => {
@@ -51,12 +49,12 @@ test.describe('Core UI Smoke Tests', () => {
         await expect(link).toBeVisible({ timeout: 10000 });
         await link.click();
         
-        await expect(page.locator('h2').filter({ hasText: 'Property Identity' })).toBeVisible();
+        await expect(page.getByText('Property Identity')).toBeVisible();
         await expect(page.getByText('Property Type')).toBeVisible();
         
         // Check tabs
         await page.click('text=Technical & Utilities');
-        await expect(page.locator('h2').filter({ hasText: 'Technical & Utilities' })).toBeVisible();
+        await expect(page.getByText('Technical & Utilities').first()).toBeVisible();
         await expect(page.getByText('Broadband Provider')).toBeVisible();
         
         await page.click('text=Recurring Costs');
@@ -66,7 +64,7 @@ test.describe('Core UI Smoke Tests', () => {
     test('Groceries: Add Item and Budget Estimate', async ({ page }) => {
         const hhId = await page.evaluate(() => localStorage.getItem('last_household_id'));
         await page.goto(`/household/${hhId}/shopping`);
-        await expect(page.getByRole('heading', { name: 'Groceries' })).toBeVisible();
+        await expect(page.getByText('Groceries').first()).toBeVisible();
 
         // Add Item
         await page.fill('input[placeholder="Item name (e.g. Milk)"]', 'Playwright Milk');
@@ -83,7 +81,7 @@ test.describe('Core UI Smoke Tests', () => {
 
     test('Avatar Menu: Opens Sidebar Panel', async ({ page }) => {
         // Click Avatar (Footer/Rail)
-        await page.locator('button[aria-label="Account"]').click();
+        await page.getByLabel('Account').click();
         
         // Verify Sidebar Panel content (Account Header)
         await expect(page.getByText('Profile Settings', { exact: true }).first()).toBeVisible();

@@ -187,4 +187,85 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
         logResult(ep, res.status === 200 ? 'PASS' : 'FAIL', res);
         expect(res.status).toBe(200);
     });
+
+    test('🧹 Module: Chores', async () => {
+        await runCrudTest('Chores', '/chores', 
+            { name: 'Dishes', frequency: 'daily', value: 5 }, 
+            { name: 'Wash Dishes', value: 10 }
+        );
+
+        // Additional Chores endpoints
+        const statsEp = `GET /households/{id}/chores/stats`;
+        testedEndpoints.add(statsEp);
+        expect(swaggerPaths).toContain(statsEp);
+        const sRes = await request(app).get(`/api/households/${householdId}/chores/stats`).set('Authorization', `Bearer ${tokens.viewer}`);
+        logResult(statsEp, sRes.status === 200 ? 'PASS' : 'FAIL', sRes);
+        expect(sRes.status).toBe(200);
+    });
+
+    test('📅 Module: Calendar', async () => {
+        // System Holidays
+        const holEp = 'GET /system/holidays';
+        testedEndpoints.add(holEp);
+        const hRes = await request(app).get(`/api/system/holidays`);
+        logResult(holEp, hRes.status === 200 ? 'PASS' : 'FAIL', hRes);
+        expect(hRes.status).toBe(200);
+
+        // Dates CRUD
+        await runCrudTest('Calendar Dates', '/dates', 
+            { title: 'Birthday', date: '2026-05-20', type: 'birthday' }, 
+            { title: 'Big Birthday' }
+        );
+    });
+
+    test('🛒 Module: Shopping', async () => {
+        await runCrudTest('Shopping List', '/shopping-list', 
+            { name: 'Milk', quantity: 1 }, 
+            { name: 'Almond Milk' }
+        );
+        
+        // Clear list
+        const clearEp = `DELETE /households/{id}/shopping-list/clear`;
+        testedEndpoints.add(clearEp);
+        const cRes = await request(app).delete(`/api/households/${householdId}/shopping-list/clear`).set('Authorization', `Bearer ${tokens.member}`);
+        logResult(clearEp, cRes.status === 200 ? 'PASS' : 'FAIL', cRes);
+        expect(cRes.status).toBe(200);
+    });
+
+    test('🏠 Module: House Details', async () => {
+         const detailsEp = `GET /households/{id}/details`;
+         testedEndpoints.add(detailsEp);
+         expect(swaggerPaths).toContain(detailsEp);
+         const dRes = await request(app).get(`/api/households/${householdId}/details`).set('Authorization', `Bearer ${tokens.viewer}`);
+         logResult(detailsEp, dRes.status === 200 ? 'PASS' : 'FAIL', dRes);
+         expect(dRes.status).toBe(200);
+
+         const updateEp = `PUT /households/{id}/details`;
+         testedEndpoints.add(updateEp);
+         expect(swaggerPaths).toContain(updateEp);
+         const uRes = await request(app).put(`/api/households/${householdId}/details`).set('Authorization', `Bearer ${tokens.member}`).send({ wifi_ssid: 'MyHouse' });
+         logResult(updateEp, uRes.status === 200 ? 'PASS' : 'FAIL', uRes);
+         expect(uRes.status).toBe(200);
+         
+         // Assets
+         await runCrudTest('Assets', '/assets', 
+            { name: 'Laptop', purchase_value: 1000 }, 
+            { name: 'MacBook' }
+         );
+    });
+
+    test('🏦 Module: Finance (Extended)', async () => {
+        // Mortgages - Not strictly in Swagger yet for CRUD, but routed
+        // We will try/catch these or check if they exist in swagger paths before asserting strictness if needed
+        // But for "make sure we have tests", we should run them.
+        
+        // Note: runCrudTest asserts swagger presence. If these are missing from Swagger, it will fail.
+        // Let's assume they might be missing and handle it, or just run them and see.
+        // Given the goal "ensure we have tests", failure here is good info.
+        
+        await runCrudTest('Mortgages', '/finance/mortgages', { name: 'House', amount: 200000, provider: 'Bank' }, { amount: 190000 });
+        await runCrudTest('Loans', '/finance/loans', { name: 'Car Loan', amount: 5000 }, { amount: 4500 });
+        await runCrudTest('Vehicle Finance', '/finance/vehicle-finance', { name: 'Lease', amount: 300 }, { amount: 250 });
+        await runCrudTest('Current Accounts', '/finance/current-accounts', { account_name: 'Checking', current_balance: 1000, bank_name: 'TestBank' }, { current_balance: 1200 });
+    });
 });

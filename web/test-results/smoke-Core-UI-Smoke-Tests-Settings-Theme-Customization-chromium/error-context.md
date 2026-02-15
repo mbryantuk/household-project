@@ -10,148 +10,138 @@
           - list [ref=e11]:
             - listitem [ref=e12]:
               - link "House" [ref=e13] [cursor=pointer]:
-                - /url: /household/4449/house
+                - /url: /household/4640/house
                 - img [ref=e15]
                 - generic [ref=e17]: House
-            - listitem [ref=e18]:
-              - link "Calendar" [ref=e19] [cursor=pointer]:
-                - /url: /household/4449/calendar
-                - img [ref=e21]
-                - generic [ref=e23]: Calendar
-          - separator [ref=e24]
-        - list [ref=e26]:
+          - separator [ref=e18]
+        - list [ref=e20]:
+          - listitem [ref=e21]:
+            - link "Finance" [ref=e22] [cursor=pointer]:
+              - /url: /household/4640/finance
+              - img [ref=e24]
+              - generic [ref=e26]: Finance
           - listitem [ref=e27]:
-            - link "Finance" [ref=e28] [cursor=pointer]:
-              - /url: /household/4449/finance
+            - link "Groceries" [ref=e28] [cursor=pointer]:
+              - /url: /household/4640/shopping
               - img [ref=e30]
-              - generic [ref=e32]: Finance
+              - generic [ref=e32]: Groceries
           - listitem [ref=e33]:
-            - link "Groceries" [ref=e34] [cursor=pointer]:
-              - /url: /household/4449/shopping
+            - link "Chores" [ref=e34] [cursor=pointer]:
+              - /url: /household/4640/chores
               - img [ref=e36]
-              - generic [ref=e38]: Groceries
+              - generic [ref=e38]: Chores
           - listitem [ref=e39]:
-            - link "Chores" [ref=e40] [cursor=pointer]:
-              - /url: /household/4449/chores
+            - link "Meals" [ref=e40] [cursor=pointer]:
+              - /url: /household/4640/meals
               - img [ref=e42]
-              - generic [ref=e44]: Chores
-          - listitem [ref=e45]:
-            - link "Meals" [ref=e46] [cursor=pointer]:
-              - /url: /household/4449/meals
-              - img [ref=e48]
-              - generic [ref=e50]: Meals
-        - generic [ref=e51]:
-          - separator [ref=e53]
-          - button "Account" [active] [ref=e54] [cursor=pointer]:
-            - generic [ref=e55]: 🐧
-      - generic [ref=e56]:
-        - main [ref=e57]:
-          - generic [ref=e58]:
-            - generic [ref=e59]:
-              - heading "Good evening, Matt" [level=1] [ref=e60]
-              - paragraph [ref=e61]: Thursday 12 February • The Brady Bunch (API) v3.2.215 [2026-02-12 18:29:41]
-            - generic [ref=e62]:
-              - generic [ref=e63]:
-                - paragraph [ref=e64]: Quick Navigation
-                - generic [ref=e65]:
-                  - generic [ref=e67] [cursor=pointer]:
-                    - img [ref=e71]
-                    - generic [ref=e73]:
-                      - paragraph [ref=e74]: Finance
-                      - generic [ref=e75]: Budget & Assets
-                  - generic [ref=e77] [cursor=pointer]:
-                    - img [ref=e81]
-                    - generic [ref=e83]:
-                      - paragraph [ref=e84]: Calendar
-                      - generic [ref=e85]: Events & Renewals
-                  - generic [ref=e87] [cursor=pointer]:
-                    - img [ref=e91]
-                    - generic [ref=e93]:
-                      - paragraph [ref=e94]: Meals
-                      - generic [ref=e95]: Weekly Planner
-                  - generic [ref=e97] [cursor=pointer]:
-                    - img [ref=e101]
-                    - generic [ref=e103]:
-                      - paragraph [ref=e104]: Groceries
-                      - generic [ref=e105]: Grocery List
-                  - generic [ref=e107] [cursor=pointer]:
-                    - img [ref=e111]
-                    - generic [ref=e113]:
-                      - paragraph [ref=e114]: People
-                      - generic [ref=e115]: Resident Directory
-                  - generic [ref=e117] [cursor=pointer]:
-                    - img [ref=e121]
-                    - generic [ref=e124]:
-                      - paragraph [ref=e125]: House
-                      - generic [ref=e126]: Property Hub
-                  - generic [ref=e128] [cursor=pointer]:
-                    - img [ref=e132]
-                    - generic [ref=e134]:
-                      - paragraph [ref=e135]: Vehicles
-                      - generic [ref=e136]: Fleet Status
-                  - generic [ref=e138] [cursor=pointer]:
-                    - img [ref=e142]
+              - generic [ref=e44]: Meals
+        - generic [ref=e45]:
+          - separator [ref=e47]
+          - button "Account" [active] [ref=e48] [cursor=pointer]:
+            - generic [ref=e49]: 🐧
+      - generic [ref=e50]:
+        - main [ref=e51]:
+          - generic [ref=e52]:
+            - generic [ref=e53]:
+              - heading "Good evening, Matt" [level=1] [ref=e54]
+              - paragraph [ref=e55]: Sunday 15 February • The Brady Bunch (API) v3.2.241-20260215 [2026-02-15 19:40:29]
+            - generic [ref=e56]:
+              - generic [ref=e57]:
+                - paragraph [ref=e58]: Quick Navigation
+                - generic [ref=e59]:
+                  - generic [ref=e61] [cursor=pointer]:
+                    - img [ref=e65]
+                    - generic [ref=e67]:
+                      - paragraph [ref=e68]: Finance
+                      - generic [ref=e69]: Budget & Assets
+                  - generic [ref=e71] [cursor=pointer]:
+                    - img [ref=e75]
+                    - generic [ref=e77]:
+                      - paragraph [ref=e78]: Meals
+                      - generic [ref=e79]: Weekly Planner
+                  - generic [ref=e81] [cursor=pointer]:
+                    - img [ref=e85]
+                    - generic [ref=e87]:
+                      - paragraph [ref=e88]: Groceries
+                      - generic [ref=e89]: Grocery List
+                  - generic [ref=e91] [cursor=pointer]:
+                    - img [ref=e95]
+                    - generic [ref=e97]:
+                      - paragraph [ref=e98]: People
+                      - generic [ref=e99]: Resident Directory
+                  - generic [ref=e101] [cursor=pointer]:
+                    - img [ref=e105]
+                    - generic [ref=e108]:
+                      - paragraph [ref=e109]: House
+                      - generic [ref=e110]: Property Hub
+                  - generic [ref=e112] [cursor=pointer]:
+                    - img [ref=e116]
+                    - generic [ref=e118]:
+                      - paragraph [ref=e119]: Vehicles
+                      - generic [ref=e120]: Fleet Status
+                  - generic [ref=e122] [cursor=pointer]:
+                    - img [ref=e126]
+                    - generic [ref=e128]:
+                      - paragraph [ref=e129]: Chores
+                      - generic [ref=e130]: Task Management
+              - generic [ref=e132]:
+                - paragraph [ref=e133]: Household Pulse
+                - generic [ref=e135]:
+                  - generic [ref=e136]:
+                    - generic [ref=e137]:
+                      - img [ref=e138]
+                      - paragraph [ref=e140]: Residents
+                    - paragraph [ref=e141]: "0"
+                  - separator [ref=e142]
+                  - generic [ref=e143]:
                     - generic [ref=e144]:
-                      - paragraph [ref=e145]: Chores
-                      - generic [ref=e146]: Task Management
-              - generic [ref=e148]:
-                - paragraph [ref=e149]: Household Pulse
-                - generic [ref=e151]:
-                  - generic [ref=e152]:
-                    - generic [ref=e153]:
-                      - img [ref=e154]
-                      - paragraph [ref=e156]: Residents
-                    - paragraph [ref=e157]: "11"
-                  - separator [ref=e158]
-                  - generic [ref=e159]:
-                    - generic [ref=e160]:
-                      - img [ref=e161]
-                      - paragraph [ref=e163]: Vehicles
-                    - paragraph [ref=e164]: "0"
-                  - separator [ref=e165]
-                  - generic [ref=e166]:
-                    - generic [ref=e167]:
-                      - img [ref=e168]
-                      - paragraph [ref=e170]: Assets
-                    - paragraph [ref=e171]: Active
-                - generic [ref=e172]:
-                  - paragraph [ref=e173]: HEARTHSTONE System
-                  - paragraph [ref=e174]: Everything is running smoothly. Your local data is encrypted and secure.
-                  - button "Settings" [ref=e175] [cursor=pointer]:
+                      - img [ref=e145]
+                      - paragraph [ref=e147]: Vehicles
+                    - paragraph [ref=e148]: "0"
+                  - separator [ref=e149]
+                  - generic [ref=e150]:
+                    - generic [ref=e151]:
+                      - img [ref=e152]
+                      - paragraph [ref=e154]: Assets
+                    - paragraph [ref=e155]: Active
+                - generic [ref=e156]:
+                  - paragraph [ref=e157]: HEARTHSTONE System
+                  - paragraph [ref=e158]: Everything is running smoothly. Your local data is encrypted and secure.
+                  - button "Settings" [ref=e159] [cursor=pointer]:
                     - text: Settings
-                    - img [ref=e177]
-                - generic [ref=e180]: Dashboard widgets are currently being overhauled. Full customization will return in a future update.
-        - generic [ref=e184]:
-          - button "Notes" [ref=e186] [cursor=pointer]:
+                    - img [ref=e161]
+                - generic [ref=e164]: Dashboard widgets are currently being overhauled. Full customization will return in a future update.
+        - generic [ref=e168]:
+          - button "Notes" [ref=e170] [cursor=pointer]:
+            - img [ref=e171]
+          - button "Calculator" [ref=e174] [cursor=pointer]:
+            - img [ref=e175]
+          - separator
+          - button "Income" [ref=e178] [cursor=pointer]:
+            - img [ref=e179]
+          - button "Banking" [ref=e182] [cursor=pointer]:
+            - img [ref=e183]
+          - button "Savings & Pots" [ref=e186] [cursor=pointer]:
             - img [ref=e187]
-          - button "Calculator" [ref=e190] [cursor=pointer]:
+          - button "Investments" [ref=e190] [cursor=pointer]:
             - img [ref=e191]
-          - separator
-          - button "Income" [ref=e194] [cursor=pointer]:
+          - button "Pensions" [ref=e194] [cursor=pointer]:
             - img [ref=e195]
-          - button "Banking" [ref=e198] [cursor=pointer]:
+          - button "Credit Cards" [ref=e198] [cursor=pointer]:
             - img [ref=e199]
-          - button "Savings & Pots" [ref=e202] [cursor=pointer]:
+          - button "Personal Loans" [ref=e202] [cursor=pointer]:
             - img [ref=e203]
-          - button "Investments" [ref=e206] [cursor=pointer]:
-            - img [ref=e207]
-          - button "Pensions" [ref=e210] [cursor=pointer]:
-            - img [ref=e211]
-          - button "Credit Cards" [ref=e214] [cursor=pointer]:
-            - img [ref=e215]
-          - button "Personal Loans" [ref=e218] [cursor=pointer]:
-            - img [ref=e219]
-          - button "Mortgages" [ref=e223] [cursor=pointer]:
+          - button "Mortgages" [ref=e207] [cursor=pointer]:
+            - img [ref=e208]
+          - button "Car Finance" [ref=e211] [cursor=pointer]:
+            - img [ref=e212]
+          - separator
+          - button "Budget Health" [ref=e215] [cursor=pointer]:
+            - img [ref=e216]
+          - button "Wealth Tracking" [ref=e219] [cursor=pointer]:
+            - img [ref=e220]
+          - separator
+          - button "Calendar" [ref=e223] [cursor=pointer]:
             - img [ref=e224]
-          - button "Car Finance" [ref=e227] [cursor=pointer]:
-            - img [ref=e228]
-          - separator
-          - button "Budget Health" [ref=e231] [cursor=pointer]:
-            - img [ref=e232]
-          - button "Wealth Tracking" [ref=e235] [cursor=pointer]:
-            - img [ref=e236]
-          - separator
-          - button "Calendar" [ref=e239] [cursor=pointer]:
-            - img [ref=e240]
-  - tooltip "Account & Settings" [ref=e242]
+  - tooltip "Account & Settings" [ref=e226]
 ```

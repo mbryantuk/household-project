@@ -427,19 +427,18 @@ test.describe('Brady Bunch Full System State E2E', () => {
     });
 
     test('Dashboard & House Details', async ({ page }) => {
-        await test.step('Verify Valuation', async () => {
-             await expect(page.getByText(/£2,450,000/)).toBeVisible();
-        });
+        // Valuation widget removed from dashboard, moving directly to House details
         
         await test.step('Verify Address/Property Type', async () => {
-            await page.click('a[href*="/house"]'); // Navigate to house hub
+            // Use text locator for navigation as cards are divs, not links
+            await page.click('text=House'); 
             await expect(page.getByText('Brady Residence')).toBeVisible();
             await expect(page.getByText('Spectrum')).toBeVisible();
         });
     });
 
     test('Members & Pets', async ({ page }) => {
-        await page.click('a[href*="/house"]');
+        await page.click('text=House');
         
         await test.step('Verify Member Count', async () => {
              await expect(page.getByText('Mike').first()).toBeVisible();
@@ -448,12 +447,13 @@ test.describe('Brady Bunch Full System State E2E', () => {
         });
 
         await test.step('Verify Pet Emoji', async () => {
-            await expect(page.locator('text=🐕')).toBeVisible();
+            // Use specific locator to avoid strict mode violations (Sidebar vs Page)
+            await expect(page.getByRole('link', { name: '🐕 Tiger' }).first()).toBeVisible();
         });
     });
 
     test('Assets & Vehicles', async ({ page }) => {
-        await page.click('a[href*="/house"]');
+        await page.click('text=House');
 
         await test.step('Verify Assets', async () => {
             await expect(page.getByText('Samsung 65" TV')).toBeVisible();
@@ -467,7 +467,7 @@ test.describe('Brady Bunch Full System State E2E', () => {
     });
 
     test('Finance Dashboard', async ({ page }) => {
-        await page.click('a[href="/finance"]');
+        await page.click('text=Finance');
 
         await test.step('Verify Wealth or Burn', async () => {
             // Open Wealth Tracking in Utility Bar
@@ -478,7 +478,7 @@ test.describe('Brady Bunch Full System State E2E', () => {
     });
 
     test('Budget Cycle', async ({ page }) => {
-        await page.click('a[href="/finance"]');
+        await page.click('text=Finance');
         await page.click('text=Monthly Budget');
 
         await test.step('Verify Cycle Start', async () => {
