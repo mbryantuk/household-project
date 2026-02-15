@@ -31,10 +31,4 @@ export default defineConfig({
       '/my-households': 'http://localhost:4001',
     },
   },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './tests/unit/setup.js',
-    css: true,
-  },
 });

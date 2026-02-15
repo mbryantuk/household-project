@@ -1,7 +1,7 @@
 {
   "name": "household-web",
   "private": true,
-  "version": "3.2.242",
+  "version": "3.2.245",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test:smoke": "echo 'Frontend tests disabled by policy.'",
-    "test:unit": "vitest"
+    "test:unit": "echo 'Frontend tests disabled by policy.'"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

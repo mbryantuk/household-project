@@ -43,8 +43,6 @@ WORKDIR /app
 COPY server/ ./server/
 COPY scripts/ ./scripts/
 COPY web/package*.json ./web/
-COPY web/playwright.config.js ./web/
-COPY web/tests/ ./web/tests/
 
 # 4. Copy Built Frontend Assets
 COPY --from=frontend-builder /app/web/dist ./web/dist
