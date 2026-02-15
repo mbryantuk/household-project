@@ -1,22 +1,28 @@
 {
-  "timestamp": "2026-02-15T20:24:41.469Z",
+  "timestamp": "2026-02-15T20:53:16.306Z",
   "accounts": {
-    "admin": "admin_1771187079772@test.com",
-    "viewer": "viewer_1771187079772@test.com"
+    "admin": "admin_1771188794424@test.com",
+    "viewer": "viewer_1771188794424@test.com"
   },
   "steps": [
-    "20:24:39: Loading Swagger schema for strict sync enforcement.",
-    "20:24:39: Initializing test environment.",
-    "20:24:41: Cleaning up: Deleting test household."
+    "20:53:14: Loading Swagger schema for strict sync enforcement.",
+    "20:53:14: Initializing test environment.",
+    "20:53:16: Cleaning up: Deleting test household."
   ],
   "summary": {
-    "total_endpoints": 81,
-    "passed": 81,
+    "total_endpoints": 89,
+    "passed": 89,
     "failed": 0,
-    "swagger_coverage_pct": "91.0"
+    "swagger_coverage_pct": "100.0"
   },
   "results": {
+    "POST /auth/register": "PASS",
+    "POST /auth/login": "PASS",
     "GET /auth/profile": "PASS",
+    "PUT /auth/profile": "PASS",
+    "POST /households": "PASS",
+    "GET /households/{id}": "PASS",
+    "PUT /households/{id}": "PASS",
     "POST /households/{id}/finance/recurring-costs": "PASS",
     "GET /households/{id}/finance/recurring-costs": "PASS",
     "PUT /households/{id}/finance/recurring-costs/{itemId}": "PASS",
@@ -57,10 +63,12 @@
     "PUT /households/{id}/finance/savings/{itemId}": "PASS",
     "DELETE /households/{id}/finance/savings/{itemId}": "PASS",
     "GET /households/{id}/meals": "PASS",
+    "POST /households/{id}/meals": "PASS",
     "POST /households/{id}/chores": "PASS",
     "GET /households/{id}/chores": "PASS",
     "PUT /households/{id}/chores/{itemId}": "PASS",
     "DELETE /households/{id}/chores/{itemId}": "PASS",
+    "POST /households/{id}/chores/{itemId}/complete": "PASS",
     "GET /households/{id}/chores/stats": "PASS",
     "GET /system/holidays": "PASS",
     "POST /households/{id}/dates": "PASS",
@@ -100,15 +108,6 @@
   },
   "swagger_discrepancies": {
     "missing_in_swagger": [],
-    "not_tested_from_swagger": [
-      "POST /auth/register",
-      "POST /auth/login",
-      "PUT /auth/profile",
-      "POST /households",
-      "GET /households/{id}",
-      "PUT /households/{id}",
-      "POST /households/{id}/chores/{itemId}/complete",
-      "POST /households/{id}/meals"
-    ]
+    "not_tested_from_swagger": []
   }
 }

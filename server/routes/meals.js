@@ -32,7 +32,7 @@ router.post('/households/:id/meals', authenticateToken, requireHouseholdRole('me
         [req.params.id, name, description, emoji],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: this.lastID, name, description, emoji });
+            res.status(201).json({ id: this.lastID, name, description, emoji });
         }
     );
 });

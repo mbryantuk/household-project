@@ -159,15 +159,78 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
         }
     };
 
-    test('🔑 Authentication Profile', async () => {
-        const ep = 'GET /auth/profile';
-        testedEndpoints.add(ep);
-        const res = await request(app).get('/api/auth/profile').set('Authorization', `Bearer ${tokens.member}`);
-        logResult(ep, res.status === 200 ? 'PASS' : 'FAIL', res);
-        expect(res.status).toBe(200);
-        
-        // Add Update Profile Test if present in Swagger
-        // (Note: Auth endpoints often outside standard /households/{id} pattern)
+    test('🔑 Authentication & Setup', async () => {
+        // 1. Register (Already covered in beforeAll, but we explicitly test/record it here for coverage)
+        const regEp = 'POST /auth/register';
+        testedEndpoints.add(regEp);
+        // We accept that it was successful in beforeAll, or we can do a quick fail-check
+        // To be thorough and hit the endpoint:
+        const regRes = await request(app).post('/api/auth/register').send({ 
+            householdName: 'Coverage House', 
+            email: `coverage_${uniqueId}@test.com`, 
+            password: 'Password123!' 
+        });
+        logResult(regEp, regRes.status === 201 ? 'PASS' : 'FAIL', regRes);
+        expect(regRes.status).toBe(201);
+
+        // 2. Login
+        const loginEp = 'POST /auth/login';
+        testedEndpoints.add(loginEp);
+        const loginRes = await request(app).post('/api/auth/login').send({ 
+            email: `coverage_${uniqueId}@test.com`, 
+            password: 'Password123!' 
+        });
+        logResult(loginEp, loginRes.status === 200 ? 'PASS' : 'FAIL', loginRes);
+        expect(loginRes.status).toBe(200);
+        const covToken = loginRes.body.token;
+
+        // 3. Profile (Get)
+        const profileEp = 'GET /auth/profile';
+        testedEndpoints.add(profileEp);
+        const pRes = await request(app).get('/api/auth/profile').set('Authorization', `Bearer ${tokens.member}`);
+        logResult(profileEp, pRes.status === 200 ? 'PASS' : 'FAIL', pRes);
+        expect(pRes.status).toBe(200);
+
+        // 4. Profile (Update) - MISSING
+        const putProfileEp = 'PUT /auth/profile';
+        testedEndpoints.add(putProfileEp);
+        const upRes = await request(app).put('/api/auth/profile')
+            .set('Authorization', `Bearer ${tokens.member}`)
+            .send({ firstName: 'UpdatedName' });
+        logResult(putProfileEp, upRes.status === 200 ? 'PASS' : 'FAIL', upRes);
+        expect(upRes.status).toBe(200);
+    });
+
+    test('🏠 Household Management', async () => {
+        // 1. POST /households (Create new household)
+        const createHouseEp = 'POST /households';
+        testedEndpoints.add(createHouseEp);
+        const cRes = await request(app).post('/api/households')
+            .set('Authorization', `Bearer ${tokens.admin}`)
+            .send({ name: 'Secondary House' });
+        logResult(createHouseEp, cRes.status === 201 ? 'PASS' : 'FAIL', cRes);
+        expect(cRes.status).toBe(201);
+        const newHouseId = cRes.body.id;
+
+        // Cleanup extra household immediately
+        await request(app).delete(`/api/households/${newHouseId}`).set('Authorization', `Bearer ${tokens.admin}`);
+
+        // 2. GET /households/{id} (Use existing household context to avoid token issues)
+        const getHouseEp = 'GET /households/{id}';
+        testedEndpoints.add(getHouseEp);
+        const gRes = await request(app).get(`/api/households/${householdId}`)
+            .set('Authorization', `Bearer ${tokens.admin}`);
+        logResult(getHouseEp, gRes.status === 200 ? 'PASS' : 'FAIL', gRes);
+        expect(gRes.status).toBe(200);
+
+        // 3. PUT /households/{id} (Use existing household context)
+        const putHouseEp = 'PUT /households/{id}';
+        testedEndpoints.add(putHouseEp);
+        const uRes = await request(app).put(`/api/households/${householdId}`)
+            .set('Authorization', `Bearer ${tokens.admin}`)
+            .send({ name: 'Renamed Main House' });
+        logResult(putHouseEp, uRes.status === 200 ? 'PASS' : 'FAIL', uRes);
+        expect(uRes.status).toBe(200);
     });
 
     test('🔄 Module: Recurring Costs (Consolidated)', async () => {
@@ -208,6 +271,15 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
         const res = await request(app).get(`/api/households/${householdId}/meals`).set('Authorization', `Bearer ${tokens.viewer}`);
         logResult(ep, res.status === 200 ? 'PASS' : 'FAIL', res);
         expect(res.status).toBe(200);
+
+        // Add POST /meals
+        const postMealEp = 'POST /households/{id}/meals';
+        testedEndpoints.add(postMealEp);
+        const mRes = await request(app).post(`/api/households/${householdId}/meals`)
+            .set('Authorization', `Bearer ${tokens.member}`)
+            .send({ name: 'Pasta', day: 'Monday', meal_type: 'Dinner' });
+        logResult(postMealEp, mRes.status === 201 ? 'PASS' : 'FAIL', mRes);
+        expect(mRes.status).toBe(201);
     });
 
     test('🧹 Module: Chores', async () => {
@@ -215,6 +287,20 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
             { name: 'Dishes', frequency: 'daily', value: 5 }, 
             { name: 'Wash Dishes', value: 10 }
         );
+
+        // Create a chore for completion
+        const cRes = await request(app).post(`/api/households/${householdId}/chores`)
+            .set('Authorization', `Bearer ${tokens.member}`)
+            .send({ name: 'Trash', frequency: 'weekly', value: 10 });
+        const choreId = cRes.body.id;
+
+        // Completion
+        const compEp = 'POST /households/{id}/chores/{itemId}/complete';
+        testedEndpoints.add(compEp);
+        const compRes = await request(app).post(`/api/households/${householdId}/chores/${choreId}/complete`)
+            .set('Authorization', `Bearer ${tokens.member}`);
+        logResult(compEp, compRes.status === 200 ? 'PASS' : 'FAIL', compRes);
+        expect(compRes.status).toBe(200);
 
         // Additional Chores endpoints
         const statsEp = `GET /households/{id}/chores/stats`;
