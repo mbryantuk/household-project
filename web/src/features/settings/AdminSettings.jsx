@@ -299,6 +299,7 @@ export default function AdminSettings() {
                                 <th style={{ padding: '12px' }}>Date</th>
                                 <th style={{ padding: '12px' }}>Suite</th>
                                 <th style={{ padding: '12px' }}>Version</th>
+                                <th style={{ padding: '12px' }}>Breakdown</th>
                                 <th style={{ padding: '12px' }}>Status</th>
                             </tr>
                         </thead>
@@ -313,6 +314,9 @@ export default function AdminSettings() {
                                     </td>
                                     <td style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>
                                         <Typography level="body-xs">v{r.version}</Typography>
+                                    </td>
+                                    <td style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>
+                                        <Typography level="body-sm">{r.passes} / {r.total}</Typography>
                                     </td>
                                     <td style={{ padding: '12px', borderBottom: '1px solid var(--joy-palette-divider)' }}>
                                         <Chip size="sm" color={r.fails === 0 ? "success" : "danger"}>{r.fails === 0 ? "Passed" : "Failed"}</Chip>

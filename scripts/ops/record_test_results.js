@@ -23,7 +23,7 @@ async function recordBackendResults(runId = null) {
             `INSERT INTO test_results (test_type, suite_name, passes, fails, total, duration, report_json, version, run_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             ['backend', 'Jest Integration Suite', passes, fails, total, duration, JSON.stringify(data), pkg.version, runId]
         );
-        console.log("✅ Backend test results recorded.");
+        console.log(`✅ Backend test results recorded: ${passes}/${total} passed.`);
     } catch (err) {
         console.error("❌ Failed to record backend results:", err);
     }
@@ -47,7 +47,7 @@ async function recordFrontendResults(type = 'frontend', suiteName = 'Playwright 
             `INSERT INTO test_results (test_type, suite_name, passes, fails, total, duration, report_json, version, run_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [type, suiteName, passes, fails, total, duration, JSON.stringify(data), pkg.version, runId]
         );
-        console.log(`✅ Frontend test results recorded for ${type}.`);
+        console.log(`✅ Frontend test results recorded for ${type}: ${passes}/${total} passed.`);
     } catch (err) {
         console.error(`❌ Failed to record frontend results for ${type}:`, err);
     }

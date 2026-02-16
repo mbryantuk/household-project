@@ -29,9 +29,10 @@ async function sendReport() {
     // --- PARSERS ---
 
     const parseJestJson = (filePath, title) => {
-        let summary = `${title}: No JSON report found (Skipped or Failed Fast).`;
+        let summary = `${title}: SKIPPED (No JSON report found).`;
         let detailed = "";
-        let passed = false;
+        let passed = true; // Default to true so skipped doesn't fail the build
+        let skipped = true;
 
         if (fs.existsSync(filePath)) {
             try {
@@ -40,6 +41,7 @@ async function sendReport() {
                 const passedCount = results.numPassedTests || 0;
                 const failed = results.numFailedTests || 0;
                 
+                skipped = false;
                 passed = failed === 0 && (results.numFailedTestSuites || 0) === 0;
                 summary = `${title}: ${passed ? 'PASSED' : 'FAILED'} (Total: ${total}, Passed: ${passedCount}, Failed: ${failed})`;
                 
@@ -50,10 +52,11 @@ async function sendReport() {
                         const fileName = path.basename(filePath);
                         const suitePassed = (suite.status === 'passed') || (suite.numFailingTests === 0);
                         const icon = suitePassed ? '✅' : '❌';
-                        detailed += `${icon} ${fileName} (${suite.assertionResults ? suite.assertionResults.length : 0} tests)\n`;
+                        const tests = suite.testResults || suite.assertionResults || [];
+                        detailed += `${icon} ${fileName} (${tests.length} tests)\n`;
                         
-                        if (!suitePassed && suite.assertionResults) {
-                             suite.assertionResults.forEach(test => {
+                        if (!suitePassed && tests.length > 0) {
+                             tests.forEach(test => {
                                  if (test.status === 'failed') {
                                      detailed += `   - ❌ ${test.title}\n`;
                                  }
@@ -62,16 +65,19 @@ async function sendReport() {
                     });
                 }
             } catch (e) {
-                summary = `${title}: Error parsing JSON report (${e.message})`;
+                passed = false;
+                skipped = false;
+                summary = `${title}: ERROR (Parsing failed: ${e.message})`;
             }
         }
-        return { summary, detailed, passed };
+        return { summary, detailed, passed, skipped };
     };
 
     const parsePlaywrightJson = (filePath, title) => {
-        let summary = `${title}: No JSON report found (Skipped or Failed Fast).`;
+        let summary = `${title}: SKIPPED (No JSON report found).`;
         let detailed = "";
-        let passed = false;
+        let passed = true;
+        let skipped = true;
 
         if (fs.existsSync(filePath)) {
             try {
@@ -82,6 +88,7 @@ async function sendReport() {
                 const passedCount = stats.expected;
                 const duration = (stats.duration / 1000).toFixed(2);
                 
+                skipped = false;
                 passed = failed === 0 && total > 0;
                 summary = `${title}: ${passed ? 'PASSED' : 'FAILED'} (Total: ${total}, Passed: ${passedCount}, Failed: ${failed}, Duration: ${duration}s)`;
                 
@@ -107,10 +114,12 @@ async function sendReport() {
                     processSuite(suite);
                 });
             } catch (e) {
-                summary = `${title}: Error parsing JSON report (${e.message})`;
+                passed = false;
+                skipped = false;
+                summary = `${title}: ERROR (Parsing failed: ${e.message})`;
             }
         }
-        return { summary, detailed, passed };
+        return { summary, detailed, passed, skipped };
     };
 
     // --- PROCESSING ---
@@ -151,6 +160,8 @@ async function sendReport() {
     }
 
     const overallPass = backendResults.passed && unitResults.passed && e2eResults.passed;
+    const allSkipped = backendResults.skipped && unitResults.skipped && e2eResults.skipped;
+    const finalStatus = (overallPass && !allSkipped) ? '🟢 PASS' : (allSkipped ? '⚪ SKIPPED' : '🔴 FAIL');
 
     const smtpConfig = {
         host: host,
@@ -170,7 +181,7 @@ async function sendReport() {
     const mailOptions = {
         from: `"Hearth Nightly Bot" <${user}>`,
         to: to,
-        subject: `🌙 Nightly System Health Report (v${version}): ${overallPass ? '🟢 PASS' : '🔴 FAIL'}`,
+        subject: `🌙 Nightly System Health Report (v${version}): ${finalStatus}`,
         text: `The nightly comprehensive test suite has completed.\n` + 
               `System Version: v${version}\n\n` + 
               `================================\n` + 

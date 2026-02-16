@@ -162,9 +162,11 @@ You are FORBIDDEN from marking a task as "Complete" until the following pipeline
 
 ### A. The Backend Gate (Node/SQLite)
 * **Trigger:** Any change to `server/routes`, `server/models`, or database schema.
-* **Requirement:** 1. You MUST create/update a matching `*.spec.js` file in `server/tests/`.
-    2. You MUST run `npm test` and confirm 100% pass rate.
-    3. **Tenancy Check:** You MUST verify that `household_id` isolation still holds (User A cannot see User B's data).
+* **Requirement:** 
+    1. **100% API Coverage:** You MUST verify that every endpoint in `swagger.json` has a corresponding test.
+    2. You MUST create/update a matching `*.spec.js` file in `server/tests/`.
+    3. You MUST run `npm test` and confirm 100% pass rate.
+    4. **Tenancy Check:** You MUST verify that `household_id` isolation still holds (User A cannot see User B's data).
 
 ### B. The Frontend Gate (Vue/Vite)
 * **Trigger:** Any change to `web/src/components` or `web/src/pages`.
