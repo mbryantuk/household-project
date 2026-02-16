@@ -1,10 +1,10 @@
 {
   "name": "totem-server",
-  "version": "3.2.247-20260216",
+  "version": "3.2.248",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "NODE_ENV=test node_modules/.bin/jest; npm run test:tidy",
+    "test": "NODE_ENV=test node_modules/.bin/jest && npm run test:tidy",
     "test:tidy": "node scripts/cleanup_test_data.js",
     "test:full": "NODE_ENV=test jest --config jest.config.js --verbose; npm run test:tidy",
     "test:perf": "NODE_ENV=test jest tests/performance; npm run test:tidy"
@@ -16,6 +16,7 @@
     "axios": "^1.6.2",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "csv-parse": "^6.1.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",

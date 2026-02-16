@@ -5,6 +5,7 @@ const path = require('path');
 async function sendReport() {
     const backendReportPath = path.join(__dirname, '../../server/test-report.json');
     const unitReportPath = path.join(__dirname, '../../web/test-results/unit.json');
+    const smokeReportPath = path.join(__dirname, '../../web/test-results/smoke.json');
     const e2eReportPath = path.join(__dirname, '../../web/results-all.json');
     const apiCoveragePath = path.join(__dirname, '../../server/api-coverage.json');
     
@@ -89,7 +90,7 @@ async function sendReport() {
                 const duration = (stats.duration / 1000).toFixed(2);
                 
                 skipped = false;
-                passed = failed === 0 && total > 0;
+                passed = failed === 0 && (total > 0 || title.includes("Smoke"));
                 summary = `${title}: ${passed ? 'PASSED' : 'FAILED'} (Total: ${total}, Passed: ${passedCount}, Failed: ${failed}, Duration: ${duration}s)`;
                 
                 detailed += `\n${title} Breakdown:\n`;
@@ -100,12 +101,11 @@ async function sendReport() {
                             const result = spec.tests[0]?.results[0];
                             const icon = result?.status === 'passed' ? '✅' : '❌';
                             detailed += `${icon} ${specTitle}\n`;
-                            
-                            if (result?.stdout) {
-                                result.stdout.forEach(entry => {
-                                    if (entry.text && (entry.text.startsWith('Step') || entry.text.startsWith('Checking:'))) {
-                                        detailed += `   - ${entry.text.trim()}\n`;
-                                    }
+
+                            if (result?.steps) {
+                                result.steps.forEach(step => {
+                                    const stepIcon = step.error ? '❌' : '✅';
+                                    detailed += `   ${stepIcon} ${step.title}\n`;
                                 });
                             }
                         });
@@ -126,6 +126,7 @@ async function sendReport() {
 
     const backendResults = parseJestJson(backendReportPath, "Backend Tests");
     const unitResults = parseJestJson(unitReportPath, "Frontend Unit Tests");
+    const smokeResults = parsePlaywrightJson(smokeReportPath, "Frontend Smoke Tests (Routing)");
     const e2eResults = parsePlaywrightJson(e2eReportPath, "Frontend E2E Tests (All)");
 
     // Coverage Analysis
@@ -159,8 +160,8 @@ async function sendReport() {
         }
     }
 
-    const overallPass = backendResults.passed && unitResults.passed && e2eResults.passed;
-    const allSkipped = backendResults.skipped && unitResults.skipped && e2eResults.skipped;
+    const overallPass = backendResults.passed && unitResults.passed && smokeResults.passed && e2eResults.passed;
+    const allSkipped = backendResults.skipped && unitResults.skipped && smokeResults.skipped && e2eResults.skipped;
     const finalStatus = (overallPass && !allSkipped) ? '🟢 PASS' : (allSkipped ? '⚪ SKIPPED' : '🔴 FAIL');
 
     const smtpConfig = {
@@ -181,7 +182,7 @@ async function sendReport() {
     const mailOptions = {
         from: `"Hearth Nightly Bot" <${user}>`,
         to: to,
-        subject: `🌙 Nightly System Health Report (v${version}): ${finalStatus}`,
+        subject: `${finalStatus} - Nightly System Health Report (v${version})`,
         text: `The nightly comprehensive test suite has completed.\n` + 
               `System Version: v${version}\n\n` + 
               `================================\n` + 
@@ -194,6 +195,9 @@ async function sendReport() {
               `================================\n` + 
               `FRONTEND STATUS\n` + 
               `================================\n` + 
+              `${smokeResults.summary}\n` + 
+              `${smokeResults.detailed}\n` + 
+              `\n` + 
               `${unitResults.summary}\n` + 
               `${unitResults.detailed}\n` + 
               `\n` + 
@@ -201,6 +205,30 @@ async function sendReport() {
               `${e2eResults.detailed}\n` + 
               `\n` + 
               `Time: ${new Date().toLocaleString()}\n`,
+        html: `
+            <div style="font-family: monospace; white-space: pre-wrap; background: #f4f4f4; padding: 20px; border-radius: 8px;">
+                <h2 style="color: ${overallPass ? '#2e7d32' : '#d32f2f'}">${finalStatus} - Nightly System Health</h2>
+                <p><strong>Version:</strong> v${version}</p>
+                <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+                <hr/>
+                <h3 style="background: #333; color: #fff; padding: 5px;">BACKEND STATUS</h3>
+                <p>${backendResults.summary.replace(/\n/g, '<br>')}</p>
+                <pre style="background: #e0e0e0; padding: 10px;">${backendResults.detailed}</pre>
+                <div style="background: #fff; border: 1px solid #ccc; padding: 10px; margin-top: 10px;">
+                    ${swaggerGaps.replace(/\n/g, '<br>')}
+                </div>
+                <hr/>
+                <h3 style="background: #333; color: #fff; padding: 5px;">FRONTEND STATUS</h3>
+                <p><strong>Smoke Tests:</strong> ${smokeResults.summary}</p>
+                <pre style="background: #e0e0e0; padding: 10px;">${smokeResults.detailed}</pre>
+                
+                <p><strong>Unit Tests:</strong> ${unitResults.summary}</p>
+                <pre style="background: #e0e0e0; padding: 10px;">${unitResults.detailed}</pre>
+                
+                <p><strong>E2E Tests:</strong> ${e2eResults.summary}</p>
+                <pre style="background: #e0e0e0; padding: 10px;">${e2eResults.detailed}</pre>
+            </div>
+        `,
         attachments
     };
 

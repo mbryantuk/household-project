@@ -1,14 +1,14 @@
 {
   "name": "household-web",
   "private": true,
-  "version": "3.2.247-20260216",
+  "version": "3.2.248",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test:smoke": "echo 'Frontend tests disabled by policy.'",
+    "test:smoke": "npx playwright test tests/smoke.spec.js",
     "test:unit": "echo 'Frontend tests disabled by policy.'"
   },
   "dependencies": {

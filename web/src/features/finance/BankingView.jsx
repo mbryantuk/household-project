@@ -2,9 +2,10 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
-  FormControl, FormLabel, Stack, Chip, CircularProgress, Divider, Avatar, IconButton
+  FormControl, FormLabel, Stack, Chip, CircularProgress, Divider, Avatar, IconButton, Table, Checkbox,
+  Alert
 } from '@mui/joy';
-import { Add, Edit } from '@mui/icons-material';
+import { Add, Edit, FileUpload, CheckCircle, Warning } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import ModuleHeader from '../../components/ui/ModuleHeader';
@@ -26,6 +27,12 @@ export default function BankingView({ financialProfileId }) {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [assignItem, setAssignItem] = useState(null); 
+  
+  // Import State
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [importLoading, setImportLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [selectedSuggestions, setSelectedSuggestions] = useState([]);
   
   // Emoji State
   const [emojiPicker, setEmojiPicker] = useState({ open: false, type: null });
@@ -151,6 +158,65 @@ export default function BankingView({ financialProfileId }) {
       } catch (err) { console.error("Removal failed", err); }
   };
 
+  const handleImportStatement = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setImportLoading(true);
+    const formData = new FormData();
+    formData.append('statement', file);
+
+    try {
+      const res = await api.post(`/households/${householdId}/finance/import/analyze-statement`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setSuggestions(res.data.suggestions || []);
+      setSelectedSuggestions(res.data.suggestions.filter(s => !s.already_exists).map(s => s.normalized));
+      setImportModalOpen(true);
+    } catch (err) {
+      console.error("Import error:", err);
+      showNotification("Failed to analyze statement. Ensure it's a valid CSV with Date, Description, and Amount columns.", "danger");
+    } finally {
+      setImportLoading(false);
+      e.target.value = ''; // Reset input
+    }
+  };
+
+  const handleSaveImport = async () => {
+    const toImport = suggestions.filter(s => selectedSuggestions.includes(s.normalized));
+    setImportLoading(true);
+    try {
+      await Promise.all(toImport.map(s => {
+        const data = {
+          name: s.name,
+          amount: s.amount,
+          category_id: s.is_income ? 'income' : 'utility', // Default category
+          frequency: 'monthly',
+          financial_profile_id: financialProfileId,
+          emoji: s.is_income ? '💰' : '💸'
+        };
+        
+        if (s.is_income) {
+            return api.post(`/households/${householdId}/finance/income`, {
+                ...data,
+                member_id: s.member_id,
+                employer: s.name
+            });
+        } else {
+            return api.post(`/households/${householdId}/finance/recurring-costs`, data);
+        }
+      }));
+      showNotification(`Imported ${toImport.length} items to budget.`, "success");
+      setImportModalOpen(false);
+      fetchData();
+    } catch (err) {
+      console.error("Save import error:", err);
+      showNotification("Failed to save some items.", "danger");
+    } finally {
+      setImportLoading(false);
+    }
+  };
+
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
     return (
@@ -161,9 +227,22 @@ export default function BankingView({ financialProfileId }) {
             emoji="💳"
             isDark={isDark}
             action={isAdmin && (
-                <Button variant="solid" startDecorator={<Add />} onClick={() => setAccountId('new')} sx={{ height: '44px' }}>
-                    Add Account
-                </Button>
+                <Stack direction="row" spacing={1}>
+                    <Button 
+                        variant="outlined" 
+                        color="neutral"
+                        startDecorator={importLoading ? <CircularProgress size="sm" /> : <FileUpload />} 
+                        component="label"
+                        sx={{ height: '44px' }}
+                        disabled={importLoading}
+                    >
+                        Import Statement
+                        <input type="file" hidden accept=".csv" onChange={handleImportStatement} />
+                    </Button>
+                    <Button variant="solid" startDecorator={<Add />} onClick={() => setAccountId('new')} sx={{ height: '44px' }}>
+                        Add Account
+                    </Button>
+                </Stack>
             )}
         />
 
@@ -330,6 +409,83 @@ export default function BankingView({ financialProfileId }) {
         onEmojiSelect={(emoji) => { setSelectedEmoji(emoji); setEmojiPicker({ ...emojiPicker, open: false }); }} 
         isDark={isDark} 
       />
+
+      <Modal open={importModalOpen} onClose={() => setImportModalOpen(false)}>
+        <ModalDialog sx={{ maxWidth: 800, width: '95vw', maxHeight: '90vh' }}>
+            <DialogTitle>
+                <FileUpload sx={{ mr: 1 }} />
+                Identify Recurring Charges
+            </DialogTitle>
+            <DialogContent>
+                <Typography level="body-sm" sx={{ mb: 2 }}>
+                    We've scanned your statement and found these potential recurring charges or significant items. 
+                    Select the ones you'd like to import into your budget as Recurring Costs or Income.
+                </Typography>
+
+                {suggestions.length === 0 ? (
+                    <Alert color="warning" variant="soft" startDecorator={<Warning />}>
+                        No recurring patterns identified. Try a longer statement or one with more transactions.
+                    </Alert>
+                ) : (
+                    <Box sx={{ overflowX: 'auto' }}>
+                        <Table stickyHeader variant="soft" sx={{ '& th': { bgcolor: 'background.surface' } }}>
+                            <thead>
+                                <tr>
+                                    <th style={{ width: 40 }}><Checkbox checked={selectedSuggestions.length === suggestions.length} indeterminate={selectedSuggestions.length > 0 && selectedSuggestions.length < suggestions.length} onChange={(e) => setSelectedSuggestions(e.target.checked ? suggestions.map(s => s.normalized) : [])} /></th>
+                                    <th>Description</th>
+                                    <th>Avg Amount</th>
+                                    <th>Type</th>
+                                    <th>Member</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {suggestions.map((s) => (
+                                    <tr key={s.normalized}>
+                                        <td><Checkbox checked={selectedSuggestions.includes(s.normalized)} onChange={(e) => setSelectedSuggestions(prev => e.target.checked ? [...prev, s.normalized] : prev.filter(id => id !== s.normalized))} /></td>
+                                        <td>
+                                            <Typography level="body-sm" sx={{ fontWeight: 'bold' }}>{s.name}</Typography>
+                                            <Typography level="body-xs" color="neutral">Found {s.count} times</Typography>
+                                        </td>
+                                        <td>
+                                            <Typography color={s.is_income ? 'success' : 'danger'} sx={{ fontWeight: 'bold' }}>
+                                                {s.is_income ? '+' : '-'}{formatCurrency(s.amount)}
+                                            </Typography>
+                                        </td>
+                                        <td><Chip size="sm" color={s.is_income ? 'success' : 'primary'} variant="soft">{s.is_income ? 'Income' : 'Cost'}</Chip></td>
+                                        <td>
+                                            {s.member_id ? (
+                                                <Avatar size="sm" src={members.find(m => m.id === s.member_id)?.avatar}>{members.find(m => m.id === s.member_id)?.emoji}</Avatar>
+                                            ) : '-'}
+                                        </td>
+                                        <td>
+                                            {s.already_exists ? (
+                                                <Chip size="sm" variant="soft" color="success" startDecorator={<CheckCircle />}>In Budget</Chip>
+                                            ) : (
+                                                <Chip size="sm" variant="outlined">New</Chip>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    </Box>
+                )}
+            </DialogContent>
+            <DialogActions>
+                <Button variant="plain" color="neutral" onClick={() => setImportModalOpen(false)}>Cancel</Button>
+                <Button 
+                    variant="solid" 
+                    color="primary" 
+                    onClick={handleSaveImport}
+                    disabled={selectedSuggestions.length === 0 || importLoading}
+                    startDecorator={importLoading ? <CircularProgress size="sm" /> : <Add />}
+                >
+                    Import {selectedSuggestions.length} Selected
+                </Button>
+            </DialogActions>
+        </ModalDialog>
+      </Modal>
     </Box>
   );
 }

@@ -6,6 +6,7 @@ const { encrypt, decrypt } = require('../services/crypto');
 
 // Import Recurring Costs
 const recurringCostsRoutes = require('./recurring_costs');
+const financeImportRoutes = require('./finance_import');
 
 /**
  * Multi-Tenancy Enforcement:
@@ -690,5 +691,6 @@ router.delete('/current-accounts/:itemId', authenticateToken, requireHouseholdRo
 
 // Mount recurring costs
 router.use('/recurring-costs', recurringCostsRoutes);
+router.use('/import', financeImportRoutes);
 
 module.exports = router;

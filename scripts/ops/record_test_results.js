@@ -4,7 +4,9 @@ const { globalDb, dbRun } = require('../../server/db');
 const pkg = require('../../package.json');
 
 const BACKEND_REPORT = path.join(__dirname, '../../server/test-report.json');
-const FRONTEND_REPORT = path.join(__dirname, '../../web/results.json');
+const FRONTEND_UNIT_REPORT = path.join(__dirname, '../../web/test-results/unit.json');
+const FRONTEND_SMOKE_REPORT = path.join(__dirname, '../../web/test-results/smoke.json');
+const FRONTEND_E2E_REPORT = path.join(__dirname, '../../web/results-all.json');
 
 async function recordBackendResults(runId = null) {
     if (!fs.existsSync(BACKEND_REPORT)) {
@@ -29,7 +31,7 @@ async function recordBackendResults(runId = null) {
     }
 }
 
-async function recordFrontendResults(type = 'frontend', suiteName = 'Playwright Smoke Suite', reportFile = FRONTEND_REPORT, runId = null) {
+async function recordFrontendResults(type = 'frontend', suiteName = 'Playwright Suite', reportFile, runId = null) {
     if (!fs.existsSync(reportFile)) {
         console.log(`⚠️ Frontend report not found at ${reportFile}`);
         return;
@@ -37,11 +39,27 @@ async function recordFrontendResults(type = 'frontend', suiteName = 'Playwright 
 
     try {
         const data = JSON.parse(fs.readFileSync(reportFile, 'utf8'));
-        const stats = data.stats || {};
-        const passes = stats.expected || 0;
-        const fails = (stats.unexpected || 0) + (stats.flaky || 0);
-        const total = (stats.expected || 0) + (stats.unexpected || 0) + (stats.skipped || 0);
-        const duration = (stats.duration || 0) / 1000;
+        
+        let stats = {};
+        let passes = 0;
+        let fails = 0;
+        let total = 0;
+        let duration = 0;
+
+        if (type === 'frontend_unit') {
+            // Vitest JSON report
+            total = data.numTotalTests || 0;
+            passes = data.numPassedTests || 0;
+            fails = data.numFailedTests || 0;
+            duration = (Date.now() - (data.startTime || Date.now())) / 1000;
+        } else {
+            // Playwright JSON report
+            stats = data.stats || {};
+            passes = stats.expected || 0;
+            fails = (stats.unexpected || 0) + (stats.flaky || 0);
+            total = (stats.expected || 0) + (stats.unexpected || 0) + (stats.skipped || 0);
+            duration = (stats.duration || 0) / 1000;
+        }
 
         await dbRun(globalDb, 
             `INSERT INTO test_results (test_type, suite_name, passes, fails, total, duration, report_json, version, run_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -60,15 +78,21 @@ async function main() {
 
     if (type === 'backend') {
         await recordBackendResults(runId);
+    } else if (type === 'frontend_unit') {
+        await recordFrontendResults('frontend_unit', 'Vitest Unit Suite', FRONTEND_UNIT_REPORT, runId);
+    } else if (type === 'frontend_smoke') {
+        await recordFrontendResults('frontend_smoke', 'Playwright Smoke Suite', FRONTEND_SMOKE_REPORT, runId);
+    } else if (type === 'frontend_e2e') {
+        await recordFrontendResults('frontend_e2e', 'Playwright E2E Suite', FRONTEND_E2E_REPORT, runId);
     } else if (type === 'frontend_lifecycle_1') {
         await recordFrontendResults('frontend_lifecycle_1', 'Stage 1: Brady Foundation', path.join(__dirname, '../../web/results-1.json'), runId);
     } else if (type === 'frontend_lifecycle_2') {
         await recordFrontendResults('frontend_lifecycle_2', 'Stage 2: Finance & Fringe', path.join(__dirname, '../../web/results-2.json'), runId);
-    } else if (type === 'frontend') {
-        await recordFrontendResults(undefined, undefined, undefined, runId);
     } else {
+        // Fallback: Try recording everything available
         await recordBackendResults(runId);
-        await recordFrontendResults(undefined, undefined, undefined, runId);
+        if (fs.existsSync(FRONTEND_SMOKE_REPORT)) await recordFrontendResults('frontend_smoke', 'Playwright Smoke Suite', FRONTEND_SMOKE_REPORT, runId);
+        if (fs.existsSync(FRONTEND_UNIT_REPORT)) await recordFrontendResults('frontend_unit', 'Vitest Unit Suite', FRONTEND_UNIT_REPORT, runId);
     }
     process.exit(0);
 }

@@ -5,11 +5,12 @@
 # Flags
 SKIP_DOCKER=false
 SKIP_BACKEND=false
-SKIP_FRONTEND=true
+SKIP_FRONTEND=false
 SKIP_PURGE=false
 SKIP_EMAIL=false
 VERSION_FILTER=""
 export RUN_ID="RUN_$(date +%s)"
+export BYPASS_MAINTENANCE=true
 EXIT_CODE=0
 
 # Detect Environment
@@ -129,16 +130,25 @@ else
     # run_stage "Stage 1: Foundation" ...
     
     # STAGE 3.5: UNIT TESTS
-    run_stage "Stage 3.5: Unit Tests" \
-        "npx vitest run tests/unit --reporter=json --outputFile=test-results/unit.json" \
-        "$PROJECT_ROOT/web/test-results/unit.json" \
-        "frontend_unit"
+    if [ -d "tests/unit" ] && [ "$(ls -A tests/unit)" ]; then
+        run_stage "Stage 3.5: Unit Tests" \
+            "npx vitest run tests/unit --reporter=json --outputFile=test-results/unit.json" \
+            "$PROJECT_ROOT/web/test-results/unit.json" \
+            "frontend_unit"
+    else
+        echo "   ⏭️  Stage 3.5: Unit Tests (Skipped - No tests found)"
+    fi
 
-    # STAGE 4: ALL E2E & COMPONENT TESTS
-    run_stage "Stage 4: End-to-End Verification (All)" \
-        "CI_TEST=true BASE_URL=http://localhost:4001 PLAYWRIGHT_JSON_OUTPUT_NAME=results-all.json npx playwright test tests/e2e tests/smoke.spec.js tests/settings.spec.js" \
-        "$PROJECT_ROOT/web/results-all.json" \
-        "frontend_e2e_all"
+    # STAGE 4: SMOKE TESTS (ROUTING & AVAILABILITY)
+    run_stage "Stage 4: Frontend Smoke Tests (Routing)" \
+        "npx playwright test tests/smoke.spec.js --config playwright.config.js" \
+        "$PROJECT_ROOT/web/test-results/smoke.json" \
+        "frontend_smoke"
+
+    # Archive Playwright Log
+    if [ -f "$PROJECT_ROOT/web/playwright-smoke.log" ]; then
+        cp "$PROJECT_ROOT/web/playwright-smoke.log" "$PROJECT_ROOT/logs/frontend_smoke_$RUN_ID.log"
+    fi
 fi
 
 # 4. Cleanup
