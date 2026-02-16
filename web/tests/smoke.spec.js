@@ -87,6 +87,12 @@ test.describe('Hearth Frontend Smoke Test', () => {
             await expect(importBtn).toBeVisible();
         });
 
+        await test.step('Page: Onboarding', async () => {
+            await page.goto(`${base}/onboarding`);
+            await expect(page.getByText(/Welcome to Hearthstone/i)).toBeVisible();
+            await expect(page.getByText(/Family & Pets/i)).toBeVisible();
+        });
+
         await checkPage('House Overview', `${base}/house`, /House/i); 
         await checkPage('Property Details', `${base}/house/details`, /Properties|Household/i);
         await checkPage('Asset Register', `${base}/house/assets`, /Asset|Register/i);

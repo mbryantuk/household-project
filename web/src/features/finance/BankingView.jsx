@@ -3,9 +3,9 @@ import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider, Avatar, IconButton, Table, Checkbox,
-  Alert
+  Alert, Select, Option
 } from '@mui/joy';
-import { Add, Edit, FileUpload, CheckCircle, Warning } from '@mui/icons-material';
+import { Add, Edit, FileUpload, CheckCircle, Warning, Save } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
 import EmojiPicker from '../../components/EmojiPicker';
 import ModuleHeader from '../../components/ui/ModuleHeader';
@@ -33,6 +33,8 @@ export default function BankingView({ financialProfileId }) {
   const [importLoading, setImportLoading] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [selectedSuggestions, setSelectedSuggestions] = useState([]);
+  const [importVehicles, setImportVehicles] = useState([]);
+  const [importCategories, setImportCategories] = useState([]);
   
   // Emoji State
   const [emojiPicker, setEmojiPicker] = useState({ open: false, type: null });
@@ -170,8 +172,19 @@ export default function BankingView({ financialProfileId }) {
       const res = await api.post(`/households/${householdId}/finance/import/analyze-statement`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      setSuggestions(res.data.suggestions || []);
-      setSelectedSuggestions(res.data.suggestions.filter(s => !s.already_exists).map(s => s.normalized));
+      
+      const enriched = (res.data.suggestions || []).map(s => ({
+          ...s,
+          object_type: s.member_id ? 'member' : 'household',
+          object_id: s.member_id || null,
+          category_id: s.is_income ? 'income' : 'utility',
+          action: s.already_exists ? 'update' : 'create'
+      }));
+
+      setSuggestions(enriched);
+      setSelectedSuggestions(enriched.filter(s => !s.already_exists).map(s => s.normalized));
+      setImportVehicles(res.data.vehicles || []);
+      setImportCategories(res.data.categories || []);
       setImportModalOpen(true);
     } catch (err) {
       console.error("Import error:", err);
@@ -190,23 +203,32 @@ export default function BankingView({ financialProfileId }) {
         const data = {
           name: s.name,
           amount: s.amount,
-          category_id: s.is_income ? 'income' : 'utility', // Default category
+          category_id: s.category_id,
           frequency: 'monthly',
           financial_profile_id: financialProfileId,
+          object_type: s.object_type,
+          object_id: s.object_id,
           emoji: s.is_income ? '💰' : '💸'
         };
         
         if (s.is_income) {
-            return api.post(`/households/${householdId}/finance/income`, {
+            const incomeData = {
                 ...data,
-                member_id: s.member_id,
+                member_id: s.object_id,
                 employer: s.name
-            });
+            };
+            if (s.action === 'update' && s.existing_id) {
+                return api.put(`/households/${householdId}/finance/income/${s.existing_id}`, incomeData);
+            }
+            return api.post(`/households/${householdId}/finance/income`, incomeData);
         } else {
+            if (s.action === 'update' && s.existing_id) {
+                return api.put(`/households/${householdId}/finance/recurring-costs/${s.existing_id}`, data);
+            }
             return api.post(`/households/${householdId}/finance/recurring-costs`, data);
         }
       }));
-      showNotification(`Imported ${toImport.length} items to budget.`, "success");
+      showNotification(`Processed ${toImport.length} items.`, "success");
       setImportModalOpen(false);
       fetchData();
     } catch (err) {
@@ -411,65 +433,96 @@ export default function BankingView({ financialProfileId }) {
       />
 
       <Modal open={importModalOpen} onClose={() => setImportModalOpen(false)}>
-        <ModalDialog sx={{ maxWidth: 800, width: '95vw', maxHeight: '90vh' }}>
+        <ModalDialog sx={{ maxWidth: 1200, width: '98vw', maxHeight: '95vh' }}>
             <DialogTitle>
                 <FileUpload sx={{ mr: 1 }} />
-                Identify Recurring Charges
+                Advanced Statement Import
             </DialogTitle>
-            <DialogContent>
+            <DialogContent sx={{ overflowX: 'auto' }}>
                 <Typography level="body-sm" sx={{ mb: 2 }}>
-                    We've scanned your statement and found these potential recurring charges or significant items. 
-                    Select the ones you'd like to import into your budget as Recurring Costs or Income.
+                    Assign charges to entities, update existing budget items, or create new ones.
                 </Typography>
 
                 {suggestions.length === 0 ? (
                     <Alert color="warning" variant="soft" startDecorator={<Warning />}>
-                        No recurring patterns identified. Try a longer statement or one with more transactions.
+                        No recurring patterns identified.
                     </Alert>
                 ) : (
-                    <Box sx={{ overflowX: 'auto' }}>
-                        <Table stickyHeader variant="soft" sx={{ '& th': { bgcolor: 'background.surface' } }}>
-                            <thead>
-                                <tr>
-                                    <th style={{ width: 40 }}><Checkbox checked={selectedSuggestions.length === suggestions.length} indeterminate={selectedSuggestions.length > 0 && selectedSuggestions.length < suggestions.length} onChange={(e) => setSelectedSuggestions(e.target.checked ? suggestions.map(s => s.normalized) : [])} /></th>
-                                    <th>Description</th>
-                                    <th>Avg Amount</th>
-                                    <th>Type</th>
-                                    <th>Member</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {suggestions.map((s) => (
+                    <Table stickyHeader variant="soft" sx={{ 
+                        '& th': { bgcolor: 'background.surface' },
+                        '& tr > *:last-child': { textAlign: 'right' },
+                        '--TableCell-paddingX': '8px'
+                    }}>
+                        <thead>
+                            <tr>
+                                <th style={{ width: 40 }}><Checkbox checked={selectedSuggestions.length === suggestions.length} indeterminate={selectedSuggestions.length > 0 && selectedSuggestions.length < suggestions.length} onChange={(e) => setSelectedSuggestions(e.target.checked ? suggestions.map(s => s.normalized) : [])} /></th>
+                                <th style={{ width: 180 }}>Name / Description</th>
+                                <th style={{ width: 100 }}>Amount</th>
+                                <th style={{ width: 120 }}>Assign To</th>
+                                <th style={{ width: 150 }}>Entity</th>
+                                <th style={{ width: 150 }}>Category</th>
+                                <th style={{ width: 130 }}>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {suggestions.map((s, idx) => {
+                                const updateS = (updates) => {
+                                    const newS = [...suggestions];
+                                    newS[idx] = { ...newS[idx], ...updates };
+                                    setSuggestions(newS);
+                                };
+
+                                return (
                                     <tr key={s.normalized}>
                                         <td><Checkbox checked={selectedSuggestions.includes(s.normalized)} onChange={(e) => setSelectedSuggestions(prev => e.target.checked ? [...prev, s.normalized] : prev.filter(id => id !== s.normalized))} /></td>
                                         <td>
-                                            <Typography level="body-sm" sx={{ fontWeight: 'bold' }}>{s.name}</Typography>
-                                            <Typography level="body-xs" color="neutral">Found {s.count} times</Typography>
+                                            <Input size="sm" value={s.name} onChange={(e) => updateS({ name: e.target.value })} />
                                         </td>
                                         <td>
-                                            <Typography color={s.is_income ? 'success' : 'danger'} sx={{ fontWeight: 'bold' }}>
-                                                {s.is_income ? '+' : '-'}{formatCurrency(s.amount)}
-                                            </Typography>
-                                        </td>
-                                        <td><Chip size="sm" color={s.is_income ? 'success' : 'primary'} variant="soft">{s.is_income ? 'Income' : 'Cost'}</Chip></td>
-                                        <td>
-                                            {s.member_id ? (
-                                                <Avatar size="sm" src={members.find(m => m.id === s.member_id)?.avatar}>{members.find(m => m.id === s.member_id)?.emoji}</Avatar>
-                                            ) : '-'}
+                                            <Input size="sm" type="number" value={s.amount} onChange={(e) => updateS({ amount: e.target.value })} startDecorator="£" />
                                         </td>
                                         <td>
-                                            {s.already_exists ? (
-                                                <Chip size="sm" variant="soft" color="success" startDecorator={<CheckCircle />}>In Budget</Chip>
-                                            ) : (
-                                                <Chip size="sm" variant="outlined">New</Chip>
+                                            <Select size="sm" value={s.object_type} onChange={(_, val) => updateS({ object_type: val, object_id: null })}>
+                                                <Option value="household">Household</Option>
+                                                <Option value="member">Member</Option>
+                                                <Option value="vehicle">Vehicle</Option>
+                                                <Option value="pet">Pet</Option>
+                                            </Select>
+                                        </td>
+                                        <td>
+                                            {s.object_type !== 'household' && (
+                                                <Select size="sm" value={s.object_id} placeholder="Select..." onChange={(_, val) => updateS({ object_id: val })}>
+                                                    {s.object_type === 'member' && members.filter(m => m.type !== 'pet').map(m => <Option key={m.id} value={m.id}>{m.alias || m.name}</Option>)}
+                                                    {s.object_type === 'pet' && members.filter(m => m.type === 'pet').map(m => <Option key={m.id} value={m.id}>{m.name}</Option>)}
+                                                    {s.object_type === 'vehicle' && importVehicles.map(v => <Option key={v.id} value={v.id}>{v.make} ({v.registration})</Option>)}
+                                                </Select>
                                             )}
                                         </td>
+                                        <td>
+                                            {!s.is_income && (
+                                                <Select size="sm" value={s.category_id} onChange={(_, val) => updateS({ category_id: val })}>
+                                                    <Option value="utility">Utility</Option>
+                                                    <Option value="energy">Energy</Option>
+                                                    <Option value="water">Water</Option>
+                                                    <Option value="council_tax">Council Tax</Option>
+                                                    <Option value="insurance">Insurance</Option>
+                                                    <Option value="subscription">Subscription</Option>
+                                                    {importCategories.map(c => <Option key={c.id} value={c.id}>{c.name}</Option>)}
+                                                </Select>
+                                            )}
+                                            {s.is_income && <Chip size="sm" color="success">Income</Chip>}
+                                        </td>
+                                        <td>
+                                            <Select size="sm" variant="soft" color={s.action === 'update' ? 'success' : 'primary'} value={s.action} onChange={(_, val) => updateS({ action: val })}>
+                                                <Option value="create">New Item</Option>
+                                                {s.already_exists && <Option value="update">Update Existing</Option>}
+                                            </Select>
+                                        </td>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </Table>
-                    </Box>
+                                );
+                            })}
+                        </tbody>
+                    </Table>
                 )}
             </DialogContent>
             <DialogActions>
@@ -479,9 +532,9 @@ export default function BankingView({ financialProfileId }) {
                     color="primary" 
                     onClick={handleSaveImport}
                     disabled={selectedSuggestions.length === 0 || importLoading}
-                    startDecorator={importLoading ? <CircularProgress size="sm" /> : <Add />}
+                    startDecorator={importLoading ? <CircularProgress size="sm" /> : <Save />}
                 >
-                    Import {selectedSuggestions.length} Selected
+                    Process {selectedSuggestions.length} Items
                 </Button>
             </DialogActions>
         </ModalDialog>

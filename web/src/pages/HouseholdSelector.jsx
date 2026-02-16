@@ -125,7 +125,7 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
         setIsModalOpen(false);
         setNewHouseholdName('');
         if (onSelectHousehold) await onSelectHousehold(newHh);
-        navigate(`/household/${newHh.id}/dashboard`);
+        navigate(`/household/${newHh.id}/onboarding`);
     } catch (error) {
         console.error(error);
         showNotification("Failed to create household.", "danger");

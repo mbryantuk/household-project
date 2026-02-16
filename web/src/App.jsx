@@ -44,6 +44,7 @@ const FinanceView = lazy(() => import('./features/FinanceView'));
 const ChoresView = lazy(() => import('./features/ChoresView'));
 const AssetsView = lazy(() => import('./features/AssetsView'));
 const HouseholdDetailsView = lazy(() => import('./features/HouseholdDetailsView'));
+const OnboardingWizard = lazy(() => import('./pages/OnboardingWizard'));
 
 const API_BASE = window.location.origin;
 const API_URL = `${API_BASE}/api`;
@@ -457,6 +458,7 @@ function AppInner({
                 onPreviewTheme={onPreviewTheme}
                 />}>
                     <Route index element={<Navigate to="dashboard" replace />} />
+                    <Route path="onboarding" element={<OnboardingWizard />} />
                     <Route path="dashboard" element={<HomeView household={household} members={hhMembers} currentUser={user} dates={hhDates} onUpdateProfile={handleUpdateProfile} api={authAxios} />} />
                     <Route path="calendar" element={<CalendarView showNotification={showNotification} confirmAction={confirmAction} />} />
                     <Route path="people/:personId" element={<PeopleView />} /><Route path="people" element={<PeopleView />} />

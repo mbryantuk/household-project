@@ -114,6 +114,14 @@ router.post('/analyze-statement', authenticateToken, requireHouseholdRole('membe
         req.tenantDb.all("SELECT * FROM members WHERE household_id = ?", [req.hhId], (err, rows) => resolve(rows || []));
     });
 
+    const vehicles = await new Promise((resolve) => {
+        req.tenantDb.all("SELECT * FROM vehicles WHERE household_id = ?", [req.hhId], (err, rows) => resolve(rows || []));
+    });
+
+    const categories = await new Promise((resolve) => {
+        req.tenantDb.all("SELECT * FROM finance_budget_categories WHERE household_id = ?", [req.hhId], (err, rows) => resolve(rows || []));
+    });
+
     for (const [norm, txs] of Object.entries(groups)) {
         // If it appears multiple times, it's likely recurring
         // Or if it's a known category (e.g. Netflix, Rent, Mortgage)
@@ -153,7 +161,9 @@ router.post('/analyze-statement', authenticateToken, requireHouseholdRole('membe
 
     closeDb(req);
     res.json({
-        suggestions: suggestions.filter(s => s.is_recurring || s.already_exists || s.amount > 50).sort((a, b) => b.count - a.count)
+        suggestions: suggestions.filter(s => s.is_recurring || s.already_exists || s.amount > 50).sort((a, b) => b.count - a.count),
+        vehicles,
+        categories
     });
 });
 
