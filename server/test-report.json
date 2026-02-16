@@ -26,7 +26,7 @@
     "unmatched": 0,
     "updated": 0
   },
-  "startTime": 1771247596690,
+  "startTime": 1771248109965,
   "success": false,
   "testResults": [
     {
@@ -37,10 +37,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771247604213,
-        "runtime": 7444,
+        "end": 1771248118830,
+        "runtime": 8745,
         "slow": true,
-        "start": 1771247596769
+        "start": 1771248110085
       },
       "skipped": false,
       "snapshot": {
@@ -58,7 +58,7 @@
           "ancestorTitles": [
             "👪 Master Seed: The Brady Bunch"
           ],
-          "duration": 5231,
+          "duration": 5730,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "👪 Master Seed: The Brady Bunch Should successfully seed the entire Brady Bunch household via API",
@@ -80,10 +80,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771247606855,
-        "runtime": 2610,
+        "end": 1771248122265,
+        "runtime": 3393,
         "slow": false,
-        "start": 1771247604245
+        "start": 1771248118872
       },
       "skipped": false,
       "snapshot": {
@@ -101,7 +101,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 84,
+          "duration": 261,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🔑 Authentication & Setup",
@@ -116,7 +116,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 30,
+          "duration": 212,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🏠 Household Management",
@@ -131,7 +131,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 74,
+          "duration": 162,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🔄 Module: Recurring Costs (Consolidated)",
@@ -146,7 +146,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 79,
+          "duration": 102,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 👥 Module: People",
@@ -161,7 +161,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 83,
+          "duration": 87,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🚗 Module: Vehicles",
@@ -176,7 +176,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 402,
+          "duration": 430,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 💰 Module: Finance (Core)",
@@ -191,7 +191,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 40,
+          "duration": 34,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🍱 Module: Meals",
@@ -206,7 +206,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 52,
+          "duration": 50,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🧹 Module: Chores",
@@ -221,7 +221,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 165,
+          "duration": 185,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 📅 Module: Calendar",
@@ -236,7 +236,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 87,
+          "duration": 94,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🛒 Module: Shopping",
@@ -251,7 +251,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 108,
+          "duration": 127,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🏠 Module: House Details",
@@ -266,7 +266,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 277,
+          "duration": 324,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🏦 Module: Finance (Extended)",
@@ -288,10 +288,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771247608727,
-        "runtime": 1752,
+        "end": 1771248124224,
+        "runtime": 1828,
         "slow": false,
-        "start": 1771247606975
+        "start": 1771248122396
       },
       "skipped": false,
       "snapshot": {
@@ -309,7 +309,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 40,
+          "duration": 38,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should measure login speed (Heavy Bcrypt)",
@@ -324,7 +324,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 164,
+          "duration": 173,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should measure GET assets speed (Plain Read)",
@@ -339,7 +339,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 135,
+          "duration": 138,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should measure GET finance savings speed (Decryption Overhead)",
@@ -354,7 +354,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 47,
+          "duration": 52,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should measure POST asset speed (Plain Write)",
@@ -369,7 +369,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 577,
+          "duration": 629,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should handle \"Load\" (Concurrent requests)",
@@ -391,10 +391,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771247613634,
-        "runtime": 1340,
+        "end": 1771248129865,
+        "runtime": 1739,
         "slow": false,
-        "start": 1771247612294
+        "start": 1771248128126
       },
       "skipped": false,
       "snapshot": {
@@ -412,7 +412,7 @@
           "ancestorTitles": [
             "⚡ SQLite Concurrency Stress"
           ],
-          "duration": 472,
+          "duration": 631,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "⚡ SQLite Concurrency Stress 🧬 WAL Mode Concurrency (20 Parallel Writes)",
@@ -434,10 +434,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771247614949,
-        "runtime": 1308,
+        "end": 1771248131768,
+        "runtime": 1896,
         "slow": false,
-        "start": 1771247613641
+        "start": 1771248129872
       },
       "skipped": false,
       "snapshot": {
@@ -455,7 +455,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 44,
+          "duration": 128,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Shopping List API should add a shopping item",
@@ -470,7 +470,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 52,
+          "duration": 58,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Shopping List API should list shopping items and calculate budget",
@@ -485,7 +485,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 64,
+          "duration": 70,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Shopping List API should update an item",
@@ -500,7 +500,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 54,
+          "duration": 56,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Shopping List API should delete an item",
@@ -515,7 +515,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 73,
+          "duration": 167,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Shopping List API should NOT see items from another household (Tenancy Rule)",
@@ -530,7 +530,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 131,
+          "duration": 146,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Shopping List API should clear checked items",
@@ -547,15 +547,15 @@
     {
       "leaks": false,
       "numFailingTests": 0,
-      "numPassingTests": 2,
+      "numPassingTests": 3,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771247615918,
-        "runtime": 961,
+        "end": 1771248133012,
+        "runtime": 1235,
         "slow": false,
-        "start": 1771247614957
+        "start": 1771248131777
       },
       "skipped": false,
       "snapshot": {
@@ -567,37 +567,52 @@
         "unmatched": 0,
         "updated": 0
       },
-      "testFilePath": "/home/matt/household-project/server/tests/export_json.spec.js",
+      "testFilePath": "/home/matt/household-project/server/tests/finance_routing.test.js",
       "testResults": [
         {
           "ancestorTitles": [
-            "🚀 JSON Tenant Export Verification"
+            "💰 Finance Routing Verification"
           ],
-          "duration": 19,
+          "duration": 140,
           "failureDetails": [],
           "failureMessages": [],
-          "fullName": "🚀 JSON Tenant Export Verification GET /api/export/:id should return a full JSON package",
+          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/pots should not return 404",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 10,
+          "numPassingAsserts": 2,
           "retryReasons": [],
           "status": "passed",
-          "title": "GET /api/export/:id should return a full JSON package"
+          "title": "GET /api/households/:id/finance/savings/pots should not return 404"
         },
         {
           "ancestorTitles": [
-            "🚀 JSON Tenant Export Verification"
+            "💰 Finance Routing Verification"
           ],
-          "duration": 85,
+          "duration": 66,
           "failureDetails": [],
           "failureMessages": [],
-          "fullName": "🚀 JSON Tenant Export Verification Unauthorized user should not be able to export",
+          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/:itemId should still work for valid items",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 3,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "GET /api/households/:id/finance/savings/:itemId should still work for valid items"
+        },
+        {
+          "ancestorTitles": [
+            "💰 Finance Routing Verification"
+          ],
+          "duration": 37,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/999999 should return 404",
           "invocations": 1,
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
           "status": "passed",
-          "title": "Unauthorized user should not be able to export"
+          "title": "GET /api/households/:id/finance/savings/999999 should return 404"
         }
       ],
       "failureMessage": null
@@ -610,10 +625,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771247616927,
-        "runtime": 1002,
+        "end": 1771248134719,
+        "runtime": 1701,
         "slow": false,
-        "start": 1771247615925
+        "start": 1771248133018
       },
       "skipped": false,
       "snapshot": {
@@ -631,7 +646,7 @@
           "ancestorTitles": [
             "💣 Tenant Destruction & Cleanup"
           ],
-          "duration": 100,
+          "duration": 261,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "💣 Tenant Destruction & Cleanup 🧨 Destroy Tenant: Regular Admin should remove all traces",
@@ -646,7 +661,7 @@
           "ancestorTitles": [
             "💣 Tenant Destruction & Cleanup"
           ],
-          "duration": 52,
+          "duration": 235,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "💣 Tenant Destruction & Cleanup 👑 Destroy Tenant: System Admin should be able to destroy ANY household",
@@ -668,10 +683,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771247617914,
-        "runtime": 981,
+        "end": 1771248136033,
+        "runtime": 1309,
         "slow": false,
-        "start": 1771247616933
+        "start": 1771248134724
       },
       "skipped": false,
       "snapshot": {
@@ -689,7 +704,7 @@
           "ancestorTitles": [
             "🛡️ Advanced System Integrity & Security"
           ],
-          "duration": 54,
+          "duration": 146,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Advanced System Integrity & Security 📅 Friday Rule: Creation with valid payload",
@@ -704,7 +719,7 @@
           "ancestorTitles": [
             "🛡️ Advanced System Integrity & Security"
           ],
-          "duration": 83,
+          "duration": 96,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Advanced System Integrity & Security ♻️ Idempotency: Duplicate creation check",
@@ -719,7 +734,7 @@
           "ancestorTitles": [
             "🛡️ Advanced System Integrity & Security"
           ],
-          "duration": 17,
+          "duration": 29,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Advanced System Integrity & Security 🛑 Security: Path Traversal prevention",
@@ -734,7 +749,7 @@
           "ancestorTitles": [
             "🛡️ Advanced System Integrity & Security"
           ],
-          "duration": 17,
+          "duration": 22,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Advanced System Integrity & Security 💾 Integrity: Backup Trigger",
@@ -751,15 +766,15 @@
     {
       "leaks": false,
       "numFailingTests": 0,
-      "numPassingTests": 3,
+      "numPassingTests": 2,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771247619051,
-        "runtime": 1130,
+        "end": 1771248137714,
+        "runtime": 1673,
         "slow": false,
-        "start": 1771247617921
+        "start": 1771248136041
       },
       "skipped": false,
       "snapshot": {
@@ -771,52 +786,37 @@
         "unmatched": 0,
         "updated": 0
       },
-      "testFilePath": "/home/matt/household-project/server/tests/finance_routing.test.js",
+      "testFilePath": "/home/matt/household-project/server/tests/export_json.spec.js",
       "testResults": [
         {
           "ancestorTitles": [
-            "💰 Finance Routing Verification"
+            "🚀 JSON Tenant Export Verification"
           ],
-          "duration": 56,
+          "duration": 27,
           "failureDetails": [],
           "failureMessages": [],
-          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/pots should not return 404",
+          "fullName": "🚀 JSON Tenant Export Verification GET /api/export/:id should return a full JSON package",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 2,
+          "numPassingAsserts": 10,
           "retryReasons": [],
           "status": "passed",
-          "title": "GET /api/households/:id/finance/savings/pots should not return 404"
+          "title": "GET /api/export/:id should return a full JSON package"
         },
         {
           "ancestorTitles": [
-            "💰 Finance Routing Verification"
+            "🚀 JSON Tenant Export Verification"
           ],
-          "duration": 184,
+          "duration": 512,
           "failureDetails": [],
           "failureMessages": [],
-          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/:itemId should still work for valid items",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 3,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "GET /api/households/:id/finance/savings/:itemId should still work for valid items"
-        },
-        {
-          "ancestorTitles": [
-            "💰 Finance Routing Verification"
-          ],
-          "duration": 80,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/999999 should return 404",
+          "fullName": "🚀 JSON Tenant Export Verification Unauthorized user should not be able to export",
           "invocations": 1,
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
           "status": "passed",
-          "title": "GET /api/households/:id/finance/savings/999999 should return 404"
+          "title": "Unauthorized user should not be able to export"
         }
       ],
       "failureMessage": null
@@ -829,10 +829,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771247619989,
-        "runtime": 928,
+        "end": 1771248139120,
+        "runtime": 1399,
         "slow": false,
-        "start": 1771247619061
+        "start": 1771248137721
       },
       "skipped": false,
       "snapshot": {
@@ -850,7 +850,7 @@
           "ancestorTitles": [
             "🛡️ Tenant Export Verification"
           ],
-          "duration": 15,
+          "duration": 24,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Tenant Export Verification GET /api/admin/households/:id/export should return a backup filename (System Admin)",
@@ -865,7 +865,7 @@
           "ancestorTitles": [
             "🛡️ Tenant Export Verification"
           ],
-          "duration": 92,
+          "duration": 261,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Tenant Export Verification Non-system-admin should not be able to export (even if household admin)",
@@ -897,58 +897,15 @@
     {
       "leaks": false,
       "numFailingTests": 0,
-      "numPassingTests": 1,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1771247620780,
-        "runtime": 785,
-        "slow": false,
-        "start": 1771247619995
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/routes/export.spec.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "Export Route"
-          ],
-          "duration": 16,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Export Route should export household data as JSON",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 5,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should export household data as JSON"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
       "numPassingTests": 2,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771247621573,
-        "runtime": 787,
+        "end": 1771248140125,
+        "runtime": 996,
         "slow": false,
-        "start": 1771247620786
+        "start": 1771248139129
       },
       "skipped": false,
       "snapshot": {
@@ -981,7 +938,7 @@
           "ancestorTitles": [
             "GET /api/export/:household_id"
           ],
-          "duration": 14,
+          "duration": 17,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "GET /api/export/:household_id should return 200 and export data if household_id is valid",
@@ -998,15 +955,58 @@
     {
       "leaks": false,
       "numFailingTests": 0,
+      "numPassingTests": 1,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1771248141108,
+        "runtime": 977,
+        "slow": false,
+        "start": 1771248140131
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/routes/export.spec.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "Export Route"
+          ],
+          "duration": 22,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Export Route should export household data as JSON",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 5,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should export household data as JSON"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
       "numPassingTests": 4,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771247622342,
-        "runtime": 764,
+        "end": 1771248142053,
+        "runtime": 938,
         "slow": false,
-        "start": 1771247621578
+        "start": 1771248141115
       },
       "skipped": false,
       "snapshot": {
@@ -1054,7 +1054,7 @@
           "ancestorTitles": [
             "Security Audit Proof of Concept"
           ],
-          "duration": 73,
+          "duration": 243,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Security Audit Proof of Concept Vulnerability 3: Admin Escalation - Adding user to another household (FIXED)",
@@ -1069,7 +1069,7 @@
           "ancestorTitles": [
             "Security Audit Proof of Concept"
           ],
-          "duration": 9,
+          "duration": 8,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Security Audit Proof of Concept Tenancy Verification: Viewer of HH 60 cannot access HH 3294",
@@ -1091,10 +1091,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771247623051,
-        "runtime": 703,
+        "end": 1771248142797,
+        "runtime": 738,
         "slow": false,
-        "start": 1771247622348
+        "start": 1771248142059
       },
       "skipped": false,
       "snapshot": {
@@ -1112,7 +1112,7 @@
           "ancestorTitles": [
             "Profile API"
           ],
-          "duration": 13,
+          "duration": 14,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Profile API should retrieve the user profile with custom_theme",
@@ -1127,7 +1127,7 @@
           "ancestorTitles": [
             "Profile API"
           ],
-          "duration": 22,
+          "duration": 25,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Profile API should update the user theme",
@@ -1142,7 +1142,7 @@
           "ancestorTitles": [
             "Profile API"
           ],
-          "duration": 17,
+          "duration": 11,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Profile API should update the custom_theme",
@@ -1164,10 +1164,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771247623100,
-        "runtime": 45,
+        "end": 1771248142849,
+        "runtime": 46,
         "slow": false,
-        "start": 1771247623055
+        "start": 1771248142803
       },
       "skipped": false,
       "snapshot": {
@@ -1185,7 +1185,7 @@
           "ancestorTitles": [
             "Frontend Build Smoke Test"
           ],
-          "duration": 2,
+          "duration": 1,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Frontend Build Smoke Test index.html should exist after build",

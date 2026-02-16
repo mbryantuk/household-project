@@ -10,6 +10,7 @@ import {
   Calculate, FileUpload
 } from '@mui/icons-material';
 import ReceiptImporter from './shopping/components/ReceiptImporter';
+import ShoppingSchedules from './shopping/components/ShoppingSchedules';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -280,6 +281,16 @@ export default function ShoppingListView() {
                         </Button>
                     </Box>
                 )}
+            </Box>
+
+            {/* Sidebar / Scheduling */}
+            <Box sx={{ width: { xs: '100%', md: 350 }, flexShrink: 0 }}>
+                <ShoppingSchedules 
+                    api={api} 
+                    householdId={household.id} 
+                    showNotification={showNotification} 
+                    confirmAction={confirmAction} 
+                />
             </Box>
         </Stack>
 

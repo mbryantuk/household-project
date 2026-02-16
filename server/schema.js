@@ -414,6 +414,18 @@ const TENANT_SCHEMA = [
         value_earned REAL DEFAULT 0,
         FOREIGN KEY(chore_id) REFERENCES chores(id) ON DELETE SET NULL,
         FOREIGN KEY(member_id) REFERENCES members(id) ON DELETE SET NULL
+    )`,
+    `CREATE TABLE IF NOT EXISTS shopping_schedules (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        name TEXT,
+        items TEXT, -- JSON Array of items {name, quantity, category, estimated_cost}
+        frequency TEXT, -- 'weekly', 'bi-weekly', 'monthly'
+        day_of_week INTEGER, -- 0-6 (Sun-Sat)
+        day_of_month INTEGER,
+        next_run_date DATE,
+        is_active INTEGER DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`
 ];
 

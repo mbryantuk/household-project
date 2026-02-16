@@ -44,12 +44,12 @@ router.post('/analyze-receipt', authenticateToken, requireHouseholdRole('member'
         const lines = text.split('\n');
         const items = [];
         
-        // Regex for simple price detection at end of line
-        const priceRegex = /([\d]+\.[\d]{2})\s*$/;
+        // Regex for simple price detection at end of line (supports Ocado £ 2.00 format)
+        const priceRegex = /(?:£\s*)?([\d]+\.[\d]{2})\s*$/;
         
         // Regex for quantity patterns
-        const qtyPrefixRegex = /^(\d+)\s*[xX]\s+/; // "2 x Item"
-        const qtySuffixRegex = /\s+(\d+)\s*[xX]\s+/; // "Item 2 x"
+        const qtyPrefixRegex = /^(\d+)\s*[xX]?\s+/; // "2 x Item" or "2 Item"
+        const qtySuffixRegex = /\s+(\d+)\s*[xX]?\s+/; // "Item 2 x"
         const atQtyRegex = /\s+(\d+)\s*@\s*/; // "Item 2 @ 1.50"
         const weightRegex = /(\d+\.?\d*)\s*(kg|g|lb|oz|l|ml)/i; // "Bananas 0.5kg"
 
@@ -58,11 +58,25 @@ router.post('/analyze-receipt', authenticateToken, requireHouseholdRole('member'
             if (!trimmed || trimmed.length < 3) return;
             
             // Skip common receipt header/footer terms
-            const skipTerms = ['TOTAL', 'SUBTOTAL', 'TAX', 'VAT', 'CASH', 'CHANGE', 'DATE', 'THANK', 'STORE', 'ADDRESS', 'SAVED', 'BALANCE'];
+            const skipTerms = ['TOTAL', 'SUBTOTAL', 'TAX', 'VAT', 'CASH', 'CHANGE', 'DATE', 'THANK', 'STORE', 'ADDRESS', 'SAVED', 'BALANCE', 'PRICE TO PAY', 'QUANTITY', 'PRODUCT'];
             if (skipTerms.some(term => trimmed.toUpperCase().includes(term))) return;
 
             let quantity = '1';
             let processedLine = trimmed;
+
+            // Handle Ocado specific "Name [TAB] Qty [TAB] Price" or similar
+            // Example: "Biomel Belgian Chocolate Gut Health Shot	2	£ 2.00"
+            const tabs = processedLine.split('\t');
+            if (tabs.length >= 3) {
+                const name = tabs[0].trim();
+                const qty = tabs[1].trim();
+                const priceStr = tabs[2].trim().replace(/[^\d.]/g, '');
+                const price = parseFloat(priceStr);
+                if (name && !isNaN(price)) {
+                    items.push({ name, estimated_cost: price, quantity: qty, category: 'general' });
+                    return;
+                }
+            }
 
             // 1. Try to extract quantity from start (2 x Milk)
             const prefixMatch = processedLine.match(qtyPrefixRegex);
