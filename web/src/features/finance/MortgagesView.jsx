@@ -276,9 +276,9 @@ export default function MortgagesView({ financialProfileId }) {
 
                 return (
                     <Box key={prop.id}>
-                        <Sheet variant="soft" color="primary" sx={{ p: 2, mb: 2, borderRadius: 'md', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+                        <Sheet variant="soft" color="neutral" sx={{ p: 2, mb: 2, borderRadius: 'md', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <Avatar sx={{ bgcolor: 'primary.softBg' }}>{prop.emoji}</Avatar>
+                                <Avatar sx={{ bgcolor: 'neutral.softBg' }}>{prop.emoji}</Avatar>
                                 <Box><Typography level="title-md">{prop.name}</Typography><Typography level="body-xs">Valuation: {formatCurrency(prop.valuation)}</Typography></Box>
                             </Box>
                             <Box sx={{ display: 'flex', gap: { xs: 2, sm: 4 } }}>

@@ -1288,7 +1288,7 @@ export default function BudgetView({ financialProfileId }) {
                   <Box sx={{ minWidth: 0 }}>
                     <Typography level="body-sm" fontWeight="bold" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{exp.label}</Typography>
                     {isPot && <Typography level="body-xs" color="success">Pot Transfer</Typography>}
-                    {isSavingsDeposit && <Typography level="body-xs" color="primary">Savings Account</Typography>}
+                    {isSavingsDeposit && <Typography level="body-xs" sx={{ color: 'text.secondary' }}>Savings Account</Typography>}
                   </Box>
               </Box>
           </td>
@@ -1709,7 +1709,7 @@ export default function BudgetView({ financialProfileId }) {
                                         position: 'absolute', 
                                         top: 18, 
                                         fontSize: '0.65rem', 
-                                        color: isToday ? 'primary.700' : 'neutral.500', 
+                                        color: isToday ? 'text.primary' : 'neutral.500', 
                                         fontWeight: isToday ? 'bold' : 'normal',
                                         opacity: i % 2 === 0 ? 0.4 : 0, // Show every 2nd day to avoid crowding
                                         whiteSpace: 'nowrap',
@@ -1754,11 +1754,11 @@ export default function BudgetView({ financialProfileId }) {
 
                     <Card variant="outlined" sx={{ p: 2, boxShadow: 'sm', bgcolor: 'primary.softBg', borderColor: 'primary.200' }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                            <Typography level="title-md" startDecorator={<BankIcon />} color="primary">Liquidity Control</Typography>
+                            <Typography level="title-md" startDecorator={<BankIcon />}>Liquidity Control</Typography>
                         </Box>
                         
                         <FormControl sx={{ mb: 2 }}>
-                            <FormLabel sx={{ fontSize: 'xs', fontWeight: 'bold', textTransform: 'uppercase', color: 'primary.700', letterSpacing: '0.05em', mb: 1 }}>Linked Bank Account</FormLabel>
+                            <FormLabel sx={{ fontSize: 'xs', fontWeight: 'bold', textTransform: 'uppercase', color: 'text.secondary', letterSpacing: '0.05em', mb: 1 }}>Linked Bank Account</FormLabel>
                             <Select 
                                 value={selectedAccountId} 
                                 onChange={(e, val) => {
@@ -1787,7 +1787,7 @@ export default function BudgetView({ financialProfileId }) {
                         </FormControl>
 
                         <FormControl>
-                            <FormLabel sx={{ fontSize: 'xs', fontWeight: 'bold', textTransform: 'uppercase', color: 'primary.700', letterSpacing: '0.05em', mb: 1 }}>Current Bank Balance</FormLabel>
+                            <FormLabel sx={{ fontSize: 'xs', fontWeight: 'bold', textTransform: 'uppercase', color: 'text.secondary', letterSpacing: '0.05em', mb: 1 }}>Current Bank Balance</FormLabel>
                             <Input 
                                 size="lg" 
                                 type="number" 
@@ -1796,7 +1796,7 @@ export default function BudgetView({ financialProfileId }) {
                                 onBlur={(e) => saveCycleData(actualPay, e.target.value)} 
                                 color="primary" 
                                 variant="outlined"
-                                startDecorator={<Typography level="h4" color="primary">£</Typography>}
+                                startDecorator={<Typography level="h4">£</Typography>}
                                 sx={{ 
                                     fontWeight: 'xl', 
                                     fontSize: '1.5rem',

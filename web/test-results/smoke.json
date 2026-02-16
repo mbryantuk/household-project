@@ -74,7 +74,7 @@
           "specs": [
             {
               "title": "Login and Navigate All Pages",
-              "ok": true,
+              "ok": false,
               "tags": [],
               "tests": [
                 {
@@ -87,63 +87,55 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 35657,
-                      "errors": [],
+                      "status": "failed",
+                      "duration": 35317,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /Import Statement/i })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /Import Statement/i })\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /Import Statement/i })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /Import Statement/i })\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:121:37\n    at /home/matt/household-project/web/tests/smoke.spec.js:91:9",
+                        "location": {
+                          "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                          "column": 37,
+                          "line": 121
+                        },
+                        "snippet": "  119 |\n  120 |             const importBtn = page.getByRole('button', { name: /Import Statement/i });\n> 121 |             await expect(importBtn).toBeVisible();\n      |                                     ^\n  122 |         });\n  123 |\n  124 |         await test.step('Page: Onboarding', async () => {"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                            "column": 37,
+                            "line": 121
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /Import Statement/i })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /Import Statement/i })\u001b[22m\n\n\n  119 |\n  120 |             const importBtn = page.getByRole('button', { name: /Import Statement/i });\n> 121 |             await expect(importBtn).toBeVisible();\n      |                                     ^\n  122 |         });\n  123 |\n  124 |         await test.step('Page: Onboarding', async () => {\n    at /home/matt/household-project/web/tests/smoke.spec.js:121:37\n    at /home/matt/household-project/web/tests/smoke.spec.js:91:9"
+                        }
+                      ],
                       "stdout": [
                         {
-                          "text": "Checking /household/5078/dashboard...\n"
+                          "text": "Checking /household/5452/dashboard...\n"
                         },
                         {
-                          "text": "Checking /household/5078/calendar...\n"
+                          "text": "Checking /household/5452/calendar...\n"
                         },
                         {
-                          "text": "Checking /household/5078/people...\n"
+                          "text": "Checking /household/5452/people...\n"
                         },
                         {
-                          "text": "Checking /household/5078/pets...\n"
+                          "text": "Checking /household/5452/pets...\n"
                         },
                         {
-                          "text": "Checking /household/5078/vehicles...\n"
+                          "text": "Checking /household/5452/vehicles...\n"
                         },
                         {
-                          "text": "Checking /household/5078/meals...\n"
+                          "text": "Checking /household/5452/meals...\n"
                         },
                         {
-                          "text": "Checking /household/5078/shopping...\n"
+                          "text": "Checking /household/5452/shopping...\n"
                         },
                         {
-                          "text": "Checking /household/5078/chores...\n"
+                          "text": "Checking /household/5452/chores...\n"
                         },
                         {
-                          "text": "Checking /household/5078/finance...\n"
-                        },
-                        {
-                          "text": "Checking /household/5078/house...\n"
-                        },
-                        {
-                          "text": "Checking /household/5078/house/details...\n"
-                        },
-                        {
-                          "text": "Checking /household/5078/house/assets...\n"
-                        },
-                        {
-                          "text": "Checking /household/5078/profile...\n"
-                        },
-                        {
-                          "text": "Checking /household/5078/settings?tab=0...\n"
-                        },
-                        {
-                          "text": "Checking /household/5078/settings?tab=1...\n"
-                        },
-                        {
-                          "text": "Checking /household/5078/settings?tab=2...\n"
-                        },
-                        {
-                          "text": "Checking /household/5078/settings?tab=3...\n"
-                        },
-                        {
-                          "text": "Checking /household/5078/settings?tab=4...\n"
+                          "text": "Checking /household/5452/finance...\n"
                         }
                       ],
                       "stderr": [],
@@ -151,87 +143,90 @@
                       "steps": [
                         {
                           "title": "Login",
-                          "duration": 4343
+                          "duration": 4901
                         },
                         {
                           "title": "Page: Dashboard",
-                          "duration": 1731
+                          "duration": 1799
                         },
                         {
                           "title": "Page: Calendar",
-                          "duration": 1727
+                          "duration": 1788
                         },
                         {
                           "title": "Page: People",
-                          "duration": 1710
+                          "duration": 1735
                         },
                         {
                           "title": "Page: Pets",
-                          "duration": 1702
+                          "duration": 1747
                         },
                         {
                           "title": "Page: Vehicles",
-                          "duration": 1685
+                          "duration": 1744
                         },
                         {
                           "title": "Page: Meals",
-                          "duration": 1716
+                          "duration": 1767
+                        },
+                        {
+                          "title": "Page: Groceries Import",
+                          "duration": 1761
                         },
                         {
                           "title": "Page: Groceries",
-                          "duration": 1713
+                          "duration": 1743
                         },
                         {
                           "title": "Page: Chores",
-                          "duration": 1698
+                          "duration": 1768
                         },
                         {
                           "title": "Page: Finance",
-                          "duration": 1709
+                          "duration": 1777
                         },
                         {
-                          "title": "Page: House Overview",
-                          "duration": 1733
-                        },
-                        {
-                          "title": "Page: Property Details",
-                          "duration": 1697
-                        },
-                        {
-                          "title": "Page: Asset Register",
-                          "duration": 1686
-                        },
-                        {
-                          "title": "Page: User Profile",
-                          "duration": 1685
-                        },
-                        {
-                          "title": "Page: Settings: Profile",
-                          "duration": 1710
-                        },
-                        {
-                          "title": "Page: Settings: Security",
-                          "duration": 1831
-                        },
-                        {
-                          "title": "Page: Settings: Appearance",
-                          "duration": 1686
-                        },
-                        {
-                          "title": "Page: Settings: API",
-                          "duration": 1693
-                        },
-                        {
-                          "title": "Page: Settings: Admin",
-                          "duration": 1685
+                          "title": "Page: Banking Import",
+                          "duration": 11367,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /Import Statement/i })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /Import Statement/i })\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /Import Statement/i })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /Import Statement/i })\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:121:37\n    at /home/matt/household-project/web/tests/smoke.spec.js:91:9",
+                            "location": {
+                              "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                              "column": 37,
+                              "line": 121
+                            },
+                            "snippet": "  119 |\n  120 |             const importBtn = page.getByRole('button', { name: /Import Statement/i });\n> 121 |             await expect(importBtn).toBeVisible();\n      |                                     ^\n  122 |         });\n  123 |\n  124 |         await test.step('Page: Onboarding', async () => {"
+                          }
                         }
                       ],
-                      "startTime": "2026-02-16T09:56:54.586Z",
+                      "startTime": "2026-02-16T15:57:19.943Z",
                       "annotations": [],
-                      "attachments": []
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smok-37c48-ogin-and-Navigate-All-Pages-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smok-37c48-ogin-and-Navigate-All-Pages-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smok-37c48-ogin-and-Navigate-All-Pages-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                        "column": 37,
+                        "line": 121
+                      }
                     }
                   ],
-                  "status": "expected"
+                  "status": "unexpected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-686fe921e2ff05a678f8",
@@ -246,11 +241,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-16T09:56:52.597Z",
-    "duration": 37878.863999999994,
-    "expected": 1,
+    "startTime": "2026-02-16T15:57:17.403Z",
+    "duration": 38322.712,
+    "expected": 0,
     "skipped": 0,
-    "unexpected": 0,
+    "unexpected": 1,
     "flaky": 0
   }
 }

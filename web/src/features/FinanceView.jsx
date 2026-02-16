@@ -1,10 +1,10 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useOutletContext } from 'react-router-dom';
-import { Box, Typography, Sheet, Grid, Card, IconButton } from '@mui/joy';
+import { Box, Typography, Sheet, Grid, Card, IconButton, CircularProgress, Button, Stack } from '@mui/joy';
 import { 
   Payments, AccountBalance, Savings, CreditCard, RequestQuote, Home, 
   TrendingUp, HourglassBottom, PieChart, ArrowBack, ChevronRight, 
-  DirectionsCar, Receipt
+  DirectionsCar, Receipt, Add
 } from '@mui/icons-material';
 
 import AppHeader from '../components/ui/AppHeader';
@@ -33,9 +33,11 @@ export default function FinanceView() {
   const profileParam = queryParams.get('financial_profile_id');
   
   const [profiles, setProfiles] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Fetch profiles on mount to pass to the selector
   useEffect(() => {
+    setLoading(true);
     api.get(`/households/${householdId}/finance/profiles`)
        .then(res => {
           setProfiles(res.data);
@@ -47,17 +49,20 @@ export default function FinanceView() {
              navigate(`?${newParams.toString()}`, { replace: true });
           }
        })
-       .catch(err => console.error("Failed to fetch profiles", err));
+       .catch(err => console.error("Failed to fetch profiles", err))
+       .finally(() => setLoading(false));
   }, [api, householdId, profileParam, location.search, navigate]);
 
   const handleCreateProfile = async (data) => {
       try {
           const res = await api.post(`/households/${householdId}/finance/profiles`, data);
           setProfiles(prev => [...prev, res.data]);
-          // Switch to new profile
+          
+          // Switch to new profile by updating URL param
           const newParams = new URLSearchParams(location.search);
           newParams.set('financial_profile_id', res.data.id);
-          navigate(`?${newParams.toString()}`);
+          navigate(`?${newParams.toString()}`, { replace: true });
+          
           showNotification("Profile created", "success");
       } catch (err) {
           showNotification("Failed to create profile: " + err.message, "danger");
@@ -103,7 +108,33 @@ export default function FinanceView() {
 
   const renderContent = () => {
       if (!activeTabKey) return null;
-      if (!profileParam) return <Box sx={{ p: 4, textAlign: 'center' }}><Typography>Loading Profile...</Typography></Box>;
+      
+      if (loading) return (
+          <Box sx={{ p: 10, textAlign: 'center' }}>
+              <CircularProgress size="lg" />
+              <Typography sx={{ mt: 2 }}>Loading Financial Data...</Typography>
+          </Box>
+      );
+
+      if (!profileParam || profiles.length === 0) {
+          return (
+              <Sheet variant="soft" color="warning" sx={{ p: 4, borderRadius: 'md', textAlign: 'center', border: '1px dashed', borderColor: 'warning.main' }}>
+                  <Typography level="h3" color="warning">No Financial Profile Found</Typography>
+                  <Typography level="body-md" sx={{ mt: 1, mb: 3, maxWidth: 600, mx: 'auto' }}>
+                      Financial data is segmented by profiles (e.g., "Joint", "Personal"). 
+                      You must create at least one profile to begin tracking banking, income, and liabilities.
+                  </Typography>
+                  <Stack direction="row" spacing={2} justifyContent="center">
+                    <Button variant="solid" color="warning" startDecorator={<Add />} onClick={() => document.querySelector('button[aria-label="Add Profile"]')?.click() || showNotification("Use the '+' button in the header to create a profile", "info")}>
+                        Create Profile
+                    </Button>
+                    <Button variant="outlined" color="neutral" onClick={handleBack}>
+                        Go Back
+                    </Button>
+                  </Stack>
+              </Sheet>
+          );
+      }
 
       const props = { financialProfileId: profileParam };
 
@@ -132,7 +163,17 @@ export default function FinanceView() {
             label={null} // Low key: no label
         />
       </Box>
-  ) : null;
+  ) : (
+      <Button 
+        variant="soft" 
+        color="primary" 
+        startDecorator={<Add />}
+        onClick={() => document.querySelector('button[aria-label="Add Profile"]')?.click()}
+        aria-label="Add Profile"
+      >
+          New Profile
+      </Button>
+  );
 
   if (!activeTabKey) {
     return (

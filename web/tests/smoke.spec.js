@@ -80,7 +80,7 @@ test.describe('Hearth Frontend Smoke Test', () => {
         await test.step('Page: Groceries Import', async () => {
             await page.goto(`${base}/shopping`);
             await page.waitForTimeout(1500);
-            const importBtn = page.getByRole('button', { name: /Import Receipt/i });
+            const importBtn = page.getByRole('button', { name: /Import Historical Receipt/i });
             await expect(importBtn).toBeVisible();
         });
 
@@ -89,8 +89,25 @@ test.describe('Hearth Frontend Smoke Test', () => {
         await checkPage('Finance', `${base}/finance`, /Financial/i);
         
         await test.step('Page: Banking Import', async () => {
-            await page.goto(`${base}/finance?tab=1`); // Banking tab
-            await page.waitForTimeout(1500);
+            await page.goto(`${base}/finance`); 
+            await page.waitForTimeout(3000);
+            
+            const hasWarning = await page.getByText(/No Financial Profile Found/i).isVisible();
+
+            if (hasWarning) {
+                console.log("No profile found, creating one...");
+                await page.click('button:has-text("Create Profile")');
+                await page.fill('input[name="name"]', 'Smoke Test Profile');
+                await page.click('button:has-text("Create")');
+                await page.waitForTimeout(3000); 
+            }
+
+            // Click the card to go into Banking
+            // Ensure we are on the overview by clicking the back button if needed, 
+            // though on a fresh household we should be on the card view now.
+            await page.click('text=/Current Accounts/i');
+            await page.waitForTimeout(3000);
+
             const importBtn = page.getByRole('button', { name: /Import Statement/i });
             await expect(importBtn).toBeVisible();
         });

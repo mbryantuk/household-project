@@ -1,0 +1,92 @@
+# Page snapshot
+
+```yaml
+- main [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e7]:
+      - generic [ref=e8]:
+        - generic "Dashboard" [ref=e10] [cursor=pointer]: 🏠
+        - list [ref=e11]:
+          - listitem [ref=e12]:
+            - link "House" [ref=e13] [cursor=pointer]:
+              - /url: /household/5452/house
+              - img [ref=e15]
+              - generic [ref=e17]: House
+        - separator [ref=e18]
+      - list [ref=e20]:
+        - listitem [ref=e21]:
+          - link "Finance" [ref=e22] [cursor=pointer]:
+            - /url: /household/5452/finance
+            - img [ref=e24]
+            - generic [ref=e26]: Finance
+        - listitem [ref=e27]:
+          - link "Groceries" [ref=e28] [cursor=pointer]:
+            - /url: /household/5452/shopping
+            - img [ref=e30]
+            - generic [ref=e32]: Groceries
+        - listitem [ref=e33]:
+          - link "Chores" [ref=e34] [cursor=pointer]:
+            - /url: /household/5452/chores
+            - img [ref=e36]
+            - generic [ref=e38]: Chores
+        - listitem [ref=e39]:
+          - link "Meals" [ref=e40] [cursor=pointer]:
+            - /url: /household/5452/meals
+            - img [ref=e42]
+            - generic [ref=e44]: Meals
+      - generic [ref=e45]:
+        - separator [ref=e47]
+        - button "Account" [ref=e48] [cursor=pointer]:
+          - generic [ref=e49]: 🐧
+    - generic [ref=e50]:
+      - main [ref=e51]:
+        - generic [ref=e52]:
+          - generic [ref=e53]:
+            - generic [ref=e54]:
+              - button [ref=e55] [cursor=pointer]:
+                - img [ref=e56]
+              - paragraph [ref=e58]: Back to Overview
+            - button "Add Profile" [ref=e59] [cursor=pointer]:
+              - img [ref=e61]
+              - text: New Profile
+          - generic [ref=e63]:
+            - heading "No Financial Profile Found" [level=3] [ref=e64]
+            - paragraph [ref=e65]: Financial data is segmented by profiles (e.g., "Joint", "Personal"). You must create at least one profile to begin tracking banking, income, and liabilities.
+            - generic [ref=e66]:
+              - button "Create Profile" [ref=e67] [cursor=pointer]:
+                - img [ref=e69]
+                - text: Create Profile
+              - button "Go Back" [ref=e71] [cursor=pointer]
+      - generic [ref=e75]:
+        - button "Notes" [ref=e77] [cursor=pointer]:
+          - img [ref=e78]
+        - button "Calculator" [ref=e81] [cursor=pointer]:
+          - img [ref=e82]
+        - separator
+        - button "Income" [ref=e85] [cursor=pointer]:
+          - img [ref=e86]
+        - button "Banking" [ref=e89] [cursor=pointer]:
+          - img [ref=e90]
+        - button "Savings & Pots" [ref=e93] [cursor=pointer]:
+          - img [ref=e94]
+        - button "Investments" [ref=e97] [cursor=pointer]:
+          - img [ref=e98]
+        - button "Pensions" [ref=e101] [cursor=pointer]:
+          - img [ref=e102]
+        - button "Credit Cards" [ref=e105] [cursor=pointer]:
+          - img [ref=e106]
+        - button "Personal Loans" [ref=e109] [cursor=pointer]:
+          - img [ref=e110]
+        - button "Mortgages" [ref=e114] [cursor=pointer]:
+          - img [ref=e115]
+        - button "Car Finance" [ref=e118] [cursor=pointer]:
+          - img [ref=e119]
+        - separator
+        - button "Budget Health" [ref=e122] [cursor=pointer]:
+          - img [ref=e123]
+        - button "Wealth Tracking" [ref=e126] [cursor=pointer]:
+          - img [ref=e127]
+        - separator
+        - button "Calendar" [ref=e130] [cursor=pointer]:
+          - img [ref=e131]
+```

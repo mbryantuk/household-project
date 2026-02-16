@@ -49,7 +49,10 @@ export default function BankingView({ financialProfileId }) {
   }, [assignments, members]);
 
   const fetchData = useCallback(async () => {
-    if (!financialProfileId) return;
+    if (!financialProfileId) {
+        setLoading(false);
+        return;
+    }
     setLoading(true);
     try {
       const [accRes, assRes] = await Promise.all([
@@ -242,6 +245,13 @@ export default function BankingView({ financialProfileId }) {
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
 
+  if (!financialProfileId) {
+      return (
+          <Alert color="danger" variant="soft" startDecorator={<Warning />}>
+              No financial profile selected. Please select or create a profile to continue.
+          </Alert>
+      );
+  }
     return (
       <Box sx={{ overflowX: 'hidden' }}>
         <ModuleHeader 
