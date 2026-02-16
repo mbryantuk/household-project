@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix Onboarding Wizard persistence and add default financial profile creation",
-  "date": "Mon 16 Feb 10:46:46 GMT 2026"
+  "commitMessage": "Support quantity extraction in Foodbill Importer",
+  "date": "Mon 16 Feb 10:51:56 GMT 2026"
 }

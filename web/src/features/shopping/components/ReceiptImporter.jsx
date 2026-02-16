@@ -171,6 +171,7 @@ export default function ReceiptImporter({ open, onClose, api, householdId, onImp
                       />
                     </th>
                     <th>Item Name</th>
+                    <th style={{ width: 100 }}>Qty</th>
                     <th style={{ width: 100 }}>Price</th>
                     <th style={{ width: 150 }}>Category</th>
                     <th style={{ width: 50 }}></th>
@@ -187,6 +188,9 @@ export default function ReceiptImporter({ open, onClose, api, householdId, onImp
                       </td>
                       <td>
                         <Input size="sm" value={item.name} onChange={(e) => updateItem(idx, { name: e.target.value })} />
+                      </td>
+                      <td>
+                        <Input size="sm" value={item.quantity} onChange={(e) => updateItem(idx, { quantity: e.target.value })} />
                       </td>
                       <td>
                         <Input 
