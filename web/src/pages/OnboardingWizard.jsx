@@ -22,11 +22,20 @@ const steps = [
 
 export default function OnboardingWizard() {
   const { id: householdId } = useParams();
-  const { api, showNotification, isDark } = useOutletContext();
+  const { api, showNotification, isDark, household: contextHousehold } = useOutletContext();
   const navigate = useNavigate();
 
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [hhName, setHhName] = useState(contextHousehold?.name || 'Your Home');
+
+  useEffect(() => {
+      if (!contextHousehold && householdId) {
+          api.get(`/households/${householdId}`).then(res => {
+              if (res.data) setHhName(res.data.name);
+          }).catch(() => {});
+      }
+  }, [householdId, contextHousehold, api]);
 
   // --- STATE ---
   const [members, setMembers] = useState([{ name: '', type: 'adult', emoji: '👤' }]);
@@ -278,7 +287,7 @@ export default function OnboardingWizard() {
     }}>
       <Box sx={{ maxWidth: 800, width: '100%' }}>
         <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Typography level="h1">Welcome to Hearthstone</Typography>
+            <Typography level="h1">Setting up {hhName}</Typography>
             <Typography level="title-md" color="neutral">Let's set up your household profile in 5 quick steps.</Typography>
         </Box>
 

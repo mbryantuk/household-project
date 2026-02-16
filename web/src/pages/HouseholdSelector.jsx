@@ -125,7 +125,9 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
         setIsModalOpen(false);
         setNewHouseholdName('');
         if (onSelectHousehold) await onSelectHousehold(newHh);
-        navigate(`/household/${newHh.id}/onboarding`);
+        
+        // Use hard redirect to ensure the new context is perfectly established
+        window.location.href = `/household/${newHh.id}/onboarding`;
     } catch (error) {
         console.error(error);
         showNotification("Failed to create household.", "danger");
