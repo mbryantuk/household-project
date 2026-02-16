@@ -3,23 +3,30 @@ import { useOutletContext } from 'react-router-dom';
 import { 
   Box, Typography, Sheet, Button, Input, IconButton, Checkbox, 
   Stack, Divider, LinearProgress, Chip, Select, Option,
-  FormControl, FormLabel
+  FormControl, FormLabel, Avatar
 } from '@mui/joy';
 import { 
   Add, Delete, Clear, ShoppingBag, AttachMoney, 
-  Calculate, FileUpload
+  Calculate, FileUpload, ArrowBack, ArrowForward,
+  CheckCircle, TrendingUp, ContentCopy
 } from '@mui/icons-material';
+import { format, startOfWeek, addWeeks, subWeeks } from 'date-fns';
 import ReceiptImporter from './shopping/components/ReceiptImporter';
 import ShoppingSchedules from './shopping/components/ShoppingSchedules';
+import ShoppingTrends from './shopping/components/ShoppingTrends';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
     return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });
 };
 
+const formatDate = (date) => format(date, 'yyyy-MM-dd');
+
 export default function ShoppingListView() {
   const { api, household, showNotification, confirmAction } = useOutletContext();
   const [items, setItems] = useState([]);
+  const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
+  
   const [newItemName, setNewItemName] = useState('');
   const [newItemCost, setNewItemCost] = useState('');
   const [newItemQty, setNewItemQty] = useState('1');
@@ -27,19 +34,20 @@ export default function ShoppingListView() {
   const [importModalOpen, setImportModalOpen] = useState(false);
   
   // Budget State
-  const [budgetLimit, setBudgetLimit] = useState(() => {
+  const budgetLimit = useMemo(() => {
       const saved = localStorage.getItem(`shopping_budget_${household?.id}`);
-      return saved ? parseFloat(saved) : 150.00; // Default £150
-  });
+      return saved ? parseFloat(saved) : 150.00;
+  }, [household]);
 
   const fetchList = useCallback(async () => {
     try {
-      const res = await api.get(`/households/${household.id}/shopping-list`);
+      const weekStr = formatDate(currentWeekStart);
+      const res = await api.get(`/households/${household.id}/shopping-list?week_start=${weekStr}`);
       setItems(res.data.items || []);
     } catch (err) {
       console.error("Failed to fetch shopping list", err);
     }
-  }, [api, household]);
+  }, [api, household, currentWeekStart]);
 
   useEffect(() => {
     Promise.resolve().then(() => fetchList());
@@ -54,7 +62,8 @@ export default function ShoppingListView() {
             name: newItemName,
             estimated_cost: parseFloat(newItemCost) || 0,
             quantity: newItemQty,
-            category: newItemCat
+            category: newItemCat,
+            week_start: formatDate(currentWeekStart)
         });
         setNewItemName('');
         setNewItemCost('');
@@ -66,20 +75,37 @@ export default function ShoppingListView() {
     }
   };
 
+  const handleCopyPrev = async () => {
+      const prevWeek = formatDate(subWeeks(currentWeekStart, 1));
+      const targetWeek = formatDate(currentWeekStart);
+      
+      confirmAction("Copy Week", `Copy items from last week (${prevWeek})?`, async () => {
+          try {
+              const res = await api.post(`/households/${household.id}/shopping-list/copy-previous`, {
+                  target_week: targetWeek,
+                  previous_week: prevWeek
+              });
+              showNotification(`Copied ${res.data.copiedCount} items`, "success");
+              fetchList();
+          } catch {
+              showNotification("Failed to copy items", "danger");
+          }
+      });
+  };
+
   const handleToggle = async (item) => {
-      // Optimistic update
       setItems(prev => prev.map(i => i.id === item.id ? { ...i, is_checked: !i.is_checked ? 1 : 0 } : i));
       try {
           await api.put(`/households/${household.id}/shopping-list/${item.id}`, {
               is_checked: !item.is_checked
           });
       } catch {
-          fetchList(); // Revert on fail
+          fetchList();
       }
   };
 
   const handleDelete = async (id) => {
-      confirmAction("Delete Item", "Are you sure you want to remove this item from your list?", async () => {
+      confirmAction("Delete Item", "Are you sure?", async () => {
           try {
               await api.delete(`/households/${household.id}/shopping-list/${id}`);
               setItems(prev => prev.filter(i => i.id !== id));
@@ -90,24 +116,16 @@ export default function ShoppingListView() {
   };
 
   const handleClearCompleted = async () => {
-      confirmAction("Clear Completed", "Remove all checked items from your list?", async () => {
+      confirmAction("Clear Completed", "Remove checked items?", async () => {
           try {
-              await api.delete(`/households/${household.id}/shopping-list/clear`);
+              await api.delete(`/households/${household.id}/shopping-list/clear?week_start=${formatDate(currentWeekStart)}`);
               fetchList();
-              showNotification("Completed items cleared", "neutral");
           } catch {
               showNotification("Failed to clear", "danger");
           }
       });
   };
 
-  const handleUpdateBudget = (val) => {
-      const limit = parseFloat(val) || 0;
-      setBudgetLimit(limit);
-      localStorage.setItem(`shopping_budget_${household?.id}`, limit);
-  };
-
-  // Calculations
   const stats = useMemo(() => {
       const total = items.reduce((sum, i) => sum + (i.estimated_cost || 0), 0);
       const pending = items.filter(i => !i.is_checked).reduce((sum, i) => sum + (i.estimated_cost || 0), 0);
@@ -118,190 +136,100 @@ export default function ShoppingListView() {
 
   return (
     <Box sx={{ width: '100%', mx: 'auto', pb: 10 }}>
-        {/* Header */}
+        {/* Header & Weekly Nav */}
         <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
             <Box>
                 <Typography level="h2" startDecorator={<ShoppingBag />}>Groceries</Typography>
-                <Typography level="body-md" color="neutral">Manage your weekly grocery needs.</Typography>
-                <Button 
-                    variant="soft" 
-                    size="sm" 
-                    startDecorator={<FileUpload />} 
-                    onClick={() => setImportModalOpen(true)}
-                    sx={{ mt: 1 }}
-                >
-                    Import Receipt
-                </Button>
+                <Typography level="body-md" color="neutral">Weekly shopping list and trends.</Typography>
             </Box>
-            
-            {/* Budget Estimator Widget */}
-            <Sheet variant="outlined" sx={{ p: 2, borderRadius: 'md', width: { xs: '100%', md: 400 }, display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography level="title-sm" startDecorator={<Calculate />}>Estimated Total</Typography>
-                    <Typography level="title-lg" color={stats.total > budgetLimit ? 'danger' : 'success'}>
-                        {formatCurrency(stats.total)}
-                    </Typography>
-                </Box>
-                
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <LinearProgress 
-                        determinate 
-                        value={stats.progress} 
-                        color={stats.total > budgetLimit ? 'danger' : 'primary'}
-                        sx={{ flexGrow: 1 }}
-                    />
-                    <Typography level="body-xs" whiteSpace="nowrap">
-                        Target: {formatCurrency(budgetLimit)}
-                    </Typography>
-                </Box>
 
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Input 
-                        size="sm" 
-                        placeholder="Set Limit" 
-                        startDecorator="£"
-                        type="number"
-                        value={budgetLimit}
-                        onChange={(e) => handleUpdateBudget(e.target.value)}
-                        sx={{ width: 120 }}
-                    />
-                </Box>
-            </Sheet>
+            <Stack direction="row" spacing={2} alignItems="center">
+                <Button variant="soft" color="neutral" startDecorator={<ContentCopy />} onClick={handleCopyPrev}>
+                    Copy Last Week
+                </Button>
+                
+                <Sheet variant="outlined" sx={{ px: 1, py: 0.5, borderRadius: 'md', display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <IconButton size="sm" onClick={() => setCurrentWeekStart(subWeeks(currentWeekStart, 1))}><ArrowBack /></IconButton>
+                    <Typography level="title-sm" sx={{ minWidth: 140, textAlign: 'center' }}>
+                        w/c {format(currentWeekStart, 'do MMM')}
+                    </Typography>
+                    <IconButton size="sm" onClick={() => setCurrentWeekStart(addWeeks(currentWeekStart, 1))}><ArrowForward /></IconButton>
+                </Sheet>
+            </Stack>
         </Box>
 
-        <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
-            
+        <Grid container spacing={3}>
             {/* Main List */}
-            <Box sx={{ flexGrow: 1 }}>
+            <Grid xs={12} md={8}>
                 <Sheet variant="outlined" sx={{ p: 2, borderRadius: 'md', mb: 3 }}>
                     <form onSubmit={handleAddItem}>
                         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
-                            <Input 
-                                placeholder="Item name (e.g. Milk)" 
-                                required 
-                                value={newItemName} 
-                                onChange={e => setNewItemName(e.target.value)} 
-                                sx={{ flexGrow: 1 }} 
-                            />
-                            <Input 
-                                placeholder="Qty" 
-                                sx={{ width: { xs: '100%', sm: 80 } }} 
-                                value={newItemQty} 
-                                onChange={e => setNewItemQty(e.target.value)} 
-                            />
-                            <Select 
-                                value={newItemCat} 
-                                onChange={(_e, v) => setNewItemCat(v)} 
-                                sx={{ width: { xs: '100%', sm: 120 } }}
-                            >
+                            <Input placeholder="Add item..." required value={newItemName} onChange={e => setNewItemName(e.target.value)} sx={{ flexGrow: 1 }} />
+                            <Input placeholder="Qty" sx={{ width: 80 }} value={newItemQty} onChange={e => setNewItemQty(e.target.value)} />
+                            <Select value={newItemCat} onChange={(_e, v) => setNewItemCat(v)} sx={{ width: 120 }}>
                                 <Option value="general">General</Option>
                                 <Option value="produce">Produce</Option>
                                 <Option value="dairy">Dairy</Option>
                                 <Option value="meat">Meat</Option>
-                                <Option value="bakery">Bakery</Option>
                                 <Option value="household">Household</Option>
                             </Select>
-                            <Input 
-                                placeholder="£ Est." 
-                                type="number" 
-                                step="0.01"
-                                sx={{ width: { xs: '100%', sm: 100 } }} 
-                                value={newItemCost} 
-                                onChange={e => setNewItemCost(e.target.value)} 
-                            />
-                            <Button type="submit" startDecorator={<Add />}>Add</Button>
+                            <Input placeholder="£" type="number" step="0.01" sx={{ width: 80 }} value={newItemCost} onChange={e => setNewItemCost(e.target.value)} />
+                            <Button type="submit"><Add /></Button>
                         </Stack>
                     </form>
                 </Sheet>
 
                 <Stack spacing={1}>
                     {items.map(item => (
-                        <Sheet 
-                            key={item.id} 
-                            variant={item.is_checked ? 'soft' : 'outlined'} 
-                            color={item.is_checked ? 'neutral' : 'primary'}
-                            sx={{ 
-                                p: 1.5, 
-                                borderRadius: 'sm', 
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                justifyContent: 'space-between',
-                                transition: 'all 0.2s',
-                                opacity: item.is_checked ? 0.6 : 1
-                            }}
-                        >
+                        <Sheet key={item.id} variant={item.is_checked ? 'soft' : 'outlined'} sx={{ p: 1.5, borderRadius: 'sm', display: 'flex', alignItems: 'center', justifyContent: 'space-between', opacity: item.is_checked ? 0.6 : 1 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <Checkbox 
-                                    checked={!!item.is_checked} 
-                                    onChange={() => handleToggle(item)} 
-                                    color="success"
-                                />
+                                <Checkbox checked={!!item.is_checked} onChange={() => handleToggle(item)} color="success" />
                                 <Box>
-                                    <Typography 
-                                        level="title-sm" 
-                                        sx={{ textDecoration: item.is_checked ? 'line-through' : 'none' }}
-                                    >
-                                        {item.name}
-                                    </Typography>
-                                    <Typography level="body-xs">
-                                        {item.quantity} • {item.category}
-                                    </Typography>
+                                    <Typography level="title-sm" sx={{ textDecoration: item.is_checked ? 'line-through' : 'none' }}>{item.name}</Typography>
+                                    <Typography level="body-xs">{item.quantity} • {item.category}</Typography>
                                 </Box>
                             </Box>
-
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                {item.estimated_cost > 0 && (
-                                    <Typography level="body-sm" fontWeight="bold">
-                                        {formatCurrency(item.estimated_cost)}
-                                    </Typography>
-                                )}
-                                <IconButton size="sm" color="danger" variant="plain" onClick={() => handleDelete(item.id)}>
-                                    <Delete />
-                                </IconButton>
+                                {item.estimated_cost > 0 && <Typography level="body-sm" fontWeight="bold">{formatCurrency(item.estimated_cost)}</Typography>}
+                                <IconButton size="sm" color="danger" variant="plain" onClick={() => handleDelete(item.id)}><Delete /></IconButton>
                             </Box>
                         </Sheet>
                     ))}
-
-                    {items.length === 0 && (
-                        <Typography level="body-md" textAlign="center" color="neutral" sx={{ py: 4 }}>
-                            Your list is empty. Add items to get started!
-                        </Typography>
-                    )}
+                    {items.length === 0 && <Typography level="body-md" textAlign="center" color="neutral" sx={{ py: 6 }}>No items for this week.</Typography>}
                 </Stack>
 
                 {stats.checkedCount > 0 && (
                     <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
-                        <Button 
-                            variant="plain" 
-                            color="danger" 
-                            startDecorator={<Clear />} 
-                            onClick={handleClearCompleted}
-                        >
-                            Clear Completed ({stats.checkedCount})
-                        </Button>
+                        <Button variant="plain" color="danger" onClick={handleClearCompleted}>Clear Completed ({stats.checkedCount})</Button>
                     </Box>
                 )}
-            </Box>
+            </Grid>
 
-            {/* Sidebar / Scheduling */}
-            <Box sx={{ width: { xs: '100%', md: 350 }, flexShrink: 0 }}>
-                <ShoppingSchedules 
-                    api={api} 
-                    householdId={household.id} 
-                    showNotification={showNotification} 
-                    confirmAction={confirmAction} 
-                />
-            </Box>
-        </Stack>
+            {/* Sidebar Stats & Schedules */}
+            <Grid xs={12} md={4}>
+                <Stack spacing={3}>
+                    <Card variant="soft" color="primary" sx={{ p: 2 }}>
+                        <Typography level="title-md" startDecorator={<Calculate />}>Weekly Total</Typography>
+                        <Typography level="h3" sx={{ my: 1 }}>{formatCurrency(stats.total)}</Typography>
+                        <LinearProgress determinate value={stats.progress} color={stats.total > budgetLimit ? 'danger' : 'success'} sx={{ mb: 1 }} />
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Typography level="body-xs">Limit: {formatCurrency(budgetLimit)}</Typography>
+                            <Typography level="body-xs">{Math.round(stats.progress)}%</Typography>
+                        </Box>
+                    </Card>
 
-        <ReceiptImporter 
-            open={importModalOpen} 
-            onClose={() => setImportModalOpen(false)}
-            api={api}
-            householdId={household.id}
-            onImportComplete={fetchList}
-            showNotification={showNotification}
-        />
+                    <Button fullWidth variant="outlined" startDecorator={<FileUpload />} onClick={() => setImportModalOpen(true)}>
+                        Import Historical Receipt
+                    </Button>
+
+                    <ShoppingSchedules api={api} householdId={household.id} showNotification={showNotification} confirmAction={confirmAction} />
+
+                    <ShoppingTrends api={api} householdId={household.id} />
+                </Stack>
+            </Grid>
+        </Grid>
+
+        <ReceiptImporter open={importModalOpen} onClose={() => setImportModalOpen(false)} api={api} householdId={household.id} onImportComplete={fetchList} showNotification={showNotification} />
     </Box>
   );
 }

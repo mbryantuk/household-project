@@ -17,6 +17,7 @@ const upload = multer({ dest: '/tmp/' });
 router.post('/analyze-receipt', authenticateToken, requireHouseholdRole('member'), useTenantDb, upload.single('receipt'), async (req, res) => {
     let text = '';
     const filePath = req.file?.path;
+    const { week_start } = req.body;
 
     try {
         if (req.body.text) {
@@ -119,7 +120,7 @@ router.post('/analyze-receipt', authenticateToken, requireHouseholdRole('member'
         });
 
         res.json({ 
-            items: items.slice(0, 100), // Cap at 100 items
+            items: items.slice(0, 100).map(i => ({ ...i, week_start: week_start || null })), // Cap at 100 items
             raw_text_preview: text.substring(0, 500) 
         });
 

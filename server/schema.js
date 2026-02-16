@@ -389,6 +389,7 @@ const TENANT_SCHEMA = [
         quantity TEXT DEFAULT '1',
         is_checked INTEGER DEFAULT 0,
         estimated_cost REAL DEFAULT 0,
+        week_start DATE, -- The start of the weekly cycle (Monday)
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
