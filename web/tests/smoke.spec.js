@@ -146,6 +146,9 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
         
         // Wait for loading to finish
         await expect(page.getByText(/Loading Financial Data/i)).not.toBeVisible({ timeout: 15000 });
+        
+        // Allow React render cycle to complete
+        await page.waitForTimeout(1000);
 
         const hasWarning = await page.getByText(/No Financial Profile Found/i).isVisible();
         if (hasWarning) {
@@ -205,7 +208,7 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
     test('User Profile Page', async ({ page }) => {
         const base = getBaseUrl();
         await page.goto(`${base}/profile`);
-        await expect(page.getByText(/Profile/i).first()).toBeVisible();
+        await expect(page.locator('h2', { hasText: 'Your Profile' })).toBeVisible();
     });
 
     test('Settings Pages (All Tabs)', async ({ page }) => {
