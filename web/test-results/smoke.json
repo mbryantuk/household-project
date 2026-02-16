@@ -70,10 +70,316 @@
           "title": "Hearth Frontend Smoke Test",
           "file": "smoke.spec.js",
           "line": 17,
-          "column": 6,
+          "column": 15,
           "specs": [
             {
-              "title": "Login and Navigate All Pages",
+              "title": "Dashboard Page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3373,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T21:39:52.451Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-cf40674c38354f943714",
+              "file": "smoke.spec.js",
+              "line": 82,
+              "column": 5
+            },
+            {
+              "title": "Calendar Page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3411,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T21:39:56.003Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-65dcf704c9e1ebea0f13",
+              "file": "smoke.spec.js",
+              "line": 90,
+              "column": 5
+            },
+            {
+              "title": "People Page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3217,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T21:39:59.444Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-171e6d3e655016c9b313",
+              "file": "smoke.spec.js",
+              "line": 97,
+              "column": 5
+            },
+            {
+              "title": "Pets Page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2989,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T21:40:02.683Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-d5debc6616350aaa15fd",
+              "file": "smoke.spec.js",
+              "line": 104,
+              "column": 5
+            },
+            {
+              "title": "Vehicles Page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3085,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T21:40:05.700Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-530580c26c0460afd264",
+              "file": "smoke.spec.js",
+              "line": 111,
+              "column": 5
+            },
+            {
+              "title": "Meals Page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3089,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T21:40:08.808Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-b8a32d849858bef88d91",
+              "file": "smoke.spec.js",
+              "line": 118,
+              "column": 5
+            },
+            {
+              "title": "Groceries Page & Import Button",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3278,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T21:40:11.918Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-cc2ee4597680c1b7cb6d",
+              "file": "smoke.spec.js",
+              "line": 125,
+              "column": 5
+            },
+            {
+              "title": "Chores Page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3047,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T21:40:15.219Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-564f135c59d12d104526",
+              "file": "smoke.spec.js",
+              "line": 135,
+              "column": 5
+            },
+            {
+              "title": "Finance Page & Banking Import",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3626,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T21:40:18.289Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-8b07f9a7ad5a03a1f09a",
+              "file": "smoke.spec.js",
+              "line": 142,
+              "column": 5
+            },
+            {
+              "title": "Onboarding Page",
               "ok": false,
               "tags": [],
               "tests": [
@@ -88,150 +394,227 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 34515,
+                      "duration": 8738,
                       "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /Import Statement/i })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /Import Statement/i })\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /Import Statement/i })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /Import Statement/i })\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:112:37\n    at /home/matt/household-project/web/tests/smoke.spec.js:91:9",
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/Welcome/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/Welcome/i)\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/Welcome/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/Welcome/i)\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:183:50",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 37,
-                          "line": 112
+                          "column": 50,
+                          "line": 183
                         },
-                        "snippet": "  110 |\n  111 |             const importBtn = page.getByRole('button', { name: /Import Statement/i });\n> 112 |             await expect(importBtn).toBeVisible();\n      |                                     ^\n  113 |         });\n  114 |\n  115 |         await test.step('Page: Onboarding', async () => {"
+                        "snippet": "\u001b[0m \u001b[90m 181 |\u001b[39m         expect(page\u001b[33m.\u001b[39murl())\u001b[33m.\u001b[39mtoContain(\u001b[32m'/onboarding'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 182 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 183 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[35m/Welcome/i\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 184 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[35m/Household Overview/i\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 185 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 186 |\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 37,
-                            "line": 112
+                            "column": 50,
+                            "line": 183
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /Import Statement/i })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /Import Statement/i })\u001b[22m\n\n\n  110 |\n  111 |             const importBtn = page.getByRole('button', { name: /Import Statement/i });\n> 112 |             await expect(importBtn).toBeVisible();\n      |                                     ^\n  113 |         });\n  114 |\n  115 |         await test.step('Page: Onboarding', async () => {\n    at /home/matt/household-project/web/tests/smoke.spec.js:112:37\n    at /home/matt/household-project/web/tests/smoke.spec.js:91:9"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/Welcome/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/Welcome/i)\u001b[22m\n\n\n\u001b[0m \u001b[90m 181 |\u001b[39m         expect(page\u001b[33m.\u001b[39murl())\u001b[33m.\u001b[39mtoContain(\u001b[32m'/onboarding'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 182 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 183 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[35m/Welcome/i\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 184 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[35m/Household Overview/i\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 185 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 186 |\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:183:50\u001b[22m"
                         }
                       ],
-                      "stdout": [
-                        {
-                          "text": "Checking /household/5494/dashboard...\n"
-                        },
-                        {
-                          "text": "Checking /household/5494/calendar...\n"
-                        },
-                        {
-                          "text": "Checking /household/5494/people...\n"
-                        },
-                        {
-                          "text": "Checking /household/5494/pets...\n"
-                        },
-                        {
-                          "text": "Checking /household/5494/vehicles...\n"
-                        },
-                        {
-                          "text": "Checking /household/5494/meals...\n"
-                        },
-                        {
-                          "text": "Checking /household/5494/shopping...\n"
-                        },
-                        {
-                          "text": "Checking /household/5494/chores...\n"
-                        },
-                        {
-                          "text": "Checking /household/5494/finance...\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "steps": [
-                        {
-                          "title": "Login",
-                          "duration": 4710
-                        },
-                        {
-                          "title": "Page: Dashboard",
-                          "duration": 1749
-                        },
-                        {
-                          "title": "Page: Calendar",
-                          "duration": 1718
-                        },
-                        {
-                          "title": "Page: People",
-                          "duration": 1712
-                        },
-                        {
-                          "title": "Page: Pets",
-                          "duration": 1715
-                        },
-                        {
-                          "title": "Page: Vehicles",
-                          "duration": 1737
-                        },
-                        {
-                          "title": "Page: Meals",
-                          "duration": 1720
-                        },
-                        {
-                          "title": "Page: Groceries Import",
-                          "duration": 1690
-                        },
-                        {
-                          "title": "Page: Groceries",
-                          "duration": 1714
-                        },
-                        {
-                          "title": "Page: Chores",
-                          "duration": 1728
-                        },
-                        {
-                          "title": "Page: Finance",
-                          "duration": 1759
-                        },
-                        {
-                          "title": "Page: Banking Import",
-                          "duration": 11355,
-                          "error": {
-                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /Import Statement/i })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /Import Statement/i })\u001b[22m\n",
-                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /Import Statement/i })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /Import Statement/i })\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:112:37\n    at /home/matt/household-project/web/tests/smoke.spec.js:91:9",
-                            "location": {
-                              "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                              "column": 37,
-                              "line": 112
-                            },
-                            "snippet": "  110 |\n  111 |             const importBtn = page.getByRole('button', { name: /Import Statement/i });\n> 112 |             await expect(importBtn).toBeVisible();\n      |                                     ^\n  113 |         });\n  114 |\n  115 |         await test.step('Page: Onboarding', async () => {"
-                          }
-                        }
-                      ],
-                      "startTime": "2026-02-16T16:55:26.934Z",
+                      "startTime": "2026-02-16T21:40:21.942Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smok-37c48-ogin-and-Navigate-All-Pages-chromium/test-failed-1.png"
+                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Onboarding-Page-chromium/test-failed-1.png"
                         },
                         {
                           "name": "video",
                           "contentType": "video/webm",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smok-37c48-ogin-and-Navigate-All-Pages-chromium/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smok-37c48-ogin-and-Navigate-All-Pages-chromium/error-context.md"
+                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Onboarding-Page-chromium/video.webm"
                         }
                       ],
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 37,
-                        "line": 112
+                        "column": 50,
+                        "line": 183
                       }
                     }
                   ],
                   "status": "unexpected"
                 }
               ],
-              "id": "2c14808d47b386fba9eb-686fe921e2ff05a678f8",
+              "id": "2c14808d47b386fba9eb-44e19c2ea2651f1a3536",
               "file": "smoke.spec.js",
-              "line": 25,
+              "line": 173,
+              "column": 5
+            },
+            {
+              "title": "House Overview Page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T21:40:30.768Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-fe31e0fc5c4bd3b315e3",
+              "file": "smoke.spec.js",
+              "line": 187,
+              "column": 5
+            },
+            {
+              "title": "Property Details Page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T21:40:30.770Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-b08a53b9d7bc197b2c33",
+              "file": "smoke.spec.js",
+              "line": 193,
+              "column": 5
+            },
+            {
+              "title": "Asset Register Page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T21:40:30.771Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-899023ab40d288f36a8a",
+              "file": "smoke.spec.js",
+              "line": 199,
+              "column": 5
+            },
+            {
+              "title": "User Profile Page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T21:40:30.772Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-8ded83d61d120dd46f10",
+              "file": "smoke.spec.js",
+              "line": 205,
+              "column": 5
+            },
+            {
+              "title": "Settings Pages (All Tabs)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T21:40:30.773Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-b7b11855d8085866d29d",
+              "file": "smoke.spec.js",
+              "line": 211,
               "column": 5
             }
           ]
@@ -241,10 +624,10 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-16T16:55:24.608Z",
-    "duration": 37332.671,
-    "expected": 0,
-    "skipped": 0,
+    "startTime": "2026-02-16T21:39:50.327Z",
+    "duration": 40468.054000000004,
+    "expected": 9,
+    "skipped": 5,
     "unexpected": 1,
     "flaky": 0
   }

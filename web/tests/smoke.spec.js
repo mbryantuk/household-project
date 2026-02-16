@@ -6,7 +6,6 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const LOG_FILE = path.resolve(__dirname, '../playwright-smoke.log');
-const AUTH_FILE = path.resolve(__dirname, '../test-results/auth.json');
 
 // Helper to log console messages
 const logMessage = (msg) => {
@@ -18,42 +17,49 @@ const logMessage = (msg) => {
 test.describe.serial('Hearth Frontend Smoke Test', () => {
     let householdId;
 
-    test.beforeAll(async ({ browser }) => {
+    test.beforeAll(async () => {
         if (fs.existsSync(LOG_FILE)) fs.unlinkSync(LOG_FILE);
         fs.writeFileSync(LOG_FILE, '=== STARTING SMOKE TEST ===\n');
-
-        // Create auth context
-        const context = await browser.newContext();
-        const page = await context.newPage();
-
-        await test.step('Login & Setup State', async () => {
-            await page.goto('/login');
-            await page.fill('input[type="email"]', 'mbryantuk@gmail.com');
-            await page.click('button:has-text("Next")');
-            await page.waitForSelector('input[type="password"]');
-            await page.fill('input[type="password"]', 'Password123!');
-            await page.click('button:has-text("Log In")');
-
-            await page.waitForURL(/.*(select-household|dashboard)/, { timeout: 30000 });
-            
-            if (page.url().includes('select-household')) {
-                await page.click('text=/The Brady Bunch/i');
-                await page.waitForURL(/.*dashboard/);
-            }
-
-            const url = page.url();
-            const match = url.match(/household\/(\d+)\//);
-            householdId = match ? match[1] : null;
-            expect(householdId).not.toBeNull();
-
-            // Save storage state
-            await context.storageState({ path: AUTH_FILE });
-            await page.close();
-        });
     });
 
-    // Use the saved storage state for all tests in this describe block
-    test.use({ storageState: AUTH_FILE });
+    // Helper login function
+    const loginAndGetId = async (page) => {
+        await page.goto('/login');
+        
+        // Unregister SW and reload to ensure fresh assets
+        try {
+            await page.evaluate(async () => {
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (const registration of registrations) {
+                        await registration.unregister();
+                    }
+                }
+            });
+        } catch (e) {
+            // Ignore context destruction errors (e.g. if redirect happens fast)
+        }
+        
+        await page.fill('input[type="email"]', 'mbryantuk@gmail.com');
+        await page.click('button:has-text("Next")');
+        await page.waitForSelector('input[type="password"]');
+        await page.fill('input[type="password"]', 'Password123!');
+        await page.click('button:has-text("Log In")');
+
+        await page.waitForURL(/.*(select-household|dashboard)/, { timeout: 30000 });
+        
+        if (page.url().includes('select-household')) {
+            await page.click('text=/The Brady Bunch/i');
+            await page.waitForURL(/.*dashboard/);
+        }
+
+        // Wait for dashboard to actually hydrate/settle to ensure auth is locked in
+        await page.waitForTimeout(1000);
+
+        const url = page.url();
+        const match = url.match(/household\/(\d+)\//);
+        return match ? match[1] : null;
+    };
 
     test.beforeEach(async ({ page }) => {
         page.on('console', logMessage);
@@ -61,13 +67,14 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
             const timestamp = new Date().toISOString();
             fs.appendFileSync(LOG_FILE, `[${timestamp}] [PAGE ERROR] ${err.message}\n${err.stack}\n`);
         });
-        
-        // Ensure householdId is available (it should be from beforeAll, but scope might be an issue if not careful)
-        // Since we can't easily pass variables from beforeAll to tests in separate scopes without globals, 
-        // we'll re-fetch it or assume a fixed ID if needed, but let's try to grab it from URL if we navigate.
-        // Actually, we can just use the householdId variable if it's in the outer scope.
-        // However, householdId is set in beforeAll which runs in a different worker scope potentially?
-        // No, serial mode + same file means shared scope for variables defined outside.
+
+        // Always ensure we are logged in and have an ID
+        const id = await loginAndGetId(page);
+        if (id) {
+            householdId = id;
+        } else if (!householdId) {
+            throw new Error("Failed to retrieve Household ID during login.");
+        }
     });
 
     const getBaseUrl = () => `/household/${householdId}`;
@@ -137,28 +144,44 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
         await page.goto(`${base}/finance`); 
         await expect(page.locator('body')).toBeVisible();
         
-        // Handle "No Profile" case if it appears (though reusing state should keep it if created)
-        // But since we are reusing state, we might need to handle it once.
+        // Wait for loading to finish
+        await expect(page.getByText(/Loading Financial Data/i)).not.toBeVisible({ timeout: 15000 });
+
         const hasWarning = await page.getByText(/No Financial Profile Found/i).isVisible();
         if (hasWarning) {
             await page.click('button:has-text("Create Profile")');
             await page.fill('input[name="name"]', 'Smoke Test Profile');
-            await page.click('button:has-text("Create")');
-            await page.waitForTimeout(3000); 
+            await page.click('button[type="submit"]');
+            
+            // Wait for success and state update
+            await expect(page.getByText('Profile created')).toBeVisible({ timeout: 10000 });
+            await expect(page.getByText(/No Financial Profile Found/i)).not.toBeVisible({ timeout: 10000 });
         }
 
-        await page.click('text=/Current Accounts/i');
-        await page.waitForTimeout(3000);
-
+        // Wait for the card to be clickable with generous timeout
+        const card = page.getByText(/Current Accounts/i).first();
+        await expect(card).toBeVisible({ timeout: 30000 });
+        await card.click();
+        
+        // Wait for potential loading spinner to disappear
+        await expect(page.locator('role=progressbar')).not.toBeVisible({ timeout: 15000 });
+        
         const importBtn = page.getByRole('button', { name: /Import Statement/i });
-        await expect(importBtn).toBeVisible();
+        await expect(importBtn).toBeVisible({ timeout: 10000 });
     });
 
     test('Onboarding Page', async ({ page }) => {
         const base = getBaseUrl();
         await page.goto(`${base}/onboarding`);
-        await expect(page.getByText(/Welcome to Hearthstone/i)).toBeVisible();
-        await expect(page.getByText(/Family & Pets/i)).toBeVisible();
+        
+        // Wait for potential loading spinner
+        await expect(page.locator('role=progressbar')).not.toBeVisible({ timeout: 15000 });
+        
+        // Ensure we didn't get redirected
+        expect(page.url()).toContain('/onboarding');
+
+        await expect(page.getByText(/Welcome/i)).toBeVisible();
+        await expect(page.getByText(/Household Overview/i)).toBeVisible();
     });
 
     test('House Overview Page', async ({ page }) => {

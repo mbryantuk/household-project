@@ -2,7 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## [3.2.183] - 2026-02-11
+## [3.2.263] - 2026-02-16
+### Fixed
+- **Finance:** Optimized `FinanceView` to prevent unnecessary data refetching and loading spinners when switching financial profiles, significantly reducing UI lag.
+- **Onboarding:** Fixed a crash on the Onboarding Wizard caused by missing Joy UI component imports (`Chip`, `Select`, `Option`).
+- **Testing:** Resolved flaky smoke tests for Finance (loading state race condition) and Onboarding (stale text expectations).
 ### Added
 - **Chores:** Introduced "Chores Tracker" module with assignment, frequency (Daily/Weekly/Monthly), and pocket money tracking.
 - **Gamification:** Added "Earnings Widget" to the Chores view to display total value earned by each member.
