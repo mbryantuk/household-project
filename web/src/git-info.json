@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix: update CORS for tests and revert brown font to standard black in finance views",
-  "date": "Mon 16 Feb 16:46:34 GMT 2026"
+  "commitMessage": "Refactor smoke tests to run per-page",
+  "date": "Mon 16 Feb 19:52:27 GMT 2026"
 }
