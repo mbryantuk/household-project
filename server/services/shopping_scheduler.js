@@ -1,5 +1,5 @@
 const cron = require('node-cron');
-const { globalDb, getTenantDb } = require('../db');
+const { globalDb, getHouseholdDb, ensureHouseholdSchema } = require('../db');
 const path = require('path');
 const fs = require('fs');
 
@@ -14,8 +14,10 @@ async function processSchedules() {
         if (err) return console.error("Scheduler Error:", err);
 
         for (const hh of households) {
-            const db = await getTenantDb(hh.id);
+            const db = getHouseholdDb(hh.id);
             if (!db) continue;
+
+            await ensureHouseholdSchema(db, hh.id);
 
             const today = new Date().toISOString().split('T')[0];
             

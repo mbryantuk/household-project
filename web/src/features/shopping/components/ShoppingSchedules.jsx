@@ -1,14 +1,21 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   Box, Typography, Sheet, Button, Input, IconButton, 
   Stack, Divider, Modal, ModalDialog, DialogTitle, DialogContent, 
   FormControl, FormLabel, Select, Option, Card, Chip, List, ListItem,
-  Checkbox
+  Checkbox, LinearProgress, Table, Avatar
 } from '@mui/joy';
 import { 
   Add, Delete, Edit, Schedule, Save, Close,
-  CheckCircle, RadioButtonUnchecked
+  CheckCircle, RadioButtonUnchecked, ShoppingCart, 
+  Calculate, CalendarMonth, KeyboardArrowRight, KeyboardArrowDown
 } from '@mui/icons-material';
+import { format, parseISO } from 'date-fns';
+
+const formatCurrency = (val) => {
+    const num = parseFloat(val) || 0;
+    return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });
+};
 
 export default function ShoppingSchedules({ api, householdId, showNotification, confirmAction }) {
   const [schedules, setSchedules] = useState([]);
@@ -19,7 +26,7 @@ export default function ShoppingSchedules({ api, householdId, showNotification, 
   const [formData, setFormData] = useState({
     name: '',
     frequency: 'weekly',
-    day_of_week: 1, // Monday
+    day_of_week: 1, 
     day_of_month: 1,
     items: []
   });
@@ -41,6 +48,23 @@ export default function ShoppingSchedules({ api, householdId, showNotification, 
   useEffect(() => {
     fetchSchedules();
   }, [fetchSchedules]);
+
+  const handleToggleComplete = async (schedule) => {
+      const newStatus = !schedule.is_completed;
+      const totalCost = schedule.items.reduce((sum, i) => sum + (parseFloat(i.estimated_cost) || 0), 0);
+      
+      try {
+          await api.post(`/households/${householdId}/shopping-list/schedules/${schedule.id}/toggle-complete`, {
+              cycle_date: schedule.next_run_date,
+              is_completed: newStatus,
+              actual_cost: totalCost
+          });
+          showNotification(newStatus ? "Shopping trip completed!" : "Status reverted", "success");
+          fetchSchedules();
+      } catch {
+          showNotification("Failed to update status", "danger");
+      }
+  };
 
   const handleEdit = (schedule) => {
       setEditingId(schedule.id);
@@ -99,57 +123,119 @@ export default function ShoppingSchedules({ api, householdId, showNotification, 
       }));
   };
 
+  const totals = useMemo(() => {
+      const all = schedules.reduce((acc, s) => {
+          const cost = s.items.reduce((sum, it) => sum + (parseFloat(it.estimated_cost) || 0), 0);
+          acc.total += cost;
+          if (s.is_completed) acc.completed += cost;
+          return acc;
+      }, { total: 0, completed: 0 });
+      return { ...all, pending: all.total - all.completed, progress: all.total > 0 ? (all.completed / all.total) * 100 : 0 };
+  }, [schedules]);
+
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box>
+      {/* Budget-style Header */}
+      <Sheet 
+        variant="soft" 
+        color="primary" 
+        sx={{ 
+            p: 2, 
+            borderRadius: 'md', 
+            mb: 3,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 1.5
+        }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography level="title-md" startDecorator={<ShoppingCart />}>Monthly Cycles</Typography>
+            <Typography level="h4" color="primary">{formatCurrency(totals.pending)} left</Typography>
+        </Box>
+        <LinearProgress 
+            determinate 
+            value={totals.progress} 
+            color="success" 
+            thickness={8}
+            sx={{ borderRadius: 'sm' }}
+        />
+        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography level="body-xs">Progress: {Math.round(totals.progress)}%</Typography>
+            <Typography level="body-xs">Total: {formatCurrency(totals.total)}</Typography>
+        </Box>
+      </Sheet>
+
       <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography level="h3" startDecorator={<Schedule />}>Recurring Schedules</Typography>
+        <Typography level="title-lg">Schedules</Typography>
         <Button size="sm" startDecorator={<Add />} onClick={() => { setEditingId(null); setFormData({ name: '', frequency: 'weekly', day_of_week: 1, day_of_month: 1, items: [] }); setOpen(true); }}>
-            New Schedule
+            Add
         </Button>
       </Box>
 
-      <Stack spacing={2}>
-        {schedules.map(s => (
-            <Card key={s.id} variant="outlined" sx={{ p: 2 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <Box>
-                        <Typography level="title-md">{s.name}</Typography>
-                        <Typography level="body-xs" color="neutral">
-                            {s.frequency.toUpperCase()} • Next run: {s.next_run_date || 'TBD'}
-                        </Typography>
-                        <Stack direction="row" spacing={0.5} sx={{ mt: 1 }}>
-                            {s.items.slice(0, 3).map((it, i) => (
-                                <Chip key={i} size="sm" variant="soft">{it.name}</Chip>
-                            ))}
-                            {s.items.length > 3 && <Chip size="sm" variant="plain">+{s.items.length - 3} more</Chip>}
-                        </Stack>
+      <Stack spacing={1.5}>
+        {schedules.map(s => {
+            const cost = s.items.reduce((sum, it) => sum + (parseFloat(it.estimated_cost) || 0), 0);
+            return (
+                <Card 
+                    key={s.id} 
+                    variant={s.is_completed ? 'soft' : 'outlined'} 
+                    color={s.is_completed ? 'success' : 'neutral'}
+                    sx={{ 
+                        p: 1.5,
+                        opacity: s.is_completed ? 0.7 : 1,
+                        transition: 'all 0.2s',
+                        borderLeft: '4px solid',
+                        borderLeftColor: s.is_completed ? 'success.solidBg' : 'neutral.300'
+                    }}
+                >
+                    <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+                        <Checkbox 
+                            size="lg"
+                            variant="soft"
+                            color="success"
+                            checked={!!s.is_completed}
+                            onChange={() => handleToggleComplete(s)}
+                            uncheckedIcon={<RadioButtonUnchecked />}
+                            checkedIcon={<CheckCircle />}
+                        />
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography level="title-sm">{s.name}</Typography>
+                            <Typography level="body-xs">
+                                {formatCurrency(cost)} • {s.frequency}
+                            </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', gap: 0.5 }}>
+                            <IconButton size="sm" variant="plain" onClick={() => handleEdit(s)}><Edit /></IconButton>
+                            <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(s.id)}><Delete /></IconButton>
+                        </Box>
                     </Box>
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                        <IconButton size="sm" variant="plain" onClick={() => handleEdit(s)}><Edit /></IconButton>
-                        <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(s.id)}><Delete /></IconButton>
-                    </Box>
-                </Box>
-            </Card>
-        ))}
+                    {s.next_run_date && (
+                        <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <CalendarMonth sx={{ fontSize: '0.9rem', opacity: 0.6 }} />
+                            <Typography level="body-xs" color="neutral">
+                                Due {format(parseISO(s.next_run_date), 'do MMM')}
+                            </Typography>
+                        </Box>
+                    )}
+                </Card>
+            );
+        })}
         {schedules.length === 0 && !loading && (
-            <Typography level="body-sm" textAlign="center" color="neutral" sx={{ py: 2 }}>
-                No recurring schedules yet.
+            <Typography level="body-sm" textAlign="center" color="neutral" sx={{ py: 4, fontStyle: 'italic' }}>
+                No shopping cycles configured.
             </Typography>
         )}
       </Stack>
 
+      {/* Editor Modal */}
       <Modal open={open} onClose={() => setOpen(false)}>
-          <ModalDialog sx={{ maxWidth: 600, width: '100%' }}>
-              <DialogTitle>{editingId ? 'Edit Schedule' : 'New Recurring List'}</DialogTitle>
+          <ModalDialog sx={{ maxWidth: 500, width: '100%' }}>
+              <DialogTitle>{editingId ? 'Edit Schedule' : 'New Schedule'}</DialogTitle>
               <DialogContent>
                   <Stack spacing={2} sx={{ mt: 1 }}>
                       <FormControl required>
-                          <FormLabel>Schedule Name</FormLabel>
-                          <Input 
-                            placeholder="e.g. Weekly Basics" 
-                            value={formData.name} 
-                            onChange={e => setFormData({ ...formData, name: e.target.value })} 
-                          />
+                          <FormLabel>Name</FormLabel>
+                          <Input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
                       </FormControl>
                       
                       <Box sx={{ display: 'flex', gap: 2 }}>
@@ -163,15 +249,11 @@ export default function ShoppingSchedules({ api, householdId, showNotification, 
                           </FormControl>
                           {formData.frequency !== 'monthly' ? (
                               <FormControl sx={{ flex: 1 }}>
-                                  <FormLabel>Day of Week</FormLabel>
+                                  <FormLabel>Day</FormLabel>
                                   <Select value={formData.day_of_week} onChange={(_, v) => setFormData({ ...formData, day_of_week: v })}>
-                                      <Option value={1}>Monday</Option>
-                                      <Option value={2}>Tuesday</Option>
-                                      <Option value={3}>Wednesday</Option>
-                                      <Option value={4}>Thursday</Option>
-                                      <Option value={5}>Friday</Option>
-                                      <Option value={6}>Saturday</Option>
-                                      <Option value={0}>Sunday</Option>
+                                      <Option value={1}>Mon</Option><Option value={2}>Tue</Option><Option value={3}>Wed</Option>
+                                      <Option value={4}>Thu</Option><Option value={5}>Fri</Option><Option value={6}>Sat</Option>
+                                      <Option value={0}>Sun</Option>
                                   </Select>
                               </FormControl>
                           ) : (
@@ -182,33 +264,29 @@ export default function ShoppingSchedules({ api, householdId, showNotification, 
                           )}
                       </Box>
 
-                      <Divider>Items to Add</Divider>
-                      
-                      <Box sx={{ bgcolor: 'background.level1', p: 1, borderRadius: 'sm' }}>
-                          <Stack direction="row" spacing={1} mb={1}>
+                      <Divider>Items</Divider>
+                      <Stack spacing={1}>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
                               <Input size="sm" placeholder="Item" value={newItem.name} onChange={e => setNewItem({ ...newItem, name: e.target.value })} sx={{ flex: 1 }} />
-                              <Input size="sm" placeholder="Qty" value={newItem.quantity} onChange={e => setNewItem({ ...newItem, quantity: e.target.value })} sx={{ width: 60 }} />
-                              <IconButton size="sm" variant="solid" color="primary" onClick={addItemToSchedule}><Add /></IconButton>
-                          </Stack>
-                          <List size="sm" sx={{ maxHeight: 200, overflow: 'auto' }}>
+                              <Input size="sm" placeholder="£" type="number" value={newItem.estimated_cost} onChange={e => setNewItem({ ...newItem, estimated_cost: e.target.value })} sx={{ width: 70 }} />
+                              <IconButton size="sm" variant="solid" onClick={addItemToSchedule}><Add /></IconButton>
+                          </Box>
+                          <Box sx={{ maxHeight: 150, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 'sm' }}>
                               {formData.items.map((it, idx) => (
-                                  <ListItem 
-                                    key={idx}
-                                    endAction={
-                                        <IconButton size="sm" color="danger" onClick={() => removeItemFromSchedule(idx)}><Delete /></IconButton>
-                                    }
-                                  >
-                                      <Typography level="body-sm">
-                                          <b>{it.quantity}x</b> {it.name}
-                                      </Typography>
-                                  </ListItem>
+                                  <Box key={idx} sx={{ p: 0.5, px: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', '&:not(:last-child)': { borderBottom: '1px solid', borderColor: 'divider' } }}>
+                                      <Typography level="body-xs"><b>{it.quantity}x</b> {it.name}</Typography>
+                                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                          <Typography level="body-xs" fontWeight="bold">{formatCurrency(it.estimated_cost)}</Typography>
+                                          <IconButton size="sm" color="danger" onClick={() => removeItemFromSchedule(idx)}><Delete /></IconButton>
+                                      </Box>
+                                  </Box>
                               ))}
-                          </List>
-                      </Box>
+                          </Box>
+                      </Stack>
 
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
                           <Button variant="plain" color="neutral" onClick={() => setOpen(false)}>Cancel</Button>
-                          <Button startDecorator={<Save />} onClick={handleSave}>Save Schedule</Button>
+                          <Button startDecorator={<Save />} onClick={handleSave}>Save</Button>
                       </Box>
                   </Stack>
               </DialogContent>

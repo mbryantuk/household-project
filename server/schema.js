@@ -424,8 +424,19 @@ const TENANT_SCHEMA = [
         day_of_week INTEGER, -- 0-6 (Sun-Sat)
         day_of_month INTEGER,
         next_run_date DATE,
+        last_generated_cycle DATE, -- Track when items were last added to list
         is_active INTEGER DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE TABLE IF NOT EXISTS shopping_cycle_progress (
+        household_id INTEGER,
+        schedule_id INTEGER,
+        cycle_date DATE,
+        is_completed INTEGER DEFAULT 0,
+        actual_cost REAL DEFAULT 0,
+        completed_at DATETIME,
+        PRIMARY KEY (household_id, schedule_id, cycle_date),
+        FOREIGN KEY(schedule_id) REFERENCES shopping_schedules(id) ON DELETE CASCADE
     )`
 ];
 

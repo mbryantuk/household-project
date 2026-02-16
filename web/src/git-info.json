@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Enhance Ocado receipt parsing and add recurring shopping schedules",
-  "date": "Mon 16 Feb 13:23:15 GMT 2026"
+  "commitMessage": "Fix shopping scheduler crash and finalize budget-style tracking",
+  "date": "Mon 16 Feb 13:34:19 GMT 2026"
 }
