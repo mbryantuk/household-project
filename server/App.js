@@ -47,7 +47,15 @@ app.use(helmet({
     contentSecurityPolicy: false, 
     crossOriginEmbedderPolicy: false
 }));
-app.use(cors());
+
+// Robust CORS Configuration to allow x-bypass-maintenance
+app.use(cors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-bypass-maintenance', 'x-api-version'],
+    exposedHeaders: ['x-api-version']
+}));
+
 app.use(express.json());
 
 // Global Version Header

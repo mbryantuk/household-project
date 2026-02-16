@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix: change brown font to standard black on financial views",
-  "date": "Mon 16 Feb 16:21:20 GMT 2026"
+  "commitMessage": "Fix: update CORS for tests and revert brown font to standard black in finance views",
+  "date": "Mon 16 Feb 16:46:34 GMT 2026"
 }

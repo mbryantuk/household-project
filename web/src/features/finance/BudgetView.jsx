@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { 
-  Box, Typography, Grid, Card, Avatar, IconButton, 
+import {
+  Box, Typography, Grid, Card, Avatar, IconButton,
   Button, Modal, ModalDialog, DialogTitle, DialogContent, Input,
   FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
   Sheet, Table, Checkbox, LinearProgress, Switch, Accordion, AccordionSummary, AccordionDetails,
@@ -1286,7 +1286,7 @@ export default function BudgetView({ financialProfileId }) {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                   <Avatar size="sm" sx={{ bgcolor: getEmojiColor(exp.label || '?', isDark) }}>{exp.icon}</Avatar>
                   <Box sx={{ minWidth: 0 }}>
-                    <Typography level="body-sm" fontWeight="bold" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{exp.label}</Typography>
+                    <Typography level="body-sm" fontWeight="bold" sx={{ color: 'text.primary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{exp.label}</Typography>
                     {isPot && <Typography level="body-xs" color="success">Pot Transfer</Typography>}
                     {isSavingsDeposit && <Typography level="body-xs" sx={{ color: 'text.secondary' }}>Savings Account</Typography>}
                   </Box>
@@ -1299,7 +1299,7 @@ export default function BudgetView({ financialProfileId }) {
           </td>
           <td style={{ width: 160 }}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography level="body-xs" fontWeight="bold">{format(exp.computedDate, 'do MMM')}</Typography>
+                  <Typography level="body-xs" fontWeight="bold" sx={{ color: 'text.primary' }}>{format(exp.computedDate, 'do MMM')}</Typography>
                   <Typography level="body-xs" color={rel.color}>{rel.label}</Typography>
               </Box>
           </td>
@@ -1371,7 +1371,7 @@ export default function BudgetView({ financialProfileId }) {
                 <Box sx={{ flex: 1, minWidth: 0 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.5, gap: 1 }}>
                         <Box sx={{ minWidth: 0, flex: 1 }}>
-                            <Typography level="title-sm" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{exp.label}</Typography>
+                            <Typography level="title-sm" sx={{ color: 'text.primary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{exp.label}</Typography>
                             <Typography level="body-xs" color="neutral">{format(exp.computedDate, 'do MMM')} ({getRelativeDateLabel(exp.computedDate).label})</Typography>
                         </Box>
                         <Chip size="sm" variant="soft" color={getCategoryColor(exp.category)} sx={{ fontSize: '0.6rem', textTransform: 'capitalize', flexShrink: 0 }}>{exp.category}</Chip>
@@ -1430,10 +1430,10 @@ export default function BudgetView({ financialProfileId }) {
               <Box sx={{ display: 'flex', flexWrap: { xs: 'wrap', sm: 'nowrap' }, justifyContent: 'space-between', width: '100%', alignItems: 'center', mr: 2, overflow: 'hidden', gap: 1.5 }}>
                   <Typography level="title-lg" sx={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 0, flexBasis: { xs: '100%', sm: 'auto' } }}>
                       <Avatar size="sm" sx={{ bgcolor: 'background.level3' }}>{group.emoji}</Avatar> 
-                      <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.label}</Box>
+                      <Box component="span" sx={{ color: 'text.primary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.label}</Box>
                   </Typography>
                   <Stack direction="row" spacing={2} sx={{ flexShrink: 0, justifyContent: { xs: 'space-between', sm: 'flex-end' }, width: { xs: '100%', sm: 'auto' }, mt: { xs: 1, sm: 0 } }}>
-                      <Box sx={{ textAlign: 'center' }}><Typography level="body-xs">Total</Typography><Typography level="body-sm" fontWeight="bold">{formatCurrency(group.total)}</Typography></Box>
+                      <Box sx={{ textAlign: 'center' }}><Typography level="body-xs">Total</Typography><Typography level="body-sm" fontWeight="bold" sx={{ color: 'text.primary' }}>{formatCurrency(group.total)}</Typography></Box>
                       <Box sx={{ textAlign: 'center' }}><Typography level="body-xs" color="success">Paid</Typography><Typography level="body-sm" fontWeight="bold" color="success">{formatCurrency(group.paid)}</Typography></Box>
                       <Box sx={{ textAlign: 'center' }}><Typography level="body-xs" color="danger">Unpaid</Typography><Typography level="body-sm" fontWeight="bold" color="danger">{formatCurrency(group.unpaid)}</Typography></Box>
                   </Stack>
@@ -1493,7 +1493,7 @@ export default function BudgetView({ financialProfileId }) {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'center', md: 'flex-start' } }}>
                 <IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, -1))}><ChevronLeft /></IconButton>
                 <Box sx={{ textAlign: 'center' }}>
-                    <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.2rem', sm: '1.5rem' } }}>{cycleData.label}</Typography>
+                    <Typography level="h2" sx={{ color: 'text.primary', fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.2rem', sm: '1.5rem' } }}>{cycleData.label}</Typography>
                     <Typography level="body-xs" color="neutral">{format(cycleData.startDate, 'do MMM')} to {format(cycleData.endDate, 'do MMM')}</Typography>
                 </Box>
                 <IconButton variant="outlined" onClick={() => setViewDate(addMonths(viewDate, 1))}><ChevronRight /></IconButton>
@@ -1590,8 +1590,7 @@ export default function BudgetView({ financialProfileId }) {
                             <Typography 
                                 level="body-xs" 
                                 variant="soft" 
-                                color="warning" 
-                                sx={{ px: 1, borderRadius: 'xs', fontWeight: 'bold' }}
+                                sx={{ px: 1, borderRadius: 'xs', fontWeight: 'bold', bgcolor: 'warning.softBg', color: 'text.primary', border: '1px solid', borderColor: 'warning.200' }}
                             >
                                 Action Required: Going into overdraft on {format(overdraftRemedy.deadline, 'do MMM')} and need {formatCurrency(overdraftRemedy.amountToClear)} by {format(overdraftRemedy.deadline, 'do MMM')} to stay positive.
                             </Typography>
@@ -1599,8 +1598,7 @@ export default function BudgetView({ financialProfileId }) {
                                 <Typography 
                                     level="body-xs" 
                                     variant="soft" 
-                                    color="danger" 
-                                    sx={{ px: 1, borderRadius: 'xs', fontWeight: 'bold' }}
+                                    sx={{ px: 1, borderRadius: 'xs', fontWeight: 'bold', bgcolor: 'danger.softBg', color: 'text.primary', border: '1px solid', borderColor: 'danger.200' }}
                                 >
                                     CRITICAL: {formatCurrency(overdraftRemedy.amountToBuffer)} needed by {format(overdraftRemedy.limitDeadline, 'do MMM')} to avoid bounce.
                                 </Typography>
@@ -1731,7 +1729,7 @@ export default function BudgetView({ financialProfileId }) {
                     {incomeGroup && (
                         <Box>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                                <Typography level="title-md" startDecorator={<Payments />}>Income Sources</Typography>
+                                <Typography level="title-md" startDecorator={<Payments />} sx={{ color: 'text.primary' }}>Income Sources</Typography>
                                 <Typography level="body-xs" fontWeight="bold" color="success">{formatCurrency(incomeGroup.total)}</Typography>
                             </Box>
                             <Stack spacing={1.5}>
@@ -1754,7 +1752,7 @@ export default function BudgetView({ financialProfileId }) {
 
                     <Card variant="outlined" sx={{ p: 2, boxShadow: 'sm', bgcolor: 'primary.softBg', borderColor: 'primary.200' }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                            <Typography level="title-md" startDecorator={<BankIcon />}>Liquidity Control</Typography>
+                            <Typography level="title-md" startDecorator={<BankIcon />} sx={{ color: 'text.primary' }}>Liquidity Control</Typography>
                         </Box>
                         
                         <FormControl sx={{ mb: 2 }}>
@@ -1794,14 +1792,14 @@ export default function BudgetView({ financialProfileId }) {
                                 value={currentBalance} 
                                 onChange={(e) => setCurrentBalance(e.target.value)} 
                                 onBlur={(e) => saveCycleData(actualPay, e.target.value)} 
-                                color="primary" 
+                                color="neutral" 
                                 variant="outlined"
-                                startDecorator={<Typography level="h4">£</Typography>}
+                                startDecorator={<Typography level="h4" sx={{ color: 'text.primary' }}>£</Typography>}
                                 sx={{ 
                                     fontWeight: 'xl', 
                                     fontSize: '1.5rem',
                                     bgcolor: 'background.surface',
-                                    '& input': { textAlign: 'right' }
+                                    '& input': { textAlign: 'right', color: 'text.primary' }
                                 }} 
                                 slotProps={{ input: { step: '0.01' } }}
                             />
@@ -1809,7 +1807,7 @@ export default function BudgetView({ financialProfileId }) {
                     </Card>
 
                     <Card variant="outlined" sx={{ p: 2, boxShadow: 'sm' }}>
-                        <Typography level="title-md" startDecorator={<TrendingDown />} sx={{ mb: 2 }}>Drawdown Projection</Typography>
+                        <Typography level="title-md" startDecorator={<TrendingDown />} sx={{ color: 'text.primary', mb: 2 }}>Drawdown Projection</Typography>
                         
                         <Box sx={{ mb: 2 }}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
@@ -1822,7 +1820,7 @@ export default function BudgetView({ financialProfileId }) {
                         {isOverdrawnRisk && (
                             <Sheet color={isLimitRisk ? 'danger' : 'warning'} variant="soft" sx={{ p: 1, borderRadius: 'sm', mb: 2, display: 'flex', gap: 1, alignItems: 'center' }}>
                                 <Warning sx={{ fontSize: '1rem' }} />
-                                <Typography level="body-xs" fontWeight="bold">
+                                <Typography level="body-xs" fontWeight="bold" sx={{ color: 'text.primary' }}>
                                     {isLimitRisk ? 'Overdraft Limit Warning!' : 'Temporary deficit projected.'}
                                 </Typography>
                             </Sheet>
