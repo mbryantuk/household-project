@@ -197,15 +197,34 @@ export default function GenericObjectView({
                 onChange={(e, v) => setActiveTab(v)} 
                 sx={{ bgcolor: 'transparent', borderBottom: '1px solid', borderColor: 'divider' }}
             >
-                <TabList sx={{ p: 0, gap: 0 }}>
-                    <Tab variant={activeTab === 0 ? 'solid' : 'plain'} color="primary" sx={{ flex: 1, py: 2 }}>
+                <TabList sx={{ 
+                    p: 0, 
+                    gap: 0, 
+                    overflow: 'auto', 
+                    scrollSnapType: 'x mandatory', 
+                    '&::-webkit-scrollbar': { display: 'none' } 
+                }}>
+                    <Tab 
+                        variant={activeTab === 0 ? 'solid' : 'plain'} 
+                        color="primary" 
+                        sx={{ flex: { xs: 'none', md: 1 }, py: 2, minWidth: 120, scrollSnapAlign: 'start' }}
+                    >
                         <Info sx={{ mr: 1 }}/> Identity
                     </Tab>
-                    <Tab variant={activeTab === 1 ? 'solid' : 'plain'} color="primary" sx={{ flex: 1, py: 2 }}>
+                    <Tab 
+                        variant={activeTab === 1 ? 'solid' : 'plain'} 
+                        color="primary" 
+                        sx={{ flex: { xs: 'none', md: 1 }, py: 2, minWidth: 120, scrollSnapAlign: 'start' }}
+                    >
                         <Payments sx={{ mr: 1 }}/> Recurring Costs
                     </Tab>
                     {extraTabs.map((tab, idx) => (
-                        <Tab key={tab.id} variant={activeTab === 2 + idx ? 'solid' : 'plain'} color="primary" sx={{ flex: 1, py: 2 }}>
+                        <Tab 
+                            key={tab.id} 
+                            variant={activeTab === 2 + idx ? 'solid' : 'plain'} 
+                            color="primary" 
+                            sx={{ flex: { xs: 'none', md: 1 }, py: 2, minWidth: 120, scrollSnapAlign: 'start' }}
+                        >
                              {tab.icon && <tab.icon sx={{ mr: 1 }} />} {tab.label}
                         </Tab>
                     ))}

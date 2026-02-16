@@ -36,7 +36,7 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
                     }
                 }
             });
-        } catch (e) {
+        } catch {
             // Ignore context destruction errors (e.g. if redirect happens fast)
         }
         
