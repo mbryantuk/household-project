@@ -277,53 +277,107 @@ export default function HouseholdLayout({
 
   
 
-              <Box component="main" sx={{ 
+                            <Box component="main" sx={{ 
 
-                  flexGrow: 1, 
+  
 
-                  minHeight: 0,
+                                flexGrow: 1, 
 
-                  p: { xs: 2, md: 3 }, 
+  
 
-                  pb: { xs: 10, md: 3 }, 
+                                minHeight: 0,
 
-                  overflowY: 'auto',
+  
 
-                  WebkitOverflowScrolling: 'touch' 
+                                p: { xs: 2, md: 3 }, 
 
-              }}>
+  
 
-                  <Outlet context={{ 
+                                pb: { xs: 10, md: 3 }, 
 
-                      api, 
+  
 
-                      id, 
+                                overflowY: 'auto',
 
-                      onUpdateHousehold,
+  
 
-                      members, 
+                                WebkitOverflowScrolling: 'touch' 
 
-                      fetchHhMembers, 
+  
 
-                      fetchVehicles,
+                            }}>
 
-                      user, 
+  
 
-                      isDark,
+                                <Outlet context={{ 
 
-                      showNotification,
+  
 
-                      confirmAction,
+                                    api, 
 
-                      onUpdateProfile,
+  
 
-                      setStatusBarData,
+                                    id, 
 
-                      household: household
+  
 
-                  }} />
+                                    onUpdateHousehold,
 
-              </Box>
+  
+
+                                    members, 
+
+  
+
+                                    vehicles,
+
+  
+
+                                    fetchHhMembers, 
+
+  
+
+                                    fetchVehicles,
+
+  
+
+                                    user, 
+
+  
+
+                                    isDark,
+
+  
+
+                                    showNotification,
+
+  
+
+                                    confirmAction,
+
+  
+
+                                    onUpdateProfile,
+
+  
+
+                                    setStatusBarData,
+
+  
+
+                                    household: household
+
+  
+
+                                }} />
+
+  
+
+                            </Box>
+
+  
+
+              
 
   
 

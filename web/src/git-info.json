@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix shopping scheduler crash and finalize budget-style tracking",
-  "date": "Mon 16 Feb 13:34:19 GMT 2026"
+  "commitMessage": "Fix missing vehicles in HouseView by passing context correctly",
+  "date": "Mon 16 Feb 13:38:48 GMT 2026"
 }
