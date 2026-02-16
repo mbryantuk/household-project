@@ -17,7 +17,7 @@ const formatCurrency = (val) => {
 };
 
 export default function ShoppingListView() {
-  const { api, household, showNotification } = useOutletContext();
+  const { api, household, showNotification, confirmAction } = useOutletContext();
   const [items, setItems] = useState([]);
   const [newItemName, setNewItemName] = useState('');
   const [newItemCost, setNewItemCost] = useState('');
@@ -78,24 +78,26 @@ export default function ShoppingListView() {
   };
 
   const handleDelete = async (id) => {
-      if (!window.confirm("Remove this item?")) return;
-      try {
-          await api.delete(`/households/${household.id}/shopping-list/${id}`);
-          setItems(prev => prev.filter(i => i.id !== id));
-      } catch {
-          showNotification("Failed to delete", "danger");
-      }
+      confirmAction("Delete Item", "Are you sure you want to remove this item from your list?", async () => {
+          try {
+              await api.delete(`/households/${household.id}/shopping-list/${id}`);
+              setItems(prev => prev.filter(i => i.id !== id));
+          } catch {
+              showNotification("Failed to delete", "danger");
+          }
+      });
   };
 
   const handleClearCompleted = async () => {
-      if (!window.confirm("Clear all checked items?")) return;
-      try {
-          await api.delete(`/households/${household.id}/shopping-list/clear`);
-          fetchList();
-          showNotification("Completed items cleared", "neutral");
-      } catch {
-          showNotification("Failed to clear", "danger");
-      }
+      confirmAction("Clear Completed", "Remove all checked items from your list?", async () => {
+          try {
+              await api.delete(`/households/${household.id}/shopping-list/clear`);
+              fetchList();
+              showNotification("Completed items cleared", "neutral");
+          } catch {
+              showNotification("Failed to clear", "danger");
+          }
+      });
   };
 
   const handleUpdateBudget = (val) => {
@@ -156,7 +158,7 @@ export default function ShoppingListView() {
                     <Input 
                         size="sm" 
                         placeholder="Set Limit" 
-                        startDecorator={<AttachMoney />}
+                        startDecorator="£"
                         type="number"
                         value={budgetLimit}
                         onChange={(e) => handleUpdateBudget(e.target.value)}

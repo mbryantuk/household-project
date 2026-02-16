@@ -22,7 +22,7 @@ const formatPercent = (val) => {
 };
 
 export default function VehicleFinanceView({ financialProfileId }) {
-  const { api, id: householdId, user: currentUser, isDark, members, showNotification } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, members, showNotification, confirmAction } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
@@ -111,12 +111,16 @@ export default function VehicleFinanceView({ financialProfileId }) {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this finance agreement?")) return;
-    try { 
-        await api.delete(`/households/${householdId}/finance/vehicle-finance/${id}`); 
-        fetchData(); 
-        if (selectedFinanceId === String(id)) setFinanceId(null);
-    } catch { alert("Failed to delete"); }
+    confirmAction("Delete Agreement", "Are you sure you want to delete this finance agreement? This cannot be undone.", async () => {
+        try { 
+            await api.delete(`/households/${householdId}/finance/vehicle-finance/${id}`); 
+            showNotification("Agreement deleted", "success");
+            fetchData(); 
+            if (selectedFinanceId === String(id)) setFinanceId(null);
+        } catch { 
+            showNotification("Failed to delete", "danger");
+        }
+    });
   };
 
   const handleAssignMember = async (memberId) => {

@@ -1,13 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { getHouseholdDb } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { useTenantDb } = require('../middleware/tenant');
 const { getBankHolidays, getPriorWorkingDay, getNextWorkingDay } = require('../services/bankHolidays');
-
-const closeDb = (req) => {
-    if (req.tenantDb) req.tenantDb.close();
-};
 
 router.get('/system/holidays', async (req, res) => {
     try {
@@ -142,10 +137,10 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
             combined.push({ id: `holiday_${hDate}`, title: `🏦 Bank Holiday`, date: hDate, type: 'holiday', emoji: '🇬🇧', is_all_day: 1 });
         });
 
-        closeDb(req);
+        
         res.json(combined);
     } catch (err) {
-        closeDb(req);
+        
         console.error("Calendar Fetch Error:", err);
         res.status(500).json({ error: err.message });
     }
@@ -153,7 +148,7 @@ router.get('/households/:id/dates', authenticateToken, requireHouseholdRole('vie
 
 router.get('/households/:id/dates/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
     req.tenantDb.get(`SELECT * FROM dates WHERE id = ? AND household_id = ?`, [req.params.itemId, req.hhId], (err, row) => {
-        closeDb(req);
+        
         if (err) return res.status(500).json({ error: err.message });
         if (!row) return res.status(404).json({ error: "Date not found" });
         res.json(row);
@@ -162,10 +157,10 @@ router.get('/households/:id/dates/:itemId', authenticateToken, requireHouseholdR
 
 router.post('/households/:id/dates', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     const { title, date, end_date, is_all_day, type, description, emoji, recurrence, recurrence_end_date } = req.body;
-    if (!title || !date) { closeDb(req); return res.status(400).json({ error: "Title and Start Date are required" }); }
+    if (!title || !date) {  return res.status(400).json({ error: "Title and Start Date are required" }); }
     const sql = `INSERT INTO dates (household_id, title, date, end_date, is_all_day, type, description, emoji, recurrence, recurrence_end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     req.tenantDb.run(sql, [req.hhId, title, date, end_date, is_all_day ? 1 : 0, type, description, emoji, recurrence || 'none', recurrence_end_date], function(err) {
-        closeDb(req);
+        
         if (err) return res.status(500).json({ error: err.message });
         res.json({ id: this.lastID, title, date, end_date, is_all_day, type, description, emoji, recurrence, recurrence_end_date });
     });
@@ -173,7 +168,7 @@ router.post('/households/:id/dates', authenticateToken, requireHouseholdRole('me
 
 router.delete('/households/:id/dates/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     req.tenantDb.run(`DELETE FROM dates WHERE id = ? AND household_id = ?`, [req.params.itemId, req.hhId], function(err) {
-        closeDb(req);
+        
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Date removed" });
     });
@@ -182,12 +177,12 @@ router.delete('/households/:id/dates/:itemId', authenticateToken, requireHouseho
 router.put('/households/:id/dates/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     const { itemId } = req.params;
     const fields = Object.keys(req.body).filter(f => f !== 'id' && f !== 'household_id');
-    if (fields.length === 0) { closeDb(req); return res.status(400).json({ error: "No fields to update" }); }
+    if (fields.length === 0) {  return res.status(400).json({ error: "No fields to update" }); }
     const sets = fields.map(f => `${f} = ?`).join(', ');
     const values = fields.map(f => req.body[f]);
     const sql = `UPDATE dates SET ${sets} WHERE id = ? AND household_id = ?`;
     req.tenantDb.run(sql, [...values, itemId, req.hhId], function(err) {
-        closeDb(req);
+        
         if (err) return res.status(500).json({ error: err.message });
         if (this.changes === 0) return res.status(404).json({ error: "Date not found" });
         res.json({ message: "Date updated", id: itemId, ...req.body });

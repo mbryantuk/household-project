@@ -17,7 +17,7 @@ const formatCurrency = (val) => {
 };
 
 export default function BankingView({ financialProfileId }) {
-  const { api, id: householdId, user: currentUser, isDark, members, showNotification } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, members, showNotification, confirmAction } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
@@ -130,15 +130,16 @@ export default function BankingView({ financialProfileId }) {
   };
 
   const handleDelete = useCallback(async (id) => {
-    if (!window.confirm("Delete this account permanently?")) return;
-    try {
-      await api.delete(`/households/${householdId}/finance/current-accounts/${id}`);
-      fetchData();
-      if (selectedAccountId === String(id)) setAccountId(null);
-    } catch {
-      alert("Failed to delete account");
-    }
-  }, [api, householdId, fetchData, selectedAccountId, setAccountId]);
+    confirmAction("Delete Account", "Delete this account permanently? This cannot be undone.", async () => {
+        try {
+          await api.delete(`/households/${householdId}/finance/current-accounts/${id}`);
+          fetchData();
+          if (selectedAccountId === String(id)) setAccountId(null);
+        } catch {
+          showNotification("Failed to delete account", "danger");
+        }
+    });
+  }, [api, householdId, fetchData, selectedAccountId, setAccountId, confirmAction, showNotification]);
 
   const handleAssignMember = async (memberId) => {
       try {

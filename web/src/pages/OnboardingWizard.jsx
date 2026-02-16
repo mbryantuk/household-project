@@ -1,358 +1,350 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  Box, Stepper, Step, StepIndicator, StepButton, Typography, Button, 
-  Stack, Grid, Card, FormControl, FormLabel, Input, Select, Option, 
-  Avatar, IconButton, Chip, Divider, AspectRatio, CircularProgress
+  Box, Typography, Stepper, Step, StepIndicator, 
+  Sheet, Button, Stack, FormControl, FormLabel, Input, 
+  Avatar, IconButton, Grid, Divider, CircularProgress,
+  List, ListItem, ListItemButton, ListItemContent, ListItemDecorator,
+  Checkbox
 } from '@mui/joy';
 import { 
-  Person, Home, DirectionsCar, AccountBalance, ReceiptLong, 
-  Add, Delete, CheckCircle, ArrowBack, ArrowForward, HomeWork
+  Home, People, DirectionsCar, Inventory2, 
+  CheckCircle, ArrowForward, ArrowBack, Add, Edit, Delete,
+  AccountBalance, DoneAll
 } from '@mui/icons-material';
-import { useOutletContext, useNavigate, useParams } from 'react-router-dom';
-import { getEmojiColor } from '../theme';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useHousehold } from '../contexts/HouseholdContext';
 import EmojiPicker from '../components/EmojiPicker';
+import { getEmojiColor } from '../theme';
 
 const steps = [
-  { label: 'Family & Pets', icon: <Person /> },
-  { label: 'Property', icon: <HomeWork /> },
+  { label: 'Household', icon: <Home /> },
+  { label: 'Residents', icon: <People /> },
   { label: 'Vehicles', icon: <DirectionsCar /> },
-  { label: 'Banking', icon: <AccountBalance /> },
-  { label: 'Budget', icon: <ReceiptLong /> },
+  { label: 'Assets', icon: <Inventory2 /> },
+  { label: 'Finish', icon: <DoneAll /> }
 ];
 
 export default function OnboardingWizard() {
   const { id: householdId } = useParams();
-  const { api, showNotification, isDark, household: contextHousehold } = useOutletContext();
   const navigate = useNavigate();
-
+  const { api, showNotification, isDark, onSelectHousehold } = useHousehold();
+  
   const [activeStep, setActiveStep] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [hhName, setHhName] = useState(contextHousehold?.name || 'Your Home');
+  const [loading, setLoading] = useState(true);
+  
+  // Data States
+  const [household, setHousehold] = useState(null);
+  const [members, setMembers] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
+  const [assets, setAssets] = useState([]);
+
+  // Form States
+  const [editItem, setEditItem] = useState(null);
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
   useEffect(() => {
-      if (!contextHousehold && householdId) {
-          api.get(`/households/${householdId}`).then(res => {
-              if (res.data) setHhName(res.data.name);
-          }).catch(() => {});
-      }
-  }, [householdId, contextHousehold, api]);
+    if (!householdId || !api) return;
+    
+    const loadData = async () => {
+        setLoading(true);
+        try {
+            const [hRes, mRes, vRes, aRes] = await Promise.all([
+                api.get(`/households/${householdId}`),
+                api.get(`/households/${householdId}/members`),
+                api.get(`/households/${householdId}/vehicles`),
+                api.get(`/households/${householdId}/assets`)
+            ]);
+            setHousehold(hRes.data);
+            setMembers(mRes.data || []);
+            setVehicles(vRes.data || []);
+            setAssets(aRes.data || []);
+        } catch (err) {
+            console.error("Onboarding data load failed", err);
+            showNotification("Failed to load household data.", "danger");
+        } finally {
+            setLoading(false);
+        }
+    };
+    loadData();
+  }, [householdId, api, showNotification]);
 
-  // --- STATE ---
-  const [members, setMembers] = useState([{ name: '', type: 'adult', emoji: '👤' }]);
-  const [house, setHouse] = useState({ property_type: 'Detached', construction_year: 2000, council_tax_band: 'D' });
-  const [vehicles, setVehicles] = useState([]);
-  const [banking, setBanking] = useState([]);
-  const [budgetItems, setBudgetItems] = useState([
-    { name: 'Council Tax', amount: 150, category_id: 'council_tax', emoji: '🏛️' },
-    { name: 'Electricity', amount: 80, category_id: 'energy', emoji: '⚡' },
-    { name: 'Water', amount: 30, category_id: 'utility', emoji: '💧' },
-    { name: 'Internet', amount: 35, category_id: 'utility', emoji: '🌐' }
-  ]);
-
-  const [emojiPicker, setEmojiPicker] = useState({ open: false, target: null, index: null });
-
-  const handleNext = async () => {
-    if (activeStep === steps.length - 1) {
-      await finalizeOnboarding();
-    } else {
-      setActiveStep((prev) => prev + 1);
-    }
-  };
-
+  const handleNext = () => setActiveStep((prev) => prev + 1);
   const handleBack = () => setActiveStep((prev) => prev - 1);
 
-  const finalizeOnboarding = async () => {
-    setLoading(true);
-    try {
-      // 1. Members
-      for (const m of members) {
-          if (m.name) await api.post(`/households/${householdId}/members`, m);
-      }
-      
-      // 2. House
-      await api.put(`/households/${householdId}/details`, house);
-      
-      // 3. Vehicles
-      for (const v of vehicles) {
-          if (v.make) await api.post(`/households/${householdId}/vehicles`, v);
-      }
+  const handleComplete = async () => {
+      // Mark as onboarding complete if we have a flag, for now just redirect
+      if (household) await onSelectHousehold(household);
+      navigate(`/household/${householdId}/dashboard`);
+  };
 
-      // 4. Create Default Financial Profile
-      const profileRes = await api.post(`/households/${householdId}/finance/profiles`, {
-          name: 'Joint Finances',
-          is_default: 1,
-          emoji: '💰'
-      });
-      const profileId = profileRes.data.id;
-      
-      // 5. Banking (Linked to Profile)
-      for (const b of banking) {
-          if (b.bank_name) {
-              await api.post(`/households/${householdId}/finance/current-accounts`, {
-                  ...b,
-                  financial_profile_id: profileId
-              });
+  // --- CRUD HELPERS ---
+  const saveMember = async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(e.currentTarget));
+      try {
+          if (editItem?.id) {
+              await api.put(`/households/${householdId}/members/${editItem.id}`, data);
+          } else {
+              await api.post(`/households/${householdId}/members`, data);
           }
-      }
-      
-      // 6. Budget (Linked to Profile)
-      for (const item of budgetItems) {
-          await api.post(`/households/${householdId}/finance/recurring-costs`, {
-              ...item,
-              financial_profile_id: profileId,
-              object_type: 'household'
-          });
-      }
-
-      showNotification("Onboarding complete! Welcome to your new home.", "success");
-      
-      // Ensure context is updated
-      if (typeof window !== 'undefined') {
-          window.location.href = `/household/${householdId}/dashboard`;
-      }
-    } catch (err) {
-      console.error("Onboarding failed", err);
-      showNotification("Some data failed to save, but you can update it later.", "warning");
-      window.location.href = `/household/${householdId}/dashboard`;
-    } finally {
-      setLoading(false);
-    }
+          const res = await api.get(`/households/${householdId}/members`);
+          setMembers(res.data || []);
+          setEditItem(null);
+      } catch { showNotification("Failed to save member", "danger"); }
   };
 
-  // --- RENDERS ---
-  const renderStepContent = (step) => {
-    switch (step) {
-      case 0: return (
-        <Stack spacing={2}>
-          <Typography level="title-lg">Who lives here?</Typography>
-          <Typography level="body-sm">Add your family members, roommates, or pets.</Typography>
-          {members.map((m, i) => (
-            <Card key={i} variant="soft" sx={{ p: 2 }}>
-              <Grid container spacing={2} alignItems="center">
-                <Grid xs="auto">
-                  <Avatar 
-                    sx={{ bgcolor: getEmojiColor(m.emoji, isDark), cursor: 'pointer' }} 
-                    onClick={() => setEmojiPicker({ open: true, target: 'member', index: i })}
-                  >
-                    {m.emoji}
-                  </Avatar>
-                </Grid>
-                <Grid xs>
-                  <Input 
-                    placeholder="Name" 
-                    value={m.name} 
-                    onChange={(e) => {
-                        const newM = [...members];
-                        newM[i].name = e.target.value;
-                        setMembers(newM);
-                    }} 
-                  />
-                </Grid>
-                <Grid xs={3}>
-                  <Select 
-                    value={m.type} 
-                    onChange={(_, val) => {
-                        const newM = [...members];
-                        newM[i].type = val;
-                        setMembers(newM);
-                    }}
-                  >
-                    <Option value="adult">Adult</Option>
-                    <Option value="child">Child</Option>
-                    <Option value="pet">Pet</Option>
-                  </Select>
-                </Grid>
-                <Grid xs="auto">
-                  <IconButton color="danger" variant="plain" onClick={() => setMembers(members.filter((_, idx) => idx !== i))}>
-                    <Delete />
-                  </IconButton>
-                </Grid>
-              </Grid>
-            </Card>
-          ))}
-          <Button startDecorator={<Add />} variant="outlined" onClick={() => setMembers([...members, { name: '', type: 'adult', emoji: '👤' }])}>Add Another</Button>
-        </Stack>
-      );
-      case 1: return (
-        <Stack spacing={2}>
-            <Typography level="title-lg">About the Property</Typography>
-            <Typography level="body-sm">Help us estimate costs by telling us about your home.</Typography>
-            <Grid container spacing={2}>
-                <Grid xs={12} md={6}>
-                    <FormControl>
-                        <FormLabel>Property Type</FormLabel>
-                        <Select value={house.property_type} onChange={(_, val) => setHouse({...house, property_type: val})}>
-                            <Option value="Detached">Detached</Option>
-                            <Option value="Semi-Detached">Semi-Detached</Option>
-                            <Option value="Terraced">Terraced</Option>
-                            <Option value="Flat/Apartment">Flat/Apartment</Option>
-                        </Select>
-                    </FormControl>
-                </Grid>
-                <Grid xs={12} md={6}>
-                    <FormControl>
-                        <FormLabel>Construction Year (Approx)</FormLabel>
-                        <Input type="number" value={house.construction_year} onChange={(e) => setHouse({...house, construction_year: e.target.value})} />
-                    </FormControl>
-                </Grid>
-                <Grid xs={12} md={6}>
-                    <FormControl>
-                        <FormLabel>Council Tax Band</FormLabel>
-                        <Select value={house.council_tax_band} onChange={(_, val) => setHouse({...house, council_tax_band: val})}>
-                            {['A','B','C','D','E','F','G','H'].map(b => <Option key={b} value={b}>{b}</Option>)}
-                        </Select>
-                    </FormControl>
-                </Grid>
-            </Grid>
-        </Stack>
-      );
-      case 2: return (
-          <Stack spacing={2}>
-              <Typography level="title-lg">Vehicles</Typography>
-              <Typography level="body-sm">Add cars, bikes, or vans used by the household.</Typography>
-              {vehicles.map((v, i) => (
-                  <Card key={i} variant="soft" sx={{ p: 2 }}>
-                    <Grid container spacing={2}>
-                        <Grid xs={5}>
-                            <Input placeholder="Make/Model" value={v.make} onChange={(e) => {
-                                const newV = [...vehicles];
-                                newV[i].make = e.target.value;
-                                setVehicles(newV);
-                            }} />
-                        </Grid>
-                        <Grid xs={5}>
-                            <Input placeholder="Registration" value={v.registration} onChange={(e) => {
-                                const newV = [...vehicles];
-                                newV[i].registration = e.target.value;
-                                setVehicles(newV);
-                            }} />
-                        </Grid>
-                        <Grid xs={2}>
-                            <IconButton color="danger" variant="plain" onClick={() => setVehicles(vehicles.filter((_, idx) => idx !== i))}>
-                                <Delete />
-                            </IconButton>
-                        </Grid>
-                    </Grid>
-                  </Card>
-              ))}
-              <Button startDecorator={<Add />} variant="outlined" onClick={() => setVehicles([...vehicles, { make: '', registration: '', emoji: '🚗' }])}>Add Vehicle</Button>
-          </Stack>
-      );
-      case 3: return (
-          <Stack spacing={2}>
-              <Typography level="title-lg">Banking</Typography>
-              <Typography level="body-sm">Set up your primary current accounts.</Typography>
-                {banking.map((b, i) => (
-                    <Card key={i} variant="soft" sx={{ p: 2 }}>
-                        <Grid container spacing={2}>
-                            <Grid xs={6}>
-                                <Input placeholder="Bank Name" value={b.bank_name} onChange={(e) => {
-                                    const newB = [...banking];
-                                    newB[i].bank_name = e.target.value;
-                                    setBanking(newB);
-                                }} />
-                            </Grid>
-                            <Grid xs={6}>
-                                <Input placeholder="Balance" type="number" value={b.current_balance} onChange={(e) => {
-                                    const newB = [...banking];
-                                    newB[i].current_balance = e.target.value;
-                                    setBanking(newB);
-                                }} />
-                            </Grid>
-                        </Grid>
-                    </Card>
-                ))}
-                <Button startDecorator={<Add />} variant="outlined" onClick={() => setBanking([...banking, { bank_name: '', current_balance: 0, emoji: '🏦' }])}>Add Bank Account</Button>
-          </Stack>
-      );
-      case 4: return (
-          <Stack spacing={2}>
-              <Typography level="title-lg">Budget Bones</Typography>
-              <Typography level="body-sm">We've suggested some common bills. Adjust or add more.</Typography>
-              <Grid container spacing={2}>
-                  {budgetItems.map((item, i) => (
-                      <Grid key={i} xs={12} md={6}>
-                          <Card variant="outlined" sx={{ p: 1.5, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-                            <Avatar sx={{ bgcolor: getEmojiColor(item.emoji, isDark) }}>{item.emoji}</Avatar>
-                            <Box sx={{ flex: 1 }}>
-                                <Typography level="title-sm">{item.name}</Typography>
-                                <Input size="sm" type="number" value={item.amount} onChange={(e) => {
-                                    const newB = [...budgetItems];
-                                    newB[i].amount = e.target.value;
-                                    setBudgetItems(newB);
-                                }} startDecorator="£" />
-                            </Box>
-                            <IconButton size="sm" color="danger" variant="plain" onClick={() => setBudgetItems(budgetItems.filter((_, idx) => idx !== i))}>
-                                <Delete />
-                            </IconButton>
-                          </Card>
-                      </Grid>
-                  ))}
-              </Grid>
-              <Button startDecorator={<Add />} variant="outlined" onClick={() => setBudgetItems([...budgetItems, { name: 'New Item', amount: 0, category_id: 'utility', emoji: '💸' }])}>Add Other Bill</Button>
-          </Stack>
-      );
-      default: return null;
-    }
+  const deleteMember = async (id) => {
+      try {
+          await api.delete(`/households/${householdId}/members/${id}`);
+          setMembers(prev => prev.filter(m => m.id !== id));
+      } catch { showNotification("Failed to delete", "danger"); }
   };
+
+  const saveVehicle = async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(e.currentTarget));
+      try {
+          if (editItem?.id) {
+              await api.put(`/households/${householdId}/vehicles/${editItem.id}`, data);
+          } else {
+              await api.post(`/households/${householdId}/vehicles`, data);
+          }
+          const res = await api.get(`/households/${householdId}/vehicles`);
+          setVehicles(res.data || []);
+          setEditItem(null);
+      } catch { showNotification("Failed to save vehicle", "danger"); }
+  };
+
+  const deleteVehicle = async (id) => {
+      try {
+          await api.delete(`/households/${householdId}/vehicles/${id}`);
+          setVehicles(prev => prev.filter(v => v.id !== id));
+      } catch { showNotification("Failed to delete", "danger"); }
+  };
+
+  const saveAsset = async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(e.currentTarget));
+      try {
+          if (editItem?.id) {
+              await api.put(`/households/${householdId}/assets/${editItem.id}`, data);
+          } else {
+              await api.post(`/households/${householdId}/assets`, data);
+          }
+          const res = await api.get(`/households/${householdId}/assets`);
+          setAssets(res.data || []);
+          setEditItem(null);
+      } catch { showNotification("Failed to save asset", "danger"); }
+  };
+
+  const deleteAsset = async (id) => {
+      try {
+          await api.delete(`/households/${householdId}/assets/${id}`);
+          setAssets(prev => prev.filter(a => a.id !== id));
+      } catch { showNotification("Failed to delete", "danger"); }
+  };
+
+  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 20 }}><CircularProgress size="lg" /></Box>;
 
   return (
-    <Box sx={{ 
-        height: '100%', 
-        bgcolor: 'background.body', 
-        p: { xs: 2, md: 5 },
-        overflowY: 'auto',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center'
-    }}>
-      <Box sx={{ maxWidth: 800, width: '100%' }}>
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Typography level="h1">Setting up {hhName}</Typography>
-            <Typography level="title-md" color="neutral">Let's set up your household profile in 5 quick steps.</Typography>
-        </Box>
+    <Box sx={{ maxWidth: 800, mx: 'auto', py: 4, px: 2 }}>
+      <Typography level="h1" textAlign="center" mb={1}>Welcome to {household?.name}</Typography>
+      <Typography level="body-md" textAlign="center" color="neutral" mb={4}>Let's get your household set up in a few simple steps.</Typography>
 
-        <Stepper sx={{ mb: 5 }}>
-          {steps.map((step, index) => (
-            <Step
-              key={step.label}
-              indicator={
-                <StepIndicator variant={activeStep >= index ? 'solid' : 'outlined'} color={activeStep >= index ? 'primary' : 'neutral'}>
-                  {activeStep > index ? <CheckCircle /> : step.icon}
-                </StepIndicator>
-              }
-            >
-              <Typography level="title-sm" sx={{ display: { xs: 'none', md: 'block' } }}>{step.label}</Typography>
-            </Step>
-          ))}
-        </Stepper>
+      <Stepper sx={{ mb: 6 }}>
+        {steps.map((step, index) => (
+          <Step 
+            key={step.label}
+            indicator={
+              <StepIndicator variant={activeStep >= index ? 'solid' : 'outlined'} color={activeStep >= index ? 'primary' : 'neutral'}>
+                {activeStep > index ? <CheckCircle /> : step.icon}
+              </StepIndicator>
+            }
+            active={activeStep === index}
+            completed={activeStep > index}
+          >
+            <Typography level="title-sm" sx={{ display: { xs: 'none', md: 'block' } }}>{step.label}</Typography>
+          </Step>
+        ))}
+      </Stepper>
 
-        <Card sx={{ p: 4, mb: 4, boxShadow: 'lg' }}>
-            {renderStepContent(activeStep)}
-        </Card>
+      <Sheet variant="outlined" sx={{ p: { xs: 2, md: 4 }, borderRadius: 'xl', boxShadow: 'sm', bgcolor: 'background.surface' }}>
+        
+        {/* STEP 0: HOUSEHOLD DETAILS */}
+        {activeStep === 0 && (
+            <Box>
+                <Typography level="h3" mb={1}>Household Overview</Typography>
+                <Typography level="body-sm" color="neutral" mb={3}>Confirm your primary household details.</Typography>
+                <Grid container spacing={2}>
+                    <Grid xs={12} sm={6}>
+                        <FormControl><FormLabel>Household Name</FormLabel><Input value={household?.name} readOnly variant="soft" /></FormControl>
+                    </Grid>
+                    <Grid xs={12} sm={6}>
+                        <FormControl><FormLabel>Currency</FormLabel><Input value={household?.currency} readOnly variant="soft" /></FormControl>
+                    </Grid>
+                    <Grid xs={12}>
+                        <Typography level="title-sm" mt={2} mb={1}>Enabled Modules</Typography>
+                        <Stack direction="row" spacing={1}>
+                            {['pets', 'vehicles', 'meals'].map(m => (
+                                <Chip key={m} variant="soft" color="primary" sx={{ textTransform: 'capitalize' }}>{m}</Chip>
+                            ))}
+                        </Stack>
+                    </Grid>
+                </Grid>
+            </Box>
+        )}
 
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', pb: 10 }}>
-            <Button variant="plain" color="neutral" startDecorator={<ArrowBack />} onClick={handleBack} disabled={activeStep === 0 || loading}>
-                Back
-            </Button>
-            <Button variant="solid" color="primary" endDecorator={activeStep === steps.length - 1 ? <CheckCircle /> : <ArrowForward />} onClick={handleNext} loading={loading}>
-                {activeStep === steps.length - 1 ? 'Finish Setup' : 'Next Step'}
-            </Button>
-        </Box>
-      </Box>
+        {/* STEP 1: RESIDENTS */}
+        {activeStep === 1 && (
+            <Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                    <Box>
+                        <Typography level="h3">Residents & Family</Typography>
+                        <Typography level="body-sm" color="neutral">Add the people who live in your home.</Typography>
+                    </Box>
+                    <Button startDecorator={<Add />} onClick={() => setEditItem({ emoji: '👤' })}>Add Person</Button>
+                </Box>
+
+                <Grid container spacing={2}>
+                    {members.map(m => (
+                        <Grid key={m.id} xs={12} sm={6}>
+                            <Card variant="soft" sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, p: 1.5 }}>
+                                <Avatar size="lg" sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji}</Avatar>
+                                <Box sx={{ flexGrow: 1 }}>
+                                    <Typography level="title-md">{m.name}</Typography>
+                                    <Typography level="body-xs" sx={{ textTransform: 'capitalize' }}>{m.type}</Typography>
+                                </Box>
+                                <IconButton size="sm" variant="plain" onClick={() => setEditItem(m)}><Edit /></IconButton>
+                                <IconButton size="sm" variant="plain" color="danger" onClick={() => deleteMember(m.id)}><Delete /></IconButton>
+                            </Card>
+                        </Grid>
+                    ))}
+                </Grid>
+            </Box>
+        )}
+
+        {/* STEP 2: VEHICLES */}
+        {activeStep === 2 && (
+            <Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                    <Box>
+                        <Typography level="h3">Garage & Fleet</Typography>
+                        <Typography level="body-sm" color="neutral">Track cars, bikes, and other vehicles.</Typography>
+                    </Box>
+                    <Button startDecorator={<Add />} onClick={() => setEditItem({ emoji: '🚗' })}>Add Vehicle</Button>
+                </Box>
+
+                <Grid container spacing={2}>
+                    {vehicles.map(v => (
+                        <Grid key={v.id} xs={12} sm={6}>
+                            <Card variant="soft" sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, p: 1.5 }}>
+                                <Avatar size="lg" sx={{ bgcolor: getEmojiColor(v.emoji, isDark) }}>{v.emoji}</Avatar>
+                                <Box sx={{ flexGrow: 1 }}>
+                                    <Typography level="title-md">{v.make} {v.model}</Typography>
+                                    <Typography level="body-xs">{v.registration}</Typography>
+                                </Box>
+                                <IconButton size="sm" variant="plain" onClick={() => setEditItem(v)}><Edit /></IconButton>
+                                <IconButton size="sm" variant="plain" color="danger" onClick={() => deleteVehicle(v.id)}><Delete /></IconButton>
+                            </Card>
+                        </Grid>
+                    ))}
+                </Grid>
+            </Box>
+        )}
+
+        {/* STEP 3: ASSETS */}
+        {activeStep === 3 && (
+            <Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                    <Box>
+                        <Typography level="h3">High-Value Assets</Typography>
+                        <Typography level="body-sm" color="neutral">Track insurance and warranties for big items.</Typography>
+                    </Box>
+                    <Button startDecorator={<Add />} onClick={() => setEditItem({ emoji: '📦' })}>Add Asset</Button>
+                </Box>
+
+                <Grid container spacing={2}>
+                    {assets.map(a => (
+                        <Grid key={a.id} xs={12} sm={6}>
+                            <Card variant="soft" sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, p: 1.5 }}>
+                                <Avatar size="lg" sx={{ bgcolor: getEmojiColor(a.emoji, isDark) }}>{a.emoji}</Avatar>
+                                <Box sx={{ flexGrow: 1 }}>
+                                    <Typography level="title-md">{a.name}</Typography>
+                                    <Typography level="body-xs">{a.category}</Typography>
+                                </Box>
+                                <IconButton size="sm" variant="plain" onClick={() => setEditItem(a)}><Edit /></IconButton>
+                                <IconButton size="sm" variant="plain" color="danger" onClick={() => deleteAsset(a.id)}><Delete /></IconButton>
+                            </Card>
+                        </Grid>
+                    ))}
+                </Grid>
+            </Box>
+        )}
+
+        {/* STEP 4: FINISH */}
+        {activeStep === 4 && (
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+                <Avatar size="lg" color="success" variant="soft" sx={{ width: 100, height: 100, mx: 'auto', mb: 3, fontSize: '4rem' }}>✨</Avatar>
+                <Typography level="h2" mb={1}>You're all set!</Typography>
+                <Typography level="body-md" color="neutral" mb={4}>Your household setup is complete. You can add more details like finances and meal plans from the dashboard.</Typography>
+                <Button size="lg" variant="solid" color="primary" onClick={handleComplete} endDecorator={<ArrowForward />}>Go to Dashboard</Button>
+            </Box>
+        )}
+
+        {activeStep < 4 && (
+            <Box sx={{ mt: 6, pt: 3, borderTop: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between' }}>
+                <Button variant="plain" color="neutral" startDecorator={<ArrowBack />} onClick={handleBack} disabled={activeStep === 0}>Back</Button>
+                <Button variant="solid" color="primary" endDecorator={<ArrowForward />} onClick={handleNext}>Next</Button>
+            </Box>
+        )}
+      </Sheet>
+
+      {/* ITEM MODALS */}
+      <Modal open={Boolean(editItem)} onClose={() => setEditItem(null)}>
+          <ModalDialog>
+              <DialogTitle>{editItem?.id ? 'Edit' : 'Add New'}</DialogTitle>
+              <DialogContent>
+                  <form onSubmit={activeStep === 1 ? saveMember : (activeStep === 2 ? saveVehicle : saveAsset)}>
+                      <Stack spacing={2} mt={1}>
+                          <Box sx={{ display: 'flex', gap: 2 }}>
+                              <IconButton variant="outlined" onClick={() => setEmojiPickerOpen(true)} sx={{ width: 48, height: 48, fontSize: '1.5rem' }}>{editItem?.emoji || '🏠'}</IconButton>
+                              <Input name="emoji" type="hidden" value={editItem?.emoji || ''} />
+                              <FormControl required sx={{ flexGrow: 1 }}>
+                                  <FormLabel>Name / Make</FormLabel>
+                                  <Input name={activeStep === 2 ? 'make' : 'name'} defaultValue={activeStep === 2 ? editItem?.make : editItem?.name} autoFocus />
+                              </FormControl>
+                          </Box>
+                          {activeStep === 1 && (
+                              <FormControl required>
+                                  <FormLabel>Type</FormLabel>
+                                  <Select name="type" defaultValue={editItem?.type || 'adult'}>
+                                      <Option value="adult">Adult</Option>
+                                      <Option value="child">Child</Option>
+                                      <Option value="pet">Pet</Option>
+                                  </Select>
+                              </FormControl>
+                          )}
+                          {activeStep === 2 && (
+                              <FormControl required><FormLabel>Model</FormLabel><Input name="model" defaultValue={editItem?.model} /></FormControl>
+                          )}
+                          {activeStep === 3 && (
+                              <FormControl required><FormLabel>Category</FormLabel><Input name="category" defaultValue={editItem?.category} /></FormControl>
+                          )}
+                          <DialogActions>
+                              <Button variant="plain" color="neutral" onClick={() => setEditItem(null)}>Cancel</Button>
+                              <Button type="submit">Save</Button>
+                          </DialogActions>
+                      </Stack>
+                  </form>
+              </DialogContent>
+          </ModalDialog>
+      </Modal>
 
       <EmojiPicker 
-        open={emojiPicker.open}
-        onClose={() => setEmojiPicker({ ...emojiPicker, open: false })}
-        onEmojiSelect={(emoji) => {
-            if (emojiPicker.target === 'member') {
-                const newM = [...members];
-                newM[emojiPicker.index].emoji = emoji;
-                setMembers(newM);
-            }
-            setEmojiPicker({ ...emojiPicker, open: false });
-        }}
-        isDark={isDark}
+        open={emojiPickerOpen} 
+        onClose={() => setEmojiPickerOpen(false)} 
+        onEmojiSelect={(e) => { setEditItem({ ...editItem, emoji: e }); setEmojiPickerOpen(false); }} 
+        isDark={isDark} 
       />
     </Box>
   );

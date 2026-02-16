@@ -14,7 +14,7 @@ import FinanceCard from '../../components/ui/FinanceCard';
 import { getNextPayday, getDaysUntil } from '../../utils/dateUtils';
 
 export default function IncomeView({ financialProfileId }) {
-  const { api, id: householdId, user: currentUser, isDark, members } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, members, confirmAction, showNotification } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
@@ -87,27 +87,31 @@ export default function IncomeView({ financialProfileId }) {
       try {
           if (selectedIncomeId === 'new') {
               await api.post(`/households/${householdId}/finance/income`, data);
+              showNotification("Income source added", "success");
           } else {
               await api.put(`/households/${householdId}/finance/income/${selectedIncomeId}`, data);
+              showNotification("Income source updated", "success");
           }
           fetchData();
           setIncomeId(null);
       } catch (err) {
           console.error("Failed to save income", err);
-          alert("Failed to save: " + (err.response?.data?.error || err.message));
+          showNotification("Failed to save: " + (err.response?.data?.error || err.message), "danger");
       }
   };
 
   const handleDelete = useCallback(async (id) => {
-    if (!window.confirm("Delete this income source?")) return;
-    try {
-      await api.delete(`/households/${householdId}/finance/income/${id}`);
-      fetchData();
-      if (selectedIncomeId === String(id)) setIncomeId(null);
-    } catch {
-      alert("Failed to delete income source");
-    }
-  }, [api, householdId, fetchData, selectedIncomeId, setIncomeId]);
+    confirmAction("Delete Income", "Delete this income source? This will remove it from your budget.", async () => {
+        try {
+          await api.delete(`/households/${householdId}/finance/income/${id}`);
+          showNotification("Income deleted", "success");
+          fetchData();
+          if (selectedIncomeId === String(id)) setIncomeId(null);
+        } catch {
+          showNotification("Failed to delete income source", "danger");
+        }
+    });
+  }, [api, householdId, fetchData, selectedIncomeId, setIncomeId, confirmAction, showNotification]);
 
   const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;

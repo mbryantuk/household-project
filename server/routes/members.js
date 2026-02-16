@@ -1,36 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { getHouseholdDb, ensureHouseholdSchema, dbAll } = require('../db');
+const { dbAll } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
+const { useTenantDb } = require('../middleware/tenant');
 const { encrypt, decrypt } = require('../services/crypto');
-
-/**
- * Multi-Tenancy Enforcement for Members:
- */
-
-const useTenantDb = async (req, res, next) => {
-    const hhId = req.params.id;
-    if (!hhId) return res.status(400).json({ error: "Household ID required" });
-    try {
-        const db = getHouseholdDb(hhId);
-        await ensureHouseholdSchema(db, hhId);
-        req.tenantDb = db;
-        req.hhId = hhId;
-        next();
-    } catch (err) {
-        res.status(500).json({ error: "Database initialization failed: " + err.message });
-    }
-};
-
-const closeDb = (req) => {
-    if (req.tenantDb) req.tenantDb.close();
-};
 
 // 1. LIST MEMBERS
 router.get('/households/:id/members', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
     req.tenantDb.all(`SELECT * FROM members WHERE household_id = ?`, [req.hhId], (err, rows) => {
         if (err) {
-            closeDb(req);
             return res.status(500).json({ error: err.message });
         }
 
@@ -62,11 +40,9 @@ router.get('/households/:id/members', authenticateToken, requireHouseholdRole('v
 
         if (updates.length > 0) {
             Promise.all(updates).then(() => {
-                closeDb(req);
                 res.json(rows);
             });
         } else {
-            closeDb(req);
             res.json(rows);
         }
     });
@@ -75,7 +51,6 @@ router.get('/households/:id/members', authenticateToken, requireHouseholdRole('v
 // 2. GET SINGLE MEMBER
 router.get('/households/:id/members/:itemId', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
     req.tenantDb.get(`SELECT * FROM members WHERE id = ? AND household_id = ?`, [req.params.itemId, req.hhId], (err, row) => {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         if (!row) return res.status(404).json({ error: "Member not found" });
         
@@ -123,19 +98,17 @@ router.post('/households/:id/members', authenticateToken, requireHouseholdRole('
         });
 
         const fields = Object.keys(insertData);
-        if (fields.length === 0) { closeDb(req); return res.status(400).json({ error: "No valid fields" }); }
+        if (fields.length === 0) { return res.status(400).json({ error: "No valid fields" }); }
         
         const placeholders = fields.join(', ');
         const qs = fields.map(() => '?').join(', ');
         const values = Object.values(insertData);
 
         req.tenantDb.run(`INSERT INTO members (${placeholders}) VALUES (${qs})`, values, function(err) {
-            closeDb(req);
             if (err) return res.status(500).json({ error: err.message });
             res.status(201).json({ id: this.lastID, ...insertData });
         });
     } catch (err) {
-        closeDb(req);
         res.status(500).json({ error: err.message });
     }
 });
@@ -160,18 +133,16 @@ router.put('/households/:id/members/:itemId', authenticateToken, requireHousehol
         });
 
         const fields = Object.keys(updateData);
-        if (fields.length === 0) { closeDb(req); return res.status(400).json({ error: "No valid fields" }); }
+        if (fields.length === 0) { return res.status(400).json({ error: "No valid fields" }); }
 
         const sets = fields.map(f => `${f} = ?`).join(', ');
         const values = Object.values(updateData);
 
         req.tenantDb.run(`UPDATE members SET ${sets} WHERE id = ? AND household_id = ?`, [...values, req.params.itemId, req.hhId], function(err) {
-            closeDb(req);
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Updated" });
         });
     } catch (err) {
-        closeDb(req);
         res.status(500).json({ error: err.message });
     }
 });
@@ -179,7 +150,6 @@ router.put('/households/:id/members/:itemId', authenticateToken, requireHousehol
 // 5. DELETE MEMBER
 router.delete('/households/:id/members/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     req.tenantDb.run(`DELETE FROM members WHERE id = ? AND household_id = ?`, [req.params.itemId, req.hhId], function(err) {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Deleted" });
     });

@@ -57,21 +57,27 @@ export default function InvestmentsView({ financialProfileId }) {
   [investments, selectedInvestmentId]);
 
   useEffect(() => {
-    if (selectedInvestment) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFormData({
-        name: selectedInvestment.name || '', 
-        platform: selectedInvestment.platform || '',
-        current_value: selectedInvestment.current_value || 0, 
-        total_invested: selectedInvestment.total_invested || 0,
-        emoji: selectedInvestment.emoji || '📈'
-      });
-    } else if (selectedInvestmentId === 'new') {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFormData({
-        name: '', platform: '', current_value: 0, total_invested: 0, emoji: '📈'
-      });
+    let active = true;
+    if (selectedInvestment && active) {
+      setTimeout(() => {
+        if (!active) return;
+        setFormData({
+          name: selectedInvestment.name || '', 
+          platform: selectedInvestment.platform || '',
+          current_value: selectedInvestment.current_value || 0, 
+          total_invested: selectedInvestment.total_invested || 0,
+          emoji: selectedInvestment.emoji || '📈'
+        });
+      }, 0);
+    } else if (selectedInvestmentId === 'new' && active) {
+      setTimeout(() => {
+        if (!active) return;
+        setFormData({
+          name: '', platform: '', current_value: 0, total_invested: 0, emoji: '📈'
+        });
+      }, 0);
     }
+    return () => { active = false; };
   }, [selectedInvestment, selectedInvestmentId]);
 
   const setInvestmentId = (id) => {

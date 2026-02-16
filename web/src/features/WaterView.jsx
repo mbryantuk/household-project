@@ -9,14 +9,16 @@ import { Edit, Delete, WaterDrop, Add, Opacity } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
 
 export default function WaterView() {
-  const { api, id: householdId, user: currentUser, isDark, showNotification } = useOutletContext();
+  const { api, household, user: currentUser, isDark, showNotification, confirmAction } = useOutletContext();
   const [accounts, setAccounts] = useState([]);
   const [editAccount, setEditAccount] = useState(null);
   const [isNew, setIsNew] = useState(false);
   
   const isAdmin = currentUser?.role === 'admin';
+  const householdId = household?.id;
 
   const fetchAccounts = useCallback(async () => {
+    if (!householdId) return;
     try {
       const res = await api.get(`/households/${householdId}/water`);
       setAccounts(res.data || []);
@@ -26,7 +28,12 @@ export default function WaterView() {
   }, [api, householdId]);
 
   useEffect(() => {
-    Promise.resolve().then(() => fetchAccounts());
+    let active = true;
+    const load = async () => {
+      if (active) await fetchAccounts();
+    };
+    load();
+    return () => { active = false; };
   }, [fetchAccounts]);
 
   const handleSubmit = async (e) => {
@@ -54,14 +61,15 @@ export default function WaterView() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this water account?")) return;
-    try {
-      await api.delete(`/households/${householdId}/water/${id}`);
-      showNotification("Water account deleted.", "neutral");
-      fetchAccounts();
-    } catch {
-      showNotification("Failed to delete account.", "danger");
-    }
+    confirmAction("Delete Water Account", "Are you sure you want to delete this water account? This cannot be undone.", async () => {
+        try {
+          await api.delete(`/households/${householdId}/water/${id}`);
+          showNotification("Water account deleted", "success");
+          fetchAccounts();
+        } catch {
+          showNotification("Failed to delete", "danger");
+        }
+    });
   };
 
   return (

@@ -17,12 +17,21 @@ const globalDb = new sqlite3.Database(path.join(DATA_DIR, 'global.db'), (err) =>
     }
 });
 
+// Connection Cache to prevent excessive file handles
+const connections = new Map();
+
 const getHouseholdDb = (householdId) => {
+    if (connections.has(householdId)) {
+        return connections.get(householdId);
+    }
+
     const dbPath = path.join(DATA_DIR, `household_${householdId}.db`);
     const db = new sqlite3.Database(dbPath);
     db.run("PRAGMA journal_mode=WAL");
     db.run("PRAGMA synchronous=NORMAL");
     db.run("PRAGMA busy_timeout=10000");
+    
+    connections.set(householdId, db);
     return db;
 };
 

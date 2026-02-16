@@ -1,33 +1,13 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
-const { getHouseholdDb, ensureHouseholdSchema, dbAll } = require('../db');
+const { dbAll } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
+const { useTenantDb } = require('../middleware/tenant');
 const multer = require('multer');
 const { parse } = require('csv-parse');
 const fs = require('fs');
 
 const upload = multer({ dest: '/tmp/' });
-
-/**
- * Multi-Tenancy Enforcement:
- */
-const useTenantDb = async (req, res, next) => {
-    const hhId = req.params.id;
-    if (!hhId) return res.status(400).json({ error: "Household ID required" });
-    try {
-        const db = getHouseholdDb(hhId);
-        await ensureHouseholdSchema(db, hhId);
-        req.tenantDb = db;
-        req.hhId = hhId;
-        next();
-    } catch (err) {
-        res.status(500).json({ error: "Database initialization failed: " + err.message });
-    }
-};
-
-const closeDb = (req) => {
-    if (req.tenantDb) req.tenantDb.close();
-};
 
 const normalizeDescription = (desc) => {
     if (!desc) return '';
@@ -37,7 +17,6 @@ const normalizeDescription = (desc) => {
 
 router.post('/analyze-statement', authenticateToken, requireHouseholdRole('member'), useTenantDb, upload.single('statement'), async (req, res) => {
     if (!req.file) {
-        closeDb(req);
         return res.status(400).json({ error: "No file uploaded" });
     }
 
@@ -53,7 +32,6 @@ router.post('/analyze-statement', authenticateToken, requireHouseholdRole('membe
             results.push(record);
         }
     } catch (err) {
-        closeDb(req);
         return res.status(400).json({ error: "Failed to parse CSV: " + err.message });
     } finally {
         fs.unlinkSync(req.file.path);
@@ -62,7 +40,6 @@ router.post('/analyze-statement', authenticateToken, requireHouseholdRole('membe
     // Try to find columns for Date, Description, and Amount
     const sample = results[0];
     if (!sample) {
-        closeDb(req);
         return res.status(400).json({ error: "CSV is empty" });
     }
 
@@ -74,7 +51,6 @@ router.post('/analyze-statement', authenticateToken, requireHouseholdRole('membe
     const debitKey = keys.find(k => k.toLowerCase().includes('debit'));
 
     if (!dateKey || !descKey || (!amountKey && (!creditKey || !debitKey))) {
-        closeDb(req);
         return res.status(400).json({ error: "Could not identify Date, Description, and Amount columns", columns: keys });
     }
 
@@ -159,7 +135,6 @@ router.post('/analyze-statement', authenticateToken, requireHouseholdRole('membe
         });
     }
 
-    closeDb(req);
     res.json({
         suggestions: suggestions.filter(s => s.is_recurring || s.already_exists || s.amount > 50).sort((a, b) => b.count - a.count),
         vehicles,

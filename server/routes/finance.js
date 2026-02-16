@@ -1,33 +1,13 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
-const { getHouseholdDb, ensureHouseholdSchema, dbAll } = require('../db');
+const { dbAll } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
+const { useTenantDb } = require('../middleware/tenant');
 const { encrypt, decrypt } = require('../services/crypto');
 
 // Import Recurring Costs
 const recurringCostsRoutes = require('./recurring_costs');
 const financeImportRoutes = require('./finance_import');
-
-/**
- * Multi-Tenancy Enforcement:
- */
-const useTenantDb = async (req, res, next) => {
-    const hhId = req.params.id;
-    if (!hhId) return res.status(400).json({ error: "Household ID required" });
-    try {
-        const db = getHouseholdDb(hhId);
-        await ensureHouseholdSchema(db, hhId);
-        req.tenantDb = db;
-        req.hhId = hhId;
-        next();
-    } catch (err) {
-        res.status(500).json({ error: "Database initialization failed: " + err.message });
-    }
-};
-
-const closeDb = (req) => {
-    if (req.tenantDb) req.tenantDb.close();
-};
 
 // SENSITIVE FIELDS MAP
 const SENSITIVE_FIELDS = ['account_number', 'policy_number', 'sort_code'];
@@ -71,7 +51,6 @@ const handleGetList = (table) => (req, res) => {
     }
 
     req.tenantDb.all(sql, params, (err, rows) => {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json((rows || []).map(decryptRow));
     });
@@ -79,7 +58,6 @@ const handleGetList = (table) => (req, res) => {
 
 const handleGetItem = (table) => (req, res) => {
     req.tenantDb.get(`SELECT * FROM ${table} WHERE id = ? AND household_id = ?`, [req.params.itemId, req.hhId], (err, row) => {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         if (!row) return res.status(404).json({ error: "Item not found" });
         res.json(decryptRow(row));
@@ -88,7 +66,7 @@ const handleGetItem = (table) => (req, res) => {
 
 const handleCreateItem = (table) => (req, res) => {
     req.tenantDb.all(`PRAGMA table_info(${table})`, [], (pErr, cols) => {
-        if (pErr) { closeDb(req); return res.status(500).json({ error: pErr.message }); }
+        if (pErr) { return res.status(500).json({ error: pErr.message }); }
         
         const validColumns = cols.map(c => c.name);
         const data = encryptPayload({ ...req.body, household_id: req.hhId });
@@ -101,14 +79,13 @@ const handleCreateItem = (table) => (req, res) => {
         });
 
         const fields = Object.keys(insertData);
-        if (fields.length === 0) { closeDb(req); return res.status(400).json({ error: "No valid fields" }); }
+        if (fields.length === 0) { return res.status(400).json({ error: "No valid fields" }); }
         
         const placeholders = fields.join(', ');
         const qs = fields.map(() => '?').join(', ');
         const values = Object.values(insertData);
 
         req.tenantDb.run(`INSERT INTO ${table} (${placeholders}) VALUES (${qs})`, values, function(err) {
-            closeDb(req);
             if (err) return res.status(500).json({ error: err.message });
             res.status(201).json({ id: this.lastID, ...insertData });
         });
@@ -117,7 +94,7 @@ const handleCreateItem = (table) => (req, res) => {
 
 const handleUpdateItem = (table) => (req, res) => {
     req.tenantDb.all(`PRAGMA table_info(${table})`, [], (pErr, cols) => {
-        if (pErr) { closeDb(req); return res.status(500).json({ error: pErr.message }); }
+        if (pErr) { return res.status(500).json({ error: pErr.message }); }
         
         const validColumns = cols.map(c => c.name);
         const data = encryptPayload(req.body);
@@ -130,13 +107,12 @@ const handleUpdateItem = (table) => (req, res) => {
         });
 
         const fields = Object.keys(updateData);
-        if (fields.length === 0) { closeDb(req); return res.status(400).json({ error: "No valid fields" }); }
+        if (fields.length === 0) { return res.status(400).json({ error: "No valid fields" }); }
 
         const sets = fields.map(f => `${f} = ?`).join(', ');
         const values = Object.values(updateData);
 
         req.tenantDb.run(`UPDATE ${table} SET ${sets} WHERE id = ? AND household_id = ?`, [...values, req.params.itemId, req.hhId], function(err) {
-            closeDb(req);
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Updated" });
         });
@@ -145,7 +121,6 @@ const handleUpdateItem = (table) => (req, res) => {
 
 const handleDeleteItem = (table) => (req, res) => {
     req.tenantDb.run(`DELETE FROM ${table} WHERE id = ? AND household_id = ?`, [req.params.itemId, req.hhId], function(err) {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Deleted" });
     });
@@ -158,9 +133,8 @@ const handleDeleteItem = (table) => (req, res) => {
 const handleSubList = (childTable, parentTable, parentKey) => (req, res) => {
     const parentId = req.params[parentKey];
     req.tenantDb.get(`SELECT id FROM ${parentTable} WHERE id = ? AND household_id = ?`, [parentId, req.hhId], (err, row) => {
-        if (err || !row) { closeDb(req); return res.status(404).json({ error: "Parent resource not found" }); }
+        if (err || !row) { return res.status(404).json({ error: "Parent resource not found" }); }
         req.tenantDb.all(`SELECT * FROM ${childTable} WHERE ${parentKey.replace('Id', '_id')} = ?`, [parentId], (cErr, rows) => {
-            closeDb(req);
             if (cErr) return res.status(500).json({ error: cErr.message });
             res.json(rows);
         });
@@ -171,16 +145,15 @@ const handleSubCreate = (childTable, parentTable, parentKey) => (req, res) => {
     const parentId = req.params[parentKey];
     const foreignKey = parentKey.replace('Id', '_id');
     req.tenantDb.get(`SELECT id FROM ${parentTable} WHERE id = ? AND household_id = ?`, [parentId, req.hhId], (err, row) => {
-        if (err || !row) { closeDb(req); return res.status(404).json({ error: "Parent resource not found" }); }
+        if (err || !row) { return res.status(404).json({ error: "Parent resource not found" }); }
         req.tenantDb.all(`PRAGMA table_info(${childTable})`, [], (pErr, cols) => {
-            if (pErr) { closeDb(req); return res.status(500).json({ error: pErr.message }); }
+            if (pErr) { return res.status(500).json({ error: pErr.message }); }
             const validColumns = cols.map(c => c.name);
             const data = { ...req.body, [foreignKey]: parentId };
             const insertData = {};
             Object.keys(data).forEach(key => { if (validColumns.includes(key)) insertData[key] = data[key]; });
             const fields = Object.keys(insertData);
             req.tenantDb.run(`INSERT INTO ${childTable} (${fields.join(', ')}) VALUES (${fields.map(() => '?').join(', ')})`, Object.values(insertData), function(iErr) {
-                closeDb(req);
                 if (iErr) return res.status(500).json({ error: iErr.message });
                 res.status(201).json({ id: this.lastID, ...insertData });
             });
@@ -194,7 +167,6 @@ const handleSubDelete = (childTable, parentTable, parentKey) => (req, res) => {
     const foreignKey = parentKey.replace('Id', '_id');
     const sql = `DELETE FROM ${childTable} WHERE id = ? AND ${foreignKey} IN (SELECT id FROM ${parentTable} WHERE id = ? AND household_id = ?)`;
     req.tenantDb.run(sql, [itemId, parentId, req.hhId], function(err) {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         if (this.changes === 0) return res.status(404).json({ error: "Item not found or access denied" });
         res.json({ message: "Deleted" });
@@ -206,18 +178,17 @@ const handleSubUpdate = (childTable, parentTable, parentKey) => (req, res) => {
     const itemId = req.params.itemId;
     const foreignKey = parentKey.replace('Id', '_id');
     req.tenantDb.get(`SELECT id FROM ${parentTable} WHERE id = ? AND household_id = ?`, [parentId, req.hhId], (err, row) => {
-        if (err || !row) { closeDb(req); return res.status(404).json({ error: "Parent resource not found" }); }
+        if (err || !row) { return res.status(404).json({ error: "Parent resource not found" }); }
         req.tenantDb.all(`PRAGMA table_info(${childTable})`, [], (pErr, cols) => {
-            if (pErr) { closeDb(req); return res.status(500).json({ error: pErr.message }); }
+            if (pErr) { return res.status(500).json({ error: pErr.message }); }
             const validColumns = cols.map(c => c.name);
             const data = encryptPayload(req.body);
             const updateData = {};
             Object.keys(data).forEach(key => { if (validColumns.includes(key) && key !== 'id' && key !== foreignKey) updateData[key] = data[key]; });
             const fields = Object.keys(updateData);
-            if (fields.length === 0) { closeDb(req); return res.status(400).json({ error: "No valid fields" }); }
+            if (fields.length === 0) { return res.status(400).json({ error: "No valid fields" }); }
             const sets = fields.map(f => `${f} = ?`).join(', ');
             req.tenantDb.run(`UPDATE ${childTable} SET ${sets} WHERE id = ? AND ${foreignKey} = ?`, [...Object.values(updateData), itemId, parentId], function(uErr) {
-                closeDb(req);
                 if (uErr) return res.status(500).json({ error: uErr.message });
                 res.json({ message: "Updated" });
             });
@@ -233,9 +204,8 @@ const handleAssignMember = (req, res) => {
     const { entity_type, entity_id, member_id } = req.body;
     if (!entity_type || !entity_id || !member_id) return res.status(400).json({ error: "Missing required fields" });
     req.tenantDb.get("SELECT id FROM members WHERE id = ? AND household_id = ?", [member_id, req.hhId], (err, row) => {
-        if (err || !row) { closeDb(req); return res.status(404).json({ error: "Member not found" }); }
+        if (err || !row) { return res.status(404).json({ error: "Member not found" }); }
         req.tenantDb.run(`INSERT OR IGNORE INTO finance_assignments (household_id, entity_type, entity_id, member_id) VALUES (?, ?, ?, ?)`, [req.hhId, entity_type, entity_id, member_id], function(iErr) {
-            closeDb(req);
             if (iErr) return res.status(500).json({ error: iErr.message });
             res.status(201).json({ message: "Assigned" });
         });
@@ -245,7 +215,6 @@ const handleAssignMember = (req, res) => {
 const handleUnassignMember = (req, res) => {
     const { entity_type, entity_id, member_id } = req.params;
     req.tenantDb.run(`DELETE FROM finance_assignments WHERE household_id = ? AND entity_type = ? AND entity_id = ? AND member_id = ?`, [req.hhId, entity_type, entity_id, member_id], function(err) {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Unassigned" });
     });
@@ -258,7 +227,6 @@ const handleGetAssignments = (req, res) => {
     if (req.query.entity_id) { sql += " AND entity_id = ?"; params.push(req.query.entity_id); }
     if (req.query.member_id) { sql += " AND member_id = ?"; params.push(req.query.member_id); }
     req.tenantDb.all(sql, params, (err, rows) => {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
@@ -270,7 +238,6 @@ const handleGetAssignments = (req, res) => {
 
 const handleGetDebtList = (categoryId) => (req, res) => {
     req.tenantDb.all(`SELECT * FROM recurring_costs WHERE household_id = ? AND category_id = ? AND is_active = 1`, [req.hhId, categoryId], (err, rows) => {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json((rows || []).map(row => {
             const meta = row.metadata ? JSON.parse(row.metadata) : {};
@@ -313,7 +280,6 @@ const handleCreateDebt = (categoryId) => (req, res) => {
         req.body.emoji || null, metaStr,
         financial_profile_id || null, bank_account_id || null
     ], function(err) {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.status(201).json({ id: this.lastID, ...req.body });
     });
@@ -341,7 +307,6 @@ const handleUpdateDebt = (categoryId) => (req, res) => {
         objectType, objectId, financial_profile_id || null, bank_account_id || null,
         req.params.itemId, req.hhId, categoryId
     ], function(err) {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Updated" });
     });
@@ -377,7 +342,6 @@ router.delete('/income/:itemId', authenticateToken, requireHouseholdRole('member
 router.get('/savings/pots', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
     const sql = `SELECT p.*, s.institution, s.account_name, s.emoji as account_emoji, s.current_balance FROM finance_savings_pots p JOIN finance_savings s ON p.savings_id = s.id WHERE s.household_id = ?`;
     req.tenantDb.all(sql, [req.hhId], (err, rows) => {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows || []);
     });
@@ -428,7 +392,6 @@ router.get('/budget-progress', authenticateToken, requireHouseholdRole('viewer')
         params.push(req.query.financial_profile_id);
     }
     req.tenantDb.all(sql, params, (err, rows) => {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows || []);
     });
@@ -442,7 +405,6 @@ router.get('/budget-cycles', authenticateToken, requireHouseholdRole('viewer'), 
         params.push(req.query.financial_profile_id);
     }
     req.tenantDb.all(sql, params, (err, rows) => {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows || []);
     });
@@ -466,8 +428,8 @@ router.delete('/budget-cycles/:cycleStart', authenticateToken, requireHouseholdR
         req.tenantDb.run("BEGIN TRANSACTION");
         req.tenantDb.run(sqlCycle, params);
         req.tenantDb.run(sqlProg, params, (err) => {
-            if (err) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: err.message }); }
-            req.tenantDb.run("COMMIT", () => { closeDb(req); res.json({ message: "Cycle reset" }); });
+            if (err) { req.tenantDb.run("ROLLBACK"); return res.status(500).json({ error: err.message }); }
+            req.tenantDb.run("COMMIT", () => { res.json({ message: "Cycle reset" }); });
         });
     });
 });
@@ -490,7 +452,6 @@ router.post('/budget-cycles', authenticateToken, requireHouseholdRole('member'),
         `, [req.hhId, financial_profile_id, cycle_start, actual_pay, current_balance, bank_account_id], function(err) {
             if (err) {
                 req.tenantDb.run("ROLLBACK");
-                closeDb(req);
                 return res.status(500).json({ error: err.message });
             }
 
@@ -502,18 +463,15 @@ router.post('/budget-cycles', authenticateToken, requireHouseholdRole('member'),
                     (updateErr) => {
                         if (updateErr) {
                             req.tenantDb.run("ROLLBACK");
-                            closeDb(req);
                             return res.status(500).json({ error: updateErr.message });
                         }
                         req.tenantDb.run("COMMIT", () => {
-                            closeDb(req);
                             res.json({ message: "Cycle and bank account updated" });
                         });
                     }
                 );
             } else {
                 req.tenantDb.run("COMMIT", () => {
-                    closeDb(req);
                     res.json({ message: "Cycle updated" });
                 });
             }
@@ -527,7 +485,7 @@ router.post('/budget-progress', authenticateToken, requireHouseholdRole('member'
     const newPaid = parseInt(is_paid) || 0;
     
     req.tenantDb.get(`SELECT is_paid, actual_amount FROM finance_budget_progress WHERE household_id = ? AND financial_profile_id = ? AND cycle_start = ? AND item_key = ?`, [req.hhId, financial_profile_id, cycle_start, item_key], (err, row) => {
-        if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
+        if (err) { return res.status(500).json({ error: err.message }); }
         
         const oldPaid = row ? (row.is_paid || 0) : 0;
         const oldAmount = row ? (row.actual_amount || 0) : 0;
@@ -565,43 +523,43 @@ router.post('/budget-progress', authenticateToken, requireHouseholdRole('member'
                                 actual_amount = excluded.actual_amount,
                                 actual_date = COALESCE(excluded.actual_date, finance_budget_progress.actual_date)`, 
                              [req.hhId, financial_profile_id, cycle_start, item_key, newPaid, newAmount, actual_date], (pErr) => {
-                if (pErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: pErr.message }); }
+                if (pErr) { req.tenantDb.run("ROLLBACK"); return res.status(500).json({ error: pErr.message }); }
                 
                 const finalize = () => {
                     // Update the main Budget Cycle Balance and Linked Bank Account if applicable
                     if (balanceDelta !== 0) {
                         req.tenantDb.get(`SELECT bank_account_id FROM finance_budget_cycles WHERE household_id = ? AND financial_profile_id = ? AND cycle_start = ?`, [req.hhId, financial_profile_id, cycle_start], (cycErr, cycle) => {
                             if (cycErr || !cycle) {
-                                req.tenantDb.run("COMMIT", () => { closeDb(req); res.status(201).json({ message: "Progress saved" }); });
+                                req.tenantDb.run("COMMIT", () => { res.status(201).json({ message: "Progress saved" }); });
                                 return;
                             }
 
                             // Update Cycle Balance
                             req.tenantDb.run(`UPDATE finance_budget_cycles SET current_balance = current_balance + ? WHERE household_id = ? AND financial_profile_id = ? AND cycle_start = ?`, [balanceDelta, req.hhId, financial_profile_id, cycle_start], (bcErr) => {
-                                if (bcErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: bcErr.message }); }
+                                if (bcErr) { req.tenantDb.run("ROLLBACK"); return res.status(500).json({ error: bcErr.message }); }
 
                                 // Update Bank Account Balance (only if linked)
                                 if (cycle.bank_account_id) {
                                     req.tenantDb.run(`UPDATE finance_current_accounts SET current_balance = current_balance + ? WHERE id = ? AND household_id = ?`, [balanceDelta, cycle.bank_account_id, req.hhId], (baErr) => {
-                                        if (baErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: baErr.message }); }
-                                        req.tenantDb.run("COMMIT", () => { closeDb(req); res.status(201).json({ message: "Progress saved and bank/cycle synced", balanceDelta }); });
+                                        if (baErr) { req.tenantDb.run("ROLLBACK"); return res.status(500).json({ error: baErr.message }); }
+                                        req.tenantDb.run("COMMIT", () => { res.status(201).json({ message: "Progress saved and bank/cycle synced", balanceDelta }); });
                                     });
                                 } else {
-                                    req.tenantDb.run("COMMIT", () => { closeDb(req); res.status(201).json({ message: "Progress saved and cycle synced", balanceDelta }); });
+                                    req.tenantDb.run("COMMIT", () => { res.status(201).json({ message: "Progress saved and cycle synced", balanceDelta }); });
                                 }
                             });
                         });
                     } else {
-                        req.tenantDb.run("COMMIT", () => { closeDb(req); res.status(201).json({ message: "Progress saved" }); });
+                        req.tenantDb.run("COMMIT", () => { res.status(201).json({ message: "Progress saved" }); });
                     }
                 };
 
                 if (potDelta !== 0 && item_key.startsWith('pot_')) {
                     const potId = item_key.split('_')[1];
                     req.tenantDb.run(`UPDATE finance_savings_pots SET current_amount = current_amount + ? WHERE id = ? AND savings_id IN (SELECT id FROM finance_savings WHERE household_id = ?)`, [potDelta, potId, req.hhId], (potErr) => {
-                        if (potErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: potErr.message }); }
+                        if (potErr) { req.tenantDb.run("ROLLBACK"); return res.status(500).json({ error: potErr.message }); }
                         req.tenantDb.run(`UPDATE finance_savings SET current_balance = current_balance + ? WHERE id = (SELECT savings_id FROM finance_savings_pots WHERE id = ?) AND household_id = ?`, [potDelta, potId, req.hhId], (savErr) => {
-                            if (savErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: savErr.message }); }
+                            if (savErr) { req.tenantDb.run("ROLLBACK"); return res.status(500).json({ error: savErr.message }); }
                             finalize();
                         });
                     });
@@ -618,7 +576,7 @@ router.delete('/budget-progress/:cycleStart/:itemKey', authenticateToken, requir
     const { financial_profile_id } = req.query;
 
     req.tenantDb.get(`SELECT is_paid, actual_amount FROM finance_budget_progress WHERE household_id = ? AND financial_profile_id = ? AND cycle_start = ? AND item_key = ?`, [req.hhId, financial_profile_id, cycleStart, itemKey], (err, row) => {
-        if (err) { closeDb(req); return res.status(500).json({ error: err.message }); }
+        if (err) { return res.status(500).json({ error: err.message }); }
         
         const oldPaid = row ? (row.is_paid || 0) : 0;
         const oldAmount = row ? (row.actual_amount || 0) : 0;
@@ -641,28 +599,28 @@ router.delete('/budget-progress/:cycleStart/:itemKey', authenticateToken, requir
 
             const finalize = () => {
                 req.tenantDb.run(`DELETE FROM finance_budget_progress WHERE household_id = ? AND financial_profile_id = ? AND cycle_start = ? AND item_key = ?`, [req.hhId, financial_profile_id, cycleStart, itemKey], (delErr) => {
-                    if (delErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: delErr.message }); }
+                    if (delErr) { req.tenantDb.run("ROLLBACK"); return res.status(500).json({ error: delErr.message }); }
                     
                     if (balanceDelta !== 0) {
                         req.tenantDb.get(`SELECT bank_account_id FROM finance_budget_cycles WHERE household_id = ? AND financial_profile_id = ? AND cycle_start = ?`, [req.hhId, financial_profile_id, cycleStart], (cycErr, cycle) => {
                             if (cycErr || !cycle) {
-                                req.tenantDb.run("COMMIT", () => { closeDb(req); res.json({ message: "Progress removed" }); });
+                                req.tenantDb.run("COMMIT", () => { res.json({ message: "Progress removed" }); });
                                 return;
                             }
                             req.tenantDb.run(`UPDATE finance_budget_cycles SET current_balance = current_balance + ? WHERE household_id = ? AND financial_profile_id = ? AND cycle_start = ?`, [balanceDelta, req.hhId, financial_profile_id, cycleStart], (bcErr) => {
-                                if (bcErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: bcErr.message }); }
+                                if (bcErr) { req.tenantDb.run("ROLLBACK"); return res.status(500).json({ error: bcErr.message }); }
                                 if (cycle.bank_account_id) {
                                     req.tenantDb.run(`UPDATE finance_current_accounts SET current_balance = current_balance + ? WHERE id = ? AND household_id = ?`, [balanceDelta, cycle.bank_account_id, req.hhId], (baErr) => {
-                                        if (baErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: baErr.message }); }
-                                        req.tenantDb.run("COMMIT", () => { closeDb(req); res.json({ message: "Progress removed and balances synced", balanceDelta }); });
+                                        if (baErr) { req.tenantDb.run("ROLLBACK"); return res.status(500).json({ error: baErr.message }); }
+                                        req.tenantDb.run("COMMIT", () => { res.json({ message: "Progress removed and balances synced", balanceDelta }); });
                                     });
                                 } else {
-                                    req.tenantDb.run("COMMIT", () => { closeDb(req); res.json({ message: "Progress removed and cycle synced", balanceDelta }); });
+                                    req.tenantDb.run("COMMIT", () => { res.json({ message: "Progress removed and cycle synced", balanceDelta }); });
                                 }
                             });
                         });
                     } else {
-                        req.tenantDb.run("COMMIT", () => { closeDb(req); res.json({ message: "Progress removed" }); });
+                        req.tenantDb.run("COMMIT", () => { res.json({ message: "Progress removed" }); });
                     }
                 });
             };
@@ -670,9 +628,9 @@ router.delete('/budget-progress/:cycleStart/:itemKey', authenticateToken, requir
             if (potDelta !== 0) {
                 const potId = itemKey.split('_')[1];
                 req.tenantDb.run(`UPDATE finance_savings_pots SET current_amount = current_amount + ? WHERE id = ? AND savings_id IN (SELECT id FROM finance_savings WHERE household_id = ?)`, [potDelta, potId, req.hhId], (potErr) => {
-                    if (potErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: potErr.message }); }
+                    if (potErr) { req.tenantDb.run("ROLLBACK"); return res.status(500).json({ error: potErr.message }); }
                     req.tenantDb.run(`UPDATE finance_savings SET current_balance = current_balance + ? WHERE id = (SELECT savings_id FROM finance_savings_pots WHERE id = ?) AND household_id = ?`, [potDelta, potId, req.hhId], (savErr) => {
-                        if (savErr) { req.tenantDb.run("ROLLBACK"); closeDb(req); return res.status(500).json({ error: savErr.message }); }
+                        if (savErr) { req.tenantDb.run("ROLLBACK"); return res.status(500).json({ error: savErr.message }); }
                         finalize();
                     });
                 });

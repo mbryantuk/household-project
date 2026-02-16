@@ -125,7 +125,7 @@ function TimelineView({ events, onSelectEvent, isDark }) {
 }
 
 export default function CalendarView({ showNotification }) {
-  const { api, isDark } = useOutletContext();
+  const { api, isDark, confirmAction } = useOutletContext();
   const { id: householdId } = useParams();
   
   const [rawDates, setRawDates] = useState([]);
@@ -236,9 +236,13 @@ export default function CalendarView({ showNotification }) {
 
   const handleDelete = () => {
     if (!editingEvent?.id) return;
-    if (window.confirm("Delete this event? If it's recurring, all future events will be removed.")) {
-      api.delete(`/households/${householdId}/dates/${editingEvent.id}`).then(() => { setOpen(false); fetchDates(); if (showNotification) showNotification("Event deleted", "info"); });
-    }
+    confirmAction("Delete Event", "Are you sure you want to delete this event? If it's recurring, all future events will be removed.", () => {
+      api.delete(`/households/${householdId}/dates/${editingEvent.id}`).then(() => { 
+          setOpen(false); 
+          fetchDates(); 
+          if (showNotification) showNotification("Event deleted", "info"); 
+      });
+    });
   };
 
   return (

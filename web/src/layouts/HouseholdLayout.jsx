@@ -23,6 +23,7 @@ import CalendarMonth from '@mui/icons-material/CalendarMonth';
 import Add from '@mui/icons-material/Add';
 import AttachMoney from '@mui/icons-material/AttachMoney';
 import CleaningServices from '@mui/icons-material/CleaningServices';
+import ShoppingBag from '@mui/icons-material/ShoppingBag';
 
 import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
@@ -182,146 +183,287 @@ export default function HouseholdLayout({
       setStatusBarData
   };
 
-  return (
-    <HouseholdProvider value={contextValue}>
-        <Box sx={{ 
-            display: 'flex', 
-            height: '100dvh', 
-            flexDirection: { xs: 'column', md: 'row' },
-            bgcolor: 'background.body',
-            background: isDark 
-                ? 'linear-gradient(135deg, #050505 0%, #111111 100%)' 
-                : 'linear-gradient(135deg, #f9fafb 0%, #f0f2f5 100%)',
-        }}>
-        
-        <NavSidebar installPrompt={installPrompt} onInstall={onInstall} />
+      return (
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0, height: '100%', position: 'relative', overflow: 'hidden' }}>
-            
-            <Sheet
-            sx={{
-                display: { xs: 'flex', md: 'none' },
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                p: 1.5,
-                borderBottom: '1px solid',
-                borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'divider',
-                bgcolor: isDark ? '#111111' : 'background.surface',
-                zIndex: 100,
-                boxShadow: 'sm'
-            }}
-            >
-            <IconButton variant="plain" onClick={() => navigate(-1)} size="sm">
-                <ChevronLeft />
-            </IconButton>
+      <HouseholdProvider value={contextValue}>
 
-            <Typography 
-                level="title-md" 
-                onClick={() => navigate('dashboard')}
-                sx={{ 
-                    fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase',
-                    cursor: 'pointer' 
-                }}
-            >
-                {pageTitle}
-            </Typography>
+          <Box sx={{ 
 
-            <Box sx={{ width: 32 }} />
-            </Sheet>
+              display: 'flex', 
 
-            <Box component="main" sx={{ 
-                flexGrow: 1, 
-                minHeight: 0,
-                p: { xs: 2, md: 3 }, 
-                pb: { xs: 10, md: 3 }, 
-                overflowY: 'auto',
-                WebkitOverflowScrolling: 'touch' 
-            }}>
-                <Outlet context={{ 
-                    api, 
-                    id, 
-                    onUpdateHousehold,
-                    members, 
-                    fetchHhMembers, 
-                    fetchVehicles,
-                    user, 
-                    isDark,
-                    showNotification,
-                    confirmAction,
-                    onUpdateProfile,
-                    setStatusBarData,
-                    household: household
-                }} />
-            </Box>
+              height: '100dvh', 
 
-            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-                <UtilityBar />
-            </Box>
+              flexDirection: { xs: 'column', md: 'row' },
 
-            <Sheet
-                sx={{
-                    display: { xs: 'flex', md: 'none' },
-                    position: 'fixed',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: 70,
-                    borderTop: '1px solid',
-                    borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'divider',
-                    bgcolor: isDark ? '#111111' : 'background.surface',
-                    px: 1,
-                    justifyContent: 'space-around',
-                    alignItems: 'center',
-                    zIndex: 1000,
-                    boxShadow: '0 -2px 10px rgba(0,0,0,0.05)'
-                }}
-            >
-                <Stack 
-                    alignItems="center" spacing={0.5} onClick={() => navigate('dashboard')} 
-                    sx={{ flex: 1, cursor: 'pointer', transition: 'transform 0.2s', '&:active': { transform: 'scale(0.95)' } }}
-                >
-                    <HomeIcon sx={{ color: isTabActive('dashboard') ? 'primary.plainColor' : 'neutral.plainColor' }} />
-                    <Typography level="body-xs" sx={{ color: isTabActive('dashboard') ? 'primary.plainColor' : 'neutral.plainColor', fontWeight: isTabActive('dashboard') ? 'bold' : 'normal' }}>Home</Typography>
-                </Stack>
-                
-                <Stack 
-                    alignItems="center" spacing={0.5} onClick={() => { setActiveMenu('switch'); setDrawerOpen(true); }}
-                    sx={{ flex: 1, cursor: 'pointer', transition: 'transform 0.2s', '&:active': { transform: 'scale(0.95)' } }}
-                >
-                    <SwapHoriz sx={{ color: 'neutral.plainColor' }} />
-                    <Typography level="body-xs" color="neutral">Switch</Typography>
-                </Stack>
+              bgcolor: 'background.body',
 
-                <Stack 
-                    alignItems="center" spacing={0.5} onClick={() => { setActiveMenu('main'); setDrawerOpen(true); }}
-                    sx={{ flex: 1, cursor: 'pointer', transition: 'transform 0.2s', '&:active': { transform: 'scale(0.95)' } }}
-                >
-                    <MoreIcon sx={{ color: drawerOpen ? 'primary.plainColor' : 'neutral.plainColor' }} />
-                    <Typography level="body-xs" sx={{ color: drawerOpen ? 'primary.plainColor' : 'neutral.plainColor', fontWeight: drawerOpen ? 'bold' : 'normal' }}>Menu</Typography>
-                </Stack>
-            </Sheet>
-        </Box>
+              background: isDark 
 
-        <Drawer
-            anchor="bottom"
-            open={drawerOpen}
-            onClose={() => setDrawerOpen(false)}
-            slotProps={{ content: { sx: { bgcolor: 'transparent', p: 0, height: 'auto', maxHeight: '80vh', borderTopLeftRadius: '24px', borderTopRightRadius: '24px', boxShadow: 'none' } } }}
-            sx={{ display: { md: 'none' } }}
-        >
-            <Sheet sx={{ bgcolor: isDark ? '#181818' : 'background.surface', borderTopLeftRadius: '24px', borderTopRightRadius: '24px', p: 3, pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Box sx={{ width: 40, height: 4, borderRadius: 2, bgcolor: isDark ? 'rgba(255,255,255,0.2)' : 'neutral.300', mx: 'auto', mb: 2 }} />
-                <Typography level="title-lg" sx={{ mb: 1 }}>Navigation</Typography>
-                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
-                    {activeMenu === 'main' ? (
-                        <>
-                            <MenuTile icon={<HomeIcon />} label="Household" to="house" onClick={() => setDrawerOpen(false)} />
-                            <MenuTile icon={<AccountBalance />} label="Finance" to="finance" onClick={() => setDrawerOpen(false)} />
-                            <MenuTile icon={<RestaurantMenu />} label="Meals" to="meals" onClick={() => setDrawerOpen(false)} />
-                            <MenuTile icon={<CleaningServices />} label="Chores" to="chores" onClick={() => setDrawerOpen(false)} />
-                            <MenuTile icon={<Add />} label="Shop" to="shopping" onClick={() => setDrawerOpen(false)} />
-                        </>
-                    ) : (
+                  ? 'linear-gradient(135deg, var(--joy-palette-background-body) 0%, var(--joy-palette-background-level1) 100%)' 
+
+                  : 'linear-gradient(135deg, var(--joy-palette-background-body) 0%, var(--joy-palette-background-level1) 100%)',
+
+          }}>
+
+          
+
+          <NavSidebar installPrompt={installPrompt} onInstall={onInstall} />
+
+  
+
+          <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0, height: '100%', position: 'relative', overflow: 'hidden' }}>
+
+              
+
+              <Sheet
+
+              sx={{
+
+                  display: { xs: 'flex', md: 'none' },
+
+                  alignItems: 'center',
+
+                  justifyContent: 'space-between',
+
+                  p: 1.5,
+
+                  borderBottom: '1px solid',
+
+                  borderColor: 'divider',
+
+                  bgcolor: 'background.surface',
+
+                  zIndex: 100,
+
+                  boxShadow: 'sm'
+
+              }}
+
+              >
+
+              <IconButton variant="plain" onClick={() => navigate(-1)} size="sm">
+
+                  <ChevronLeft />
+
+              </IconButton>
+
+  
+
+              <Typography 
+
+                  level="title-md" 
+
+                  onClick={() => navigate('dashboard')}
+
+                  sx={{ 
+
+                      fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase',
+
+                      cursor: 'pointer' 
+
+                  }}
+
+              >
+
+                  {pageTitle}
+
+              </Typography>
+
+  
+
+              <Box sx={{ width: 32 }} />
+
+              </Sheet>
+
+  
+
+              <Box component="main" sx={{ 
+
+                  flexGrow: 1, 
+
+                  minHeight: 0,
+
+                  p: { xs: 2, md: 3 }, 
+
+                  pb: { xs: 10, md: 3 }, 
+
+                  overflowY: 'auto',
+
+                  WebkitOverflowScrolling: 'touch' 
+
+              }}>
+
+                  <Outlet context={{ 
+
+                      api, 
+
+                      id, 
+
+                      onUpdateHousehold,
+
+                      members, 
+
+                      fetchHhMembers, 
+
+                      fetchVehicles,
+
+                      user, 
+
+                      isDark,
+
+                      showNotification,
+
+                      confirmAction,
+
+                      onUpdateProfile,
+
+                      setStatusBarData,
+
+                      household: household
+
+                  }} />
+
+              </Box>
+
+  
+
+              <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+
+                  <UtilityBar />
+
+              </Box>
+
+  
+
+              <Sheet
+
+                  sx={{
+
+                      display: { xs: 'flex', md: 'none' },
+
+                      position: 'fixed',
+
+                      bottom: 0,
+
+                      left: 0,
+
+                      right: 0,
+
+                      height: 70,
+
+                      borderTop: '1px solid',
+
+                      borderColor: 'divider',
+
+                      bgcolor: 'background.surface',
+
+                      px: 1,
+
+                      justifyContent: 'space-around',
+
+                      alignItems: 'center',
+
+                      zIndex: 1000,
+
+                      boxShadow: '0 -2px 10px rgba(0,0,0,0.05)'
+
+                  }}
+
+              >
+
+                  <Stack 
+
+                      alignItems="center" spacing={0.5} onClick={() => navigate('dashboard')} 
+
+                      sx={{ flex: 1, cursor: 'pointer', transition: 'transform 0.2s', '&:active': { transform: 'scale(0.95)' } }}
+
+                  >
+
+                      <HomeIcon sx={{ color: isTabActive('dashboard') ? 'primary.plainColor' : 'neutral.plainColor' }} />
+
+                      <Typography level="body-xs" sx={{ color: isTabActive('dashboard') ? 'primary.plainColor' : 'neutral.plainColor', fontWeight: isTabActive('dashboard') ? 'bold' : 'normal' }}>Home</Typography>
+
+                  </Stack>
+
+                  
+
+                  <Stack 
+
+                      alignItems="center" spacing={0.5} onClick={() => { setActiveMenu('switch'); setDrawerOpen(true); }}
+
+                      sx={{ flex: 1, cursor: 'pointer', transition: 'transform 0.2s', '&:active': { transform: 'scale(0.95)' } }}
+
+                  >
+
+                      <SwapHoriz sx={{ color: 'neutral.plainColor' }} />
+
+                      <Typography level="body-xs" color="neutral">Switch</Typography>
+
+                  </Stack>
+
+  
+
+                  <Stack 
+
+                      alignItems="center" spacing={0.5} onClick={() => { setActiveMenu('main'); setDrawerOpen(true); }}
+
+                      sx={{ flex: 1, cursor: 'pointer', transition: 'transform 0.2s', '&:active': { transform: 'scale(0.95)' } }}
+
+                  >
+
+                      <MoreIcon sx={{ color: drawerOpen ? 'primary.plainColor' : 'neutral.plainColor' }} />
+
+                      <Typography level="body-xs" sx={{ color: drawerOpen ? 'primary.plainColor' : 'neutral.plainColor', fontWeight: drawerOpen ? 'bold' : 'normal' }}>Menu</Typography>
+
+                  </Stack>
+
+              </Sheet>
+
+          </Box>
+
+  
+
+          <Drawer
+
+              anchor="bottom"
+
+              open={drawerOpen}
+
+              onClose={() => setDrawerOpen(false)}
+
+              slotProps={{ content: { sx: { bgcolor: 'transparent', p: 0, height: 'auto', maxHeight: '80vh', borderTopLeftRadius: '24px', borderTopRightRadius: '24px', boxShadow: 'none' } } }}
+
+              sx={{ display: { md: 'none' } }}
+
+          >
+
+              <Sheet sx={{ bgcolor: 'background.surface', borderTopLeftRadius: '24px', borderTopRightRadius: '24px', p: 3, pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+
+                  <Box sx={{ width: 40, height: 4, borderRadius: 2, bgcolor: 'neutral.softBg', mx: 'auto', mb: 2 }} />
+
+                  <Typography level="title-lg" sx={{ mb: 1 }}>Navigation</Typography>
+
+                  <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
+
+                      {activeMenu === 'main' ? (
+
+                          <>
+
+                              <MenuTile icon={<HomeIcon />} label="House" to="house" onClick={() => setDrawerOpen(false)} />
+
+                              <MenuTile icon={<AccountBalance />} label="Finance" to="finance" onClick={() => setDrawerOpen(false)} />
+
+                              <MenuTile icon={<RestaurantMenu />} label="Meals" to="meals" onClick={() => setDrawerOpen(false)} />
+
+                              <MenuTile icon={<CleaningServices />} label="Chores" to="chores" onClick={() => setDrawerOpen(false)} />
+
+                              <MenuTile icon={<ShoppingBag />} label="Groceries" to="shopping" onClick={() => setDrawerOpen(false)} />
+
+                          </>
+
+                      ) : (
+
+  
                         households.map(hh => (
                             <MenuTile 
                                 key={hh.id}

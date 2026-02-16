@@ -21,7 +21,7 @@ const formatPercent = (val) => {
 };
 
 export default function CreditCardsView({ financialProfileId }) {
-  const { api, id: householdId, user: currentUser, isDark, members, showNotification } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, members, showNotification, confirmAction } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
@@ -107,12 +107,16 @@ export default function CreditCardsView({ financialProfileId }) {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this card?")) return;
-    try { 
-        await api.delete(`/households/${householdId}/finance/credit-cards/${id}`); 
-        fetchData(); 
-        if (selectedCardId === String(id)) setCardId(null);
-    } catch { alert("Failed to delete"); }
+    confirmAction("Delete Card", "Delete this credit card? This will remove it from your finance tracking.", async () => {
+        try { 
+            await api.delete(`/households/${householdId}/finance/credit-cards/${id}`); 
+            fetchData(); 
+            if (selectedCardId === String(id)) setCardId(null);
+            showNotification("Credit card deleted", "success");
+        } catch { 
+            showNotification("Failed to delete", "danger");
+        }
+    });
   };
 
   const handleAssignMember = async (memberId) => {

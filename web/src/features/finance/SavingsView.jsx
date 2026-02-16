@@ -22,7 +22,7 @@ const formatPercent = (val) => {
 };
 
 export default function SavingsView({ financialProfileId }) {
-  const { api, id: householdId, user: currentUser, isDark, members = [], showNotification } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, members, showNotification, confirmAction } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
@@ -146,12 +146,16 @@ export default function SavingsView({ financialProfileId }) {
   };
 
   const handleAccountDelete = async (id) => {
-    if (!window.confirm("Delete this savings account?")) return;
-    try {
-        await api.delete(`/households/${householdId}/finance/savings/${id}`);
-        fetchData();
-        if (selectedAccountId === String(id)) setAccountId(null);
-    } catch { alert("Failed to delete account"); }
+    confirmAction("Delete Savings Account", "Are you sure you want to delete this account and all its pots? This cannot be undone.", async () => {
+        try {
+            await api.delete(`/households/${householdId}/finance/savings/${id}`);
+            showNotification("Account deleted", "success");
+            fetchData();
+            if (selectedAccountId === String(id)) setAccountId(null);
+        } catch { 
+            showNotification("Failed to delete account", "danger");
+        }
+    });
   };
 
   const handlePotSubmit = async (e) => {
@@ -174,12 +178,16 @@ export default function SavingsView({ financialProfileId }) {
   };
 
   const handlePotDelete = async (savingsId, potId) => {
-      if (!window.confirm("Delete this pot?")) return;
-      try {
-          await api.delete(`/households/${householdId}/finance/savings/${savingsId}/pots/${potId}`);
-          await fetchData();
-          if (selectedPotId === String(potId)) setPotId(savingsId, null);
-      } catch { alert("Failed to delete pot"); }
+      confirmAction("Delete Pot", "Are you sure you want to delete this pot?", async () => {
+          try {
+              await api.delete(`/households/${householdId}/finance/savings/${savingsId}/pots/${potId}`);
+              showNotification("Pot deleted", "success");
+              await fetchData();
+              if (selectedPotId === String(potId)) setPotId(savingsId, null);
+          } catch { 
+              showNotification("Failed to delete pot", "danger");
+          }
+      });
   };
 
   const handleAdjustSubmit = async (e) => {

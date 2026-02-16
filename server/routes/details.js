@@ -1,14 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { getHouseholdDb, ensureHouseholdSchema, dbAll } = require('../db');
+const { dbAll } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { useTenantDb } = require('../middleware/tenant');
 
 const { encrypt, decrypt } = require('../services/crypto');
-
-const closeDb = (req) => {
-    if (req.tenantDb) req.tenantDb.close();
-};
 
 // SENSITIVE FIELDS MAP
 const SENSITIVE_FIELDS = ['registration', 'policy_number', 'account_number', 'sort_code', 'serial_number', 'account_number', 'wifi_password'];
@@ -44,7 +40,6 @@ const decryptRow = (row) => {
 
 const handleGetSingle = (table) => (req, res) => {
     req.tenantDb.get(`SELECT * FROM ${table} WHERE household_id = ?`, [req.hhId], (err, row) => {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json(decryptRow(row) || {});
     });
@@ -65,7 +60,6 @@ const handleUpdateSingle = (table) => async (req, res) => {
 
         const fields = Object.keys(updateData);
         if (fields.length === 0) { 
-            closeDb(req); 
             return res.status(400).json({ error: "No valid fields" }); 
         }
 
@@ -77,19 +71,16 @@ const handleUpdateSingle = (table) => async (req, res) => {
         const sql = `INSERT OR REPLACE INTO ${table} (${placeholders}) VALUES (${qs})`;
 
         req.tenantDb.run(sql, values, function(err) {
-            closeDb(req);
-            if (err) return res.status(500).json({ error: err.message });
+                if (err) return res.status(500).json({ error: err.message });
             res.json({ message: this.changes > 0 ? "Updated" : "Created" });
         });
     } catch (err) {
-        closeDb(req);
         res.status(500).json({ error: err.message });
     }
 };
 
 const handleGetList = (table) => (req, res) => {
     req.tenantDb.all(`SELECT * FROM ${table} WHERE household_id = ?`, [req.hhId], (err, rows) => {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json((rows || []).map(decryptRow));
     });
@@ -97,7 +88,6 @@ const handleGetList = (table) => (req, res) => {
 
 const handleGetItem = (table) => (req, res) => {
     req.tenantDb.get(`SELECT * FROM ${table} WHERE id = ? AND household_id = ?`, [req.params.itemId, req.hhId], (err, row) => {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         if (!row) return res.status(404).json({ error: "Item not found" });
         res.json(decryptRow(row));
@@ -106,7 +96,7 @@ const handleGetItem = (table) => (req, res) => {
 
 const handleCreateItem = (table) => (req, res) => {
     req.tenantDb.all(`PRAGMA table_info(${table})`, [], (pErr, cols) => {
-        if (pErr) { closeDb(req); return res.status(500).json({ error: pErr.message }); }
+        if (pErr) { return res.status(500).json({ error: pErr.message }); }
         
         const validColumns = cols.map(c => c.name);
         const data = encryptPayload({ ...req.body, household_id: req.hhId });
@@ -119,15 +109,14 @@ const handleCreateItem = (table) => (req, res) => {
         });
 
         const fields = Object.keys(insertData);
-        if (fields.length === 0) { closeDb(req); return res.status(400).json({ error: "No valid fields" }); }
+        if (fields.length === 0) { return res.status(400).json({ error: "No valid fields" }); }
         
         const placeholders = fields.join(', ');
         const qs = fields.map(() => '?').join(', ');
         const values = Object.values(insertData);
 
         req.tenantDb.run(`INSERT INTO ${table} (${placeholders}) VALUES (${qs})`, values, function(err) {
-            closeDb(req);
-            if (err) return res.status(500).json({ error: err.message });
+                if (err) return res.status(500).json({ error: err.message });
             res.status(201).json({ id: this.lastID, ...insertData });
         });
     });
@@ -135,7 +124,7 @@ const handleCreateItem = (table) => (req, res) => {
 
 const handleUpdateItem = (table) => (req, res) => {
     req.tenantDb.all(`PRAGMA table_info(${table})`, [], (pErr, cols) => {
-        if (pErr) { closeDb(req); return res.status(500).json({ error: pErr.message }); }
+        if (pErr) { return res.status(500).json({ error: pErr.message }); }
         
         const validColumns = cols.map(c => c.name);
         const data = encryptPayload(req.body);
@@ -148,14 +137,13 @@ const handleUpdateItem = (table) => (req, res) => {
         });
 
         const fields = Object.keys(updateData);
-        if (fields.length === 0) { closeDb(req); return res.status(400).json({ error: "No valid fields" }); }
+        if (fields.length === 0) { return res.status(400).json({ error: "No valid fields" }); }
 
         const sets = fields.map(f => `${f} = ?`).join(', ');
         const values = Object.values(updateData);
 
         req.tenantDb.run(`UPDATE ${table} SET ${sets} WHERE id = ? AND household_id = ?`, [...values, req.params.itemId, req.hhId], function(err) {
-            closeDb(req);
-            if (err) return res.status(500).json({ error: err.message });
+                if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Updated" });
         });
     });
@@ -163,7 +151,6 @@ const handleUpdateItem = (table) => (req, res) => {
 
 const handleDeleteItem = (table) => (req, res) => {
     req.tenantDb.run(`DELETE FROM ${table} WHERE id = ? AND household_id = ?`, [req.params.itemId, req.hhId], function(err) {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Deleted" });
     });
@@ -187,14 +174,13 @@ router.delete('/households/:id/vehicles/:itemId', authenticateToken, requireHous
 // Vehicle Services (Still needed as they are one-off maintenance records)
 router.get(`/households/:id/vehicles/:vehicleId/services`, authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
     req.tenantDb.all(`SELECT * FROM vehicle_services WHERE vehicle_id = ? AND household_id = ?`, [req.params.vehicleId, req.hhId], (err, rows) => {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json((rows || []).map(decryptRow));
     });
 });
 router.post(`/households/:id/vehicles/:vehicleId/services`, authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     req.tenantDb.all(`PRAGMA table_info(vehicle_services)`, [], (pErr, cols) => {
-        if (pErr) { closeDb(req); return res.status(500).json({ error: pErr.message }); }
+        if (pErr) { return res.status(500).json({ error: pErr.message }); }
         const validColumns = cols.map(c => c.name);
         const data = encryptPayload({ ...req.body, vehicle_id: req.params.vehicleId, household_id: req.hhId });
         const insertData = {};
@@ -203,15 +189,13 @@ router.post(`/households/:id/vehicles/:vehicleId/services`, authenticateToken, r
         });
         const fields = Object.keys(insertData);
         req.tenantDb.run(`INSERT INTO vehicle_services (${fields.join(', ')}) VALUES (${fields.map(() => '?').join(', ')})`, Object.values(insertData), function(err) {
-            closeDb(req);
-            if (err) return res.status(500).json({ error: err.message });
+                if (err) return res.status(500).json({ error: err.message });
             res.status(201).json({ id: this.lastID, ...insertData });
         });
     });
 });
 router.delete(`/households/:id/vehicles/:vehicleId/services/:itemId`, authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     req.tenantDb.run(`DELETE FROM vehicle_services WHERE id = ? AND vehicle_id = ? AND household_id = ?`, [req.params.itemId, req.params.vehicleId, req.hhId], function(err) {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Deleted" });
     });

@@ -74,35 +74,40 @@ export default function LoansView({ financialProfileId }) {
   [loans, selectedLoanId]);
 
   useEffect(() => {
-    if (selectedLoan) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFormData({
-        lender: selectedLoan.lender || '', 
-        loan_type: selectedLoan.loan_type || '',
-        total_amount: selectedLoan.total_amount || 0,
-        remaining_balance: selectedLoan.remaining_balance || 0, 
-        monthly_payment: selectedLoan.monthly_payment || 0,
-        payment_day: selectedLoan.payment_day || '',
-        nearest_working_day: selectedLoan.nearest_working_day ?? 1,
-        emoji: selectedLoan.emoji || '📝'
-      });
-      setSelectedMembers(getAssignees(selectedLoan.id).map(m => m.id));
-    } else if (selectedLoanId === 'new') {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFormData({
-        lender: '', 
-        loan_type: '', 
-        total_amount: 0,
-        remaining_balance: 0, 
-        monthly_payment: 0, 
-        payment_day: '',
-        nearest_working_day: 1,
-        emoji: '📝'
-      });
-      const defaultMember = members.find(m => m.id === currentUser?.id) || members.find(m => m.type !== 'pet');
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSelectedMembers(defaultMember ? [defaultMember.id] : []);
+    let active = true;
+    if (selectedLoan && active) {
+      setTimeout(() => {
+        if (!active) return;
+        setFormData({
+          lender: selectedLoan.lender || '', 
+          loan_type: selectedLoan.loan_type || '',
+          total_amount: selectedLoan.total_amount || 0,
+          remaining_balance: selectedLoan.remaining_balance || 0, 
+          monthly_payment: selectedLoan.monthly_payment || 0,
+          payment_day: selectedLoan.payment_day || '',
+          nearest_working_day: selectedLoan.nearest_working_day ?? 1,
+          emoji: selectedLoan.emoji || '📝'
+        });
+        setSelectedMembers(getAssignees(selectedLoan.id).map(m => m.id));
+      }, 0);
+    } else if (selectedLoanId === 'new' && active) {
+      setTimeout(() => {
+        if (!active) return;
+        setFormData({
+          lender: '', 
+          loan_type: '', 
+          total_amount: 0,
+          remaining_balance: 0, 
+          monthly_payment: 0, 
+          payment_day: '',
+          nearest_working_day: 1,
+          emoji: '📝'
+        });
+        const defaultMember = members.find(m => m.id === currentUser?.id) || members.find(m => m.type !== 'pet');
+        setSelectedMembers(defaultMember ? [defaultMember.id] : []);
+      }, 0);
     }
+    return () => { active = false; };
   }, [selectedLoan, selectedLoanId, getAssignees, members, currentUser]);
 
   const setLoanId = (id) => {

@@ -25,9 +25,10 @@ const formatDate = (date) => {
 };
 
 export default function MealPlannerView() {
-  const { api, id: householdId, members, showNotification } = useOutletContext();
+  const { api, household, showNotification, members = [] } = useOutletContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'planner';
+  const householdId = household?.id;
   
   const [currentWeekStart, setCurrentWeekStart] = useState(getStartOfWeek(new Date()));
   const [meals, setMeals] = useState([]);
@@ -46,6 +47,7 @@ export default function MealPlannerView() {
   const [selectedMealId, setSelectedMealId] = useState('');
 
   const fetchMeals = useCallback(async () => {
+    if (!householdId) return;
     try {
       const res = await api.get(`/households/${householdId}/meals`);
       setMeals(res.data || []);
@@ -53,6 +55,7 @@ export default function MealPlannerView() {
   }, [api, householdId]);
 
   const fetchPlans = useCallback(async () => {
+    if (!householdId) return;
     const start = formatDate(currentWeekStart);
     const end = formatDate(new Date(new Date(currentWeekStart).setDate(currentWeekStart.getDate() + 6)));
     try {
@@ -62,10 +65,14 @@ export default function MealPlannerView() {
   }, [api, householdId, currentWeekStart]);
 
   useEffect(() => {
-    Promise.resolve().then(() => {
-        fetchMeals();
-        if (activeTab === 'planner') fetchPlans();
-    });
+    let active = true;
+    const load = async () => {
+        if (!active) return;
+        await fetchMeals();
+        if (activeTab === 'planner') await fetchPlans();
+    };
+    load();
+    return () => { active = false; };
   }, [fetchMeals, fetchPlans, activeTab]);
 
   const handleCreateMeal = async (e) => {
@@ -160,7 +167,7 @@ export default function MealPlannerView() {
       return days;
   }, [currentWeekStart]);
 
-  const activeMembers = useMemo(() => members.filter(m => m.type !== 'pet'), [members]);
+  const activeMembers = useMemo(() => (members || []).filter(m => m.type !== 'pet'), [members]);
 
   const getCellContent = (dateStr, memberId) => {
       return plans.filter(p => p.date === dateStr && p.member_id === memberId);

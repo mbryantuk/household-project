@@ -16,7 +16,7 @@ const formatCurrency = (val) => {
 };
 
 export default function PensionsView({ financialProfileId }) {
-  const { api, id: householdId, user: currentUser, isDark, members, showNotification } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, members, showNotification, confirmAction } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
@@ -117,12 +117,16 @@ export default function PensionsView({ financialProfileId }) {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this pension?")) return;
-    try {
-        await api.delete(`/households/${householdId}/finance/pensions/${id}`);
-        fetchData();
-        if (selectedPensionId === String(id)) setPensionId(null);
-    } catch { alert("Failed to delete"); }
+    confirmAction("Delete Pension", "Are you sure you want to delete this pension? This cannot be undone.", async () => {
+        try {
+            await api.delete(`/households/${householdId}/finance/pensions/${id}`);
+            showNotification("Pension deleted", "success");
+            fetchData();
+            if (selectedPensionId === String(id)) setPensionId(null);
+        } catch { 
+            showNotification("Failed to delete", "danger");
+        }
+    });
   };
 
   const handleAssignMember = async (memberId) => {

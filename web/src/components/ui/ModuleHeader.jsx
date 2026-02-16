@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Typography, Avatar, Card, Stack, Chip } from '@mui/joy';
-import { getEmojiColor } from '../../theme';
 
 /**
  * ModuleHeader
@@ -10,7 +9,6 @@ export default function ModuleHeader({
   title, 
   description, 
   emoji = '📄', 
-  isDark, 
   action,
   chips = [] 
 }) {

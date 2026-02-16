@@ -116,7 +116,6 @@ router.post('/analyze-receipt', authenticateToken, requireHouseholdRole('member'
         if (filePath && fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);
         }
-        if (req.tenantDb) req.tenantDb.close();
     }
 });
 

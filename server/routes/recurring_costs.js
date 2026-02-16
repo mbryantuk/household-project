@@ -1,29 +1,8 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
-const { getHouseholdDb, ensureHouseholdSchema } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
+const { useTenantDb } = require('../middleware/tenant');
 const { encrypt, decrypt } = require('../services/crypto');
-
-/**
- * Middleware to Attach Tenant DB
- */
-const useTenantDb = async (req, res, next) => {
-    const hhId = req.params.id;
-    if (!hhId) return res.status(400).json({ error: "Household ID required" });
-    try {
-        const db = getHouseholdDb(hhId);
-        await ensureHouseholdSchema(db, hhId);
-        req.tenantDb = db;
-        req.hhId = hhId;
-        next();
-    } catch (err) {
-        res.status(500).json({ error: "Database initialization failed: " + err.message });
-    }
-};
-
-const closeDb = (req) => {
-    if (req.tenantDb) req.tenantDb.close();
-};
 
 // SENSITIVE FIELDS IN METADATA
 const SENSITIVE_FIELDS = ['account_number', 'policy_number', 'sort_code', 'registration', 'serial_number', 'wifi_password'];
@@ -74,7 +53,6 @@ router.get('/', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, 
     }
 
     req.tenantDb.all(sql, params, (err, rows) => {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json((rows || []).map(decryptMetadata));
     });
@@ -105,7 +83,6 @@ router.post('/', authenticateToken, requireHouseholdRole('member'), useTenantDb,
     ];
 
     req.tenantDb.run(sql, params, function(err) {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.status(201).json({ id: this.lastID, ...req.body });
     });
@@ -135,7 +112,6 @@ router.put('/:itemId', authenticateToken, requireHouseholdRole('member'), useTen
     ];
 
     req.tenantDb.run(sql, params, function(err) {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         if (this.changes === 0) return res.status(404).json({ error: "Item not found" });
         res.json({ message: "Updated" });
@@ -146,7 +122,6 @@ router.put('/:itemId', authenticateToken, requireHouseholdRole('member'), useTen
 router.delete('/:itemId', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
     // We archive instead of hard delete to preserve budget history
     req.tenantDb.run(`UPDATE recurring_costs SET is_active = 0 WHERE id = ? AND household_id = ?`, [req.params.itemId, req.hhId], function(err) {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Archived" });
     });

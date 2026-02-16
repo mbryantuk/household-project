@@ -19,7 +19,7 @@ import pkg from '../../../package.json';
 import gitInfo from '../../git-info.json';
 
 export default function AdminSettings() {
-  const { api, showNotification, household, onUpdateHousehold } = useHousehold();
+  const { api, showNotification, household, onUpdateHousehold, confirmAction } = useHousehold();
   const [activeTab, setActiveTab] = useState(0);
 
   // Tenants State
@@ -145,16 +145,15 @@ export default function AdminSettings() {
         return;
     }
 
-    const confirmed = window.confirm(`⚠️ DANGER: Are you sure you want to destroy tenant "${tenant.name}" (ID: ${tenant.id})?\n\nThis will permanently delete ALL data, backups, and user associations. This cannot be undone.`);
-    if (!confirmed) return;
-
-    try {
-        await api.delete(`/households/${tenant.id}`);
-        showNotification(`Tenant "${tenant.name}" destroyed successfully.`, "success");
-        fetchTenants();
-    } catch (err) {
-        showNotification(err.response?.data?.error || "Failed to destroy tenant.", "danger");
-    }
+    confirmAction("Destroy Tenant", `⚠️ DANGER: Are you sure you want to destroy tenant "${tenant.name}" (ID: ${tenant.id})? This will permanently delete ALL data, backups, and user associations. This cannot be undone.`, async () => {
+        try {
+            await api.delete(`/households/${tenant.id}`);
+            showNotification(`Tenant "${tenant.name}" destroyed successfully.`, "success");
+            fetchTenants();
+        } catch (err) {
+            showNotification(err.response?.data?.error || "Failed to destroy tenant.", "danger");
+        }
+    });
   };
 
   useEffect(() => {

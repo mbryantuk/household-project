@@ -3,21 +3,23 @@ import { useOutletContext } from 'react-router-dom';
 import { 
   Box, Typography, Grid, Card, Avatar, IconButton, 
   Button, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, Input,
-  FormControl, FormLabel, Select, Option, Stack, CircularProgress
+  FormControl, FormLabel, Select, Option, Stack, CircularProgress, Checkbox
 } from '@mui/joy';
 import { Edit, Delete, DeleteSweep, Add } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
 
 export default function WasteView() {
-  const { api, id: householdId, user: currentUser, isDark, showNotification } = useOutletContext();
-  const [collections, setCollections] = useState([]);
+  const { api, household, isDark, showNotification, confirmAction, user: currentUser } = useOutletContext();
   const [loading, setLoading] = useState(true);
+  const [collections, setCollections] = useState([]);
   const [editItem, setEditItem] = useState(null);
   const [isNew, setIsNew] = useState(false);
   
   const isAdmin = currentUser?.role === 'admin';
+  const householdId = household?.id;
 
   const fetchCollections = useCallback(async () => {
+    if (!householdId) return;
     setLoading(true);
     try {
       const res = await api.get(`/households/${householdId}/waste`);
@@ -55,14 +57,15 @@ export default function WasteView() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this collection?")) return;
-    try {
-      await api.delete(`/households/${householdId}/waste/${id}`);
-      showNotification("Collection deleted.", "neutral");
-      fetchCollections();
-    } catch {
-      showNotification("Failed to delete collection.", "danger");
-    }
+    confirmAction("Delete Collection", "Are you sure you want to delete this collection schedule?", async () => {
+        try {
+          await api.delete(`/households/${householdId}/waste/${id}`);
+          showNotification("Collection deleted", "success");
+          fetchCollections();
+        } catch {
+          showNotification("Failed to delete", "danger");
+        }
+    });
   };
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;

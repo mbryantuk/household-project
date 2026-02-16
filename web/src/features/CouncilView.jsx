@@ -9,14 +9,16 @@ import { Edit, Delete, AccountBalance, Add } from '@mui/icons-material';
 import { getEmojiColor } from '../theme';
 
 export default function CouncilView() {
-  const { api, id: householdId, user: currentUser, isDark, showNotification } = useOutletContext();
+  const { api, household, isDark, showNotification, confirmAction, user: currentUser } = useOutletContext();
   const [accounts, setAccounts] = useState([]);
   const [editAccount, setEditAccount] = useState(null);
   const [isNew, setIsNew] = useState(false);
   
   const isAdmin = currentUser?.role === 'admin';
+  const householdId = household?.id;
 
   const fetchAccounts = useCallback(async () => {
+    if (!householdId) return;
     try {
       const res = await api.get(`/households/${householdId}/council`);
       setAccounts(res.data || []);
@@ -26,7 +28,12 @@ export default function CouncilView() {
   }, [api, householdId]);
 
   useEffect(() => {
-    Promise.resolve().then(() => fetchAccounts());
+    let active = true;
+    const load = async () => {
+      if (active) await fetchAccounts();
+    };
+    load();
+    return () => { active = false; };
   }, [fetchAccounts]);
 
   const handleSubmit = async (e) => {
@@ -52,14 +59,15 @@ export default function CouncilView() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this council account?")) return;
-    try {
-      await api.delete(`/households/${householdId}/council/${id}`);
-      showNotification("Council account deleted.", "neutral");
-      fetchAccounts();
-    } catch {
-      showNotification("Failed to delete account.", "danger");
-    }
+    confirmAction("Delete Council Account", "Are you sure you want to delete this council account? This cannot be undone.", async () => {
+        try {
+          await api.delete(`/households/${householdId}/council/${id}`);
+          showNotification("Council account deleted", "success");
+          fetchAccounts();
+        } catch {
+          showNotification("Failed to delete", "danger");
+        }
+    });
   };
 
   return (

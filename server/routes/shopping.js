@@ -17,8 +17,6 @@ router.get('/households/:id/shopping-list', authenticateToken, requireHouseholdR
         // Calculate estimated budget
         const totalEstimatedCost = (items || []).reduce((sum, item) => sum + (item.estimated_cost || 0), 0);
         
-        if (req.tenantDb) req.tenantDb.close();
-        
         res.json({
             items: items || [],
             summary: {
@@ -29,7 +27,6 @@ router.get('/households/:id/shopping-list', authenticateToken, requireHouseholdR
         });
     } catch (err) {
         console.error("[SHOPPING] Failed to fetch shopping list", err);
-        if (req.tenantDb) req.tenantDb.close();
         res.status(500).json({ error: "Failed to fetch shopping list: " + err.message });
     }
 });
@@ -41,7 +38,6 @@ router.get('/households/:id/shopping-list', authenticateToken, requireHouseholdR
 router.post('/households/:id/shopping-list', authenticateToken, requireHouseholdRole('member'), useTenantDb, async (req, res) => {
     const { name, quantity, category, estimated_cost } = req.body;
     if (!name) {
-        if (req.tenantDb) req.tenantDb.close();
         return res.status(400).json({ error: "Item name is required" });
     }
 
@@ -53,11 +49,9 @@ router.post('/households/:id/shopping-list', authenticateToken, requireHousehold
         );
         
         const newItem = await dbGet(req.tenantDb, "SELECT * FROM shopping_items WHERE id = ?", [result.id]);
-        if (req.tenantDb) req.tenantDb.close();
         res.status(201).json(newItem);
     } catch (err) {
         console.error("[SHOPPING] Failed to add shopping item", err);
-        if (req.tenantDb) req.tenantDb.close();
         res.status(500).json({ error: "Failed to add item: " + err.message });
     }
 });
@@ -82,7 +76,6 @@ router.put('/households/:id/shopping-list/:itemId', authenticateToken, requireHo
         if (estimated_cost !== undefined) { fields.push("estimated_cost = ?"); values.push(estimated_cost); }
         
         if (fields.length === 0) {
-            if (req.tenantDb) req.tenantDb.close();
             return res.status(400).json({ error: "No fields to update" });
         }
 
@@ -95,11 +88,9 @@ router.put('/households/:id/shopping-list/:itemId', authenticateToken, requireHo
         await dbRun(req.tenantDb, sql, values);
         
         const updatedItem = await dbGet(req.tenantDb, "SELECT * FROM shopping_items WHERE id = ?", [itemId]);
-        if (req.tenantDb) req.tenantDb.close();
         res.json(updatedItem);
     } catch (err) {
         console.error("[SHOPPING] Failed to update shopping item", err);
-        if (req.tenantDb) req.tenantDb.close();
         res.status(500).json({ error: "Failed to update item: " + err.message });
     }
 });
@@ -112,11 +103,9 @@ router.delete('/households/:id/shopping-list/clear', authenticateToken, requireH
     try {
         console.log(`[SHOPPING] Clearing completed items for household ${req.params.id}`);
         await dbRun(req.tenantDb, "DELETE FROM shopping_items WHERE household_id = ? AND is_checked = 1", [req.params.id]);
-        if (req.tenantDb) req.tenantDb.close();
         res.json({ message: "Cleared completed items" });
     } catch (err) {
         console.error("[SHOPPING] Failed to clear shopping list", err);
-        if (req.tenantDb) req.tenantDb.close();
         res.status(500).json({ error: "Failed to clear items: " + err.message });
     }
 });
@@ -129,11 +118,9 @@ router.delete('/households/:id/shopping-list/:itemId', authenticateToken, requir
     try {
         console.log(`[SHOPPING] Deleting item ${req.params.itemId} for household ${req.params.id}`);
         await dbRun(req.tenantDb, "DELETE FROM shopping_items WHERE household_id = ? AND id = ?", [req.params.id, req.params.itemId]);
-        if (req.tenantDb) req.tenantDb.close();
         res.json({ message: "Item deleted" });
     } catch (err) {
         console.error("[SHOPPING] Failed to delete shopping item", err);
-        if (req.tenantDb) req.tenantDb.close();
         res.status(500).json({ error: "Failed to delete item: " + err.message });
     }
 });

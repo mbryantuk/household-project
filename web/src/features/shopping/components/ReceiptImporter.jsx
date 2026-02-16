@@ -6,13 +6,8 @@ import {
 } from '@mui/joy';
 import { 
   FileUpload, ContentPaste, Delete, Save, Warning, 
-  CheckCircle, ReceiptLong
+  ReceiptLong
 } from '@mui/icons-material';
-
-const formatCurrency = (val) => {
-    const num = parseFloat(val) || 0;
-    return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });
-};
 
 export default function ReceiptImporter({ open, onClose, api, householdId, onImportComplete, showNotification }) {
   const [loading, setLoading] = useState(false);
@@ -35,8 +30,7 @@ export default function ReceiptImporter({ open, onClose, api, householdId, onImp
       });
       setItems(res.data.items || []);
       setSelectedSuggestions((res.data.items || []).map((_, i) => i));
-    } catch (err) {
-      console.error("Receipt analysis failed", err);
+    } catch {
       showNotification("Failed to analyze receipt. Try pasting the text instead.", "danger");
     } finally {
       setLoading(false);
@@ -51,7 +45,7 @@ export default function ReceiptImporter({ open, onClose, api, householdId, onImp
       const res = await api.post(`/households/${householdId}/shopping-list/import/analyze-receipt`, { text: pasteText });
       setItems(res.data.items || []);
       setSelectedSuggestions((res.data.items || []).map((_, i) => i));
-    } catch (err) {
+    } catch {
       showNotification("Failed to parse text.", "danger");
     } finally {
       setLoading(false);
@@ -68,7 +62,7 @@ export default function ReceiptImporter({ open, onClose, api, householdId, onImp
       showNotification(`Imported ${toSave.length} items to your list.`, "success");
       onImportComplete();
       onClose();
-    } catch (err) {
+    } catch {
       showNotification("Failed to save some items.", "danger");
     } finally {
       setLoading(false);

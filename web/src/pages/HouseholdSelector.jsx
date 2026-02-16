@@ -14,7 +14,7 @@ import ExitToApp from '@mui/icons-material/ExitToApp';
 import { useNavigate } from 'react-router-dom';
 import { getEmojiColor } from '../theme';
 
-export default function HouseholdSelector({ api, currentUser, onLogout, showNotification, onSelectHousehold }) {
+export default function HouseholdSelector({ api, currentUser, onLogout, showNotification, onSelectHousehold, confirmAction }) {
   const navigate = useNavigate();
   const [households, setHouseholds] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,8 +42,7 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
 
   const handleDeleteHousehold = async (e, hh) => {
     e.stopPropagation();
-    const confirmed = window.confirm(`⚠️ Are you sure you want to DELETE ${hh.name}? This action is permanent and will destroy all data.`);
-    if (confirmed) {
+    confirmAction("Delete Household", `⚠️ Are you sure you want to DELETE ${hh.name}? This action is permanent and will destroy all data.`, async () => {
         try {
             await api.delete(`/households/${hh.id}`);
             showNotification(`Household "${hh.name}" deleted.`, "success");
@@ -52,13 +51,12 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
             console.error(error);
             showNotification("Failed to delete household.", "danger");
         }
-    }
+    });
   };
 
   const handleLeaveHousehold = async (e, hh) => {
     e.stopPropagation();
-    const confirmed = window.confirm(`Are you sure you want to leave ${hh.name}? You will lose access until invited back.`);
-    if (confirmed) {
+    confirmAction("Leave Household", `Are you sure you want to leave ${hh.name}? You will lose access until invited back.`, async () => {
         try {
             await api.delete(`/households/${hh.id}/leave`);
             showNotification(`You have left "${hh.name}".`, "success");
@@ -67,7 +65,7 @@ export default function HouseholdSelector({ api, currentUser, onLogout, showNoti
             const msg = error.response?.data?.error || "Failed to leave household.";
             showNotification(msg, "danger");
         }
-    }
+    });
   };
 
   const handleExportHousehold = async (e, hh) => {

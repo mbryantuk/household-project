@@ -12,13 +12,8 @@ import EmojiPicker from '../../components/EmojiPicker';
 import ModuleHeader from '../../components/ui/ModuleHeader';
 import FinanceCard from '../../components/ui/FinanceCard';
 
-const formatCurrency = (val) => {
-    const num = parseFloat(val) || 0;
-    return num.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-};
-
 export default function AgreementsView({ isSubscriptions = false, financialProfileId }) {
-  const { api, id: householdId, user: currentUser, isDark, members, showNotification } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, members, showNotification, confirmAction } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
@@ -112,13 +107,17 @@ export default function AgreementsView({ isSubscriptions = false, financialProfi
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this item?")) return;
-    const endpoint = isSubscriptions ? 'subscriptions' : 'agreements';
-    try { 
-        await api.delete(`/households/${householdId}/finance/${endpoint}/${id}`); 
-        fetchData(); 
-        if (selectedAgreementId === String(id)) setAgreementId(null);
-    } catch { alert("Failed to delete"); }
+    confirmAction("Delete Item", "Are you sure you want to delete this agreement/subscription? This will remove it from your budget.", async () => {
+        const endpoint = isSubscriptions ? 'subscriptions' : 'agreements';
+        try { 
+            await api.delete(`/households/${householdId}/finance/${endpoint}/${id}`); 
+            showNotification("Item deleted", "success");
+            fetchData(); 
+            if (selectedAgreementId === String(id)) setAgreementId(null);
+        } catch { 
+            showNotification("Failed to delete", "danger");
+        }
+    });
   };
 
   const handleAssignMember = async (memberId) => {

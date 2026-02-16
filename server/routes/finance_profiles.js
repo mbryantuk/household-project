@@ -1,33 +1,11 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
-const { getHouseholdDb, ensureHouseholdSchema } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
-
-/**
- * Middleware to Attach Tenant DB
- */
-const useTenantDb = async (req, res, next) => {
-    const hhId = req.params.id;
-    if (!hhId) return res.status(400).json({ error: "Household ID required" });
-    try {
-        const db = getHouseholdDb(hhId);
-        await ensureHouseholdSchema(db, hhId);
-        req.tenantDb = db;
-        req.hhId = hhId;
-        next();
-    } catch (err) {
-        res.status(500).json({ error: "Database initialization failed: " + err.message });
-    }
-};
-
-const closeDb = (req) => {
-    if (req.tenantDb) req.tenantDb.close();
-};
+const { useTenantDb } = require('../middleware/tenant');
 
 // GET /households/:id/finance/profiles
 router.get('/', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
     req.tenantDb.all(`SELECT * FROM finance_profiles WHERE household_id = ?`, [req.hhId], (err, rows) => {
-        closeDb(req);
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows || []);
     });
@@ -45,7 +23,6 @@ router.post('/', authenticateToken, requireHouseholdRole('member'), useTenantDb,
         `INSERT INTO finance_profiles (household_id, name, emoji, is_default) VALUES (?, ?, ?, ?)`,
         [req.hhId, name, emoji || '💰', is_default ? 1 : 0],
         function(err) {
-            closeDb(req);
             if (err) return res.status(500).json({ error: err.message });
             res.status(201).json({ id: this.lastID, ...req.body });
         }
@@ -64,7 +41,6 @@ router.put('/:profileId', authenticateToken, requireHouseholdRole('member'), use
         `UPDATE finance_profiles SET name = ?, emoji = ?, is_default = ? WHERE id = ? AND household_id = ?`,
         [name, emoji, is_default ? 1 : 0, req.params.profileId, req.hhId],
         function(err) {
-            closeDb(req);
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Updated" });
         }
@@ -77,12 +53,10 @@ router.delete('/:profileId', authenticateToken, requireHouseholdRole('admin'), u
     // For now, restrict delete if it's default
     req.tenantDb.get(`SELECT is_default FROM finance_profiles WHERE id = ?`, [req.params.profileId], (err, row) => {
         if (row && row.is_default) {
-            closeDb(req);
             return res.status(400).json({ error: "Cannot delete default profile." });
         }
 
         req.tenantDb.run(`DELETE FROM finance_profiles WHERE id = ? AND household_id = ?`, [req.params.profileId, req.hhId], function(err) {
-            closeDb(req);
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Deleted" });
         });

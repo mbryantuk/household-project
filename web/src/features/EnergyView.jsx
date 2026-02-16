@@ -10,15 +10,17 @@ import { Edit, Delete, ElectricBolt, Add, ReceiptLong } from '@mui/icons-materia
 import { getEmojiColor } from '../theme';
 
 export default function EnergyView() {
-  const { api, id: householdId, user: currentUser, isDark, showNotification } = useOutletContext();
-  const [accounts, setAccounts] = useState([]);
+  const { api, household, isDark, showNotification, confirmAction, user: currentUser } = useOutletContext();
   const [loading, setLoading] = useState(true);
+  const [accounts, setAccounts] = useState([]);
   const [editAccount, setEditAccount] = useState(null);
   const [isNew, setIsNew] = useState(false);
   
   const isAdmin = currentUser?.role === 'admin';
+  const householdId = household?.id;
 
   const fetchAccounts = useCallback(async () => {
+    if (!householdId) return;
     setLoading(true);
     try {
       const res = await api.get(`/households/${householdId}/energy`);
@@ -56,14 +58,15 @@ export default function EnergyView() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this energy account?")) return;
-    try {
-      await api.delete(`/households/${householdId}/energy/${id}`);
-      showNotification("Energy account deleted.", "neutral");
-      fetchAccounts();
-    } catch {
-      showNotification("Failed to delete account.", "danger");
-    }
+    confirmAction("Delete Energy Account", "Are you sure you want to delete this energy account? This cannot be undone.", async () => {
+        try {
+          await api.delete(`/households/${householdId}/energy/${id}`);
+          showNotification("Energy account deleted", "success");
+          fetchAccounts();
+        } catch {
+          showNotification("Failed to delete", "danger");
+        }
+    });
   };
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;

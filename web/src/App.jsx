@@ -444,7 +444,7 @@ function AppInner({
             
             <Route element={token ? <RootLayout context={{ api: authAxios, user, showNotification, confirmAction }} /> : <Navigate to="/login" />}>
             <Route index element={household ? <Navigate to={`/household/${household.id}/dashboard`} /> : <Navigate to="/select-household" />} />
-            <Route path="select-household" element={<HouseholdSelector api={authAxios} currentUser={user} onLogout={logout} showNotification={showNotification} onSelectHousehold={handleSelectHousehold} />} />
+            <Route path="select-household" element={<HouseholdSelector api={authAxios} currentUser={user} onLogout={logout} showNotification={showNotification} onSelectHousehold={handleSelectHousehold} confirmAction={confirmAction} />} />
 
             <Route path="household/:id" element={<HouseholdLayout 
                 households={households} onSelectHousehold={handleSelectHousehold} api={authAxios} onUpdateHousehold={handleUpdateHouseholdSettings}

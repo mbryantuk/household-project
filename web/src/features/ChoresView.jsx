@@ -40,7 +40,7 @@ const getDueDateColor = (dateStr) => {
 };
 
 export default function ChoresView() {
-  const { api, household, showNotification, members, isDark } = useOutletContext();
+  const { api, household, showNotification, isDark, members, confirmAction } = useOutletContext();
   const [chores, setChores] = useState([]);
   const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -140,14 +140,15 @@ export default function ChoresView() {
   };
 
   const handleDelete = async (id) => {
-      if (!window.confirm("Delete this chore?")) return;
-      try {
+    confirmAction("Delete Chore", "Are you sure you want to delete this chore?", async () => {
+        try {
           await api.delete(`/households/${household.id}/chores/${id}`);
           setChores(prev => prev.filter(c => c.id !== id));
-          showNotification("Chore deleted", "neutral");
-      } catch {
+          showNotification("Chore deleted", "success");
+        } catch {
           showNotification("Failed to delete", "danger");
-      }
+        }
+    });
   };
 
   const handleComplete = async (chore) => {

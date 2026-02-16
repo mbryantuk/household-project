@@ -23,7 +23,7 @@ const formatPercent = (val) => {
 };
 
 export default function MortgagesView({ financialProfileId }) {
-  const { api, id: householdId, user: currentUser, isDark, members = [], household, showNotification } = useOutletContext();
+  const { api, id: householdId, user: currentUser, isDark, members = [], household, showNotification, confirmAction } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
@@ -135,12 +135,16 @@ export default function MortgagesView({ financialProfileId }) {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this item?")) return;
-    try { 
-        await api.delete(`/households/${householdId}/finance/mortgages/${id}`); 
-        fetchData(); 
-        if (selectedMortgageId === String(id)) setMortgageId(null);
-    } catch { alert("Failed to delete"); }
+    confirmAction("Delete Item", "Are you sure you want to delete this mortgage/equity loan? This cannot be undone.", async () => {
+        try { 
+            await api.delete(`/households/${householdId}/finance/mortgages/${id}`); 
+            fetchData(); 
+            if (selectedMortgageId === String(id)) setMortgageId(null);
+            showNotification("Item deleted", "success");
+        } catch { 
+            showNotification("Failed to delete", "danger");
+        }
+    });
   };
 
   const handleAssignMember = async (memberId) => {
