@@ -1,6 +1,6 @@
 {
   "name": "totem-server",
-  "version": "3.2.250",
+  "version": "3.2.251",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -26,9 +26,11 @@
     "multer": "^1.4.5-lts.1",
     "node-cron": "^3.0.3",
     "otplib": "^13.2.1",
+    "pdf-parse": "^2.4.5",
     "qrcode": "^1.5.4",
     "sqlite3": "^5.1.7",
     "swagger-ui-express": "^5.0.0",
+    "tesseract.js": "^7.0.0",
     "ua-parser-js": "^2.0.9"
   },
   "devDependencies": {

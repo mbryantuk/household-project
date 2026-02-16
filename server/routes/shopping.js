@@ -3,6 +3,7 @@ const router = express.Router();
 const { dbAll, dbRun, dbGet } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { useTenantDb } = require('../middleware/tenant');
+const shoppingImportRoutes = require('./shopping_import');
 
 /**
  * GET /households/:id/shopping-list
@@ -136,5 +137,7 @@ router.delete('/households/:id/shopping-list/:itemId', authenticateToken, requir
         res.status(500).json({ error: "Failed to delete item: " + err.message });
     }
 });
+
+router.use('/households/:id/shopping-list/import', shoppingImportRoutes);
 
 module.exports = router;

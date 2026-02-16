@@ -7,8 +7,9 @@ import {
 } from '@mui/joy';
 import { 
   Add, Delete, Clear, ShoppingBag, AttachMoney, 
-  Calculate
+  Calculate, FileUpload
 } from '@mui/icons-material';
+import ReceiptImporter from './shopping/components/ReceiptImporter';
 
 const formatCurrency = (val) => {
     const num = parseFloat(val) || 0;
@@ -22,6 +23,7 @@ export default function ShoppingListView() {
   const [newItemCost, setNewItemCost] = useState('');
   const [newItemQty, setNewItemQty] = useState('1');
   const [newItemCat, setNewItemCat] = useState('general');
+  const [importModalOpen, setImportModalOpen] = useState(false);
   
   // Budget State
   const [budgetLimit, setBudgetLimit] = useState(() => {
@@ -114,10 +116,19 @@ export default function ShoppingListView() {
   return (
     <Box sx={{ width: '100%', mx: 'auto', pb: 10 }}>
         {/* Header */}
-        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
             <Box>
                 <Typography level="h2" startDecorator={<ShoppingBag />}>Groceries</Typography>
                 <Typography level="body-md" color="neutral">Manage your weekly grocery needs.</Typography>
+                <Button 
+                    variant="soft" 
+                    size="sm" 
+                    startDecorator={<FileUpload />} 
+                    onClick={() => setImportModalOpen(true)}
+                    sx={{ mt: 1 }}
+                >
+                    Import Receipt
+                </Button>
             </Box>
             
             {/* Budget Estimator Widget */}
@@ -269,6 +280,15 @@ export default function ShoppingListView() {
                 )}
             </Box>
         </Stack>
+
+        <ReceiptImporter 
+            open={importModalOpen} 
+            onClose={() => setImportModalOpen(false)}
+            api={api}
+            householdId={household.id}
+            onImportComplete={fetchList}
+            showNotification={showNotification}
+        />
     </Box>
   );
 }

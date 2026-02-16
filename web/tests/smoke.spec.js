@@ -76,6 +76,14 @@ test.describe('Hearth Frontend Smoke Test', () => {
         await checkPage('Pets', `${base}/pets`, /Pets/i);
         await checkPage('Vehicles', `${base}/vehicles`, /Vehicle/i);
         await checkPage('Meals', `${base}/meals`, /Meal/i);
+        
+        await test.step('Page: Groceries Import', async () => {
+            await page.goto(`${base}/shopping`);
+            await page.waitForTimeout(1500);
+            const importBtn = page.getByRole('button', { name: /Import Receipt/i });
+            await expect(importBtn).toBeVisible();
+        });
+
         await checkPage('Groceries', `${base}/shopping`, /Groceries/i);
         await checkPage('Chores', `${base}/chores`, /Chores/i);
         await checkPage('Finance', `${base}/finance`, /Financial/i);
