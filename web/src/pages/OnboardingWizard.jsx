@@ -70,29 +70,50 @@ export default function OnboardingWizard() {
       }
       
       // 2. House
-      await api.put(`/households/${householdId}/house`, house);
+      await api.put(`/households/${householdId}/details`, house);
       
       // 3. Vehicles
       for (const v of vehicles) {
-          await api.post(`/households/${householdId}/vehicles`, v);
+          if (v.make) await api.post(`/households/${householdId}/vehicles`, v);
       }
+
+      // 4. Create Default Financial Profile
+      const profileRes = await api.post(`/households/${householdId}/finance/profiles`, {
+          name: 'Joint Finances',
+          is_default: 1,
+          emoji: '💰'
+      });
+      const profileId = profileRes.data.id;
       
-      // 4. Banking
+      // 5. Banking (Linked to Profile)
       for (const b of banking) {
-          await api.post(`/households/${householdId}/finance/current-accounts`, b);
+          if (b.bank_name) {
+              await api.post(`/households/${householdId}/finance/current-accounts`, {
+                  ...b,
+                  financial_profile_id: profileId
+              });
+          }
       }
       
-      // 5. Budget
+      // 6. Budget (Linked to Profile)
       for (const item of budgetItems) {
-          await api.post(`/households/${householdId}/finance/recurring-costs`, item);
+          await api.post(`/households/${householdId}/finance/recurring-costs`, {
+              ...item,
+              financial_profile_id: profileId,
+              object_type: 'household'
+          });
       }
 
       showNotification("Onboarding complete! Welcome to your new home.", "success");
-      navigate(`/household/${householdId}/dashboard`);
+      
+      // Ensure context is updated
+      if (typeof window !== 'undefined') {
+          window.location.href = `/household/${householdId}/dashboard`;
+      }
     } catch (err) {
       console.error("Onboarding failed", err);
       showNotification("Some data failed to save, but you can update it later.", "warning");
-      navigate(`/household/${householdId}/dashboard`);
+      window.location.href = `/household/${householdId}/dashboard`;
     } finally {
       setLoading(false);
     }
