@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Improve logging, fix MFA functional API, and implement session cleanup",
-  "date": "Tue 17 Feb 15:02:33 GMT 2026"
+  "commitMessage": "Fix passkey expectedOrigin constraints for @simplewebauthn/server",
+  "date": "Tue 17 Feb 15:18:30 GMT 2026"
 }

@@ -139,15 +139,14 @@ router.post('/register/verify', authenticateToken, async (req, res) => {
         const verification = await verifyRegistrationResponse({
             response: req.body,
             expectedChallenge,
-            expectedOrigin: (incomingOrigin) => {
-                // Allow exact match or localhost variants for dev
-                if (incomingOrigin === origin) return true;
-                if (incomingOrigin.includes('localhost')) return true;
-                if (incomingOrigin.includes('127.0.0.1')) return true;
-                
-                console.warn(`[Passkey] Registration Origin mismatch. Expected: ${origin}, Got: ${incomingOrigin}`);
-                return false;
-            },
+            expectedOrigin: [
+                origin,
+                'http://localhost:3000',
+                'http://localhost:5173',
+                'http://127.0.0.1:3000',
+                'http://127.0.0.1:5173',
+                'https://hearthstone.mbryantuk.uk'
+            ],
             expectedRPID: rpID,
         });
 
@@ -226,14 +225,14 @@ router.post('/login/verify', async (req, res) => {
         const verification = await verifyAuthenticationResponse({
             response: req.body,
             expectedChallenge,
-            expectedOrigin: (incomingOrigin) => {
-                if (incomingOrigin === origin) return true;
-                if (incomingOrigin.includes('localhost')) return true;
-                if (incomingOrigin.includes('127.0.0.1')) return true;
-
-                console.warn(`[Passkey] Login Origin mismatch. Expected: ${origin}, Got: ${incomingOrigin}`);
-                return false;
-            },
+            expectedOrigin: [
+                origin,
+                'http://localhost:3000',
+                'http://localhost:5173',
+                'http://127.0.0.1:3000',
+                'http://127.0.0.1:5173',
+                'https://hearthstone.mbryantuk.uk'
+            ],
             expectedRPID: rpID,
             authenticator: {
                 credentialID: passkey.id,
