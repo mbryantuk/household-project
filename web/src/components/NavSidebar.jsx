@@ -472,9 +472,13 @@ export default function NavSidebar({
                                   <IconButton size="sm" variant="plain" onClick={() => setProfileCreateOpen(true)} aria-label="Add Profile"><Add fontSize="small" /></IconButton>
                               </ListItem>
                               {profiles.map(p => (
-                                  <ListItem key={p.id} endAction={p.is_default !== 1 ? (<IconButton size="sm" variant="plain" color="danger" onClick={() => handleDeleteProfile(p.id)} sx={{ opacity: 0, transition: 'opacity 0.2s', '.MuiListItem-root:hover &': { opacity: 1 } }}><Close fontSize="small" /></IconButton>) : null}>
-                                      <ListItemButton selected={String(searchParams.get('financial_profile_id')) === String(p.id)} onClick={() => handleProfileSelect(p.id)} sx={{ borderRadius: 'sm' }}>
-                                          <ListItemDecorator>{p.emoji}</ListItemDecorator>
+                                  <ListItem key={p.id} endAction={p.is_default !== 1 ? (<IconButton size="sm" variant="plain" color="danger" onClick={() => handleDeleteProfile(p.id)} sx={{ opacity: 0, transition: 'opacity 0.2s', '.MuiListItem-root:hover &': { opacity: 1 }, mr: 1 }}><Close fontSize="small" /></IconButton>) : null}>
+                                      <ListItemButton selected={String(searchParams.get('financial_profile_id')) === String(p.id)} onClick={() => handleProfileSelect(p.id)} sx={{ borderRadius: 'md', py: 1, gap: 1.5 }}>
+                                          <ListItemDecorator>
+                                              <Avatar size="sm" sx={{ '--Avatar-size': '32px', fontSize: '1.2rem', bgcolor: getEmojiColor(p.emoji, isDark) }}>
+                                                  {p.emoji}
+                                              </Avatar>
+                                          </ListItemDecorator>
                                           <ListItemContent>{p.name}</ListItemContent>
                                       </ListItemButton>
                                   </ListItem>
