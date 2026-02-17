@@ -1,4 +1,4 @@
 {
-  "commitMessage": "fix(ui): manually position delete button to fix offset",
-  "date": "Tue 17 Feb 10:43:14 GMT 2026"
+  "commitMessage": "feat(admin): move new household creation to admin settings tenants tab",
+  "date": "Tue 17 Feb 10:55:23 GMT 2026"
 }

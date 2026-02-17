@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Box, Typography, Sheet, Tabs, TabList, Tab, TabPanel, Stack, Button, Grid, Chip, Divider, IconButton, Tooltip } from '@mui/joy';
+import { Box, Typography, Sheet, Tabs, TabList, Tab, TabPanel, Stack, Button, Grid, Chip, Divider, IconButton, Tooltip, Modal, ModalDialog, DialogTitle, DialogContent, DialogActions, FormControl, FormLabel, Input } from '@mui/joy';
 import HealthAndSafety from '@mui/icons-material/HealthAndSafety';
 import Update from '@mui/icons-material/Update';
 import CheckCircle from '@mui/icons-material/CheckCircle';
@@ -11,6 +11,7 @@ import DeleteForever from '@mui/icons-material/DeleteForever';
 import Home from '@mui/icons-material/Home';
 import CloudDownload from '@mui/icons-material/CloudDownload';
 import DataObject from '@mui/icons-material/DataObject';
+import Add from '@mui/icons-material/Add';
 
 import { useHousehold } from '../../contexts/HouseholdContext';
 import { APP_NAME, APP_VERSION } from '../../constants';
@@ -25,6 +26,9 @@ export default function AdminSettings() {
   // Tenants State
   const [tenants, setTenants] = useState([]);
   const [loadingTenants, setLoadingTenants] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newHouseholdName, setNewHouseholdName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Nightly Health State
   const [testResults, setTestResults] = useState([]);
@@ -156,6 +160,25 @@ export default function AdminSettings() {
     });
   };
 
+  const handleCreateHousehold = async (e) => {
+    e.preventDefault();
+    if (!newHouseholdName.trim()) return;
+    
+    setIsSubmitting(true);
+    try {
+        await api.post('/households', { name: newHouseholdName });
+        showNotification(`Household "${newHouseholdName}" created!`, "success");
+        setIsModalOpen(false);
+        setNewHouseholdName('');
+        fetchTenants();
+    } catch (error) {
+        console.error(error);
+        showNotification("Failed to create household.", "danger");
+    } finally {
+        setIsSubmitting(false);
+    }
+  };
+
   useEffect(() => {
     if (activeTab === 0) fetchTenants();
     if (activeTab === 1) fetchTestResults();
@@ -181,7 +204,10 @@ export default function AdminSettings() {
             <Stack spacing={3}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography level="title-md">Tenant Registry</Typography>
-                    <Button variant="soft" color="primary" startDecorator={<Update />} onClick={fetchTenants} loading={loadingTenants}>Refresh</Button>
+                    <Stack direction="row" spacing={2}>
+                        <Button variant="solid" color="primary" startDecorator={<Add />} onClick={() => setIsModalOpen(true)}>Add Household</Button>
+                        <Button variant="soft" color="primary" startDecorator={<Update />} onClick={fetchTenants} loading={loadingTenants}>Refresh</Button>
+                    </Stack>
                 </Box>
 
                 <Sheet variant="outlined" sx={{ borderRadius: 'md', overflow: 'auto' }}>
@@ -426,6 +452,30 @@ export default function AdminSettings() {
             </Grid>
         </TabPanel>
       </Tabs>
+      
+      <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <ModalDialog>
+          <DialogTitle>Create New Household</DialogTitle>
+          <DialogContent>Enter a name for your new household property.</DialogContent>
+          <form onSubmit={handleCreateHousehold}>
+            <Stack spacing={2}>
+              <FormControl required>
+                <FormLabel>Household Name</FormLabel>
+                <Input 
+                    autoFocus 
+                    placeholder="e.g. Summer House" 
+                    value={newHouseholdName}
+                    onChange={(e) => setNewHouseholdName(e.target.value)}
+                />
+              </FormControl>
+              <DialogActions>
+                <Button type="submit" loading={isSubmitting}>Create Household</Button>
+                <Button variant="plain" color="neutral" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+              </DialogActions>
+            </Stack>
+          </form>
+        </ModalDialog>
+      </Modal>
     </Stack>
   );
 }

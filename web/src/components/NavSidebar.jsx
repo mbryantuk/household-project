@@ -606,9 +606,7 @@ export default function NavSidebar({
                                   <SubItem label="User Settings" to={`/household/${household.id}/settings`} emoji={<SettingsIcon />} onClick={handleSubItemClick} />
                                   <SubItem label="Household Settings" to={`/household/${household.id}/house/details?tab=modules`} emoji={<HomeWork />} onClick={handleSubItemClick} />
                                   
-                                  {(user?.system_role === 'admin' || user?.role === 'admin') && (
-                                      <SubItem label="Add New Household" to="/select-household" emoji={<Add />} onClick={handleSubItemClick} />
-                                  )}
+
                                   
                                   <Box sx={{ pl: 2, pr: 2, pt: 1, pb: 1 }}>
                                       <Typography level="body-xs" fontWeight="bold" sx={{ mb: 1, color: 'text.tertiary', fontSize: '0.7rem', textTransform: 'uppercase' }}>Available Households</Typography>
