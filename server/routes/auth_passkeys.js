@@ -144,7 +144,9 @@ router.post('/register/verify', authenticateToken, async (req, res) => {
                 if (incomingOrigin === origin) return true;
                 if (incomingOrigin.includes('localhost')) return true;
                 if (incomingOrigin.includes('127.0.0.1')) return true;
-                return true; // PERMISSIVE FOR NOW TO FIX USER ISSUE
+                
+                console.warn(`[Passkey] Registration Origin mismatch. Expected: ${origin}, Got: ${incomingOrigin}`);
+                return false;
             },
             expectedRPID: rpID,
         });
@@ -228,7 +230,9 @@ router.post('/login/verify', async (req, res) => {
                 if (incomingOrigin === origin) return true;
                 if (incomingOrigin.includes('localhost')) return true;
                 if (incomingOrigin.includes('127.0.0.1')) return true;
-                return true; // PERMISSIVE FOR NOW
+
+                console.warn(`[Passkey] Login Origin mismatch. Expected: ${origin}, Got: ${incomingOrigin}`);
+                return false;
             },
             expectedRPID: rpID,
             authenticator: {

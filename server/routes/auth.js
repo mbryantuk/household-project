@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { authenticator } = require('otplib');
+const { generateSecret, generateURI, verify, generate } = require('otplib');
 const qrcode = require('qrcode');
 const UAParser = require('ua-parser-js');
 const crypto = require('crypto');
@@ -43,14 +43,23 @@ async function finalizeLogin(user, req, res, rememberMe = false) {
         householdData = await dbGet(globalDb, `SELECT * FROM households WHERE id = ?`, [householdId]);
     }
 
-    // Create Session
-    const sessionId = crypto.randomBytes(16).toString('hex');
+    // CLEANUP: Remove expired sessions for this user
+    await dbRun(globalDb, `DELETE FROM user_sessions WHERE user_id = ? AND expires_at < CURRENT_TIMESTAMP`, [user.id]);
+
+    // CLEANUP: Remove older sessions from the same device/IP to prevent list clutter
     const parser = new UAParser(req.headers['user-agent']);
     const device = parser.getDevice();
     const browser = parser.getBrowser();
     const os = parser.getOS();
     const deviceInfo = `${browser.name || 'Unknown'} on ${os.name || 'Unknown'} (${device.model || 'Desktop'})`;
 
+    await dbRun(globalDb, 
+        `DELETE FROM user_sessions WHERE user_id = ? AND device_info = ? AND ip_address = ?`, 
+        [user.id, deviceInfo, req.ip]
+    );
+
+    // Create Session
+    const sessionId = crypto.randomBytes(16).toString('hex');
     const expiresAt = new Date(Date.now() + (rememberMe ? 30 : 1) * 24 * 60 * 60 * 1000).toISOString();
     
     await dbRun(globalDb, 
@@ -70,6 +79,10 @@ async function finalizeLogin(user, req, res, rememberMe = false) {
 
     const expiresIn = rememberMe ? '30d' : '24h';
     const token = jwt.sign(tokenPayload, SECRET_KEY, { expiresIn });
+
+    if (process.env.NODE_ENV !== 'test') {
+        console.log(`🔑 [AUTH] Login Successful: ${user.email} (SID: ${sessionId.substring(0,8)}...)`);
+    }
 
     res.json({
         token,
@@ -188,6 +201,9 @@ router.post('/login', async (req, res) => {
         if (!isValid) return res.status(401).json({ error: "Invalid credentials" });
 
         if (user.mfa_enabled) {
+            if (process.env.NODE_ENV !== 'test') {
+                console.log(`🔐 [AUTH] MFA Required for: ${user.email}`);
+            }
             const preAuthToken = jwt.sign({ preAuthId: user.id, type: 'mfa_pending', rememberMe }, SECRET_KEY, { expiresIn: '5m' });
             return res.json({ mfa_required: true, preAuthToken });
         }
@@ -197,6 +213,69 @@ router.post('/login', async (req, res) => {
     } catch (err) {
         console.error("Login Error:", err);
         res.status(500).json({ error: "Login failed" });
+    }
+});
+
+/**
+ * POST /mfa/setup
+ */
+router.post('/mfa/setup', authenticateToken, async (req, res) => {
+    try {
+        const secret = generateSecret();
+        const otpauth = generateURI({
+            secret,
+            label: req.user.email,
+            issuer: 'Hearth Household'
+        });
+        const qrCodeUrl = await qrcode.toDataURL(otpauth);
+
+        // Store secret but do NOT enable MFA yet
+        await dbRun(globalDb, `UPDATE users SET mfa_secret = ? WHERE id = ?`, [secret, req.user.id]);
+
+        res.json({ secret, qrCodeUrl });
+    } catch (err) {
+        console.error("MFA Setup Error:", err);
+        res.status(500).json({ error: "MFA setup failed" });
+    }
+});
+
+/**
+ * POST /mfa/verify
+ */
+router.post('/mfa/verify', authenticateToken, async (req, res) => {
+    const { code } = req.body;
+    if (!code) return res.status(400).json({ error: "Code required" });
+
+    try {
+        const user = await dbGet(globalDb, `SELECT mfa_secret FROM users WHERE id = ?`, [req.user.id]);
+        if (!user || !user.mfa_secret) return res.status(400).json({ error: "MFA not initiated" });
+
+        const result = await verify({ token: code, secret: user.mfa_secret });
+        if (!result.valid) return res.status(400).json({ error: "Invalid code" });
+
+        await dbRun(globalDb, `UPDATE users SET mfa_enabled = 1 WHERE id = ?`, [req.user.id]);
+        res.json({ message: "MFA Enabled" });
+    } catch (err) {
+        res.status(500).json({ error: "MFA verification failed" });
+    }
+});
+
+/**
+ * POST /mfa/disable
+ */
+router.post('/mfa/disable', authenticateToken, async (req, res) => {
+    const { password } = req.body;
+    if (!password) return res.status(400).json({ error: "Password required" });
+
+    try {
+        const user = await dbGet(globalDb, `SELECT password_hash FROM users WHERE id = ?`, [req.user.id]);
+        const isValid = bcrypt.compareSync(password, user.password_hash);
+        if (!isValid) return res.status(403).json({ error: "Invalid password" });
+
+        await dbRun(globalDb, `UPDATE users SET mfa_enabled = 0, mfa_secret = NULL WHERE id = ?`, [req.user.id]);
+        res.json({ message: "MFA Disabled" });
+    } catch (err) {
+        res.status(500).json({ error: "Failed to disable MFA" });
     }
 });
 
@@ -214,8 +293,8 @@ router.post('/mfa/login', async (req, res) => {
         const user = await dbGet(globalDb, `SELECT * FROM users WHERE id = ?`, [decoded.preAuthId]);
         if (!user || !user.is_active) return res.status(403).json({ error: "User inactive" });
 
-        const isValid = authenticator.verify({ token: code, secret: user.mfa_secret });
-        if (!isValid) return res.status(401).json({ error: "Invalid 2FA code" });
+        const result = await verify({ token: code, secret: user.mfa_secret });
+        if (!result.valid) return res.status(401).json({ error: "Invalid 2FA code" });
 
         await finalizeLogin(user, req, res, decoded.rememberMe);
 

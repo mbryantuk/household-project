@@ -1,4 +1,4 @@
 {
-  "commitMessage": "feat(admin): move new household creation to admin settings tenants tab",
-  "date": "Tue 17 Feb 10:55:23 GMT 2026"
+  "commitMessage": "Improve logging, fix MFA functional API, and implement session cleanup",
+  "date": "Tue 17 Feb 15:02:33 GMT 2026"
 }
