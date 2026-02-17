@@ -202,14 +202,14 @@ export default function FinanceView() {
                       </Button>
                   }
               />
-              <Sheet variant="soft" color="warning" sx={{ p: 4, borderRadius: 'md', textAlign: 'center', border: '1px dashed', borderColor: 'warning.main', mt: 4 }}>
-                  <Typography level="h3" color="warning">No Financial Profile Found</Typography>
+              <Sheet variant="soft" color="neutral" sx={{ p: 4, borderRadius: 'md', textAlign: 'center', border: '1px dashed', borderColor: 'neutral.outlinedBorder', mt: 4 }}>
+                  <Typography level="h3">No Financial Profile Found</Typography>
                   <Typography level="body-md" sx={{ mt: 1, mb: 3, maxWidth: 600, mx: 'auto' }}>
                       Financial data is segmented by profiles (e.g., "Joint", "Personal"). 
                       You must create at least one profile to begin tracking banking, income, and liabilities.
                   </Typography>
                   <Stack direction="row" spacing={2} justifyContent="center">
-                    <Button variant="solid" color="warning" startDecorator={<Add />} onClick={() => setOpenCreate(true)}>
+                    <Button variant="solid" color="primary" startDecorator={<Add />} onClick={() => setOpenCreate(true)}>
                         Create Profile
                     </Button>
                     {activeTabKey && (
