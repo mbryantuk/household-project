@@ -311,14 +311,14 @@ router.get('/sessions', authenticateToken, async (req, res) => {
         const sessions = await dbAll(globalDb, 
             `SELECT id, device_info, ip_address, last_active, created_at, expires_at 
              FROM user_sessions 
-             WHERE user_id = ? AND is_revoked = 0 
+             WHERE user_id = ? AND expires_at > CURRENT_TIMESTAMP
              ORDER BY last_active DESC`, 
             [req.user.id]
         );
         
         const processed = sessions.map(s => ({
             ...s,
-            isCurrent: s.id === req.user.sid
+            current: s.id === req.user.sid
         }));
         
         res.json(processed);
@@ -328,9 +328,25 @@ router.get('/sessions', authenticateToken, async (req, res) => {
     }
 });
 
-router.delete('/sessions/:sessionId', authenticateToken, async (req, res) => {
+/**
+ * DELETE /sessions
+ * Log out of all sessions except the current one
+ */
+router.delete('/sessions', authenticateToken, async (req, res) => {
     try {
-        await dbRun(globalDb, `UPDATE user_sessions SET is_revoked = 1 WHERE id = ? AND user_id = ?`, [req.params.sessionId, req.user.id]);
+        await dbRun(globalDb, 
+            `DELETE FROM user_sessions WHERE user_id = ? AND id != ?`, 
+            [req.user.id, req.user.sid]
+        );
+        res.json({ message: "All other sessions logged out" });
+    } catch (err) {
+        res.status(500).json({ error: "Failed to logout other sessions" });
+    }
+});
+
+router.delete('/sessions/:id', authenticateToken, async (req, res) => {
+    try {
+        await dbRun(globalDb, `DELETE FROM user_sessions WHERE id = ? AND user_id = ?`, [req.params.id, req.user.id]);
         res.json({ message: "Session revoked" });
     } catch (err) {
         res.status(500).json({ error: "Failed to revoke session" });

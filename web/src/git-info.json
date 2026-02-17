@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix passkey expectedOrigin constraints for @simplewebauthn/server",
-  "date": "Tue 17 Feb 15:18:30 GMT 2026"
+  "commitMessage": "Fix session management endpoints: resolve 404 and standardize session fields",
+  "date": "Tue 17 Feb 15:26:10 GMT 2026"
 }
