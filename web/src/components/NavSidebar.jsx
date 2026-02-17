@@ -472,8 +472,12 @@ export default function NavSidebar({
                                   <IconButton size="sm" variant="plain" onClick={() => setProfileCreateOpen(true)} aria-label="Add Profile"><Add fontSize="small" /></IconButton>
                               </ListItem>
                               {profiles.map(p => (
-                                  <ListItem key={p.id} endAction={p.is_default !== 1 ? (<IconButton size="sm" variant="plain" color="danger" onClick={() => handleDeleteProfile(p.id)} sx={{ opacity: 0, transition: 'opacity 0.2s', '.MuiListItem-root:hover &': { opacity: 1 }, mr: 1 }}><Close fontSize="small" /></IconButton>) : null}>
-                                      <ListItemButton selected={String(searchParams.get('financial_profile_id')) === String(p.id)} onClick={() => handleProfileSelect(p.id)} sx={{ borderRadius: 'md', py: 1, gap: 1.5 }}>
+                                  <ListItem key={p.id} sx={{ position: 'relative' }}>
+                                      <ListItemButton 
+                                          selected={String(searchParams.get('financial_profile_id')) === String(p.id)} 
+                                          onClick={() => handleProfileSelect(p.id)} 
+                                          sx={{ borderRadius: 'md', py: 1, gap: 1.5, pr: 4 }}
+                                      >
                                           <ListItemDecorator>
                                               <Avatar size="sm" sx={{ '--Avatar-size': '32px', fontSize: '1.2rem', bgcolor: getEmojiColor(p.emoji, isDark) }}>
                                                   {p.emoji}
@@ -481,6 +485,29 @@ export default function NavSidebar({
                                           </ListItemDecorator>
                                           <ListItemContent>{p.name}</ListItemContent>
                                       </ListItemButton>
+                                      {p.is_default !== 1 && (
+                                          <IconButton 
+                                              size="sm" 
+                                              variant="plain" 
+                                              color="danger" 
+                                              onClick={(e) => { 
+                                                  e.stopPropagation(); 
+                                                  handleDeleteProfile(p.id); 
+                                              }}
+                                              sx={{ 
+                                                  position: 'absolute', 
+                                                  right: 8, 
+                                                  top: '50%', 
+                                                  transform: 'translateY(-50%)',
+                                                  opacity: 0, 
+                                                  transition: 'opacity 0.2s', 
+                                                  '.MuiListItem-root:hover &': { opacity: 1 },
+                                                  zIndex: 2
+                                              }}
+                                          >
+                                              <Close fontSize="small" />
+                                          </IconButton>
+                                      )}
                                   </ListItem>
                               ))}
                               <Divider sx={{ my: 1 }} />

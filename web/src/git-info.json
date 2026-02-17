@@ -1,4 +1,4 @@
 {
-  "commitMessage": "fix(ui): use standard theme colors for finance empty states",
-  "date": "Tue 17 Feb 10:37:21 GMT 2026"
+  "commitMessage": "fix(ui): manually position delete button to fix offset",
+  "date": "Tue 17 Feb 10:43:14 GMT 2026"
 }
