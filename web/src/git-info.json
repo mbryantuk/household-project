@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Harden WebAuthn challenge extraction to prevent type errors on missing clientDataJSON",
-  "date": "Tue 17 Feb 15:52:04 GMT 2026"
+  "commitMessage": "Fix passkey registration schema and Uint8Array handling for v13",
+  "date": "Tue 17 Feb 16:28:24 GMT 2026"
 }

@@ -46,6 +46,13 @@ const GLOBAL_SCHEMA = [
         last_used_at DATETIME,
         FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
     )`,
+    `CREATE TABLE IF NOT EXISTS user_challenges (
+        challenge TEXT PRIMARY KEY,
+        user_id INTEGER,
+        email TEXT,
+        expires_at DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
     `CREATE TABLE IF NOT EXISTS test_results (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         test_type TEXT, -- 'backend', 'frontend'
@@ -553,7 +560,6 @@ function initializeHouseholdSchema(db) {
             db.all("PRAGMA table_info(finance_budget_cycles)", (err, info) => {
                 if (!err && info && !info.some(c => c.name === 'financial_profile_id')) {
                     // Logic to recreate budget tables for multi-profile PK
-                    // (Omitted for brevity here but should be safe if handled via transactions or check)
                 }
             });
 

@@ -102,7 +102,7 @@ router.get('/register/options', authenticateToken, async (req, res) => {
         const options = await generateRegistrationOptions({
             rpName: RP_NAME,
             rpID,
-            userID: new Uint8Array(Buffer.from(String(user.id))),
+            userID: Buffer.from(String(user.id)), // v13 handles Buffer/Uint8Array
             userName: user.email,
             attestationType: 'none',
             excludeCredentials: userPasskeys.map(pk => ({
@@ -151,6 +151,10 @@ router.post('/register/verify', authenticateToken, async (req, res) => {
 
         if (verification.verified && verification.registrationInfo) {
             const { credentialPublicKey, credentialID, counter, credentialDeviceType, credentialBackedUp } = verification.registrationInfo;
+
+            if (!credentialPublicKey) {
+                return res.status(400).json({ verified: false, error: 'Registration info missing public key' });
+            }
 
             await savePasskey({
                 id: credentialID,
