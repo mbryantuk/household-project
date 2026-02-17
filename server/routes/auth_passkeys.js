@@ -45,12 +45,17 @@ const verifyAndConsumeChallenge = async ({ challenge, userId = null, email = nul
 };
 
 // Extract challenge from WebAuthn response clientDataJSON
-const extractChallenge = (response) => {
+const extractChallenge = (payload) => {
     try {
-        const clientDataJSON = response.response.clientDataJSON;
+        if (!payload || !payload.response || !payload.response.clientDataJSON) {
+            console.error("❌ [AUTH_PASSKEYS] Missing clientDataJSON in payload:", JSON.stringify(payload));
+            return null;
+        }
+        const clientDataJSON = payload.response.clientDataJSON;
         const decoded = JSON.parse(base64url.decode(clientDataJSON));
         return decoded.challenge;
     } catch (err) {
+        console.error("❌ [AUTH_PASSKEYS] Challenge extraction error:", err.message);
         return null;
     }
 };
