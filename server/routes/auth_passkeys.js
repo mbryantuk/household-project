@@ -6,95 +6,84 @@ const {
     generateAuthenticationOptions,
     verifyAuthenticationResponse,
 } = require('@simplewebauthn/server');
-const { globalDb } = require('../db');
+const { globalDb, dbRun, dbGet, dbAll } = require('../db');
 const jwt = require('jsonwebtoken');
 const { SECRET_KEY, authenticateToken } = require('../middleware/auth');
+const base64url = require('base64url');
 
 const RP_NAME = 'Hearth Household';
 
 // Helper to determine RP_ID and Origin dynamically
 const getRpConfig = (req) => {
-    // RP ID must be the effective domain (no port, no protocol)
     const rpID = process.env.RP_ID || req.hostname;
-    
-    // Expected Origin must match the browser's origin (protocol + domain + port)
-    // We trust the incoming Origin header if it matches the RP_ID domain logic
-    // or fallback to common dev/prod patterns.
     const origin = req.get('Origin') || `https://${rpID}`; 
-    
     return { rpID, origin };
 };
 
-// Helper to get user by ID
-const getUser = (id) => {
-    return new Promise((resolve, reject) => {
-        globalDb.get("SELECT * FROM users WHERE id = ?", [id], (err, row) => {
-            if (err) reject(err);
-            else resolve(row);
-        });
-    });
+// --- CHALLENGE STORAGE (Multi-instance safe) ---
+
+const saveChallenge = async ({ challenge, userId = null, email = null }) => {
+    await dbRun(globalDb, 
+        `INSERT INTO user_challenges (challenge, user_id, email, expires_at) 
+         VALUES (?, ?, ?, datetime('now', '+10 minutes'))`,
+        [challenge, userId, email]
+    );
 };
+
+const verifyAndConsumeChallenge = async ({ challenge, userId = null, email = null }) => {
+    const sql = userId 
+        ? `SELECT * FROM user_challenges WHERE challenge = ? AND user_id = ? AND expires_at > datetime('now')`
+        : `SELECT * FROM user_challenges WHERE challenge = ? AND email = ? AND expires_at > datetime('now')`;
+    const params = userId ? [challenge, userId] : [challenge, email];
+    
+    const row = await dbGet(globalDb, sql, params);
+    if (row) {
+        await dbRun(globalDb, `DELETE FROM user_challenges WHERE challenge = ?`, [challenge]);
+        return true;
+    }
+    return false;
+};
+
+// Extract challenge from WebAuthn response clientDataJSON
+const extractChallenge = (response) => {
+    try {
+        const clientDataJSON = response.response.clientDataJSON;
+        const decoded = JSON.parse(base64url.decode(clientDataJSON));
+        return decoded.challenge;
+    } catch (err) {
+        return null;
+    }
+};
+
+// Helper to get user by ID
+const getUser = (id) => dbGet(globalDb, "SELECT * FROM users WHERE id = ?", [id]);
 
 // Helper to get user by Email
-const getUserByEmail = (email) => {
-    return new Promise((resolve, reject) => {
-        globalDb.get("SELECT * FROM users WHERE email = ?", [email], (err, row) => {
-            if (err) reject(err);
-            else resolve(row);
-        });
-    });
-};
-
-// Helper to update user challenge
-const setUserChallenge = (id, challenge) => {
-    return new Promise((resolve, reject) => {
-        globalDb.run("UPDATE users SET current_challenge = ? WHERE id = ?", [challenge, id], (err) => {
-            if (err) reject(err);
-            else resolve();
-        });
-    });
-};
+const getUserByEmail = (email) => dbGet(globalDb, "SELECT * FROM users WHERE email = ?", [email]);
 
 // Helper to get user passkeys
-const getUserPasskeys = (userId) => {
-    return new Promise((resolve, reject) => {
-        globalDb.all("SELECT * FROM passkeys WHERE user_id = ?", [userId], (err, rows) => {
-            if (err) reject(err);
-            else resolve(rows || []);
-        });
-    });
-};
+const getUserPasskeys = (userId) => dbAll(globalDb, "SELECT * FROM passkeys WHERE user_id = ?", [userId]);
 
 // Helper to save passkey
 const savePasskey = (passkey) => {
-    return new Promise((resolve, reject) => {
-        const sql = `INSERT INTO passkeys (id, user_id, webauthn_user_id, public_key, counter, device_type, backed_up, transports) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-        const params = [
-            passkey.id,
-            passkey.userID,
-            passkey.webAuthnUserID,
-            passkey.publicKey,
-            passkey.counter,
-            passkey.deviceType,
-            passkey.backedUp ? 1 : 0,
-            JSON.stringify(passkey.transports)
-        ];
-        globalDb.run(sql, params, (err) => {
-            if (err) reject(err);
-            else resolve();
-        });
-    });
+    const sql = `INSERT INTO passkeys (id, user_id, webauthn_user_id, public_key, counter, device_type, backed_up, transports) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    const params = [
+        passkey.id,
+        passkey.userID,
+        passkey.webAuthnUserID,
+        passkey.publicKey,
+        passkey.counter,
+        passkey.deviceType,
+        passkey.backedUp ? 1 : 0,
+        JSON.stringify(passkey.transports)
+    ];
+    return dbRun(globalDb, sql, params);
 };
 
 // Helper to update passkey counter
 const updatePasskeyCounter = (id, counter) => {
-    return new Promise((resolve, reject) => {
-        globalDb.run("UPDATE passkeys SET counter = ?, last_used_at = CURRENT_TIMESTAMP WHERE id = ?", [counter, id], (err) => {
-            if (err) reject(err);
-            else resolve();
-        });
-    });
+    return dbRun(globalDb, "UPDATE passkeys SET counter = ?, last_used_at = CURRENT_TIMESTAMP WHERE id = ?", [counter, id]);
 };
 
 // --- REGISTRATION ---
@@ -118,11 +107,11 @@ router.get('/register/options', authenticateToken, async (req, res) => {
             authenticatorSelection: {
                 residentKey: 'preferred',
                 userVerification: 'preferred',
-                authenticatorAttachment: 'platform', // Prefer platform (TouchID/FaceID)
+                authenticatorAttachment: 'platform', 
             },
         });
 
-        await setUserChallenge(user.id, options.challenge);
+        await saveChallenge({ challenge: options.challenge, userId: user.id });
         res.json(options);
     } catch (err) {
         console.error(err);
@@ -133,12 +122,17 @@ router.get('/register/options', authenticateToken, async (req, res) => {
 router.post('/register/verify', authenticateToken, async (req, res) => {
     try {
         const user = await getUser(req.user.id);
-        const expectedChallenge = user.current_challenge;
+        const challenge = extractChallenge(req.body);
+        
+        if (!challenge || !(await verifyAndConsumeChallenge({ challenge, userId: user.id }))) {
+            return res.status(400).json({ verified: false, error: 'Challenge expired or invalid' });
+        }
+
         const { rpID, origin } = getRpConfig(req);
 
         const verification = await verifyRegistrationResponse({
             response: req.body,
-            expectedChallenge,
+            expectedChallenge: challenge,
             expectedOrigin: [
                 origin,
                 'http://localhost:3000',
@@ -156,7 +150,7 @@ router.post('/register/verify', authenticateToken, async (req, res) => {
             await savePasskey({
                 id: credentialID,
                 userID: user.id,
-                webAuthnUserID: user.id, // Simple mapping
+                webAuthnUserID: user.id, 
                 publicKey: Buffer.from(credentialPublicKey).toString('base64'),
                 counter,
                 deviceType: credentialDeviceType,
@@ -164,7 +158,6 @@ router.post('/register/verify', authenticateToken, async (req, res) => {
                 transports: req.body.response.transports,
             });
 
-            await setUserChallenge(user.id, null); // Clear challenge
             res.json({ verified: true });
         } else {
             res.status(400).json({ verified: false, error: 'Verification failed' });
@@ -199,7 +192,7 @@ router.get('/login/options', async (req, res) => {
             userVerification: 'preferred',
         });
 
-        await setUserChallenge(user.id, options.challenge);
+        await saveChallenge({ challenge: options.challenge, email: user.email });
         res.json(options);
     } catch (err) {
         console.error(err);
@@ -209,14 +202,16 @@ router.get('/login/options', async (req, res) => {
 
 router.post('/login/verify', async (req, res) => {
     try {
-        const { email } = req.body; // Pass email in body alongside credential
+        const { email } = req.body; 
         const user = await getUserByEmail(email);
         if (!user) return res.status(404).json({ error: "User not found" });
 
-        const expectedChallenge = user.current_challenge;
+        const challenge = extractChallenge(req.body);
+        if (!challenge || !(await verifyAndConsumeChallenge({ challenge, email: user.email }))) {
+            return res.status(400).json({ verified: false, error: 'Challenge expired or invalid' });
+        }
+
         const userPasskeys = await getUserPasskeys(user.id);
-        
-        // Find the passkey used
         const passkey = userPasskeys.find(pk => pk.id === req.body.id);
         if (!passkey) return res.status(400).json({ error: "Passkey not matched" });
 
@@ -224,7 +219,7 @@ router.post('/login/verify', async (req, res) => {
 
         const verification = await verifyAuthenticationResponse({
             response: req.body,
-            expectedChallenge,
+            expectedChallenge: challenge,
             expectedOrigin: [
                 origin,
                 'http://localhost:3000',
@@ -245,9 +240,7 @@ router.post('/login/verify', async (req, res) => {
         if (verification.verified) {
             const { newCounter } = verification.authenticationInfo;
             await updatePasskeyCounter(passkey.id, newCounter);
-            await setUserChallenge(user.id, null);
 
-            // Issue JWT
             const token = jwt.sign(
                 { id: user.id, email: user.email, role: user.system_role },
                 SECRET_KEY,
