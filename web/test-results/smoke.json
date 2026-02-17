@@ -88,12 +88,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3842,
+                      "duration": 3573,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-16T22:17:16.910Z",
+                      "startTime": "2026-02-17T00:03:59.066Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -122,12 +122,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3781,
+                      "duration": 3416,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-16T22:17:21.030Z",
+                      "startTime": "2026-02-17T00:04:02.886Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -156,12 +156,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3399,
+                      "duration": 2996,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-16T22:17:24.841Z",
+                      "startTime": "2026-02-17T00:04:06.326Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -190,12 +190,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3242,
+                      "duration": 3017,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-16T22:17:28.265Z",
+                      "startTime": "2026-02-17T00:04:09.350Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -224,12 +224,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3267,
+                      "duration": 3022,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-16T22:17:31.532Z",
+                      "startTime": "2026-02-17T00:04:12.391Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -258,12 +258,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3473,
+                      "duration": 3046,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-16T22:17:34.818Z",
+                      "startTime": "2026-02-17T00:04:15.432Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -292,12 +292,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3709,
+                      "duration": 3154,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-16T22:17:38.313Z",
+                      "startTime": "2026-02-17T00:04:18.499Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -326,12 +326,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3378,
+                      "duration": 2988,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-16T22:17:42.044Z",
+                      "startTime": "2026-02-17T00:04:21.673Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -346,7 +346,7 @@
             },
             {
               "title": "Finance Page & Banking Import",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -359,58 +359,18 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 36134,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/Current Accounts/i).first()\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/Current Accounts/i).first()\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/Current Accounts/i).first()\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/Current Accounts/i).first()\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:163:28",
-                        "location": {
-                          "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 28,
-                          "line": 163
-                        },
-                        "snippet": "  161 |         // Wait for the card to be clickable with generous timeout\n  162 |         const card = page.getByText(/Current Accounts/i).first();\n> 163 |         await expect(card).toBeVisible({ timeout: 30000 });\n      |                            ^\n  164 |         await card.click();\n  165 |         \n  166 |         // Wait for potential loading spinner to disappear"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 28,
-                            "line": 163
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/Current Accounts/i).first()\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/Current Accounts/i).first()\u001b[22m\n\n\n  161 |         // Wait for the card to be clickable with generous timeout\n  162 |         const card = page.getByText(/Current Accounts/i).first();\n> 163 |         await expect(card).toBeVisible({ timeout: 30000 });\n      |                            ^\n  164 |         await card.click();\n  165 |         \n  166 |         // Wait for potential loading spinner to disappear\n    at /home/matt/household-project/web/tests/smoke.spec.js:163:28"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 4626,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-16T22:17:45.445Z",
+                      "startTime": "2026-02-17T00:04:24.686Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Finance-Page-Banking-Import-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Finance-Page-Banking-Import-chromium/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Finance-Page-Banking-Import-chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 28,
-                        "line": 163
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-8b07f9a7ad5a03a1f09a",
@@ -431,25 +391,25 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3136,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-16T22:18:21.714Z",
+                      "startTime": "2026-02-17T00:04:29.332Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-44e19c2ea2651f1a3536",
               "file": "smoke.spec.js",
-              "line": 173,
+              "line": 176,
               "column": 5
             },
             {
@@ -465,25 +425,25 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3114,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-16T22:18:21.716Z",
+                      "startTime": "2026-02-17T00:04:32.490Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-fe31e0fc5c4bd3b315e3",
               "file": "smoke.spec.js",
-              "line": 187,
+              "line": 190,
               "column": 5
             },
             {
@@ -499,25 +459,25 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3190,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-16T22:18:21.717Z",
+                      "startTime": "2026-02-17T00:04:35.625Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-b08a53b9d7bc197b2c33",
               "file": "smoke.spec.js",
-              "line": 193,
+              "line": 196,
               "column": 5
             },
             {
@@ -533,25 +493,25 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3117,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-16T22:18:21.717Z",
+                      "startTime": "2026-02-17T00:04:38.834Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-899023ab40d288f36a8a",
               "file": "smoke.spec.js",
-              "line": 199,
+              "line": 202,
               "column": 5
             },
             {
@@ -567,25 +527,25 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2842,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-16T22:18:21.717Z",
+                      "startTime": "2026-02-17T00:04:41.970Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-8ded83d61d120dd46f10",
               "file": "smoke.spec.js",
-              "line": 205,
+              "line": 208,
               "column": 5
             },
             {
@@ -601,25 +561,47 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5707,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-16T22:18:21.717Z",
+                      "steps": [
+                        {
+                          "title": "Profile Tab",
+                          "duration": 543
+                        },
+                        {
+                          "title": "Security Tab",
+                          "duration": 580
+                        },
+                        {
+                          "title": "Appearance Tab",
+                          "duration": 688
+                        },
+                        {
+                          "title": "API Tab",
+                          "duration": 632
+                        },
+                        {
+                          "title": "Admin Tab",
+                          "duration": 585
+                        }
+                      ],
+                      "startTime": "2026-02-17T00:04:44.831Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-b7b11855d8085866d29d",
               "file": "smoke.spec.js",
-              "line": 211,
+              "line": 214,
               "column": 5
             }
           ]
@@ -629,11 +611,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-16T22:17:14.814Z",
-    "duration": 66921.822,
-    "expected": 8,
-    "skipped": 6,
-    "unexpected": 1,
+    "startTime": "2026-02-17T00:03:57.019Z",
+    "duration": 53614.287,
+    "expected": 15,
+    "skipped": 0,
+    "unexpected": 0,
     "flaky": 0
   }
 }
