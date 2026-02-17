@@ -16,7 +16,23 @@ const RP_NAME = 'Hearth Household';
 // Helper to determine RP_ID and Origin dynamically
 const getRpConfig = (req) => {
     const rpID = process.env.RP_ID || req.hostname;
-    const origin = req.get('Origin') || `https://${rpID}`; 
+    // Try to get Origin, if not found, use Referer, otherwise fallback to hostname
+    let origin = req.get('Origin') || req.get('Referer');
+    if (origin) {
+        // Strip path from referer if needed
+        try {
+            const url = new URL(origin);
+            origin = url.origin;
+        } catch (e) {
+            origin = null;
+        }
+    }
+    
+    if (!origin) {
+        const protocol = req.secure || req.get('X-Forwarded-Proto') === 'https' ? 'https' : 'http';
+        origin = `${protocol}://${rpID}`;
+    }
+
     return { rpID, origin };
 };
 
@@ -102,11 +118,11 @@ router.get('/register/options', authenticateToken, async (req, res) => {
         const options = await generateRegistrationOptions({
             rpName: RP_NAME,
             rpID,
-            userID: Buffer.from(String(user.id)), // v13 handles Buffer/Uint8Array
+            userID: Buffer.from(String(user.id)), 
             userName: user.email,
             attestationType: 'none',
             excludeCredentials: userPasskeys.map(pk => ({
-                id: pk.id,
+                id: pk.id, 
                 transports: pk.transports ? JSON.parse(pk.transports) : undefined,
             })),
             authenticatorSelection: {
@@ -150,17 +166,17 @@ router.post('/register/verify', authenticateToken, async (req, res) => {
         });
 
         if (verification.verified && verification.registrationInfo) {
-            const { credentialPublicKey, credentialID, counter, credentialDeviceType, credentialBackedUp } = verification.registrationInfo;
+            const { publicKey, credentialID, counter, credentialDeviceType, credentialBackedUp } = verification.registrationInfo;
 
-            if (!credentialPublicKey) {
+            if (!publicKey) {
                 return res.status(400).json({ verified: false, error: 'Registration info missing public key' });
             }
 
             await savePasskey({
-                id: credentialID,
+                id: base64url.encode(Buffer.from(credentialID)),
                 userID: user.id,
                 webAuthnUserID: user.id, 
-                publicKey: Buffer.from(credentialPublicKey).toString('base64'),
+                publicKey: Buffer.from(publicKey).toString('base64'),
                 counter,
                 deviceType: credentialDeviceType,
                 backedUp: credentialBackedUp,
@@ -239,7 +255,7 @@ router.post('/login/verify', async (req, res) => {
             ],
             expectedRPID: rpID,
             authenticator: {
-                credentialID: passkey.id,
+                credentialID: base64url.toBuffer(passkey.id),
                 credentialPublicKey: Buffer.from(passkey.public_key, 'base64'),
                 counter: passkey.counter,
                 transports: passkey.transports ? JSON.parse(passkey.transports) : undefined,
