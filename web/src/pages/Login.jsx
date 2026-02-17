@@ -35,7 +35,7 @@ export default function Login({ onLogin, onMfaLogin }) {
       try {
           const res = await axios.get(`${window.location.origin}/api/passkeys/login/options?email=${email}`);
           const options = res.data;
-          const assertion = await startAuthentication(options);
+          const assertion = await startAuthentication({ optionsJSON: options });
           const verifyRes = await axios.post(`${window.location.origin}/api/passkeys/login/verify`, {
               ...assertion, email
           });

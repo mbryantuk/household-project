@@ -33,7 +33,7 @@ export default function PasskeyManager({ api, showNotification }) {
             const options = optionsRes.data;
 
             // 2. Start registration with browser
-            const attestation = await startRegistration(options);
+            const attestation = await startRegistration({ optionsJSON: options });
 
             // 3. Verify with server
             await api.post('/passkeys/register/verify', attestation);

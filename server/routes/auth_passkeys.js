@@ -19,7 +19,6 @@ const getRpConfig = (req) => {
     // Try to get Origin, if not found, use Referer, otherwise fallback to hostname
     let origin = req.get('Origin') || req.get('Referer');
     if (origin) {
-        // Strip path from referer if needed
         try {
             const url = new URL(origin);
             origin = url.origin;
@@ -166,14 +165,11 @@ router.post('/register/verify', authenticateToken, async (req, res) => {
         });
 
         if (verification.verified && verification.registrationInfo) {
-            const { publicKey, credentialID, counter, credentialDeviceType, credentialBackedUp } = verification.registrationInfo;
-
-            if (!publicKey) {
-                return res.status(400).json({ verified: false, error: 'Registration info missing public key' });
-            }
+            const { credential, credentialDeviceType, credentialBackedUp } = verification.registrationInfo;
+            const { publicKey, id, counter } = credential;
 
             await savePasskey({
-                id: base64url.encode(Buffer.from(credentialID)),
+                id, // SimpleWebAuthn v13 returns base64url string
                 userID: user.id,
                 webAuthnUserID: user.id, 
                 publicKey: Buffer.from(publicKey).toString('base64'),
@@ -254,9 +250,9 @@ router.post('/login/verify', async (req, res) => {
                 'https://hearthstone.mbryantuk.uk'
             ],
             expectedRPID: rpID,
-            authenticator: {
-                credentialID: base64url.toBuffer(passkey.id),
-                credentialPublicKey: Buffer.from(passkey.public_key, 'base64'),
+            credential: {
+                id: passkey.id,
+                publicKey: Buffer.from(passkey.public_key, 'base64'),
                 counter: passkey.counter,
                 transports: passkey.transports ? JSON.parse(passkey.transports) : undefined,
             },

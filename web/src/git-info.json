@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix passkey registration public key and improve origin detection",
-  "date": "Tue 17 Feb 16:38:37 GMT 2026"
+  "commitMessage": "Fix passkey registration and authentication API compatibility with SimpleWebAuthn v13",
+  "date": "Tue 17 Feb 17:06:53 GMT 2026"
 }
