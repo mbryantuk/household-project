@@ -10,6 +10,7 @@ const { globalDb, dbRun, dbGet, dbAll } = require('../db');
 const jwt = require('jsonwebtoken');
 const { SECRET_KEY, authenticateToken } = require('../middleware/auth');
 const base64url = require('base64url');
+const { finalizeLogin } = require('../services/auth');
 
 const RP_NAME = 'Hearth Household';
 
@@ -262,13 +263,8 @@ router.post('/login/verify', async (req, res) => {
             const { newCounter } = verification.authenticationInfo;
             await updatePasskeyCounter(passkey.id, newCounter);
 
-            const token = jwt.sign(
-                { id: user.id, email: user.email, role: user.system_role },
-                SECRET_KEY,
-                { expiresIn: '7d' }
-            );
-
-            res.json({ verified: true, token, user });
+            // Use shared login finalization logic
+            await finalizeLogin(user, req, res, req.body.rememberMe || false);
         } else {
             res.status(400).json({ verified: false, error: 'Verification failed' });
         }

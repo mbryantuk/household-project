@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Nightly Build 2026-02-18",
-  "date": "Wed 18 Feb 00:00:01 GMT 2026"
+  "commitMessage": "feat(auth): enable passkey login and unify session finalization logic",
+  "date": "Wed 18 Feb 09:18:40 GMT 2026"
 }

@@ -3,15 +3,14 @@ import {
   Box, Sheet, Typography, Input, Button, Alert, Link, Checkbox, FormControl, FormLabel, Avatar, IconButton, Stack, Divider
 } from '@mui/joy';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-import { ArrowBack, Visibility, VisibilityOff, Email, Lock } from '@mui/icons-material';
-// import Fingerprint from '@mui/icons-material/Fingerprint';
+import { ArrowBack, Visibility, VisibilityOff, Email, Lock, Fingerprint, Security } from '@mui/icons-material';
 import axios from 'axios';
-// import { startAuthentication } from '@simplewebauthn/browser';
+import { startAuthentication } from '@simplewebauthn/browser';
 import AppIcon from '../components/AppIcon';
 import { getEmojiColor } from '../theme';
 import { APP_NAME } from '../constants';
 
-export default function Login({ onLogin, onMfaLogin }) {
+export default function Login({ onLogin, onMfaLogin, onLoginSuccess }) {
   const location = useLocation();
   const [step, setStep] = useState(1); // 1: Email, 2: Password, 3: MFA
   const [email, setEmail] = useState(localStorage.getItem('rememberedEmail') || '');
@@ -28,7 +27,6 @@ export default function Login({ onLogin, onMfaLogin }) {
 
   const message = location.state?.message;
 
-  /*
   const handlePasskeyLogin = async () => {
       setLoading(true);
       setError('');
@@ -37,7 +35,7 @@ export default function Login({ onLogin, onMfaLogin }) {
           const options = res.data;
           const assertion = await startAuthentication({ optionsJSON: options });
           const verifyRes = await axios.post(`${window.location.origin}/api/passkeys/login/verify`, {
-              ...assertion, email
+              ...assertion, email, rememberMe
           });
 
           if (verifyRes.data.verified) {
@@ -50,7 +48,6 @@ export default function Login({ onLogin, onMfaLogin }) {
           setLoading(false);
       }
   };
-  */
 
   const handleLookup = useCallback(async (e) => {
     if (e) e.preventDefault();
@@ -237,7 +234,7 @@ export default function Login({ onLogin, onMfaLogin }) {
                 </Typography>
             </Box>
 
-            {/* <Button 
+            <Button 
                 fullWidth variant="soft" color="primary" 
                 startDecorator={<Fingerprint />} 
                 onClick={handlePasskeyLogin}
@@ -247,7 +244,7 @@ export default function Login({ onLogin, onMfaLogin }) {
                 Sign in with Passkey
             </Button>
 
-            <Divider sx={{ mb: 3 }}>OR</Divider> */}
+            <Divider sx={{ mb: 3 }}>OR</Divider>
 
             <FormControl required sx={{ mb: 4 }}>
               <FormLabel>Password</FormLabel>

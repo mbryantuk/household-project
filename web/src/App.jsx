@@ -431,7 +431,7 @@ function AppInner({
 
       <Suspense fallback={<PageLoader />}>
         <Routes>
-            <Route path="/login" element={!token ? <Login onLogin={login} onMfaLogin={mfaLogin} /> : <Navigate to="/" />} />
+            <Route path="/login" element={!token ? <Login onLogin={login} onMfaLogin={mfaLogin} onLoginSuccess={handleLoginSuccess} /> : <Navigate to="/" />} />
             <Route path="/register" element={!token ? <Register /> : <Navigate to="/" />} />
             <Route path="/calculator" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FloatingCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
             <Route path="/fin-calculator-window" element={<Box sx={{ height: '100vh', bgcolor: 'background.body' }}><FinancialCalculator isPopout={true} onClose={() => window.close()} /></Box>} />
