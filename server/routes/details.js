@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { dbAll } = require('../db');
+const { dbAll, dbRun } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { useTenantDb } = require('../middleware/tenant');
 
@@ -8,6 +8,7 @@ const { encrypt, decrypt } = require('../services/crypto');
 
 // SENSITIVE FIELDS MAP
 const SENSITIVE_FIELDS = ['registration', 'policy_number', 'account_number', 'sort_code', 'serial_number', 'account_number', 'wifi_password'];
+const SCHEMA_CACHE = {}; // { table: ['col1', 'col2'] }
 
 const encryptPayload = (data) => {
     const encrypted = { ...data };
@@ -38,6 +39,14 @@ const decryptRow = (row) => {
 // 🏠 GENERIC CRUD HELPERS (Tenant-Aware)
 // ==========================================
 
+const getValidColumns = async (db, table) => {
+    if (SCHEMA_CACHE[table]) return SCHEMA_CACHE[table];
+    const cols = await dbAll(db, `PRAGMA table_info(${table})`);
+    const validColumns = cols.map(c => c.name);
+    SCHEMA_CACHE[table] = validColumns;
+    return validColumns;
+};
+
 const handleGetSingle = (table) => (req, res) => {
     req.tenantDb.get(`SELECT * FROM ${table} WHERE household_id = ?`, [req.hhId], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -47,8 +56,7 @@ const handleGetSingle = (table) => (req, res) => {
 
 const handleUpdateSingle = (table) => async (req, res) => {
     try {
-        const cols = await dbAll(req.tenantDb, `PRAGMA table_info(${table})`);
-        const validColumns = cols.map(c => c.name);
+        const validColumns = await getValidColumns(req.tenantDb, table);
         const data = encryptPayload({ ...req.body, household_id: req.hhId });
         
         const updateData = {};
@@ -70,10 +78,8 @@ const handleUpdateSingle = (table) => async (req, res) => {
         // Atomic Upsert
         const sql = `INSERT OR REPLACE INTO ${table} (${placeholders}) VALUES (${qs})`;
 
-        req.tenantDb.run(sql, values, function(err) {
-                if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: this.changes > 0 ? "Updated" : "Created" });
-        });
+        const result = await dbRun(req.tenantDb, sql, values);
+        res.json({ message: result.changes > 0 ? "Updated" : "Created" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -94,11 +100,9 @@ const handleGetItem = (table) => (req, res) => {
     });
 };
 
-const handleCreateItem = (table) => (req, res) => {
-    req.tenantDb.all(`PRAGMA table_info(${table})`, [], (pErr, cols) => {
-        if (pErr) { return res.status(500).json({ error: pErr.message }); }
-        
-        const validColumns = cols.map(c => c.name);
+const handleCreateItem = (table) => async (req, res) => {
+    try {
+        const validColumns = await getValidColumns(req.tenantDb, table);
         const data = encryptPayload({ ...req.body, household_id: req.hhId });
         
         const insertData = {};
@@ -115,18 +119,16 @@ const handleCreateItem = (table) => (req, res) => {
         const qs = fields.map(() => '?').join(', ');
         const values = Object.values(insertData);
 
-        req.tenantDb.run(`INSERT INTO ${table} (${placeholders}) VALUES (${qs})`, values, function(err) {
-                if (err) return res.status(500).json({ error: err.message });
-            res.status(201).json({ id: this.lastID, ...insertData });
-        });
-    });
+        const result = await dbRun(req.tenantDb, `INSERT INTO ${table} (${placeholders}) VALUES (${qs})`, values);
+        res.status(201).json({ id: result.id, ...insertData });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 };
 
-const handleUpdateItem = (table) => (req, res) => {
-    req.tenantDb.all(`PRAGMA table_info(${table})`, [], (pErr, cols) => {
-        if (pErr) { return res.status(500).json({ error: pErr.message }); }
-        
-        const validColumns = cols.map(c => c.name);
+const handleUpdateItem = (table) => async (req, res) => {
+    try {
+        const validColumns = await getValidColumns(req.tenantDb, table);
         const data = encryptPayload(req.body);
         
         const updateData = {};
@@ -142,11 +144,11 @@ const handleUpdateItem = (table) => (req, res) => {
         const sets = fields.map(f => `${f} = ?`).join(', ');
         const values = Object.values(updateData);
 
-        req.tenantDb.run(`UPDATE ${table} SET ${sets} WHERE id = ? AND household_id = ?`, [...values, req.params.itemId, req.hhId], function(err) {
-                if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "Updated" });
-        });
-    });
+        await dbRun(req.tenantDb, `UPDATE ${table} SET ${sets} WHERE id = ? AND household_id = ?`, [...values, req.params.itemId, req.hhId]);
+        res.json({ message: "Updated" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 };
 
 const handleDeleteItem = (table) => (req, res) => {

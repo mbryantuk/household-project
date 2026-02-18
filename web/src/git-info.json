@@ -1,4 +1,4 @@
 {
-  "commitMessage": "feat(auth): enable passkey login and unify session finalization logic",
-  "date": "Wed 18 Feb 09:18:40 GMT 2026"
+  "commitMessage": "Fix regression in smoke test (App context) and enhance DB concurrency",
+  "date": "Wed 18 Feb 09:52:05 GMT 2026"
 }

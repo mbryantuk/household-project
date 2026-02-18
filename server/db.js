@@ -9,9 +9,10 @@ if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 const globalDb = new sqlite3.Database(path.join(DATA_DIR, 'global.db'), (err) => {
     if (err) console.error("Global DB connection error:", err.message);
     else {
+        globalDb.configure("busyTimeout", 30000);
         globalDb.run("PRAGMA journal_mode=WAL");
         globalDb.run("PRAGMA synchronous=NORMAL");
-        globalDb.run("PRAGMA busy_timeout=10000");
+        globalDb.run("PRAGMA busy_timeout=30000");
         console.log("Connected to Global SQLite database (Optimized).");
         initializeGlobalSchema(globalDb);
     }
@@ -27,9 +28,10 @@ const getHouseholdDb = (householdId) => {
 
     const dbPath = path.join(DATA_DIR, `household_${householdId}.db`);
     const db = new sqlite3.Database(dbPath);
+    db.configure("busyTimeout", 30000);
     db.run("PRAGMA journal_mode=WAL");
     db.run("PRAGMA synchronous=NORMAL");
-    db.run("PRAGMA busy_timeout=10000");
+    db.run("PRAGMA busy_timeout=30000");
     
     connections.set(householdId, db);
     return db;

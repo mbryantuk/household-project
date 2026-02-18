@@ -24,8 +24,27 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
 
     // Helper login function
     const loginAndGetId = async (page) => {
-        await page.goto('/login');
+        console.log('Navigating to /login...');
+        try {
+             await page.goto('/login');
+             await page.waitForLoadState('networkidle');
+        } catch (e) {
+             console.log('Navigation error (might be redirect):', e.message);
+        }
+
+        const initialToken = await page.evaluate(() => localStorage.getItem('token'));
+        console.log(`Initial Token: ${initialToken ? 'PRESENT' : 'MISSING'}`);
+
+        console.log('Clearing storage...');
+        await page.evaluate(() => {
+            localStorage.clear();
+            sessionStorage.clear();
+        });
         
+        console.log('Reloading to ensure clean state...');
+        await page.goto('/login');
+        await page.waitForLoadState('networkidle');
+
         // Unregister SW and reload to ensure fresh assets
         try {
             await page.evaluate(async () => {

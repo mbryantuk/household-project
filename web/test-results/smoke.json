@@ -88,12 +88,25 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3410,
+                      "duration": 4549,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Initial Token: MISSING\n"
+                        },
+                        {
+                          "text": "Clearing storage...\n"
+                        },
+                        {
+                          "text": "Reloading to ensure clean state...\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-18T00:03:56.311Z",
+                      "startTime": "2026-02-18T09:50:14.839Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -103,7 +116,7 @@
               ],
               "id": "2c14808d47b386fba9eb-cf40674c38354f943714",
               "file": "smoke.spec.js",
-              "line": 82,
+              "line": 101,
               "column": 5
             },
             {
@@ -122,12 +135,25 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3505,
+                      "duration": 4790,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Initial Token: MISSING\n"
+                        },
+                        {
+                          "text": "Clearing storage...\n"
+                        },
+                        {
+                          "text": "Reloading to ensure clean state...\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-18T00:03:59.936Z",
+                      "startTime": "2026-02-18T09:50:19.552Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -137,7 +163,7 @@
               ],
               "id": "2c14808d47b386fba9eb-65dcf704c9e1ebea0f13",
               "file": "smoke.spec.js",
-              "line": 90,
+              "line": 109,
               "column": 5
             },
             {
@@ -156,12 +182,25 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3039,
+                      "duration": 4354,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Initial Token: MISSING\n"
+                        },
+                        {
+                          "text": "Clearing storage...\n"
+                        },
+                        {
+                          "text": "Reloading to ensure clean state...\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-18T00:04:03.469Z",
+                      "startTime": "2026-02-18T09:50:24.372Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -171,7 +210,7 @@
               ],
               "id": "2c14808d47b386fba9eb-171e6d3e655016c9b313",
               "file": "smoke.spec.js",
-              "line": 97,
+              "line": 116,
               "column": 5
             },
             {
@@ -190,12 +229,25 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3054,
+                      "duration": 4366,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Initial Token: MISSING\n"
+                        },
+                        {
+                          "text": "Clearing storage...\n"
+                        },
+                        {
+                          "text": "Reloading to ensure clean state...\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-18T00:04:06.532Z",
+                      "startTime": "2026-02-18T09:50:28.761Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -205,7 +257,7 @@
               ],
               "id": "2c14808d47b386fba9eb-d5debc6616350aaa15fd",
               "file": "smoke.spec.js",
-              "line": 104,
+              "line": 123,
               "column": 5
             },
             {
@@ -224,12 +276,25 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3013,
+                      "duration": 4173,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Initial Token: MISSING\n"
+                        },
+                        {
+                          "text": "Clearing storage...\n"
+                        },
+                        {
+                          "text": "Reloading to ensure clean state...\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-18T00:04:09.609Z",
+                      "startTime": "2026-02-18T09:50:33.146Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -239,7 +304,7 @@
               ],
               "id": "2c14808d47b386fba9eb-530580c26c0460afd264",
               "file": "smoke.spec.js",
-              "line": 111,
+              "line": 130,
               "column": 5
             },
             {
@@ -258,12 +323,25 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3238,
+                      "duration": 4437,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Initial Token: MISSING\n"
+                        },
+                        {
+                          "text": "Clearing storage...\n"
+                        },
+                        {
+                          "text": "Reloading to ensure clean state...\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-18T00:04:12.645Z",
+                      "startTime": "2026-02-18T09:50:37.340Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -273,7 +351,7 @@
               ],
               "id": "2c14808d47b386fba9eb-b8a32d849858bef88d91",
               "file": "smoke.spec.js",
-              "line": 118,
+              "line": 137,
               "column": 5
             },
             {
@@ -292,12 +370,25 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3343,
+                      "duration": 4376,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Initial Token: MISSING\n"
+                        },
+                        {
+                          "text": "Clearing storage...\n"
+                        },
+                        {
+                          "text": "Reloading to ensure clean state...\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-18T00:04:15.906Z",
+                      "startTime": "2026-02-18T09:50:41.800Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -307,7 +398,7 @@
               ],
               "id": "2c14808d47b386fba9eb-cc2ee4597680c1b7cb6d",
               "file": "smoke.spec.js",
-              "line": 125,
+              "line": 144,
               "column": 5
             },
             {
@@ -326,12 +417,25 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3022,
+                      "duration": 4209,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Initial Token: MISSING\n"
+                        },
+                        {
+                          "text": "Clearing storage...\n"
+                        },
+                        {
+                          "text": "Reloading to ensure clean state...\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-18T00:04:19.270Z",
+                      "startTime": "2026-02-18T09:50:46.199Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -341,7 +445,7 @@
               ],
               "id": "2c14808d47b386fba9eb-564f135c59d12d104526",
               "file": "smoke.spec.js",
-              "line": 135,
+              "line": 154,
               "column": 5
             },
             {
@@ -360,12 +464,25 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4919,
+                      "duration": 5917,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Initial Token: MISSING\n"
+                        },
+                        {
+                          "text": "Clearing storage...\n"
+                        },
+                        {
+                          "text": "Reloading to ensure clean state...\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-18T00:04:22.313Z",
+                      "startTime": "2026-02-18T09:50:50.431Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -375,7 +492,7 @@
               ],
               "id": "2c14808d47b386fba9eb-8b07f9a7ad5a03a1f09a",
               "file": "smoke.spec.js",
-              "line": 142,
+              "line": 161,
               "column": 5
             },
             {
@@ -394,12 +511,25 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3116,
+                      "duration": 4240,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Initial Token: MISSING\n"
+                        },
+                        {
+                          "text": "Clearing storage...\n"
+                        },
+                        {
+                          "text": "Reloading to ensure clean state...\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-18T00:04:27.254Z",
+                      "startTime": "2026-02-18T09:50:56.369Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -409,7 +539,7 @@
               ],
               "id": "2c14808d47b386fba9eb-44e19c2ea2651f1a3536",
               "file": "smoke.spec.js",
-              "line": 176,
+              "line": 195,
               "column": 5
             },
             {
@@ -428,12 +558,25 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3206,
+                      "duration": 4531,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Initial Token: MISSING\n"
+                        },
+                        {
+                          "text": "Clearing storage...\n"
+                        },
+                        {
+                          "text": "Reloading to ensure clean state...\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-18T00:04:30.390Z",
+                      "startTime": "2026-02-18T09:51:00.628Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -443,7 +586,7 @@
               ],
               "id": "2c14808d47b386fba9eb-fe31e0fc5c4bd3b315e3",
               "file": "smoke.spec.js",
-              "line": 190,
+              "line": 209,
               "column": 5
             },
             {
@@ -462,12 +605,25 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3261,
+                      "duration": 4434,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Initial Token: MISSING\n"
+                        },
+                        {
+                          "text": "Clearing storage...\n"
+                        },
+                        {
+                          "text": "Reloading to ensure clean state...\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-18T00:04:33.618Z",
+                      "startTime": "2026-02-18T09:51:05.180Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -477,7 +633,7 @@
               ],
               "id": "2c14808d47b386fba9eb-b08a53b9d7bc197b2c33",
               "file": "smoke.spec.js",
-              "line": 196,
+              "line": 215,
               "column": 5
             },
             {
@@ -496,12 +652,25 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3166,
+                      "duration": 4491,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Initial Token: MISSING\n"
+                        },
+                        {
+                          "text": "Clearing storage...\n"
+                        },
+                        {
+                          "text": "Reloading to ensure clean state...\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-18T00:04:36.901Z",
+                      "startTime": "2026-02-18T09:51:09.635Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -511,7 +680,7 @@
               ],
               "id": "2c14808d47b386fba9eb-899023ab40d288f36a8a",
               "file": "smoke.spec.js",
-              "line": 202,
+              "line": 221,
               "column": 5
             },
             {
@@ -530,12 +699,25 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3170,
+                      "duration": 4096,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Initial Token: MISSING\n"
+                        },
+                        {
+                          "text": "Clearing storage...\n"
+                        },
+                        {
+                          "text": "Reloading to ensure clean state...\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-18T00:04:40.087Z",
+                      "startTime": "2026-02-18T09:51:14.146Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -545,7 +727,7 @@
               ],
               "id": "2c14808d47b386fba9eb-8ded83d61d120dd46f10",
               "file": "smoke.spec.js",
-              "line": 208,
+              "line": 227,
               "column": 5
             },
             {
@@ -564,34 +746,47 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5725,
+                      "duration": 6637,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Initial Token: MISSING\n"
+                        },
+                        {
+                          "text": "Clearing storage...\n"
+                        },
+                        {
+                          "text": "Reloading to ensure clean state...\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
                       "steps": [
                         {
                           "title": "Profile Tab",
-                          "duration": 562
+                          "duration": 535
                         },
                         {
                           "title": "Security Tab",
-                          "duration": 623
+                          "duration": 607
                         },
                         {
                           "title": "Appearance Tab",
-                          "duration": 658
+                          "duration": 565
                         },
                         {
                           "title": "API Tab",
-                          "duration": 617
+                          "duration": 558
                         },
                         {
                           "title": "Admin Tab",
-                          "duration": 763
+                          "duration": 544
                         }
                       ],
-                      "startTime": "2026-02-18T00:04:43.275Z",
+                      "startTime": "2026-02-18T09:51:18.273Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -601,7 +796,7 @@
               ],
               "id": "2c14808d47b386fba9eb-b7b11855d8085866d29d",
               "file": "smoke.spec.js",
-              "line": 214,
+              "line": 233,
               "column": 5
             }
           ]
@@ -611,8 +806,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-18T00:03:54.248Z",
-    "duration": 54855.898,
+    "startTime": "2026-02-18T09:50:12.577Z",
+    "duration": 72438.41600000001,
     "expected": 15,
     "skipped": 0,
     "unexpected": 0,

@@ -72,7 +72,7 @@ const queryClient = new QueryClient({
 
 function AppInner({ 
     themeId, setThemeId, user, setUser, token, setToken, household, setHousehold, 
-    logout, login, mfaLogin, spec, onPreviewTheme,
+    logout, login, mfaLogin, handleLoginSuccess, spec, onPreviewTheme,
     mode, onModeChange
 }) {
   console.log(`[APP] Init - Token: ${token ? 'Present' : 'Missing'}, Household: ${household?.id || 'None'}`);
