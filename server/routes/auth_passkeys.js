@@ -128,7 +128,7 @@ router.get('/register/options', authenticateToken, async (req, res) => {
             authenticatorSelection: {
                 residentKey: 'preferred',
                 userVerification: 'preferred',
-                authenticatorAttachment: 'platform', 
+                // authenticatorAttachment: 'platform', // Allow cross-platform (roaming) authenticators
             },
         });
 
