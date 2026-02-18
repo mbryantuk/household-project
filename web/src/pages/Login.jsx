@@ -38,7 +38,7 @@ export default function Login({ onLogin, onMfaLogin, onLoginSuccess }) {
               ...assertion, email, rememberMe
           });
 
-          if (verifyRes.data.verified) {
+          if (verifyRes.data.token) {
               onLoginSuccess(verifyRes.data, rememberMe);
           }
       } catch (err) {

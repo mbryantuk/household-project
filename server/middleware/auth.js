@@ -36,6 +36,7 @@ function authenticateToken(req, res, next) {
 
             verifySession().then(isValidSession => {
                 if (!isValidSession) {
+                    console.warn(`[AUTH] Session Invalid/Revoked for User ${user.id} (SID: ${user.sid})`);
                     return res.status(401).json({ error: "Session has been revoked or expired." });
                 }
 

@@ -44,17 +44,11 @@ async function finalizeLogin(user, req, res, rememberMe = false) {
     // CLEANUP: Remove expired sessions for this user
     await dbRun(globalDb, `DELETE FROM user_sessions WHERE user_id = ? AND expires_at < CURRENT_TIMESTAMP`, [user.id]);
 
-    // CLEANUP: Remove older sessions from the same device/IP to prevent list clutter
     const parser = new UAParser(req.headers['user-agent']);
     const device = parser.getDevice();
     const browser = parser.getBrowser();
     const os = parser.getOS();
     const deviceInfo = `${browser.name || 'Unknown'} on ${os.name || 'Unknown'} (${device.model || 'Desktop'})`;
-
-    await dbRun(globalDb, 
-        `DELETE FROM user_sessions WHERE user_id = ? AND device_info = ? AND ip_address = ?`, 
-        [user.id, deviceInfo, req.ip]
-    );
 
     // Create Session
     const sessionId = crypto.randomBytes(16).toString('hex');
