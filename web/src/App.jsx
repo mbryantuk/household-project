@@ -329,7 +329,7 @@ function AppInner({
         const serverVersion = response.headers['x-api-version'];
         if (serverVersion && serverVersion !== pkg.version) {
            console.warn(`[AUTH] Version mismatch! Client: ${pkg.version}, Server: ${serverVersion}`);
-           logout();
+           // logout(); // Don't kill the session, just reload to get new assets
            window.location.reload();
         }
         return response;
@@ -340,7 +340,7 @@ function AppInner({
             const serverVersion = error.response.headers['x-api-version'];
             if (serverVersion && serverVersion !== pkg.version) {
                 console.warn(`[AUTH] Version mismatch on error! Client: ${pkg.version}, Server: ${serverVersion}`);
-                logout();
+                // logout(); // Don't kill the session, just reload to get new assets
                 window.location.reload();
                 return Promise.reject(error);
             }

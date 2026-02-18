@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix Passkey login logic and relax session invalidation rules",
-  "date": "Wed 18 Feb 10:06:12 GMT 2026"
+  "commitMessage": "Stop aggressive session invalidation & prevent logout on version bump",
+  "date": "Wed 18 Feb 10:25:16 GMT 2026"
 }
