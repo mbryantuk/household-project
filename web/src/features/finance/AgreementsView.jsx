@@ -1,10 +1,28 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  Box, Typography, Grid, Card, Avatar, IconButton, 
-  Button, Modal, ModalDialog, DialogTitle, DialogContent, Input,
-  FormControl, FormLabel, Stack, Chip, CircularProgress, Divider,
-  AvatarGroup, LinearProgress, Checkbox, DialogActions
+import {
+  Box,
+  Typography,
+  Grid,
+  Card,
+  Avatar,
+  IconButton,
+  Button,
+  Modal,
+  ModalDialog,
+  DialogTitle,
+  DialogContent,
+  Input,
+  FormControl,
+  FormLabel,
+  Stack,
+  Chip,
+  CircularProgress,
+  Divider,
+  AvatarGroup,
+  LinearProgress,
+  Checkbox,
+  DialogActions,
 } from '@mui/joy';
 import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
 import { getEmojiColor } from '../../theme';
@@ -13,7 +31,15 @@ import ModuleHeader from '../../components/ui/ModuleHeader';
 import FinanceCard from '../../components/ui/FinanceCard';
 
 export default function AgreementsView({ isSubscriptions = false, financialProfileId }) {
-  const { api, id: householdId, user: currentUser, isDark, members, showNotification, confirmAction } = useOutletContext();
+  const {
+    api,
+    id: householdId,
+    user: currentUser,
+    isDark,
+    members,
+    showNotification,
+    confirmAction,
+  } = useOutletContext();
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
@@ -22,7 +48,7 @@ export default function AgreementsView({ isSubscriptions = false, financialProfi
   const [items, setItems] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [assignItem, setAssignItem] = useState(null);
   const [emojiPicker, setEmojiPicker] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState(isSubscriptions ? '📱' : '📄');
@@ -30,22 +56,37 @@ export default function AgreementsView({ isSubscriptions = false, financialProfi
 
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'member';
 
-  const getAssignees = useCallback((itemId) => assignments.filter(a => a.entity_id === itemId).map(a => members.find(m => m.id === a.member_id)).filter(Boolean), [assignments, members]);
+  const getAssignees = useCallback(
+    (itemId) =>
+      assignments
+        .filter((a) => a.entity_id === itemId)
+        .map((a) => members.find((m) => m.id === a.member_id))
+        .filter(Boolean),
+    [assignments, members]
+  );
 
-  const selectedAgreement = useMemo(() => 
-    items.find(i => String(i.id) === String(selectedAgreementId)),
-  [items, selectedAgreementId]);
+  const selectedAgreement = useMemo(
+    () => items.find((i) => String(i.id) === String(selectedAgreementId)),
+    [items, selectedAgreementId]
+  );
 
   useEffect(() => {
-      if (selectedAgreement) {
-          setSelectedEmoji(selectedAgreement.emoji || (isSubscriptions ? '📱' : '📄'));
-          setSelectedMembers(getAssignees(selectedAgreement.id).map(m => m.id));
-      } else if (selectedAgreementId === 'new') {
-          setSelectedEmoji(isSubscriptions ? '📱' : '📄');
-          const defaultMember = members.find(m => m.type !== 'pet');
-          setSelectedMembers(defaultMember ? [defaultMember.id] : []);
-      }
-  }, [selectedAgreement, selectedAgreementId, isSubscriptions, getAssignees, currentUser?.id, members]);
+    if (selectedAgreement) {
+      setSelectedEmoji(selectedAgreement.emoji || (isSubscriptions ? '📱' : '📄'));
+      setSelectedMembers(getAssignees(selectedAgreement.id).map((m) => m.id));
+    } else if (selectedAgreementId === 'new') {
+      setSelectedEmoji(isSubscriptions ? '📱' : '📄');
+      const defaultMember = members.find((m) => m.type !== 'pet');
+      setSelectedMembers(defaultMember ? [defaultMember.id] : []);
+    }
+  }, [
+    selectedAgreement,
+    selectedAgreementId,
+    isSubscriptions,
+    getAssignees,
+    currentUser?.id,
+    members,
+  ]);
 
   const fetchData = useCallback(async () => {
     if (!financialProfileId) return;
@@ -53,15 +94,25 @@ export default function AgreementsView({ isSubscriptions = false, financialProfi
     try {
       const endpoint = isSubscriptions ? 'subscriptions' : 'agreements';
       const [res, assRes] = await Promise.all([
-          api.get(`/households/${householdId}/finance/${endpoint}?financial_profile_id=${financialProfileId}`),
-          api.get(`/households/${householdId}/finance/assignments?entity_type=${isSubscriptions ? 'subscription' : 'agreement'}`)
+        api.get(
+          `/households/${householdId}/finance/${endpoint}?financial_profile_id=${financialProfileId}`
+        ),
+        api.get(
+          `/households/${householdId}/finance/assignments?entity_type=${isSubscriptions ? 'subscription' : 'agreement'}`
+        ),
       ]);
       setItems(res.data || []);
       setAssignments(assRes.data || []);
-    } catch (err) { console.error("Failed to fetch agreements", err); } finally { setLoading(false); }
+    } catch (err) {
+      console.error('Failed to fetch agreements', err);
+    } finally {
+      setLoading(false);
+    }
   }, [api, householdId, financialProfileId, isSubscriptions]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const setAgreementId = (id) => {
     const newParams = new URLSearchParams(location.search);
@@ -75,7 +126,7 @@ export default function AgreementsView({ isSubscriptions = false, financialProfi
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     data.emoji = selectedEmoji;
-    
+
     // Tag as subscription if in sub mode
     if (isSubscriptions) data.notes = (data.notes || '') + ' [SUB]';
     data.financial_profile_id = financialProfileId;
@@ -86,211 +137,416 @@ export default function AgreementsView({ isSubscriptions = false, financialProfi
       if (selectedAgreementId === 'new') {
         const res = await api.post(`/households/${householdId}/finance/${endpoint}`, data);
         itemId = res.data.id;
-        showNotification("Item added.", "success");
+        showNotification('Item added.', 'success');
       } else {
         await api.put(`/households/${householdId}/finance/${endpoint}/${itemId}`, data);
-        showNotification("Item updated.", "success");
+        showNotification('Item updated.', 'success');
       }
 
       const entityType = isSubscriptions ? 'subscription' : 'agreement';
-      const currentIds = selectedAgreementId === 'new' ? [] : getAssignees(itemId).map(m => m.id);
-      const toAdd = selectedMembers.filter(id => !currentIds.includes(id));
-      await Promise.all(toAdd.map(mid => api.post(`/households/${householdId}/finance/assignments`, {
-          entity_type: entityType, entity_id: itemId, member_id: mid
-      })));
-      const toRemove = currentIds.filter(id => !selectedMembers.includes(id));
-      await Promise.all(toRemove.map(mid => api.delete(`/households/${householdId}/finance/assignments/${entityType}/${itemId}/${mid}`)));
-      
+      const currentIds = selectedAgreementId === 'new' ? [] : getAssignees(itemId).map((m) => m.id);
+      const toAdd = selectedMembers.filter((id) => !currentIds.includes(id));
+      await Promise.all(
+        toAdd.map((mid) =>
+          api.post(`/households/${householdId}/finance/assignments`, {
+            entity_type: entityType,
+            entity_id: itemId,
+            member_id: mid,
+          })
+        )
+      );
+      const toRemove = currentIds.filter((id) => !selectedMembers.includes(id));
+      await Promise.all(
+        toRemove.map((mid) =>
+          api.delete(
+            `/households/${householdId}/finance/assignments/${entityType}/${itemId}/${mid}`
+          )
+        )
+      );
+
       await fetchData();
       setAgreementId(null);
-    } catch (err) { showNotification("Failed to save: " + err.message, "danger"); }
+    } catch (err) {
+      showNotification('Failed to save: ' + err.message, 'danger');
+    }
   };
 
   const handleDelete = async (id) => {
-    confirmAction("Delete Item", "Are you sure you want to delete this agreement/subscription? This will remove it from your budget.", async () => {
+    confirmAction(
+      'Delete Item',
+      'Are you sure you want to delete this agreement/subscription? This will remove it from your budget.',
+      async () => {
         const endpoint = isSubscriptions ? 'subscriptions' : 'agreements';
-        try { 
-            await api.delete(`/households/${householdId}/finance/${endpoint}/${id}`); 
-            showNotification("Item deleted", "success");
-            fetchData(); 
-            if (selectedAgreementId === String(id)) setAgreementId(null);
-        } catch { 
-            showNotification("Failed to delete", "danger");
+        try {
+          await api.delete(`/households/${householdId}/finance/${endpoint}/${id}`);
+          showNotification('Item deleted', 'success');
+          fetchData();
+          if (selectedAgreementId === String(id)) setAgreementId(null);
+        } catch {
+          showNotification('Failed to delete', 'danger');
         }
-    });
+      }
+    );
   };
 
   const handleAssignMember = async (memberId) => {
-      try {
-          await api.post(`/households/${householdId}/finance/assignments`, {
-              entity_type: isSubscriptions ? 'subscription' : 'agreement',
-              entity_id: assignItem.id,
-              member_id: memberId
-          });
-          const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=${isSubscriptions ? 'subscription' : 'agreement'}`);
-          setAssignments(assRes.data || []);
-      } catch (err) { console.error("Assignment failed", err); }
+    try {
+      await api.post(`/households/${householdId}/finance/assignments`, {
+        entity_type: isSubscriptions ? 'subscription' : 'agreement',
+        entity_id: assignItem.id,
+        member_id: memberId,
+      });
+      const assRes = await api.get(
+        `/households/${householdId}/finance/assignments?entity_type=${isSubscriptions ? 'subscription' : 'agreement'}`
+      );
+      setAssignments(assRes.data || []);
+    } catch (err) {
+      console.error('Assignment failed', err);
+    }
   };
 
   const handleUnassignMember = async (memberId) => {
-      try {
-          const type = isSubscriptions ? 'subscription' : 'agreement';
-          await api.delete(`/households/${householdId}/finance/assignments/${type}/${assignItem.id}/${memberId}`);
-          const assRes = await api.get(`/households/${householdId}/finance/assignments?entity_type=${type}`);
-          setAssignments(assRes.data || []);
-      } catch (err) { console.error("Removal failed", err); }
+    try {
+      const type = isSubscriptions ? 'subscription' : 'agreement';
+      await api.delete(
+        `/households/${householdId}/finance/assignments/${type}/${assignItem.id}/${memberId}`
+      );
+      const assRes = await api.get(
+        `/households/${householdId}/finance/assignments?entity_type=${type}`
+      );
+      setAssignments(assRes.data || []);
+    } catch (err) {
+      console.error('Removal failed', err);
+    }
   };
 
-  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
+  if (loading)
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
+        <CircularProgress />
+      </Box>
+    );
 
   return (
     <Box>
-        <ModuleHeader 
-            title={isSubscriptions ? "Subscriptions" : "Agreements"}
-            description={isSubscriptions ? "Manage your recurring services." : "Manage contracts and legal agreements."}
-            emoji={isSubscriptions ? "📺" : "📄"}
-            isDark={isDark}
-            action={isAdmin && (
-                <Button variant="solid" startDecorator={<Add />} onClick={() => setAgreementId('new')} sx={{ height: '44px' }}>
-                    Add {isSubscriptions ? 'Subscription' : 'Agreement'}
-                </Button>
-            )}
-        />
+      <ModuleHeader
+        title={isSubscriptions ? 'Subscriptions' : 'Agreements'}
+        description={
+          isSubscriptions
+            ? 'Manage your recurring services.'
+            : 'Manage contracts and legal agreements.'
+        }
+        emoji={isSubscriptions ? '📺' : '📄'}
+        isDark={isDark}
+        action={
+          isAdmin && (
+            <Button
+              variant="solid"
+              startDecorator={<Add />}
+              onClick={() => setAgreementId('new')}
+              sx={{ height: '44px' }}
+            >
+              Add {isSubscriptions ? 'Subscription' : 'Agreement'}
+            </Button>
+          )
+        }
+      />
 
-        <Grid container spacing={3}>
-            {items.map(item => (
-                <Grid xs={12} lg={6} xl={4} key={item.id}>
-                    <FinanceCard
-                        title={item.agreement_name}
-                        subtitle={item.provider}
-                        emoji={item.emoji || (isSubscriptions ? '📺' : '📄')}
-                        isDark={isDark}
-                        balance={item.monthly_payment}
-                        balanceColor="neutral"
-                        subValue={item.frequency}
-                        assignees={getAssignees(item.id)}
-                        onAssign={() => setAssignItem(item)}
-                        onEdit={() => setAgreementId(item.id)}
-                        onDelete={() => handleDelete(item.id)}
-                    >
-                        <Typography level="body-xs" color="neutral">End/Renewal: {item.end_date || 'Ongoing'}</Typography>
-                    </FinanceCard>
+      <Grid container spacing={3}>
+        {items.map((item) => (
+          <Grid xs={12} lg={6} xl={4} key={item.id}>
+            <FinanceCard
+              title={item.agreement_name}
+              subtitle={item.provider}
+              emoji={item.emoji || (isSubscriptions ? '📺' : '📄')}
+              isDark={isDark}
+              balance={item.monthly_payment}
+              balanceColor="neutral"
+              subValue={item.frequency}
+              assignees={getAssignees(item.id)}
+              onAssign={() => setAssignItem(item)}
+              onEdit={() => setAgreementId(item.id)}
+              onDelete={() => handleDelete(item.id)}
+            >
+              <Typography level="body-xs" color="neutral">
+                End/Renewal: {item.end_date || 'Ongoing'}
+              </Typography>
+            </FinanceCard>
+          </Grid>
+        ))}
+      </Grid>
+
+      <Modal open={Boolean(selectedAgreementId)} onClose={() => setAgreementId(null)}>
+        <ModalDialog sx={{ width: '100%', maxWidth: 500 }}>
+          <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
+            <Box sx={{ position: 'relative' }}>
+              <Avatar
+                size="lg"
+                sx={{
+                  '--Avatar-size': '64px',
+                  bgcolor: getEmojiColor(selectedEmoji, isDark),
+                  fontSize: '2rem',
+                  cursor: 'pointer',
+                }}
+                onClick={() => setEmojiPicker(true)}
+              >
+                {selectedEmoji}
+              </Avatar>
+              <IconButton
+                size="sm"
+                variant="solid"
+                color="primary"
+                sx={{
+                  position: 'absolute',
+                  bottom: -4,
+                  right: -4,
+                  borderRadius: '50%',
+                  border: '2px solid',
+                  borderColor: 'background.surface',
+                }}
+                onClick={() => setEmojiPicker(true)}
+              >
+                <Edit sx={{ fontSize: '0.8rem' }} />
+              </IconButton>
+            </Box>
+            <Box sx={{ flexGrow: 1 }}>
+              <DialogTitle>
+                {selectedAgreementId === 'new'
+                  ? isSubscriptions
+                    ? 'Add Subscription'
+                    : 'Add Agreement'
+                  : 'Edit Details'}
+              </DialogTitle>
+              <Typography level="body-sm" color="neutral">
+                Manage your household contracts.
+              </Typography>
+            </Box>
+          </Box>
+          <DialogContent>
+            <form onSubmit={handleSubmit}>
+              <Stack spacing={2} sx={{ mt: 1 }}>
+                <Grid container spacing={2}>
+                  <Grid xs={12}>
+                    <FormControl required>
+                      <FormLabel>Service / Agreement Name</FormLabel>
+                      <Input
+                        name="agreement_name"
+                        defaultValue={selectedAgreement?.agreement_name}
+                        placeholder="e.g. Netflix / iPhone 15"
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid xs={12}>
+                    <FormControl required>
+                      <FormLabel>Provider</FormLabel>
+                      <Input
+                        name="provider"
+                        defaultValue={selectedAgreement?.provider}
+                        placeholder="e.g. Amazon / EE"
+                      />
+                    </FormControl>
+                  </Grid>
                 </Grid>
-            ))}
-        </Grid>
 
-        <Modal open={Boolean(selectedAgreementId)} onClose={() => setAgreementId(null)}>
-            <ModalDialog sx={{ width: '100%', maxWidth: 500 }}>
-                <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
-                    <Box sx={{ position: 'relative' }}>
-                        <Avatar size="lg" sx={{ '--Avatar-size': '64px', bgcolor: getEmojiColor(selectedEmoji, isDark), fontSize: '2rem', cursor: 'pointer' }} onClick={() => setEmojiPicker(true)}>{selectedEmoji}</Avatar>
-                        <IconButton size="sm" variant="solid" color="primary" sx={{ position: 'absolute', bottom: -4, right: -4, borderRadius: '50%', border: '2px solid', borderColor: 'background.surface' }} onClick={() => setEmojiPicker(true)}><Edit sx={{ fontSize: '0.8rem' }} /></IconButton>
-                    </Box>
-                    <Box sx={{ flexGrow: 1 }}>
-                        <DialogTitle>{selectedAgreementId === 'new' ? (isSubscriptions ? 'Add Subscription' : 'Add Agreement') : 'Edit Details'}</DialogTitle>
-                        <Typography level="body-sm" color="neutral">Manage your household contracts.</Typography>
-                    </Box>
+                <Grid container spacing={2}>
+                  <Grid xs={6}>
+                    <FormControl required>
+                      <FormLabel>Monthly Cost (£)</FormLabel>
+                      <Input
+                        name="monthly_payment"
+                        type="number"
+                        slotProps={{ input: { step: 'any' } }}
+                        defaultValue={selectedAgreement?.monthly_payment}
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid xs={6}>
+                    <FormControl>
+                      <FormLabel>Payment Day</FormLabel>
+                      <Input
+                        name="payment_day"
+                        type="number"
+                        min="1"
+                        max="31"
+                        defaultValue={selectedAgreement?.payment_day}
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid xs={6} sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Checkbox
+                      label="Nearest Working Day (Next)"
+                      name="nearest_working_day"
+                      defaultChecked={selectedAgreement?.nearest_working_day !== 0}
+                      value="1"
+                      sx={{ mt: 3 }}
+                    />
+                  </Grid>
+                </Grid>
+
+                {!isSubscriptions && (
+                  <Grid container spacing={2}>
+                    <Grid xs={6}>
+                      <FormControl>
+                        <FormLabel>Total Commitment (£)</FormLabel>
+                        <Input
+                          name="total_amount"
+                          type="number"
+                          slotProps={{ input: { step: 'any' } }}
+                          defaultValue={selectedAgreement?.total_amount}
+                        />
+                      </FormControl>
+                    </Grid>
+                    <Grid xs={6}>
+                      <FormControl>
+                        <FormLabel>Remaining (£)</FormLabel>
+                        <Input
+                          name="remaining_balance"
+                          type="number"
+                          slotProps={{ input: { step: 'any' } }}
+                          defaultValue={selectedAgreement?.remaining_balance}
+                        />
+                      </FormControl>
+                    </Grid>
+                  </Grid>
+                )}
+
+                <Grid container spacing={2}>
+                  <Grid xs={6}>
+                    <FormControl>
+                      <FormLabel>Start Date</FormLabel>
+                      <Input
+                        name="start_date"
+                        type="date"
+                        defaultValue={selectedAgreement?.start_date}
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid xs={6}>
+                    <FormControl>
+                      <FormLabel>End Date / Renewal</FormLabel>
+                      <Input
+                        name="end_date"
+                        type="date"
+                        defaultValue={selectedAgreement?.end_date}
+                      />
+                    </FormControl>
+                  </Grid>
+                </Grid>
+
+                <FormControl>
+                  <FormLabel>Assign Members</FormLabel>
+                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                    {members
+                      .filter((m) => m.type !== 'pet')
+                      .map((m) => {
+                        const isSelected = selectedMembers.includes(m.id);
+                        return (
+                          <Chip
+                            key={m.id}
+                            variant={isSelected ? 'solid' : 'outlined'}
+                            color={isSelected ? 'primary' : 'neutral'}
+                            onClick={() =>
+                              setSelectedMembers((prev) =>
+                                prev.includes(m.id)
+                                  ? prev.filter((id) => id !== m.id)
+                                  : [...prev, m.id]
+                              )
+                            }
+                            startDecorator={<Avatar size="sm">{m.emoji}</Avatar>}
+                          >
+                            {m.name}
+                          </Chip>
+                        );
+                      })}
+                  </Box>
+                </FormControl>
+              </Stack>
+              <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
+                {selectedAgreementId !== 'new' && (
+                  <Button
+                    color="danger"
+                    variant="soft"
+                    onClick={() => handleDelete(selectedAgreement.id)}
+                  >
+                    Delete
+                  </Button>
+                )}
+                <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
+                  <Button variant="plain" color="neutral" onClick={() => setAgreementId(null)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" color="primary">
+                    Save
+                  </Button>
                 </Box>
-                <DialogContent>
-                    <form onSubmit={handleSubmit}>
-                        <Stack spacing={2} sx={{ mt: 1 }}>
-                            <Grid container spacing={2}>
-                                <Grid xs={12}>
-                                    <FormControl required><FormLabel>Service / Agreement Name</FormLabel><Input name="agreement_name" defaultValue={selectedAgreement?.agreement_name} placeholder="e.g. Netflix / iPhone 15" /></FormControl>
-                                </Grid>
-                                <Grid xs={12}>
-                                    <FormControl required><FormLabel>Provider</FormLabel><Input name="provider" defaultValue={selectedAgreement?.provider} placeholder="e.g. Amazon / EE" /></FormControl>
-                                </Grid>
-                            </Grid>
-                            
-                            <Grid container spacing={2}>
-                                <Grid xs={6}>
-                                    <FormControl required><FormLabel>Monthly Cost (£)</FormLabel>
-                                        <Input name="monthly_payment" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedAgreement?.monthly_payment} />
-                                    </FormControl>
-                                </Grid>
-                        <Grid xs={6}>
-                            <FormControl>
-                                <FormLabel>Payment Day</FormLabel>
-                                <Input name="payment_day" type="number" min="1" max="31" defaultValue={selectedAgreement?.payment_day} />
-                            </FormControl>
-                        </Grid>
-                        <Grid xs={6} sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Checkbox 
-                                label="Nearest Working Day (Next)" 
-                                name="nearest_working_day"
-                                defaultChecked={selectedAgreement?.nearest_working_day !== 0}
-                                value="1"
-                                sx={{ mt: 3 }}
-                            />
-                        </Grid>
-                            </Grid>
+              </Box>
+            </form>
+          </DialogContent>
+        </ModalDialog>
+      </Modal>
 
-                            {!isSubscriptions && (
-                                <Grid container spacing={2}>
-                                    <Grid xs={6}>
-                                        <FormControl><FormLabel>Total Commitment (£)</FormLabel><Input name="total_amount" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedAgreement?.total_amount} /></FormControl>
-                                    </Grid>
-                                    <Grid xs={6}>
-                                        <FormControl><FormLabel>Remaining (£)</FormLabel><Input name="remaining_balance" type="number" slotProps={{ input: { step: 'any' } }} defaultValue={selectedAgreement?.remaining_balance} /></FormControl>
-                                    </Grid>
-                                </Grid>
-                            )}
+      <Modal open={Boolean(assignItem)} onClose={() => setAssignItem(null)}>
+        <ModalDialog size="sm">
+          <DialogTitle>Assign Users</DialogTitle>
+          <DialogContent>
+            <Stack spacing={1}>
+              {members
+                .filter((m) => m.type !== 'pet')
+                .map((m) => {
+                  const isAssigned = getAssignees(assignItem?.id).some((a) => a.id === m.id);
+                  return (
+                    <Box
+                      key={m.id}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        p: 1,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        borderRadius: 'sm',
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Avatar size="sm" sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>
+                          {m.emoji}
+                        </Avatar>
+                        <Typography>{m.name}</Typography>
+                      </Box>
+                      {isAssigned ? (
+                        <Button
+                          size="sm"
+                          color="danger"
+                          variant="soft"
+                          onClick={() => handleUnassignMember(m.id)}
+                        >
+                          Remove
+                        </Button>
+                      ) : (
+                        <Button size="sm" variant="soft" onClick={() => handleAssignMember(m.id)}>
+                          Assign
+                        </Button>
+                      )}
+                    </Box>
+                  );
+                })}
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setAssignItem(null)}>Done</Button>
+          </DialogActions>
+        </ModalDialog>
+      </Modal>
 
-                            <Grid container spacing={2}>
-                                <Grid xs={6}>
-                                    <FormControl><FormLabel>Start Date</FormLabel><Input name="start_date" type="date" defaultValue={selectedAgreement?.start_date} /></FormControl>
-                                </Grid>
-                                <Grid xs={6}>
-                                    <FormControl><FormLabel>End Date / Renewal</FormLabel><Input name="end_date" type="date" defaultValue={selectedAgreement?.end_date} /></FormControl>
-                                </Grid>
-                            </Grid>
-
-                            <FormControl><FormLabel>Assign Members</FormLabel>
-                                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                                    {members.filter(m => m.type !== 'pet').map(m => {
-                                        const isSelected = selectedMembers.includes(m.id);
-                                        return <Chip key={m.id} variant={isSelected ? 'solid' : 'outlined'} color={isSelected ? 'primary' : 'neutral'} onClick={() => setSelectedMembers(prev => prev.includes(m.id) ? prev.filter(id => id !== m.id) : [...prev, m.id])} startDecorator={<Avatar size="sm">{m.emoji}</Avatar>}>{m.name}</Chip>
-                                    })}
-                                </Box>
-                            </FormControl>
-                        </Stack>
-                        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
-                            {selectedAgreementId !== 'new' && <Button color="danger" variant="soft" onClick={() => handleDelete(selectedAgreement.id)}>Delete</Button>}
-                            <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
-                                <Button variant="plain" color="neutral" onClick={() => setAgreementId(null)}>Cancel</Button>
-                                <Button type="submit" color="primary">Save</Button>
-                            </Box>
-                        </Box>
-                    </form>
-                </DialogContent>
-            </ModalDialog>
-        </Modal>
-
-        <Modal open={Boolean(assignItem)} onClose={() => setAssignItem(null)}>
-            <ModalDialog size="sm">
-                <DialogTitle>Assign Users</DialogTitle>
-                <DialogContent>
-                    <Stack spacing={1}>
-                        {members.filter(m => m.type !== 'pet').map(m => {
-                            const isAssigned = getAssignees(assignItem?.id).some(a => a.id === m.id);
-                            return (
-                                <Box key={m.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 'sm' }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <Avatar size="sm" sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>{m.emoji}</Avatar>
-                                        <Typography>{m.name}</Typography>
-                                    </Box>
-                                    {isAssigned ? <Button size="sm" color="danger" variant="soft" onClick={() => handleUnassignMember(m.id)}>Remove</Button> : <Button size="sm" variant="soft" onClick={() => handleAssignMember(m.id)}>Assign</Button>}
-                                </Box>
-                            );
-                        })}
-                    </Stack>
-                </DialogContent>
-                <DialogActions><Button onClick={() => setAssignItem(null)}>Done</Button></DialogActions>
-            </ModalDialog>
-        </Modal>
-
-        <EmojiPicker open={emojiPicker} onClose={() => setEmojiPicker(false)} onEmojiSelect={(emoji) => { setSelectedEmoji(emoji); setEmojiPicker(false); }} isDark={isDark} />
+      <EmojiPicker
+        open={emojiPicker}
+        onClose={() => setEmojiPicker(false)}
+        onEmojiSelect={(emoji) => {
+          setSelectedEmoji(emoji);
+          setEmojiPicker(false);
+        }}
+        isDark={isDark}
+      />
     </Box>
   );
 }

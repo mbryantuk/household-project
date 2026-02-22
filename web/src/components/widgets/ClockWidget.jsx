@@ -18,37 +18,37 @@ export default function ClockWidget() {
 
   return (
     <WidgetWrapper title="System Time" icon={<AccessTime />} color="neutral">
-      <Stack 
-        alignItems="center" 
-        justifyContent="center" 
-        sx={{ 
-            height: '100%', 
-            py: 2,
-            textAlign: 'center'
+      <Stack
+        alignItems="center"
+        justifyContent="center"
+        sx={{
+          height: '100%',
+          py: 2,
+          textAlign: 'center',
         }}
       >
-        <Typography 
-            level="h1" 
-            sx={{ 
-                fontSize: '3.5rem', 
-                fontWeight: 'xl', 
-                mb: 0,
-                fontFamily: 'JetBrains Mono, Roboto Mono, monospace',
-                letterSpacing: '-2px'
-            }}
+        <Typography
+          level="h1"
+          sx={{
+            fontSize: '3.5rem',
+            fontWeight: 'xl',
+            mb: 0,
+            fontFamily: 'JetBrains Mono, Roboto Mono, monospace',
+            letterSpacing: '-2px',
+          }}
         >
           {format(now, 'HH:mm:ss')}
         </Typography>
-        <Typography 
-            level="title-md" 
-            color="neutral"
-            sx={{ 
-                textTransform: 'uppercase', 
-                letterSpacing: '2px',
-                fontWeight: 'lg',
-                mt: -1,
-                opacity: 0.8
-            }}
+        <Typography
+          level="title-md"
+          color="neutral"
+          sx={{
+            textTransform: 'uppercase',
+            letterSpacing: '2px',
+            fontWeight: 'lg',
+            mt: -1,
+            opacity: 0.8,
+          }}
         >
           {format(now, 'EEEE, do MMMM yyyy')}
         </Typography>

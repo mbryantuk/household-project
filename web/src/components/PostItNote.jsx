@@ -1,23 +1,43 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sheet, IconButton, Input, Typography, Box, List, ListItem, ListItemButton, Checkbox, ListItemContent } from '@mui/joy';
+import {
+  Sheet,
+  IconButton,
+  Input,
+  Typography,
+  Box,
+  List,
+  ListItem,
+  ListItemButton,
+  Checkbox,
+  ListItemContent,
+} from '@mui/joy';
 import { Close, Delete, DragIndicator, OpenInNew, Add, Minimize } from '@mui/icons-material';
 
 // STYLED: Adhere to "NO INLINE COLORS" rule using theme tokens.
 const STICKY_BG = 'var(--joy-palette-warning-softBg)';
 const STICKY_BORDER = 'var(--joy-palette-warning-outlinedBorder)';
 
-export default function PostItNote({ onClose, user, onUpdateProfile, onPopout, isPopout = false, isDocked = false }) {
+export default function PostItNote({
+  onClose,
+  user,
+  onUpdateProfile,
+  onPopout,
+  isPopout = false,
+  isDocked = false,
+}) {
   const [notes, setNotes] = useState(() => {
-      try {
-          const parsed = JSON.parse(user?.sticky_note);
-          return Array.isArray(parsed) ? parsed : [{ id: 1, text: user?.sticky_note || '', done: false }];
-      } catch {
-          return [{ id: 1, text: user?.sticky_note || '', done: false }];
-      }
+    try {
+      const parsed = JSON.parse(user?.sticky_note);
+      return Array.isArray(parsed)
+        ? parsed
+        : [{ id: 1, text: user?.sticky_note || '', done: false }];
+    } catch {
+      return [{ id: 1, text: user?.sticky_note || '', done: false }];
+    }
   });
 
   const [activeNoteId, setActiveNoteId] = useState(null);
-  const [pos, setPos] = useState({ x: 100, y: 100 }); 
+  const [pos, setPos] = useState({ x: 100, y: 100 });
   const [isDragging, setIsDragging] = useState(false);
   const [rel, setRel] = useState({ x: 0, y: 0 });
   const [isFocused, setIsFocused] = useState(true);
@@ -25,21 +45,21 @@ export default function PostItNote({ onClose, user, onUpdateProfile, onPopout, i
 
   useEffect(() => {
     const timer = setTimeout(() => {
-        const json = JSON.stringify(notes);
-        if (json !== user?.sticky_note) onUpdateProfile({ sticky_note: json });
-    }, 1000); 
+      const json = JSON.stringify(notes);
+      if (json !== user?.sticky_note) onUpdateProfile({ sticky_note: json });
+    }, 1000);
     return () => clearTimeout(timer);
   }, [notes, onUpdateProfile, user?.sticky_note]);
 
   useEffect(() => {
-      try {
-          const parsed = JSON.parse(user?.sticky_note);
-          if (Array.isArray(parsed) && JSON.stringify(parsed) !== JSON.stringify(notes)) {
-              Promise.resolve().then(() => setNotes(parsed));
-          }
-      } catch {
-          /* Ignore parse errors */
+    try {
+      const parsed = JSON.parse(user?.sticky_note);
+      if (Array.isArray(parsed) && JSON.stringify(parsed) !== JSON.stringify(notes)) {
+        Promise.resolve().then(() => setNotes(parsed));
       }
+    } catch {
+      /* Ignore parse errors */
+    }
   }, [user?.sticky_note, notes]);
 
   const onMouseDown = (e) => {
@@ -69,9 +89,9 @@ export default function PostItNote({ onClose, user, onUpdateProfile, onPopout, i
   }, [isDragging, rel, isPopout, isDocked]);
 
   const handleAdd = () => {
-      const newId = Date.now();
-      setNotes([{ id: newId, text: '', done: false }, ...notes]);
-      setActiveNoteId(newId);
+    const newId = Date.now();
+    setNotes([{ id: newId, text: '', done: false }, ...notes]);
+    setActiveNoteId(newId);
   };
 
   return (
@@ -79,14 +99,16 @@ export default function PostItNote({ onClose, user, onUpdateProfile, onPopout, i
       ref={containerRef}
       variant="outlined"
       onFocus={() => setIsFocused(true)}
-      onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setIsFocused(false); }}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) setIsFocused(false);
+      }}
       tabIndex={0}
       sx={{
-        position: (isPopout || isDocked) ? 'relative' : 'fixed',
-        left: (isPopout || isDocked) ? 0 : pos.x,
-        top: (isPopout || isDocked) ? 0 : pos.y,
-        width: (isPopout || isDocked) ? '100%' : 320,
-        height: (isPopout || isDocked) ? '100%' : 450,
+        position: isPopout || isDocked ? 'relative' : 'fixed',
+        left: isPopout || isDocked ? 0 : pos.x,
+        top: isPopout || isDocked ? 0 : pos.y,
+        width: isPopout || isDocked ? '100%' : 320,
+        height: isPopout || isDocked ? '100%' : 450,
         bgcolor: STICKY_BG,
         color: 'neutral.900',
         zIndex: 1300,
@@ -96,43 +118,117 @@ export default function PostItNote({ onClose, user, onUpdateProfile, onPopout, i
         borderRadius: isPopout || isDocked ? 0 : 'sm',
         border: '1px solid',
         borderColor: STICKY_BORDER,
-        opacity: isPopout || isDocked ? 1 : (isFocused ? 1 : 0.6),
-        transition: 'opacity 0.2s, transform 0.2s'
+        opacity: isPopout || isDocked ? 1 : isFocused ? 1 : 0.6,
+        transition: 'opacity 0.2s, transform 0.2s',
       }}
     >
-      <Box onMouseDown={onMouseDown} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, borderBottom: '1px solid rgba(0,0,0,0.1)', bgcolor: 'rgba(0,0,0,0.05)', cursor: isDocked ? 'default' : 'move' }}>
-         {!isDocked && !isPopout && <DragIndicator fontSize="small" sx={{ mr: 1, color: 'neutral.900', opacity: 0.5 }} />}
-         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexGrow: 1 }}>
-            <IconButton size="sm" variant="plain" onClick={handleAdd} sx={{ color: 'neutral.900' }}><Add /></IconButton>
-            <Typography level="title-sm" sx={{ color: 'neutral.900' }}>{activeNoteId ? 'Editing Note' : 'Sticky Notes'}</Typography>
-         </Box>
-         <Box>
-            {activeNoteId && <IconButton size="sm" variant="plain" onClick={() => setActiveNoteId(null)} sx={{ color: 'neutral.900' }}><Minimize fontSize="small" /></IconButton>}
-            {!isPopout && <IconButton size="sm" variant="plain" onClick={onPopout} sx={{ color: 'neutral.900' }}><OpenInNew fontSize="small" /></IconButton>}
-            <IconButton size="sm" variant="plain" onClick={onClose} sx={{ color: 'neutral.900' }}><Close fontSize="small" /></IconButton>
-         </Box>
+      <Box
+        onMouseDown={onMouseDown}
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          p: 1,
+          borderBottom: '1px solid rgba(0,0,0,0.1)',
+          bgcolor: 'rgba(0,0,0,0.05)',
+          cursor: isDocked ? 'default' : 'move',
+        }}
+      >
+        {!isDocked && !isPopout && (
+          <DragIndicator fontSize="small" sx={{ mr: 1, color: 'neutral.900', opacity: 0.5 }} />
+        )}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexGrow: 1 }}>
+          <IconButton size="sm" variant="plain" onClick={handleAdd} sx={{ color: 'neutral.900' }}>
+            <Add />
+          </IconButton>
+          <Typography level="title-sm" sx={{ color: 'neutral.900' }}>
+            {activeNoteId ? 'Editing Note' : 'Sticky Notes'}
+          </Typography>
+        </Box>
+        <Box>
+          {activeNoteId && (
+            <IconButton
+              size="sm"
+              variant="plain"
+              onClick={() => setActiveNoteId(null)}
+              sx={{ color: 'neutral.900' }}
+            >
+              <Minimize fontSize="small" />
+            </IconButton>
+          )}
+          {!isPopout && (
+            <IconButton size="sm" variant="plain" onClick={onPopout} sx={{ color: 'neutral.900' }}>
+              <OpenInNew fontSize="small" />
+            </IconButton>
+          )}
+          <IconButton size="sm" variant="plain" onClick={onClose} sx={{ color: 'neutral.900' }}>
+            <Close fontSize="small" />
+          </IconButton>
+        </Box>
       </Box>
 
       <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
-          {activeNoteId ? (
-              <Input
-                autoFocus multiline variant="plain" fullWidth
-                value={notes.find(n => n.id === activeNoteId)?.text || ''}
-                onChange={(e) => setNotes(notes.map(n => n.id === activeNoteId ? { ...n, text: e.target.value } : n))}
-                sx={{ bgcolor: 'transparent', fontFamily: 'Caveat, cursive', fontSize: 'xl', p: 2, '& textarea': { color: 'neutral.900' } }}
-              />
-          ) : (
-              <List sx={{ p: 0 }}>
-                  {notes.map(n => (
-                      <ListItem key={n.id} sx={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }} endAction={<IconButton size="sm" color="danger" onClick={() => setNotes(notes.filter(x => x.id !== n.id))}><Delete /></IconButton>}>
-                          <ListItemButton onClick={() => setActiveNoteId(n.id)}>
-                              <Checkbox checked={n.done} onChange={() => setNotes(notes.map(x => x.id === n.id ? { ...x, done: !x.done } : x))} sx={{ mr: 1 }} />
-                              <ListItemContent sx={{ textDecoration: n.done ? 'line-through' : 'none', opacity: n.done ? 0.5 : 1, color: 'neutral.900', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.text || 'New Note...'}</ListItemContent>
-                          </ListItemButton>
-                      </ListItem>
-                  ))}
-              </List>
-          )}
+        {activeNoteId ? (
+          <Input
+            autoFocus
+            multiline
+            variant="plain"
+            fullWidth
+            value={notes.find((n) => n.id === activeNoteId)?.text || ''}
+            onChange={(e) =>
+              setNotes(
+                notes.map((n) => (n.id === activeNoteId ? { ...n, text: e.target.value } : n))
+              )
+            }
+            sx={{
+              bgcolor: 'transparent',
+              fontFamily: 'Caveat, cursive',
+              fontSize: 'xl',
+              p: 2,
+              '& textarea': { color: 'neutral.900' },
+            }}
+          />
+        ) : (
+          <List sx={{ p: 0 }}>
+            {notes.map((n) => (
+              <ListItem
+                key={n.id}
+                sx={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}
+                endAction={
+                  <IconButton
+                    size="sm"
+                    color="danger"
+                    onClick={() => setNotes(notes.filter((x) => x.id !== n.id))}
+                  >
+                    <Delete />
+                  </IconButton>
+                }
+              >
+                <ListItemButton onClick={() => setActiveNoteId(n.id)}>
+                  <Checkbox
+                    checked={n.done}
+                    onChange={() =>
+                      setNotes(notes.map((x) => (x.id === n.id ? { ...x, done: !x.done } : x)))
+                    }
+                    sx={{ mr: 1 }}
+                  />
+                  <ListItemContent
+                    sx={{
+                      textDecoration: n.done ? 'line-through' : 'none',
+                      opacity: n.done ? 0.5 : 1,
+                      color: 'neutral.900',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {n.text || 'New Note...'}
+                  </ListItemContent>
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        )}
       </Box>
     </Sheet>
   );

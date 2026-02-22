@@ -1,5 +1,5 @@
 const GLOBAL_SCHEMA = [
-    `CREATE TABLE IF NOT EXISTS users (
+  `CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         email TEXT UNIQUE,
         username TEXT UNIQUE,
@@ -21,7 +21,7 @@ const GLOBAL_SCHEMA = [
         mfa_secret TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
-    `CREATE TABLE IF NOT EXISTS user_sessions (
+  `CREATE TABLE IF NOT EXISTS user_sessions (
         id TEXT PRIMARY KEY,
         user_id INTEGER,
         device_info TEXT,
@@ -33,7 +33,7 @@ const GLOBAL_SCHEMA = [
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
     )`,
-    `CREATE TABLE IF NOT EXISTS passkeys (
+  `CREATE TABLE IF NOT EXISTS passkeys (
         id TEXT PRIMARY KEY, -- Credential ID (base64url)
         user_id INTEGER,
         webauthn_user_id TEXT, -- User handle (base64url)
@@ -46,14 +46,14 @@ const GLOBAL_SCHEMA = [
         last_used_at DATETIME,
         FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
     )`,
-    `CREATE TABLE IF NOT EXISTS user_challenges (
+  `CREATE TABLE IF NOT EXISTS user_challenges (
         challenge TEXT PRIMARY KEY,
         user_id INTEGER,
         email TEXT,
         expires_at DATETIME,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
-    `CREATE TABLE IF NOT EXISTS test_results (
+  `CREATE TABLE IF NOT EXISTS test_results (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         test_type TEXT, -- 'backend', 'frontend'
         suite_name TEXT,
@@ -65,13 +65,13 @@ const GLOBAL_SCHEMA = [
         version TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
-    `CREATE TABLE IF NOT EXISTS version_history (
+  `CREATE TABLE IF NOT EXISTS version_history (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         version TEXT,
         comment TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
-    `CREATE TABLE IF NOT EXISTS households (
+  `CREATE TABLE IF NOT EXISTS households (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
         address_street TEXT,
@@ -90,18 +90,18 @@ const GLOBAL_SCHEMA = [
         nightly_version_filter TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
-    `CREATE TABLE IF NOT EXISTS user_households (
+  `CREATE TABLE IF NOT EXISTS user_households (
         user_id INTEGER,
         household_id INTEGER,
         role TEXT DEFAULT 'member',
         is_active INTEGER DEFAULT 1,
         joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (user_id, household_id)
-    )`
+    )`,
 ];
 
 const TENANT_SCHEMA = [
-    `CREATE TABLE IF NOT EXISTS members (
+  `CREATE TABLE IF NOT EXISTS members (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         name TEXT,
@@ -120,7 +120,7 @@ const TENANT_SCHEMA = [
         notes TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
-    `CREATE TABLE IF NOT EXISTS vehicles (
+  `CREATE TABLE IF NOT EXISTS vehicles (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         make TEXT,
@@ -138,7 +138,7 @@ const TENANT_SCHEMA = [
         tax_due DATE,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
-    `CREATE TABLE IF NOT EXISTS vehicle_services (
+  `CREATE TABLE IF NOT EXISTS vehicle_services (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         vehicle_id INTEGER,
@@ -149,7 +149,7 @@ const TENANT_SCHEMA = [
         notes TEXT,
         FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
     )`,
-    `CREATE TABLE IF NOT EXISTS assets (
+  `CREATE TABLE IF NOT EXISTS assets (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         name TEXT,
@@ -164,7 +164,7 @@ const TENANT_SCHEMA = [
         notes TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
-    `CREATE TABLE IF NOT EXISTS recurring_costs (
+  `CREATE TABLE IF NOT EXISTS recurring_costs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         object_type TEXT, -- 'household', 'member', 'vehicle', 'asset', 'pet'
@@ -184,7 +184,7 @@ const TENANT_SCHEMA = [
         is_active INTEGER DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
-    `CREATE TABLE IF NOT EXISTS dates (
+  `CREATE TABLE IF NOT EXISTS dates (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         title TEXT,
@@ -201,7 +201,7 @@ const TENANT_SCHEMA = [
         recurrence TEXT DEFAULT 'none',
         recurrence_end_date DATE
     )`,
-    `CREATE TABLE IF NOT EXISTS meals (
+  `CREATE TABLE IF NOT EXISTS meals (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         name TEXT,
@@ -210,7 +210,7 @@ const TENANT_SCHEMA = [
         category TEXT,
         last_prepared DATE
     )`,
-    `CREATE TABLE IF NOT EXISTS meal_plans (
+  `CREATE TABLE IF NOT EXISTS meal_plans (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         date DATE,
@@ -220,7 +220,7 @@ const TENANT_SCHEMA = [
         servings INTEGER DEFAULT 1,
         notes TEXT
     )`,
-    `CREATE TABLE IF NOT EXISTS house_details (
+  `CREATE TABLE IF NOT EXISTS house_details (
         household_id INTEGER PRIMARY KEY,
         property_type TEXT,
         construction_year INTEGER,
@@ -237,7 +237,7 @@ const TENANT_SCHEMA = [
         purchase_price REAL DEFAULT 0,
         current_valuation REAL DEFAULT 0
     )`,
-    `CREATE TABLE IF NOT EXISTS finance_profiles (
+  `CREATE TABLE IF NOT EXISTS finance_profiles (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         name TEXT,
@@ -245,7 +245,7 @@ const TENANT_SCHEMA = [
         emoji TEXT DEFAULT '💰',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
-    `CREATE TABLE IF NOT EXISTS finance_income (
+  `CREATE TABLE IF NOT EXISTS finance_income (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         member_id INTEGER, 
@@ -267,7 +267,7 @@ const TENANT_SCHEMA = [
         FOREIGN KEY(member_id) REFERENCES members(id) ON DELETE SET NULL,
         FOREIGN KEY(bank_account_id) REFERENCES finance_current_accounts(id) ON DELETE SET NULL
     )`,
-    `CREATE TABLE IF NOT EXISTS finance_savings (
+  `CREATE TABLE IF NOT EXISTS finance_savings (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         institution TEXT,
@@ -280,7 +280,7 @@ const TENANT_SCHEMA = [
         deposit_amount REAL DEFAULT 0,
         deposit_day INTEGER
     )`,
-    `CREATE TABLE IF NOT EXISTS finance_savings_pots (
+  `CREATE TABLE IF NOT EXISTS finance_savings_pots (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         savings_id INTEGER,
         name TEXT,
@@ -290,7 +290,7 @@ const TENANT_SCHEMA = [
         notes TEXT,
         FOREIGN KEY (savings_id) REFERENCES finance_savings(id) ON DELETE CASCADE
     )`,
-    `CREATE TABLE IF NOT EXISTS finance_current_accounts (
+  `CREATE TABLE IF NOT EXISTS finance_current_accounts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         bank_name TEXT,
@@ -302,7 +302,7 @@ const TENANT_SCHEMA = [
         emoji TEXT,
         notes TEXT
     )`,
-    `CREATE TABLE IF NOT EXISTS finance_credit_cards (
+  `CREATE TABLE IF NOT EXISTS finance_credit_cards (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         provider TEXT,
@@ -318,7 +318,7 @@ const TENANT_SCHEMA = [
         parent_type TEXT DEFAULT 'general',
         parent_id INTEGER
     )`,
-    `CREATE TABLE IF NOT EXISTS finance_pensions (
+  `CREATE TABLE IF NOT EXISTS finance_pensions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         provider TEXT,
@@ -332,14 +332,14 @@ const TENANT_SCHEMA = [
         payment_day INTEGER,
         nearest_working_day INTEGER DEFAULT 1
     )`,
-    `CREATE TABLE IF NOT EXISTS finance_pensions_history (
+  `CREATE TABLE IF NOT EXISTS finance_pensions_history (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         pension_id INTEGER,
         value REAL,
         recorded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (pension_id) REFERENCES finance_pensions(id) ON DELETE CASCADE
     )`,
-    `CREATE TABLE IF NOT EXISTS finance_investments (
+  `CREATE TABLE IF NOT EXISTS finance_investments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         name TEXT,
@@ -354,14 +354,14 @@ const TENANT_SCHEMA = [
         monthly_contribution REAL DEFAULT 0,
         payment_day INTEGER
     )`,
-    `CREATE TABLE IF NOT EXISTS finance_budget_categories (
+  `CREATE TABLE IF NOT EXISTS finance_budget_categories (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         name TEXT,
         monthly_limit REAL,
         emoji TEXT
     )`,
-    `CREATE TABLE IF NOT EXISTS finance_budget_progress (
+  `CREATE TABLE IF NOT EXISTS finance_budget_progress (
         household_id INTEGER,
         financial_profile_id INTEGER,
         cycle_start DATE, 
@@ -371,7 +371,7 @@ const TENANT_SCHEMA = [
         actual_date DATE,
         PRIMARY KEY (household_id, financial_profile_id, cycle_start, item_key)
     )`,
-    `CREATE TABLE IF NOT EXISTS finance_budget_cycles (
+  `CREATE TABLE IF NOT EXISTS finance_budget_cycles (
         household_id INTEGER,
         financial_profile_id INTEGER,
         cycle_start DATE, 
@@ -381,14 +381,14 @@ const TENANT_SCHEMA = [
         PRIMARY KEY (household_id, financial_profile_id, cycle_start),
         FOREIGN KEY(bank_account_id) REFERENCES finance_current_accounts(id) ON DELETE SET NULL
     )`,
-    `CREATE TABLE IF NOT EXISTS finance_assignments (
+  `CREATE TABLE IF NOT EXISTS finance_assignments (
         household_id INTEGER,
         entity_type TEXT, 
         entity_id INTEGER,
         member_id INTEGER,
         PRIMARY KEY (entity_type, entity_id, member_id)
     )`,
-    `CREATE TABLE IF NOT EXISTS shopping_items (
+  `CREATE TABLE IF NOT EXISTS shopping_items (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         name TEXT NOT NULL,
@@ -400,7 +400,7 @@ const TENANT_SCHEMA = [
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
-    `CREATE TABLE IF NOT EXISTS chores (
+  `CREATE TABLE IF NOT EXISTS chores (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         name TEXT,
@@ -413,7 +413,7 @@ const TENANT_SCHEMA = [
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(assigned_member_id) REFERENCES members(id) ON DELETE SET NULL
     )`,
-    `CREATE TABLE IF NOT EXISTS chore_completions (
+  `CREATE TABLE IF NOT EXISTS chore_completions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         chore_id INTEGER,
@@ -423,7 +423,7 @@ const TENANT_SCHEMA = [
         FOREIGN KEY(chore_id) REFERENCES chores(id) ON DELETE SET NULL,
         FOREIGN KEY(member_id) REFERENCES members(id) ON DELETE SET NULL
     )`,
-    `CREATE TABLE IF NOT EXISTS shopping_schedules (
+  `CREATE TABLE IF NOT EXISTS shopping_schedules (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
         name TEXT,
@@ -436,7 +436,7 @@ const TENANT_SCHEMA = [
         is_active INTEGER DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
-    `CREATE TABLE IF NOT EXISTS shopping_cycle_progress (
+  `CREATE TABLE IF NOT EXISTS shopping_cycle_progress (
         household_id INTEGER,
         schedule_id INTEGER,
         cycle_date DATE,
@@ -445,127 +445,151 @@ const TENANT_SCHEMA = [
         completed_at DATETIME,
         PRIMARY KEY (household_id, schedule_id, cycle_date),
         FOREIGN KEY(schedule_id) REFERENCES shopping_schedules(id) ON DELETE CASCADE
-    )`
+    )`,
 ];
 
 function initializeGlobalSchema(db) {
-    db.serialize(() => {
-        GLOBAL_SCHEMA.forEach(sql => {
-            db.run(sql, (err) => {
-                if (err && !err.message.includes('already exists')) {
-                    console.error("Global Schema Init Error:", err.message);
-                }
-            });
-        });
-
-        // 🛠️ MIGRATION: Column additions for users
-        const userCols = [
-            ['budget_settings', 'TEXT'],
-            ['custom_theme', 'TEXT'],
-            ['last_household_id', 'INTEGER'],
-            ['mode', "TEXT DEFAULT 'system'"],
-            ['mfa_enabled', 'INTEGER DEFAULT 0'],
-            ['mfa_secret', 'TEXT'],
-            ['current_challenge', 'TEXT']
-        ];
-        userCols.forEach(([col, type]) => {
-            db.run(`ALTER TABLE users ADD COLUMN ${col} ${type}`, (err) => {
-                if (err && !err.message.includes('duplicate column name')) {
-                    // Ignore duplicate column errors
-                }
-            });
-        });
-
-        db.run(`ALTER TABLE user_sessions ADD COLUMN created_at DATETIME`, (err) => {
-            if (err && !err.message.includes('duplicate column name')) {}
-        });
-
-        const hhCols = [
-            ['nightly_version_filter', 'TEXT'],
-            ['debug_mode', 'INTEGER DEFAULT 0'],
-            ['metadata_schema', 'TEXT']
-        ];
-        hhCols.forEach(([col, type]) => {
-            db.run(`ALTER TABLE households ADD COLUMN ${col} ${type}`, (err) => {
-                if (err && !err.message.includes('duplicate column name')) {}
-            });
-        });
-
-        db.run(`ALTER TABLE test_results ADD COLUMN version TEXT`, (err) => {
-            if (err && !err.message.includes('duplicate column name')) {}
-        });
+  db.serialize(() => {
+    GLOBAL_SCHEMA.forEach((sql) => {
+      db.run(sql, (err) => {
+        if (err && !err.message.includes('already exists')) {
+          console.error('Global Schema Init Error:', err.message);
+        }
+      });
     });
+
+    // 🛠️ MIGRATION: Column additions for users
+    const userCols = [
+      ['budget_settings', 'TEXT'],
+      ['custom_theme', 'TEXT'],
+      ['last_household_id', 'INTEGER'],
+      ['mode', "TEXT DEFAULT 'system'"],
+      ['mfa_enabled', 'INTEGER DEFAULT 0'],
+      ['mfa_secret', 'TEXT'],
+      ['current_challenge', 'TEXT'],
+    ];
+    userCols.forEach(([col, type]) => {
+      db.run(`ALTER TABLE users ADD COLUMN ${col} ${type}`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+          // Ignore duplicate column errors
+        }
+      });
+    });
+
+    db.run(`ALTER TABLE user_sessions ADD COLUMN created_at DATETIME`, (err) => {
+      if (err && !err.message.includes('duplicate column name')) {
+      }
+    });
+
+    const hhCols = [
+      ['nightly_version_filter', 'TEXT'],
+      ['debug_mode', 'INTEGER DEFAULT 0'],
+      ['metadata_schema', 'TEXT'],
+    ];
+    hhCols.forEach(([col, type]) => {
+      db.run(`ALTER TABLE households ADD COLUMN ${col} ${type}`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+        }
+      });
+    });
+
+    db.run(`ALTER TABLE test_results ADD COLUMN version TEXT`, (err) => {
+      if (err && !err.message.includes('duplicate column name')) {
+      }
+    });
+  });
 }
 
 function initializeHouseholdSchema(db) {
-    return new Promise((resolve, reject) => {
-        db.serialize(() => {
-            // 1. Create Base Tables
-            TENANT_SCHEMA.forEach((sql) => {
-                db.run(sql, (err) => {
-                    if (err && !err.message.includes('already exists')) {
-                        console.error("Household Schema Init Error:", err.message);
-                    }
-                });
-            });
-
-            // 2. Run Migrations (Column Additions)
-            const migrations = [
-                ['finance_budget_progress', 'actual_amount', 'REAL'],
-                ['finance_budget_progress', 'actual_date', 'DATE'],
-                ['finance_pensions', 'payment_day', 'INTEGER'],
-                ['finance_income', 'nearest_working_day', 'INTEGER DEFAULT 1'],
-                ['finance_credit_cards', 'nearest_working_day', 'INTEGER DEFAULT 1'],
-                ['finance_pensions', 'nearest_working_day', 'INTEGER DEFAULT 1'],
-                ['house_details', 'purchase_price', 'REAL DEFAULT 0'],
-                ['house_details', 'current_valuation', 'REAL DEFAULT 0'],
-                ['finance_savings', 'deposit_amount', 'REAL DEFAULT 0'],
-                ['finance_savings', 'deposit_day', 'INTEGER'],
-                ['finance_investments', 'monthly_contribution', 'REAL DEFAULT 0'],
-                ['finance_investments', 'payment_day', 'INTEGER'],
-                ['finance_budget_cycles', 'bank_account_id', 'INTEGER'],
-                ['vehicles', 'current_value', 'REAL DEFAULT 0'],
-                ['recurring_costs', 'bank_account_id', 'INTEGER'],
-                ['finance_income', 'financial_profile_id', 'INTEGER'],
-                ['finance_current_accounts', 'financial_profile_id', 'INTEGER'],
-                ['finance_savings', 'financial_profile_id', 'INTEGER'],
-                ['finance_credit_cards', 'financial_profile_id', 'INTEGER'],
-                ['finance_pensions', 'financial_profile_id', 'INTEGER'],
-                ['finance_investments', 'financial_profile_id', 'INTEGER'],
-                ['recurring_costs', 'financial_profile_id', 'INTEGER']
-            ];
-
-            migrations.forEach(([table, col, type]) => {
-                db.run(`ALTER TABLE ${table} ADD COLUMN ${col} ${type}`, (err) => {
-                    if (err && !err.message.includes('duplicate column name')) {
-                        // Ignore
-                    }
-                });
-            });
-
-            // 3. Ensure Default Profile and Backfill
-            db.get("SELECT id FROM finance_profiles WHERE is_default = 1", (err, row) => {
-                if (!err && !row) {
-                    db.run("INSERT INTO finance_profiles (household_id, name, is_default, emoji) VALUES (1, 'Joint Finances', 1, '💰')", function(err) {
-                        if (!err && this.lastID) {
-                            const defId = this.lastID;
-                            const tables = ['finance_income', 'finance_current_accounts', 'finance_savings', 'finance_credit_cards', 'finance_pensions', 'finance_investments', 'recurring_costs'];
-                            tables.forEach(t => db.run(`UPDATE ${t} SET financial_profile_id = ? WHERE financial_profile_id IS NULL`, [defId]));
-                        }
-                    });
-                }
-            });
-
-            // 4. Multi-Profile Budget Tables Check
-            db.all("PRAGMA table_info(finance_budget_cycles)", (err, info) => {
-                if (!err && info && !info.some(c => c.name === 'financial_profile_id')) {
-                    // Logic to recreate budget tables for multi-profile PK
-                }
-            });
-
-            resolve();
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      // 1. Create Base Tables
+      TENANT_SCHEMA.forEach((sql) => {
+        db.run(sql, (err) => {
+          if (err && !err.message.includes('already exists')) {
+            console.error('Household Schema Init Error:', err.message);
+          }
         });
+      });
+
+      // 2. Run Migrations (Column Additions)
+      const migrations = [
+        ['finance_budget_progress', 'actual_amount', 'REAL'],
+        ['finance_budget_progress', 'actual_date', 'DATE'],
+        ['finance_pensions', 'payment_day', 'INTEGER'],
+        ['finance_income', 'nearest_working_day', 'INTEGER DEFAULT 1'],
+        ['finance_credit_cards', 'nearest_working_day', 'INTEGER DEFAULT 1'],
+        ['finance_pensions', 'nearest_working_day', 'INTEGER DEFAULT 1'],
+        ['house_details', 'purchase_price', 'REAL DEFAULT 0'],
+        ['house_details', 'current_valuation', 'REAL DEFAULT 0'],
+        ['finance_savings', 'deposit_amount', 'REAL DEFAULT 0'],
+        ['finance_savings', 'deposit_day', 'INTEGER'],
+        ['finance_investments', 'monthly_contribution', 'REAL DEFAULT 0'],
+        ['finance_investments', 'payment_day', 'INTEGER'],
+        ['finance_budget_cycles', 'bank_account_id', 'INTEGER'],
+        ['vehicles', 'current_value', 'REAL DEFAULT 0'],
+        ['recurring_costs', 'bank_account_id', 'INTEGER'],
+        ['finance_income', 'financial_profile_id', 'INTEGER'],
+        ['finance_current_accounts', 'financial_profile_id', 'INTEGER'],
+        ['finance_savings', 'financial_profile_id', 'INTEGER'],
+        ['finance_credit_cards', 'financial_profile_id', 'INTEGER'],
+        ['finance_pensions', 'financial_profile_id', 'INTEGER'],
+        ['finance_investments', 'financial_profile_id', 'INTEGER'],
+        ['recurring_costs', 'financial_profile_id', 'INTEGER'],
+      ];
+
+      migrations.forEach(([table, col, type]) => {
+        db.run(`ALTER TABLE ${table} ADD COLUMN ${col} ${type}`, (err) => {
+          if (err && !err.message.includes('duplicate column name')) {
+            // Ignore
+          }
+        });
+      });
+
+      // 3. Ensure Default Profile and Backfill
+      db.get('SELECT id FROM finance_profiles WHERE is_default = 1', (err, row) => {
+        if (!err && !row) {
+          db.run(
+            "INSERT INTO finance_profiles (household_id, name, is_default, emoji) VALUES (1, 'Joint Finances', 1, '💰')",
+            function (err) {
+              if (!err && this.lastID) {
+                const defId = this.lastID;
+                const tables = [
+                  'finance_income',
+                  'finance_current_accounts',
+                  'finance_savings',
+                  'finance_credit_cards',
+                  'finance_pensions',
+                  'finance_investments',
+                  'recurring_costs',
+                ];
+                tables.forEach((t) =>
+                  db.run(
+                    `UPDATE ${t} SET financial_profile_id = ? WHERE financial_profile_id IS NULL`,
+                    [defId]
+                  )
+                );
+              }
+            }
+          );
+        }
+      });
+
+      // 4. Multi-Profile Budget Tables Check
+      db.all('PRAGMA table_info(finance_budget_cycles)', (err, info) => {
+        if (!err && info && !info.some((c) => c.name === 'financial_profile_id')) {
+          // Logic to recreate budget tables for multi-profile PK
+        }
+      });
+
+      resolve();
     });
+  });
 }
 
-module.exports = { GLOBAL_SCHEMA, TENANT_SCHEMA, initializeGlobalSchema, initializeHouseholdSchema };
+module.exports = {
+  GLOBAL_SCHEMA,
+  TENANT_SCHEMA,
+  initializeGlobalSchema,
+  initializeHouseholdSchema,
+};

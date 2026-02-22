@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from 'react';
 
-export default function WidthProvider(WrappedComponent) { // eslint-disable-line no-unused-vars
+export default function WidthProvider(WrappedComponent) {
   return function WidthProviderWrapper(props) {
     const [width, setWidth] = useState(1200);
     const elementRef = useRef(null);
@@ -10,15 +10,15 @@ export default function WidthProvider(WrappedComponent) { // eslint-disable-line
       mounted.current = true;
       const node = elementRef.current;
       if (!node) return;
-      
+
       const observer = new ResizeObserver((entries) => {
         if (!mounted.current) return;
         for (let entry of entries) {
-           setWidth(entry.contentRect.width);
+          setWidth(entry.contentRect.width);
         }
       });
       observer.observe(node);
-      
+
       return () => {
         mounted.current = false;
         observer.disconnect();

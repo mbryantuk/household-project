@@ -42,6 +42,10 @@ docker compose up -d --build
 echo "⏳ Waiting 30s for container stabilization..."
 sleep 30
 
+# 2.2. Database Migrations
+echo "🗄️ Running Database Migrations..."
+docker exec hearth-app npm run db:push || echo "⚠️ Migration failed, check logs."
+
 # 2.6. Seed Brady Household
 echo "🌱 Seeding Brady Household..."
 export BYPASS_MAINTENANCE=true

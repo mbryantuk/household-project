@@ -1,26 +1,30 @@
 # Stage 1: Build Shared and Frontend
 FROM node:20-slim AS builder
 WORKDIR /app
+ENV HUSKY=0
 
 # Copy root package and workspace configs
 COPY package*.json ./
 COPY tsconfig.json ./
+COPY packages/shared/package*.json ./packages/shared/
+COPY server/package*.json ./server/
+COPY web/package*.json ./web/
+
+# Install ALL dependencies (including dev) for building
+RUN npm install --legacy-peer-deps
 
 # 1. Build @hearth/shared
-COPY packages/shared/package*.json ./packages/shared/
-RUN npm ci -w @hearth/shared --legacy-peer-deps
 COPY packages/shared/ ./packages/shared/
 RUN npm run build -w @hearth/shared
 
 # 2. Build Frontend (web)
-COPY web/package*.json ./web/
-RUN npm ci -w household-web --legacy-peer-deps
 COPY web/ ./web/
 RUN npm run build -w household-web
 
 # Stage 2: Production Runtime
 FROM node:20-slim
 WORKDIR /app
+ENV HUSKY=0
 
 # Install native build deps
 RUN apt-get update && apt-get install -y \
@@ -36,7 +40,7 @@ COPY package*.json ./
 COPY packages/shared/package*.json ./packages/shared/
 COPY server/package*.json ./server/
 COPY web/package*.json ./web/
-RUN npm ci --omit=dev --legacy-peer-deps
+RUN npm install --omit=dev --legacy-peer-deps
 
 # 2. Copy built shared library
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist

@@ -1,6 +1,20 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Box, IconButton, Drawer, Typography, Sheet, Stack, Badge, Avatar, Tooltip, Menu, MenuItem, ListItemDecorator, Divider } from '@mui/joy';
+import {
+  Box,
+  IconButton,
+  Drawer,
+  Typography,
+  Sheet,
+  Stack,
+  Badge,
+  Avatar,
+  Tooltip,
+  Menu,
+  MenuItem,
+  ListItemDecorator,
+  Divider,
+} from '@mui/joy';
 import HomeIcon from '@mui/icons-material/Home';
 import EventIcon from '@mui/icons-material/Event';
 import MoreIcon from '@mui/icons-material/MoreHoriz';
@@ -42,21 +56,21 @@ const ROUTE_META = {
   shopping: { title: 'Groceries' },
   meals: { title: 'Meal Planner' },
   settings: { title: 'Settings' },
-  profile: { title: 'Profile' }
+  profile: { title: 'Profile' },
 };
 
 const MenuTile = ({ icon, label, to, onClick, sx = {} }) => {
   const navigate = useNavigate();
   return (
-    <Box 
+    <Box
       onClick={() => {
         if (to) navigate(to);
         if (onClick) onClick();
       }}
-      sx={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
-        alignItems: 'center', 
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
         justifyContent: 'center',
         p: 1.5,
         borderRadius: 'xl',
@@ -66,28 +80,40 @@ const MenuTile = ({ icon, label, to, onClick, sx = {} }) => {
         transition: 'all 0.2s',
         '&:hover': {
           bgcolor: 'primary.softBg',
-          transform: 'translateY(-2px)'
+          transform: 'translateY(-2px)',
         },
         '&:active': {
-          transform: 'scale(0.95)'
+          transform: 'scale(0.95)',
         },
-        ...sx
+        ...sx,
       }}
     >
-      <Box sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        width: 44, 
-        height: 44, 
-        borderRadius: '12px',
-        bgcolor: 'background.surface',
-        boxShadow: 'sm',
-        color: 'primary.plainColor'
-      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 44,
+          height: 44,
+          borderRadius: '12px',
+          bgcolor: 'background.surface',
+          boxShadow: 'sm',
+          color: 'primary.plainColor',
+        }}
+      >
         {icon}
       </Box>
-      <Typography level="body-xs" sx={{ fontWeight: 'md', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+      <Typography
+        level="body-xs"
+        sx={{
+          fontWeight: 'md',
+          textAlign: 'center',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          width: '100%',
+        }}
+      >
         {label}
       </Typography>
     </Box>
@@ -107,7 +133,7 @@ export default function HouseholdLayout({
   isDark,
   showNotification,
   confirmAction,
-  
+
   dates = [],
   onDateAdded,
   onUpdateProfile,
@@ -119,7 +145,7 @@ export default function HouseholdLayout({
   onPreviewTheme,
   installPrompt,
   onInstall,
-  household
+  household,
 }) {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -130,64 +156,66 @@ export default function HouseholdLayout({
 
   // New: Global Status Bar State
   const [statusBarData, setStatusBarData] = useState(null);
-  
+
   // Polling for Notifications
   const [notifications, setNotifications] = useState({ urgent: [], upcoming: [], info: [] });
-  
+
   useEffect(() => {
-      if (!api || !household?.id) return;
+    if (!api || !household?.id) return;
 
-      const fetchNotifications = async () => {
-          try {
-              const res = await api.get(`/households/${household.id}/notifications`);
-              setNotifications(res.data);
-              
-              // Local Notification Trigger
-              const urgentCount = res.data?.urgent?.length || 0;
-              if (urgentCount > 0 && Notification.permission === 'granted') {
-                  const lastNotified = localStorage.getItem('last_notification_time');
-                  const now = Date.now();
-                  // Notify if not notified in last 6 hours
-                  if (!lastNotified || (now - parseInt(lastNotified) > 6 * 60 * 60 * 1000)) {
-                      new Notification(`${household.name}: Urgent Attention`, {
-                          body: `You have ${urgentCount} urgent items (Bills, Chores, etc).`,
-                          icon: '/icon.png' // Assuming icon exists, or fallback
-                      });
-                      localStorage.setItem('last_notification_time', now.toString());
-                  }
-              }
-          } catch (err) {
-              console.error("Failed to poll notifications", err);
+    const fetchNotifications = async () => {
+      try {
+        const res = await api.get(`/households/${household.id}/notifications`);
+        setNotifications(res.data);
+
+        // Local Notification Trigger
+        const urgentCount = res.data?.urgent?.length || 0;
+        if (urgentCount > 0 && Notification.permission === 'granted') {
+          const lastNotified = localStorage.getItem('last_notification_time');
+          const now = Date.now();
+          // Notify if not notified in last 6 hours
+          if (!lastNotified || now - parseInt(lastNotified) > 6 * 60 * 60 * 1000) {
+            new Notification(`${household.name}: Urgent Attention`, {
+              body: `You have ${urgentCount} urgent items (Bills, Chores, etc).`,
+              icon: '/icon.png', // Assuming icon exists, or fallback
+            });
+            localStorage.setItem('last_notification_time', now.toString());
           }
-      };
-
-      // Initial Fetch
-      fetchNotifications();
-      
-      // Request Permission
-      if (Notification.permission === 'default') {
-          Notification.requestPermission();
+        }
+      } catch (err) {
+        console.error('Failed to poll notifications', err);
       }
+    };
 
-      // Poll every 5 minutes
-      const interval = setInterval(fetchNotifications, 5 * 60 * 1000);
-      return () => clearInterval(interval);
+    // Initial Fetch
+    fetchNotifications();
+
+    // Request Permission
+    if (Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
+    // Poll every 5 minutes
+    const interval = setInterval(fetchNotifications, 5 * 60 * 1000);
+    return () => clearInterval(interval);
   }, [api, household?.id, household?.name]);
 
-  const totalNotifications = (notifications.urgent?.length || 0) + (notifications.upcoming?.length || 0);
+  const totalNotifications =
+    (notifications.urgent?.length || 0) + (notifications.upcoming?.length || 0);
   const badgeCount = totalNotifications > 0 ? totalNotifications : null;
 
   useEffect(() => {
     const targetId = parseInt(id);
-    const targetHousehold = (households || []).find(h => h && h.id === targetId);
-    
+    const targetHousehold = (households || []).find((h) => h && h.id === targetId);
+
     // Fallback: If not in list (e.g. just created), check if it matches the globally active household
-    const effectiveHousehold = targetHousehold || (household && household.id === targetId ? household : null);
-    
+    const effectiveHousehold =
+      targetHousehold || (household && household.id === targetId ? household : null);
+
     if (effectiveHousehold) {
       // Guard: Only switch if the App's current household doesn't match the URL
       if (!household || household.id !== effectiveHousehold.id) {
-          onSelectHousehold(effectiveHousehold);
+        onSelectHousehold(effectiveHousehold);
       }
     } else if (households && households.length > 0) {
       // Only redirect if we have loaded households and the target isn't found/valid
@@ -205,467 +233,462 @@ export default function HouseholdLayout({
   }, [location.pathname, household]);
 
   const contextValue = {
-      household: household,
-      members,
-      vehicles,
-      api,
-      user,
-      isDark,
-      showNotification,
-      confirmAction,
-      onUpdateProfile,
-      onUpdateHousehold,
-      fetchHhMembers,
-      fetchVehicles,
-      themeId,
-      onThemeChange,
-      mode,
-      onModeChange,
-      onPreviewTheme,
-      households,
-      onSelectHousehold,
-      onLogout,
-      dates,
-      onDateAdded,
-      statusBarData,
-      setStatusBarData
+    household: household,
+    members,
+    vehicles,
+    api,
+    user,
+    isDark,
+    showNotification,
+    confirmAction,
+    onUpdateProfile,
+    onUpdateHousehold,
+    fetchHhMembers,
+    fetchVehicles,
+    themeId,
+    onThemeChange,
+    mode,
+    onModeChange,
+    onPreviewTheme,
+    households,
+    onSelectHousehold,
+    onLogout,
+    dates,
+    onDateAdded,
+    statusBarData,
+    setStatusBarData,
   };
 
-      return (
+  return (
+    <HouseholdProvider value={contextValue}>
+      <Box
+        sx={{
+          display: 'flex',
 
-      <HouseholdProvider value={contextValue}>
+          height: '100dvh',
 
-          <Box sx={{ 
+          flexDirection: { xs: 'column', md: 'row' },
 
-              display: 'flex', 
+          bgcolor: 'background.body',
 
-              height: '100dvh', 
+          background: isDark
+            ? 'linear-gradient(135deg, var(--joy-palette-background-body) 0%, var(--joy-palette-background-level1) 100%)'
+            : 'linear-gradient(135deg, var(--joy-palette-background-body) 0%, var(--joy-palette-background-level1) 100%)',
+        }}
+      >
+        <NavSidebar
+          installPrompt={installPrompt}
+          onInstall={onInstall}
+          onOpenNotifications={() => setNotificationOpen(true)}
+          notificationCount={badgeCount}
+        />
 
-              flexDirection: { xs: 'column', md: 'row' },
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            flexGrow: 1,
+            minWidth: 0,
+            height: '100%',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          <Sheet
+            sx={{
+              display: { xs: 'flex', md: 'none' },
 
-              bgcolor: 'background.body',
+              alignItems: 'center',
 
-              background: isDark 
+              justifyContent: 'space-between',
 
-                  ? 'linear-gradient(135deg, var(--joy-palette-background-body) 0%, var(--joy-palette-background-level1) 100%)' 
+              p: 1.5,
 
-                  : 'linear-gradient(135deg, var(--joy-palette-background-body) 0%, var(--joy-palette-background-level1) 100%)',
+              borderBottom: '1px solid',
 
-          }}>
+              borderColor: 'divider',
 
-          
+              bgcolor: 'background.surface',
 
-          <NavSidebar 
-            installPrompt={installPrompt} 
-            onInstall={onInstall} 
-            onOpenNotifications={() => setNotificationOpen(true)}
-            notificationCount={badgeCount}
-          />
+              zIndex: 100,
 
-  
+              boxShadow: 'sm',
+            }}
+          >
+            <IconButton variant="plain" onClick={() => navigate(-1)} size="sm">
+              <ChevronLeft />
+            </IconButton>
 
-          <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0, height: '100%', position: 'relative', overflow: 'hidden' }}>
-
-              
-
-              <Sheet
-
+            <Typography
+              level="title-md"
+              onClick={() => navigate('dashboard')}
               sx={{
+                fontWeight: 'bold',
+                letterSpacing: '1px',
+                textTransform: 'uppercase',
 
-                  display: { xs: 'flex', md: 'none' },
-
-                  alignItems: 'center',
-
-                  justifyContent: 'space-between',
-
-                  p: 1.5,
-
-                  borderBottom: '1px solid',
-
-                  borderColor: 'divider',
-
-                  bgcolor: 'background.surface',
-
-                  zIndex: 100,
-
-                  boxShadow: 'sm'
-
+                cursor: 'pointer',
               }}
+            >
+              {pageTitle}
+            </Typography>
 
+            <IconButton variant="plain" onClick={() => setNotificationOpen(true)} size="sm">
+              <Badge
+                color="danger"
+                size="sm"
+                invisible={false}
+                sx={{ '& .MuiBadge-badge': { right: 4, top: 4 } }}
               >
+                <Box component="span" sx={{ fontSize: '1.2rem' }}>
+                  🔔
+                </Box>
+              </Badge>
+            </IconButton>
+          </Sheet>
 
-              <IconButton variant="plain" onClick={() => navigate(-1)} size="sm">
+          <Box
+            component="main"
+            sx={{
+              flexGrow: 1,
 
-                  <ChevronLeft />
+              minHeight: 0,
 
-              </IconButton>
+              p: { xs: 2, md: 3 },
 
-  
+              pb: { xs: 10, md: 3 },
 
-                            <Typography 
+              overflowY: 'auto',
 
-  
+              WebkitOverflowScrolling: 'touch',
+            }}
+          >
+            <Outlet
+              context={{
+                api,
 
-                                level="title-md" 
+                id,
 
-  
+                onUpdateHousehold,
 
-                                onClick={() => navigate('dashboard')}
+                members,
 
-  
+                vehicles,
 
-                                sx={{ 
+                fetchHhMembers,
 
-  
+                fetchVehicles,
 
-                                    fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase',
+                user,
 
-  
+                isDark,
 
-                                    cursor: 'pointer' 
+                showNotification,
 
-  
+                confirmAction,
 
-                                }}
+                onUpdateProfile,
 
-  
+                setStatusBarData,
 
-                            >
-
-  
-
-                                {pageTitle}
-
-  
-
-                            </Typography>
-
-  
-
-                
-
-  
-
-                            <IconButton variant="plain" onClick={() => setNotificationOpen(true)} size="sm">
-
-  
-
-                                <Badge color="danger" size="sm" invisible={false} sx={{ '& .MuiBadge-badge': { right: 4, top: 4 } }}>
-
-  
-
-                                  <Box component="span" sx={{ fontSize: '1.2rem' }}>🔔</Box>
-
-  
-
-                                </Badge>
-
-  
-
-                            </IconButton>
-
-  
-
-                            </Sheet>
-
-  
-
-                            <Box component="main" sx={{ 
-
-  
-
-                                flexGrow: 1, 
-
-  
-
-                                minHeight: 0,
-
-  
-
-                                p: { xs: 2, md: 3 }, 
-
-  
-
-                                pb: { xs: 10, md: 3 }, 
-
-  
-
-                                overflowY: 'auto',
-
-  
-
-                                WebkitOverflowScrolling: 'touch' 
-
-  
-
-                            }}>
-
-  
-
-                                <Outlet context={{ 
-
-  
-
-                                    api, 
-
-  
-
-                                    id, 
-
-  
-
-                                    onUpdateHousehold,
-
-  
-
-                                    members, 
-
-  
-
-                                    vehicles,
-
-  
-
-                                    fetchHhMembers, 
-
-  
-
-                                    fetchVehicles,
-
-  
-
-                                    user, 
-
-  
-
-                                    isDark,
-
-  
-
-                                    showNotification,
-
-  
-
-                                    confirmAction,
-
-  
-
-                                    onUpdateProfile,
-
-  
-
-                                    setStatusBarData,
-
-  
-
-                                    household: household
-
-  
-
-                                }} />
-
-  
-
-                            </Box>
-
-  
-
-              
-
-  
-
-              <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-
-                  <UtilityBar />
-
-              </Box>
-
-  
-
-              <Sheet
-
-                  sx={{
-
-                      display: { xs: 'flex', md: 'none' },
-
-                      position: 'fixed',
-
-                      bottom: 0,
-
-                      left: 0,
-
-                      right: 0,
-
-                      height: 70,
-
-                      borderTop: '1px solid',
-
-                      borderColor: 'divider',
-
-                      bgcolor: 'background.surface',
-
-                      px: 1,
-
-                      justifyContent: 'space-around',
-
-                      alignItems: 'center',
-
-                      zIndex: 1000,
-
-                      boxShadow: '0 -2px 10px rgba(0,0,0,0.05)'
-
-                  }}
-
-              >
-
-                  <Stack 
-
-                      alignItems="center" spacing={0.5} onClick={() => navigate('dashboard')} 
-
-                      sx={{ flex: 1, cursor: 'pointer', transition: 'transform 0.2s', '&:active': { transform: 'scale(0.95)' } }}
-
-                  >
-
-                      <HomeIcon sx={{ color: isTabActive('dashboard') ? 'primary.plainColor' : 'neutral.plainColor' }} />
-
-                      <Typography level="body-xs" sx={{ color: isTabActive('dashboard') ? 'primary.plainColor' : 'neutral.plainColor', fontWeight: isTabActive('dashboard') ? 'bold' : 'normal' }}>Home</Typography>
-
-                  </Stack>
-
-                  
-
-                  <Stack 
-
-                      alignItems="center" spacing={0.5} onClick={() => { setActiveMenu('switch'); setDrawerOpen(true); }}
-
-                      sx={{ flex: 1, cursor: 'pointer', transition: 'transform 0.2s', '&:active': { transform: 'scale(0.95)' } }}
-
-                  >
-
-                      <SwapHoriz sx={{ color: 'neutral.plainColor' }} />
-
-                      <Typography level="body-xs" color="neutral">Switch</Typography>
-
-                  </Stack>
-
-  
-
-                  <Stack 
-
-                      alignItems="center" spacing={0.5} onClick={() => { setActiveMenu('main'); setDrawerOpen(true); }}
-
-                      sx={{ flex: 1, cursor: 'pointer', transition: 'transform 0.2s', '&:active': { transform: 'scale(0.95)' } }}
-
-                  >
-
-                      <MoreIcon sx={{ color: drawerOpen ? 'primary.plainColor' : 'neutral.plainColor' }} />
-
-                      <Typography level="body-xs" sx={{ color: drawerOpen ? 'primary.plainColor' : 'neutral.plainColor', fontWeight: drawerOpen ? 'bold' : 'normal' }}>Menu</Typography>
-
-                  </Stack>
-
-              </Sheet>
-
+                household: household,
+              }}
+            />
           </Box>
 
-  
+          <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+            <UtilityBar />
+          </Box>
 
-          <Drawer
+          <Sheet
+            sx={{
+              display: { xs: 'flex', md: 'none' },
 
-              anchor="bottom"
+              position: 'fixed',
 
-              open={drawerOpen}
+              bottom: 0,
 
-              onClose={() => setDrawerOpen(false)}
+              left: 0,
 
-              slotProps={{ content: { sx: { bgcolor: 'transparent', p: 0, height: 'auto', maxHeight: '80vh', borderTopLeftRadius: '24px', borderTopRightRadius: '24px', boxShadow: 'none' } } }}
+              right: 0,
 
-              sx={{ display: { md: 'none' } }}
+              height: 70,
 
+              borderTop: '1px solid',
+
+              borderColor: 'divider',
+
+              bgcolor: 'background.surface',
+
+              px: 1,
+
+              justifyContent: 'space-around',
+
+              alignItems: 'center',
+
+              zIndex: 1000,
+
+              boxShadow: '0 -2px 10px rgba(0,0,0,0.05)',
+            }}
           >
+            <Stack
+              alignItems="center"
+              spacing={0.5}
+              onClick={() => navigate('dashboard')}
+              sx={{
+                flex: 1,
+                cursor: 'pointer',
+                transition: 'transform 0.2s',
+                '&:active': { transform: 'scale(0.95)' },
+              }}
+            >
+              <HomeIcon
+                sx={{
+                  color: isTabActive('dashboard') ? 'primary.plainColor' : 'neutral.plainColor',
+                }}
+              />
 
-              <Sheet sx={{ bgcolor: 'background.surface', borderTopLeftRadius: '24px', borderTopRightRadius: '24px', p: 3, pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Typography
+                level="body-xs"
+                sx={{
+                  color: isTabActive('dashboard') ? 'primary.plainColor' : 'neutral.plainColor',
+                  fontWeight: isTabActive('dashboard') ? 'bold' : 'normal',
+                }}
+              >
+                Home
+              </Typography>
+            </Stack>
 
-                  <Box sx={{ width: 40, height: 4, borderRadius: 2, bgcolor: 'neutral.softBg', mx: 'auto', mb: 2 }} />
+            <Stack
+              alignItems="center"
+              spacing={0.5}
+              onClick={() => {
+                setActiveMenu('switch');
+                setDrawerOpen(true);
+              }}
+              sx={{
+                flex: 1,
+                cursor: 'pointer',
+                transition: 'transform 0.2s',
+                '&:active': { transform: 'scale(0.95)' },
+              }}
+            >
+              <SwapHoriz sx={{ color: 'neutral.plainColor' }} />
 
-                  <Typography level="title-lg" sx={{ mb: 1 }}>Navigation</Typography>
+              <Typography level="body-xs" color="neutral">
+                Switch
+              </Typography>
+            </Stack>
 
-                  <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
+            <Stack
+              alignItems="center"
+              spacing={0.5}
+              onClick={() => {
+                setActiveMenu('main');
+                setDrawerOpen(true);
+              }}
+              sx={{
+                flex: 1,
+                cursor: 'pointer',
+                transition: 'transform 0.2s',
+                '&:active': { transform: 'scale(0.95)' },
+              }}
+            >
+              <MoreIcon sx={{ color: drawerOpen ? 'primary.plainColor' : 'neutral.plainColor' }} />
 
-                      {activeMenu === 'main' ? (
+              <Typography
+                level="body-xs"
+                sx={{
+                  color: drawerOpen ? 'primary.plainColor' : 'neutral.plainColor',
+                  fontWeight: drawerOpen ? 'bold' : 'normal',
+                }}
+              >
+                Menu
+              </Typography>
+            </Stack>
+          </Sheet>
+        </Box>
 
-                          <>
+        <Drawer
+          anchor="bottom"
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          slotProps={{
+            content: {
+              sx: {
+                bgcolor: 'transparent',
+                p: 0,
+                height: 'auto',
+                maxHeight: '80vh',
+                borderTopLeftRadius: '24px',
+                borderTopRightRadius: '24px',
+                boxShadow: 'none',
+              },
+            },
+          }}
+          sx={{ display: { md: 'none' } }}
+        >
+          <Sheet
+            sx={{
+              bgcolor: 'background.surface',
+              borderTopLeftRadius: '24px',
+              borderTopRightRadius: '24px',
+              p: 3,
+              pt: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+            }}
+          >
+            <Box
+              sx={{
+                width: 40,
+                height: 4,
+                borderRadius: 2,
+                bgcolor: 'neutral.softBg',
+                mx: 'auto',
+                mb: 2,
+              }}
+            />
 
-                              <MenuTile icon={<HomeIcon />} label="House" to="house" onClick={() => setDrawerOpen(false)} />
+            <Typography level="title-lg" sx={{ mb: 1 }}>
+              Navigation
+            </Typography>
 
-                              <MenuTile icon={<AccountBalance />} label="Finance" to="finance" onClick={() => setDrawerOpen(false)} />
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
+              {activeMenu === 'main' ? (
+                <>
+                  <MenuTile
+                    icon={<HomeIcon />}
+                    label="House"
+                    to="house"
+                    onClick={() => setDrawerOpen(false)}
+                  />
 
-                              <MenuTile icon={<RestaurantMenu />} label="Meals" to="meals" onClick={() => setDrawerOpen(false)} />
+                  <MenuTile
+                    icon={<AccountBalance />}
+                    label="Finance"
+                    to="finance"
+                    onClick={() => setDrawerOpen(false)}
+                  />
 
-                              <MenuTile icon={<CleaningServices />} label="Chores" to="chores" onClick={() => setDrawerOpen(false)} />
+                  <MenuTile
+                    icon={<RestaurantMenu />}
+                    label="Meals"
+                    to="meals"
+                    onClick={() => setDrawerOpen(false)}
+                  />
 
-                              <MenuTile icon={<ShoppingBag />} label="Groceries" to="shopping" onClick={() => setDrawerOpen(false)} />
+                  <MenuTile
+                    icon={<CleaningServices />}
+                    label="Chores"
+                    to="chores"
+                    onClick={() => setDrawerOpen(false)}
+                  />
 
-                          </>
+                  <MenuTile
+                    icon={<ShoppingBag />}
+                    label="Groceries"
+                    to="shopping"
+                    onClick={() => setDrawerOpen(false)}
+                  />
+                </>
+              ) : (
+                households.map((hh) => (
+                  <MenuTile
+                    key={hh.id}
+                    icon={
+                      <Avatar
+                        size="sm"
+                        sx={{
+                          bgcolor: getEmojiColor(hh.avatar || '🏠', isDark),
+                          fontSize: '1.2rem',
+                        }}
+                      >
+                        {hh.avatar || '🏠'}
+                      </Avatar>
+                    }
+                    label={hh.name}
+                    onClick={async () => {
+                      await onSelectHousehold(hh);
+                      navigate(`/household/${hh.id}/dashboard`);
+                      setDrawerOpen(false);
+                      setActiveMenu('main');
+                    }}
+                    sx={{
+                      bgcolor: hh.id === household?.id ? 'primary.softBg' : 'background.level1',
+                    }}
+                  />
+                ))
+              )}
+              {activeMenu === 'switch' && (
+                <MenuTile
+                  icon={<ChevronLeft />}
+                  label="Back"
+                  onClick={() => setActiveMenu('main')}
+                />
+              )}
+            </Box>
 
-                      ) : (
+            {activeMenu === 'main' && (
+              <>
+                <Typography level="title-lg" sx={{ mt: 2, mb: 1 }}>
+                  Tools
+                </Typography>
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
+                  <MenuTile
+                    icon={<NoteAlt />}
+                    label="Notes"
+                    to="tools/notes"
+                    onClick={() => setDrawerOpen(false)}
+                  />
+                  <MenuTile
+                    icon={<Calculate />}
+                    label="Calc"
+                    to="tools/calculator"
+                    onClick={() => setDrawerOpen(false)}
+                  />
 
-  
-                        households.map(hh => (
-                            <MenuTile 
-                                key={hh.id}
-                                icon={
-                                    <Avatar 
-                                        size="sm" 
-                                        sx={{ bgcolor: getEmojiColor(hh.avatar || '🏠', isDark), fontSize: '1.2rem' }}
-                                    >
-                                        {hh.avatar || '🏠'}
-                                    </Avatar>
-                                } 
-                                label={hh.name} 
-                                onClick={async () => { await onSelectHousehold(hh); navigate(`/household/${hh.id}/dashboard`); setDrawerOpen(false); setActiveMenu('main'); }} 
-                                sx={{ bgcolor: hh.id === household?.id ? 'primary.softBg' : 'background.level1' }}
-                            />
-                        ))
-                    )}
-                    {activeMenu === 'switch' && <MenuTile icon={<ChevronLeft />} label="Back" onClick={() => setActiveMenu('main')} />}
+                  <MenuTile
+                    icon={<AccountBalance />}
+                    label="Finance"
+                    to="tools/finance"
+                    onClick={() => setDrawerOpen(false)}
+                  />
+                  <MenuTile
+                    icon={<Payments />}
+                    label="Tax"
+                    to="tools/tax"
+                    onClick={() => setDrawerOpen(false)}
+                  />
                 </Box>
 
-                {activeMenu === 'main' && (
-                    <>
-                        <Typography level="title-lg" sx={{ mt: 2, mb: 1 }}>Tools</Typography>
-                        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
-                            <MenuTile icon={<NoteAlt />} label="Notes" to="tools/notes" onClick={() => setDrawerOpen(false)} />
-                            <MenuTile icon={<Calculate />} label="Calc" to="tools/calculator" onClick={() => setDrawerOpen(false)} />
-                            
-                            <MenuTile icon={<AccountBalance />} label="Finance" to="tools/finance" onClick={() => setDrawerOpen(false)} />
-                            <MenuTile icon={<Payments />} label="Tax" to="tools/tax" onClick={() => setDrawerOpen(false)} />
-                        </Box>
-
-                        <Typography level="title-lg" sx={{ mt: 2, mb: 1 }}>Admin</Typography>
-                        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
-                            <MenuTile 
-                                icon={<SettingsIcon />} 
-                                label="Settings" 
-                                to="settings" 
-                                onClick={() => setDrawerOpen(false)} 
-                            />
-                            <MenuTile 
-                                icon={<Logout />} 
-                                label="Logout" 
-                                onClick={() => { 
-                                    setDrawerOpen(false);
-                                    confirmAction("Log Out", "Are you sure you want to log out?", onLogout);
-                                }} 
-                                sx={{ bgcolor: 'danger.softBg', color: 'danger.plainColor' }} 
-                            />
-                        </Box>
-                    </>
-                )}
-            </Sheet>
+                <Typography level="title-lg" sx={{ mt: 2, mb: 1 }}>
+                  Admin
+                </Typography>
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
+                  <MenuTile
+                    icon={<SettingsIcon />}
+                    label="Settings"
+                    to="settings"
+                    onClick={() => setDrawerOpen(false)}
+                  />
+                  <MenuTile
+                    icon={<Logout />}
+                    label="Logout"
+                    onClick={() => {
+                      setDrawerOpen(false);
+                      confirmAction('Log Out', 'Are you sure you want to log out?', onLogout);
+                    }}
+                    sx={{ bgcolor: 'danger.softBg', color: 'danger.plainColor' }}
+                  />
+                </Box>
+              </>
+            )}
+          </Sheet>
         </Drawer>
         <NotificationsDrawer open={notificationOpen} onClose={() => setNotificationOpen(false)} />
-        </Box>
+      </Box>
     </HouseholdProvider>
   );
 }

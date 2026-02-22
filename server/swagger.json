@@ -33,7 +33,10 @@
         "type": "object",
         "properties": {
           "id": { "type": "integer" },
-          "object_type": { "type": "string", "enum": ["household", "member", "vehicle", "asset", "pet"] },
+          "object_type": {
+            "type": "string",
+            "enum": ["household", "member", "vehicle", "asset", "pet"]
+          },
           "object_id": { "type": "integer" },
           "category_id": { "type": "string" },
           "name": { "type": "string" },
@@ -70,171 +73,730 @@
   },
   "security": [{ "bearerAuth": [] }],
   "paths": {
-    "/auth/register": { "post": { "tags": ["Auth"], "responses": { "201": { "description": "Created" } } } },
-    "/auth/login": { "post": { "tags": ["Auth"], "responses": { "200": { "description": "OK" } } } },
-    "/auth/profile": { "get": { "tags": ["Auth"], "responses": { "200": { "description": "OK" } } }, "put": { "tags": ["Auth"], "responses": { "200": { "description": "OK" } } } },
-    "/households": { "post": { "tags": ["Households"], "responses": { "201": { "description": "Created" } } } },
-    "/households/{id}": { 
-        "get": { "tags": ["Households"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "put": { "tags": ["Households"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+    "/auth/register": {
+      "post": { "tags": ["Auth"], "responses": { "201": { "description": "Created" } } }
+    },
+    "/auth/login": {
+      "post": { "tags": ["Auth"], "responses": { "200": { "description": "OK" } } }
+    },
+    "/auth/profile": {
+      "get": { "tags": ["Auth"], "responses": { "200": { "description": "OK" } } },
+      "put": { "tags": ["Auth"], "responses": { "200": { "description": "OK" } } }
+    },
+    "/households": {
+      "post": { "tags": ["Households"], "responses": { "201": { "description": "Created" } } }
+    },
+    "/households/{id}": {
+      "get": {
+        "tags": ["Households"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "put": {
+        "tags": ["Households"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
     "/households/{id}/details": {
-        "get": { "tags": ["Households"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "put": { "tags": ["Households"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+      "get": {
+        "tags": ["Households"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "put": {
+        "tags": ["Households"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
-    "/households/{id}/members": { 
-        "get": { "tags": ["Members"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "post": { "tags": ["Members"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    "/households/{id}/members": {
+      "get": {
+        "tags": ["Members"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Members"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "201": { "description": "Created" } }
+      }
     },
     "/households/{id}/members/{itemId}": {
-        "get": { "tags": ["Members"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "put": { "tags": ["Members"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "delete": { "tags": ["Members"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+      "get": {
+        "tags": ["Members"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "put": {
+        "tags": ["Members"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Members"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
     "/households/{id}/chores": {
-        "get": { "tags": ["Chores"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Chore" } } } } } } },
-        "post": { "tags": ["Chores"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+      "get": {
+        "tags": ["Chores"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Chore" } }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Chores"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "201": { "description": "Created" } }
+      }
     },
     "/households/{id}/chores/{itemId}": {
-        "put": { "tags": ["Chores"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "delete": { "tags": ["Chores"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+      "put": {
+        "tags": ["Chores"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Chores"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
     "/households/{id}/chores/{itemId}/complete": {
-        "post": { "tags": ["Chores"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+      "post": {
+        "tags": ["Chores"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
     "/households/{id}/chores/stats": {
-        "get": { "tags": ["Chores"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+      "get": {
+        "tags": ["Chores"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
-    "/households/{id}/vehicles": { 
-        "get": { "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "post": { "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    "/households/{id}/vehicles": {
+      "get": {
+        "tags": ["Assets"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Assets"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "201": { "description": "Created" } }
+      }
     },
     "/households/{id}/vehicles/{itemId}": {
-        "get": { "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "put": { "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "delete": { "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+      "get": {
+        "tags": ["Assets"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "put": {
+        "tags": ["Assets"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Assets"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
-    "/households/{id}/assets": { 
-        "get": { "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "post": { "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    "/households/{id}/assets": {
+      "get": {
+        "tags": ["Assets"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Assets"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "201": { "description": "Created" } }
+      }
     },
     "/households/{id}/assets/{itemId}": {
-        "get": { "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "put": { "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "delete": { "tags": ["Assets"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+      "get": {
+        "tags": ["Assets"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "put": {
+        "tags": ["Assets"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Assets"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
-    "/households/{id}/dates": { 
-        "get": { "tags": ["Calendar"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "post": { "tags": ["Calendar"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    "/households/{id}/dates": {
+      "get": {
+        "tags": ["Calendar"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Calendar"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "201": { "description": "Created" } }
+      }
     },
     "/households/{id}/dates/{itemId}": {
-        "get": { "tags": ["Calendar"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "put": { "tags": ["Calendar"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "delete": { "tags": ["Calendar"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+      "get": {
+        "tags": ["Calendar"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "put": {
+        "tags": ["Calendar"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Calendar"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
     "/households/{id}/finance/recurring-costs": {
-      "get": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-      "post": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+      "get": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "201": { "description": "Created" } }
+      }
     },
     "/households/{id}/finance/recurring-costs/{itemId}": {
-      "put": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-      "delete": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+      "put": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
-    "/households/{id}/finance/income": { 
-        "get": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "post": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    "/households/{id}/finance/income": {
+      "get": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "201": { "description": "Created" } }
+      }
     },
     "/households/{id}/finance/income/{itemId}": {
-        "get": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "put": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "delete": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+      "get": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "put": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
-    "/households/{id}/finance/credit-cards": { 
-        "get": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "post": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    "/households/{id}/finance/credit-cards": {
+      "get": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "201": { "description": "Created" } }
+      }
     },
     "/households/{id}/finance/credit-cards/{itemId}": {
-        "get": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "put": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "delete": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+      "get": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "put": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
-    "/households/{id}/finance/investments": { 
-        "get": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "post": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    "/households/{id}/finance/investments": {
+      "get": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "201": { "description": "Created" } }
+      }
     },
     "/households/{id}/finance/investments/{itemId}": {
-        "get": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "put": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "delete": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+      "get": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "put": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
-    "/households/{id}/finance/pensions": { 
-        "get": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "post": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    "/households/{id}/finance/pensions": {
+      "get": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "201": { "description": "Created" } }
+      }
     },
     "/households/{id}/finance/pensions/{itemId}": {
-        "get": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "put": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "delete": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+      "get": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "put": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
-    "/households/{id}/finance/savings": { 
-        "get": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "post": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    "/households/{id}/finance/savings": {
+      "get": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "201": { "description": "Created" } }
+      }
     },
     "/households/{id}/finance/savings/{itemId}": {
-        "get": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "put": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "delete": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+      "get": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "put": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
     "/households/{id}/finance/current-accounts": {
-        "get": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "post": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+      "get": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "201": { "description": "Created" } }
+      }
     },
     "/households/{id}/finance/current-accounts/{itemId}": {
-        "get": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "put": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "delete": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+      "get": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "put": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
     "/households/{id}/finance/mortgages": {
-        "get": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "post": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+      "get": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "201": { "description": "Created" } }
+      }
     },
     "/households/{id}/finance/mortgages/{itemId}": {
-        "put": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "delete": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+      "put": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
     "/households/{id}/finance/loans": {
-        "get": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "post": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+      "get": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "201": { "description": "Created" } }
+      }
     },
     "/households/{id}/finance/loans/{itemId}": {
-        "put": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "delete": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+      "put": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
     "/households/{id}/finance/vehicle-finance": {
-        "get": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "post": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+      "get": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "201": { "description": "Created" } }
+      }
     },
     "/households/{id}/finance/vehicle-finance/{itemId}": {
-        "put": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "delete": { "tags": ["Finance"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+      "put": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Finance"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
-    "/households/{id}/shopping-list": { 
-        "get": { "tags": ["Shopping"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "post": { "tags": ["Shopping"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    "/households/{id}/shopping-list": {
+      "get": {
+        "tags": ["Shopping"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Shopping"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "201": { "description": "Created" } }
+      }
     },
     "/households/{id}/shopping-list/{itemId}": {
-        "put": { "tags": ["Shopping"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "delete": { "tags": ["Shopping"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }, { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+      "put": {
+        "tags": ["Shopping"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Shopping"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "itemId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
     "/households/{id}/shopping-list/clear": {
-        "delete": { "tags": ["Shopping"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } }
+      "delete": {
+        "tags": ["Shopping"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
     },
     "/system/holidays": {
-        "get": { "tags": ["System"], "responses": { "200": { "description": "OK" } } }
+      "get": { "tags": ["System"], "responses": { "200": { "description": "OK" } } }
     },
-    "/households/{id}/meals": { 
-        "get": { "tags": ["Meals"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "200": { "description": "OK" } } },
-        "post": { "tags": ["Meals"], "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }], "responses": { "201": { "description": "Created" } } }
+    "/households/{id}/meals": {
+      "get": {
+        "tags": ["Meals"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Meals"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "201": { "description": "Created" } }
+      }
     }
   }
 }

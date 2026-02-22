@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 /**
  * Generic fetcher for finance endpoints.
  */
-const fetcher = (api, url) => api.get(url).then(res => res.data);
+const fetcher = (api, url) => api.get(url).then((res) => res.data);
 
 /**
  * Hook to fetch finance data by category (income, savings, etc.)
@@ -22,13 +22,14 @@ export function useFinanceData(api, householdId, category) {
  */
 export function useUpdateFinance(api, householdId, category) {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (data) => api.put(`/households/${householdId}/finance/${category}/${data.id}`, data),
+    mutationFn: (data) =>
+      api.put(`/households/${householdId}/finance/${category}/${data.id}`, data),
     onSuccess: () => {
       // Automatically refresh the specific category
       queryClient.invalidateQueries(['finance', householdId, category]);
-    }
+    },
   });
 }
 

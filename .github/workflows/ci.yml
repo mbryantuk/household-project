@@ -2,26 +2,26 @@ name: Hearth CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Use Node.js 20.x
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20.x
-        cache: 'npm'
-        cache-dependency-path: server/package-lock.json
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
 
-    - name: Install Server Dependencies
-      run: cd server && npm install
+      - name: Install Server Dependencies
+        run: cd server && npm install
 
-    - name: Run Tests
-      run: cd server && npm test
+      - name: Run Tests
+        run: cd server && npm test

@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Stack, CircularProgress, List, ListItem, ListItemContent, ListItemDecorator } from '@mui/joy';
+import {
+  Box,
+  Typography,
+  Stack,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemContent,
+  ListItemDecorator,
+} from '@mui/joy';
 import AccountBalance from '@mui/icons-material/AccountBalance';
 import WidgetWrapper from './WidgetWrapper';
 
@@ -9,12 +18,18 @@ export default function BankingWidget({ api, household }) {
 
   useEffect(() => {
     if (!api || !household?.id) return;
-    api.get(`/households/${household.id}/finance/current-accounts`)
-      .then(res => setData(res.data || []))
+    api
+      .get(`/households/${household.id}/finance/current-accounts`)
+      .then((res) => setData(res.data || []))
       .finally(() => setLoading(false));
   }, [api, household]);
 
-  if (loading) return <WidgetWrapper title="Banking" icon={<AccountBalance />} color="success"><CircularProgress size="sm" /></WidgetWrapper>;
+  if (loading)
+    return (
+      <WidgetWrapper title="Banking" icon={<AccountBalance />} color="success">
+        <CircularProgress size="sm" />
+      </WidgetWrapper>
+    );
 
   const total = data.reduce((sum, acc) => sum + (acc.current_balance || 0), 0);
 
@@ -22,11 +37,13 @@ export default function BankingWidget({ api, household }) {
     <WidgetWrapper title="Banking" icon={<AccountBalance />} color="success">
       <Stack spacing={2}>
         <Box>
-            <Typography level="body-xs">Combined Balance</Typography>
-            <Typography level="h4" color={total >= 0 ? "success" : "danger"}>£{total.toLocaleString()}</Typography>
+          <Typography level="body-xs">Combined Balance</Typography>
+          <Typography level="h4" color={total >= 0 ? 'success' : 'danger'}>
+            £{total.toLocaleString()}
+          </Typography>
         </Box>
         <List size="sm" sx={{ '--ListItem-paddingX': 0 }}>
-          {data.map(acc => (
+          {data.map((acc) => (
             <ListItem key={acc.id}>
               <ListItemDecorator>{acc.emoji || '🏦'}</ListItemDecorator>
               <ListItemContent>

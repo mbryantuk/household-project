@@ -5,7 +5,7 @@ import { Box, Typography, Divider } from '@mui/joy';
  * StatusBar component for tables/grids.
  * Shows Count and numeric SUM as mandated by GEMINI.md.
  */
-export default function StatusBar({ count = 0, sum = null, sumLabel = "Total SUM", sx }) {
+export default function StatusBar({ count = 0, sum = null, sumLabel = 'Total SUM', sx }) {
   if (count === 0 && !sum) return null;
 
   const formatCurrency = (val) => {
@@ -13,18 +13,18 @@ export default function StatusBar({ count = 0, sum = null, sumLabel = "Total SUM
   };
 
   return (
-    <Box 
-      sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: 2, 
-        px: 2, 
-        py: 1, 
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 2,
+        px: 2,
+        py: 1,
         bgcolor: 'background.surface',
         borderTop: '1px solid',
         borderColor: 'divider',
         borderRadius: '0 0 8px 8px',
-        ...sx 
+        ...sx,
       }}
     >
       <Typography level="body-xs" sx={{ fontWeight: 'bold' }}>

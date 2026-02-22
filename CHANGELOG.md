@@ -3,46 +3,60 @@
 All notable changes to this project will be documented in this file.
 
 ## [3.2.263] - 2026-02-16
+
 ### Fixed
+
 - **Finance:** Optimized `FinanceView` to prevent unnecessary data refetching and loading spinners when switching financial profiles, significantly reducing UI lag.
 - **Onboarding:** Fixed a crash on the Onboarding Wizard caused by missing Joy UI component imports (`Chip`, `Select`, `Option`).
 - **Testing:** Resolved flaky smoke tests for Finance (loading state race condition) and Onboarding (stale text expectations).
+
 ### Added
+
 - **Chores:** Introduced "Chores Tracker" module with assignment, frequency (Daily/Weekly/Monthly), and pocket money tracking.
 - **Gamification:** Added "Earnings Widget" to the Chores view to display total value earned by each member.
 - **Shopping:** Renamed "List" to "Shopping List" and updated the icon to a shopping bag for better clarity.
 
 ## [3.2.182] - 2026-02-11
+
 ### Fixed
+
 - **Finance:** Fixed budget payment checkboxes being permanently disabled by correcting the `savingProgress` state initialization.
 
 ## [3.2.151] - 2026-02-09
+
 ### Added
+
 - **Tenancy:** Added "Export Tenant" capability to the Household Selector for admins to download full backup archives.
 
 ## [3.2.126] - 2026-02-04
+
 ### Added
+
 - **Testing:** Migrated the "Brady Bunch" Master Seed into the backend test suite as `brady_seed.test.js`.
 - **Testing:** Ensured the API-driven seed is executed during every backend test run, verifying the entire API surface and providing a consistent testing output.
 - **Testing:** Added `x-bypass-maintenance` header support to registration and login tests to ensure they can run during system maintenance windows.
 
 ## [3.2.125] - 2026-02-04
+
 ### Patch Changes
+
 - **Finance:** Adjusted Brady family seed data to simulate a specific overdraft scenario (Balance: £3,500, Overdraft: £2,000).
 - **Finance:** Added explicit budget cycle initialization to seed data to ensure immediate visibility of liquidity projections.
 
 ## [3.2.51] - 2026-02-03
 
-
 ### Added
+
 - **Finance:** Ability to add "Adhoc Income" sources (e.g. eBay winnings, refunds) directly from the Budget view.
 
 ### Fixed
+
 - **Finance:** Resolved issue where Income sources were hidden from the sidebar when changing the budget grouping mode.
 
 ## [3.0.0-alpha.1] - 2026-01-26
 
 ### Architecture
+
 - **MAJOR:** Initiated V3 Architecture Overhaul.
 - **Breaking:** Created `v3-architecture-overhaul` branch for significant structural refactoring.
 - **Goal:** Address critical architectural debt and tenancy patterns.
@@ -50,11 +64,13 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+
 - **Finance:** "New Cycle" creation workflow for future budget months.
 - **Finance:** Display Bank Holidays and Birthdays in the "New Cycle" setup view.
 - **Finance:** "Copy Last Month" option for initializing new budget cycles.
 
 ### Changed
+
 - **Finance:** Enhanced Status Bar in Finance view to show Paid/Unpaid breakdown only when mixed.
 - **Finance:** Moved "Cycle Totals" summary to a sidebar card in Budget view.
 
@@ -63,12 +79,14 @@ All notable changes to this project will be documented in this file.
 ## [2.6.42] - 2026-01-19
 
 ### Changed
+
 - **Finance:** Temporarily disabled Savings & Pots backend routes for rebuilding.
 - **Finance:** Updated Savings UI to display a "Work In Progress" placeholder.
 
 ## [2.6.41] - 2026-01-16
 
 ### Added
+
 - **Finance:** Implemented functional `IncomeView` for tracking employment and salary details.
 - **Finance:** Implemented `BankingView` for managing Current Accounts with multi-user assignment support.
 - **Schema:** Extended `finance_income` table to support detailed employment data (Employer, Role, Type, Gross Salary, etc.) and direct assignment to members/bank accounts.
@@ -76,22 +94,26 @@ All notable changes to this project will be documented in this file.
 ## [2.6.40] - 2026-01-16
 
 ### Changed
+
 - **Navigation:** Refactored Finance module navigation to use the side menu (Rail + Panel) pattern, consistent with People and Assets modules. Removed the top Category Bar.
 
 ## [2.6.37] - 2026-01-16
 
 ### Added
+
 - **Finance:** Introduced `FinanceView` with a tabbed interface for managing Income, Banking, Savings, Credit, Loans, Mortgages, Investments, Pensions, and Budgets (Placeholders).
 - **Navigation:** Added "Finance" option to the desktop sidebar and mobile navigation logic.
 
 ## [2.6.36] - 2026-01-16
 
 ### Fixed
+
 - **Tests:** Fixed `finance_expanded.test.js` to explicitly create a member for assignment tests, resolving a `TypeError` when the member list is empty.
 
 ## [2.6.35] - 2026-01-16
 
 ### Added
+
 - **Finance:** Added `finance_current_accounts` table for tracking bank accounts, overdrafts, and balances.
 - **Finance:** Added API endpoints for Current Accounts CRUD operations.
 - **Finance:** Added API endpoints for linking financial entities (Assignments) to household members.
@@ -99,26 +121,31 @@ All notable changes to this project will be documented in this file.
 ## [2.6.34] - 2026-01-16
 
 ### Fixed
+
 - **Theming:** Implemented dynamic browser tab color (`theme-color` meta tag) to match the active theme's primary color, replacing the hardcoded value.
 
 ## [2.6.31] - 2026-01-16
 
 ### Added
+
 - **Security:** Enhanced "Invite User" flow now generates secure, random passwords and displays them to the admin upon successful invitation.
 - **Identity:** User invitations now correctly capture and store First Name, Last Name, and Avatar/Emoji.
 
 ### Fixed
+
 - **Theming:** Fixed tab labels in Settings View to correctly respect the selected theme's primary color instead of defaulting to blue.
 - **Settings:** Verified and enhanced Regional Settings (Currency, Date Format, Decimals) integration.
 
 ## [2.6.24] - 2026-01-15
 
 ### Added
+
 - **UI Consistency:** Styled household switcher roles with chips in the account menu for better visual hierarchy.
 - **Navigation:** Renamed "House" sidebar option to "Assets" with a new `Inventory2` icon.
 - **Assets:** Corrected navigation path for primary asset registry to `house/1`.
 
 ### Fixed
+
 - **UX:** Suppressed back button on Asset Registry detail view for desktop users to match Vehicle view behavior.
 - **Styling:** Normalized Meal Planner header typography to match system-wide standards.
 - **Core:** Improved user role synchronization across multiple households.
@@ -126,41 +153,50 @@ All notable changes to this project will be documented in this file.
 ## [2.6.6] - 2026-01-15
 
 ### Fixed
+
 - **Navigation:** Fixed right-click context menu "Hide Module" requiring a page refresh. It now updates the sidebar immediately by synchronizing with the global household state.
 - **Architecture:** Refactored `NavSidebar` to accept `onUpdateHousehold` prop to ensure consistent state propagation from child components.
 
 ## [2.6.5] - 2026-01-15
 
 ### Fixed
+
 - **Settings:** Fixed module toggle (Pets, Vehicles, Meals) not reflecting immediately in the sidebar. The application now correctly synchronizes the global household state upon update, eliminating the need for a page refresh.
 
 ## [2.6.4] - 2026-01-15
 
 ### Fixed
+
 - **Navigation:** Fixed sidebar context menu not closing on click-away by adding a global event listener.
 
 ## [2.6.3] - 2026-01-15
 
 ### Fixed
+
 - **Navigation:** Fixed "invisible sidebar" issue by refactoring `NavSidebar` layout and moving the Context Menu outside the flex container to prevent layout conflicts.
 
 ## [2.6.2] - 2026-01-15
 
 ### Fixed
+
 - **Navigation:** Fixed "Sidebar not loading" crash caused by incompatible Context Menu implementation. Switched to using a Virtual Anchor Element for Joy UI compatibility.
 
 ## [2.6.1] - 2026-01-15
 
 ### Added
+
 - **Navigation:** Right-click context menu on sidebar items to quickly hide modules (Pets, Vehicles, Meals).
 
 ### Fixed
+
 - **People:** Fixed "Box is not defined" crash by adding missing MUI imports.
 - **Settings:** Fixed navigation tab indexing to ensure the correct tab opens (e.g., About).
 - **Core:** Fixed module persistence issue. Enabled modules now persist correctly after reload (Added `enabled_modules` to global `households` schema).
 
 ## [1.0.0] - 2024-01-14
+
 ### Added
+
 - Initial release of Totem Household Management System.
 - Core modules: Members, Assets, Vehicles, Meals, Finance, Calendar.
 - Multi-tenancy support.

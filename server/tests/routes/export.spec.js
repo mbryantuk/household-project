@@ -32,8 +32,8 @@ describe('Export Route', () => {
     await dbRun(globalDb, 'DELETE FROM households WHERE id = ?', [household.id]);
     await dbRun(globalDb, 'DELETE FROM users WHERE email = ?', [household.adminEmail]);
     try {
-        const hhDb = getHouseholdDb(household.id);
-        hhDb.close();
+      const hhDb = getHouseholdDb(household.id);
+      hhDb.close();
     } catch (e) {}
   });
 });

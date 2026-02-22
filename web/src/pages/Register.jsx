@@ -1,7 +1,18 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { 
-  Box, Sheet, Typography, Input, Button, Alert, Link, FormControl, FormLabel, Stack, Avatar, IconButton
+import {
+  Box,
+  Sheet,
+  Typography,
+  Input,
+  Button,
+  Alert,
+  Link,
+  FormControl,
+  FormLabel,
+  Stack,
+  Avatar,
+  IconButton,
 } from '@mui/joy';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import AppIcon from '../components/AppIcon';
@@ -18,7 +29,7 @@ export default function Register() {
     firstName: '',
     lastName: '',
     householdName: '',
-    avatar: '👤'
+    avatar: '👤',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -29,9 +40,9 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      setError('Passwords do not match');
       return;
     }
 
@@ -43,12 +54,12 @@ export default function Register() {
         firstName: formData.firstName,
         lastName: formData.lastName,
         householdName: formData.householdName,
-        avatar: formData.avatar
+        avatar: formData.avatar,
       });
-      navigate('/login', { state: { message: "Registration successful! Please login." } });
+      navigate('/login', { state: { message: 'Registration successful! Please login.' } });
     } catch (err) {
-      console.error("Registration error:", err);
-      setError(err.response?.data?.error || "Registration failed. Please try again.");
+      console.error('Registration error:', err);
+      setError(err.response?.data?.error || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -59,24 +70,27 @@ export default function Register() {
   };
 
   return (
-    <Box sx={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      bgcolor: 'background.body',
-      p: 2,
-      backgroundImage: 'radial-gradient(circle at 50% 50%, var(--joy-palette-primary-softBg) 0%, var(--joy-palette-background-body) 100%)'
-    }}>
-      <Sheet 
-        variant="outlined" 
-        sx={{ 
-          p: 4, 
-          width: '100%', 
-          maxWidth: 500, 
-          borderRadius: 'xl', 
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        bgcolor: 'background.body',
+        p: 2,
+        backgroundImage:
+          'radial-gradient(circle at 50% 50%, var(--joy-palette-primary-softBg) 0%, var(--joy-palette-background-body) 100%)',
+      }}
+    >
+      <Sheet
+        variant="outlined"
+        sx={{
+          p: 4,
+          width: '100%',
+          maxWidth: 500,
+          borderRadius: 'xl',
           textAlign: 'center',
-          boxShadow: 'xl' 
+          boxShadow: 'xl',
         }}
       >
         <AppIcon sx={{ fontSize: 50, mb: 2 }} colorway="default" />
@@ -87,20 +101,24 @@ export default function Register() {
           Start your journey with {APP_NAME}.
         </Typography>
 
-        {error && <Alert color="danger" sx={{ mb: 3, textAlign: 'left' }}>{error}</Alert>}
+        {error && (
+          <Alert color="danger" sx={{ mb: 3, textAlign: 'left' }}>
+            {error}
+          </Alert>
+        )}
 
         <form onSubmit={handleSubmit}>
           <Stack spacing={2}>
             <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
               <Box sx={{ position: 'relative' }}>
-                <Avatar 
-                  size="lg" 
-                  sx={{ 
-                    '--Avatar-size': '100px', 
-                    fontSize: '2.5rem', 
+                <Avatar
+                  size="lg"
+                  sx={{
+                    '--Avatar-size': '100px',
+                    fontSize: '2.5rem',
                     cursor: 'pointer',
                     '&:hover': { transform: 'scale(1.05)' },
-                    transition: 'transform 0.2s'
+                    transition: 'transform 0.2s',
                   }}
                   onClick={() => setEmojiPickerOpen(true)}
                 >
@@ -110,12 +128,12 @@ export default function Register() {
                   size="sm"
                   variant="solid"
                   color="primary"
-                  sx={{ 
-                    position: 'absolute', 
-                    bottom: 0, 
-                    right: 0, 
+                  sx={{
+                    position: 'absolute',
+                    bottom: 0,
+                    right: 0,
                     borderRadius: '50%',
-                    boxShadow: 'sm' 
+                    boxShadow: 'sm',
                   }}
                   onClick={() => setEmojiPickerOpen(true)}
                 >
@@ -142,17 +160,32 @@ export default function Register() {
 
             <FormControl required>
               <FormLabel>Household Name</FormLabel>
-              <Input name="householdName" placeholder="e.g. The Smith Family" value={formData.householdName} onChange={handleChange} />
+              <Input
+                name="householdName"
+                placeholder="e.g. The Smith Family"
+                value={formData.householdName}
+                onChange={handleChange}
+              />
             </FormControl>
 
             <FormControl required>
               <FormLabel>Password</FormLabel>
-              <Input type="password" name="password" value={formData.password} onChange={handleChange} />
+              <Input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+              />
             </FormControl>
 
             <FormControl required>
               <FormLabel>Confirm Password</FormLabel>
-              <Input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} />
+              <Input
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+              />
             </FormControl>
 
             <Button type="submit" variant="solid" size="lg" loading={loading} sx={{ mt: 2 }}>
@@ -161,16 +194,19 @@ export default function Register() {
           </Stack>
 
           <Typography level="body-sm" sx={{ mt: 2 }}>
-            Already have an account? <Link component={RouterLink} to="/login">Log In</Link>
+            Already have an account?{' '}
+            <Link component={RouterLink} to="/login">
+              Log In
+            </Link>
           </Typography>
         </form>
       </Sheet>
 
-      <EmojiPicker 
-        open={emojiPickerOpen} 
-        onClose={() => setEmojiPickerOpen(false)} 
+      <EmojiPicker
+        open={emojiPickerOpen}
+        onClose={() => setEmojiPickerOpen(false)}
         onEmojiSelect={(emoji) => {
-          setFormData({...formData, avatar: emoji});
+          setFormData({ ...formData, avatar: emoji });
           setEmojiPickerOpen(false);
         }}
         title="Choose Avatar Emoji"

@@ -1,6 +1,13 @@
 import React, { useState, useRef, useLayoutEffect } from 'react';
-import { 
-  Box, IconButton, Tooltip, Sheet, Typography, Divider, Stack, useColorScheme
+import {
+  Box,
+  IconButton,
+  Tooltip,
+  Sheet,
+  Typography,
+  Divider,
+  Stack,
+  useColorScheme,
 } from '@mui/joy';
 import Wifi from '@mui/icons-material/Wifi';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
@@ -41,153 +48,387 @@ import WealthWidget from './widgets/WealthWidget';
 import { useHousehold } from '../contexts/HouseholdContext';
 import { APP_NAME } from '../constants';
 
-const WidgetWrapper = ({ id, label, icon: Icon, color, width, children, activeWidget, poppedOut, toggleWidget }) => {
-    const { mode, systemMode } = useColorScheme();
-    const isDark = mode === 'dark' || (mode === 'system' && systemMode === 'dark');
-    const isOpen = activeWidget === id && !poppedOut[id];
-    const buttonRef = useRef(null);
-    const [leftPos, setLeftPos] = useState(0);
+const WidgetWrapper = ({
+  id,
+  label,
+  icon: Icon,
+  color,
+  width,
+  children,
+  activeWidget,
+  poppedOut,
+  toggleWidget,
+}) => {
+  const { mode, systemMode } = useColorScheme();
+  const isDark = mode === 'dark' || (mode === 'system' && systemMode === 'dark');
+  const isOpen = activeWidget === id && !poppedOut[id];
+  const buttonRef = useRef(null);
+  const [leftPos, setLeftPos] = useState(0);
 
-    useLayoutEffect(() => {
-        if (isOpen && buttonRef.current) {
-            const rect = buttonRef.current.getBoundingClientRect();
-            const widgetWidth = width || 250;
-            const screenWidth = window.innerWidth;
-            let calcLeft = rect.left;
-            if (calcLeft + widgetWidth > screenWidth) calcLeft = screenWidth - widgetWidth - 10;
-            if (calcLeft < 10) calcLeft = 10;
-            requestAnimationFrame(() => setLeftPos(calcLeft));
-        }
-    }, [isOpen, width]);
+  useLayoutEffect(() => {
+    if (isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const widgetWidth = width || 250;
+      const screenWidth = window.innerWidth;
+      let calcLeft = rect.left;
+      if (calcLeft + widgetWidth > screenWidth) calcLeft = screenWidth - widgetWidth - 10;
+      if (calcLeft < 10) calcLeft = 10;
+      requestAnimationFrame(() => setLeftPos(calcLeft));
+    }
+  }, [isOpen, width]);
 
-    const renderIcon = () => (typeof Icon === 'function' ? <Icon /> : <Icon fontSize="small" />);
+  const renderIcon = () => (typeof Icon === 'function' ? <Icon /> : <Icon fontSize="small" />);
 
-    return (
-      <Box sx={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-          {isOpen && (
-              <Box sx={{ 
-                  position: 'fixed', bottom: 42, left: leftPos, width: width || 250, 
-                  maxHeight: 'calc(100vh - 60px)', 
-                  bgcolor: isDark ? 'rgba(20, 20, 20, 0.8)' : 'rgba(255, 255, 255, 0.85)', 
-                  backdropFilter: 'blur(20px)',
-                  borderTopLeftRadius: 'md', borderTopRightRadius: 'md', 
-                  border: '1px solid', borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
-                  boxShadow: 'lg', zIndex: 2005,
-                  display: 'flex', flexDirection: 'column', overflow: 'hidden'
-              }}>{children}</Box>
-          )}
-          <Tooltip title={label} variant="soft">
-            <IconButton 
-                ref={buttonRef} variant={isOpen ? "solid" : "plain"} color={isOpen ? color : "neutral"} 
-                onClick={() => toggleWidget(id)}
-                sx={{ height: 44, width: 44, borderRadius: 0, transition: 'all 0.2s' }}
-            >
-                {renderIcon()}
-            </IconButton>
-          </Tooltip>
-      </Box>
-    );
+  return (
+    <Box
+      sx={{
+        position: 'relative',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        flexShrink: 0,
+      }}
+    >
+      {isOpen && (
+        <Box
+          sx={{
+            position: 'fixed',
+            bottom: 42,
+            left: leftPos,
+            width: width || 250,
+            maxHeight: 'calc(100vh - 60px)',
+            bgcolor: isDark ? 'rgba(20, 20, 20, 0.8)' : 'rgba(255, 255, 255, 0.85)',
+            backdropFilter: 'blur(20px)',
+            borderTopLeftRadius: 'md',
+            borderTopRightRadius: 'md',
+            border: '1px solid',
+            borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+            boxShadow: 'lg',
+            zIndex: 2005,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}
+        >
+          {children}
+        </Box>
+      )}
+      <Tooltip title={label} variant="soft">
+        <IconButton
+          ref={buttonRef}
+          variant={isOpen ? 'solid' : 'plain'}
+          color={isOpen ? color : 'neutral'}
+          onClick={() => toggleWidget(id)}
+          sx={{ height: 44, width: 44, borderRadius: 0, transition: 'all 0.2s' }}
+        >
+          {renderIcon()}
+        </IconButton>
+      </Tooltip>
+    </Box>
+  );
 };
 
 export default function UtilityBar() {
   const { mode, systemMode } = useColorScheme();
   const isDark = mode === 'dark' || (mode === 'system' && systemMode === 'dark');
-  
-  const { user, api, dates, onDateAdded, onUpdateProfile, statusBarData, activeHouseholdId, household } = useHousehold();
+
+  const {
+    user,
+    api,
+    dates,
+    onDateAdded,
+    onUpdateProfile,
+    statusBarData,
+    activeHouseholdId,
+    household,
+  } = useHousehold();
   const scrollRef = useRef(null);
-  const [activeWidget, setActiveWidget] = useState(null); 
+  const [activeWidget, setActiveWidget] = useState(null);
   const [poppedOut, setPoppedOut] = useState({});
   const popoutRefs = useRef({});
 
-  const formatCurrency = (val) => (parseFloat(val) || 0).toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });
+  const formatCurrency = (val) =>
+    (parseFloat(val) || 0).toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });
 
   const toggleWidget = (widget) => {
-      if (poppedOut[widget]) popoutRefs.current[widget]?.focus();
-      else setActiveWidget(activeWidget === widget ? null : widget);
+    if (poppedOut[widget]) popoutRefs.current[widget]?.focus();
+    else setActiveWidget(activeWidget === widget ? null : widget);
   };
 
   const handlePopout = (widget, url) => {
-      popoutRefs.current[widget] = window.open(url, `${APP_NAME}${widget}`, 'width=450,height=600');
-      setPoppedOut(prev => ({ ...prev, [widget]: true }));
-      setActiveWidget(null);
+    popoutRefs.current[widget] = window.open(url, `${APP_NAME}${widget}`, 'width=450,height=600');
+    setPoppedOut((prev) => ({ ...prev, [widget]: true }));
+    setActiveWidget(null);
   };
 
   return (
     <Sheet
-        variant="soft"
-        sx={{
-            width: '100%', minHeight: 40, display: 'flex', alignItems: 'center',
-            bgcolor: isDark ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)', 
-            backdropFilter: 'blur(20px)',
-            borderTop: '1px solid', 
-            borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)', 
-            zIndex: 900
-        }}
+      variant="soft"
+      sx={{
+        width: '100%',
+        minHeight: 40,
+        display: 'flex',
+        alignItems: 'center',
+        bgcolor: isDark ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)',
+        backdropFilter: 'blur(20px)',
+        borderTop: '1px solid',
+        borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+        zIndex: 900,
+      }}
     >
-        <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
-            <Box ref={scrollRef} sx={{ display: 'flex', height: '100%', overflowX: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
-                <WidgetWrapper id="notes" label="Notes" icon={NoteAlt} color="warning" width={320} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <PostItNote isDocked onClose={() => setActiveWidget(null)} user={user} onUpdateProfile={onUpdateProfile} onPopout={() => handlePopout('notes', '/note-window')} />
-                </WidgetWrapper>
-                <WidgetWrapper id="calc" label="Calculator" icon={Calculate} color="primary" width={300} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <FloatingCalculator isDocked onClose={() => setActiveWidget(null)} isDark={isDark} onPopout={() => handlePopout('calc', '/calculator')} />
-                </WidgetWrapper>
-                
-                <Divider orientation="vertical" sx={{ mx: 0.5, height: '60%' }} />
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        <Box
+          ref={scrollRef}
+          sx={{
+            display: 'flex',
+            height: '100%',
+            overflowX: 'auto',
+            scrollbarWidth: 'none',
+            '&::-webkit-scrollbar': { display: 'none' },
+          }}
+        >
+          <WidgetWrapper
+            id="notes"
+            label="Notes"
+            icon={NoteAlt}
+            color="warning"
+            width={320}
+            activeWidget={activeWidget}
+            poppedOut={poppedOut}
+            toggleWidget={toggleWidget}
+          >
+            <PostItNote
+              isDocked
+              onClose={() => setActiveWidget(null)}
+              user={user}
+              onUpdateProfile={onUpdateProfile}
+              onPopout={() => handlePopout('notes', '/note-window')}
+            />
+          </WidgetWrapper>
+          <WidgetWrapper
+            id="calc"
+            label="Calculator"
+            icon={Calculate}
+            color="primary"
+            width={300}
+            activeWidget={activeWidget}
+            poppedOut={poppedOut}
+            toggleWidget={toggleWidget}
+          >
+            <FloatingCalculator
+              isDocked
+              onClose={() => setActiveWidget(null)}
+              isDark={isDark}
+              onPopout={() => handlePopout('calc', '/calculator')}
+            />
+          </WidgetWrapper>
 
-                <WidgetWrapper id="income" label="Income" icon={AttachMoney} color="success" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <IncomeWidget api={api} household={household} />
-                </WidgetWrapper>
-                <WidgetWrapper id="accounts" label="Banking" icon={AccountBalance} color="success" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <BankingWidget api={api} household={household} />
-                </WidgetWrapper>
-                <WidgetWrapper id="savings" label="Savings & Pots" icon={Savings} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <FloatingSavings isDocked onClose={() => setActiveWidget(null)} api={api} householdId={household?.id} isDark={isDark} onPopout={() => handlePopout('savings', '/savings-window')} />
-                </WidgetWrapper>
-                <WidgetWrapper id="invest" label="Investments" icon={TrendingUp} color="primary" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <FloatingInvestments isDocked onClose={() => setActiveWidget(null)} api={api} householdId={household?.id} isDark={isDark} onPopout={() => handlePopout('invest', '/investments-window')} />
-                </WidgetWrapper>
-                <WidgetWrapper id="pensions" label="Pensions" icon={HourglassBottom} color="warning" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <FloatingPensions isDocked onClose={() => setActiveWidget(null)} api={api} householdId={household?.id} isDark={isDark} onPopout={() => handlePopout('pensions', '/pensions-window')} />
-                </WidgetWrapper>
-                <WidgetWrapper id="credit" label="Credit Cards" icon={CreditCard} color="danger" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <CreditCardWidget api={api} household={household} />
-                </WidgetWrapper>
-                <WidgetWrapper id="loans" label="Personal Loans" icon={ReceiptLong} color="danger" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <LoansWidget api={api} household={household} />
-                </WidgetWrapper>
-                <WidgetWrapper id="mortgage" label="Mortgages" icon={HomeIcon} color="danger" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <MortgageWidget api={api} household={household} />
-                </WidgetWrapper>
-                <WidgetWrapper id="carfin" label="Car Finance" icon={DirectionsCar} color="danger" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <VehicleFinanceWidget api={api} household={household} />
-                </WidgetWrapper>
+          <Divider orientation="vertical" sx={{ mx: 0.5, height: '60%' }} />
 
-                <Divider orientation="vertical" sx={{ mx: 0.5, height: '60%' }} />
+          <WidgetWrapper
+            id="income"
+            label="Income"
+            icon={AttachMoney}
+            color="success"
+            width={350}
+            activeWidget={activeWidget}
+            poppedOut={poppedOut}
+            toggleWidget={toggleWidget}
+          >
+            <IncomeWidget api={api} household={household} />
+          </WidgetWrapper>
+          <WidgetWrapper
+            id="accounts"
+            label="Banking"
+            icon={AccountBalance}
+            color="success"
+            width={350}
+            activeWidget={activeWidget}
+            poppedOut={poppedOut}
+            toggleWidget={toggleWidget}
+          >
+            <BankingWidget api={api} household={household} />
+          </WidgetWrapper>
+          <WidgetWrapper
+            id="savings"
+            label="Savings & Pots"
+            icon={Savings}
+            color="success"
+            width={400}
+            activeWidget={activeWidget}
+            poppedOut={poppedOut}
+            toggleWidget={toggleWidget}
+          >
+            <FloatingSavings
+              isDocked
+              onClose={() => setActiveWidget(null)}
+              api={api}
+              householdId={household?.id}
+              isDark={isDark}
+              onPopout={() => handlePopout('savings', '/savings-window')}
+            />
+          </WidgetWrapper>
+          <WidgetWrapper
+            id="invest"
+            label="Investments"
+            icon={TrendingUp}
+            color="primary"
+            width={400}
+            activeWidget={activeWidget}
+            poppedOut={poppedOut}
+            toggleWidget={toggleWidget}
+          >
+            <FloatingInvestments
+              isDocked
+              onClose={() => setActiveWidget(null)}
+              api={api}
+              householdId={household?.id}
+              isDark={isDark}
+              onPopout={() => handlePopout('invest', '/investments-window')}
+            />
+          </WidgetWrapper>
+          <WidgetWrapper
+            id="pensions"
+            label="Pensions"
+            icon={HourglassBottom}
+            color="warning"
+            width={400}
+            activeWidget={activeWidget}
+            poppedOut={poppedOut}
+            toggleWidget={toggleWidget}
+          >
+            <FloatingPensions
+              isDocked
+              onClose={() => setActiveWidget(null)}
+              api={api}
+              householdId={household?.id}
+              isDark={isDark}
+              onPopout={() => handlePopout('pensions', '/pensions-window')}
+            />
+          </WidgetWrapper>
+          <WidgetWrapper
+            id="credit"
+            label="Credit Cards"
+            icon={CreditCard}
+            color="danger"
+            width={350}
+            activeWidget={activeWidget}
+            poppedOut={poppedOut}
+            toggleWidget={toggleWidget}
+          >
+            <CreditCardWidget api={api} household={household} />
+          </WidgetWrapper>
+          <WidgetWrapper
+            id="loans"
+            label="Personal Loans"
+            icon={ReceiptLong}
+            color="danger"
+            width={350}
+            activeWidget={activeWidget}
+            poppedOut={poppedOut}
+            toggleWidget={toggleWidget}
+          >
+            <LoansWidget api={api} household={household} />
+          </WidgetWrapper>
+          <WidgetWrapper
+            id="mortgage"
+            label="Mortgages"
+            icon={HomeIcon}
+            color="danger"
+            width={350}
+            activeWidget={activeWidget}
+            poppedOut={poppedOut}
+            toggleWidget={toggleWidget}
+          >
+            <MortgageWidget api={api} household={household} />
+          </WidgetWrapper>
+          <WidgetWrapper
+            id="carfin"
+            label="Car Finance"
+            icon={DirectionsCar}
+            color="danger"
+            width={350}
+            activeWidget={activeWidget}
+            poppedOut={poppedOut}
+            toggleWidget={toggleWidget}
+          >
+            <VehicleFinanceWidget api={api} household={household} />
+          </WidgetWrapper>
 
-                <WidgetWrapper id="budget" label="Budget Health" icon={Speed} color="primary" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <BudgetStatusWidget api={api} household={household} />
-                </WidgetWrapper>
-                <WidgetWrapper id="wealth" label="Wealth Tracking" icon={Savings} color="success" width={400} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                    <WealthWidget api={api} household={household} />
-                </WidgetWrapper>
+          <Divider orientation="vertical" sx={{ mx: 0.5, height: '60%' }} />
 
-                <Divider orientation="vertical" sx={{ mx: 0.5, height: '60%' }} />
+          <WidgetWrapper
+            id="budget"
+            label="Budget Health"
+            icon={Speed}
+            color="primary"
+            width={350}
+            activeWidget={activeWidget}
+            poppedOut={poppedOut}
+            toggleWidget={toggleWidget}
+          >
+            <BudgetStatusWidget api={api} household={household} />
+          </WidgetWrapper>
+          <WidgetWrapper
+            id="wealth"
+            label="Wealth Tracking"
+            icon={Savings}
+            color="success"
+            width={400}
+            activeWidget={activeWidget}
+            poppedOut={poppedOut}
+            toggleWidget={toggleWidget}
+          >
+            <WealthWidget api={api} household={household} />
+          </WidgetWrapper>
 
-                <WidgetWrapper id="calendar" label="Calendar" icon={CalendarMonth} color="danger" width={350} activeWidget={activeWidget} poppedOut={poppedOut} toggleWidget={toggleWidget}>
-                     <FloatingCalendar isDocked onClose={() => setActiveWidget(null)} dates={dates} api={api} householdId={activeHouseholdId} currentUser={user} onDateAdded={onDateAdded} isDark={isDark} onPopout={() => handlePopout('calendar', '/calendar-window')} />
-                </WidgetWrapper>
-            </Box>
+          <Divider orientation="vertical" sx={{ mx: 0.5, height: '60%' }} />
+
+          <WidgetWrapper
+            id="calendar"
+            label="Calendar"
+            icon={CalendarMonth}
+            color="danger"
+            width={350}
+            activeWidget={activeWidget}
+            poppedOut={poppedOut}
+            toggleWidget={toggleWidget}
+          >
+            <FloatingCalendar
+              isDocked
+              onClose={() => setActiveWidget(null)}
+              dates={dates}
+              api={api}
+              householdId={activeHouseholdId}
+              currentUser={user}
+              onDateAdded={onDateAdded}
+              isDark={isDark}
+              onPopout={() => handlePopout('calendar', '/calendar-window')}
+            />
+          </WidgetWrapper>
         </Box>
+      </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 2, ml: 'auto' }}>
-            {statusBarData && (
-                <Stack direction="row" spacing={2} alignItems="center" sx={{ mr: 2 }}>
-                    <Typography level="body-xs" fontWeight="bold">Selected: {statusBarData.count}</Typography>
-                    <Typography level="body-xs">Total: <b>{formatCurrency(statusBarData.total)}</b></Typography>
-                </Stack>
-            )}
-        </Box>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 2, ml: 'auto' }}>
+        {statusBarData && (
+          <Stack direction="row" spacing={2} alignItems="center" sx={{ mr: 2 }}>
+            <Typography level="body-xs" fontWeight="bold">
+              Selected: {statusBarData.count}
+            </Typography>
+            <Typography level="body-xs">
+              Total: <b>{formatCurrency(statusBarData.total)}</b>
+            </Typography>
+          </Stack>
+        )}
+      </Box>
     </Sheet>
   );
 }

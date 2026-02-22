@@ -1,10 +1,41 @@
 import { useState } from 'react';
-import { 
-  Box, Typography, Sheet, Divider, Grid, Input, FormControl, FormLabel, 
-  Select, Option, Button, IconButton, Avatar, Card, CardContent, 
-  Modal, ModalDialog, DialogContent, DialogActions, Stack, Tabs, TabList, Tab, DialogTitle
+import {
+  Box,
+  Typography,
+  Sheet,
+  Divider,
+  Grid,
+  Input,
+  FormControl,
+  FormLabel,
+  Select,
+  Option,
+  Button,
+  IconButton,
+  Avatar,
+  Card,
+  CardContent,
+  Modal,
+  ModalDialog,
+  DialogContent,
+  DialogActions,
+  Stack,
+  Tabs,
+  TabList,
+  Tab,
+  DialogTitle,
 } from '@mui/joy';
-import { PersonAdd, Delete, Edit, ChildCare, Face, Visibility, Payments, Info, Add } from '@mui/icons-material';
+import {
+  PersonAdd,
+  Delete,
+  Edit,
+  ChildCare,
+  Face,
+  Visibility,
+  Payments,
+  Info,
+  Add,
+} from '@mui/icons-material';
 import RecurringChargesWidget from '../components/ui/RecurringChargesWidget';
 import { useOutletContext } from 'react-router-dom';
 
@@ -12,35 +43,50 @@ const PET_SPECIES = ['Dog', 'Cat', 'Hamster', 'Rabbit', 'Bird', 'Fish', 'Reptile
 
 export default function MembersView({ members, onAddMember, onRemoveMember, onUpdateMember }) {
   const { api, id: householdId, household, showNotification, confirmAction } = useOutletContext();
-  
+
   // Modal States
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState('add'); // 'add' or 'edit'
   const [selectedMember, setSelectedMember] = useState(null);
-  
+
   // View Modal State
   const [viewMember, setViewMember] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
 
   // Form State (for reactive avatar)
   const [formData, setFormData] = useState({
-    type: 'adult', name: '', alias: '', dob: '', gender: 'none', species: 'Dog'
+    type: 'adult',
+    name: '',
+    alias: '',
+    dob: '',
+    gender: 'none',
+    species: 'Dog',
   });
 
   const getResidentAvatar = (m) => {
     const type = m?.type?.toLowerCase();
     const gender = m?.gender?.toLowerCase();
     const species = m?.species?.toLowerCase();
-    
+
     if (type === 'pet') {
       switch (species) {
-        case 'dog': return '🐶'; case 'cat': return '🐱'; case 'hamster': return '🐹';
-        case 'bird': return '🐦'; case 'fish': return '🐟'; default: return '🐾';
+        case 'dog':
+          return '🐶';
+        case 'cat':
+          return '🐱';
+        case 'hamster':
+          return '🐹';
+        case 'bird':
+          return '🐦';
+        case 'fish':
+          return '🐟';
+        default:
+          return '🐾';
       }
     }
-    
-    if (type === 'viewer') return <Visibility />; 
-    
+
+    if (type === 'viewer') return <Visibility />;
+
     if (gender === 'male') return type === 'child' ? '👦' : '👨';
     if (gender === 'female') return type === 'child' ? '👧' : '👩';
     return type === 'child' ? <ChildCare /> : <Face />;
@@ -48,19 +94,19 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
 
   const getMemberSegments = (type) => {
     if (type === 'pet') {
-        return [
-          { id: 'food', label: 'Food & Supplies' },
-          { id: 'insurance', label: 'Insurance' },
-          { id: 'vet', label: 'Vet & Medical' },
-          { id: 'other', label: 'Other' }
-        ];
+      return [
+        { id: 'food', label: 'Food & Supplies' },
+        { id: 'insurance', label: 'Insurance' },
+        { id: 'vet', label: 'Vet & Medical' },
+        { id: 'other', label: 'Other' },
+      ];
     }
     const base = [
-        { id: 'subscription', label: 'Subscriptions' },
-        { id: 'insurance', label: 'Insurance' },
-        { id: 'education', label: 'Education' },
-        { id: 'care', label: 'Care & Support' },
-        { id: 'other', label: 'Other' }
+      { id: 'subscription', label: 'Subscriptions' },
+      { id: 'insurance', label: 'Insurance' },
+      { id: 'education', label: 'Education' },
+      { id: 'care', label: 'Care & Support' },
+      { id: 'other', label: 'Other' },
     ];
     if (type === 'child') return [{ id: 'pocket_money', label: 'Pocket Money' }, ...base];
     return [{ id: 'fun_money', label: 'Fun Money' }, ...base];
@@ -77,8 +123,12 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
     setMode('edit');
     setSelectedMember(m);
     setFormData({
-        type: m.type, name: m.name, alias: m.alias || '', dob: m.dob || '', 
-        gender: m.gender || 'none', species: m.species || 'Dog'
+      type: m.type,
+      name: m.name,
+      alias: m.alias || '',
+      dob: m.dob || '',
+      gender: m.gender || 'none',
+      species: m.species || 'Dog',
     });
     setOpen(true);
   };
@@ -87,204 +137,330 @@ export default function MembersView({ members, onAddMember, onRemoveMember, onUp
     e.preventDefault();
     const data = { ...formData }; // FormData is already in state
     if (mode === 'add') {
-        onAddMember(e); 
+      onAddMember(e);
     } else {
-        onUpdateMember(selectedMember.id, data);
+      onUpdateMember(selectedMember.id, data);
     }
     setOpen(false);
   };
 
   // Wrapper for Add to ensure it works with the prop expectation
   const handleAddSubmitWrapper = (e) => {
-      onAddMember(e);
-      setOpen(false);
-  }
+    onAddMember(e);
+    setOpen(false);
+  };
 
   return (
     <Box>
-      <Box sx={{ 
-          mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-          flexWrap: 'wrap', gap: 2 
-      }}>
+      <Box
+        sx={{
+          mb: 4,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 2,
+        }}
+      >
         <Box>
-          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+          <Typography
+            level="h2"
+            sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}
+          >
             Household Residents
           </Typography>
           <Typography level="body-md" color="neutral">
             Manage family members and pets.
           </Typography>
         </Box>
-        <Button startDecorator={<Add />} onClick={handleOpenAdd}>Add Resident</Button>
+        <Button startDecorator={<Add />} onClick={handleOpenAdd}>
+          Add Resident
+        </Button>
       </Box>
 
       <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md' }}>
-      
-      {/* LIST */}
-      <Grid container spacing={2}>
-        {members.map((m) => (
-          <Grid xs={12} sm={6} md={4} key={m.id}>
-            <Card 
-                variant="outlined" 
-                sx={{ flexDirection: 'row', alignItems: 'center', p: 2, cursor: 'pointer', '&:hover': { bgcolor: 'background.level1' } }} 
-                onClick={() => { setViewMember(m); setActiveTab(0); }}
-            >
-              <Avatar size="lg" sx={{ bgcolor: m.type === 'pet' ? 'warning.softBg' : 'primary.softBg' }}>
-                {getResidentAvatar(m)}
-              </Avatar>
-              <CardContent>
-                <Typography level="title-md">{m.name || 'Unnamed Resident'}</Typography>
-                <Typography level="body-sm">
-                    {m.alias ? `"${m.alias}"` : (m.type ? m.type.toUpperCase() : 'RESIDENT')}
-                </Typography>
-              </CardContent>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                <IconButton size="sm" variant="plain" color="neutral" onClick={(e) => { e.stopPropagation(); handleOpenEdit(m); }}><Edit /></IconButton>
-                <IconButton size="sm" variant="plain" color="danger" onClick={(e) => { e.stopPropagation(); onRemoveMember(m.id); }}><Delete /></IconButton>
-              </Box>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+        {/* LIST */}
+        <Grid container spacing={2}>
+          {members.map((m) => (
+            <Grid xs={12} sm={6} md={4} key={m.id}>
+              <Card
+                variant="outlined"
+                sx={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  p: 2,
+                  cursor: 'pointer',
+                  '&:hover': { bgcolor: 'background.level1' },
+                }}
+                onClick={() => {
+                  setViewMember(m);
+                  setActiveTab(0);
+                }}
+              >
+                <Avatar
+                  size="lg"
+                  sx={{ bgcolor: m.type === 'pet' ? 'warning.softBg' : 'primary.softBg' }}
+                >
+                  {getResidentAvatar(m)}
+                </Avatar>
+                <CardContent>
+                  <Typography level="title-md">{m.name || 'Unnamed Resident'}</Typography>
+                  <Typography level="body-sm">
+                    {m.alias ? `"${m.alias}"` : m.type ? m.type.toUpperCase() : 'RESIDENT'}
+                  </Typography>
+                </CardContent>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                  <IconButton
+                    size="sm"
+                    variant="plain"
+                    color="neutral"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpenEdit(m);
+                    }}
+                  >
+                    <Edit />
+                  </IconButton>
+                  <IconButton
+                    size="sm"
+                    variant="plain"
+                    color="danger"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemoveMember(m.id);
+                    }}
+                  >
+                    <Delete />
+                  </IconButton>
+                </Box>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
 
-      {/* VIEW MODAL */}
-      <Modal open={Boolean(viewMember)} onClose={() => setViewMember(null)}>
-        <ModalDialog sx={{ maxWidth: 600, width: '100%', p: 0, overflow: 'hidden' }}>
+        {/* VIEW MODAL */}
+        <Modal open={Boolean(viewMember)} onClose={() => setViewMember(null)}>
+          <ModalDialog sx={{ maxWidth: 600, width: '100%', p: 0, overflow: 'hidden' }}>
             {viewMember && (
-                <>
-                    <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2, bgcolor: 'background.level1' }}>
-                        <Avatar size="lg">{getResidentAvatar(viewMember)}</Avatar>
-                        <Box>
-                            <Typography level="h3">{viewMember.name}</Typography>
-                            <Typography level="body-sm" color="neutral">{viewMember.type.toUpperCase()} • {viewMember.alias || 'No Alias'}</Typography>
-                        </Box>
-                    </Box>
-                    <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)}>
-                        <TabList variant="plain" sx={{ px: 2, bgcolor: 'background.level1' }}>
-                            <Tab value={0} variant={activeTab === 0 ? 'solid' : 'plain'} color={activeTab === 0 ? 'primary' : 'neutral'}><Info sx={{ mr: 1 }} /> Details</Tab>
-                            <Tab value={1} variant={activeTab === 1 ? 'solid' : 'plain'} color={activeTab === 1 ? 'primary' : 'neutral'}><Payments sx={{ mr: 1 }} /> Recurring Costs</Tab>
-                        </TabList>
-                        <Box sx={{ p: 3, minHeight: 300 }}>
-                            {activeTab === 0 && (
-                                <Grid container spacing={2}>
-                                    <Grid xs={6}><Typography level="body-xs" fontWeight="bold">TYPE</Typography><Typography level="body-sm">{viewMember.type}</Typography></Grid>
-                                    <Grid xs={6}><Typography level="body-xs" fontWeight="bold">GENDER</Typography><Typography level="body-sm">{viewMember.gender || 'Not Specified'}</Typography></Grid>
-                                    <Grid xs={6}><Typography level="body-xs" fontWeight="bold">DOB</Typography><Typography level="body-sm">{viewMember.dob || 'Not Recorded'}</Typography></Grid>
-                                    {viewMember.type === 'pet' && <Grid xs={6}><Typography level="body-xs" fontWeight="bold">SPECIES</Typography><Typography level="body-sm">{viewMember.species}</Typography></Grid>}
-                                </Grid>
-                            )}
-                            {activeTab === 1 && (
-                                <RecurringChargesWidget 
-                                    api={api} 
-                                    householdId={householdId} 
-                                    household={household}
-                                    entityType={viewMember.type === 'pet' ? 'pet' : 'member'} 
-                                    entityId={viewMember.id} 
-                                    title="Recurring Costs"
-                                    segments={getMemberSegments(viewMember.type)}
-                                    showNotification={showNotification} 
-                                    confirmAction={confirmAction}
-                                />
-                            )}
-                        </Box>
-                    </Tabs>
-                    <Divider />
-                    <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
-                        <Button variant="plain" color="neutral" onClick={() => setViewMember(null)}>Close</Button>
-                    </Box>
-                </>
-            )}
-        </ModalDialog>
-      </Modal>
-
-      {/* ADD / EDIT MODAL (Gold Standard) */}
-      <Modal open={open} onClose={() => setOpen(false)}>
-        <ModalDialog sx={{ maxWidth: 500, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>
-            <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
-                <Box sx={{ position: 'relative' }}>
-                    <Avatar 
-                        size="lg" 
-                        sx={{ '--Avatar-size': '64px', fontSize: '2rem' }}
-                    >
-                        {getResidentAvatar(formData)}
-                    </Avatar>
-                    {/* Note: No interactive edit badge as Emoji is derived from fields, not picked */}
-                </Box>
-                <Box sx={{ flexGrow: 1, pt: 0.5 }}>
-                    <Typography level="title-lg">{mode === 'add' ? 'New Resident' : 'Edit Resident'}</Typography>
+              <>
+                <Box
+                  sx={{
+                    p: 3,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                    bgcolor: 'background.level1',
+                  }}
+                >
+                  <Avatar size="lg">{getResidentAvatar(viewMember)}</Avatar>
+                  <Box>
+                    <Typography level="h3">{viewMember.name}</Typography>
                     <Typography level="body-sm" color="neutral">
-                        {mode === 'add' ? 'Add a person or pet to the household.' : 'Update resident details.'}
+                      {viewMember.type.toUpperCase()} • {viewMember.alias || 'No Alias'}
                     </Typography>
+                  </Box>
                 </Box>
+                <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)}>
+                  <TabList variant="plain" sx={{ px: 2, bgcolor: 'background.level1' }}>
+                    <Tab
+                      value={0}
+                      variant={activeTab === 0 ? 'solid' : 'plain'}
+                      color={activeTab === 0 ? 'primary' : 'neutral'}
+                    >
+                      <Info sx={{ mr: 1 }} /> Details
+                    </Tab>
+                    <Tab
+                      value={1}
+                      variant={activeTab === 1 ? 'solid' : 'plain'}
+                      color={activeTab === 1 ? 'primary' : 'neutral'}
+                    >
+                      <Payments sx={{ mr: 1 }} /> Recurring Costs
+                    </Tab>
+                  </TabList>
+                  <Box sx={{ p: 3, minHeight: 300 }}>
+                    {activeTab === 0 && (
+                      <Grid container spacing={2}>
+                        <Grid xs={6}>
+                          <Typography level="body-xs" fontWeight="bold">
+                            TYPE
+                          </Typography>
+                          <Typography level="body-sm">{viewMember.type}</Typography>
+                        </Grid>
+                        <Grid xs={6}>
+                          <Typography level="body-xs" fontWeight="bold">
+                            GENDER
+                          </Typography>
+                          <Typography level="body-sm">
+                            {viewMember.gender || 'Not Specified'}
+                          </Typography>
+                        </Grid>
+                        <Grid xs={6}>
+                          <Typography level="body-xs" fontWeight="bold">
+                            DOB
+                          </Typography>
+                          <Typography level="body-sm">
+                            {viewMember.dob || 'Not Recorded'}
+                          </Typography>
+                        </Grid>
+                        {viewMember.type === 'pet' && (
+                          <Grid xs={6}>
+                            <Typography level="body-xs" fontWeight="bold">
+                              SPECIES
+                            </Typography>
+                            <Typography level="body-sm">{viewMember.species}</Typography>
+                          </Grid>
+                        )}
+                      </Grid>
+                    )}
+                    {activeTab === 1 && (
+                      <RecurringChargesWidget
+                        api={api}
+                        householdId={householdId}
+                        household={household}
+                        entityType={viewMember.type === 'pet' ? 'pet' : 'member'}
+                        entityId={viewMember.id}
+                        title="Recurring Costs"
+                        segments={getMemberSegments(viewMember.type)}
+                        showNotification={showNotification}
+                        confirmAction={confirmAction}
+                      />
+                    )}
+                  </Box>
+                </Tabs>
+                <Divider />
+                <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                  <Button variant="plain" color="neutral" onClick={() => setViewMember(null)}>
+                    Close
+                  </Button>
+                </Box>
+              </>
+            )}
+          </ModalDialog>
+        </Modal>
+
+        {/* ADD / EDIT MODAL (Gold Standard) */}
+        <Modal open={open} onClose={() => setOpen(false)}>
+          <ModalDialog sx={{ maxWidth: 500, width: '100%', maxHeight: '95vh', overflowY: 'auto' }}>
+            <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
+              <Box sx={{ position: 'relative' }}>
+                <Avatar size="lg" sx={{ '--Avatar-size': '64px', fontSize: '2rem' }}>
+                  {getResidentAvatar(formData)}
+                </Avatar>
+                {/* Note: No interactive edit badge as Emoji is derived from fields, not picked */}
+              </Box>
+              <Box sx={{ flexGrow: 1, pt: 0.5 }}>
+                <Typography level="title-lg">
+                  {mode === 'add' ? 'New Resident' : 'Edit Resident'}
+                </Typography>
+                <Typography level="body-sm" color="neutral">
+                  {mode === 'add'
+                    ? 'Add a person or pet to the household.'
+                    : 'Update resident details.'}
+                </Typography>
+              </Box>
             </Box>
             <Divider />
             <DialogContent sx={{ overflowX: 'hidden' }}>
-                <form onSubmit={mode === 'add' ? handleAddSubmitWrapper : handleSubmit}>
-                    <Stack spacing={2} mt={1}>
-                        <Grid container spacing={2}>
-                          <Grid xs={12} sm={6}>
-                            <FormControl size="sm">
-                                <FormLabel>Type</FormLabel>
-                                <Select name="type" value={formData.type} onChange={(e, v) => setFormData({...formData, type: v})}>
-                                    <Option value="adult">Adult</Option>
-                                    <Option value="child">Child</Option>
-                                    <Option value="viewer">Viewer</Option>
-                                    <Option value="pet">Pet</Option>
-                                </Select>
-                            </FormControl>
-                          </Grid>
-                          <Grid xs={12} sm={6}>
-                              <FormControl size="sm" required>
-                                <FormLabel>Name</FormLabel>
-                                <Input name="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} />
-                              </FormControl>
-                          </Grid>
-                          
-                          {formData.type !== 'pet' ? (
-                            <>
-                              <Grid xs={12} sm={6}>
-                                  <FormControl size="sm">
-                                    <FormLabel>Alias</FormLabel>
-                                    <Input name="alias" value={formData.alias} onChange={(e) => setFormData({...formData, alias: e.target.value})} />
-                                  </FormControl>
-                              </Grid>
-                              <Grid xs={12} sm={6}>
-                                  <FormControl size="sm">
-                                    <FormLabel>DOB</FormLabel>
-                                    <Input name="dob" type="date" value={formData.dob} onChange={(e) => setFormData({...formData, dob: e.target.value})} />
-                                  </FormControl>
-                              </Grid>
-                              <Grid xs={12} sm={6}>
-                                <FormControl size="sm">
-                                  <FormLabel>Gender</FormLabel>
-                                  <Select name="gender" value={formData.gender} onChange={(e, v) => setFormData({...formData, gender: v})}>
-                                    <Option value="none">Not Specified</Option>
-                                    <Option value="male">Male</Option>
-                                    <Option value="female">Female</Option>
-                                  </Select>
-                                </FormControl>
-                              </Grid>
-                            </>
-                          ) : (
-                            <Grid xs={12} sm={6}>
-                              <FormControl size="sm">
-                                <FormLabel>Species</FormLabel>
-                                <Select name="species" value={formData.species} onChange={(e, v) => setFormData({...formData, species: v})}>
-                                    {PET_SPECIES.map(s => <Option key={s} value={s}>{s}</Option>)}
-                                </Select>
-                              </FormControl>
-                            </Grid>
-                          )}
+              <form onSubmit={mode === 'add' ? handleAddSubmitWrapper : handleSubmit}>
+                <Stack spacing={2} mt={1}>
+                  <Grid container spacing={2}>
+                    <Grid xs={12} sm={6}>
+                      <FormControl size="sm">
+                        <FormLabel>Type</FormLabel>
+                        <Select
+                          name="type"
+                          value={formData.type}
+                          onChange={(e, v) => setFormData({ ...formData, type: v })}
+                        >
+                          <Option value="adult">Adult</Option>
+                          <Option value="child">Child</Option>
+                          <Option value="viewer">Viewer</Option>
+                          <Option value="pet">Pet</Option>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid xs={12} sm={6}>
+                      <FormControl size="sm" required>
+                        <FormLabel>Name</FormLabel>
+                        <Input
+                          name="name"
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        />
+                      </FormControl>
+                    </Grid>
+
+                    {formData.type !== 'pet' ? (
+                      <>
+                        <Grid xs={12} sm={6}>
+                          <FormControl size="sm">
+                            <FormLabel>Alias</FormLabel>
+                            <Input
+                              name="alias"
+                              value={formData.alias}
+                              onChange={(e) => setFormData({ ...formData, alias: e.target.value })}
+                            />
+                          </FormControl>
                         </Grid>
-                        <DialogActions>
-                            <Button variant="plain" color="neutral" onClick={() => setOpen(false)}>Cancel</Button>
-                            <Button type="submit" variant="solid">Save</Button>
-                        </DialogActions>
-                    </Stack>
-                </form>
+                        <Grid xs={12} sm={6}>
+                          <FormControl size="sm">
+                            <FormLabel>DOB</FormLabel>
+                            <Input
+                              name="dob"
+                              type="date"
+                              value={formData.dob}
+                              onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
+                            />
+                          </FormControl>
+                        </Grid>
+                        <Grid xs={12} sm={6}>
+                          <FormControl size="sm">
+                            <FormLabel>Gender</FormLabel>
+                            <Select
+                              name="gender"
+                              value={formData.gender}
+                              onChange={(e, v) => setFormData({ ...formData, gender: v })}
+                            >
+                              <Option value="none">Not Specified</Option>
+                              <Option value="male">Male</Option>
+                              <Option value="female">Female</Option>
+                            </Select>
+                          </FormControl>
+                        </Grid>
+                      </>
+                    ) : (
+                      <Grid xs={12} sm={6}>
+                        <FormControl size="sm">
+                          <FormLabel>Species</FormLabel>
+                          <Select
+                            name="species"
+                            value={formData.species}
+                            onChange={(e, v) => setFormData({ ...formData, species: v })}
+                          >
+                            {PET_SPECIES.map((s) => (
+                              <Option key={s} value={s}>
+                                {s}
+                              </Option>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                    )}
+                  </Grid>
+                  <DialogActions>
+                    <Button variant="plain" color="neutral" onClick={() => setOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" variant="solid">
+                      Save
+                    </Button>
+                  </DialogActions>
+                </Stack>
+              </form>
             </DialogContent>
-        </ModalDialog>
-      </Modal>
-    </Sheet>
+          </ModalDialog>
+        </Modal>
+      </Sheet>
     </Box>
   );
 }

@@ -1,0 +1,13 @@
+node_modules
+dist
+build
+package-lock.json
+*.db
+*.zip
+logs
+server/data
+web/test-results
+server/test-report.json
+server/api-coverage.json
+drizzle/
+EOF

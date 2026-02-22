@@ -6,11 +6,7 @@ const HouseholdContext = createContext(null);
  * Provider for shared household state to eliminate prop-drilling.
  */
 export function HouseholdProvider({ children, value }) {
-  return (
-    <HouseholdContext.Provider value={value}>
-      {children}
-    </HouseholdContext.Provider>
-  );
+  return <HouseholdContext.Provider value={value}>{children}</HouseholdContext.Provider>;
 }
 
 /**

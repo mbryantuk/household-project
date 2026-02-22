@@ -1,131 +1,89 @@
-# Rebuilding Hearthstone: The "Greenfield" Wishlist
+# Hearthstone: Phased Execution Roadmap (Greenfield)
 
-If we were to restart the **Hearthstone** project from scratch today, this is the comprehensive roadmap of architectural, functional, and experiential improvements we would implement.
+This document outlines the logical progression for rebuilding Hearthstone from scratch, moving from a "Walking Skeleton" to a polished, scalable production application.
 
-## 🏗️ Architecture & Core Stack (The Foundation)
+## 🏁 Phase 1: The "Walking Skeleton" (Infrastructure)
 
-1.  **Strict TypeScript Everywhere:** Abandon `.js/.jsx`. Enforce strict type safety on both Backend and Frontend to eliminate `undefined` errors and improve refactoring confidence.
-2.  **Monorepo Structure:** Use **Turborepo** or **Nx** to manage `server`, `web`, and `shared-types` packages efficiently, rather than nested folders.
-3.  **ORM Adoption:** Replace raw SQL strings with **Drizzle ORM** or **Prisma**. This prevents SQL injection by design and makes schema migrations type-safe.
-4.  **Type-Safe APIs:** Implement **tRPC** or **Hono RPC**. This allows the Frontend to "import" the Backend API types, ensuring that if the API changes, the Frontend build fails immediately.
-5.  **Single-Database Multi-Tenancy:** Move from "File-per-Household" (SQLite files) to a single **PostgreSQL** instance with **Row Level Security (RLS)**. This simplifies backups, migrations, and cross-household analytics while maintaining isolation.
-6.  **Validation Library:** Use **Zod** for all input validation (API requests, forms, env vars) to ensure data integrity at the edges.
-7.  **Environment Configuration:** Use `t3-env` to strictly validate environment variables at build/runtime.
-8.  **Job Queue:** Implement **BullMQ** (Redis) for background tasks (emails, backups, nightly chores) instead of fragile `node-cron` in the main process.
-9.  **File Storage:** Abstract file storage (uploads, avatars) to an S3-compatible interface (MinIO for local, AWS for prod) instead of local disk writes.
-10. **Logging Standard:** Replace `console.log` with **Pino** or **Winston** for structured JSON logging, ready for ingestion by observability tools.
+_Goal: A deployable "Hello World" monorepo with strict standards and automated pipelines._
 
-## 🎨 Frontend & UI/UX (The Experience)
+- [x] **Item 1: Strict TypeScript Everywhere** - Initialized root and workspace configs.
+- [x] **Item 2: Monorepo Structure** - NPM Workspaces implemented.
+- [x] **Item 7: Environment Validation** - Zod-powered `config.ts` implemented.
+- [x] **Item 15: Styling Foundation** - Tailwind CSS v4 installed.
+- [ ] **Item 11: Frontend Framework (Next.js / TanStack Router)** - Transition from SPA to SSR/File-based routing.
+- [x] **Item 68: Strict Linting (ESLint + Prettier)** - Standardized and enforced via lint-staged.
+- [x] **Item 69: Commit Hooks (Husky + Lint-Staged)** - Enforced standards from Day 0.
+- [x] **Item 43: Tiny Production Images** - Refactored Dockerfile to multi-stage build.
+- [ ] **Item 44: Automated CI/CD (GitHub Actions)** - Move away from local deploy scripts.
+- [x] **Item 45: Infrastructure as Code (Compose)** - PostgreSQL and App defined in docker-compose.yml.
+- [ ] **Item 70: Naming Conventions** - Strictly enforce `use[Feature]` and `handle[Event]`.
+- [ ] **Item 71: Dead Code Elimination (Knip)** - Regular audits for unused dependencies.
 
-11. **Next.js or TanStack Router:** Move away from client-side `react-router-dom` to a framework that supports Server Side Rendering (SSR) or robust file-based routing for better SEO and initial load performance.
-12. **Server State Management:** Go "All In" on **TanStack Query (React Query)**. Remove manual `useEffect` data fetching completely.
-13. **Client State Management:** Use **Zustand** for global client state (sidebar toggle, theme preference) instead of heavy Context Providers.
-14. **Design Tokens First:** Define all colors, spacing, and typography in a primitive `tokens.ts` file or CSS variables before building components.
-15. **Tailwind CSS:** Adopt **Tailwind** for layout and spacing utilities, even if using a component library, to speed up responsive tweaks.
-16. **Headless UI Components:** Use **Radix UI** or **Aria-Kit** for accessible primitives (Dialogs, Dropdowns) and style them ourselves, rather than fighting styled-component overrides.
-17. **Skeleton Loading:** Replace spinning circles with **Skeleton screens** that mimic the layout of the data loading (e.g., table rows, card grids) for perceived performance.
-18. **Optimistic UI:** Implement optimistic updates for all interactions (e.g., checking off a shopping item immediately reflects in UI before server confirms).
-19. **Form Handling:** Standardize on **React Hook Form** + **Zod Resolver** for all complex forms (Settings, Wizards).
-20. **Toast System:** Use **Sonner** for toast notifications—it’s lighter, prettier, and swipeable.
-21. **Command Palette:** Implement `cmdk` (Command K) for global navigation and quick actions (e.g., "Add Expense", "Go to Settings").
-22. **Mobile Gestures:** Add swipe-to-delete for list items (Shopping, Chores) on mobile views.
-23. **Virtualization:** Use **TanStack Virtual** for long lists (Shopping History, Audit Logs) to keep the DOM light.
-24. **Image Optimization:** Use a specialized image component to lazy-load and serve optimized formats (WebP/AVIF) for user avatars and assets.
-25. **Error Boundaries:** granular Error Boundaries around *every* widget so one crash doesn't take down the dashboard.
+## 💾 Phase 2: The "Data Backbone" (Core Logic)
 
-## ♿ Accessibility (a11y) (The Inclusion)
+_Goal: Secure data persistence, type-safe communication, and centralized state._
 
-26. **Semantic HTML:** Strict code review enforcement for `<main>`, `<article>`, `<nav>`, `<aside>` usage over generic `<div>`.
-27. **Focus Management:** Ensure focus traps are correctly implemented in all Modals and Drawers.
-28. **Keyboard Navigation:** Full support for `Tab`, `Arrow` keys, `Esc`, and `Enter` across all interactive elements (Menus, Grids).
-29. **Screen Reader Testing:** Mandatory manual testing with NVDA or VoiceOver for core flows.
-30. **ARIA Labels:** Audit all "Icon-only" buttons (like "Edit", "Delete") to ensure they have `aria-label` or `sr-only` text.
-31. **Color Contrast:** automated CI check using `pa11y` to ensure text meets WCAG AA standards in both Light and Dark modes.
-32. **Reduced Motion:** Respect `prefers-reduced-motion` media query for animations (sidebar slide-ins, modal popups).
-33. **Font Scaling:** Ensure layout doesn't break when users increase root font size (using `rem` instead of `px` everywhere).
-34. **Skip Links:** Add a "Skip to Content" link at the top of the DOM for keyboard users.
-35. **Status Announcements:** Use `aria-live` regions for dynamic updates (e.g., "Notification received", "Item added").
+- [x] **Item 3: ORM Adoption (Drizzle)** - Connection and schema initialized.
+- [x] **Item 5: Centralized Postgres** - Docker container and Drizzle config ready.
+- [ ] **Item 51: Auth Provider (Auth.js/Clerk)** - Offload MFA and Passkey complexity.
+- [/] **Item 4: Type-Safe APIs (tRPC/Hono)** - Shared types initialized; need to implement router.
+- [/] **Item 6: Edge Validation (Zod)** - Shared entity schemas created in `@hearth/shared`.
+- [x] **Item 13: Client State (Zustand)** - Global store created in `web/src/stores`.
+- [ ] **Item 12: Server State (TanStack Query)** - Replace manual `useEffect` fetching.
+- [ ] **Item 53: API Rate Limiting** - Protect endpoints with Redis-based limits.
+- [ ] **Item 54: Immutable Audit Logging** - Track sensitive user actions.
+- [ ] **Item 55: Encryption at Rest** - Field-level PII encryption in Postgres.
+- [ ] **Item 48: Deterministic Seeding** - Build a robust test data generator with Faker.js.
+- [ ] **Item 49: Secrets Management (Doppler/Infisical)** - Move secrets out of `.env` files.
+- [ ] **Item 8: Background Jobs (BullMQ)** - Move cron tasks to a reliable queue.
+- [ ] **Item 9: S3-Compatible File Storage** - Abstract image/asset uploads.
+- [x] **Item 10: Structured Logging (Pino)** - Implemented in `server/utils/logger.ts`.
 
-## 🌍 Internationalization (i18n) & Localization (The Reach)
+## 🎨 Phase 3: The "Design System" (UI Foundation)
 
-36. **i18n Framework:** Integrate **i18next** or **lingui** from the start. No hardcoded strings in JSX.
-37. **Translation Keys:** Use structured keys (e.g., `dashboard.welcome.greeting`) instead of natural language keys.
-38. **Date/Time Formatting:** Use `Intl.DateTimeFormat` exclusively. Stop manually slicing date strings.
-39. **Currency Handling:** Store amounts in smallest integer units (cents/pence) and format using `Intl.NumberFormat` based on the Household's locale setting.
-40. **RTL Support:** Ensure layout logic (margins, padding, flex direction) supports Right-to-Left languages (Arabic, Hebrew) using logical properties (`margin-inline-start`).
-41. **Pluralization:** Handle complex plural rules (e.g., "0 items", "1 item", "2 items") via the i18n library.
-42. **Locale Routing:** Support `/en-US/dashboard`, `/fr/dashboard` URL structures for SEO and shareability.
+_Goal: Accessible, performant, and customizable UI primitives._
 
-## 🛠️ DevOps & Quality Assurance (The Operations)
+- [ ] **Item 14: Design Tokens First** - Define colors/spacing in `tokens.ts`.
+- [ ] **Item 16: Headless Components (Radix/Aria-Kit)** - Accessible UI primitives.
+- [ ] **Item 76: Storybook Integration** - Document the component library.
+- [ ] **Item 17: Skeleton Loading States** - Replace spinners with layout-mimicking skeletons.
+- [ ] **Item 18: Optimistic UI Updates** - Immediate feedback for list interactions.
+- [ ] **Item 19: Zod-Powered Forms (React Hook Form)** - Standardize form handling.
+- [ ] **Item 20: Modern Toast System (Sonner)** - Light, swipeable notifications.
+- [ ] **Item 21: Global Command Palette (Command+K)** - Quick navigation and actions.
+- [ ] **Item 24: Optimized Image Pipeline** - AVIF/WebP support and lazy loading.
+- [ ] **Item 25: Widget-Level Error Boundaries** - Isolate crashes to individual dashboard cards.
 
-43. **Containerization Strategy:** Multi-stage Docker builds to keep production images tiny (Alpine/Distroless).
-44. **CI/CD Pipeline:** GitHub Actions for "Lint, Test, Build, Publish" on every push. No more local deployment scripts.
-45. **Infrastructure as Code (IaC):** Use **Terraform** or **Pulumi** to define cloud resources (if moving to cloud) or local Docker Compose configurations.
-46. **E2E Testing:** Keep Playwright, but run it against a dedicated ephemeral environment, not the local dev instance.
-47. **Visual Regression:** Implement **Percy** or **Chromatic** to catch UI regressions (e.g., "The button moved 2px").
-48. **Database Seeding:** Create a robust, deterministic seeder using **Faker.js** for reliable local dev environments.
-49. **Secrets Management:** Use **Doppler** or **Infisical** for managing secrets across dev/prod, rather than `.env` files.
-50. **Dependency Management:** Use **Renovate** or **Dependabot** to keep packages updated automatically.
+## 🧩 Phase 4: "Feature Parity" (The Hearthstone Core)
 
-## 🔐 Security & Auth
+_Goal: Porting existing modules to the new architecture with enhanced logic._
 
-51. **Auth Provider:** Evaluate **Auth.js (NextAuth)** or **Clerk** to offload complexity of MFA, Passkeys, and Session management.
-52. **CSP Headers:** Strict Content Security Policy (CSP) implementation.
-53. **Rate Limiting:** Redis-based rate limiting middleware for all API routes.
-54. **Audit Logging:** Immutable audit log table for all sensitive actions (Login, Delete, Export).
-55. **Encryption at Rest:** Ensure database volume encryption (LUKS) or field-level encryption for PII.
+- [ ] **Item 60: Zero-Based Budgeting (Envelopes)** - core financial logic overhaul.
+- [ ] **Item 64: Gamified Chores** - Points system, leaderboards, and rewards.
+- [ ] **Item 65: Intelligent Meal Planning** - Auto-list generation from inventory.
+- [ ] **Item 63: Calendar Sync (Google/Apple)** - Two-way CalDAV integration.
+- [ ] **Item 61: Receipt Scanning (OCR)** - Auto-fill expenses from photos.
+- [ ] **Item 62: Barcode Pantry Tracking** - Quick inventory management.
+- [ ] **Item 66: Vehicle VIN Integration** - Auto-populate car details and MOT history.
+- [ ] **Item 67: Pet Health Timeline** - Vet records and vaccination tracking.
+- [ ] **Item 74: Feature Flags** - Safe rollout of new experimental features.
+- [ ] **Item 75: A/B Testing Infrastructure** - Data-driven UI decisions.
+- [ ] **Item 79: Soft Deletes** - Allow recovery of accidentally deleted data.
+- [ ] **Item 81: Portability (JSON/CSV Export)** - Full data ownership for users.
 
-## 📱 Mobile & PWA
+## 🚀 Phase 5: "Polish & Scale" (The Final Mile)
 
-56. **Service Worker:** Implement a custom Service Worker for "Offline-First" capabilities (read-only access to cached data).
-57. **Push Notifications:** Web Push API integration for server-side alerts (e.g., "Bill Due").
-58. **Installability:** Proper `manifest.json` with screenshots and shortcuts for a rich install experience.
-59. **Haptic Feedback:** Use `navigator.vibrate` for tactile feedback on mobile interactions (success/error).
+_Goal: World-class accessibility, mobile experience, and localization._
 
-## 🧩 Feature specifics
-
-60. **Budgeting:** Implement "Envelope Budgeting" logic (Zero-based budgeting) as a core option.
-61. **Scanning:** Add OCR (Tesseract.js) to scan receipts and auto-fill expenses.
-62. **Inventory:** Add Barcode scanning via camera for pantry/asset tracking.
-63. **Calendar:** Two-way sync with Google/Outlook/Apple Calendars (CalDAV).
-64. **Chores:** "Gamification" points system with a leaderboard and rewards shop.
-65. **Meal Planning:** Auto-generate shopping lists based on selected recipes and current pantry inventory.
-66. **Vehicles:** VIN lookup integration to auto-populate vehicle details.
-67. **Pets:** Vet record storage and vaccination reminder timeline.
-
-## 🧹 Code Quality
-
-68. **Linting:** Standardize on **ESLint** (strict config) + **Prettier**.
-69. **Commit Hooks:** **Husky** + **Lint-Staged** to prevent bad commits.
-70. **Naming Conventions:** Enforce strictly typed naming (e.g., `use[Feature]`, `handle[Event]`).
-71. **Dead Code Elimination:** Regular usage of **Knip** to find unused exports and dependencies.
-
-## 📊 Analytics
-
-72. **Self-Hosted Analytics:** Integrate **PostHog** or **Plausible** (self-hosted) for usage tracking without privacy invasion.
-73. **Performance Monitoring:** **Sentry** integration for Frontend/Backend crash reporting.
-
-## 🧪 Experimentation
-
-74. **Feature Flags:** Implement a simple Feature Flag system to rollout changes safely.
-75. **A/B Testing:** Infrastructure to test different UI layouts.
-
-## 📝 Documentation
-
-76. **Storybook:** Maintain a living UI component library documentation.
-77. **OpenAPI / Swagger:** Auto-generated API documentation from Zod schemas / TRPC routers.
-78. **Architecture Decision Records (ADRs):** Document *why* changes are made in the repo.
-
-## 🔄 Data Lifecycle
-
-79. **Soft Deletes:** Implement `deleted_at` columns for key entities to allow recovery.
-80. **Data Retention Policies:** Automated cleanup of old logs/notifications.
-81. **Export/Import:** Full JSON/CSV export capability for user data portability.
-
-## 🤝 Community
-
-82. **Contribution Guide:** Detailed `CONTRIBUTING.md` for open source developers.
-83. **License:** Clear Open Source license (MIT/AGPL).
+- [ ] **Items 56-59: Native-Level PWA** - Service Workers, Push API, Haptics, and manifest polish.
+- [ ] **Items 26-35: Accessibility Sweep (WCAG AA)** - Semantic HTML, Focus management, ARIA audit.
+- [ ] **Items 36-42: Full i18n/L10n** - Translation keys, RTL support, and locale-based formatting.
+- [ ] **Item 72: Privacy-First Analytics (PostHog)** - Self-hosted usage tracking.
+- [ ] **Item 73: Error Monitoring (Sentry)** - Automated crash reporting.
+- [ ] **Item 77: OpenAPI / Swagger Generation** - Sync documentation with Zod/tRPC logic.
+- [ ] **Item 82: Contribution Guide** - Open the project to external developers.
+- [ ] **Item 83: Open Source Licensing** - Finalize legal framework (MIT/AGPL).
 
 ---
-*Generated by Gemini CLI - 2026-02-22*
+
+_Updated by Gemini CLI - 2026-02-22_

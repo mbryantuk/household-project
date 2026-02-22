@@ -11,7 +11,7 @@ const rootPkg = JSON.parse(fs.readFileSync(resolve(__dirname, '../package.json')
 export default defineConfig({
   plugins: [react()],
   define: {
-    __SYSTEM_VERSION__: JSON.stringify(rootPkg.version)
+    __SYSTEM_VERSION__: JSON.stringify(rootPkg.version),
   },
   resolve: {
     alias: {

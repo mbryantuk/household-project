@@ -24,12 +24,12 @@ const DEFAULT_LAYOUT = [
 
 const layoutJson = JSON.stringify({ 1: DEFAULT_LAYOUT });
 
-console.log("🛠️ Migrating all users to new Bento Box Dashboard layout...");
+console.log('🛠️ Migrating all users to new Bento Box Dashboard layout...');
 
 db.serialize(() => {
-    db.run("UPDATE users SET dashboard_layout = ?", [layoutJson], function(err) {
-        if (err) console.error("Migration Error:", err.message);
-        else console.log(`✅ Successfully updated ${this.changes} users to new layout.`);
-        db.close();
-    });
+  db.run('UPDATE users SET dashboard_layout = ?', [layoutJson], function (err) {
+    if (err) console.error('Migration Error:', err.message);
+    else console.log(`✅ Successfully updated ${this.changes} users to new layout.`);
+    db.close();
+  });
 });

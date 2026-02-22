@@ -55,18 +55,31 @@ export const THEMES = {
   nordic: { name: 'Nordic', primary: '#5e81ac' },
   espresso: { name: 'Espresso', primary: '#44403c' },
   ink: { name: 'Ink', primary: '#1f2937' },
-  custom: { name: 'Custom Theme', primary: '#374151', isCustom: true }
+  custom: { name: 'Custom Theme', primary: '#374151', isCustom: true },
 };
 
 const hexToHsl = (hex) => {
-  let r = 0, g = 0, b = 0;
+  let r = 0,
+    g = 0,
+    b = 0;
   if (hex.length === 4) {
-    r = "0x" + hex[1] + hex[1]; g = "0x" + hex[2] + hex[2]; b = "0x" + hex[3] + hex[3];
+    r = '0x' + hex[1] + hex[1];
+    g = '0x' + hex[2] + hex[2];
+    b = '0x' + hex[3] + hex[3];
   } else if (hex.length === 7) {
-    r = "0x" + hex[1] + hex[2]; g = "0x" + hex[3] + hex[4]; b = "0x" + hex[5] + hex[6];
+    r = '0x' + hex[1] + hex[2];
+    g = '0x' + hex[3] + hex[4];
+    b = '0x' + hex[5] + hex[6];
   }
-  r /= 255; g /= 255; b /= 255;
-  let cmin = Math.min(r, g, b), cmax = Math.max(r, g, b), delta = cmax - cmin, h = 0, s = 0, l = 0;
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  let cmin = Math.min(r, g, b),
+    cmax = Math.max(r, g, b),
+    delta = cmax - cmin,
+    h = 0,
+    s = 0,
+    l = 0;
   if (delta === 0) h = 0;
   else if (cmax === r) h = ((g - b) / delta) % 6;
   else if (cmax === g) h = (b - r) / delta + 2;
@@ -85,7 +98,7 @@ export const getEmojiColor = (emoji, isDark = true) => {
   let hash = 0;
   const str = String(emoji || '');
   for (let i = 0; i < str.length; i++) {
-      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
   const hue = Math.abs(hash % 360);
   return `hsl(${hue}, ${isDark ? 50 : 70}%, ${isDark ? 25 : 90}%)`;
@@ -94,7 +107,7 @@ export const getEmojiColor = (emoji, isDark = true) => {
 export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
   let base = THEMES[themeId] || THEMES.hearth;
   if (themeId === 'custom' && customConfig) {
-      base = { ...base, ...customConfig };
+    base = { ...base, ...customConfig };
   }
 
   const primaryColor = base.primary || '#374151';
@@ -102,18 +115,18 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
 
   return extendTheme({
     fontFamily: {
-        body: '"DM Sans", var(--joy-fontFamily-fallback)',
-        display: '"DM Serif Display", serif',
+      body: '"DM Sans", var(--joy-fontFamily-fallback)',
+      display: '"DM Serif Display", serif',
     },
-    radius: { 
-        xs: '2px',
-        sm: '4px', 
-        md: '8px', 
-        lg: '12px', 
-        xl: '16px' 
+    radius: {
+      xs: '2px',
+      sm: '4px',
+      md: '8px',
+      lg: '12px',
+      xl: '16px',
     },
     shape: {
-        borderRadius: 8
+      borderRadius: 8,
     },
     colorSchemes: {
       light: {
@@ -189,16 +202,16 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
       JoyTypography: {
         styleOverrides: {
           root: ({ ownerState }) => ({
-             ...(ownerState.level === 'h2' && {
-               fontFamily: 'var(--joy-fontFamily-display)',
-               fontSize: '1.75rem',
-               fontWeight: 400,
-               letterSpacing: '-0.02em',
-             }),
-             ...(ownerState.level === 'h1' && {
-                fontFamily: 'var(--joy-fontFamily-display)',
-                fontWeight: 400,
-             }),
+            ...(ownerState.level === 'h2' && {
+              fontFamily: 'var(--joy-fontFamily-display)',
+              fontSize: '1.75rem',
+              fontWeight: 400,
+              letterSpacing: '-0.02em',
+            }),
+            ...(ownerState.level === 'h1' && {
+              fontFamily: 'var(--joy-fontFamily-display)',
+              fontWeight: 400,
+            }),
           }),
         },
       },
@@ -211,9 +224,9 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
             boxShadow: 'var(--joy-shadow-sm)',
             borderRadius: 'var(--joy-radius-md)',
             transition: 'transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease',
-            '&:hover': { 
-                boxShadow: 'var(--joy-shadow-md)',
-            }
+            '&:hover': {
+              boxShadow: 'var(--joy-shadow-md)',
+            },
           },
         },
       },
@@ -221,14 +234,14 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
         styleOverrides: {
           root: ({ ownerState }) => ({
             ...(ownerState.variant === 'outlined' && {
-                borderColor: 'var(--joy-palette-divider)',
-                backgroundColor: 'var(--joy-palette-background-surface)',
-                backdropFilter: 'blur(12px)',
-                borderRadius: 'var(--joy-radius-md)',
+              borderColor: 'var(--joy-palette-divider)',
+              backgroundColor: 'var(--joy-palette-background-surface)',
+              backdropFilter: 'blur(12px)',
+              borderRadius: 'var(--joy-radius-md)',
             }),
             ...(ownerState.variant === 'soft' && {
-                backgroundColor: 'var(--joy-palette-background-level1)',
-                backdropFilter: 'blur(8px)',
+              backgroundColor: 'var(--joy-palette-background-level1)',
+              backdropFilter: 'blur(8px)',
             }),
           }),
         },
@@ -251,20 +264,20 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
 export const getThemeSpec = (themeId = 'hearth', customConfig = null, mode = 'light') => {
   let base = THEMES[themeId] || THEMES.hearth;
   if (themeId === 'custom' && customConfig) {
-      base = { ...base, ...customConfig };
+    base = { ...base, ...customConfig };
   }
   const primaryColor = base.primary;
   const isDark = mode === 'dark';
-  
+
   return {
     primary: primaryColor,
     spec: {
-        mode,
-        primary: primaryColor,
-        bg: isDark ? '#050505' : '#f9fafb',
-        surface: isDark ? '#0a0a0a' : '#ffffff',
-        selection: isDark ? '#1a1a1a' : '#f3f4f6',
-        text: isDark ? '#f4f4f5' : '#111827'
-    }
+      mode,
+      primary: primaryColor,
+      bg: isDark ? '#050505' : '#f9fafb',
+      surface: isDark ? '#0a0a0a' : '#ffffff',
+      selection: isDark ? '#1a1a1a' : '#f3f4f6',
+      text: isDark ? '#f4f4f5' : '#111827',
+    },
   };
 };

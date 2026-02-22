@@ -9,10 +9,10 @@ class JsonReporter {
   onRunComplete(contexts, results) {
     const outputPath = path.resolve(__dirname, '../test-report.json');
     try {
-        fs.writeFileSync(outputPath, JSON.stringify(results, null, 2));
-        console.log(`JSON Report written to ${outputPath}`);
+      fs.writeFileSync(outputPath, JSON.stringify(results, null, 2));
+      console.log(`JSON Report written to ${outputPath}`);
     } catch (err) {
-        console.error('Failed to write JSON report:', err);
+      console.error('Failed to write JSON report:', err);
     }
   }
 }

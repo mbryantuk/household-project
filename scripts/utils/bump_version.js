@@ -19,7 +19,7 @@ const setVersion = (filePath, version) => {
 
 const oldVersion = getVersion('package.json');
 const baseVersion = oldVersion.split('-')[0];
-let [major, minor, patch] = baseVersion.split('.').map(v => parseInt(v, 10));
+let [major, minor, patch] = baseVersion.split('.').map((v) => parseInt(v, 10));
 
 if (isNaN(major)) major = 0;
 if (isNaN(minor)) minor = 0;

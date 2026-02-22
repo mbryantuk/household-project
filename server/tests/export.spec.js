@@ -1,6 +1,6 @@
 // server/tests/export.spec.js
 const request = require('supertest');
-const { app } = require('../server'); 
+const { app } = require('../server');
 const { globalDb, dbRun } = require('../db');
 const { seedHousehold } = require('./utils');
 
@@ -13,15 +13,15 @@ describe('GET /api/export/:household_id', () => {
 
   it('should return 404 if household_id is missing (route not matched)', async () => {
     const res = await request(app)
-        .get('/api/export/')
-        .set('Authorization', `Bearer ${household.token}`);
+      .get('/api/export/')
+      .set('Authorization', `Bearer ${household.token}`);
     expect(res.statusCode).toEqual(404);
   });
 
   it('should return 200 and export data if household_id is valid', async () => {
     const res = await request(app)
-        .get(`/api/export/${household.id}`)
-        .set('Authorization', `Bearer ${household.token}`);
+      .get(`/api/export/${household.id}`)
+      .set('Authorization', `Bearer ${household.token}`);
 
     expect(res.statusCode).toEqual(200);
     expect(res.header['content-type']).toMatch(/json/);

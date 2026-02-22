@@ -1,11 +1,5 @@
 const CACHE_NAME = 'hearth-cache-v5';
-const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/favicon.svg',
-  '/favicon.png',
-];
+const ASSETS = ['/', '/index.html', '/manifest.json', '/favicon.svg', '/favicon.png'];
 
 // Install Event - Caching Assets
 self.addEventListener('install', (event) => {
@@ -20,28 +14,33 @@ self.addEventListener('install', (event) => {
 // Activate Event - Cleaning old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            console.log('SW: Cleaning old cache', cache);
-            return caches.delete(cache);
-          }
-        })
-      );
-    }).then(() => {
-      return self.clients.claim(); // Become available to all pages immediately
-    })
+    caches
+      .keys()
+      .then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cache) => {
+            if (cache !== CACHE_NAME) {
+              console.log('SW: Cleaning old cache', cache);
+              return caches.delete(cache);
+            }
+          })
+        );
+      })
+      .then(() => {
+        return self.clients.claim(); // Become available to all pages immediately
+      })
   );
 });
 
 // Fetch Event - Network-First for HTML, Stale-While-Revalidate for others
 self.addEventListener('fetch', (event) => {
   // Skip cross-origin and API requests
-  if (!event.request.url.startsWith(self.location.origin) || 
-      event.request.url.includes('/auth/') || 
-      event.request.url.includes('/admin/') ||
-      event.request.url.includes('/households/')) {
+  if (
+    !event.request.url.startsWith(self.location.origin) ||
+    event.request.url.includes('/auth/') ||
+    event.request.url.includes('/admin/') ||
+    event.request.url.includes('/households/')
+  ) {
     return;
   }
 
@@ -62,12 +61,14 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.match(event.request).then((cachedResponse) => {
-        const fetchedResponse = fetch(event.request).then((networkResponse) => {
-          if (networkResponse.status === 200) {
-            cache.put(event.request, networkResponse.clone());
-          }
-          return networkResponse;
-        }).catch(() => null);
+        const fetchedResponse = fetch(event.request)
+          .then((networkResponse) => {
+            if (networkResponse.status === 200) {
+              cache.put(event.request, networkResponse.clone());
+            }
+            return networkResponse;
+          })
+          .catch(() => null);
 
         return cachedResponse || fetchedResponse;
       });

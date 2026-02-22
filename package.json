@@ -1,6 +1,6 @@
 {
   "name": "household-project",
-  "version": "3.2.292",
+  "version": "3.2.304",
   "private": true,
   "workspaces": [
     "server",
@@ -13,7 +13,19 @@
     "test:perf": "cd server && npm run test:perf",
     "test:ui": "cd web && npm run test:smoke",
     "deploy": "./scripts/deploy/deploy_verify.sh",
-    "bump": "node scripts/utils/bump_version.js"
+    "bump": "node scripts/utils/bump_version.js",
+    "prepare": "if [ \"$NODE_ENV\" != \"production\" ]; then husky; fi",
+    "format": "prettier --write .",
+    "lint": "npm run lint -ws"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix --no-warn-ignored",
+      "prettier --write"
+    ],
+    "*.{json,md,css}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@google/genai": "^1.36.0",
@@ -21,6 +33,13 @@
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.56.0",
+    "@typescript-eslint/parser": "^8.56.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.8.1",
     "typescript": "^5.9.3"
   }
 }

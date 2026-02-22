@@ -17,7 +17,7 @@ export const users = pgTable('users', {
   defaultHouseholdId: integer('default_household_id'),
   lastHouseholdId: integer('last_household_id'),
   isActive: boolean('is_active').default(true),
-  createdAt: timestamp('created_at').defaultNow()
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
 export const households = pgTable('households', {
@@ -26,14 +26,18 @@ export const households = pgTable('households', {
   avatar: text('avatar'),
   currency: text('currency').default('GBP'),
   isTest: integer('is_test').default(0),
-  createdAt: timestamp('created_at').defaultNow()
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
-export const userHouseholds = pgTable('user_households', {
-  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }),
-  householdId: integer('household_id').references(() => households.id, { onDelete: 'cascade' }),
-  role: text('role').default('member'),
-  isActive: boolean('is_active').default(true),
-}, (table) => ({
-  pk: [table.userId, table.householdId],
-}));
+export const userHouseholds = pgTable(
+  'user_households',
+  {
+    userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    householdId: integer('household_id').references(() => households.id, { onDelete: 'cascade' }),
+    role: text('role').default('member'),
+    isActive: boolean('is_active').default(true),
+  },
+  (table) => ({
+    pk: [table.userId, table.householdId],
+  })
+);

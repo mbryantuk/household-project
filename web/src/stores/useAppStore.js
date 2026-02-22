@@ -13,7 +13,7 @@ export const useAppStore = create(
         localStorage.setItem('nav_pinned', String(pinned));
         set({ sidebarPinned: pinned });
       },
-      
+
       notificationCount: 0,
       setNotificationCount: (count) => set({ notificationCount: count }),
 

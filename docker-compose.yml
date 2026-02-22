@@ -11,12 +11,12 @@ services:
     restart: always
 
   hearth-app:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     container_name: hearth-app
     ports:
-      - "4001:4001"
+      - '4001:4001'
     depends_on:
       - db
     volumes:

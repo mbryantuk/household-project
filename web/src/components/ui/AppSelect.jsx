@@ -4,7 +4,7 @@ import { FormControl, FormLabel, Select, Option } from '@mui/joy';
 /**
  * Shared Select Component (AppSelect)
  * Enforces consistent styling and future-proofs for "Searchable" upgrades.
- * 
+ *
  * @param {string} label - Label for the FormControl
  * @param {string} name - Name attribute for the input
  * @param {any} value - Controlled value
@@ -12,13 +12,21 @@ import { FormControl, FormLabel, Select, Option } from '@mui/joy';
  * @param {Array<{value: string, label: string}>} options - Dropdown options
  * @param {string} placeholder - Placeholder text
  */
-export default function AppSelect({ label, name, value, onChange, options = [], placeholder, ...props }) {
+export default function AppSelect({
+  label,
+  name,
+  value,
+  onChange,
+  options = [],
+  placeholder,
+  ...props
+}) {
   return (
     <FormControl>
       {label && <FormLabel>{label}</FormLabel>}
-      <Select 
-        name={name} 
-        value={value} 
+      <Select
+        name={name}
+        value={value}
         onChange={(e, newValue) => onChange && onChange(newValue)}
         placeholder={placeholder}
         {...props}

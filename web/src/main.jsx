@@ -1,6 +1,6 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.jsx';
 import CssBaseline from '@mui/joy/CssBaseline'; // Normalized CSS for Joy UI
 
 import 'react-grid-layout/css/styles.css';
@@ -8,22 +8,26 @@ import 'react-resizable/css/styles.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <CssBaseline /> 
+    <CssBaseline />
     <App />
-  </React.StrictMode>,
-)
+  </React.StrictMode>
+);
 
 // Register Service Worker with update detection
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => {
+    navigator.serviceWorker
+      .register('/sw.js')
+      .then((reg) => {
         console.log('SW registered:', reg);
 
         // Check for updates periodically
-        setInterval(() => {
-          reg.update();
-        }, 1000 * 60 * 60); // Check every hour
+        setInterval(
+          () => {
+            reg.update();
+          },
+          1000 * 60 * 60
+        ); // Check every hour
 
         reg.onupdatefound = () => {
           const installingWorker = reg.installing;
@@ -44,7 +48,7 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
           };
         };
       })
-      .catch(err => console.log('SW error:', err));
+      .catch((err) => console.log('SW error:', err));
   });
 
   // Reload the page when the new service worker takes over

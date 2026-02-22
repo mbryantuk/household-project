@@ -14,10 +14,12 @@ export default function HomeRecurringCostsWidget({ api, household }) {
         // Fix: Use correct endpoint
         const res = await api.get(`/households/${household.id}/finance/charges`);
         // Filter for active recurring costs
-        const active = (res.data || []).filter(c => c.is_active !== 0 && c.frequency !== 'one_off');
+        const active = (res.data || []).filter(
+          (c) => c.is_active !== 0 && c.frequency !== 'one_off'
+        );
         setCosts(active);
       } catch (err) {
-        console.error("Failed to fetch recurring costs", err);
+        console.error('Failed to fetch recurring costs', err);
       } finally {
         setLoading(false);
       }
@@ -30,18 +32,32 @@ export default function HomeRecurringCostsWidget({ api, household }) {
 
   return (
     <WidgetWrapper title="Monthly Costs" icon={<ReceiptLong />} color="warning">
-      {loading ? <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}><CircularProgress size="sm" /></Box> : (
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+          <CircularProgress size="sm" />
+        </Box>
+      ) : (
         <List size="sm" sx={{ '--ListItem-paddingY': '4px' }}>
-          {sortedCosts.slice(0, 5).map(cost => (
+          {sortedCosts.slice(0, 5).map((cost) => (
             <ListItem key={cost.id}>
               <ListItemContent>
-                <Typography level="body-sm" fontWeight="bold">{cost.name}</Typography>
-                <Typography level="body-xs">{cost.frequency === 'weekly' ? 'Weekly' : `Day ${cost.day_of_month || 1}`}</Typography>
+                <Typography level="body-sm" fontWeight="bold">
+                  {cost.name}
+                </Typography>
+                <Typography level="body-xs">
+                  {cost.frequency === 'weekly' ? 'Weekly' : `Day ${cost.day_of_month || 1}`}
+                </Typography>
               </ListItemContent>
-              <Chip size="sm" variant="soft" color="warning">£{Number(cost.amount).toFixed(2)}</Chip>
+              <Chip size="sm" variant="soft" color="warning">
+                £{Number(cost.amount).toFixed(2)}
+              </Chip>
             </ListItem>
           ))}
-          {sortedCosts.length === 0 && <Typography level="body-xs" sx={{ p: 2, textAlign: 'center', color: 'neutral.500' }}>No recurring costs.</Typography>}
+          {sortedCosts.length === 0 && (
+            <Typography level="body-xs" sx={{ p: 2, textAlign: 'center', color: 'neutral.500' }}>
+              No recurring costs.
+            </Typography>
+          )}
         </List>
       )}
     </WidgetWrapper>
