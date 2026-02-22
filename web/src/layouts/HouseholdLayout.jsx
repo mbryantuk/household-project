@@ -25,6 +25,7 @@ import AttachMoney from '@mui/icons-material/AttachMoney';
 import CleaningServices from '@mui/icons-material/CleaningServices';
 import ShoppingBag from '@mui/icons-material/ShoppingBag';
 
+import NotificationsDrawer from '../components/NotificationsDrawer';
 import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
 import { getEmojiColor } from '../theme';
@@ -124,10 +125,57 @@ export default function HouseholdLayout({
   const navigate = useNavigate();
   const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [notificationOpen, setNotificationOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState('main');
 
   // New: Global Status Bar State
   const [statusBarData, setStatusBarData] = useState(null);
+  
+  // Polling for Notifications
+  const [notifications, setNotifications] = useState({ urgent: [], upcoming: [], info: [] });
+  
+  useEffect(() => {
+      if (!api || !household?.id) return;
+
+      const fetchNotifications = async () => {
+          try {
+              const res = await api.get(`/households/${household.id}/notifications`);
+              setNotifications(res.data);
+              
+              // Local Notification Trigger
+              const urgentCount = res.data?.urgent?.length || 0;
+              if (urgentCount > 0 && Notification.permission === 'granted') {
+                  const lastNotified = localStorage.getItem('last_notification_time');
+                  const now = Date.now();
+                  // Notify if not notified in last 6 hours
+                  if (!lastNotified || (now - parseInt(lastNotified) > 6 * 60 * 60 * 1000)) {
+                      new Notification(`${household.name}: Urgent Attention`, {
+                          body: `You have ${urgentCount} urgent items (Bills, Chores, etc).`,
+                          icon: '/icon.png' // Assuming icon exists, or fallback
+                      });
+                      localStorage.setItem('last_notification_time', now.toString());
+                  }
+              }
+          } catch (err) {
+              console.error("Failed to poll notifications", err);
+          }
+      };
+
+      // Initial Fetch
+      fetchNotifications();
+      
+      // Request Permission
+      if (Notification.permission === 'default') {
+          Notification.requestPermission();
+      }
+
+      // Poll every 5 minutes
+      const interval = setInterval(fetchNotifications, 5 * 60 * 1000);
+      return () => clearInterval(interval);
+  }, [api, household?.id, household?.name]);
+
+  const totalNotifications = (notifications.urgent?.length || 0) + (notifications.upcoming?.length || 0);
+  const badgeCount = totalNotifications > 0 ? totalNotifications : null;
 
   useEffect(() => {
     const targetId = parseInt(id);
@@ -207,7 +255,12 @@ export default function HouseholdLayout({
 
           
 
-          <NavSidebar installPrompt={installPrompt} onInstall={onInstall} />
+          <NavSidebar 
+            installPrompt={installPrompt} 
+            onInstall={onInstall} 
+            onOpenNotifications={() => setNotificationOpen(true)}
+            notificationCount={badgeCount}
+          />
 
   
 
@@ -249,31 +302,71 @@ export default function HouseholdLayout({
 
   
 
-              <Typography 
-
-                  level="title-md" 
-
-                  onClick={() => navigate('dashboard')}
-
-                  sx={{ 
-
-                      fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase',
-
-                      cursor: 'pointer' 
-
-                  }}
-
-              >
-
-                  {pageTitle}
-
-              </Typography>
+                            <Typography 
 
   
 
-              <Box sx={{ width: 32 }} />
+                                level="title-md" 
 
-              </Sheet>
+  
+
+                                onClick={() => navigate('dashboard')}
+
+  
+
+                                sx={{ 
+
+  
+
+                                    fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase',
+
+  
+
+                                    cursor: 'pointer' 
+
+  
+
+                                }}
+
+  
+
+                            >
+
+  
+
+                                {pageTitle}
+
+  
+
+                            </Typography>
+
+  
+
+                
+
+  
+
+                            <IconButton variant="plain" onClick={() => setNotificationOpen(true)} size="sm">
+
+  
+
+                                <Badge color="danger" size="sm" invisible={false} sx={{ '& .MuiBadge-badge': { right: 4, top: 4 } }}>
+
+  
+
+                                  <Box component="span" sx={{ fontSize: '1.2rem' }}>🔔</Box>
+
+  
+
+                                </Badge>
+
+  
+
+                            </IconButton>
+
+  
+
+                            </Sheet>
 
   
 
@@ -571,6 +664,7 @@ export default function HouseholdLayout({
                 )}
             </Sheet>
         </Drawer>
+        <NotificationsDrawer open={notificationOpen} onClose={() => setNotificationOpen(false)} />
         </Box>
     </HouseholdProvider>
   );

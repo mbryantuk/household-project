@@ -8,7 +8,7 @@ import {
   KeyboardArrowRight, PushPin, PushPinOutlined, HomeWork, Settings as SettingsIcon, 
   Logout as LogoutIcon, Download as DownloadIcon, Home as HomeIcon, ExpandMore, Add, CheckCircle,
   Palette, Person, Security, CleaningServices, ShoppingBag,
-  LightMode, DarkMode, SettingsBrightness
+  LightMode, DarkMode, SettingsBrightness, Notifications
 } from '@mui/icons-material';
 
 import { useLocation, useNavigate, NavLink, useSearchParams } from 'react-router-dom';
@@ -16,7 +16,7 @@ import { isToday, parseISO } from 'date-fns';
 import { getEmojiColor } from '../theme';
 import { useHousehold } from '../contexts/HouseholdContext';
 import EmojiPicker from './EmojiPicker';
-import { ToggleButtonGroup } from '@mui/joy';
+import { ToggleButtonGroup, Badge } from '@mui/joy';
 
 const RAIL_WIDTH = 72; 
 const PANEL_WIDTH = 280; 
@@ -79,9 +79,10 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
                       mx: 'auto', minHeight: 60,
                       transition: 'all 0.2s',
                       '&.Mui-selected': { 
-                          bgcolor: 'primary.softBg', 
-                          color: 'primary.solidBg',
-                          transform: 'scale(0.95)'
+                          background: (theme) => `linear-gradient(135deg, ${theme.vars.palette.primary[400]} 0%, ${theme.vars.palette.primary[600]} 100%)`, 
+                          color: '#fff',
+                          transform: 'scale(0.95)',
+                          boxShadow: 'sm'
                       },
                       '&:hover': {
                           bgcolor: 'background.level1'
@@ -91,14 +92,14 @@ const RailIcon = ({ icon, label, category, to, hasSubItems, onClick, location, a
                   <ListItemDecorator sx={{ 
                       display: 'flex', justifyContent: 'center', m: 0, 
                       '& svg': { fontSize: '1.5rem' },
-                      color: isActive ? 'primary.solidBg' : 'text.secondary' 
+                      color: isActive ? 'inherit' : 'text.secondary' 
                   }}>
                       {icon}
                   </ListItemDecorator>
                   <Typography level="body-xs" sx={{ 
                       fontSize: '10px', 
                       fontWeight: isActive ? '700' : '500', 
-                      color: isActive ? 'primary.solidBg' : 'text.secondary', 
+                      color: isActive ? 'inherit' : 'text.secondary', 
                       textAlign: 'center' 
                   }}>{label}</Typography>
               </ListItemButton>
@@ -149,7 +150,7 @@ const GroupHeader = ({ label }) => (
 );
 
 export default function NavSidebar({ 
-    isMobile = false, onClose, installPrompt, onInstall
+    isMobile = false, onClose, installPrompt, onInstall, onOpenNotifications, notificationCount
 }) {
   const { mode: muiMode, systemMode } = useColorScheme();
   const isDark = muiMode === 'dark' || (muiMode === 'system' && systemMode === 'dark');
@@ -385,6 +386,21 @@ export default function NavSidebar({
   
               <Box sx={{ width: '100%', flexGrow: 1, overflowY: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
                   <List size="sm" sx={{ '--ListItem-radius': '8px', '--List-gap': '8px', width: '100%', px: isMobile ? 1 : 0 }}>
+                      <RailIcon 
+                          icon={
+                              <Badge color="danger" size="sm" badgeContent={notificationCount} invisible={!notificationCount} sx={{ '& .MuiBadge-badge': { right: 2, top: 2 } }}>
+                                  <Notifications />
+                              </Badge>
+                          } 
+                          label="Alerts" 
+                          onClick={onOpenNotifications}
+                          location={location} 
+                          activeCategory={activeCategory} 
+                          hoveredCategory={hoveredCategory} 
+                          onHover={setHoveredCategory} 
+                          handleNav={handleNav} 
+                          isMobile={isMobile} 
+                      />
                       <RailIcon icon={<AccountBalance />} label="Finance" category="finance" hasSubItems to={`/household/${household.id}/finance`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                       <RailIcon icon={<ShoppingBag />} label="Groceries" category="shopping" to={`/household/${household.id}/shopping`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
                       <RailIcon icon={<CleaningServices />} label="Chores" category="chores" to={`/household/${household.id}/chores`} location={location} activeCategory={activeCategory} hoveredCategory={hoveredCategory} onHover={setHoveredCategory} handleNav={handleNav} isMobile={isMobile} />
@@ -396,6 +412,7 @@ export default function NavSidebar({
   
               <Box sx={{ width: '100%', mt: 'auto', pt: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                   <Box sx={{ width: '100%', px: 1.5 }}><Divider sx={{ mb: 1.5 }} /></Box>
+                  
                   {installPrompt && (
                       <Tooltip title="Install App" variant="soft" placement="right">
                           <IconButton variant="soft" color="success" onClick={onInstall} size="sm"><DownloadIcon /></IconButton>

@@ -227,21 +227,31 @@ export default function HomeView() {
                         <Sheet
                             variant="outlined"
                             onClick={() => navigate(`../${mod.path}`)}
-                            sx={{
+                            sx={(theme) => ({
                                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                                 p: 2, gap: 1.5, borderRadius: 'lg', cursor: 'pointer',
                                 transition: 'all 0.2s',
+                                position: 'relative',
+                                overflow: 'hidden',
                                 '&:hover': {
                                     bgcolor: 'background.surface',
-                                    borderColor: `${mod.color}.300`,
+                                    borderColor: theme.vars.palette[mod.color].outlinedBorder,
                                     transform: 'translateY(-4px)',
-                                    boxShadow: 'md'
+                                    boxShadow: `0 4px 20px ${theme.vars.palette[mod.color].softBg}`
                                 }
-                            }}
+                            })}
                         >
-                            <Avatar variant="soft" color={mod.color} size="lg">
+                            <Box 
+                                sx={(theme) => ({ 
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    width: 48, height: 48, borderRadius: '12px',
+                                    background: `linear-gradient(135deg, ${theme.vars.palette[mod.color][400]} 0%, ${theme.vars.palette[mod.color][600]} 100%)`,
+                                    color: '#fff',
+                                    boxShadow: 'sm'
+                                })}
+                            >
                                 <mod.icon />
-                            </Avatar>
+                            </Box>
                             <Typography level="title-sm">{mod.label}</Typography>
                         </Sheet>
                     </Grid>
