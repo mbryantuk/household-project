@@ -100,10 +100,10 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
 
   test('Dashboard Page', async ({ page }) => {
     const base = getBaseUrl();
-    await page.goto(`${base}/dashboard`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${base}/dashboard`, { waitUntil: 'networkidle' });
     await expect(page.locator('body')).toBeVisible();
     await expect(page.locator('body')).not.toContainText('Endpoint not found');
-    await expect(page.getByText(/Good|Welcome/i).first()).toBeAttached();
+    await expect(page.getByText(/Good|Welcome/i).first()).toBeVisible({ timeout: 15000 });
   });
 
   test('Calendar Page', async ({ page }) => {

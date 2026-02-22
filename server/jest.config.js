@@ -6,8 +6,9 @@ module.exports = {
   },
   setupFiles: ['<rootDir>/tests/setup.js'],
   transform: {
-    '^.+\\.jsx?$': 'babel-jest',
+    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
+  moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'node'],
   transformIgnorePatterns: ['/node_modules/(?!(@scure|otplib|qrcode|ua-parser-js)/)'],
   globalTeardown: '<rootDir>/tests/teardown.js',
   reporters: ['default', '<rootDir>/tests/json-reporter.js'],

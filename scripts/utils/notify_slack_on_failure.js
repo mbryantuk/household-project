@@ -1,11 +1,24 @@
 const fs = require('fs');
 const path = require('path');
 
-// Try to load dependencies from server/node_modules
-const SERVER_MODULES = path.resolve(__dirname, '../../server/node_modules');
-const axiosModule = require(path.join(SERVER_MODULES, 'axios'));
+// Helper to require modules from monorepo (handling hoisting)
+function requireModule(name) {
+  try {
+    return require(name);
+  } catch (e) {
+    // Fallback: try relative to server/node_modules if not found (unlikely but safe)
+    try {
+      return require(path.resolve(__dirname, '../../server/node_modules', name));
+    } catch (e2) {
+      console.error(`❌ Module ${name} not found in monorepo.`);
+      throw e2;
+    }
+  }
+}
+
+const axiosModule = requireModule('axios');
 const axios = axiosModule.default || axiosModule;
-const FormData = require(path.join(SERVER_MODULES, 'form-data'));
+const FormData = requireModule('form-data');
 
 // Configuration
 const FAILURE_CHANNEL_ID = 'C0AD07QPYMS';

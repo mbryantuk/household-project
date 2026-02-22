@@ -55,10 +55,9 @@ export default function DashboardWidget({
                 width: 36,
                 height: 36,
                 borderRadius: '10px',
-                background: (theme) =>
-                  `linear-gradient(135deg, ${theme.vars.palette[color][400]} 0%, ${theme.vars.palette[color][600]} 100%)`,
+                background: `linear-gradient(135deg, var(--joy-palette-${color}-400) 0%, var(--joy-palette-${color}-600) 100%)`,
                 color: '#fff',
-                boxShadow: (theme) => `0 4px 10px ${theme.vars.palette[color].softBg}`,
+                boxShadow: `0 4px 10px var(--joy-palette-${color}-softBg)`,
               }}
             >
               <Icon sx={{ fontSize: '1.2rem' }} />

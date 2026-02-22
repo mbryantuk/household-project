@@ -10,10 +10,14 @@ export default function WidgetWrapper({ title, icon, color = 'primary', children
         flexDirection: 'column',
         borderLeft: '6px solid',
         borderColor: (theme) => {
-          if (!theme.vars || !theme.vars.palette) return color;
-          const paletteColor = theme.vars.palette[color];
-          if (!paletteColor) return color;
-          return paletteColor[500] || paletteColor.solidBg || color;
+          try {
+            if (!theme.vars || !theme.vars.palette) return color;
+            const paletteColor = theme.vars.palette[color];
+            if (!paletteColor) return color;
+            return paletteColor[500] || paletteColor.solidBg || color;
+          } catch {
+            return color;
+          }
         },
         boxShadow: 'sm',
         p: 0,
@@ -28,10 +32,14 @@ export default function WidgetWrapper({ title, icon, color = 'primary', children
             <Box
               sx={{
                 color: (theme) => {
-                  if (!theme.vars || !theme.vars.palette) return color;
-                  const paletteColor = theme.vars.palette[color];
-                  if (!paletteColor) return color;
-                  return paletteColor[500] || paletteColor.solidBg || color;
+                  try {
+                    if (!theme.vars || !theme.vars.palette) return color;
+                    const paletteColor = theme.vars.palette[color];
+                    if (!paletteColor) return color;
+                    return paletteColor[500] || paletteColor.solidBg || color;
+                  } catch {
+                    return color;
+                  }
                 },
                 display: 'flex',
               }}

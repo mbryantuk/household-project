@@ -381,7 +381,7 @@ export default function HomeView() {
                 <Sheet
                   variant="outlined"
                   onClick={() => navigate(`../${mod.path}`)}
-                  sx={(theme) => ({
+                  sx={{
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
@@ -395,24 +395,24 @@ export default function HomeView() {
                     overflow: 'hidden',
                     '&:hover': {
                       bgcolor: 'background.surface',
-                      borderColor: theme.vars.palette[mod.color].outlinedBorder,
+                      borderColor: `var(--joy-palette-${mod.color}-outlinedBorder)`,
                       transform: 'translateY(-4px)',
-                      boxShadow: `0 4px 20px ${theme.vars.palette[mod.color].softBg}`,
+                      boxShadow: `0 4px 20px var(--joy-palette-${mod.color}-softBg)`,
                     },
-                  })}
+                  }}
                 >
                   <Box
-                    sx={(theme) => ({
+                    sx={{
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       width: 48,
                       height: 48,
                       borderRadius: '12px',
-                      background: `linear-gradient(135deg, ${theme.vars.palette[mod.color][400]} 0%, ${theme.vars.palette[mod.color][600]} 100%)`,
+                      background: `linear-gradient(135deg, var(--joy-palette-${mod.color}-400) 0%, var(--joy-palette-${mod.color}-600) 100%)`,
                       color: '#fff',
                       boxShadow: 'sm',
-                    })}
+                    }}
                   >
                     <mod.icon />
                   </Box>

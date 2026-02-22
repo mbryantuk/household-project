@@ -88,7 +88,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 6340,
+                      "duration": 5277,
                       "errors": [],
                       "stdout": [
                         {
@@ -106,7 +106,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-22T16:49:05.634Z",
+                      "startTime": "2026-02-22T21:13:25.038Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -117,7 +117,7 @@
               "id": "2c14808d47b386fba9eb-cf40674c38354f943714",
               "file": "smoke.spec.js",
               "line": 101,
-              "column": 5
+              "column": 3
             },
             {
               "title": "Calendar Page",
@@ -135,7 +135,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 6326,
+                      "duration": 5079,
                       "errors": [],
                       "stdout": [
                         {
@@ -153,7 +153,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-22T16:49:12.622Z",
+                      "startTime": "2026-02-22T21:13:30.504Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -164,7 +164,7 @@
               "id": "2c14808d47b386fba9eb-65dcf704c9e1ebea0f13",
               "file": "smoke.spec.js",
               "line": 109,
-              "column": 5
+              "column": 3
             },
             {
               "title": "People Page",
@@ -182,7 +182,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5153,
+                      "duration": 4852,
                       "errors": [],
                       "stdout": [
                         {
@@ -200,7 +200,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-22T16:49:18.990Z",
+                      "startTime": "2026-02-22T21:13:35.617Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -211,7 +211,7 @@
               "id": "2c14808d47b386fba9eb-171e6d3e655016c9b313",
               "file": "smoke.spec.js",
               "line": 116,
-              "column": 5
+              "column": 3
             },
             {
               "title": "Pets Page",
@@ -229,7 +229,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4702,
+                      "duration": 4604,
                       "errors": [],
                       "stdout": [
                         {
@@ -247,7 +247,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-22T16:49:24.169Z",
+                      "startTime": "2026-02-22T21:13:40.491Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -258,7 +258,7 @@
               "id": "2c14808d47b386fba9eb-d5debc6616350aaa15fd",
               "file": "smoke.spec.js",
               "line": 123,
-              "column": 5
+              "column": 3
             },
             {
               "title": "Vehicles Page",
@@ -276,7 +276,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4825,
+                      "duration": 4680,
                       "errors": [],
                       "stdout": [
                         {
@@ -294,7 +294,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-22T16:49:28.890Z",
+                      "startTime": "2026-02-22T21:13:45.123Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -305,7 +305,7 @@
               "id": "2c14808d47b386fba9eb-530580c26c0460afd264",
               "file": "smoke.spec.js",
               "line": 130,
-              "column": 5
+              "column": 3
             },
             {
               "title": "Meals Page",
@@ -323,7 +323,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4744,
+                      "duration": 4916,
                       "errors": [],
                       "stdout": [
                         {
@@ -341,7 +341,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-22T16:49:33.735Z",
+                      "startTime": "2026-02-22T21:13:49.833Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -352,7 +352,7 @@
               "id": "2c14808d47b386fba9eb-b8a32d849858bef88d91",
               "file": "smoke.spec.js",
               "line": 137,
-              "column": 5
+              "column": 3
             },
             {
               "title": "Groceries Page & Import Button",
@@ -370,7 +370,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4983,
+                      "duration": 4915,
                       "errors": [],
                       "stdout": [
                         {
@@ -388,7 +388,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-22T16:49:38.498Z",
+                      "startTime": "2026-02-22T21:13:54.770Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -399,7 +399,7 @@
               "id": "2c14808d47b386fba9eb-cc2ee4597680c1b7cb6d",
               "file": "smoke.spec.js",
               "line": 144,
-              "column": 5
+              "column": 3
             },
             {
               "title": "Chores Page",
@@ -417,7 +417,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4701,
+                      "duration": 4677,
                       "errors": [],
                       "stdout": [
                         {
@@ -435,7 +435,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-22T16:49:43.507Z",
+                      "startTime": "2026-02-22T21:13:59.708Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -446,7 +446,7 @@
               "id": "2c14808d47b386fba9eb-564f135c59d12d104526",
               "file": "smoke.spec.js",
               "line": 154,
-              "column": 5
+              "column": 3
             },
             {
               "title": "Finance Page & Banking Import",
@@ -464,7 +464,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 6362,
+                      "duration": 6447,
                       "errors": [],
                       "stdout": [
                         {
@@ -482,7 +482,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-22T16:49:48.229Z",
+                      "startTime": "2026-02-22T21:14:04.410Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -493,7 +493,7 @@
               "id": "2c14808d47b386fba9eb-8b07f9a7ad5a03a1f09a",
               "file": "smoke.spec.js",
               "line": 161,
-              "column": 5
+              "column": 3
             },
             {
               "title": "Onboarding Page",
@@ -511,7 +511,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4799,
+                      "duration": 5037,
                       "errors": [],
                       "stdout": [
                         {
@@ -529,7 +529,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-22T16:49:54.616Z",
+                      "startTime": "2026-02-22T21:14:10.883Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -539,8 +539,8 @@
               ],
               "id": "2c14808d47b386fba9eb-44e19c2ea2651f1a3536",
               "file": "smoke.spec.js",
-              "line": 195,
-              "column": 5
+              "line": 197,
+              "column": 3
             },
             {
               "title": "House Overview Page",
@@ -558,7 +558,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5224,
+                      "duration": 4891,
                       "errors": [],
                       "stdout": [
                         {
@@ -576,7 +576,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-22T16:49:59.436Z",
+                      "startTime": "2026-02-22T21:14:15.942Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -586,8 +586,8 @@
               ],
               "id": "2c14808d47b386fba9eb-fe31e0fc5c4bd3b315e3",
               "file": "smoke.spec.js",
-              "line": 209,
-              "column": 5
+              "line": 211,
+              "column": 3
             },
             {
               "title": "Property Details Page",
@@ -605,7 +605,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5558,
+                      "duration": 5281,
                       "errors": [],
                       "stdout": [
                         {
@@ -623,7 +623,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-22T16:50:04.682Z",
+                      "startTime": "2026-02-22T21:14:20.858Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -633,8 +633,8 @@
               ],
               "id": "2c14808d47b386fba9eb-b08a53b9d7bc197b2c33",
               "file": "smoke.spec.js",
-              "line": 215,
-              "column": 5
+              "line": 217,
+              "column": 3
             },
             {
               "title": "Asset Register Page",
@@ -652,7 +652,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5009,
+                      "duration": 4815,
                       "errors": [],
                       "stdout": [
                         {
@@ -670,7 +670,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-22T16:50:10.261Z",
+                      "startTime": "2026-02-22T21:14:26.163Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -680,8 +680,8 @@
               ],
               "id": "2c14808d47b386fba9eb-899023ab40d288f36a8a",
               "file": "smoke.spec.js",
-              "line": 221,
-              "column": 5
+              "line": 223,
+              "column": 3
             },
             {
               "title": "User Profile Page",
@@ -699,7 +699,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4902,
+                      "duration": 4695,
                       "errors": [],
                       "stdout": [
                         {
@@ -717,7 +717,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-22T16:50:15.292Z",
+                      "startTime": "2026-02-22T21:14:31.000Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -727,8 +727,8 @@
               ],
               "id": "2c14808d47b386fba9eb-8ded83d61d120dd46f10",
               "file": "smoke.spec.js",
-              "line": 227,
-              "column": 5
+              "line": 229,
+              "column": 3
             },
             {
               "title": "Settings Pages (All Tabs)",
@@ -746,7 +746,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 9073,
+                      "duration": 7989,
                       "errors": [],
                       "stdout": [
                         {
@@ -767,26 +767,26 @@
                       "steps": [
                         {
                           "title": "Profile Tab",
-                          "duration": 967
+                          "duration": 672
                         },
                         {
                           "title": "Security Tab",
-                          "duration": 1034
+                          "duration": 823
                         },
                         {
                           "title": "Appearance Tab",
-                          "duration": 1134
+                          "duration": 886
                         },
                         {
                           "title": "API Tab",
-                          "duration": 856
+                          "duration": 793
                         },
                         {
                           "title": "Admin Tab",
-                          "duration": 693
+                          "duration": 720
                         }
                       ],
-                      "startTime": "2026-02-22T16:50:20.215Z",
+                      "startTime": "2026-02-22T21:14:35.717Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -796,8 +796,8 @@
               ],
               "id": "2c14808d47b386fba9eb-b7b11855d8085866d29d",
               "file": "smoke.spec.js",
-              "line": 233,
-              "column": 5
+              "line": 235,
+              "column": 3
             }
           ]
         }
@@ -806,8 +806,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-22T16:49:03.330Z",
-    "duration": 86067.126,
+    "startTime": "2026-02-22T21:13:22.921Z",
+    "duration": 80908.637,
     "expected": 15,
     "skipped": 0,
     "unexpected": 0,
