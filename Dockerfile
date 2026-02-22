@@ -1,26 +1,28 @@
-# Stage 1: Build the frontend
-FROM node:20-slim AS frontend-builder
+# Stage 1: Build Shared and Frontend
+FROM node:20-slim AS builder
 WORKDIR /app
 
-# Copy root package for versioning context
+# Copy root package and workspace configs
 COPY package*.json ./
+COPY tsconfig.json ./
 
-# Setup Frontend Context
-WORKDIR /app/web
-COPY web/package*.json ./
+# 1. Build @hearth/shared
+COPY packages/shared/package*.json ./packages/shared/
+RUN npm ci -w @hearth/shared --legacy-peer-deps
+COPY packages/shared/ ./packages/shared/
+RUN npm run build -w @hearth/shared
 
-# Install dependencies
-RUN npm ci --legacy-peer-deps
+# 2. Build Frontend (web)
+COPY web/package*.json ./web/
+RUN npm ci -w household-web --legacy-peer-deps
+COPY web/ ./web/
+RUN npm run build -w household-web
 
-# Copy frontend source and build
-COPY web/ .
-RUN npm run build
-
-# Stage 2: Final Image (Production Optimized)
+# Stage 2: Production Runtime
 FROM node:20-slim
 WORKDIR /app
 
-# Install build dependencies for native modules (e.g. sqlite3)
+# Install native build deps
 RUN apt-get update && apt-get install -y \
     python3 \
     make \
@@ -29,27 +31,27 @@ RUN apt-get update && apt-get install -y \
 
 ENV NODE_ENV=production
 
-# 1. Install Root Dependencies (needed for scripts)
+# 1. Install prod dependencies for all workspaces
 COPY package*.json ./
-RUN npm ci --omit=dev
-
-# 2. Install Server Dependencies
+COPY packages/shared/package*.json ./packages/shared/
 COPY server/package*.json ./server/
-WORKDIR /app/server
-RUN npm ci --omit=dev
+COPY web/package*.json ./web/
+RUN npm ci --omit=dev --legacy-peer-deps
 
-# 3. Copy source code
-WORKDIR /app
+# 2. Copy built shared library
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+
+# 3. Copy server source
 COPY server/ ./server/
 COPY scripts/ ./scripts/
-COPY web/package*.json ./web/
 
-# 4. Copy Built Frontend Assets
-COPY --from=frontend-builder /app/web/dist ./web/dist
+# 4. Copy built frontend assets
+COPY --from=builder /app/web/dist ./web/dist
 
-# Expose unified port
+# Expose port
 EXPOSE 4001
 
-# Start the server
+# Start using tsx to handle the .ts files in production for now
+# (In a highly optimized environment, we would pre-compile server to JS)
 WORKDIR /app/server
-CMD ["node", "server.js"]
+CMD ["npx", "tsx", "server.js"]

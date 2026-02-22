@@ -1,10 +1,10 @@
 {
   "name": "totem-server",
-  "version": "3.2.288",
+  "version": "3.2.292",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "NODE_ENV=test node_modules/.bin/jest && npm run test:tidy",
+    "test": "NODE_ENV=test jest && npm run test:tidy",
     "test:tidy": "node scripts/cleanup_test_data.js",
     "test:full": "NODE_ENV=test jest --config jest.config.js --verbose; npm run test:tidy",
     "test:perf": "NODE_ENV=test jest tests/performance; npm run test:tidy"
@@ -20,6 +20,7 @@
     "csv-parse": "^6.1.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.3.1",
+    "drizzle-orm": "^0.45.1",
     "express": "^4.18.2",
     "express-rate-limit": "^7.1.5",
     "helmet": "^7.1.0",
@@ -28,17 +29,27 @@
     "node-cron": "^3.0.3",
     "otplib": "^13.2.1",
     "pdf-parse": "^2.4.5",
+    "pino": "^10.3.1",
+    "pino-pretty": "^13.1.3",
     "qrcode": "^1.5.4",
     "sqlite3": "^5.1.7",
     "swagger-ui-express": "^5.0.0",
     "tesseract.js": "^7.0.0",
-    "ua-parser-js": "^2.0.9"
+    "ua-parser-js": "^2.0.9",
+    "@hearth/shared": "*",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
     "@babel/preset-env": "^7.29.0",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.3.0",
+    "@types/sqlite3": "^3.1.11",
     "babel-jest": "^30.2.0",
+    "drizzle-kit": "^0.31.9",
     "jest": "^29.7.0",
-    "supertest": "^6.3.3"
+    "supertest": "^6.3.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }

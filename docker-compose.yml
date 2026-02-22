@@ -1,19 +1,32 @@
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: hearth-db
+    environment:
+      POSTGRES_USER: hearth_user
+      POSTGRES_PASSWORD: hearth_password
+      POSTGRES_DB: hearthstone
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
   hearth-app:
     build: 
       context: .
-      dockerfile: Dockerfile # Use the unified Dockerfile we just created
+      dockerfile: Dockerfile
     container_name: hearth-app
     ports:
       - "4001:4001"
+    depends_on:
+      - db
     volumes:
-      # Map the host data folder to the container's data folder
       - /home/matt/household-project/server/data:/app/server/data
     restart: always
     environment:
       - NODE_ENV=production
+      - SECRET_KEY=super_secret_pi_key_v2_long_enough
+      - DATABASE_URL=postgres://hearth_user:hearth_password@db:5432/hearthstone
 
-# You can keep the volume definition, though the bind mount above 
-# handles the actual persistence on your Pi's disk.
 volumes:
   totem_db_data:
+  postgres_data:
