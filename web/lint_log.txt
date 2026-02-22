@@ -1,0 +1,22 @@
+
+> household-web@3.2.284-20260222 lint
+> eslint .
+
+
+/home/matt/household-project/web/src/components/ErrorBoundary.jsx
+  75:12  error  'Stack' is not defined  no-undef
+
+/home/matt/household-project/web/src/components/helpers/WidthProvider.jsx
+  3:59  warning  Unused eslint-disable directive (no problems were reported from 'no-unused-vars')
+
+/home/matt/household-project/web/src/contexts/HouseholdContext.jsx
+  19:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/home/matt/household-project/web/src/pages/OnboardingWizard.jsx
+  212:30  error  'Card' is not defined  no-undef
+  241:30  error  'Card' is not defined  no-undef
+  270:30  error  'Card' is not defined  no-undef
+
+✖ 6 problems (4 errors, 2 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+

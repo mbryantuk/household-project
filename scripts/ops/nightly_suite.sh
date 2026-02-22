@@ -24,6 +24,13 @@ else
     PROJECT_ROOT="/home/matt/household-project"
 fi
 
+# Ensure cleanup of maintenance lock on exit
+cleanup() {
+    echo "🧹 Cleaning up maintenance lock..."
+    rm -f "$PROJECT_ROOT/server/data/upgrading.lock"
+}
+trap cleanup EXIT
+
 # Initialize Log
 mkdir -p "$PROJECT_ROOT/logs"
 export LOG_FILE="$PROJECT_ROOT/logs/nightly_last_run.log"

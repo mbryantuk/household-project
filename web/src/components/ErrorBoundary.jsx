@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Typography, Button, Box, Sheet } from '@mui/joy';
+import { Card, Typography, Button, Box, Sheet, Stack } from '@mui/joy';
 import { WarningAmber, BugReport } from '@mui/icons-material';
 
 /**

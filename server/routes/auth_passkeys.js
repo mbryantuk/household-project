@@ -230,12 +230,16 @@ router.post('/login/verify', async (req, res) => {
 
         const challenge = extractChallenge(req.body);
         if (!challenge || !(await verifyAndConsumeChallenge({ challenge, email: user.email }))) {
+            console.error(`❌ [PASSKEY LOGIN] Challenge verification failed for ${user.email}. Challenge: ${challenge}`);
             return res.status(400).json({ verified: false, error: 'Challenge expired or invalid' });
         }
 
         const userPasskeys = await getUserPasskeys(user.id);
         const passkey = userPasskeys.find(pk => pk.id === req.body.id);
-        if (!passkey) return res.status(400).json({ error: "Passkey not matched" });
+        if (!passkey) {
+            console.error(`❌ [PASSKEY LOGIN] Passkey not found for user ${user.id}. ID: ${req.body.id}`);
+            return res.status(400).json({ error: "Passkey not matched" });
+        }
 
         const { rpID, origin } = getRpConfig(req);
 
@@ -266,6 +270,7 @@ router.post('/login/verify', async (req, res) => {
             // Use shared login finalization logic
             await finalizeLogin(user, req, res, req.body.rememberMe || false);
         } else {
+            console.error(`❌ [PASSKEY LOGIN] Verification failed for ${user.email}. Info:`, JSON.stringify(verification));
             res.status(400).json({ verified: false, error: 'Verification failed' });
         }
     } catch (err) {

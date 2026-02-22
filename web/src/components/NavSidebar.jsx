@@ -208,12 +208,23 @@ export default function NavSidebar({
   const activeCategory = useMemo(() => getCategoryFromPath(location.pathname), [location.pathname, getCategoryFromPath]);
 
   const handleNav = (to, category, hasSubItems) => {
-      if (to) {
-          navigate(to);
+      // Logic for touch devices and click-to-open behavior
+      if (hasSubItems) {
+          if (hoveredCategory === category) {
+             // If already open, just navigate (if link exists) or toggle close
+             if (to) navigate(to);
+             else setHoveredCategory(null);
+          } else {
+             // Open the panel first
+             setHoveredCategory(category);
+             if (to) navigate(to);
+          }
+      } else {
+          // No sub items, just go there and close panels
+          if (to) navigate(to);
           setHoveredCategory(null);
-          if (!hasSubItems && isMobile && onClose) onClose();
+          if (isMobile && onClose) onClose();
       }
-      if (!hasSubItems) setHoveredCategory(null);
   };
 
   const handleSubItemClick = () => {

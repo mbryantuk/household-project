@@ -10,10 +10,10 @@ WORKDIR /app/web
 COPY web/package*.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Copy frontend source and build
-COPY web/ ./
+COPY web/ .
 RUN npm run build
 
 # Stage 2: Final Image (Production Optimized)
