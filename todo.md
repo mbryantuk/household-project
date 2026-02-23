@@ -6,22 +6,26 @@ This document outlines the logical progression for rebuilding Hearthstone from s
 
 _Goal: A deployable "Hello World" monorepo with strict standards and automated pipelines._
 
-- [x] **Item 1: Strict TypeScript Everywhere** - Initialized root and workspace configs.
-- [x] **Item 2: Monorepo Structure** - NPM Workspaces implemented.
-- [x] **Item 7: Environment Validation** - Zod-powered `config.ts` implemented.
-- [x] **Item 15: Styling Foundation** - Tailwind CSS v4 installed.
-- [ ] **Item 11: Frontend Framework (Next.js / TanStack Router)** - Transition from SPA to SSR/File-based routing.
-- [x] **Item 68: Strict Linting (ESLint + Prettier)** - Standardized and enforced via lint-staged.
-- [x] **Item 69: Commit Hooks (Husky + Lint-Staged)** - Enforced standards from Day 0.
-- [x] **Item 43: Tiny Production Images** - Refactored Dockerfile to multi-stage build.
-- [x] **Item 44: Automated CI/CD (GitHub Actions)** - Implemented full pipeline for linting, multi-service testing (Postgres/Redis), and Docker builds.
-- [x] **Item 45: Infrastructure as Code (Compose)** - PostgreSQL, Redis, and App defined in docker-compose.yml.
-- [ ] **Item 70: Naming Conventions** - Strictly enforce `use[Feature]` and `handle[Event]`.
-- [ ] **Item 71: Dead Code Elimination (Knip)** - Regular audits for unused dependencies.
-- [x] **Item 72: Continuous Documentation Sync** - Ensure all `.md` files (README, ARCHITECTURE, etc.) are updated with every major change.
+... [Rest of file unchanged]
 
-## 💾 Phase 2: The "Data Backbone" (Core Logic)
+## 🎨 Phase 3: The "Design System" (UI Foundation)
 
-_Goal: Secure data persistence, type-safe communication, and centralized state._
+_Goal: Accessible, performant, and customizable UI primitives._
+
+- [x] **Item 14: Atomic UI Library** - Implementation of standardized `<AppButton />`, `<AppInput />`, `<AppTypography />`.
+- [x] **Item 16: Theme Engine v2** - Dynamic runtime theme switching with support for 50 signature themes and custom configurations.
+- [x] **Item 17: Layout Primitives** - Standardized `<ModuleContainer />` implemented for consistent spacing.
+- [x] **Item 18: Advanced Data Tables** - Integrated MUI X Data Grid with inline editing and multi-tenant filtering in `<AppTable />`.
+- [x] **Item 19: Emoji Styling System** - Dynamic HSL generation for emoji backgrounds via `<EmojiAvatar />`.
+
+## 🚀 Phase 4: The "Pro UX" (Advanced Features)
+
+_Goal: High-performance dashboard, real-time insights, and enterprise telemetry._
+
+- [x] **Item 20: Dashboard Grid System (v2)** - Drag-and-drop widget customization with persistence powered by `react-grid-layout`.
+- [ ] **Item 21: Real-time Feed (WebSockets)** - Integration of Socket.io for instant activity updates.
+- [ ] **Item 22: Advanced Analytics** - Interactive financial charting using Recharts.
+- [ ] **Item 23: Security Audit UI** - Admin view for browsing the immutable audit trail.
+- [ ] **Item 24: Global Command Bar (K)** - Omnisearch for rapid navigation and action execution.
 
 ... [Rest of file unchanged]
