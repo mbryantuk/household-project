@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Refactor: Migrate Finance, Shopping, Meals, and Widgets to TanStack Query; Create useEntity hooks (Lint fix)",
-  "date": "Mon 23 Feb 09:36:25 GMT 2026"
+  "commitMessage": "Refactor: Complete TanStack Query migration for Assets, Chores, and all Home Dashboard widgets (Lint fix)",
+  "date": "Mon 23 Feb 10:10:25 GMT 2026"
 }

@@ -1,70 +1,53 @@
-import { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Box,
   Typography,
+  Stack,
+  CircularProgress,
   List,
   ListItem,
   ListItemContent,
+  ListItemDecorator,
   Chip,
-  CircularProgress,
-  Avatar,
 } from '@mui/joy';
-import { DirectionsCar } from '@mui/icons-material';
+import DirectionsCar from '@mui/icons-material/DirectionsCar';
 import WidgetWrapper from './WidgetWrapper';
+import { useHouseholdVehicles } from '../../hooks/useHouseholdData';
 
 export default function VehiclesWidget({ api, household }) {
-  const [vehicles, setVehicles] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: vehicles = [], isLoading: loading } = useHouseholdVehicles(api, household?.id);
 
-  useEffect(() => {
-    if (!api || !household) return;
-    const fetchVehicles = async () => {
-      try {
-        const res = await api.get(`/households/${household.id}/vehicles`);
-        setVehicles(res.data || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchVehicles();
-  }, [api, household]);
+  if (loading)
+    return (
+      <WidgetWrapper title="Vehicles" icon={<DirectionsCar />} color="danger">
+        <CircularProgress size="sm" />
+      </WidgetWrapper>
+    );
 
   return (
-    <WidgetWrapper title="Fleet Status" icon={<DirectionsCar />} color="primary">
-      {loading ? (
-        <CircularProgress size="sm" />
-      ) : (
-        <List size="sm" sx={{ '--ListItem-paddingY': '8px' }}>
+    <WidgetWrapper title="Vehicles" icon={<DirectionsCar />} color="danger">
+      <Stack spacing={2}>
+        <Box>
+          <Typography level="body-xs">Fleet Status</Typography>
+          <Typography level="h4">{vehicles.length} Active</Typography>
+        </Box>
+        <List size="sm" sx={{ '--ListItem-paddingX': 0 }}>
           {vehicles.map((v) => (
-            <ListItem key={v.id} startDecorator={<Avatar size="sm">{v.emoji || '🚗'}</Avatar>}>
+            <ListItem key={v.id}>
+              <ListItemDecorator>{v.emoji || '🚗'}</ListItemDecorator>
               <ListItemContent>
-                <Typography level="body-sm" fontWeight="bold">
+                <Typography level="title-sm">
                   {v.make} {v.model}
                 </Typography>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Chip
-                    size="sm"
-                    variant={v.mot_due ? 'outlined' : 'soft'}
-                    color={v.mot_due ? 'danger' : 'neutral'}
-                  >
-                    MOT: {v.mot_due || 'N/A'}
-                  </Chip>
-                  <Chip
-                    size="sm"
-                    variant={v.tax_due ? 'outlined' : 'soft'}
-                    color={v.tax_due ? 'warning' : 'neutral'}
-                  >
-                    Tax: {v.tax_due || 'N/A'}
-                  </Chip>
-                </Box>
+                <Typography level="body-xs">{v.registration}</Typography>
               </ListItemContent>
+              <Chip size="sm" variant="soft" color="success">
+                OK
+              </Chip>
             </ListItem>
           ))}
-          {vehicles.length === 0 && <Typography level="body-xs">No vehicles tracked.</Typography>}
         </List>
-      )}
+      </Stack>
     </WidgetWrapper>
   );
 }

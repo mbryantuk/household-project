@@ -30,7 +30,7 @@ _Goal: Secure data persistence, type-safe communication, and centralized state._
 - [x] **Item 4: Type-Safe APIs (tRPC/Hono)** - Shared types and core Hono router initialized.
 - [x] **Item 6: Edge Validation (Zod)** - Shared entity schemas created in `@hearth/shared`.
 - [x] **Item 13: Client State (Zustand)** - Global store created in `web/src/stores`.
-- [/] **Item 12: Server State (TanStack Query)** - Partially replaced manual `useEffect` fetching (Finance, Shopping, Meals, People, Vehicles, Single Entities, Banking/Income Widgets).
+- [x] **Item 12: Server State (TanStack Query)** - Replaced manual `useEffect` fetching across Finance, Shopping, Meals, People, Vehicles, Assets, Chores, and all Home Dashboard widgets.
 - [ ] **Item 53: API Rate Limiting** - Protect endpoints with Redis-based limits.
 - [ ] **Item 54: Immutable Audit Logging** - Track sensitive user actions.
 - [ ] **Item 55: Encryption at Rest** - Field-level PII encryption in Postgres.

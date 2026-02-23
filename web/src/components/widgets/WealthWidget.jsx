@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -21,6 +21,7 @@ import {
   Warning,
 } from '@mui/icons-material';
 import WidgetWrapper from './WidgetWrapper';
+import { useWealthData } from '../../hooks/useFinanceData';
 
 const formatCurrency = (val) => {
   const num = parseFloat(val) || 0;
@@ -33,76 +34,10 @@ const formatCurrency = (val) => {
 };
 
 export default function WealthWidget({ api, household }) {
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState({
-    pensions: [],
-    savings: [],
-    investments: [],
-    mortgages: [],
-    vehicles: [],
-    vehicle_finance: [],
-    house_details: {},
-    savings_pots: [],
-    loans: [],
-    credit_cards: [],
-    current_accounts: [],
-  });
-
-  const fetchData = useCallback(async () => {
-    if (!api || !household?.id) return;
-    setLoading(true);
-    try {
-      const [
-        pensionRes,
-        saveRes,
-        invRes,
-        mortRes,
-        vehRes,
-        vFinRes,
-        detailRes,
-        potRes,
-        loanRes,
-        ccRes,
-        accRes,
-      ] = await Promise.all([
-        api.get(`/households/${household.id}/finance/pensions`),
-        api.get(`/households/${household.id}/finance/savings`),
-        api.get(`/households/${household.id}/finance/investments`),
-        api.get(`/households/${household.id}/finance/mortgages`),
-        api.get(`/households/${household.id}/vehicles`),
-        api.get(`/households/${household.id}/finance/vehicle-finance`),
-        api.get(`/households/${household.id}/details`),
-        api.get(`/households/${household.id}/finance/savings/pots`),
-        api.get(`/households/${household.id}/finance/loans`),
-        api.get(`/households/${household.id}/finance/credit-cards`),
-        api.get(`/households/${household.id}/finance/current-accounts`),
-      ]);
-
-      setData({
-        pensions: pensionRes.data || [],
-        savings: saveRes.data || [],
-        investments: invRes.data || [],
-        mortgages: mortRes.data || [],
-        vehicles: vehRes.data || [],
-        vehicle_finance: vFinRes.data || [],
-        house_details: detailRes.data || {},
-        savings_pots: potRes.data || [],
-        loans: loanRes.data || [],
-        credit_cards: ccRes.data || [],
-        current_accounts: accRes.data || [],
-      });
-    } catch (err) {
-      console.error('Failed to fetch wealth data', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [api, household?.id]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const { data, isLoading: loading } = useWealthData(api, household?.id);
 
   const houseEquity = useMemo(() => {
+    if (!data) return { valuation: 0, mortgageTotal: 0, equity: 0 };
     const valuation = data.house_details?.current_valuation || 0;
     const mortgageTotal =
       data.mortgages?.reduce((sum, m) => sum + (m.remaining_balance || 0), 0) || 0;
@@ -110,6 +45,7 @@ export default function WealthWidget({ api, household }) {
   }, [data]);
 
   const vehicleEquity = useMemo(() => {
+    if (!data) return { value: 0, financeTotal: 0, equity: 0 };
     const value = data.vehicles.reduce(
       (sum, v) => sum + (v.current_value || v.purchase_value || 0),
       0
@@ -120,36 +56,37 @@ export default function WealthWidget({ api, household }) {
   }, [data]);
 
   const totalPensions = useMemo(
-    () => data.pensions.reduce((sum, p) => sum + (p.current_value || 0), 0),
-    [data.pensions]
+    () => data?.pensions.reduce((sum, p) => sum + (p.current_value || 0), 0) || 0,
+    [data?.pensions]
   );
   const totalInvestments = useMemo(
-    () => data.investments.reduce((sum, i) => sum + (i.current_value || 0), 0),
-    [data.investments]
+    () => data?.investments.reduce((sum, i) => sum + (i.current_value || 0), 0) || 0,
+    [data?.investments]
   );
   const totalSavings = useMemo(
-    () => data.savings.reduce((sum, s) => sum + (s.current_balance || 0), 0),
-    [data.savings]
+    () => data?.savings.reduce((sum, s) => sum + (s.current_balance || 0), 0) || 0,
+    [data?.savings]
   );
 
   const totalLoans = useMemo(
-    () => data.loans.reduce((sum, l) => sum + (l.remaining_balance || 0), 0),
-    [data.loans]
+    () => data?.loans.reduce((sum, l) => sum + (l.remaining_balance || 0), 0) || 0,
+    [data?.loans]
   );
   const totalCreditCards = useMemo(
-    () => data.credit_cards.reduce((sum, cc) => sum + (cc.current_balance || 0), 0),
-    [data.credit_cards]
+    () => data?.credit_cards.reduce((sum, cc) => sum + (cc.current_balance || 0), 0) || 0,
+    [data?.credit_cards]
   );
   const totalOverdrafts = useMemo(
     () =>
-      data.current_accounts.reduce(
+      data?.current_accounts.reduce(
         (sum, acc) => sum + (acc.current_balance < 0 ? Math.abs(acc.current_balance) : 0),
         0
-      ),
-    [data.current_accounts]
+      ) || 0,
+    [data?.current_accounts]
   );
 
   const netWorth = useMemo(() => {
+    if (!data) return 0;
     const assets =
       houseEquity.valuation +
       vehicleEquity.value +
@@ -177,7 +114,7 @@ export default function WealthWidget({ api, household }) {
     totalOverdrafts,
   ]);
 
-  if (loading)
+  if (loading || !data)
     return (
       <WidgetWrapper title="Wealth Tracking" icon={<SavingsIcon />} color="success">
         <Box

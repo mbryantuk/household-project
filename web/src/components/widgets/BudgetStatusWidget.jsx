@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   Box,
   Typography,
   Stack,
   LinearProgress,
   CircularProgress,
-  Tooltip,
   Sheet,
   Chip,
   Divider,
@@ -31,6 +30,7 @@ import {
   differenceInDays,
 } from 'date-fns';
 import WidgetWrapper from './WidgetWrapper';
+import { useBudgetStatusData } from '../../hooks/useFinanceData';
 
 const formatCurrency = (val) => {
   const num = parseFloat(val) || 0;
@@ -43,59 +43,10 @@ const formatCurrency = (val) => {
 };
 
 export default function BudgetStatusWidget({ api, household }) {
-  const [loading, setLoading] = useState(true);
-  const [financeData, setFinanceData] = useState({
-    incomes: [],
-    progress: [],
-    cycles: [],
-    recurring_costs: [],
-    credit_cards: [],
-    current_accounts: [],
-    bank_holidays: [],
-  });
-
-  const fetchData = useCallback(async () => {
-    if (!api || !household?.id) return;
-    setLoading(true);
-    try {
-      const [incRes, progRes, cycleRes, recurringRes, ccRes, accountRes, holidayRes] =
-        await Promise.all([
-          api.get(`/households/${household.id}/finance/income`).catch(() => ({ data: [] })),
-          api
-            .get(`/households/${household.id}/finance/budget-progress`)
-            .catch(() => ({ data: [] })),
-          api.get(`/households/${household.id}/finance/budget-cycles`).catch(() => ({ data: [] })),
-          api
-            .get(`/households/${household.id}/finance/recurring-costs`)
-            .catch(() => ({ data: [] })),
-          api.get(`/households/${household.id}/finance/credit-cards`).catch(() => ({ data: [] })),
-          api
-            .get(`/households/${household.id}/finance/current-accounts`)
-            .catch(() => ({ data: [] })),
-          api.get(`/system/holidays`).catch(() => ({ data: [] })),
-        ]);
-
-      setFinanceData({
-        incomes: incRes?.data || [],
-        progress: progRes?.data || [],
-        cycles: cycleRes?.data || [],
-        recurring_costs: recurringRes?.data || [],
-        credit_cards: ccRes?.data || [],
-        current_accounts: accountRes?.data || [],
-        bank_holidays: holidayRes?.data || [],
-      });
-    } catch (err) {
-      console.error('Failed to fetch budget status data', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [api, household?.id]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const { data: financeData, isLoading: loading } = useBudgetStatusData(api, household?.id);
 
   const projection = useMemo(() => {
+    if (!financeData) return null;
     const { incomes, recurring_costs, progress, cycles, current_accounts, bank_holidays } =
       financeData;
 

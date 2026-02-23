@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import {
   Box,
@@ -7,10 +7,7 @@ import {
   Button,
   Input,
   IconButton,
-  Checkbox,
   Stack,
-  Divider,
-  LinearProgress,
   Chip,
   Select,
   Option,
@@ -24,25 +21,21 @@ import {
   Grid,
   Avatar,
   Table,
-  Tooltip,
   CircularProgress,
 } from '@mui/joy';
 import {
   Add,
   Delete,
   CleaningServices,
-  AttachMoney,
   EventRepeat,
-  Person,
-  EmojiEvents,
-  CheckCircle,
   RadioButtonUnchecked,
   Edit,
 } from '@mui/icons-material';
 import { format, parseISO, isPast, isToday, isTomorrow } from 'date-fns';
+import { useQueryClient } from '@tanstack/react-query';
 import { getEmojiColor } from '../utils/colors';
-import AppSelect from '../components/ui/AppSelect';
 import EmojiPicker from '../components/EmojiPicker';
+import { useChores, useChoreStats } from '../hooks/useHouseholdData';
 
 const formatCurrency = (val) => {
   const num = parseFloat(val) || 0;
@@ -75,9 +68,11 @@ const getDueDateColor = (dateStr) => {
 
 export default function ChoresView() {
   const { api, household, showNotification, isDark, members, confirmAction } = useOutletContext();
-  const [chores, setChores] = useState([]);
-  const [stats, setStats] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const householdId = household?.id;
+  const queryClient = useQueryClient();
+
+  const { data: chores = [], isLoading: choresLoading } = useChores(api, householdId);
+  const { data: stats = [] } = useChoreStats(api, householdId);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -97,33 +92,9 @@ export default function ChoresView() {
 
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
-  const fetchData = useCallback(async () => {
-    try {
-      const [choresRes, statsRes] = await Promise.all([
-        api.get(`/households/${household.id}/chores`),
-        api.get(`/households/${household.id}/chores/stats`),
-      ]);
-      setChores(choresRes.data || []);
-      setStats(statsRes.data || []);
-    } catch (err) {
-      console.error('Failed to fetch chores', err);
-      showNotification('Failed to load chores', 'danger');
-    } finally {
-      setLoading(false);
-    }
-  }, [api, household.id, showNotification]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const invalidateChores = () => {
+    queryClient.invalidateQueries({ queryKey: ['households', householdId, 'chores'] });
+  };
 
   const handleOpenAdd = () => {
     setFormData({
@@ -166,14 +137,14 @@ export default function ChoresView() {
       };
 
       if (isEditMode && selectedChore) {
-        await api.put(`/households/${household.id}/chores/${selectedChore.id}`, payload);
+        await api.put(`/households/${householdId}/chores/${selectedChore.id}`, payload);
         showNotification('Chore updated', 'success');
       } else {
-        await api.post(`/households/${household.id}/chores`, payload);
+        await api.post(`/households/${householdId}/chores`, payload);
         showNotification('Chore added', 'success');
       }
       setIsModalOpen(false);
-      fetchData();
+      invalidateChores();
     } catch {
       showNotification('Operation failed', 'danger');
     }
@@ -182,8 +153,8 @@ export default function ChoresView() {
   const handleDelete = async (id) => {
     confirmAction('Delete Chore', 'Are you sure you want to delete this chore?', async () => {
       try {
-        await api.delete(`/households/${household.id}/chores/${id}`);
-        setChores((prev) => prev.filter((c) => c.id !== id));
+        await api.delete(`/households/${householdId}/chores/${id}`);
+        invalidateChores();
         showNotification('Chore deleted', 'success');
       } catch {
         showNotification('Failed to delete', 'danger');
@@ -193,23 +164,24 @@ export default function ChoresView() {
 
   const handleComplete = async (chore) => {
     try {
-      // Optimistic update
-      setChores((prev) => prev.filter((c) => c.id !== chore.id));
-      // Note: If recurring, it should reappear with new date, but we need to re-fetch to get that date accurately from server logic or calculate locally.
-      // For simplicity, we re-fetch after success.
-
-      await api.post(`/households/${household.id}/chores/${chore.id}/complete`, {
+      await api.post(`/households/${householdId}/chores/${chore.id}/complete`, {
         date: new Date().toISOString(),
       });
 
       showNotification(`Completed: ${chore.name} (+${formatCurrency(chore.value)})`, 'success');
-      // Play sound?
-      fetchData();
+      invalidateChores();
     } catch {
       showNotification('Failed to complete chore', 'danger');
-      fetchData(); // Revert
     }
   };
+
+  if (choresLoading && chores.length === 0) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ width: '100%', mx: 'auto', pb: 10 }}>
@@ -283,7 +255,7 @@ export default function ChoresView() {
             {chores
               .filter((c) => c.next_due_date)
               .map((chore) => {
-                const assignee = members.find((m) => m.id === chore.assigned_member_id);
+                const assignee = (members || []).find((m) => m.id === chore.assigned_member_id);
                 return (
                   <tr key={chore.id}>
                     <td>
@@ -419,7 +391,7 @@ export default function ChoresView() {
                         onChange={(_e, v) => setFormData({ ...formData, assigned_member_id: v })}
                       >
                         <Option value={null}>Unassigned</Option>
-                        {members.map((m) => (
+                        {(members || []).map((m) => (
                           <Option key={m.id} value={m.id}>
                             {m.emoji} {m.name}
                           </Option>

@@ -118,3 +118,48 @@ export function useMealPlans(api, householdId, start, end) {
     enabled: !!api && !!householdId && !!start && !!end,
   });
 }
+
+/**
+ * Hook to fetch all assets of a household
+ */
+export function useAssets(api, householdId) {
+  return useQuery({
+    queryKey: ['households', householdId, 'assets'],
+    queryFn: async () => {
+      if (!householdId) return [];
+      const res = await api.get(`/households/${householdId}/assets`);
+      return Array.isArray(res.data) ? res.data : [];
+    },
+    enabled: !!api && !!householdId,
+  });
+}
+
+/**
+ * Hook to fetch all chores of a household
+ */
+export function useChores(api, householdId) {
+  return useQuery({
+    queryKey: ['households', householdId, 'chores'],
+    queryFn: async () => {
+      if (!householdId) return [];
+      const res = await api.get(`/households/${householdId}/chores`);
+      return Array.isArray(res.data) ? res.data : [];
+    },
+    enabled: !!api && !!householdId,
+  });
+}
+
+/**
+ * Hook to fetch chore stats
+ */
+export function useChoreStats(api, householdId) {
+  return useQuery({
+    queryKey: ['households', householdId, 'chores', 'stats'],
+    queryFn: async () => {
+      if (!householdId) return [];
+      const res = await api.get(`/households/${householdId}/chores/stats`);
+      return Array.isArray(res.data) ? res.data : [];
+    },
+    enabled: !!api && !!householdId,
+  });
+}

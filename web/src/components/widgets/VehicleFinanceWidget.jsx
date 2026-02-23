@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Box,
   Typography,
@@ -7,31 +7,22 @@ import {
   List,
   ListItem,
   ListItemContent,
-  ListItemDecorator,
 } from '@mui/joy';
 import DirectionsCar from '@mui/icons-material/DirectionsCar';
 import WidgetWrapper from './WidgetWrapper';
+import { useVehicleFinance } from '../../hooks/useFinanceData';
 
 export default function VehicleFinanceWidget({ api, household }) {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!api || !household?.id) return;
-    api
-      .get(`/households/${household.id}/finance/vehicle-finance`)
-      .then((res) => setData(res.data || []))
-      .finally(() => setLoading(false));
-  }, [api, household]);
+  const { data: finance = [], isLoading: loading } = useVehicleFinance(api, household?.id);
 
   if (loading)
     return (
-      <WidgetWrapper title="Vehicle Finance" icon={<DirectionsCar />} color="danger">
+      <WidgetWrapper title="Car Finance" icon={<DirectionsCar />} color="danger">
         <CircularProgress size="sm" />
       </WidgetWrapper>
     );
 
-  const total = data.reduce((sum, v) => sum + (parseFloat(v.remaining_balance) || 0), 0);
+  const total = finance.reduce((sum, f) => sum + (f.balance || 0), 0);
 
   return (
     <WidgetWrapper title="Car Finance" icon={<DirectionsCar />} color="danger">
@@ -43,15 +34,16 @@ export default function VehicleFinanceWidget({ api, household }) {
           </Typography>
         </Box>
         <List size="sm" sx={{ '--ListItem-paddingX': 0 }}>
-          {data.map((v) => (
-            <ListItem key={v.id}>
-              <ListItemDecorator>{v.emoji || '🚗'}</ListItemDecorator>
+          {finance.map((f) => (
+            <ListItem key={f.id}>
               <ListItemContent>
-                <Typography level="title-sm">{v.lender}</Typography>
-                <Typography level="body-xs">£{v.monthly_payment}/mo</Typography>
+                <Typography level="title-sm">{f.provider}</Typography>
+                <Typography level="body-xs">
+                  {f.vehicle_make} {f.vehicle_model}
+                </Typography>
               </ListItemContent>
-              <Typography level="title-sm">
-                £{parseFloat(v.remaining_balance || 0).toLocaleString()}
+              <Typography level="title-sm" color="danger">
+                £{f.balance?.toLocaleString()}
               </Typography>
             </ListItem>
           ))}

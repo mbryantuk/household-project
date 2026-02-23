@@ -1,65 +1,52 @@
-import { useState, useEffect } from 'react';
-import { Typography, List, ListItem, ListItemContent, Chip, CircularProgress, Box } from '@mui/joy';
-import { ReceiptLong } from '@mui/icons-material';
+import React from 'react';
+import {
+  Box,
+  Typography,
+  Stack,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemContent,
+} from '@mui/joy';
+import Receipt from '@mui/icons-material/Receipt';
 import WidgetWrapper from './WidgetWrapper';
+import { useRecurringCharges } from '../../hooks/useFinanceData';
 
 export default function HomeRecurringCostsWidget({ api, household }) {
-  const [costs, setCosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: costs = [], isLoading: loading } = useRecurringCharges(api, household?.id);
 
-  useEffect(() => {
-    if (!api || !household) return;
-    const fetchCosts = async () => {
-      try {
-        // Fix: Use correct endpoint
-        const res = await api.get(`/households/${household.id}/finance/charges`);
-        // Filter for active recurring costs
-        const active = (res.data || []).filter(
-          (c) => c.is_active !== 0 && c.frequency !== 'one_off'
-        );
-        setCosts(active);
-      } catch (err) {
-        console.error('Failed to fetch recurring costs', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCosts();
-  }, [api, household]);
+  if (loading)
+    return (
+      <WidgetWrapper title="Upcoming Bills" icon={<Receipt />} color="warning">
+        <CircularProgress size="sm" />
+      </WidgetWrapper>
+    );
 
-  // Sort by day of month (or day 1 as fallback)
-  const sortedCosts = [...costs].sort((a, b) => (a.day_of_month || 1) - (b.day_of_month || 1));
+  // Filter for next 30 days or just show top 5
+  const upcoming = costs.slice(0, 5);
 
   return (
-    <WidgetWrapper title="Monthly Costs" icon={<ReceiptLong />} color="warning">
-      {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
-          <CircularProgress size="sm" />
-        </Box>
-      ) : (
-        <List size="sm" sx={{ '--ListItem-paddingY': '4px' }}>
-          {sortedCosts.slice(0, 5).map((cost) => (
+    <WidgetWrapper title="Upcoming Bills" icon={<Receipt />} color="warning">
+      <Stack spacing={2}>
+        <List size="sm" sx={{ '--ListItem-paddingX': 0 }}>
+          {upcoming.map((cost) => (
             <ListItem key={cost.id}>
               <ListItemContent>
-                <Typography level="body-sm" fontWeight="bold">
-                  {cost.name}
-                </Typography>
+                <Typography level="title-sm">{cost.name}</Typography>
                 <Typography level="body-xs">
-                  {cost.frequency === 'weekly' ? 'Weekly' : `Day ${cost.day_of_month || 1}`}
+                  {cost.frequency} • Day {cost.payment_day}
                 </Typography>
               </ListItemContent>
-              <Chip size="sm" variant="soft" color="warning">
-                £{Number(cost.amount).toFixed(2)}
-              </Chip>
+              <Typography level="title-sm">£{cost.amount?.toLocaleString()}</Typography>
             </ListItem>
           ))}
-          {sortedCosts.length === 0 && (
-            <Typography level="body-xs" sx={{ p: 2, textAlign: 'center', color: 'neutral.500' }}>
-              No recurring costs.
+          {upcoming.length === 0 && (
+            <Typography level="body-xs" textAlign="center" sx={{ py: 2 }}>
+              No recurring bills found.
             </Typography>
           )}
         </List>
-      )}
+      </Stack>
     </WidgetWrapper>
   );
 }

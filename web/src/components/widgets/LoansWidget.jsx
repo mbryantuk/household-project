@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Box,
   Typography,
@@ -7,51 +7,41 @@ import {
   List,
   ListItem,
   ListItemContent,
-  ListItemDecorator,
 } from '@mui/joy';
-import ReceiptLong from '@mui/icons-material/ReceiptLong';
+import RequestQuote from '@mui/icons-material/RequestQuote';
 import WidgetWrapper from './WidgetWrapper';
+import { useLoans } from '../../hooks/useFinanceData';
 
 export default function LoansWidget({ api, household }) {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!api || !household?.id) return;
-    api
-      .get(`/households/${household.id}/finance/loans`)
-      .then((res) => setData(res.data || []))
-      .finally(() => setLoading(false));
-  }, [api, household]);
+  const { data: loans = [], isLoading: loading } = useLoans(api, household?.id);
 
   if (loading)
     return (
-      <WidgetWrapper title="Loans" icon={<ReceiptLong />} color="danger">
+      <WidgetWrapper title="Loans" icon={<RequestQuote />} color="danger">
         <CircularProgress size="sm" />
       </WidgetWrapper>
     );
 
-  const total = data.reduce((sum, l) => sum + (parseFloat(l.remaining_balance) || 0), 0);
+  const total = loans.reduce((sum, l) => sum + (l.balance || 0), 0);
 
   return (
-    <WidgetWrapper title="Personal Loans" icon={<ReceiptLong />} color="danger">
+    <WidgetWrapper title="Loans" icon={<RequestQuote />} color="danger">
       <Stack spacing={2}>
         <Box>
-          <Typography level="body-xs">Total Debt</Typography>
+          <Typography level="body-xs">Total Outstanding</Typography>
           <Typography level="h4" color="danger">
             £{total.toLocaleString()}
           </Typography>
         </Box>
         <List size="sm" sx={{ '--ListItem-paddingX': 0 }}>
-          {data.map((l) => (
-            <ListItem key={l.id}>
-              <ListItemDecorator>{l.emoji || '📝'}</ListItemDecorator>
+          {loans.map((loan) => (
+            <ListItem key={loan.id}>
               <ListItemContent>
-                <Typography level="title-sm">{l.lender}</Typography>
-                <Typography level="body-xs">£{l.monthly_payment}/mo</Typography>
+                <Typography level="title-sm">{loan.provider}</Typography>
+                <Typography level="body-xs">{loan.loan_type}</Typography>
               </ListItemContent>
-              <Typography level="title-sm">
-                £{parseFloat(l.remaining_balance || 0).toLocaleString()}
+              <Typography level="title-sm" color="danger">
+                £{loan.balance?.toLocaleString()}
               </Typography>
             </ListItem>
           ))}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -14,9 +14,11 @@ import {
   Button,
   CircularProgress,
 } from '@mui/joy';
-import { Edit, Delete, Add, Search } from '@mui/icons-material';
+import { Edit, Add, Search } from '@mui/icons-material';
+import { useQueryClient } from '@tanstack/react-query';
 import { getEmojiColor } from '../utils/colors';
 import GenericObjectView from '../components/objects/GenericObjectView';
+import { useAssets } from '../hooks/useHouseholdData';
 
 export default function AssetsView() {
   const {
@@ -29,8 +31,9 @@ export default function AssetsView() {
   } = useOutletContext();
   const { assetId } = useParams();
   const navigate = useNavigate();
-  const [assets, setAssets] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+
+  const { data: assets = [], isLoading: loading } = useAssets(api, householdId);
 
   // Sorting & Filtering State
   const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
@@ -46,22 +49,6 @@ export default function AssetsView() {
   }, []);
 
   const isAdmin = currentUser?.role === 'admin';
-
-  const fetchAssets = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await api.get(`/households/${householdId}/assets`);
-      setAssets(res.data || []);
-    } catch (err) {
-      console.error('Failed to fetch assets', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [api, householdId]);
-
-  useEffect(() => {
-    fetchAssets();
-  }, [fetchAssets]);
 
   const selectedAsset = useMemo(
     () => assets.find((a) => String(a.id) === String(assetId)),
@@ -95,7 +82,7 @@ export default function AssetsView() {
     }));
   };
 
-  const SortableHeader = ({ label, field, width }) => (
+  const renderSortableHeader = (label, field, width) => (
     <th style={{ width, cursor: 'pointer', userSelect: 'none' }} onClick={() => handleSort(field)}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
         {label}
@@ -166,6 +153,9 @@ export default function AssetsView() {
     { id: 'other', label: 'Other' },
   ];
 
+  const invalidateAssets = () =>
+    queryClient.invalidateQueries({ queryKey: ['households', householdId, 'assets'] });
+
   // --- DETAIL VIEW ---
   if (assetId) {
     return (
@@ -189,9 +179,9 @@ export default function AssetsView() {
         }}
         fields={FIELDS}
         costSegments={COST_SEGMENTS}
-        onSave={() => fetchAssets()}
+        onSave={invalidateAssets}
         onDelete={() => {
-          fetchAssets();
+          invalidateAssets();
           navigate('..');
         }}
         onCancel={() => navigate('..')}
@@ -203,7 +193,7 @@ export default function AssetsView() {
   }
 
   // --- LIST VIEW ---
-  if (loading)
+  if (loading && assets.length === 0)
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
         <CircularProgress />
@@ -253,11 +243,11 @@ export default function AssetsView() {
             <thead>
               <tr>
                 <th style={{ width: 60 }}></th>
-                <SortableHeader label="Asset Name" field="name" />
-                <SortableHeader label="Category" field="category" width={150} />
-                <SortableHeader label="Location" field="location" width={150} />
-                <SortableHeader label="Value" field="purchase_value" width={120} />
-                <SortableHeader label="Insurance" field="insurance_status" width={140} />
+                {renderSortableHeader('Asset Name', 'name')}
+                {renderSortableHeader('Category', 'category', 150)}
+                {renderSortableHeader('Location', 'location', 150)}
+                {renderSortableHeader('Value', 'purchase_value', 120)}
+                {renderSortableHeader('Insurance', 'insurance_status', 140)}
                 {isAdmin && <th style={{ textAlign: 'right' }}>Actions</th>}
               </tr>
             </thead>

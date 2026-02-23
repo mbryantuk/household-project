@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Box,
   Typography,
@@ -7,23 +7,14 @@ import {
   List,
   ListItem,
   ListItemContent,
-  ListItemDecorator,
   LinearProgress,
 } from '@mui/joy';
 import CreditCard from '@mui/icons-material/CreditCard';
 import WidgetWrapper from './WidgetWrapper';
+import { useCreditCards } from '../../hooks/useFinanceData';
 
 export default function CreditCardWidget({ api, household }) {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!api || !household?.id) return;
-    api
-      .get(`/households/${household.id}/finance/credit-cards`)
-      .then((res) => setData(res.data || []))
-      .finally(() => setLoading(false));
-  }, [api, household]);
+  const { data: cards = [], isLoading: loading } = useCreditCards(api, household?.id);
 
   if (loading)
     return (
@@ -32,35 +23,35 @@ export default function CreditCardWidget({ api, household }) {
       </WidgetWrapper>
     );
 
-  const totalBalance = data.reduce((sum, cc) => sum + (cc.current_balance || 0), 0);
-  const totalLimit = data.reduce((sum, cc) => sum + (cc.credit_limit || 0), 0);
+  const totalBalance = cards.reduce((sum, c) => sum + (c.balance || 0), 0);
+  const totalLimit = cards.reduce((sum, c) => sum + (c.credit_limit || 0), 0);
   const utilization = totalLimit > 0 ? (totalBalance / totalLimit) * 100 : 0;
 
   return (
     <WidgetWrapper title="Credit Cards" icon={<CreditCard />} color="danger">
       <Stack spacing={2}>
         <Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-            <Typography level="body-xs">Utilization</Typography>
-            <Typography level="body-xs" fontWeight="bold">
-              {Math.round(utilization)}%
-            </Typography>
-          </Box>
+          <Typography level="body-xs">Total Utilization ({utilization.toFixed(0)}%)</Typography>
+          <Typography level="h4" color={utilization > 50 ? 'danger' : 'warning'}>
+            £{totalBalance.toLocaleString()}
+          </Typography>
           <LinearProgress
             determinate
             value={utilization}
-            color={utilization > 50 ? 'danger' : 'warning'}
+            color={utilization > 75 ? 'danger' : utilization > 30 ? 'warning' : 'success'}
+            sx={{ mt: 1 }}
           />
         </Box>
         <List size="sm" sx={{ '--ListItem-paddingX': 0 }}>
-          {data.map((cc) => (
-            <ListItem key={cc.id}>
-              <ListItemDecorator>{cc.emoji || '💳'}</ListItemDecorator>
+          {cards.map((card) => (
+            <ListItem key={card.id}>
               <ListItemContent>
-                <Typography level="title-sm">{cc.provider}</Typography>
-                <Typography level="body-xs">{cc.card_name}</Typography>
+                <Typography level="title-sm">{card.provider}</Typography>
+                <Typography level="body-xs">{card.card_name}</Typography>
               </ListItemContent>
-              <Typography level="title-sm">£{cc.current_balance?.toLocaleString()}</Typography>
+              <Typography level="title-sm" color="danger">
+                £{card.balance?.toLocaleString()}
+              </Typography>
             </ListItem>
           ))}
         </List>
