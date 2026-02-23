@@ -18,6 +18,7 @@ _Goal: A deployable "Hello World" monorepo with strict standards and automated p
 - [x] **Item 45: Infrastructure as Code (Compose)** - PostgreSQL and App defined in docker-compose.yml.
 - [ ] **Item 70: Naming Conventions** - Strictly enforce `use[Feature]` and `handle[Event]`.
 - [ ] **Item 71: Dead Code Elimination (Knip)** - Regular audits for unused dependencies.
+- [ ] **Item 72: Continuous Documentation Sync** - Ensure all `.md` files (README, ARCHITECTURE, etc.) are updated with every major change.
 
 ## 💾 Phase 2: The "Data Backbone" (Core Logic)
 
