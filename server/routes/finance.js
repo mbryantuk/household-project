@@ -3,39 +3,11 @@ const router = express.Router({ mergeParams: true });
 const { dbAll } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { useTenantDb } = require('../middleware/tenant');
-const { encrypt, decrypt } = require('../services/crypto');
+const { autoEncrypt, decryptData } = require('../middleware/encryption');
 
 // Import Recurring Costs
 const recurringCostsRoutes = require('./recurring_costs');
 const financeImportRoutes = require('./finance_import');
-
-// SENSITIVE FIELDS MAP
-const SENSITIVE_FIELDS = ['account_number', 'policy_number', 'sort_code'];
-
-const encryptPayload = (data) => {
-  const encrypted = { ...data };
-  Object.keys(encrypted).forEach((key) => {
-    if (SENSITIVE_FIELDS.includes(key) && encrypted[key]) {
-      encrypted[key] = encrypt(String(encrypted[key]));
-    }
-  });
-  return encrypted;
-};
-
-const decryptRow = (row) => {
-  if (!row) return row;
-  const decrypted = { ...row };
-  Object.keys(decrypted).forEach((key) => {
-    if (SENSITIVE_FIELDS.includes(key) && decrypted[key]) {
-      try {
-        decrypted[key] = decrypt(decrypted[key]);
-      } catch (e) {
-        // Return original if not encrypted
-      }
-    }
-  });
-  return decrypted;
-};
 
 // ==========================================
 // 🏠 GENERIC CRUD HELPERS (Tenant-Aware)
@@ -52,7 +24,7 @@ const handleGetList = (table) => (req, res) => {
 
   req.tenantDb.all(sql, params, (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
-    res.json((rows || []).map(decryptRow));
+    res.json(decryptData(table, rows || []));
   });
 };
 
@@ -63,7 +35,7 @@ const handleGetItem = (table) => (req, res) => {
     (err, row) => {
       if (err) return res.status(500).json({ error: err.message });
       if (!row) return res.status(404).json({ error: 'Item not found' });
-      res.json(decryptRow(row));
+      res.json(decryptData(table, row));
     }
   );
 };
@@ -75,7 +47,7 @@ const handleCreateItem = (table) => (req, res) => {
     }
 
     const validColumns = cols.map((c) => c.name);
-    const data = encryptPayload({ ...req.body, household_id: req.hhId });
+    const data = { ...req.body, household_id: req.hhId };
 
     const insertData = {};
     Object.keys(data).forEach((key) => {
@@ -111,7 +83,7 @@ const handleUpdateItem = (table) => (req, res) => {
     }
 
     const validColumns = cols.map((c) => c.name);
-    const data = encryptPayload(req.body);
+    const data = req.body;
 
     const updateData = {};
     Object.keys(data).forEach((key) => {
@@ -238,7 +210,7 @@ const handleSubUpdate = (childTable, parentTable, parentKey) => (req, res) => {
           return res.status(500).json({ error: pErr.message });
         }
         const validColumns = cols.map((c) => c.name);
-        const data = encryptPayload(req.body);
+        const data = req.body;
         const updateData = {};
         Object.keys(data).forEach((key) => {
           if (validColumns.includes(key) && key !== 'id' && key !== foreignKey)
@@ -583,6 +555,7 @@ router.post(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
+  autoEncrypt('finance_income'),
   handleCreateItem('finance_income')
 );
 router.put(
@@ -590,6 +563,7 @@ router.put(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
+  autoEncrypt('finance_income'),
   handleUpdateItem('finance_income')
 );
 router.delete(
@@ -633,6 +607,7 @@ router.post(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
+  autoEncrypt('finance_savings'),
   handleCreateItem('finance_savings')
 );
 router.put(
@@ -640,6 +615,7 @@ router.put(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
+  autoEncrypt('finance_savings'),
   handleUpdateItem('finance_savings')
 );
 router.delete(
@@ -698,6 +674,7 @@ router.post(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
+  autoEncrypt('finance_credit_cards'),
   handleCreateItem('finance_credit_cards')
 );
 router.put(
@@ -705,6 +682,7 @@ router.put(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
+  autoEncrypt('finance_credit_cards'),
   handleUpdateItem('finance_credit_cards')
 );
 router.delete(
@@ -770,6 +748,7 @@ router.post(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
+  autoEncrypt('finance_pensions'),
   handleCreateItem('finance_pensions')
 );
 router.put(
@@ -777,6 +756,7 @@ router.put(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
+  autoEncrypt('finance_pensions'),
   handleUpdateItem('finance_pensions')
 );
 router.delete(
@@ -1278,6 +1258,7 @@ router.post(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
+  autoEncrypt('finance_current_accounts'),
   handleCreateItem('finance_current_accounts')
 );
 router.put(
@@ -1285,6 +1266,7 @@ router.put(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
+  autoEncrypt('finance_current_accounts'),
   handleUpdateItem('finance_current_accounts')
 );
 router.delete(

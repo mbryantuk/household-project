@@ -2,40 +2,7 @@ const express = require('express');
 const router = express.Router({ mergeParams: true });
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { useTenantDb } = require('../middleware/tenant');
-const { encrypt, decrypt } = require('../services/crypto');
-
-// SENSITIVE FIELDS IN METADATA
-const SENSITIVE_FIELDS = [
-  'account_number',
-  'policy_number',
-  'sort_code',
-  'registration',
-  'serial_number',
-  'wifi_password',
-];
-
-const processMetadata = (metadata, isEncrypt = true) => {
-  if (!metadata) return null;
-  let data = typeof metadata === 'string' ? JSON.parse(metadata) : metadata;
-
-  Object.keys(data).forEach((key) => {
-    if (SENSITIVE_FIELDS.includes(key) && data[key]) {
-      try {
-        data[key] = isEncrypt ? encrypt(String(data[key])) : decrypt(String(data[key]));
-      } catch (e) {
-        // Keep original if decryption fails
-      }
-    }
-  });
-  return JSON.stringify(data);
-};
-
-const decryptMetadata = (row) => {
-  if (!row || !row.metadata) return row;
-  const decrypted = { ...row };
-  decrypted.metadata = JSON.parse(processMetadata(row.metadata, false));
-  return decrypted;
-};
+const { autoEncrypt, decryptData } = require('../middleware/encryption');
 
 // GET /households/:id/recurring-costs
 router.get('/', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
@@ -61,64 +28,69 @@ router.get('/', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, 
 
   req.tenantDb.all(sql, params, (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
-    res.json((rows || []).map(decryptMetadata));
+    res.json(decryptData('recurring_costs', rows || []));
   });
 });
 
 // POST /households/:id/recurring-costs
-router.post('/', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-  const {
-    object_type,
-    object_id,
-    category_id,
-    name,
-    amount,
-    frequency,
-    start_date,
-    day_of_month,
-    month_of_year,
-    day_of_week,
-    adjust_for_working_day,
-    bank_account_id,
-    financial_profile_id,
-    emoji,
-    notes,
-    metadata,
-  } = req.body;
+router.post(
+  '/',
+  authenticateToken,
+  requireHouseholdRole('member'),
+  useTenantDb,
+  autoEncrypt('recurring_costs'),
+  (req, res) => {
+    const {
+      object_type,
+      object_id,
+      category_id,
+      name,
+      amount,
+      frequency,
+      start_date,
+      day_of_month,
+      month_of_year,
+      day_of_week,
+      adjust_for_working_day,
+      bank_account_id,
+      financial_profile_id,
+      emoji,
+      notes,
+      metadata,
+    } = req.body;
 
-  const sql = `INSERT INTO recurring_costs (
+    const sql = `INSERT INTO recurring_costs (
         household_id, object_type, object_id, category_id, name, amount, frequency, 
         start_date, day_of_month, month_of_year, day_of_week,
         adjust_for_working_day, bank_account_id, financial_profile_id, emoji, notes, metadata
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-  const processedMetadata = processMetadata(metadata, true);
+    const params = [
+      req.hhId,
+      object_type || 'household',
+      object_id || null,
+      category_id,
+      name,
+      amount,
+      frequency || 'monthly',
+      start_date || null,
+      day_of_month || null,
+      month_of_year || null,
+      day_of_week || null,
+      adjust_for_working_day !== undefined ? adjust_for_working_day : 1,
+      bank_account_id || null,
+      financial_profile_id || null,
+      emoji || null,
+      notes || null,
+      metadata || null,
+    ];
 
-  const params = [
-    req.hhId,
-    object_type || 'household',
-    object_id || null,
-    category_id,
-    name,
-    amount,
-    frequency || 'monthly',
-    start_date || null,
-    day_of_month || null,
-    month_of_year || null,
-    day_of_week || null,
-    adjust_for_working_day !== undefined ? adjust_for_working_day : 1,
-    bank_account_id || null,
-    financial_profile_id || null,
-    emoji || null,
-    notes || null,
-    processedMetadata,
-  ];
-
-  req.tenantDb.run(sql, params, function (err) {
-    if (err) return res.status(500).json({ error: err.message });
-    res.status(201).json({ id: this.lastID, ...req.body });
-  });
-});
+    req.tenantDb.run(sql, params, function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.status(201).json({ id: this.lastID, ...req.body });
+    });
+  }
+);
 
 // PUT /households/:id/recurring-costs/:itemId
 router.put(
@@ -126,6 +98,7 @@ router.put(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
+  autoEncrypt('recurring_costs'),
   (req, res) => {
     const {
       object_type,
@@ -153,8 +126,6 @@ router.put(
         adjust_for_working_day = ?, bank_account_id = ?, financial_profile_id = ?, emoji = ?, notes = ?, metadata = ?, is_active = ?
         WHERE id = ? AND household_id = ?`;
 
-    const processedMetadata = processMetadata(metadata, true);
-
     const params = [
       object_type,
       object_id,
@@ -171,7 +142,7 @@ router.put(
       financial_profile_id,
       emoji,
       notes,
-      processedMetadata,
+      metadata,
       is_active !== undefined ? is_active : 1,
       req.params.itemId,
       req.hhId,

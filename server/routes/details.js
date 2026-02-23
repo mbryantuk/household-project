@@ -3,45 +3,9 @@ const router = express.Router();
 const { dbAll, dbRun } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { useTenantDb } = require('../middleware/tenant');
+const { autoEncrypt, decryptData } = require('../middleware/encryption');
 
-const { encrypt, decrypt } = require('../services/crypto');
-
-// SENSITIVE FIELDS MAP
-const SENSITIVE_FIELDS = [
-  'registration',
-  'policy_number',
-  'account_number',
-  'sort_code',
-  'serial_number',
-  'account_number',
-  'wifi_password',
-];
 const SCHEMA_CACHE = {}; // { table: ['col1', 'col2'] }
-
-const encryptPayload = (data) => {
-  const encrypted = { ...data };
-  Object.keys(encrypted).forEach((key) => {
-    if (SENSITIVE_FIELDS.includes(key) && encrypted[key]) {
-      encrypted[key] = encrypt(String(encrypted[key]));
-    }
-  });
-  return encrypted;
-};
-
-const decryptRow = (row) => {
-  if (!row) return row;
-  const decrypted = { ...row };
-  Object.keys(decrypted).forEach((key) => {
-    if (SENSITIVE_FIELDS.includes(key) && decrypted[key]) {
-      try {
-        decrypted[key] = decrypt(decrypted[key]);
-      } catch (e) {
-        // Return original if not encrypted
-      }
-    }
-  });
-  return decrypted;
-};
 
 // ==========================================
 // 🏠 GENERIC CRUD HELPERS (Tenant-Aware)
@@ -58,14 +22,14 @@ const getValidColumns = async (db, table) => {
 const handleGetSingle = (table) => (req, res) => {
   req.tenantDb.get(`SELECT * FROM ${table} WHERE household_id = ?`, [req.hhId], (err, row) => {
     if (err) return res.status(500).json({ error: err.message });
-    res.json(decryptRow(row) || {});
+    res.json(decryptData(table, row) || {});
   });
 };
 
 const handleUpdateSingle = (table) => async (req, res) => {
   try {
     const validColumns = await getValidColumns(req.tenantDb, table);
-    const data = encryptPayload({ ...req.body, household_id: req.hhId });
+    const data = { ...req.body, household_id: req.hhId };
 
     const updateData = {};
     Object.keys(data).forEach((key) => {
@@ -96,7 +60,7 @@ const handleUpdateSingle = (table) => async (req, res) => {
 const handleGetList = (table) => (req, res) => {
   req.tenantDb.all(`SELECT * FROM ${table} WHERE household_id = ?`, [req.hhId], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
-    res.json((rows || []).map(decryptRow));
+    res.json(decryptData(table, rows || []));
   });
 };
 
@@ -107,7 +71,7 @@ const handleGetItem = (table) => (req, res) => {
     (err, row) => {
       if (err) return res.status(500).json({ error: err.message });
       if (!row) return res.status(404).json({ error: 'Item not found' });
-      res.json(decryptRow(row));
+      res.json(decryptData(table, row));
     }
   );
 };
@@ -115,7 +79,7 @@ const handleGetItem = (table) => (req, res) => {
 const handleCreateItem = (table) => async (req, res) => {
   try {
     const validColumns = await getValidColumns(req.tenantDb, table);
-    const data = encryptPayload({ ...req.body, household_id: req.hhId });
+    const data = { ...req.body, household_id: req.hhId };
 
     const insertData = {};
     Object.keys(data).forEach((key) => {
@@ -147,7 +111,7 @@ const handleCreateItem = (table) => async (req, res) => {
 const handleUpdateItem = (table) => async (req, res) => {
   try {
     const validColumns = await getValidColumns(req.tenantDb, table);
-    const data = encryptPayload(req.body);
+    const data = req.body;
 
     const updateData = {};
     Object.keys(data).forEach((key) => {
@@ -203,6 +167,7 @@ router.put(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
+  autoEncrypt('house_details'),
   handleUpdateSingle('house_details')
 );
 
@@ -226,6 +191,7 @@ router.post(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
+  autoEncrypt('vehicles'),
   handleCreateItem('vehicles')
 );
 router.put(
@@ -233,6 +199,7 @@ router.put(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
+  autoEncrypt('vehicles'),
   handleUpdateItem('vehicles')
 );
 router.delete(
@@ -243,7 +210,7 @@ router.delete(
   handleDeleteItem('vehicles')
 );
 
-// Vehicle Services (Still needed as they are one-off maintenance records)
+// Vehicle Services
 router.get(
   `/households/:id/vehicles/:vehicleId/services`,
   authenticateToken,
@@ -255,7 +222,7 @@ router.get(
       [req.params.vehicleId, req.hhId],
       (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json((rows || []).map(decryptRow));
+        res.json(rows || []);
       }
     );
   }
@@ -271,11 +238,11 @@ router.post(
         return res.status(500).json({ error: pErr.message });
       }
       const validColumns = cols.map((c) => c.name);
-      const data = encryptPayload({
+      const data = {
         ...req.body,
         vehicle_id: req.params.vehicleId,
         household_id: req.hhId,
-      });
+      };
       const insertData = {};
       Object.keys(data).forEach((key) => {
         if (validColumns.includes(key)) insertData[key] = data[key];
@@ -329,6 +296,7 @@ router.post(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
+  autoEncrypt('assets'),
   handleCreateItem('assets')
 );
 router.put(
@@ -336,6 +304,7 @@ router.put(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
+  autoEncrypt('assets'),
   handleUpdateItem('assets')
 );
 router.delete(

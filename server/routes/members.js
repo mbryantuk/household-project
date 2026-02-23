@@ -3,7 +3,7 @@ const router = express.Router();
 const { dbAll } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { useTenantDb } = require('../middleware/tenant');
-const { encrypt, decrypt } = require('../services/crypto');
+const { autoEncrypt, decryptData } = require('../middleware/encryption');
 
 // 1. LIST MEMBERS
 router.get(
@@ -21,11 +21,9 @@ router.get(
       const updates = [];
 
       // Decrypt PII before processing
-      rows.forEach((member) => {
-        member.dob = decrypt(member.dob);
-        member.will_details = decrypt(member.will_details);
-        member.life_insurance_provider = decrypt(member.life_insurance_provider);
+      const decryptedRows = decryptData('members', rows);
 
+      decryptedRows.forEach((member) => {
         if (member.type === 'child' && member.dob) {
           const birthDate = new Date(member.dob);
           let age = today.getFullYear() - birthDate.getFullYear();
@@ -51,10 +49,10 @@ router.get(
 
       if (updates.length > 0) {
         Promise.all(updates).then(() => {
-          res.json(rows);
+          res.json(decryptedRows);
         });
       } else {
-        res.json(rows);
+        res.json(decryptedRows);
       }
     });
   }
@@ -74,12 +72,7 @@ router.get(
         if (err) return res.status(500).json({ error: err.message });
         if (!row) return res.status(404).json({ error: 'Member not found' });
 
-        // Decrypt PII
-        row.dob = decrypt(row.dob);
-        row.will_details = decrypt(row.will_details);
-        row.life_insurance_provider = decrypt(row.life_insurance_provider);
-
-        res.json(row);
+        res.json(decryptData('members', row));
       }
     );
   }
@@ -91,6 +84,7 @@ router.post(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
+  autoEncrypt('members'),
   async (req, res) => {
     try {
       const cols = await dbAll(req.tenantDb, `PRAGMA table_info(members)`);
@@ -115,12 +109,6 @@ router.post(
       }
 
       const data = { ...req.body, household_id: req.hhId };
-
-      // Encrypt PII
-      if (data.dob) data.dob = encrypt(String(data.dob));
-      if (data.will_details) data.will_details = encrypt(String(data.will_details));
-      if (data.life_insurance_provider)
-        data.life_insurance_provider = encrypt(String(data.life_insurance_provider));
 
       const insertData = {};
       Object.keys(data).forEach((key) => {
@@ -158,17 +146,13 @@ router.put(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
+  autoEncrypt('members'),
   async (req, res) => {
     try {
       const cols = await dbAll(req.tenantDb, `PRAGMA table_info(members)`);
       const validColumns = cols.map((c) => c.name);
 
       const data = { ...req.body };
-      // Encrypt PII if provided
-      if (data.dob) data.dob = encrypt(String(data.dob));
-      if (data.will_details) data.will_details = encrypt(String(data.will_details));
-      if (data.life_insurance_provider)
-        data.life_insurance_provider = encrypt(String(data.life_insurance_provider));
 
       const updateData = {};
       Object.keys(data).forEach((key) => {
