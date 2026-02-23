@@ -32,6 +32,7 @@ import FloatingPensions from './components/FloatingPensions';
 import FinancialCalculator from './components/FinancialCalculator';
 import TaxCalculator from './components/TaxCalculator';
 import PostItNote from './components/PostItNote';
+import CommandBar from './components/CommandBar';
 
 // Layouts & Pages
 import RootLayout from './layouts/RootLayout';
@@ -367,7 +368,11 @@ function AppInner({
             path="/login"
             element={
               !token ? (
-                <Login onLogin={login} onMfaLogin={mfaLogin} onLoginSuccess={handleLoginSuccess} />
+                <Login
+                  onLogin={login}
+                  onMfaLogin={mfaLogin}
+                  handleLoginSuccess={handleLoginSuccess}
+                />
               ) : (
                 <Navigate to="/" />
               )
@@ -659,7 +664,9 @@ export default function App() {
               disableNestedContext
             >
               <CssBaseline />
-              <AppInner {...contentProps} />
+              <CommandBar householdId={household?.id}>
+                <AppInner {...contentProps} />
+              </CommandBar>
             </CssVarsProvider>
           </QueryClientProvider>
         </BrowserRouter>
@@ -677,7 +684,9 @@ export default function App() {
           disableNestedContext
         >
           <CssBaseline />
-          <AppInner {...contentProps} />
+          <CommandBar householdId={household?.id}>
+            <AppInner {...contentProps} />
+          </CommandBar>
         </CssVarsProvider>
       </QueryClientProvider>
     </BrowserRouter>

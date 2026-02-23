@@ -27,6 +27,7 @@ import {
 } from '@mui/icons-material';
 import RGL from 'react-grid-layout';
 import DashboardWidget from '../components/DashboardWidget';
+import AnalyticsWidget from '../components/widgets/AnalyticsWidget';
 import { useFinanceSummary } from '../hooks/useFinanceData';
 
 const { WidthProvider, Responsive } = RGL;
@@ -64,8 +65,9 @@ export default function HomeView() {
               { i: 'wealth', x: 0, y: 0, w: 4, h: 2 },
               { i: 'budget', x: 4, y: 0, w: 4, h: 2 },
               { i: 'outlook', x: 8, y: 0, w: 4, h: 2 },
-              { i: 'activity', x: 0, y: 2, w: 6, h: 4 },
-              { i: 'tasks', x: 6, y: 2, w: 6, h: 4 },
+              { i: 'analytics', x: 0, y: 2, w: 12, h: 3 },
+              { i: 'activity', x: 0, y: 5, w: 6, h: 4 },
+              { i: 'tasks', x: 6, y: 5, w: 6, h: 4 },
             ],
           };
     } catch {
@@ -255,6 +257,7 @@ export default function HomeView() {
         </Stack>
       </DashboardWidget>
     ),
+    analytics: <AnalyticsWidget household={household} api={api} />,
   };
 
   return (

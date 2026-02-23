@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **UX:** Implemented **Global Command Bar (Ctrl+K)** powered by `kbar`. Users can now rapidly navigate between modules, access security logs, and execute common actions with keyboard shortcuts.
 - **Real-time:** Integrated **Socket.io** for instant dashboard updates. The system now automatically broadcasts sensitive data changes to all connected household members, triggering silent TanStack Query cache invalidations for an "always-live" feel.
 - **UX:** Implemented **Dashboard Grid System (v2)** using `react-grid-layout`. Users can now fully customize their dashboard via drag-and-drop, with layout persistence saved to their global profile.
 - **Auth:** Integrated **Clerk Identity Provider**. This enables enterprise-grade MFA, Passkeys, and secure social login with automatic local user profile and tenancy synchronization.

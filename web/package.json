@@ -1,7 +1,7 @@
 {
   "name": "household-web",
   "private": true,
-  "version": "3.2.357",
+  "version": "3.2.359",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -24,12 +24,14 @@
     "axios": "^1.13.2",
     "date-fns": "^4.1.0",
     "emoji-picker-react": "^4.16.1",
+    "kbar": "^0.1.0-beta.48",
     "react": "^18.3.1",
     "react-big-calendar": "^1.19.4",
     "react-dom": "^18.3.1",
     "react-grid-layout": "^2.2.2",
     "react-hook-form": "^7.71.1",
     "react-router-dom": "^6.28.0",
+    "recharts": "^3.7.0",
     "socket.io-client": "^4.8.3",
     "zustand": "^5.0.11"
   },
