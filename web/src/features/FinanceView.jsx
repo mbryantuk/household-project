@@ -34,6 +34,7 @@ import {
   Receipt,
   Add,
 } from '@mui/icons-material';
+import { useQueryClient } from '@tanstack/react-query';
 
 import AppHeader from '../components/ui/AppHeader';
 import AppAvatar from '../components/ui/AppAvatar';
@@ -53,40 +54,27 @@ import ChargesView from './finance/ChargesView';
 import FinancialProfileSelector from '../components/ui/FinancialProfileSelector';
 import EmojiPicker from '../components/EmojiPicker';
 import { getEmojiColor } from '../utils/colors';
+import { useFinanceProfiles } from '../hooks/useFinanceData';
 
 export default function FinanceView() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isDark, api, id: householdId, showNotification } = useOutletContext();
+  const { isDark, api, household, showNotification } = useOutletContext();
+  const householdId = household?.id;
+  const queryClient = useQueryClient();
+
   const queryParams = new URLSearchParams(location.search);
   const tabParam = queryParams.get('tab');
   const profileParam = queryParams.get('financial_profile_id');
 
-  const [profiles, setProfiles] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: profiles = [], isLoading: loading } = useFinanceProfiles(api, householdId);
 
   // Create Profile State
   const [openCreate, setOpenCreate] = useState(false);
   const [createEmoji, setCreateEmoji] = useState('💰');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
-  // 1. Fetch profiles ONLY on mount or household change
-  useEffect(() => {
-    // Note: We avoid setLoading(true) here to prevent "synchronous state update in effect" lint error.
-    // Ideally we would reset state if householdId changes, but loading=true is initial state.
-    api
-      .get(`/households/${householdId}/finance/profiles`)
-      .then((res) => {
-        setProfiles(res.data);
-      })
-      .catch((err) => {
-        console.error('Failed to fetch profiles', err);
-        showNotification('Failed to load financial profiles', 'danger');
-      })
-      .finally(() => setLoading(false));
-  }, [api, householdId, showNotification]);
-
-  // 2. Auto-select default profile if none selected
+  // 1. Auto-select default profile if none selected
   useEffect(() => {
     if (!loading && profiles.length > 0 && !profileParam) {
       const def = profiles.find((p) => p.is_default) || profiles[0];
@@ -109,8 +97,9 @@ export default function FinanceView() {
       const res = await api.post(`/households/${householdId}/finance/profiles`, data);
       const newProfile = res.data;
 
-      // Optimistically update list
-      setProfiles((prev) => [...prev, newProfile]);
+      // Invalidate queries
+      queryClient.invalidateQueries({ queryKey: ['households', householdId, 'finance-profiles'] });
+      queryClient.invalidateQueries({ queryKey: ['households', householdId, 'finance-summary'] });
 
       // Switch to new profile immediately
       const newParams = new URLSearchParams(location.search);
@@ -121,7 +110,10 @@ export default function FinanceView() {
       setOpenCreate(false);
       setCreateEmoji('💰');
     } catch (err) {
-      showNotification('Failed to create profile: ' + err.message, 'danger');
+      showNotification(
+        'Failed to create profile: ' + (err.response?.data?.error || err.message),
+        'danger'
+      );
     }
   };
 
@@ -258,7 +250,7 @@ export default function FinanceView() {
     </>
   );
 
-  if (loading)
+  if (loading && profiles.length === 0)
     return (
       <Box sx={{ p: 10, textAlign: 'center' }}>
         <CircularProgress size="lg" />
@@ -349,7 +341,11 @@ export default function FinanceView() {
         profiles={profiles}
         value={Number(profileParam)}
         onChange={handleProfileSelect}
-        onProfileCreated={(newP) => setProfiles((prev) => [...prev, newP])}
+        onProfileCreated={() =>
+          queryClient.invalidateQueries({
+            queryKey: ['households', householdId, 'finance-profiles'],
+          })
+        }
         label={null}
       />
     </Box>

@@ -32,9 +32,12 @@ import {
   Home,
   ChevronRight,
 } from '@mui/icons-material';
+import { useQueryClient } from '@tanstack/react-query';
+
 import RecurringChargesWidget from '../ui/RecurringChargesWidget';
 import EmojiPicker from '../EmojiPicker';
 import AppSelect from '../ui/AppSelect';
+import { useEntity, useEntityMutation } from '../../hooks/useEntity';
 
 /**
  * GenericObjectView
@@ -60,38 +63,33 @@ export default function GenericObjectView({
   customSubmit,
 }) {
   const isNew = id === 'new';
-  const [loading, setLoading] = useState(!isNew && !initialData);
+  const queryClient = useQueryClient();
+
+  // 1. Fetch data with TanStack Query if it's not "new"
+  const {
+    data: fetchedData,
+    isLoading: isFetching,
+    error: fetchError,
+  } = useEntity(api, householdId, type, id, endpoint);
+
+  // 2. Mutations
+  const mutation = useEntityMutation(api, householdId, type, endpoint);
+
+  // Local state for form data, synchronized with fetched data or initialData
   const [data, setData] = useState(initialData || defaultValues);
   const [activeTab, setActiveTab] = useState(0);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
-  // Fetch data if not provided
+  // Sync local data state with fetched data or initialData
   useEffect(() => {
-    let mounted = true;
-    if (!isNew && !initialData && endpoint) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (mounted) setLoading(true);
-      api
-        .get(`${endpoint}/${id}`)
-        .then((res) => {
-          if (mounted) setData(res.data);
-        })
-        .catch((err) => {
-          console.error(err);
-          if (mounted) showNotification('Failed to load details.', 'danger');
-        })
-        .finally(() => {
-          if (mounted) setLoading(false);
-        });
+    if (fetchedData) {
+      Promise.resolve().then(() => setData(fetchedData));
     } else if (initialData) {
-      if (mounted) setData(initialData);
+      Promise.resolve().then(() => setData(initialData));
     } else if (isNew) {
-      if (mounted) setData(defaultValues);
+      Promise.resolve().then(() => setData(defaultValues));
     }
-    return () => {
-      mounted = false;
-    };
-  }, [id, isNew, initialData, endpoint, api, showNotification, defaultValues]);
+  }, [fetchedData, initialData, isNew, defaultValues]);
 
   const handleChange = (name, value) => {
     setData((prev) => ({ ...prev, [name]: value }));
@@ -104,21 +102,18 @@ export default function GenericObjectView({
         await customSubmit(data, isNew);
         if (onSave) onSave(data);
       } else {
-        if (isNew) {
-          const res = await api.post(endpoint, data);
-          showNotification('Created successfully.', 'success');
-          if (onSave) onSave(res.data);
-        } else {
-          await api.put(`${endpoint}/${id}`, data);
-          showNotification('Updated successfully.', 'success');
-          if (onSave) onSave(data);
-        }
+        const result = await mutation.mutateAsync({
+          id: isNew ? null : id,
+          data,
+          method: isNew ? 'POST' : 'PUT',
+        });
+        showNotification(isNew ? 'Created successfully.' : 'Updated successfully.', 'success');
+        if (onSave) onSave(result);
       }
     } catch (err) {
       console.error(err);
-      // Let customSubmit handle its own specific error notifications if it wants,
-      // but generic fallback here.
-      if (!customSubmit) showNotification('Failed to save.', 'danger');
+      const message = err.response?.data?.error || 'Failed to save.';
+      showNotification(message, 'danger');
     }
   };
 
@@ -129,6 +124,10 @@ export default function GenericObjectView({
       async () => {
         try {
           await api.delete(`${endpoint}/${id}`);
+
+          // Invalidate the list of these entities
+          queryClient.invalidateQueries({ queryKey: ['households', householdId, `${type}s`] });
+
           showNotification('Removed successfully.', 'neutral');
           if (onDelete) onDelete();
         } catch {
@@ -160,12 +159,25 @@ export default function GenericObjectView({
         ? `Add ${type}`
         : data.name || data.alias || data.make || 'Details';
 
-  if (loading)
+  if (isFetching && !initialData)
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
         <CircularProgress />
       </Box>
     );
+
+  if (fetchError) {
+    return (
+      <Box sx={{ p: 4, textAlign: 'center' }}>
+        <Typography level="h3" color="danger">
+          Failed to load {type}.
+        </Typography>
+        <Button onClick={() => window.location.reload()} sx={{ mt: 2 }}>
+          Retry
+        </Button>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ width: '100%', mx: 'auto', pb: 10 }}>
@@ -263,6 +275,7 @@ export default function GenericObjectView({
               variant="solid"
               startDecorator={<Delete />}
               onClick={handleDelete}
+              loading={mutation.isPending}
             >
               Remove
             </Button>
@@ -380,11 +393,22 @@ export default function GenericObjectView({
 
                 <Box sx={{ pt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
                   {onCancel && (
-                    <Button variant="plain" color="neutral" onClick={onCancel}>
+                    <Button
+                      variant="plain"
+                      color="neutral"
+                      onClick={onCancel}
+                      disabled={mutation.isPending}
+                    >
                       Cancel
                     </Button>
                   )}
-                  <Button type="submit" variant="solid" size="lg" startDecorator={<Save />}>
+                  <Button
+                    type="submit"
+                    variant="solid"
+                    size="lg"
+                    startDecorator={<Save />}
+                    loading={mutation.isPending}
+                  >
                     {isNew ? `Create ${type}` : 'Save Changes'}
                   </Button>
                 </Box>

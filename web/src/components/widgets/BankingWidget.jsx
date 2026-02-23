@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Box,
   Typography,
@@ -11,18 +11,10 @@ import {
 } from '@mui/joy';
 import AccountBalance from '@mui/icons-material/AccountBalance';
 import WidgetWrapper from './WidgetWrapper';
+import { useCurrentAccounts } from '../../hooks/useFinanceData';
 
 export default function BankingWidget({ api, household }) {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!api || !household?.id) return;
-    api
-      .get(`/households/${household.id}/finance/current-accounts`)
-      .then((res) => setData(res.data || []))
-      .finally(() => setLoading(false));
-  }, [api, household]);
+  const { data = [], isLoading: loading } = useCurrentAccounts(api, household?.id);
 
   if (loading)
     return (

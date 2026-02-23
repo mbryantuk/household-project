@@ -1,6 +1,51 @@
 import { useQuery } from '@tanstack/react-query';
 
 /**
+ * Hook to fetch all financial profiles of a household
+ */
+export function useFinanceProfiles(api, householdId) {
+  return useQuery({
+    queryKey: ['households', householdId, 'finance-profiles'],
+    queryFn: async () => {
+      if (!householdId) return [];
+      const res = await api.get(`/households/${householdId}/finance/profiles`);
+      return Array.isArray(res.data) ? res.data : [];
+    },
+    enabled: !!api && !!householdId,
+  });
+}
+
+/**
+ * Hook to fetch all current accounts of a household
+ */
+export function useCurrentAccounts(api, householdId) {
+  return useQuery({
+    queryKey: ['households', householdId, 'finance-current-accounts'],
+    queryFn: async () => {
+      if (!householdId) return [];
+      const res = await api.get(`/households/${householdId}/finance/current-accounts`);
+      return Array.isArray(res.data) ? res.data : [];
+    },
+    enabled: !!api && !!householdId,
+  });
+}
+
+/**
+ * Hook to fetch all income sources of a household
+ */
+export function useIncome(api, householdId) {
+  return useQuery({
+    queryKey: ['households', householdId, 'finance-income'],
+    queryFn: async () => {
+      if (!householdId) return [];
+      const res = await api.get(`/households/${householdId}/finance/income`);
+      return Array.isArray(res.data) ? res.data : [];
+    },
+    enabled: !!api && !!householdId,
+  });
+}
+
+/**
  * Hook to fetch and calculate finance summary for dashboard
  */
 export function useFinanceSummary(api, householdId) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useOutletContext, useSearchParams } from 'react-router-dom';
 import {
   Box,
@@ -38,7 +38,9 @@ import {
   CheckCircle,
   MenuBook,
 } from '@mui/icons-material';
+import { useQueryClient } from '@tanstack/react-query';
 import EmojiPicker from '../components/EmojiPicker';
+import { useMeals, useMealPlans } from '../hooks/useHouseholdData';
 
 // Helpers
 const getStartOfWeek = (date) => {
@@ -58,10 +60,17 @@ export default function MealPlannerView() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'planner';
   const householdId = household?.id;
+  const queryClient = useQueryClient();
 
   const [currentWeekStart, setCurrentWeekStart] = useState(getStartOfWeek(new Date()));
-  const [meals, setMeals] = useState([]);
-  const [plans, setPlans] = useState([]);
+
+  const startStr = formatDate(currentWeekStart);
+  const endStr = formatDate(
+    new Date(new Date(currentWeekStart).setDate(currentWeekStart.getDate() + 6))
+  );
+
+  const { data: meals = [] } = useMeals(api, householdId);
+  const { data: plans = [] } = useMealPlans(api, householdId, startStr, endStr);
 
   // Library Drawer (for planner view)
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
@@ -75,42 +84,10 @@ export default function MealPlannerView() {
   const [selectedMemberIds, setSelectedMemberIds] = useState([]); // Array of IDs
   const [selectedMealId, setSelectedMealId] = useState('');
 
-  const fetchMeals = useCallback(async () => {
-    if (!householdId) return;
-    try {
-      const res = await api.get(`/households/${householdId}/meals`);
-      setMeals(res.data || []);
-    } catch (err) {
-      console.error('Failed to fetch meals', err);
-    }
-  }, [api, householdId]);
-
-  const fetchPlans = useCallback(async () => {
-    if (!householdId) return;
-    const start = formatDate(currentWeekStart);
-    const end = formatDate(
-      new Date(new Date(currentWeekStart).setDate(currentWeekStart.getDate() + 6))
-    );
-    try {
-      const res = await api.get(`/households/${householdId}/meal-plans?start=${start}&end=${end}`);
-      setPlans(res.data || []);
-    } catch (err) {
-      console.error('Failed to fetch meal plans', err);
-    }
-  }, [api, householdId, currentWeekStart]);
-
-  useEffect(() => {
-    let active = true;
-    const load = async () => {
-      if (!active) return;
-      await fetchMeals();
-      if (activeTab === 'planner') await fetchPlans();
-    };
-    load();
-    return () => {
-      active = false;
-    };
-  }, [fetchMeals, fetchPlans, activeTab]);
+  const invalidateMeals = () =>
+    queryClient.invalidateQueries({ queryKey: ['households', householdId, 'meals'] });
+  const invalidatePlans = () =>
+    queryClient.invalidateQueries({ queryKey: ['households', householdId, 'meal-plans'] });
 
   const handleCreateMeal = async (e) => {
     e.preventDefault();
@@ -125,7 +102,7 @@ export default function MealPlannerView() {
         await api.post(`/households/${householdId}/meals`, data);
         showNotification('Recipe created.', 'success');
       }
-      fetchMeals();
+      invalidateMeals();
       setEditMeal(null);
     } catch {
       showNotification('Failed to save recipe.', 'danger');
@@ -136,8 +113,8 @@ export default function MealPlannerView() {
     if (!window.confirm('Delete this recipe?')) return;
     try {
       await api.delete(`/households/${householdId}/meals/${id}`);
-      fetchMeals();
-      fetchPlans(); // Plans might be affected
+      invalidateMeals();
+      invalidatePlans(); // Plans might be affected
     } catch {
       showNotification('Delete failed.', 'danger');
     }
@@ -163,7 +140,7 @@ export default function MealPlannerView() {
       await Promise.all(promises);
 
       showNotification('Meal assigned.', 'success');
-      fetchPlans();
+      invalidatePlans();
       setAssignModalOpen(false);
       setSelectedMemberIds([]);
     } catch {
@@ -174,7 +151,7 @@ export default function MealPlannerView() {
   const handleRemovePlan = async (planId) => {
     try {
       await api.delete(`/households/${householdId}/meal-plans/${planId}`);
-      fetchPlans();
+      invalidatePlans();
     } catch {
       showNotification('Removal failed.', 'danger');
     }
@@ -189,10 +166,10 @@ export default function MealPlannerView() {
       return;
     try {
       const res = await api.post(`/households/${householdId}/meal-plans/copy-previous`, {
-        targetDate: formatDate(currentWeekStart),
+        targetDate: startStr,
       });
       showNotification(`Copied ${res.data.copiedCount} plans from previous week.`, 'success');
-      fetchPlans();
+      invalidatePlans();
     } catch (err) {
       console.error('Failed to copy week', err);
       showNotification('Failed to copy previous week.', 'danger');

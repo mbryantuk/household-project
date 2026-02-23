@@ -73,3 +73,48 @@ export function useMyHouseholds(api, token) {
     enabled: !!api && !!token,
   });
 }
+
+/**
+ * Hook to fetch the shopping list for a specific week
+ */
+export function useShoppingList(api, householdId, weekStart) {
+  return useQuery({
+    queryKey: ['households', householdId, 'shopping-list', weekStart],
+    queryFn: async () => {
+      if (!householdId || !weekStart) return [];
+      const res = await api.get(`/households/${householdId}/shopping-list?week_start=${weekStart}`);
+      return Array.isArray(res.data.items) ? res.data.items : [];
+    },
+    enabled: !!api && !!householdId && !!weekStart,
+  });
+}
+
+/**
+ * Hook to fetch the meal library
+ */
+export function useMeals(api, householdId) {
+  return useQuery({
+    queryKey: ['households', householdId, 'meals'],
+    queryFn: async () => {
+      if (!householdId) return [];
+      const res = await api.get(`/households/${householdId}/meals`);
+      return Array.isArray(res.data) ? res.data : [];
+    },
+    enabled: !!api && !!householdId,
+  });
+}
+
+/**
+ * Hook to fetch meal plans for a date range
+ */
+export function useMealPlans(api, householdId, start, end) {
+  return useQuery({
+    queryKey: ['households', householdId, 'meal-plans', start, end],
+    queryFn: async () => {
+      if (!householdId || !start || !end) return [];
+      const res = await api.get(`/households/${householdId}/meal-plans?start=${start}&end=${end}`);
+      return Array.isArray(res.data) ? res.data : [];
+    },
+    enabled: !!api && !!householdId && !!start && !!end,
+  });
+}

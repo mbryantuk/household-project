@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import {
   Box,
@@ -35,9 +35,12 @@ import {
   ContentCopy,
 } from '@mui/icons-material';
 import { format, startOfWeek, addWeeks, subWeeks } from 'date-fns';
+import { useQueryClient } from '@tanstack/react-query';
+
 import ReceiptImporter from './shopping/components/ReceiptImporter';
 import ShoppingSchedules from './shopping/components/ShoppingSchedules';
 import ShoppingTrends from './shopping/components/ShoppingTrends';
+import { useShoppingList } from '../hooks/useHouseholdData';
 
 const formatCurrency = (val) => {
   const num = parseFloat(val) || 0;
@@ -48,7 +51,9 @@ const formatDate = (date) => format(date, 'yyyy-MM-dd');
 
 export default function ShoppingListView() {
   const { api, household, showNotification, confirmAction } = useOutletContext();
-  const [items, setItems] = useState([]);
+  const householdId = household?.id;
+  const queryClient = useQueryClient();
+
   const [currentWeekStart, setCurrentWeekStart] = useState(
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
@@ -61,40 +66,31 @@ export default function ShoppingListView() {
 
   // Budget State
   const budgetLimit = useMemo(() => {
-    const saved = localStorage.getItem(`shopping_budget_${household?.id}`);
+    const saved = localStorage.getItem(`shopping_budget_${householdId}`);
     return saved ? parseFloat(saved) : 150.0;
-  }, [household]);
+  }, [householdId]);
 
-  const fetchList = useCallback(async () => {
-    try {
-      const weekStr = formatDate(currentWeekStart);
-      const res = await api.get(`/households/${household.id}/shopping-list?week_start=${weekStr}`);
-      setItems(res.data.items || []);
-    } catch (err) {
-      console.error('Failed to fetch shopping list', err);
-    }
-  }, [api, household, currentWeekStart]);
-
-  useEffect(() => {
-    Promise.resolve().then(() => fetchList());
-  }, [fetchList]);
+  const weekStr = formatDate(currentWeekStart);
+  const { data: items = [] } = useShoppingList(api, householdId, weekStr);
 
   const handleAddItem = async (e) => {
     e.preventDefault();
     if (!newItemName.trim()) return;
 
     try {
-      await api.post(`/households/${household.id}/shopping-list`, {
+      await api.post(`/households/${householdId}/shopping-list`, {
         name: newItemName,
         estimated_cost: parseFloat(newItemCost) || 0,
         quantity: newItemQty,
         category: newItemCat,
-        week_start: formatDate(currentWeekStart),
+        week_start: weekStr,
       });
       setNewItemName('');
       setNewItemCost('');
       setNewItemQty('1');
-      fetchList();
+      queryClient.invalidateQueries({
+        queryKey: ['households', householdId, 'shopping-list', weekStr],
+      });
       showNotification('Item added', 'success');
     } catch {
       showNotification('Failed to add item', 'danger');
@@ -103,16 +99,18 @@ export default function ShoppingListView() {
 
   const handleCopyPrev = async () => {
     const prevWeek = formatDate(subWeeks(currentWeekStart, 1));
-    const targetWeek = formatDate(currentWeekStart);
+    const targetWeek = weekStr;
 
     confirmAction('Copy Week', `Copy items from last week (${prevWeek})?`, async () => {
       try {
-        const res = await api.post(`/households/${household.id}/shopping-list/copy-previous`, {
+        const res = await api.post(`/households/${householdId}/shopping-list/copy-previous`, {
           target_week: targetWeek,
           previous_week: prevWeek,
         });
         showNotification(`Copied ${res.data.copiedCount} items`, 'success');
-        fetchList();
+        queryClient.invalidateQueries({
+          queryKey: ['households', householdId, 'shopping-list', targetWeek],
+        });
       } catch {
         showNotification('Failed to copy items', 'danger');
       }
@@ -120,23 +118,25 @@ export default function ShoppingListView() {
   };
 
   const handleToggle = async (item) => {
-    setItems((prev) =>
-      prev.map((i) => (i.id === item.id ? { ...i, is_checked: !i.is_checked ? 1 : 0 } : i))
-    );
     try {
-      await api.put(`/households/${household.id}/shopping-list/${item.id}`, {
+      await api.put(`/households/${householdId}/shopping-list/${item.id}`, {
         is_checked: !item.is_checked,
       });
+      queryClient.invalidateQueries({
+        queryKey: ['households', householdId, 'shopping-list', weekStr],
+      });
     } catch {
-      fetchList();
+      // If failed, the UI will just stay as is (or revert if we used optimistic updates)
     }
   };
 
   const handleDelete = async (id) => {
     confirmAction('Delete Item', 'Are you sure?', async () => {
       try {
-        await api.delete(`/households/${household.id}/shopping-list/${id}`);
-        setItems((prev) => prev.filter((i) => i.id !== id));
+        await api.delete(`/households/${householdId}/shopping-list/${id}`);
+        queryClient.invalidateQueries({
+          queryKey: ['households', householdId, 'shopping-list', weekStr],
+        });
       } catch {
         showNotification('Failed to delete', 'danger');
       }
@@ -146,10 +146,10 @@ export default function ShoppingListView() {
   const handleClearCompleted = async () => {
     confirmAction('Clear Completed', 'Remove checked items?', async () => {
       try {
-        await api.delete(
-          `/households/${household.id}/shopping-list/clear?week_start=${formatDate(currentWeekStart)}`
-        );
-        fetchList();
+        await api.delete(`/households/${householdId}/shopping-list/clear?week_start=${weekStr}`);
+        queryClient.invalidateQueries({
+          queryKey: ['households', householdId, 'shopping-list', weekStr],
+        });
       } catch {
         showNotification('Failed to clear', 'danger');
       }
@@ -158,12 +158,9 @@ export default function ShoppingListView() {
 
   const stats = useMemo(() => {
     const total = items.reduce((sum, i) => sum + (i.estimated_cost || 0), 0);
-    const pending = items
-      .filter((i) => !i.is_checked)
-      .reduce((sum, i) => sum + (i.estimated_cost || 0), 0);
     const checkedCount = items.filter((i) => i.is_checked).length;
     const progress = Math.min(100, (total / (budgetLimit || 1)) * 100);
-    return { total, pending, checkedCount, progress };
+    return { total, checkedCount, progress };
   }, [items, budgetLimit]);
 
   return (
@@ -371,12 +368,12 @@ export default function ShoppingListView() {
 
             <ShoppingSchedules
               api={api}
-              householdId={household.id}
+              householdId={householdId}
               showNotification={showNotification}
               confirmAction={confirmAction}
             />
 
-            <ShoppingTrends api={api} householdId={household.id} />
+            <ShoppingTrends api={api} householdId={householdId} />
           </Stack>
         </Grid>
       </Grid>
@@ -385,8 +382,12 @@ export default function ShoppingListView() {
         open={importModalOpen}
         onClose={() => setImportModalOpen(false)}
         api={api}
-        householdId={household.id}
-        onImportComplete={fetchList}
+        householdId={householdId}
+        onImportComplete={() =>
+          queryClient.invalidateQueries({
+            queryKey: ['households', householdId, 'shopping-list', weekStr],
+          })
+        }
         showNotification={showNotification}
       />
     </Box>

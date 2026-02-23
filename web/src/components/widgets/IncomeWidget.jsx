@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Box,
   Typography,
   Stack,
   CircularProgress,
-  Chip,
   List,
   ListItem,
   ListItemContent,
@@ -12,18 +11,10 @@ import {
 } from '@mui/joy';
 import AttachMoney from '@mui/icons-material/AttachMoney';
 import WidgetWrapper from './WidgetWrapper';
+import { useIncome } from '../../hooks/useFinanceData';
 
 export default function IncomeWidget({ api, household }) {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!api || !household?.id) return;
-    api
-      .get(`/households/${household.id}/finance/income`)
-      .then((res) => setData(res.data || []))
-      .finally(() => setLoading(false));
-  }, [api, household]);
+  const { data = [], isLoading: loading } = useIncome(api, household?.id);
 
   if (loading)
     return (
