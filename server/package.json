@@ -1,6 +1,6 @@
 {
   "name": "totem-server",
-  "version": "3.2.317",
+  "version": "3.2.320",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -10,7 +10,8 @@
     "test:perf": "NODE_ENV=test jest tests/performance; npm run test:tidy",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "seed:deterministic": "tsx scripts/seed_deterministic.ts"
   },
   "dependencies": {
     "@hearth/shared": "*",
@@ -48,6 +49,7 @@
     "@babel/core": "^7.29.0",
     "@babel/preset-env": "^7.29.0",
     "@babel/preset-typescript": "^7.28.5",
+    "@faker-js/faker": "^10.3.0",
     "@types/express": "^5.0.6",
     "@types/node": "^25.3.0",
     "@types/pg": "^8.16.0",

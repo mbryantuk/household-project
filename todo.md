@@ -16,7 +16,7 @@ _Goal: A deployable "Hello World" monorepo with strict standards and automated p
 - [x] **Item 43: Tiny Production Images** - Refactored Dockerfile to multi-stage build.
 - [ ] **Item 44: Automated CI/CD (GitHub Actions)** - Move away from local deploy scripts.
 - [x] **Item 45: Infrastructure as Code (Compose)** - PostgreSQL and App defined in docker-compose.yml.
-- [x] **Item 70: Naming Conventions** - Strictly enforce `use[Feature]` and `handle[Event]`.
+- [ ] **Item 70: Naming Conventions** - Strictly enforce `use[Feature]` and `handle[Event]`.
 - [ ] **Item 71: Dead Code Elimination (Knip)** - Regular audits for unused dependencies.
 - [x] **Item 72: Continuous Documentation Sync** - Ensure all `.md` files (README, ARCHITECTURE, etc.) are updated with every major change.
 
@@ -34,7 +34,7 @@ _Goal: Secure data persistence, type-safe communication, and centralized state._
 - [x] **Item 53: API Rate Limiting** - Multi-tier rate limiting implemented (Standard, Auth, Sensitive) with `express-rate-limit`.
 - [x] **Item 54: Immutable Audit Logging** - Systemic audit trail implemented, backed by PostgreSQL.
 - [x] **Item 55: Encryption at Rest** - Systemic middleware implemented for automatic field-level encryption/decryption (AES-256-GCM).
-- [ ] **Item 48: Deterministic Seeding** - Build a robust test data generator with Faker.js.
+- [x] **Item 48: Deterministic Seeding** - Robust test data engine built using `@faker-js/faker` with repeatable seed support.
 - [ ] **Item 49: Secrets Management (Doppler/Infisical)** - Move secrets out of `.env` files.
 - [ ] **Item 8: Background Jobs (BullMQ)** - Move cron tasks to a reliable queue.
 - [ ] **Item 9: S3-Compatible File Storage** - Abstract image/asset uploads.
