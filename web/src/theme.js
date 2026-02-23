@@ -3,7 +3,6 @@ import { hexToHsl } from './utils/colors';
 
 /**
  * 50 PREMIUM SIGNATURE THEMES
- * Each theme defines a primary color identity.
  */
 export const THEMES = {
   hearth: { name: 'Classic', primary: '#374151' },
@@ -59,30 +58,28 @@ export const THEMES = {
   custom: { name: 'Custom Theme', primary: '#374151', isCustom: true },
 };
 
+/**
+ * Dynamic Emoji Color Generator
+ */
+export const getEmojiColor = (emoji, isDark = true) => {
+  if (!emoji) return isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+  let hash = 0;
+  const str = String(emoji);
+  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  const hue = Math.abs(hash % 360);
+  return `hsl(${hue}, ${isDark ? 50 : 70}%, ${isDark ? 25 : 90}%)`;
+};
+
 export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
   let base = THEMES[themeId] || THEMES.hearth;
-  if (themeId === 'custom' && customConfig) {
-    base = { ...base, ...customConfig };
-  }
+  if (themeId === 'custom' && customConfig) base = { ...base, ...customConfig };
 
   const primaryColor = base.primary || '#374151';
   const { h, s } = hexToHsl(primaryColor);
 
   return extendTheme({
-    fontFamily: {
-      body: '"DM Sans", var(--joy-fontFamily-fallback)',
-      display: '"DM Serif Display", serif',
-    },
-    radius: {
-      xs: '2px',
-      sm: '4px',
-      md: '8px',
-      lg: '12px',
-      xl: '16px',
-    },
-    shape: {
-      borderRadius: 8,
-    },
+    fontFamily: { body: '"DM Sans", sans-serif', display: '"DM Serif Display", serif' },
+    radius: { xs: '2px', sm: '4px', md: '8px', lg: '12px', xl: '16px' },
     colorSchemes: {
       light: {
         palette: {
@@ -91,36 +88,13 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
             surface: '#ffffff',
             level1: `hsl(${h}, ${Math.min(s, 25)}%, 93%)`,
             level2: `hsl(${h}, ${Math.min(s, 20)}%, 90%)`,
-            level3: `hsl(${h}, ${Math.min(s, 20)}%, 88%)`,
-          },
-          text: {
-            primary: '#111827',
-            secondary: 'rgba(0,0,0,0.6)',
           },
           primary: {
-            50: `${primaryColor}10`,
-            100: `${primaryColor}20`,
-            200: `${primaryColor}30`,
-            300: `${primaryColor}40`,
-            400: `${primaryColor}60`,
             500: primaryColor,
-            600: primaryColor,
-            700: primaryColor,
-            800: primaryColor,
-            900: primaryColor,
             solidBg: primaryColor,
-            solidHoverBg: '#ffffff',
-            plainColor: primaryColor,
-            outlinedColor: primaryColor,
-            outlinedBorder: primaryColor,
+            solidHoverBg: `hsl(${h}, ${s}%, ${Math.max(0, 40)}%)`,
             softBg: `${primaryColor}15`,
-            main: primaryColor,
           },
-          neutral: {
-            outlinedBorder: `hsl(${h}, ${Math.min(s, 10)}%, 94%)`,
-            plainColor: '#111827',
-          },
-          divider: `hsl(${h}, ${Math.min(s, 10)}%, 94%)`,
         },
       },
       dark: {
@@ -129,86 +103,22 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
             body: `hsl(${h}, ${Math.min(s, 10)}%, 4%)`,
             surface: `hsl(${h}, ${Math.min(s, 8)}%, 7%)`,
             level1: `hsl(${h}, ${Math.min(s, 8)}%, 10%)`,
-            level2: `hsl(${h}, ${Math.min(s, 8)}%, 12%)`,
-            level3: `hsl(${h}, ${Math.min(s, 8)}%, 14%)`,
-          },
-          text: {
-            primary: '#f4f4f5',
-            secondary: 'rgba(255,255,255,0.7)',
           },
           primary: {
+            500: primaryColor,
             solidBg: primaryColor,
-            solidHoverBg: '#ffffff',
-            plainColor: primaryColor,
-            outlinedColor: primaryColor,
-            outlinedBorder: primaryColor,
+            solidHoverBg: `hsl(${h}, ${s}%, ${Math.min(100, 60)}%)`,
             softBg: 'rgba(255,255,255,0.1)',
-            main: primaryColor,
           },
-          neutral: {
-            outlinedBorder: `hsl(${h}, ${Math.min(s, 8)}%, 15%)`,
-            plainColor: '#f4f4f5',
-          },
-          divider: `hsl(${h}, ${Math.min(s, 8)}%, 15%)`,
         },
       },
     },
     components: {
-      JoyTypography: {
-        styleOverrides: {
-          root: ({ ownerState }) => ({
-            ...(ownerState.level === 'h2' && {
-              fontFamily: 'var(--joy-fontFamily-display)',
-              fontSize: '1.75rem',
-              fontWeight: 400,
-              letterSpacing: '-0.02em',
-            }),
-            ...(ownerState.level === 'h1' && {
-              fontFamily: 'var(--joy-fontFamily-display)',
-              fontWeight: 400,
-            }),
-          }),
-        },
-      },
       JoyCard: {
         styleOverrides: {
           root: {
-            backgroundColor: 'var(--joy-palette-background-surface)',
-            backdropFilter: 'blur(16px)',
-            borderColor: 'var(--joy-palette-divider)',
             boxShadow: 'var(--joy-shadow-sm)',
-            borderRadius: 'var(--joy-radius-md)',
-            transition: 'transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease',
-            '&:hover': {
-              boxShadow: 'var(--joy-shadow-md)',
-            },
-          },
-        },
-      },
-      JoySheet: {
-        styleOverrides: {
-          root: ({ ownerState }) => ({
-            ...(ownerState.variant === 'outlined' && {
-              borderColor: 'var(--joy-palette-divider)',
-              backgroundColor: 'var(--joy-palette-background-surface)',
-              backdropFilter: 'blur(12px)',
-              borderRadius: 'var(--joy-radius-md)',
-            }),
-            ...(ownerState.variant === 'soft' && {
-              backgroundColor: 'var(--joy-palette-background-level1)',
-              backdropFilter: 'blur(8px)',
-            }),
-          }),
-        },
-      },
-      JoyModalDialog: {
-        styleOverrides: {
-          root: {
-            backgroundColor: 'var(--joy-palette-background-surface)',
-            backdropFilter: 'blur(20px)',
-            borderColor: 'var(--joy-palette-divider)',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
-            borderRadius: 'var(--joy-radius-xl)',
+            '&:hover': { boxShadow: 'var(--joy-shadow-md)', transform: 'translateY(-2px)' },
           },
         },
       },
@@ -218,9 +128,7 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
 
 export const getThemeSpec = (themeId = 'hearth', customConfig = null, mode = 'light') => {
   let base = THEMES[themeId] || THEMES.hearth;
-  if (themeId === 'custom' && customConfig) {
-    base = { ...base, ...customConfig };
-  }
+  if (themeId === 'custom' && customConfig) base = { ...base, ...customConfig };
   const primaryColor = base.primary;
   const isDark = mode === 'dark';
 

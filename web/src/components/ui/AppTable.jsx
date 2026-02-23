@@ -1,12 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import { Box, Sheet, Typography } from '@mui/joy';
+import { Box, Sheet } from '@mui/joy';
 import StatusBar from './StatusBar';
 
 /**
- * AppTable - Joy UI wrapper for MUI X Data Grid.
- * Mandatory: Sorting, Filtering, and Inline Editing support.
- * Mandatory: Status Bar with Count and SUM.
+ * Standardized AppTable
+ * Joy UI wrapper for MUI X Data Grid with mandatory status bar.
  */
 export default function AppTable({
   rows = [],
@@ -14,19 +13,33 @@ export default function AppTable({
   sumField = null,
   sumLabel = 'Total SUM',
   loading = false,
+  onRowUpdate = null,
   ...props
 }) {
   const [rowSelectionModel, setRowSelectionModel] = useState([]);
 
-  const selectedRows = useMemo(() => {
-    return rows.filter((r) => rowSelectionModel.includes(r.id));
-  }, [rows, rowSelectionModel]);
+  const selectedRows = useMemo(
+    () => rows.filter((r) => rowSelectionModel.includes(r.id)),
+    [rows, rowSelectionModel]
+  );
 
   const totalSum = useMemo(() => {
     if (!sumField) return null;
     const itemsToSum = selectedRows.length > 0 ? selectedRows : rows;
     return itemsToSum.reduce((acc, curr) => acc + (parseFloat(curr[sumField]) || 0), 0);
   }, [rows, selectedRows, sumField]);
+
+  const processRowUpdate = async (newRow, oldRow) => {
+    if (onRowUpdate) {
+      try {
+        await onRowUpdate(newRow, oldRow);
+        return newRow;
+      } catch {
+        return oldRow;
+      }
+    }
+    return newRow;
+  };
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -35,38 +48,21 @@ export default function AppTable({
         sx={{
           height: 500,
           width: '100%',
-          borderRadius: 'sm',
+          borderRadius: 'md',
           overflow: 'hidden',
           '& .MuiDataGrid-root': {
             border: 'none',
-            color: 'text.primary',
-            fontFamily: 'body',
-            '& .MuiDataGrid-cell': {
-              borderColor: 'divider',
-            },
             '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: 'background.level1',
-              borderColor: 'divider',
-              color: 'text.secondary',
-              textTransform: 'uppercase',
+              backgroundColor: 'var(--joy-palette-background-level1)',
+              color: 'var(--joy-palette-text-secondary)',
               fontSize: '0.75rem',
               fontWeight: 'bold',
-              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
             },
-            '& .MuiDataGrid-footerContainer': {
-              display: 'none', // We use our own StatusBar
-            },
-            '& .MuiDataGrid-row:hover': {
-              backgroundColor: 'background.level1',
-            },
+            '& .MuiDataGrid-footerContainer': { display: 'none' },
             '& .MuiDataGrid-row.Mui-selected': {
-              backgroundColor: 'primary.softBg',
-              '&:hover': {
-                backgroundColor: 'primary.softBg',
-              },
-            },
-            '& .MuiCheckbox-root': {
-              color: 'primary.solidBg',
+              backgroundColor: 'var(--joy-palette-primary-softBg)',
+              '&:hover': { backgroundColor: 'var(--joy-palette-primary-softBg)' },
             },
           },
         }}
@@ -77,16 +73,10 @@ export default function AppTable({
           loading={loading}
           checkboxSelection
           disableRowSelectionOnClick
-          onRowSelectionModelChange={(newRowSelectionModel) => {
-            setRowSelectionModel(newRowSelectionModel);
-          }}
+          processRowUpdate={processRowUpdate}
+          onRowSelectionModelChange={setRowSelectionModel}
           rowSelectionModel={rowSelectionModel}
           density="compact"
-          sx={{
-            '& .MuiDataGrid-columnHeaderTitle': {
-              fontWeight: 'bold',
-            },
-          }}
           {...props}
         />
       </Sheet>
