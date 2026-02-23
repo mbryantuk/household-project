@@ -36,7 +36,7 @@ _Goal: Secure data persistence, type-safe communication, and centralized state._
 - [x] **Item 55: Encryption at Rest** - Systemic middleware implemented for automatic field-level encryption/decryption (AES-256-GCM).
 - [x] **Item 48: Deterministic Seeding** - Robust test data engine built using `@faker-js/faker` with repeatable seed support.
 - [ ] **Item 49: Secrets Management (Doppler/Infisical)** - Move secrets out of `.env` files.
-- [ ] **Item 8: Background Jobs (BullMQ)** - Move cron tasks to a reliable queue.
+- [x] **Item 8: Background Jobs (BullMQ)** - Distributed job queue implemented with Redis and BullMQ for reliable asynchronous tasks.
 - [ ] **Item 9: S3-Compatible File Storage** - Abstract image/asset uploads.
 - [x] **Item 10: Structured Logging (Pino)** - Implemented in `server/utils/logger.ts`.
 - [ ] **Item 84: Migrate Legacy SQLite to Postgres** - Script to ETL data from household .db files to centralized Postgres.

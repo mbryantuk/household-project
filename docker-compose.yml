@@ -10,6 +10,13 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: always
 
+  redis:
+    image: redis:7-alpine
+    container_name: hearth-redis
+    restart: always
+    ports:
+      - '6379:6379'
+
   hearth-app:
     build:
       context: .
@@ -19,6 +26,7 @@ services:
       - '4001:4001'
     depends_on:
       - db
+      - redis
     volumes:
       - /home/matt/household-project/server/data:/app/server/data
     restart: always
@@ -26,6 +34,7 @@ services:
       - NODE_ENV=production
       - SECRET_KEY=super_secret_pi_key_v2_long_enough
       - DATABASE_URL=postgres://hearth_user:hearth_password@db:5432/hearthstone
+      - REDIS_URL=redis://redis:6379
 
 volumes:
   totem_db_data:

@@ -10,6 +10,7 @@ const envSchema = z.object({
   SECRET_KEY: z.string().min(16, 'JWT Secret must be at least 16 characters'),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   DATABASE_URL: z.string().optional(),
+  REDIS_URL: z.string().default('redis://localhost:6379'),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
 });
 

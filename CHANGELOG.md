@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **Infrastructure:** Integrated **BullMQ & Redis** for high-performance background job processing. This enables reliable, retriable asynchronous tasks such as automated backups and audit log persistence.
 - **Security:** Implemented **Immutable Audit Logging** backed by PostgreSQL. All sensitive actions (Create, Update, Delete) across People, Assets, and Finance are now tracked with user context, IP addresses, and metadata snapshots.
 - **Security:** Introduced **Systemic Field-Level Encryption** (AES-256-GCM). Middleware now automatically handles encryption for sensitive fields like account numbers, DOBs, and registrations, ensuring data is never stored in plain text.
 - **Security:** Implemented **API Rate Limiting** with `express-rate-limit`, featuring tiered thresholds for Auth (strict), Standard API, and Sensitive actions (exports/backups).
