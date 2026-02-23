@@ -26,7 +26,7 @@ _Goal: Secure data persistence, type-safe communication, and centralized state._
 
 - [x] **Item 3: ORM Adoption (Drizzle)** - Connection and schema initialized (PostgreSQL).
 - [x] **Item 5: Centralized Postgres** - Identity, Tenancy, and Global data fully migrated to PostgreSQL.
-- [ ] **Item 51: Auth Provider (Auth.js/Clerk)** - Offload MFA and Passkey complexity.
+- [x] **Item 51: Auth Provider (Clerk)** - Integrated Clerk for advanced MFA, Passkey, and secure identity management with local user synchronization.
 - [x] **Item 4: Type-Safe APIs (tRPC/Hono)** - Shared types and core Hono router initialized.
 - [x] **Item 6: Edge Validation (Zod)** - Shared entity schemas created in `@hearth/shared`.
 - [x] **Item 13: Client State (Zustand)** - Global store created in `web/src/stores`.

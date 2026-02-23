@@ -1,6 +1,6 @@
 {
   "name": "totem-server",
-  "version": "3.2.338",
+  "version": "3.2.342",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -16,6 +16,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.995.0",
     "@aws-sdk/lib-storage": "^3.995.0",
+    "@clerk/clerk-sdk-node": "^4.13.23",
     "@hearth/shared": "*",
     "@scalar/express-api-reference": "^0.3.0",
     "@simplewebauthn/server": "^13.2.2",

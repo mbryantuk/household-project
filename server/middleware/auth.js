@@ -2,29 +2,109 @@ const jwt = require('jsonwebtoken');
 const { db } = require('../db/index');
 const { users, userSessions, userHouseholds, households } = require('../db/schema');
 const { eq, and, sql } = require('drizzle-orm');
-const { SECRET_KEY } = require('../config');
+const { SECRET_KEY, CLERK_SECRET_KEY } = require('../config');
 const pkg = require('../package.json');
+const { createClerkClient } = require('@clerk/clerk-sdk-node');
 
+let clerkClient = null;
+if (CLERK_SECRET_KEY) {
+  clerkClient = createClerkClient({ secretKey: CLERK_SECRET_KEY });
+}
+
+/**
+ * SYNC CLERK USER
+ */
+async function syncClerkUser(clerkUser) {
+  const email = clerkUser.emailAddresses[0]?.emailAddress;
+  if (!email) throw new Error('Clerk user missing email');
+
+  let [localUser] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+
+  if (!localUser) {
+    [localUser] = await db
+      .insert(users)
+      .values({
+        email,
+        firstName: clerkUser.firstName,
+        lastName: clerkUser.lastName,
+        avatar: clerkUser.imageUrl,
+        passwordHash: 'CLERK_MANAGED',
+      })
+      .returning();
+  } else {
+    await db
+      .update(users)
+      .set({
+        firstName: clerkUser.firstName,
+        lastName: clerkUser.lastName,
+        avatar: clerkUser.imageUrl,
+      })
+      .where(eq(users.id, localUser.id));
+  }
+
+  return localUser;
+}
+
+/**
+ * UNIFIED AUTHENTICATOR
+ */
 async function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
-  // Always attach version header for client checks
   res.setHeader('x-api-version', pkg.version);
-
   if (!token) return res.sendStatus(401);
 
-  jwt.verify(token, SECRET_KEY, async (err, decodedUser) => {
-    if (err) {
-      if (process.env.NODE_ENV === 'test')
-        console.error(
-          `JWT Verify Error on ${req.path}:`,
-          err.message,
-          'Key Length:',
-          SECRET_KEY.length
-        );
-      return res.status(403).json({ error: 'Invalid or expired token.' });
+  // 1. Try Clerk
+  if (clerkClient) {
+    try {
+      const { sessionId } = await clerkClient.verifyToken(token);
+      if (sessionId) {
+        const session = await clerkClient.sessions.getSession(sessionId);
+        const clerkUser = await clerkClient.users.getUser(session.userId);
+        const localUser = await syncClerkUser(clerkUser);
+
+        req.user = {
+          id: localUser.id,
+          email: localUser.email,
+          systemRole: localUser.systemRole,
+          clerkId: clerkUser.id,
+        };
+        const effectiveHhId =
+          req.headers['x-household-id'] ||
+          localUser.lastHouseholdId ||
+          localUser.defaultHouseholdId;
+        if (effectiveHhId) {
+          const results = await db
+            .select({
+              role: userHouseholds.role,
+              isActive: userHouseholds.isActive,
+              debugMode: households.debugMode,
+            })
+            .from(userHouseholds)
+            .innerJoin(households, eq(userHouseholds.householdId, households.id))
+            .where(
+              and(
+                eq(userHouseholds.userId, localUser.id),
+                eq(userHouseholds.householdId, parseInt(effectiveHhId))
+              )
+            )
+            .limit(1);
+          if (results.length > 0 && results[0].isActive) {
+            req.user.role = results[0].role;
+            req.user.householdId = parseInt(effectiveHhId);
+          }
+        }
+        return next();
+      }
+    } catch (err) {
+      /* fallback */
     }
+  }
+
+  // 2. Fallback JWT
+  jwt.verify(token, SECRET_KEY, async (err, decodedUser) => {
+    if (err) return res.status(403).json({ error: 'Invalid token' });
 
     try {
       const [row] = await db
@@ -37,26 +117,16 @@ async function authenticateToken(req, res, next) {
         .where(eq(users.id, decodedUser.id))
         .limit(1);
 
-      if (!row || !row.isActive) {
-        return res.status(403).json({ error: 'Account is inactive or not found.' });
-      }
+      if (!row || !row.isActive) return res.status(403).json({ error: 'Account inactive' });
 
-      // Verify Session if SID is present
       if (decodedUser.sid) {
         const [session] = await db
           .select({ isRevoked: userSessions.isRevoked })
           .from(userSessions)
           .where(eq(userSessions.id, decodedUser.sid))
           .limit(1);
-
-        if (!session || session.isRevoked) {
-          console.warn(
-            `[AUTH] Session Invalid/Revoked for User ${decodedUser.id} (SID: ${decodedUser.sid})`
-          );
-          return res.status(401).json({ error: 'Session has been revoked or expired.' });
-        }
-
-        // Update Last Active (Fire and Forget)
+        if (!session || session.isRevoked)
+          return res.status(401).json({ error: 'Session revoked' });
         db.update(userSessions)
           .set({ lastActive: new Date() })
           .where(eq(userSessions.id, decodedUser.sid))
@@ -66,7 +136,6 @@ async function authenticateToken(req, res, next) {
       req.user = { ...decodedUser, systemRole: row.systemRole };
       const effectiveHhId = decodedUser.householdId || row.lastHouseholdId;
 
-      // Always try to fetch household role to ensure req.user.role is populated
       if (effectiveHhId) {
         const results = await db
           .select({
@@ -87,35 +156,23 @@ async function authenticateToken(req, res, next) {
         if (results.length > 0 && results[0].isActive) {
           req.user.role = results[0].role;
           req.user.householdId = effectiveHhId;
-          req.user.debugMode = results[0].debugMode === 1;
-
-          if (req.user.debugMode) {
-            console.log(`\n🐛 [DEBUG] ${req.method} ${req.path}`);
-            console.log('   Headers:', JSON.stringify(req.headers, null, 2));
-            console.log('   Body:', JSON.stringify(req.body, null, 2));
-            console.log('   User:', `${req.user.email} (${req.user.id})`);
-          }
         }
       }
       next();
     } catch (dbErr) {
-      console.error('Auth Middleware DB Error:', dbErr);
-      res.status(500).json({ error: 'Internal server error during authentication' });
+      console.error('[AUTH-MIDDLEWARE] DB Error:', dbErr);
+      res.status(500).json({ error: 'Auth service failure' });
     }
   });
 }
 
 /**
  * RBAC Enforcement
- * @param {string} requiredRole - 'viewer', 'member', 'admin'
  */
 function requireHouseholdRole(requiredRole) {
   return async (req, res, next) => {
-    // PRIORITIZE path parameters to prevent IDOR via body/query
-    let targetIdRaw = req.params.id || req.params.hhId;
-    if (!targetIdRaw) {
-      targetIdRaw = req.body.householdId || req.query.id || req.query.hhId;
-    }
+    let targetIdRaw = req.params.id || req.params.hhId || req.headers['x-household-id'];
+    if (!targetIdRaw) targetIdRaw = req.body.householdId || req.query.id || req.query.hhId;
 
     const targetHouseholdId = targetIdRaw ? parseInt(targetIdRaw) : null;
     const userHouseholdId = req.user.householdId ? parseInt(req.user.householdId) : null;
@@ -128,13 +185,8 @@ function requireHouseholdRole(requiredRole) {
     };
 
     if (targetHouseholdId && userHouseholdId === targetHouseholdId) {
-      if (hasPermission(req.user.role)) {
-        return next();
-      } else {
-        return res.status(403).json({
-          error: `Access denied: Required role ${requiredRole}, you are ${req.user.role}`,
-        });
-      }
+      if (hasPermission(req.user.role)) return next();
+      return res.status(403).json({ error: `Required: ${requiredRole}` });
     }
 
     if (targetHouseholdId) {
@@ -143,13 +195,7 @@ function requireHouseholdRole(requiredRole) {
         userHouseholdId !== targetHouseholdId &&
         req.user.systemRole !== 'admin'
       ) {
-        if (process.env.NODE_ENV === 'test')
-          console.log(
-            `RBAC: Blocked cross-household access attempt from HH ${userHouseholdId} to HH ${targetHouseholdId}`
-          );
-        return res
-          .status(403)
-          .json({ error: 'Access denied: You do not have access to this household' });
+        return res.status(403).json({ error: 'Access denied' });
       }
 
       try {
@@ -159,13 +205,7 @@ function requireHouseholdRole(requiredRole) {
           .where(eq(households.id, targetHouseholdId))
           .limit(1);
 
-        if (!household) {
-          if (process.env.NODE_ENV === 'test')
-            console.log(`RBAC: Household ${targetHouseholdId} not found`);
-          return res.status(404).json({
-            error: `Household #${targetHouseholdId} no longer exists. It may have been purged during cleanup.`,
-          });
-        }
+        if (!household) return res.status(404).json({ error: 'Household not found' });
 
         const [link] = await db
           .select({ role: userHouseholds.role, isActive: userHouseholds.isActive })
@@ -183,7 +223,7 @@ function requireHouseholdRole(requiredRole) {
             req.user.role = 'admin';
             return next();
           }
-          return res.status(403).json({ error: 'Access denied: No active link to this household' });
+          return res.status(403).json({ error: 'No active link' });
         }
 
         if (hasPermission(link.role)) {
@@ -194,26 +234,22 @@ function requireHouseholdRole(requiredRole) {
             req.user.role = 'admin';
             return next();
           }
-          res.status(403).json({
-            error: `Access denied: Required role ${requiredRole}, you have ${link.role} in this household`,
-          });
+          res.status(403).json({ error: `Required: ${requiredRole}` });
         }
       } catch (err) {
-        res.status(500).json({ error: 'Database error during RBAC check' });
+        console.error('[RBAC] Error:', err);
+        res.status(500).json({ error: 'Authorization failure' });
       }
     } else {
-      res.status(400).json({ error: 'Household context required for this operation' });
+      res.status(400).json({ error: 'Household context required' });
     }
   };
 }
 
 function requireSystemRole(role) {
   return (req, res, next) => {
-    if (req.user && req.user.systemRole === role) {
-      next();
-    } else {
-      res.status(403).json({ error: 'Access denied: System administrator required' });
-    }
+    if (req.user && req.user.systemRole === role) next();
+    else res.status(403).json({ error: 'System admin required' });
   };
 }
 

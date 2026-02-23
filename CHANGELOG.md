@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **Auth:** Integrated **Clerk Identity Provider**. This enables enterprise-grade MFA, Passkeys, and secure social login with automatic local user profile and tenancy synchronization.
 - **Architecture:** Completed the **Migration to Centralized PostgreSQL**. All global identity (Users, Sessions, Passkeys), tenancy (Households, Links), and telemetry (Test Results, Audit Logs) have been migrated from SQLite to Postgres with a full Drizzle ORM schema.
 - **Infrastructure:** Integrated **BullMQ & Redis** for high-performance background job processing. This enables reliable, retriable asynchronous tasks such as automated backups and audit log persistence.
 - **Infrastructure:** Integrated **S3-Compatible Storage Abstraction**. The new Storage Service supports both local filesystem and S3 drivers for handling household assets (avatars, receipts, scans) with logical isolation.
@@ -19,5 +20,6 @@ All notable changes to this project will be documented in this file.
 - **Frontend:** Completed the migration to **TanStack Query** for all core modules (Finance, Shopping, Meals, People, Vehicles, Assets, Chores).
 - **Frontend:** Refactored all Home Dashboard widgets to use aggregated TanStack Query hooks, significantly reducing redundant API calls and improving data consistency.
 - **Frontend:** Standardized entity editing via `GenericObjectView` with automatic cache invalidation and mutation handling.
+- **Architecture:** Standardized all household-specific API routes under a consistent `/api/households/:id/` prefix for better logical isolation and routing predictability.
 
 ... [Rest of file unchanged]

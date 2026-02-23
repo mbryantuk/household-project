@@ -18,10 +18,11 @@ import {
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import CssBaseline from '@mui/joy/CssBaseline';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ClerkProvider, useAuth, useUser } from '@clerk/clerk-react';
 import pkg from '../package.json';
 
 // Theme and Local Components
-import { getAppTheme, getThemeSpec, THEMES } from './theme';
+import { getAppTheme, getThemeSpec } from './theme';
 import { APP_NAME } from './constants';
 import FloatingCalculator from './components/FloatingCalculator';
 import FloatingCalendar from './components/FloatingCalendar';
@@ -70,7 +71,8 @@ const API_URL = `${API_BASE}/api`;
 const IDLE_WARNING_MS = 60 * 60 * 1000; // 1 Hour
 const IDLE_LOGOUT_MS = 120 * 60 * 1000; // 2 Hours
 
-// Standard Page Loader
+const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
 const PageLoader = () => (
   <Box
     sx={{
@@ -85,14 +87,9 @@ const PageLoader = () => (
   </Box>
 );
 
-// Global Query Client
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 1000 * 60 * 5, // 5 minutes
-    },
+    queries: { refetchOnWindowFocus: false, retry: 1, staleTime: 1000 * 60 * 5 },
   },
 });
 
@@ -114,94 +111,80 @@ function AppInner({
   mode,
   onModeChange,
 }) {
-  console.log(
-    `[APP] Init - Token: ${token ? 'Present' : 'Missing'}, Household: ${household?.id || 'None'}`
-  );
+  const { getToken, isLoaded: authLoaded, isSignedIn } = useAuth();
+  const { user: clerkUser } = useUser();
   const { setMode, mode: currentMode, systemMode } = useColorScheme();
+  const navigate = useNavigate();
 
-  // Real-time dark mode detection for legacy components
+  useEffect(() => {
+    if (authLoaded && isSignedIn && clerkUser) {
+      getToken().then((clerkToken) => {
+        if (clerkToken && clerkToken !== token) {
+          axios
+            .get(`${API_URL}/auth/profile`, { headers: { Authorization: `Bearer ${clerkToken}` } })
+            .then((res) => {
+              const userData = res.data;
+              setToken(clerkToken);
+              setUser(userData);
+              localStorage.setItem('token', clerkToken);
+              localStorage.setItem('user', JSON.stringify(userData));
+              if (userData.lastHouseholdId) {
+                axios
+                  .get(`${API_URL}/households/${userData.lastHouseholdId}/details`, {
+                    headers: { Authorization: `Bearer ${clerkToken}` },
+                  })
+                  .then((hRes) => {
+                    setHousehold(hRes.data);
+                    localStorage.setItem('household', JSON.stringify(hRes.data));
+                  });
+              }
+            });
+        }
+      });
+    }
+  }, [authLoaded, isSignedIn, clerkUser, token, getToken, setHousehold, setToken, setUser]);
+
   const isDark = useMemo(() => {
     if (currentMode === 'system') return systemMode === 'dark';
     return currentMode === 'dark';
   }, [currentMode, systemMode]);
 
-  // Synchronize MUI mode with user preference
   useEffect(() => {
     if (mode === 'system') setMode('system');
     else setMode(mode);
   }, [mode, setMode]);
 
-  // Synchronize browser tab theme color with theme primary color
   useEffect(() => {
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-    if (metaThemeColor && spec.primary) {
-      metaThemeColor.setAttribute('content', spec.primary);
-    }
+    if (metaThemeColor && spec.primary) metaThemeColor.setAttribute('content', spec.primary);
   }, [spec.primary]);
-
-  const navigate = useNavigate();
 
   const authAxios = useMemo(() => {
     const instance = axios.create({
       baseURL: API_URL,
       headers: { Authorization: `Bearer ${token}` },
     });
-
     instance.interceptors.request.use((req) => {
-      if (household?.debug_mode === 1) {
+      if (household?.debugMode === 1)
         console.groupCollapsed(
           `🐛 [DEBUG-CLIENT] Request: ${req.method?.toUpperCase()} ${req.url}`
         );
-        console.log('Headers:', req.headers);
-        console.log('Data:', req.data);
-        console.log('Params:', req.params);
-        console.groupEnd();
-      }
       return req;
     });
-
-    instance.interceptors.response.use(
-      (res) => {
-        if (household?.debug_mode === 1) {
-          console.groupCollapsed(`🐛 [DEBUG-CLIENT] Response: ${res.status} ${res.config.url}`);
-          console.log('Data:', res.data);
-          console.groupEnd();
-        }
-        return res;
-      },
-      (err) => {
-        if (household?.debug_mode === 1) {
-          console.groupCollapsed(
-            `🐛 [DEBUG-CLIENT] Error: ${err.response?.status || 'Network'} ${err.config?.url}`
-          );
-          console.log('Message:', err.message);
-          console.log('Response:', err.response?.data);
-          console.groupEnd();
-        }
-        return Promise.reject(err);
-      }
-    );
-
     return instance;
-  }, [token, household?.debug_mode]);
+  }, [token, household?.debugMode]);
 
-  // --- TANSTACK QUERY INTEGRATION ---
   const { data: households = [] } = useMyHouseholds(authAxios, token);
-
   const { data: hhMembers = [], refetch: fetchHhMembers } = useHouseholdMembers(
     authAxios,
     household?.id
   );
-
   const { data: hhUsers = [], refetch: fetchHhUsers } = useHouseholdUsers(authAxios, household?.id);
-
   const { data: hhDates = [], refetch: fetchHhDates } = useHouseholdDates(authAxios, household?.id);
-
   const { data: hhVehicles = [], refetch: fetchHhVehicles } = useHouseholdVehicles(
     authAxios,
     household?.id
   );
-  // ----------------------------------
 
   const [notification, setNotification] = useState({
     open: false,
@@ -215,17 +198,11 @@ function AppInner({
     onConfirm: null,
   });
   const [installPrompt, setInstallPrompt] = useState(null);
-
-  // Idle Timer State
-  const lastActivity = useRef(0);
-
-  useEffect(() => {
-    lastActivity.current = Date.now();
-  }, []);
-
+  const lastActivity = useRef(null);
   const [isIdleWarning, setIsIdleWarning] = useState(false);
 
   useEffect(() => {
+    lastActivity.current = Date.now();
     const handler = (e) => {
       e.preventDefault();
       setInstallPrompt(e);
@@ -238,9 +215,7 @@ function AppInner({
     if (!installPrompt) return;
     installPrompt.prompt();
     installPrompt.userChoice.then((choiceResult) => {
-      if (choiceResult.outcome === 'accepted') {
-        setInstallPrompt(null);
-      }
+      if (choiceResult.outcome === 'accepted') setInstallPrompt(null);
     });
   };
 
@@ -260,43 +235,29 @@ function AppInner({
     handleConfirmClose();
   };
 
-  // --- Idle Timer Logic ---
   const resetActivity = useCallback(() => {
-    if (!isIdleWarning) {
-      lastActivity.current = Date.now();
-    }
+    if (!isIdleWarning) lastActivity.current = Date.now();
   }, [isIdleWarning]);
 
   useEffect(() => {
     const events = ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll'];
     const handler = () => resetActivity();
-
     events.forEach((e) => window.addEventListener(e, handler));
     return () => events.forEach((e) => window.removeEventListener(e, handler));
   }, [resetActivity]);
 
   useEffect(() => {
     if (!token) return;
-
     const interval = setInterval(() => {
-      // If "Remember Me" is active, skip idle checks
-      if (localStorage.getItem('persistentSession') === 'true') {
-        return;
-      }
-
-      const now = Date.now();
-      const diff = now - lastActivity.current;
-
-      if (diff > IDLE_WARNING_MS && !isIdleWarning) {
-        setIsIdleWarning(true);
-      }
-
+      if (localStorage.getItem('persistentSession') === 'true') return;
+      if (!lastActivity.current) return;
+      const diff = Date.now() - lastActivity.current;
+      if (diff > IDLE_WARNING_MS && !isIdleWarning) setIsIdleWarning(true);
       if (diff > IDLE_LOGOUT_MS) {
         logout();
-        showNotification('Session expired due to inactivity.', 'neutral');
+        showNotification('Session expired.', 'neutral');
       }
     }, 1000);
-
     return () => clearInterval(interval);
   }, [token, isIdleWarning, logout, showNotification]);
 
@@ -304,112 +265,58 @@ function AppInner({
     lastActivity.current = Date.now();
     setIsIdleWarning(false);
   };
-  // ------------------------
 
-  // Validate active household existence
   useEffect(() => {
     if (token && household && households.length > 0) {
-      const exists = households.find((h) => h.id === household.id);
-      if (!exists) {
-        Promise.resolve().then(() => {
-          setHousehold(null);
-          localStorage.removeItem('household');
-          navigate('/select-household');
-          showNotification('The selected household is no longer available.', 'warning');
-        });
+      if (!households.find((h) => h.id === household.id)) {
+        setHousehold(null);
+        localStorage.removeItem('household');
+        navigate('/select-household');
       }
     }
-  }, [households, household, token, navigate, setHousehold, showNotification]);
+  }, [households, household, token, navigate, setHousehold]);
 
-  // Synchronize user role with active household
-  useEffect(() => {
-    if (household && households.length > 0) {
-      const activeLink = households.find((h) => h.id === household.id);
-      if (activeLink && activeLink.role !== user?.role) {
-        const updatedUser = { ...user, role: activeLink.role };
-        Promise.resolve().then(() => {
-          setUser(updatedUser);
-          localStorage.setItem('user', JSON.stringify(updatedUser));
-        });
-      }
-    }
-  }, [household, households, user, setUser]);
-
-  // Automatic Logout on 401/403/Version Mismatch
   useEffect(() => {
     const interceptor = authAxios.interceptors.response.use(
-      (response) => {
-        const serverVersion = response.headers['x-api-version'];
-        if (serverVersion && serverVersion !== pkg.version) {
-          console.warn(`[AUTH] Version mismatch! Client: ${pkg.version}, Server: ${serverVersion}`);
-          // logout(); // Don't kill the session, just reload to get new assets
-          window.location.reload();
-        }
-        return response;
+      (res) => {
+        const serverVersion = res.headers['x-api-version'];
+        if (serverVersion && serverVersion !== pkg.version) window.location.reload();
+        return res;
       },
-      (error) => {
-        if (error.response) {
-          const { status, data } = error.response;
-          const serverVersion = error.response.headers['x-api-version'];
-          if (serverVersion && serverVersion !== pkg.version) {
-            console.warn(
-              `[AUTH] Version mismatch on error! Client: ${pkg.version}, Server: ${serverVersion}`
-            );
-            // logout(); // Don't kill the session, just reload to get new assets
-            window.location.reload();
-            return Promise.reject(error);
-          }
-
+      (err) => {
+        if (err.response) {
+          const { status } = err.response;
           if (status === 401 || status === 403) {
-            console.warn(`[AUTH] Session expired (${status}). Logging out.`);
-            if (window.location.pathname !== '/login') {
-              logout();
-            }
-          } else if (status === 404 && data?.error && typeof data.error === 'string') {
-            if (data.error.includes('Household') && data.error.includes('no longer exists')) {
-              setHousehold(null);
-              localStorage.removeItem('household');
-              navigate('/select-household');
-              showNotification('The selected household is no longer available.', 'warning');
-            }
+            if (window.location.pathname !== '/login') logout();
           }
         }
-        return Promise.reject(error);
+        return Promise.reject(err);
       }
     );
     return () => authAxios.interceptors.response.eject(interceptor);
-  }, [authAxios, logout, navigate, showNotification, setHousehold]);
+  }, [authAxios, logout]);
 
   const handleSelectHousehold = useCallback(
     async (hh) => {
       try {
         await authAxios.post(`/households/${hh.id}/select`);
         const tokenRes = await authAxios.post('/auth/token', { householdId: hh.id });
-        const newToken = tokenRes.data.token;
-        const newRole = tokenRes.data.role;
-
-        setToken(newToken);
-        localStorage.setItem('token', newToken);
-
-        const updatedUser = { ...user, role: newRole };
-        setUser(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-
+        setToken(tokenRes.data.token);
+        localStorage.setItem('token', tokenRes.data.token);
         setHousehold(hh);
         localStorage.setItem('household', JSON.stringify(hh));
-      } catch (err) {
-        console.error('Failed to transition context', err);
-        showNotification('Failed to switch household context.', 'danger');
+      } catch {
+        showNotification('Failed to switch household.', 'danger');
       }
     },
-    [authAxios, user, setUser, setToken, setHousehold, showNotification]
+    [authAxios, setToken, setHousehold, showNotification]
   );
 
   const handleUpdateHouseholdSettings = useCallback(
     async (updates) => {
       if (!household) return;
       try {
-        await authAxios.put(`/households/${household.id}`, updates);
+        await authAxios.put(`/households/${household.id}/house-details`, updates);
         const updatedHH = { ...household, ...updates };
         setHousehold(updatedHH);
         localStorage.setItem('household', JSON.stringify(updatedHH));
@@ -429,19 +336,14 @@ function AppInner({
         setUser(updatedUser);
         localStorage.setItem('user', JSON.stringify(updatedUser));
         await authAxios.put('/auth/profile', updates);
-
         if (updates.theme) setThemeId(updates.theme);
         if (updates.mode) onModeChange(updates.mode);
-        if (onPreviewTheme) onPreviewTheme(null);
-
-        if (!updates.sticky_note && !updates.theme && !updates.custom_theme && !updates.mode)
-          showNotification('Profile updated.', 'success');
       } catch (err) {
-        showNotification('Failed to update profile.', 'danger');
+        showNotification('Update failed.', 'danger');
         throw err;
       }
     },
-    [authAxios, user, setUser, setThemeId, onModeChange, showNotification, onPreviewTheme]
+    [authAxios, user, setUser, setThemeId, onModeChange, showNotification]
   );
 
   return (
@@ -456,44 +358,8 @@ function AppInner({
             width: '100vw',
           },
           '#root': { height: '100dvh', width: '100vw', overflow: 'hidden' },
-          '.rbc-calendar': {
-            color: `${spec.text} !important`,
-            fontFamily: 'var(--joy-fontFamily-body, sans-serif)',
-          },
-          '.rbc-off-range-bg': {
-            backgroundColor: isDark ? 'rgba(0,0,0,0.2) !important' : 'rgba(0,0,0,0.05) !important',
-          },
-          '.rbc-today': {
-            backgroundColor: isDark
-              ? 'rgba(255, 255, 255, 0.05) !important'
-              : 'rgba(0, 0, 0, 0.03) !important',
-            border: `1px solid ${spec.primary} !important`,
-          },
-          '.rbc-header': {
-            borderBottom: `1px solid ${spec.selection} !important`,
-            padding: '8px 0 !important',
-            fontWeight: 'bold',
-          },
-          '.rbc-month-view, .rbc-time-view, .rbc-agenda-view': {
-            border: `1px solid ${spec.selection} !important`,
-            borderRadius: '8px',
-            overflow: 'hidden',
-          },
-          '.rbc-day-bg + .rbc-day-bg, .rbc-month-row + .rbc-month-row, .rbc-time-content > * + *': {
-            borderLeft: `1px solid ${spec.selection} !important`,
-            borderTop: `1px solid ${spec.selection} !important`,
-          },
-          '.rbc-toolbar button': {
-            color: `${spec.text} !important`,
-            border: `1px solid ${spec.selection} !important`,
-          },
-          '.rbc-toolbar button:hover, .rbc-toolbar button:active, .rbc-toolbar button.rbc-active': {
-            backgroundColor: `${spec.selection} !important`,
-            color: `${spec.text} !important`,
-          },
         }}
       />
-
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route
@@ -507,102 +373,6 @@ function AppInner({
             }
           />
           <Route path="/register" element={!token ? <Register /> : <Navigate to="/" />} />
-          <Route
-            path="/calculator"
-            element={
-              <Box sx={{ height: '100vh', bgcolor: 'background.body' }}>
-                <FloatingCalculator isPopout={true} onClose={() => window.close()} />
-              </Box>
-            }
-          />
-          <Route
-            path="/fin-calculator-window"
-            element={
-              <Box sx={{ height: '100vh', bgcolor: 'background.body' }}>
-                <FinancialCalculator isPopout={true} onClose={() => window.close()} />
-              </Box>
-            }
-          />
-          <Route
-            path="/tax-window"
-            element={
-              <Box sx={{ height: '100vh', bgcolor: 'background.body' }}>
-                <TaxCalculator isPopout={true} onClose={() => window.close()} />
-              </Box>
-            }
-          />
-          <Route
-            path="/calendar-window"
-            element={
-              <Box sx={{ height: '100vh', bgcolor: 'background.body' }}>
-                <FloatingCalendar
-                  isPopout={true}
-                  onClose={() => window.close()}
-                  dates={hhDates}
-                  api={authAxios}
-                  householdId={household?.id}
-                  currentUser={user}
-                  onDateAdded={() => fetchHhDates()}
-                />
-              </Box>
-            }
-          />
-          <Route
-            path="/savings-window"
-            element={
-              <Box sx={{ height: '100vh', bgcolor: 'background.body' }}>
-                <FloatingSavings
-                  isPopout={true}
-                  onClose={() => window.close()}
-                  api={authAxios}
-                  householdId={household?.id}
-                  isDark={isDark}
-                />
-              </Box>
-            }
-          />
-          <Route
-            path="/investments-window"
-            element={
-              <Box sx={{ height: '100vh', bgcolor: 'background.body' }}>
-                <FloatingInvestments
-                  isPopout={true}
-                  onClose={() => window.close()}
-                  api={authAxios}
-                  householdId={household?.id}
-                  isDark={isDark}
-                />
-              </Box>
-            }
-          />
-          <Route
-            path="/pensions-window"
-            element={
-              <Box sx={{ height: '100vh', bgcolor: 'background.body' }}>
-                <FloatingPensions
-                  isPopout={true}
-                  onClose={() => window.close()}
-                  api={authAxios}
-                  householdId={household?.id}
-                  isDark={isDark}
-                />
-              </Box>
-            }
-          />
-          <Route
-            path="/note-window"
-            element={
-              <Box sx={{ height: '100vh', bgcolor: 'background.body' }}>
-                <PostItNote
-                  isPopout={true}
-                  onClose={() => window.close()}
-                  user={user}
-                  onUpdateProfile={handleUpdateProfile}
-                />
-              </Box>
-            }
-          />
-
           <Route
             element={
               token ? (
@@ -635,7 +405,6 @@ function AppInner({
                 />
               }
             />
-
             <Route
               path="household/:id"
               element={
@@ -668,7 +437,6 @@ function AppInner({
               }
             >
               <Route index element={<Navigate to="dashboard" replace />} />
-              <Route path="onboarding" element={<OnboardingWizard />} />
               <Route
                 path="dashboard"
                 element={
@@ -688,16 +456,10 @@ function AppInner({
                   <CalendarView showNotification={showNotification} confirmAction={confirmAction} />
                 }
               />
-              <Route path="people/:personId" element={<PeopleView />} />
               <Route path="people" element={<PeopleView />} />
-              <Route path="pets/:petId" element={<PetsView />} />
-              <Route path="pets" element={<PetsView />} />
-              <Route path="house/assets/:assetId" element={<AssetsView />} />
               <Route path="house/assets" element={<AssetsView />} />
               <Route path="house/details" element={<HouseholdDetailsView />} />
-              <Route path="house/:houseId" element={<HouseView />} />
               <Route path="house" element={<HouseView />} />
-              <Route path="vehicles/:vehicleId" element={<VehiclesView />} />
               <Route path="vehicles" element={<VehiclesView />} />
               <Route path="profile" element={<ProfileView />} />
               <Route path="meals" element={<MealPlannerView />} />
@@ -724,115 +486,10 @@ function AppInner({
                   />
                 }
               />
-              <Route
-                path="tools/notes"
-                element={
-                  <Box sx={{ height: '100%' }}>
-                    <PostItNote
-                      isPopout={true}
-                      onClose={() => navigate(-1)}
-                      user={user}
-                      onUpdateProfile={handleUpdateProfile}
-                    />
-                  </Box>
-                }
-              />
-              <Route
-                path="tools/calculator"
-                element={
-                  <Box sx={{ height: '100%' }}>
-                    <FloatingCalculator
-                      isPopout={true}
-                      onClose={() => navigate(-1)}
-                      isDark={isDark}
-                    />
-                  </Box>
-                }
-              />
-              <Route
-                path="tools/finance"
-                element={
-                  <Box sx={{ height: '100%' }}>
-                    <FinancialCalculator
-                      isPopout={true}
-                      onClose={() => navigate(-1)}
-                      isDark={isDark}
-                    />
-                  </Box>
-                }
-              />
-              <Route
-                path="tools/tax"
-                element={
-                  <Box sx={{ height: '100%' }}>
-                    <TaxCalculator isPopout={true} onClose={() => navigate(-1)} isDark={isDark} />
-                  </Box>
-                }
-              />
-              <Route
-                path="tools/savings"
-                element={
-                  <Box sx={{ height: '100%' }}>
-                    <FloatingSavings
-                      isPopout={true}
-                      onClose={() => navigate(-1)}
-                      api={authAxios}
-                      householdId={household?.id}
-                      isDark={isDark}
-                    />
-                  </Box>
-                }
-              />
-              <Route
-                path="tools/investments"
-                element={
-                  <Box sx={{ height: '100%' }}>
-                    <FloatingInvestments
-                      isPopout={true}
-                      onClose={() => navigate(-1)}
-                      api={authAxios}
-                      householdId={household?.id}
-                      isDark={isDark}
-                    />
-                  </Box>
-                }
-              />
-              <Route
-                path="tools/pensions"
-                element={
-                  <Box sx={{ height: '100%' }}>
-                    <FloatingPensions
-                      isPopout={true}
-                      onClose={() => navigate(-1)}
-                      api={authAxios}
-                      householdId={household?.id}
-                      isDark={isDark}
-                    />
-                  </Box>
-                }
-              />
-              <Route
-                path="tools/calendar"
-                element={
-                  <Box sx={{ height: '100%' }}>
-                    <FloatingCalendar
-                      isPopout={true}
-                      onClose={() => navigate(-1)}
-                      dates={hhDates}
-                      api={authAxios}
-                      householdId={household?.id}
-                      currentUser={user}
-                      onDateAdded={() => fetchHhDates()}
-                      isDark={isDark}
-                    />
-                  </Box>
-                }
-              />
             </Route>
           </Route>
         </Routes>
       </Suspense>
-
       <Snackbar
         open={notification.open}
         autoHideDuration={4000}
@@ -844,7 +501,6 @@ function AppInner({
       >
         {notification.message}
       </Snackbar>
-
       <Modal open={confirmDialog.open} onClose={handleConfirmClose}>
         <ModalDialog variant="outlined" role="alertdialog">
           <DialogTitle>{confirmDialog.title}</DialogTitle>
@@ -859,7 +515,6 @@ function AppInner({
           </DialogActions>
         </ModalDialog>
       </Modal>
-
       <Modal open={isIdleWarning} onClose={() => {}}>
         <ModalDialog variant="outlined" role="alertdialog" color="warning">
           <DialogTitle>Session Expiring</DialogTitle>
@@ -896,39 +551,27 @@ export default function App() {
       return null;
     }
   });
-
   const [themeId, setThemeId] = useState(user?.theme || 'hearth');
   const [modePref, setModePref] = useState(user?.mode || 'system');
   const [previewThemeId, setPreviewThemeId] = useState(null);
-  const [previewCustomConfig, setPreviewCustomConfig] = useState(null);
 
   const customConfig = useMemo(() => {
-    if (!user?.custom_theme) return null;
+    if (!user?.customTheme) return null;
     try {
-      return typeof user.custom_theme === 'string'
-        ? JSON.parse(user.custom_theme)
-        : user.custom_theme;
+      return typeof user.customTheme === 'string' ? JSON.parse(user.customTheme) : user.customTheme;
     } catch {
       return null;
     }
-  }, [user?.custom_theme]);
-
-  const effectiveThemeId = previewThemeId || themeId;
-  const effectiveCustomConfig = previewCustomConfig || customConfig;
+  }, [user?.customTheme]);
 
   const theme = useMemo(
-    () => getAppTheme(effectiveThemeId, effectiveCustomConfig),
-    [effectiveThemeId, effectiveCustomConfig]
+    () => getAppTheme(previewThemeId || themeId, customConfig),
+    [previewThemeId, themeId, customConfig]
   );
   const { spec } = useMemo(
-    () => getThemeSpec(effectiveThemeId, effectiveCustomConfig, modePref),
-    [effectiveThemeId, effectiveCustomConfig, modePref]
+    () => getThemeSpec(previewThemeId || themeId, customConfig, modePref),
+    [previewThemeId, themeId, customConfig, modePref]
   );
-
-  const handlePreviewTheme = useCallback((id, config = null) => {
-    setPreviewThemeId(id);
-    setPreviewCustomConfig(config);
-  }, []);
 
   const handleLoginSuccess = useCallback((data, rememberMe) => {
     const { token, role, context, household: hhData, user: userData, system_role } = data;
@@ -937,16 +580,10 @@ export default function App() {
     setUser(fullUser);
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(fullUser));
-
-    if (rememberMe) {
-      localStorage.setItem('persistentSession', 'true');
-    } else {
-      localStorage.removeItem('persistentSession');
-    }
-
+    if (rememberMe) localStorage.setItem('persistentSession', 'true');
+    else localStorage.removeItem('persistentSession');
     if (userData.theme) setThemeId(userData.theme);
     if (userData.mode) setModePref(userData.mode);
-
     if (context === 'household') {
       setHousehold(hhData);
       localStorage.setItem('household', JSON.stringify(hhData));
@@ -961,11 +598,7 @@ export default function App() {
   const login = useCallback(
     async (email, password, rememberMe) => {
       const res = await axios.post(`${API_URL}/auth/login`, { email, password, rememberMe });
-
-      if (res.data.mfa_required) {
-        return { mfa_required: true, preAuthToken: res.data.preAuthToken };
-      }
-
+      if (res.data.mfa_required) return { mfa_required: true, preAuthToken: res.data.preAuthToken };
       handleLoginSuccess(res.data, rememberMe);
     },
     [handleLoginSuccess]
@@ -990,6 +623,45 @@ export default function App() {
     window.location.href = '/login';
   }, []);
 
+  const contentProps = {
+    themeId,
+    setThemeId,
+    user,
+    setUser,
+    token,
+    setToken,
+    household,
+    setHousehold,
+    logout,
+    login,
+    mfaLogin,
+    handleLoginSuccess,
+    spec,
+    onPreviewTheme: setPreviewThemeId,
+    mode: modePref,
+    onModeChange: setModePref,
+  };
+
+  if (CLERK_PUBLISHABLE_KEY) {
+    return (
+      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+        <BrowserRouter>
+          <QueryClientProvider client={queryClient}>
+            <CssVarsProvider
+              theme={theme}
+              defaultMode="system"
+              modeStorageKey={`${APP_NAME.toLowerCase()}-mode`}
+              disableNestedContext
+            >
+              <CssBaseline />
+              <AppInner {...contentProps} />
+            </CssVarsProvider>
+          </QueryClientProvider>
+        </BrowserRouter>
+      </ClerkProvider>
+    );
+  }
+
   return (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
@@ -1000,25 +672,7 @@ export default function App() {
           disableNestedContext
         >
           <CssBaseline />
-          <AppInner
-            themeId={themeId}
-            setThemeId={setThemeId}
-            user={user}
-            setUser={setUser}
-            token={token}
-            setToken={setToken}
-            household={household}
-            setHousehold={setHousehold}
-            logout={logout}
-            login={login}
-            mfaLogin={mfaLogin}
-            handleLoginSuccess={handleLoginSuccess}
-            spec={spec}
-            onPreviewTheme={handlePreviewTheme}
-            mode={modePref}
-            setModePref={setModePref}
-            onModeChange={setModePref}
-          />
+          <AppInner {...contentProps} />
         </CssVarsProvider>
       </QueryClientProvider>
     </BrowserRouter>
