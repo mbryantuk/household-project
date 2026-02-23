@@ -1,5 +1,6 @@
 const { DATABASE_URL } = require('../config');
 const logger = require('../utils/logger').default;
+const { notifyHousehold } = require('./socket');
 
 let db;
 let auditLogs;
@@ -16,7 +17,7 @@ if (DATABASE_URL) {
 }
 
 /**
- * Log a sensitive action to the immutable audit trail.
+ * Log a sensitive action and broadcast real-time update.
  */
 async function logAction({
   householdId,
@@ -39,10 +40,13 @@ async function logAction({
     timestamp: new Date().toISOString(),
   };
 
-  // 1. Structured Console Logging (Always)
+  // 1. Console Log
   logger.info({ audit: logData }, `[AUDIT] ${action}`);
 
-  // 2. Persistent Database Logging (If Postgres available)
+  // 2. Real-time Notification
+  notifyHousehold(householdId, 'DATA_UPDATED', { action, entityType, entityId });
+
+  // 3. Persistent DB
   if (db && auditLogs) {
     try {
       await db.insert(auditLogs).values({
@@ -61,9 +65,6 @@ async function logAction({
   }
 }
 
-/**
- * Wrapper for cleaner route usage
- */
 async function auditLog(householdId, userId, action, entityType, entityId, metadata, req) {
   return await logAction({ householdId, userId, action, entityType, entityId, metadata, req });
 }
