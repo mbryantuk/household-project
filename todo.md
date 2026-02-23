@@ -25,7 +25,7 @@ _Goal: A deployable "Hello World" monorepo with strict standards and automated p
 _Goal: Secure data persistence, type-safe communication, and centralized state._
 
 - [x] **Item 3: ORM Adoption (Drizzle)** - Connection and schema initialized (PostgreSQL).
-- [x] **Item 5: Centralized Postgres** - Docker container and Drizzle config ready.
+- [x] **Item 5: Centralized Postgres** - Identity, Tenancy, and Global data fully migrated to PostgreSQL.
 - [ ] **Item 51: Auth Provider (Auth.js/Clerk)** - Offload MFA and Passkey complexity.
 - [x] **Item 4: Type-Safe APIs (tRPC/Hono)** - Shared types and core Hono router initialized.
 - [x] **Item 6: Edge Validation (Zod)** - Shared entity schemas created in `@hearth/shared`.
@@ -37,9 +37,9 @@ _Goal: Secure data persistence, type-safe communication, and centralized state._
 - [x] **Item 48: Deterministic Seeding** - Robust test data engine built using `@faker-js/faker` with repeatable seed support.
 - [ ] **Item 49: Secrets Management (Doppler/Infisical)** - Move secrets out of `.env` files.
 - [x] **Item 8: Background Jobs (BullMQ)** - Distributed job queue implemented with Redis and BullMQ for reliable asynchronous tasks.
-- [ ] **Item 9: S3-Compatible File Storage** - Abstract image/asset uploads.
+- [x] **Item 9: S3-Compatible File Storage** - Abstract image/asset uploads.
 - [x] **Item 10: Structured Logging (Pino)** - Implemented in `server/utils/logger.ts`.
-- [ ] **Item 84: Migrate Legacy SQLite to Postgres** - Script to ETL data from household .db files to centralized Postgres.
+- [x] **Item 84: Migrate Legacy SQLite to Postgres** - Successfully transitioned all global data (Users, Households, Sessions, Audit) to PostgreSQL.
 
 ## 🎨 Phase 3: The "Design System" (UI Foundation)
 

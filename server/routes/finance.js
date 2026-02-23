@@ -4,7 +4,7 @@ const { dbAll, dbRun } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { useTenantDb } = require('../middleware/tenant');
 const { autoEncrypt, decryptData } = require('../middleware/encryption');
-const { logAction } = require('../services/audit');
+const { auditLog } = require('../services/audit');
 
 // Import Recurring Costs
 const recurringCostsRoutes = require('./recurring_costs');
@@ -75,17 +75,17 @@ const handleCreateItem = (table) => (req, res) => {
         const newId = this.lastID;
 
         // AUDIT LOG
-        await logAction({
-          householdId: req.hhId,
-          userId: req.user.id,
-          action: `${table.toUpperCase()}_CREATE`,
-          entityType: table,
-          entityId: newId,
-          metadata: {
+        await auditLog(
+          req.hhId,
+          req.user.id,
+          `${table.toUpperCase()}_CREATE`,
+          table,
+          newId,
+          {
             name: insertData.name || insertData.bank_name || insertData.employer || table,
           },
-          req,
-        });
+          req
+        );
 
         res.status(201).json({ id: newId, ...insertData });
       }
@@ -124,15 +124,17 @@ const handleUpdateItem = (table) => (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
 
         // AUDIT LOG
-        await logAction({
-          householdId: req.hhId,
-          userId: req.user.id,
-          action: `${table.toUpperCase()}_UPDATE`,
-          entityType: table,
-          entityId: parseInt(req.params.itemId),
-          metadata: { updates: Object.keys(updateData) },
-          req,
-        });
+        await auditLog(
+          req.hhId,
+          req.user.id,
+          `${table.toUpperCase()}_UPDATE`,
+          table,
+          parseInt(req.params.itemId),
+          {
+            updates: Object.keys(updateData),
+          },
+          req
+        );
 
         res.json({ message: 'Updated' });
       }
@@ -148,14 +150,15 @@ const handleDeleteItem = (table) => (req, res) => {
       if (err) return res.status(500).json({ error: err.message });
 
       // AUDIT LOG
-      await logAction({
-        householdId: req.hhId,
-        userId: req.user.id,
-        action: `${table.toUpperCase()}_DELETE`,
-        entityType: table,
-        entityId: parseInt(req.params.itemId),
-        req,
-      });
+      await auditLog(
+        req.hhId,
+        req.user.id,
+        `${table.toUpperCase()}_DELETE`,
+        table,
+        parseInt(req.params.itemId),
+        null,
+        req
+      );
 
       res.json({ message: 'Deleted' });
     }
@@ -215,15 +218,18 @@ const handleSubCreate = (childTable, parentTable, parentKey) => (req, res) => {
             if (iErr) return res.status(500).json({ error: iErr.message });
 
             // AUDIT LOG
-            await logAction({
-              householdId: req.hhId,
-              userId: req.user.id,
-              action: `${childTable.toUpperCase()}_CREATE`,
-              entityType: childTable,
-              entityId: this.lastID,
-              metadata: { parentId, parentTable },
-              req,
-            });
+            await auditLog(
+              req.hhId,
+              req.user.id,
+              `${childTable.toUpperCase()}_CREATE`,
+              childTable,
+              this.lastID,
+              {
+                parentId,
+                parentTable,
+              },
+              req
+            );
 
             res.status(201).json({ id: this.lastID, ...insertData });
           }
@@ -244,15 +250,18 @@ const handleSubDelete = (childTable, parentTable, parentKey) => (req, res) => {
       return res.status(404).json({ error: 'Item not found or access denied' });
 
     // AUDIT LOG
-    await logAction({
-      householdId: req.hhId,
-      userId: req.user.id,
-      action: `${childTable.toUpperCase()}_DELETE`,
-      entityType: childTable,
-      entityId: parseInt(itemId),
-      metadata: { parentId, parentTable },
-      req,
-    });
+    await auditLog(
+      req.hhId,
+      req.user.id,
+      `${childTable.toUpperCase()}_DELETE`,
+      childTable,
+      parseInt(itemId),
+      {
+        parentId,
+        parentTable,
+      },
+      req
+    );
 
     res.json({ message: 'Deleted' });
   });
@@ -292,15 +301,19 @@ const handleSubUpdate = (childTable, parentTable, parentKey) => (req, res) => {
             if (uErr) return res.status(500).json({ error: uErr.message });
 
             // AUDIT LOG
-            await logAction({
-              householdId: req.hhId,
-              userId: req.user.id,
-              action: `${childTable.toUpperCase()}_UPDATE`,
-              entityType: childTable,
-              entityId: parseInt(itemId),
-              metadata: { parentId, parentTable, updates: Object.keys(updateData) },
-              req,
-            });
+            await auditLog(
+              req.hhId,
+              req.user.id,
+              `${childTable.toUpperCase()}_UPDATE`,
+              childTable,
+              parseInt(itemId),
+              {
+                parentId,
+                parentTable,
+                updates: Object.keys(updateData),
+              },
+              req
+            );
 
             res.json({ message: 'Updated' });
           }
@@ -332,14 +345,19 @@ const handleAssignMember = (req, res) => {
           if (iErr) return res.status(500).json({ error: iErr.message });
 
           // AUDIT LOG
-          await logAction({
-            householdId: req.hhId,
-            userId: req.user.id,
-            action: 'FINANCE_ASSIGNMENT_CREATE',
-            entityType: 'finance_assignment',
-            metadata: { entity_type, entity_id, member_id },
-            req,
-          });
+          await auditLog(
+            req.hhId,
+            req.user.id,
+            'FINANCE_ASSIGNMENT_CREATE',
+            'finance_assignment',
+            null,
+            {
+              entity_type,
+              entity_id,
+              member_id,
+            },
+            req
+          );
 
           res.status(201).json({ message: 'Assigned' });
         }
@@ -357,14 +375,19 @@ const handleUnassignMember = (req, res) => {
       if (err) return res.status(500).json({ error: err.message });
 
       // AUDIT LOG
-      await logAction({
-        householdId: req.hhId,
-        userId: req.user.id,
-        action: 'FINANCE_ASSIGNMENT_DELETE',
-        entityType: 'finance_assignment',
-        metadata: { entity_type, entity_id, member_id },
-        req,
-      });
+      await auditLog(
+        req.hhId,
+        req.user.id,
+        'FINANCE_ASSIGNMENT_DELETE',
+        'finance_assignment',
+        null,
+        {
+          entity_type,
+          entity_id,
+          member_id,
+        },
+        req
+      );
 
       res.json({ message: 'Unassigned' });
     }
@@ -471,15 +494,18 @@ const handleCreateDebt = (categoryId) => (req, res) => {
       if (err) return res.status(500).json({ error: err.message });
 
       // AUDIT LOG
-      await logAction({
-        householdId: req.hhId,
-        userId: req.user.id,
-        action: 'DEBT_CREATE',
-        entityType: 'recurring_cost',
-        entityId: this.lastID,
-        metadata: { categoryId, name: finalName },
-        req,
-      });
+      await auditLog(
+        req.hhId,
+        req.user.id,
+        'DEBT_CREATE',
+        'recurring_cost',
+        this.lastID,
+        {
+          categoryId,
+          name: finalName,
+        },
+        req
+      );
 
       res.status(201).json({ id: this.lastID, ...req.body });
     }
@@ -532,15 +558,18 @@ const handleUpdateDebt = (categoryId) => (req, res) => {
       if (err) return res.status(500).json({ error: err.message });
 
       // AUDIT LOG
-      await logAction({
-        householdId: req.hhId,
-        userId: req.user.id,
-        action: 'DEBT_UPDATE',
-        entityType: 'recurring_cost',
-        entityId: parseInt(req.params.itemId),
-        metadata: { categoryId, name: finalName },
-        req,
-      });
+      await auditLog(
+        req.hhId,
+        req.user.id,
+        'DEBT_UPDATE',
+        'recurring_cost',
+        parseInt(req.params.itemId),
+        {
+          categoryId,
+          name: finalName,
+        },
+        req
+      );
 
       res.json({ message: 'Updated' });
     }
@@ -1000,14 +1029,18 @@ router.delete(
         }
 
         // AUDIT LOG
-        await logAction({
-          householdId: req.hhId,
-          userId: req.user.id,
-          action: 'BUDGET_CYCLE_DELETE',
-          entityType: 'budget_cycle',
-          metadata: { cycleStart, financial_profile_id },
-          req,
-        });
+        await auditLog(
+          req.hhId,
+          req.user.id,
+          'BUDGET_CYCLE_DELETE',
+          'budget_cycle',
+          null,
+          {
+            cycleStart,
+            financial_profile_id,
+          },
+          req
+        );
 
         req.tenantDb.run('COMMIT', () => {
           res.json({ message: 'Cycle reset' });
@@ -1048,14 +1081,18 @@ router.post(
           }
 
           // AUDIT LOG
-          await logAction({
-            householdId: req.hhId,
-            userId: req.user.id,
-            action: 'BUDGET_CYCLE_UPDATE',
-            entityType: 'budget_cycle',
-            metadata: { cycle_start, financial_profile_id },
-            req,
-          });
+          await auditLog(
+            req.hhId,
+            req.user.id,
+            'BUDGET_CYCLE_UPDATE',
+            'budget_cycle',
+            null,
+            {
+              cycle_start,
+              financial_profile_id,
+            },
+            req
+          );
 
           // 2. If bank_account_id is provided, sync the balance to the current account
           if (bank_account_id) {
@@ -1152,14 +1189,20 @@ router.post(
               }
 
               // AUDIT LOG
-              await logAction({
-                householdId: req.hhId,
-                userId: req.user.id,
-                action: 'BUDGET_PROGRESS_UPDATE',
-                entityType: 'budget_progress',
-                metadata: { cycle_start, item_key, is_paid: newPaid, amount: newAmount },
-                req,
-              });
+              await auditLog(
+                req.hhId,
+                req.user.id,
+                'BUDGET_PROGRESS_UPDATE',
+                'budget_progress',
+                null,
+                {
+                  cycle_start,
+                  item_key,
+                  is_paid: newPaid,
+                  amount: newAmount,
+                },
+                req
+              );
 
               const finalize = () => {
                 // Update the main Budget Cycle Balance and Linked Bank Account if applicable
@@ -1302,14 +1345,19 @@ router.delete(
                 }
 
                 // AUDIT LOG
-                await logAction({
-                  householdId: req.hhId,
-                  userId: req.user.id,
-                  action: 'BUDGET_PROGRESS_DELETE',
-                  entityType: 'budget_progress',
-                  metadata: { cycleStart, itemKey, financial_profile_id },
-                  req,
-                });
+                await auditLog(
+                  req.hhId,
+                  req.user.id,
+                  'BUDGET_PROGRESS_DELETE',
+                  'budget_progress',
+                  null,
+                  {
+                    cycleStart,
+                    itemKey,
+                    financial_profile_id,
+                  },
+                  req
+                );
 
                 if (balanceDelta !== 0) {
                   req.tenantDb.get(

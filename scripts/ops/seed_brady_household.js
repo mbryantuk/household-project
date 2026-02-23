@@ -136,7 +136,7 @@ async function seed() {
     // 2. HOUSE DETAILS (Valuation & Tech)
     await apiRequest(
       'PUT',
-      `/api/households/${hhId}/details`,
+      `/api/households/${hhId}/house-details`,
       {
         purchase_price: 61000,
         current_valuation: 2450000,
@@ -661,7 +661,7 @@ async function seed() {
     // 6a. CALENDAR BIRTHDAYS
     await apiRequest(
       'POST',
-      `/api/households/${hhId}/dates`,
+      `/api/households/${hhId}/calendar`,
       {
         title: "Grandma's 80th Birthday",
         date: '2026-02-15',

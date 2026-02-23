@@ -17,14 +17,6 @@ if (DATABASE_URL) {
 
 /**
  * Log a sensitive action to the immutable audit trail.
- * @param {Object} params
- * @param {number} params.householdId - The target household
- * @param {number} params.userId - The user performing the action
- * @param {string} params.action - Action identifier (e.g. 'MEMBER_UPDATE')
- * @param {string} [params.entityType] - Type of object affected
- * @param {number} [params.entityId] - ID of object affected
- * @param {Object} [params.metadata] - Extra context (IP, diff, etc)
- * @param {Object} [params.req] - Optional Express request to auto-extract IP/UA
  */
 async function logAction({
   householdId,
@@ -69,4 +61,11 @@ async function logAction({
   }
 }
 
-module.exports = { logAction };
+/**
+ * Wrapper for cleaner route usage
+ */
+async function auditLog(householdId, userId, action, entityType, entityId, metadata, req) {
+  return await logAction({ householdId, userId, action, entityType, entityId, metadata, req });
+}
+
+module.exports = { logAction, auditLog };

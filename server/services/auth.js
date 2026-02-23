@@ -1,64 +1,66 @@
 const jwt = require('jsonwebtoken');
 const UAParser = require('ua-parser-js');
 const crypto = require('crypto');
-const { globalDb, dbGet, dbRun } = require('../db');
+const { db } = require('../db/index');
+const { users, userSessions, userHouseholds, households } = require('../db/schema');
+const { eq, and, lt } = require('drizzle-orm');
 const { SECRET_KEY } = require('../config');
 
 /**
  * Helper to finalize login and create session
- * @param {object} user - The user object from the database
- * @param {object} req - Express request object
- * @param {object} res - Express response object
- * @param {boolean} rememberMe - Whether "Remember Me" was checked
  */
 async function finalizeLogin(user, req, res, rememberMe = false) {
-  // Logic: Prioritize last_household_id, then default_household_id, then first active link
-  let householdId = user.last_household_id || user.default_household_id;
+  let householdId = user.lastHouseholdId || user.defaultHouseholdId;
   let userRole = 'member';
 
   if (!householdId) {
-    const link = await dbGet(
-      globalDb,
-      `SELECT * FROM user_households WHERE user_id = ? AND is_active = 1 LIMIT 1`,
-      [user.id]
-    );
-    if (link) {
-      householdId = link.household_id;
-      userRole = link.role;
+    const links = await db
+      .select()
+      .from(userHouseholds)
+      .where(and(eq(userHouseholds.userId, user.id), eq(userHouseholds.isActive, true)))
+      .limit(1);
+    if (links.length > 0) {
+      householdId = links[0].householdId;
+      userRole = links[0].role;
     }
   } else {
-    const link = await dbGet(
-      globalDb,
-      `SELECT * FROM user_households WHERE user_id = ? AND household_id = ? AND is_active = 1`,
-      [user.id, householdId]
-    );
-    if (link) {
-      userRole = link.role;
+    const links = await db
+      .select()
+      .from(userHouseholds)
+      .where(
+        and(
+          eq(userHouseholds.userId, user.id),
+          eq(userHouseholds.householdId, householdId),
+          eq(userHouseholds.isActive, true)
+        )
+      );
+
+    if (links.length > 0) {
+      userRole = links[0].role;
     } else {
       householdId = null;
-      const altLink = await dbGet(
-        globalDb,
-        `SELECT * FROM user_households WHERE user_id = ? AND is_active = 1 LIMIT 1`,
-        [user.id]
-      );
-      if (altLink) {
-        householdId = altLink.household_id;
-        userRole = altLink.role;
+      const altLinks = await db
+        .select()
+        .from(userHouseholds)
+        .where(and(eq(userHouseholds.userId, user.id), eq(userHouseholds.isActive, true)))
+        .limit(1);
+      if (altLinks.length > 0) {
+        householdId = altLinks[0].householdId;
+        userRole = altLinks[0].role;
       }
     }
   }
 
   let householdData = null;
   if (householdId) {
-    householdData = await dbGet(globalDb, `SELECT * FROM households WHERE id = ?`, [householdId]);
+    const hh = await db.select().from(households).where(eq(households.id, householdId));
+    if (hh.length > 0) householdData = hh[0];
   }
 
   // CLEANUP: Remove expired sessions for this user
-  await dbRun(
-    globalDb,
-    `DELETE FROM user_sessions WHERE user_id = ? AND expires_at < CURRENT_TIMESTAMP`,
-    [user.id]
-  );
+  await db
+    .delete(userSessions)
+    .where(and(eq(userSessions.userId, user.id), lt(userSessions.expiresAt, new Date())));
 
   const parser = new UAParser(req.headers['user-agent']);
   const device = parser.getDevice();
@@ -68,22 +70,22 @@ async function finalizeLogin(user, req, res, rememberMe = false) {
 
   // Create Session
   const sessionId = crypto.randomBytes(16).toString('hex');
-  const expiresAt = new Date(
-    Date.now() + (rememberMe ? 30 : 1) * 24 * 60 * 60 * 1000
-  ).toISOString();
+  const expiresAt = new Date(Date.now() + (rememberMe ? 30 : 1) * 24 * 60 * 60 * 1000);
 
-  await dbRun(
-    globalDb,
-    `INSERT INTO user_sessions (id, user_id, device_info, ip_address, user_agent, expires_at) 
-         VALUES (?, ?, ?, ?, ?, ?)`,
-    [sessionId, user.id, deviceInfo, req.ip, req.headers['user-agent'], expiresAt]
-  );
+  await db.insert(userSessions).values({
+    id: sessionId,
+    userId: user.id,
+    deviceInfo,
+    ipAddress: req.ip,
+    userAgent: req.headers['user-agent'],
+    expiresAt,
+  });
 
   const tokenPayload = {
     id: user.id,
     sid: sessionId,
     email: user.email,
-    system_role: user.system_role,
+    system_role: user.systemRole,
     householdId: householdId,
     role: userRole,
   };
@@ -98,21 +100,21 @@ async function finalizeLogin(user, req, res, rememberMe = false) {
   res.json({
     token,
     role: userRole,
-    system_role: user.system_role,
+    system_role: user.systemRole,
     context: householdId ? 'household' : 'global',
     user: {
       id: user.id,
       email: user.email,
       username: user.username,
-      first_name: user.first_name,
-      last_name: user.last_name,
+      first_name: user.firstName,
+      last_name: user.lastName,
       avatar: user.avatar,
       theme: user.theme,
       mode: user.mode || 'system',
-      custom_theme: user.custom_theme,
-      dashboard_layout: user.dashboard_layout,
-      sticky_note: user.sticky_note,
-      mfa_enabled: !!user.mfa_enabled,
+      custom_theme: user.customTheme,
+      dashboard_layout: user.dashboardLayout,
+      sticky_note: user.stickyNote,
+      mfa_enabled: !!user.mfaEnabled,
     },
     household: householdData,
   });

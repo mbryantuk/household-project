@@ -83,6 +83,12 @@ if [ "$SKIP_DOCKER" = false ] && [ "$IS_CONTAINER" = false ]; then
     echo "✅ Containers ready."
 fi
 
+# 1b. Sync Legacy SQLite to Postgres
+if [ "$IS_CONTAINER" = false ]; then
+    echo "🔄 [1b/6] Syncing Legacy SQLite to Postgres..."
+    docker exec hearth-app npx tsx ../scripts/ops/migrate_to_postgres.js || true
+fi
+
 # 2. Backend Tests
 if [ "$SKIP_BACKEND" = false ]; then
     echo "🏗️  [2/6] Running Backend Tests..."

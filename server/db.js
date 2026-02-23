@@ -1,63 +1,81 @@
-const sqlite3 = require('sqlite3');
+const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
-const { initializeGlobalSchema, initializeHouseholdSchema } = require('./schema');
+const { initializeHouseholdSchema } = require('./schema');
+
+/**
+ * LEGACY DATABASE INITIALIZATION (SQLite)
+ * Still used for individual household data files.
+ */
 
 const DATA_DIR = path.join(__dirname, 'data');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
-const globalDb = new sqlite3.Database(path.join(DATA_DIR, 'global.db'), (err) => {
-  if (err) console.error('Global DB connection error:', err.message);
-  else {
-    globalDb.configure('busyTimeout', 30000);
-    globalDb.run('PRAGMA journal_mode=WAL');
-    globalDb.run('PRAGMA synchronous=NORMAL');
-    globalDb.run('PRAGMA busy_timeout=30000');
-    console.log('Connected to Global SQLite database (Optimized).');
-    initializeGlobalSchema(globalDb);
-  }
+// Global SQLite is now LEGACY and mostly used for backward compatibility during migration
+const GLOBAL_DB_PATH = path.join(DATA_DIR, 'global.db');
+const globalDb = new sqlite3.Database(GLOBAL_DB_PATH, (err) => {
+  if (err) console.error('Global DB Connection Error:', err.message);
+  else if (process.env.NODE_ENV !== 'test')
+    console.log('Connected to Legacy Global SQLite database.');
 });
 
-// Connection Cache to prevent excessive file handles
-const connections = new Map();
+/**
+ * GET HOUSEHOLD DB (SQLite Tenant)
+ */
+function getHouseholdDb(id) {
+  const dbPath = path.join(DATA_DIR, `household_${id}.db`);
+  return new sqlite3.Database(dbPath);
+}
 
-const getHouseholdDb = (householdId) => {
-  if (connections.has(householdId)) {
-    return connections.get(householdId);
-  }
+/**
+ * ENSURE HOUSEHOLD SCHEMA (SQLite)
+ * Uses the standard schema.js initialization
+ */
+async function ensureHouseholdSchema(db, id) {
+  return await initializeHouseholdSchema(db);
+}
 
-  const dbPath = path.join(DATA_DIR, `household_${householdId}.db`);
-  const db = new sqlite3.Database(dbPath);
-  db.configure('busyTimeout', 30000);
-  db.run('PRAGMA journal_mode=WAL');
-  db.run('PRAGMA synchronous=NORMAL');
-  db.run('PRAGMA busy_timeout=30000');
-
-  connections.set(householdId, db);
-  return db;
-};
-
-const ensureHouseholdSchema = async (db, householdId) => {
-  // ALWAYS run initializeHouseholdSchema to ensure migrations/new tables are applied
-  // The schema file uses CREATE TABLE IF NOT EXISTS so it's safe.
-  await initializeHouseholdSchema(db);
-};
-
-const dbGet = (db, query, params = []) =>
-  new Promise((resolve, reject) => {
-    db.get(query, params, (err, row) => (err ? reject(err) : resolve(row)));
-  });
-
-const dbAll = (db, query, params = []) =>
-  new Promise((resolve, reject) => {
-    db.all(query, params, (err, rows) => (err ? reject(err) : resolve(rows)));
-  });
-
-const dbRun = (db, query, params = []) =>
-  new Promise((resolve, reject) => {
-    db.run(query, params, function (err) {
-      err ? reject(err) : resolve({ id: this.lastID, changes: this.changes });
+/**
+ * HELPER: Promisified DB GET
+ */
+function dbGet(db, query, params = []) {
+  return new Promise((resolve, reject) => {
+    db.get(query, params, (err, row) => {
+      if (err) reject(err);
+      else resolve(row);
     });
   });
+}
 
-module.exports = { globalDb, getHouseholdDb, ensureHouseholdSchema, dbGet, dbAll, dbRun };
+/**
+ * HELPER: Promisified DB ALL
+ */
+function dbAll(db, query, params = []) {
+  return new Promise((resolve, reject) => {
+    db.all(query, params, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+}
+
+/**
+ * HELPER: Promisified DB RUN
+ */
+function dbRun(db, query, params = []) {
+  return new Promise((resolve, reject) => {
+    db.run(query, params, function (err) {
+      if (err) reject(err);
+      else resolve({ id: this.lastID, changes: this.changes });
+    });
+  });
+}
+
+module.exports = {
+  globalDb,
+  getHouseholdDb,
+  ensureHouseholdSchema,
+  dbGet,
+  dbAll,
+  dbRun,
+};
