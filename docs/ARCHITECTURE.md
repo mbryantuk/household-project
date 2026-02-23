@@ -70,11 +70,11 @@ graph TD
 
 ### "Nightly" Philosophy
 
-Hearthside employs a **Nightly Quality Gate**:
+Hearthstone employs a **Nightly Quality Gate**:
 
 1.  **Automated Smoke Tests:** Run every night via cron.
 2.  **Database Health:** `cleanup_test_data.js` runs to purge transient test artifacts.
-3.  **Reporting:** Results are stored in the `test_results` table and surfaced in the Settings UI.
+3.  **Reporting:** Results are stored in the `test_results` table and surfaced in the Settings UI under **Settings > Nightly Health**.
 
 ### Backup Strategy
 

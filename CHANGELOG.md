@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.2.309] - 2026-02-23
+
+### Added
+
+- **Maintenance:** Introduced "Item 72" to the roadmap (`todo.md`) to ensure all project documentation (.md files) is kept up-to-date with every major change.
+
 ## [3.2.308] - 2026-02-23
 
 ### Fixed
