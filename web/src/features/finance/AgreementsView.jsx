@@ -25,7 +25,7 @@ import {
   DialogActions,
 } from '@mui/joy';
 import { Edit, Delete, Add, GroupAdd } from '@mui/icons-material';
-import { getEmojiColor } from '../../theme';
+import { getEmojiColor } from '../../utils/colors';
 import EmojiPicker from '../../components/EmojiPicker';
 import ModuleHeader from '../../components/ui/ModuleHeader';
 import FinanceCard from '../../components/ui/FinanceCard';

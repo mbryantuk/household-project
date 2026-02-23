@@ -23,7 +23,7 @@ import {
   Checkbox,
 } from '@mui/joy';
 import { Edit, Delete, DeleteSweep, Add } from '@mui/icons-material';
-import { getEmojiColor } from '../theme';
+import { getEmojiColor } from '../utils/colors';
 
 export default function WasteView() {
   const {

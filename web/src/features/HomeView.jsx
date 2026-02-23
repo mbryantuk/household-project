@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import {
   Box,
@@ -45,6 +45,7 @@ import {
 
 import DashboardWidget from '../components/DashboardWidget';
 import { APP_NAME } from '../constants';
+import { useFinanceSummary } from '../hooks/useFinanceData';
 
 // Simple Sparkline Component (SVG)
 const Sparkline = ({ data = [10, 15, 12, 20, 25, 22, 30], color = '#22c55e', height = 40 }) => {
@@ -85,7 +86,7 @@ export default function HomeView() {
   const navigate = useNavigate();
   const { household, user, members = [], vehicles = [], api } = useOutletContext();
 
-  const [financeSummary, setFinanceSummary] = useState(null);
+  const { data: financeSummary } = useFinanceSummary(api, household?.id);
 
   // Time-based Greeting
   const hour = new Date().getHours();
@@ -95,43 +96,6 @@ export default function HomeView() {
     day: 'numeric',
     month: 'long',
   });
-
-  // Fetch Finance Data for Widgets
-  useEffect(() => {
-    if (!household?.id) return;
-
-    const loadData = async () => {
-      try {
-        // Parallel fetch for dashboard data
-        // 1. Finance Profiles (for Net Worth)
-        // 2. Budget Cycles (for Spending Health)
-        const [profilesRes, cyclesRes] = await Promise.all([
-          api.get(`/households/${household.id}/finance/profiles`),
-          api.get(`/households/${household.id}/finance/budget-cycles`),
-        ]);
-
-        const profiles = profilesRes.data || [];
-        const cycles = cyclesRes.data || [];
-
-        // Calculate Total Balance (Net Worth Proxy)
-        const totalBalance = cycles.reduce((sum, c) => sum + (c.current_balance || 0), 0);
-
-        // Calculate Budget Health (Income vs Spend Proxy)
-        // Assuming positive is income, negative is spend for now, or just using 'actual_pay' vs balance
-        const totalIncome = cycles.reduce((sum, c) => sum + (c.actual_pay || 0), 0);
-
-        setFinanceSummary({
-          netWorth: totalBalance,
-          monthlyIncome: totalIncome,
-          spending: totalIncome - totalBalance, // Rough proxy
-          profiles: profiles.slice(0, 3), // Top 3 profiles
-        });
-      } catch (err) {
-        console.error('Dashboard Data Load Error', err);
-      }
-    };
-    loadData();
-  }, [household?.id, api]);
 
   // Today's Outlook Icon
   const weatherIcon = useMemo(() => {

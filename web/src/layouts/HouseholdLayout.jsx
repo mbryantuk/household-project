@@ -42,7 +42,7 @@ import ShoppingBag from '@mui/icons-material/ShoppingBag';
 import NotificationsDrawer from '../components/NotificationsDrawer';
 import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
-import { getEmojiColor } from '../theme';
+import { getEmojiColor } from '../utils/colors';
 import { HouseholdProvider } from '../contexts/HouseholdContext';
 import { APP_NAME } from '../constants';
 

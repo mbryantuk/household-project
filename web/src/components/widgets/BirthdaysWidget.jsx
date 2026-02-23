@@ -2,7 +2,7 @@ import { useMemo, useCallback } from 'react';
 import { Box, Typography, Stack, Avatar, Chip } from '@mui/joy';
 import { Cake } from '@mui/icons-material';
 import WidgetWrapper from './WidgetWrapper';
-import { getEmojiColor } from '../../theme';
+import { getEmojiColor } from '../../utils/colors';
 
 export default function BirthdaysWidget({ dates, members }) {
   const today = useMemo(() => {

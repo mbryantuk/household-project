@@ -42,7 +42,7 @@ import {
   LocalActivity,
 } from '@mui/icons-material';
 import { format, parseISO } from 'date-fns';
-import { getEmojiColor } from '../../theme';
+import { getEmojiColor } from '../../utils/colors';
 import EmojiPicker from '../EmojiPicker';
 import MetadataFormFields from './MetadataFormFields';
 import FinancialProfileSelector from './FinancialProfileSelector';

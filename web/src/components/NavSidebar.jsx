@@ -59,7 +59,7 @@ import {
 
 import { useLocation, useNavigate, NavLink, useSearchParams } from 'react-router-dom';
 import { isToday, parseISO } from 'date-fns';
-import { getEmojiColor } from '../theme';
+import { getEmojiColor } from '../utils/colors';
 import { useHousehold } from '../contexts/HouseholdContext';
 import EmojiPicker from './EmojiPicker';
 import { ToggleButtonGroup, Badge } from '@mui/joy';

@@ -98,15 +98,28 @@ async function cleanupTestData() {
       if (!fs.existsSync(dir)) return;
       fs.readdirSync(dir).forEach((file) => {
         const fullPath = path.join(dir, file);
-        const match = file.match(/^household_(\d+)\.db/);
-        if (match) {
-          const id = parseInt(match[1]);
+
+        // Pattern for .db files
+        const dbMatch = file.match(/^household_(\d+)\.db/);
+        if (dbMatch) {
+          const id = parseInt(dbMatch[1]);
           if (!keepIds.includes(id)) {
             try {
               fs.unlinkSync(fullPath);
               ['-wal', '-shm'].forEach((ext) => {
                 if (fs.existsSync(fullPath + ext)) fs.unlinkSync(fullPath + ext);
               });
+            } catch (e) {}
+          }
+        }
+
+        // Pattern for .zip backup files (e.g., household-6256-backup-...)
+        const zipMatch = file.match(/^household-(\d+)-backup-.*\.zip/);
+        if (zipMatch) {
+          const id = parseInt(zipMatch[1]);
+          if (!keepIds.includes(id)) {
+            try {
+              fs.unlinkSync(fullPath);
             } catch (e) {}
           }
         }

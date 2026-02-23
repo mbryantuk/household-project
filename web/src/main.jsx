@@ -1,14 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
-import CssBaseline from '@mui/joy/CssBaseline'; // Normalized CSS for Joy UI
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <CssBaseline />
     <App />
   </React.StrictMode>
 );

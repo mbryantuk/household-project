@@ -28,7 +28,7 @@ import {
 import axios from 'axios';
 import { startAuthentication } from '@simplewebauthn/browser';
 import AppIcon from '../components/AppIcon';
-import { getEmojiColor } from '../theme';
+import { getEmojiColor } from '../utils/colors';
 import { APP_NAME } from '../constants';
 
 export default function Login({ onLogin, onMfaLogin, onLoginSuccess }) {

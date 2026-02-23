@@ -17,6 +17,7 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, './src'),
     },
+    dedupe: ['react', 'react-dom'],
   },
   server: {
     port: 5173,
@@ -30,5 +31,8 @@ export default defineConfig({
       '/system': 'http://localhost:4001',
       '/my-households': 'http://localhost:4001',
     },
+  },
+  build: {
+    minify: false,
   },
 });

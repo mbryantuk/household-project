@@ -21,7 +21,7 @@ import {
 } from '@mui/joy';
 import { useOutletContext } from 'react-router-dom';
 import { Edit, Save, PhotoCamera, Lock, Key } from '@mui/icons-material';
-import { getEmojiColor } from '../theme';
+import { getEmojiColor } from '../utils/colors';
 import EmojiPicker from '../components/EmojiPicker';
 
 export default function ProfileView() {

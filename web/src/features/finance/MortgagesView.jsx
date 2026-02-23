@@ -27,7 +27,7 @@ import {
   IconButton,
 } from '@mui/joy';
 import { Add, Sell, AccountBalanceWallet, ArrowDropDown, Edit } from '@mui/icons-material';
-import { getEmojiColor } from '../../theme';
+import { getEmojiColor } from '../../utils/colors';
 import EmojiPicker from '../../components/EmojiPicker';
 import AppSelect from '../../components/ui/AppSelect';
 import ModuleHeader from '../../components/ui/ModuleHeader';

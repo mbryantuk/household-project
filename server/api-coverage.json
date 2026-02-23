@@ -1,13 +1,13 @@
 {
-  "timestamp": "2026-02-22T21:14:56.813Z",
+  "timestamp": "2026-02-23T07:41:02.783Z",
   "accounts": {
-    "admin": "admin_1771794895052@test.com",
-    "viewer": "viewer_1771794895052@test.com"
+    "admin": "admin_1771832461014@test.com",
+    "viewer": "viewer_1771832461014@test.com"
   },
   "steps": [
-    "21:14:55: Loading Swagger schema for strict sync enforcement.",
-    "21:14:55: Initializing test environment.",
-    "21:14:56: Cleaning up: Deleting test household."
+    "07:41:01: Loading Swagger schema for strict sync enforcement.",
+    "07:41:01: Initializing test environment.",
+    "07:41:02: Cleaning up: Deleting test household."
   ],
   "summary": {
     "total_endpoints": 89,

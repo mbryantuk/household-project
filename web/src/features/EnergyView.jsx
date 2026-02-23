@@ -26,7 +26,7 @@ import {
   Checkbox,
 } from '@mui/joy';
 import { Edit, Delete, ElectricBolt, Add, ReceiptLong } from '@mui/icons-material';
-import { getEmojiColor } from '../theme';
+import { getEmojiColor } from '../utils/colors';
 
 export default function EnergyView() {
   const {

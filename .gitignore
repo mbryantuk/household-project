@@ -4,6 +4,8 @@
 *.log
 server/data/*
 !server/data/.gitkeep
+server/backups/*
+!server/backups/.gitkeep
 
 # Operations Secrets
 scripts/ops/.env.nightly

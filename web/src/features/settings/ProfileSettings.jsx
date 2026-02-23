@@ -28,7 +28,7 @@ import PersonAdd from '@mui/icons-material/PersonAdd';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 
 import { useHousehold } from '../../contexts/HouseholdContext';
-import { getEmojiColor } from '../../theme';
+import { getEmojiColor } from '../../utils/colors';
 import EmojiPicker from '../../components/EmojiPicker';
 
 export default function ProfileSettings() {

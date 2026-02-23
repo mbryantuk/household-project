@@ -60,7 +60,7 @@ import {
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 import EmojiPicker from '../components/EmojiPicker';
-import { getEmojiColor } from '../theme';
+import { getEmojiColor } from '../utils/colors';
 
 const locales = { 'en-US': enUS };
 

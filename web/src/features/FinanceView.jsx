@@ -52,7 +52,7 @@ import ChargesView from './finance/ChargesView';
 
 import FinancialProfileSelector from '../components/ui/FinancialProfileSelector';
 import EmojiPicker from '../components/EmojiPicker';
-import { getEmojiColor } from '../theme';
+import { getEmojiColor } from '../utils/colors';
 
 export default function FinanceView() {
   const location = useLocation();

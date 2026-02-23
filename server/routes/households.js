@@ -11,6 +11,8 @@ const {
   requireHouseholdRole,
   requireSystemRole,
 } = require('../middleware/auth');
+const { validate } = require('../middleware/validation');
+const { HouseholdSchema } = require('@hearth/shared');
 const {
   listBackups,
   createBackup,
@@ -19,14 +21,19 @@ const {
   BACKUP_DIR,
   DATA_DIR,
 } = require('../services/backup');
+// Schema for creating/updating a household (more flexible than the base DB schema)
+const HouseholdInputSchema = HouseholdSchema.pick({ name: true }).extend({
+  is_test: HouseholdSchema.shape.is_test.optional(),
+});
+
+const HouseholdUpdateSchema = HouseholdSchema.partial().omit({ id: true });
 
 /**
  * POST /households
  * Create a new household. Only allowed for users.
  */
-router.post('/households', authenticateToken, async (req, res) => {
+router.post('/households', authenticateToken, validate(HouseholdInputSchema), async (req, res) => {
   const { name, is_test } = req.body;
-  if (!name) return res.status(400).json({ error: 'Household name is required' });
 
   const finalIsTest = is_test || process.env.NODE_ENV === 'test' ? 1 : 0;
 
@@ -71,6 +78,7 @@ router.put(
   '/households/:id',
   authenticateToken,
   requireHouseholdRole('admin'),
+  validate(HouseholdUpdateSchema),
   async (req, res) => {
     const householdId = parseInt(req.params.id);
     const {

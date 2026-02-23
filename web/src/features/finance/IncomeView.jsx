@@ -22,7 +22,7 @@ import {
 } from '@mui/joy';
 import { Add, Star, Edit } from '@mui/icons-material';
 import { format } from 'date-fns';
-import { getEmojiColor } from '../../theme';
+import { getEmojiColor } from '../../utils/colors';
 import AppSelect from '../../components/ui/AppSelect';
 import EmojiPicker from '../../components/EmojiPicker';
 import ModuleHeader from '../../components/ui/ModuleHeader';

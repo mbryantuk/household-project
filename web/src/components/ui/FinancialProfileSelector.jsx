@@ -19,7 +19,7 @@ import {
 import { useOutletContext } from 'react-router-dom';
 import { Add } from '@mui/icons-material';
 import EmojiPicker from '../EmojiPicker';
-import { getEmojiColor } from '../../theme';
+import { getEmojiColor } from '../../utils/colors';
 
 export default function FinancialProfileSelector({
   value,

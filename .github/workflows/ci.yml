@@ -18,10 +18,15 @@ jobs:
         with:
           node-version: 20.x
           cache: 'npm'
-          cache-dependency-path: server/package-lock.json
 
-      - name: Install Server Dependencies
-        run: cd server && npm install
+      - name: Install Dependencies
+        run: |
+          npm install
+          cd server && npm install
+          cd ../web && npm install
 
-      - name: Run Tests
+      - name: Run Backend Tests
         run: cd server && npm test
+
+      - name: Run Frontend Lint
+        run: cd web && npm run lint

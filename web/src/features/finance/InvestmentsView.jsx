@@ -18,7 +18,7 @@ import {
   Chip,
 } from '@mui/joy';
 import { Add, Edit, ArrowUpward, ArrowDownward } from '@mui/icons-material';
-import { getEmojiColor } from '../../theme';
+import { getEmojiColor } from '../../utils/colors';
 import EmojiPicker from '../../components/EmojiPicker';
 import ModuleHeader from '../../components/ui/ModuleHeader';
 import FinanceCard from '../../components/ui/FinanceCard';

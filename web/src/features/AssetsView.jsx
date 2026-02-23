@@ -15,7 +15,7 @@ import {
   CircularProgress,
 } from '@mui/joy';
 import { Edit, Delete, Add, Search } from '@mui/icons-material';
-import { getEmojiColor } from '../theme';
+import { getEmojiColor } from '../utils/colors';
 import GenericObjectView from '../components/objects/GenericObjectView';
 
 export default function AssetsView() {

@@ -49,7 +49,7 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { useHousehold } from '../contexts/HouseholdContext';
 import EmojiPicker from '../components/EmojiPicker';
-import { getEmojiColor } from '../theme';
+import { getEmojiColor } from '../utils/colors';
 
 const steps = [
   { label: 'Household', icon: <Home /> },

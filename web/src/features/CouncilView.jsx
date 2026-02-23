@@ -24,7 +24,7 @@ import {
   Checkbox,
 } from '@mui/joy';
 import { Edit, Delete, AccountBalance, Add } from '@mui/icons-material';
-import { getEmojiColor } from '../theme';
+import { getEmojiColor } from '../utils/colors';
 
 export default function CouncilView() {
   const {

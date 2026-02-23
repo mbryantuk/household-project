@@ -39,6 +39,14 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import HouseholdSelector from './pages/HouseholdSelector';
 
+import {
+  useHouseholdMembers,
+  useHouseholdUsers,
+  useHouseholdDates,
+  useHouseholdVehicles,
+  useMyHouseholds,
+} from './hooks/useHouseholdData';
+
 // Lazy Loaded Features
 const HomeView = lazy(() => import('./features/HomeView'));
 const SettingsView = lazy(() => import('./features/SettingsView'));
@@ -131,53 +139,6 @@ function AppInner({
     }
   }, [spec.primary]);
 
-  const [households, setHouseholds] = useState([]);
-  const [hhUsers, setHhUsers] = useState([]);
-  const [hhMembers, setHhMembers] = useState([]);
-  const [hhVehicles, setHhVehicles] = useState([]);
-  const [hhDates, setHhDates] = useState([]);
-
-  const [notification, setNotification] = useState({
-    open: false,
-    message: '',
-    severity: 'neutral',
-  });
-  const [confirmDialog, setConfirmDialog] = useState({
-    open: false,
-    title: '',
-    message: '',
-    onConfirm: null,
-  });
-  const [installPrompt, setInstallPrompt] = useState(null);
-
-  // Idle Timer State
-  const lastActivity = useRef(0);
-
-  useEffect(() => {
-    lastActivity.current = Date.now();
-  }, []);
-
-  const [isIdleWarning, setIsIdleWarning] = useState(false);
-
-  useEffect(() => {
-    const handler = (e) => {
-      e.preventDefault();
-      setInstallPrompt(e);
-    };
-    window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
-
-  const handleInstall = () => {
-    if (!installPrompt) return;
-    installPrompt.prompt();
-    installPrompt.userChoice.then((choiceResult) => {
-      if (choiceResult.outcome === 'accepted') {
-        setInstallPrompt(null);
-      }
-    });
-  };
-
   const navigate = useNavigate();
 
   const authAxios = useMemo(() => {
@@ -223,6 +184,65 @@ function AppInner({
 
     return instance;
   }, [token, household?.debug_mode]);
+
+  // --- TANSTACK QUERY INTEGRATION ---
+  const { data: households = [] } = useMyHouseholds(authAxios, token);
+
+  const { data: hhMembers = [], refetch: fetchHhMembers } = useHouseholdMembers(
+    authAxios,
+    household?.id
+  );
+
+  const { data: hhUsers = [], refetch: fetchHhUsers } = useHouseholdUsers(authAxios, household?.id);
+
+  const { data: hhDates = [], refetch: fetchHhDates } = useHouseholdDates(authAxios, household?.id);
+
+  const { data: hhVehicles = [], refetch: fetchHhVehicles } = useHouseholdVehicles(
+    authAxios,
+    household?.id
+  );
+  // ----------------------------------
+
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'neutral',
+  });
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+  });
+  const [installPrompt, setInstallPrompt] = useState(null);
+
+  // Idle Timer State
+  const lastActivity = useRef(0);
+
+  useEffect(() => {
+    lastActivity.current = Date.now();
+  }, []);
+
+  const [isIdleWarning, setIsIdleWarning] = useState(false);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    installPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        setInstallPrompt(null);
+      }
+    });
+  };
 
   const showNotification = useCallback((message, severity = 'neutral') => {
     const joySeverity =
@@ -286,64 +306,6 @@ function AppInner({
   };
   // ------------------------
 
-  // Data Fetching
-  const fetchHouseholds = useCallback(async () => {
-    if (!token) return;
-    try {
-      const res = await authAxios.get('/auth/my-households');
-      console.log(`[APP] Fetched ${res.data?.length || 0} households`);
-      setHouseholds(res.data || []);
-    } catch (err) {
-      console.error('Failed to fetch households', err);
-    }
-  }, [authAxios, token]);
-
-  const fetchHhMembers = useCallback(
-    (hhId) => {
-      if (!hhId) return;
-      return authAxios
-        .get(`/households/${hhId}/members`)
-        .then((res) => setHhMembers(Array.isArray(res.data) ? res.data : []));
-    },
-    [authAxios]
-  );
-
-  const fetchHhUsers = useCallback(
-    (hhId) => {
-      if (!hhId) return;
-      return authAxios
-        .get(`/households/${hhId}/users`)
-        .then((res) => setHhUsers(Array.isArray(res.data) ? res.data : []));
-    },
-    [authAxios]
-  );
-
-  const fetchHhDates = useCallback(
-    (hhId) => {
-      if (!hhId) return;
-      return authAxios
-        .get(`/households/${hhId}/dates`)
-        .then((res) => setHhDates(Array.isArray(res.data) ? res.data : []));
-    },
-    [authAxios]
-  );
-
-  const fetchHhVehicles = useCallback(
-    (hhId) => {
-      if (!hhId) return;
-      return authAxios
-        .get(`/households/${hhId}/vehicles`)
-        .then((res) => setHhVehicles(Array.isArray(res.data) ? res.data : []));
-    },
-    [authAxios]
-  );
-
-  useEffect(() => {
-    if (token) {
-      Promise.resolve().then(() => fetchHouseholds());
-    }
-  }, [token, fetchHouseholds]);
-
   // Validate active household existence
   useEffect(() => {
     if (token && household && households.length > 0) {
@@ -372,22 +334,6 @@ function AppInner({
       }
     }
   }, [household, households, user, setUser]);
-
-  useEffect(() => {
-    if (token && household) {
-      Promise.resolve().then(() => {
-        setHhMembers([]);
-        setHhUsers([]);
-        setHhDates([]);
-        setHhVehicles([]);
-      });
-
-      fetchHhMembers(household.id);
-      fetchHhUsers(household.id);
-      fetchHhDates(household.id);
-      fetchHhVehicles(household.id);
-    }
-  }, [token, household, fetchHhMembers, fetchHhUsers, fetchHhDates, fetchHhVehicles]);
 
   // Automatic Logout on 401/403/Version Mismatch
   useEffect(() => {
@@ -467,9 +413,7 @@ function AppInner({
         const updatedHH = { ...household, ...updates };
         setHousehold(updatedHH);
         localStorage.setItem('household', JSON.stringify(updatedHH));
-        setHouseholds((prev) =>
-          prev.map((h) => (h.id === household.id ? { ...h, ...updates } : h))
-        );
+        queryClient.invalidateQueries({ queryKey: ['my-households'] });
         showNotification('Household updated.', 'success');
       } catch {
         showNotification('Failed to update.', 'danger');
@@ -598,7 +542,7 @@ function AppInner({
                   api={authAxios}
                   householdId={household?.id}
                   currentUser={user}
-                  onDateAdded={() => household && fetchHhDates(household.id)}
+                  onDateAdded={() => fetchHhDates()}
                 />
               </Box>
             }
@@ -701,15 +645,15 @@ function AppInner({
                   api={authAxios}
                   onUpdateHousehold={handleUpdateHouseholdSettings}
                   members={hhMembers}
-                  fetchHhMembers={fetchHhMembers}
+                  fetchHhMembers={() => fetchHhMembers()}
                   vehicles={hhVehicles}
-                  fetchVehicles={fetchHhVehicles}
+                  fetchVehicles={() => fetchHhVehicles()}
                   user={user}
                   isDark={isDark}
                   showNotification={showNotification}
                   confirmAction={confirmAction}
                   dates={hhDates}
-                  onDateAdded={() => household && fetchHhDates(household.id)}
+                  onDateAdded={() => fetchHhDates()}
                   onUpdateProfile={handleUpdateProfile}
                   onLogout={logout}
                   themeId={themeId}
@@ -878,7 +822,7 @@ function AppInner({
                       api={authAxios}
                       householdId={household?.id}
                       currentUser={user}
-                      onDateAdded={() => household && fetchHhDates(household.id)}
+                      onDateAdded={() => fetchHhDates()}
                       isDark={isDark}
                     />
                   </Box>

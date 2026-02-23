@@ -1,6 +1,6 @@
 import React from 'react';
 import { Avatar } from '@mui/joy';
-import { getEmojiColor } from '../../theme';
+import { getEmojiColor } from '../../utils/colors';
 
 /**
  * Standard Avatar component with dynamic theme-aware background colors.

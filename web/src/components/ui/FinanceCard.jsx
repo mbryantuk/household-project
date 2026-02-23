@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, Box, Avatar, Typography, IconButton, Divider, AvatarGroup } from '@mui/joy';
 import { Add, Remove, Edit, GroupAdd, Delete } from '@mui/icons-material';
-import { getEmojiColor } from '../../theme';
+import { getEmojiColor } from '../../utils/colors';
 
 export default function FinanceCard({
   title,

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.2.308] - 2026-02-23
+
+### Fixed
+
+- **Frontend:** Resolved a critical `ReferenceError` where `authAxios` was accessed before initialization in `AppInner`. Moved `authAxios` and `navigate` definitions above the TanStack Query hook section.
+- **Testing:** Fixed flaky `concurrency.test.js` and added detailed failure logging to the backend performance suite.
+- **Testing:** Restored 100% pass rate for the Nightly Comprehensive Suite.
+
 ## [3.2.263] - 2026-02-16
 
 ### Fixed

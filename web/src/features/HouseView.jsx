@@ -45,7 +45,7 @@ import {
   Edit,
   ChevronRight,
 } from '@mui/icons-material';
-import { getEmojiColor } from '../theme';
+import { getEmojiColor } from '../utils/colors';
 
 const formatCurrency = (val) =>
   (parseFloat(val) || 0).toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });

@@ -2,7 +2,7 @@ import { useMemo, useCallback } from 'react';
 import { Box, Typography, Stack, Chip } from '@mui/joy';
 import { Event as EventIcon } from '@mui/icons-material';
 import WidgetWrapper from './WidgetWrapper';
-import { getEmojiColor } from '../../theme';
+import { getEmojiColor } from '../../utils/colors';
 
 export default function EventsWidget({ dates }) {
   const today = useMemo(() => {

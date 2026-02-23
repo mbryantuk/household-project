@@ -26,7 +26,7 @@ import {
   Option,
 } from '@mui/joy';
 import { Add, Edit, FileUpload, CheckCircle, Warning, Save } from '@mui/icons-material';
-import { getEmojiColor } from '../../theme';
+import { getEmojiColor } from '../../utils/colors';
 import EmojiPicker from '../../components/EmojiPicker';
 import ModuleHeader from '../../components/ui/ModuleHeader';
 import FinanceCard from '../../components/ui/FinanceCard';

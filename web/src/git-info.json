@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix undefined theme palette access in HomeView and DashboardWidget + stabilize smoke tests",
-  "date": "Sun 22 Feb 21:23:46 GMT 2026"
+  "commitMessage": "Fix frontend authAxios ReferenceError and backend concurrency test flakiness",
+  "date": "Mon 23 Feb 07:43:38 GMT 2026"
 }

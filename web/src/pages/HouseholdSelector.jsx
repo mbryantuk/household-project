@@ -30,7 +30,7 @@ import FileDownload from '@mui/icons-material/FileDownload';
 import DataObject from '@mui/icons-material/DataObject';
 import ExitToApp from '@mui/icons-material/ExitToApp';
 import { useNavigate } from 'react-router-dom';
-import { getEmojiColor } from '../theme';
+import { getEmojiColor } from '../utils/colors';
 
 export default function HouseholdSelector({
   api,

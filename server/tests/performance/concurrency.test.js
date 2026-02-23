@@ -54,6 +54,12 @@ describe('⚡ SQLite Concurrency Stress', () => {
     const results = await Promise.all(promises);
     const failures = results.filter((r) => r.status !== 200);
 
+    if (failures.length > 0) {
+      console.error(
+        `❌ Concurrency Failure Details: ${failures.map((f) => `${f.status}: ${JSON.stringify(f.body)}`).join(', ')}`
+      );
+    }
+
     console.log(
       `Concurrency Results: ${results.length - failures.length} Success, ${failures.length} Failed`
     );

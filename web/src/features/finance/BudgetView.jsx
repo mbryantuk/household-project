@@ -87,7 +87,7 @@ import {
   eachDayOfInterval,
   addDays,
 } from 'date-fns';
-import { getEmojiColor } from '../../theme';
+import { getEmojiColor } from '../../utils/colors';
 import AppSelect from '../../components/ui/AppSelect';
 import EmojiPicker from '../../components/EmojiPicker';
 import MetadataFormFields from '../../components/ui/MetadataFormFields';

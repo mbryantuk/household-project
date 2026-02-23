@@ -40,7 +40,7 @@ import {
   Edit,
 } from '@mui/icons-material';
 import { format, parseISO, isPast, isToday, isTomorrow } from 'date-fns';
-import { getEmojiColor } from '../theme';
+import { getEmojiColor } from '../utils/colors';
 import AppSelect from '../components/ui/AppSelect';
 import EmojiPicker from '../components/EmojiPicker';
 
