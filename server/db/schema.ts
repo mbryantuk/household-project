@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, timestamp, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, integer, timestamp, boolean, jsonb } from 'drizzle-orm/pg-core';
 
 /**
  * HEARTHSTONE PRO CORE SCHEMA (Postgres Transition)
@@ -41,3 +41,16 @@ export const userHouseholds = pgTable(
     pk: [table.userId, table.householdId],
   })
 );
+
+export const auditLogs = pgTable('audit_logs', {
+  id: serial('id').primaryKey(),
+  householdId: integer('household_id').notNull(),
+  userId: integer('user_id'),
+  action: text('action').notNull(), // e.g., 'MEMBER_CREATE', 'FINANCE_DELETE'
+  entityType: text('entity_type'), // e.g., 'member', 'asset'
+  entityId: integer('entity_id'),
+  metadata: jsonb('metadata'), // Snapshot of changes or context
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
+  createdAt: timestamp('created_at').defaultNow(),
+});

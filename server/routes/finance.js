@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
-const { dbAll } = require('../db');
+const { dbAll, dbRun } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { useTenantDb } = require('../middleware/tenant');
 const { autoEncrypt, decryptData } = require('../middleware/encryption');
+const { logAction } = require('../services/audit');
 
 // Import Recurring Costs
 const recurringCostsRoutes = require('./recurring_costs');
@@ -68,9 +69,25 @@ const handleCreateItem = (table) => (req, res) => {
     req.tenantDb.run(
       `INSERT INTO ${table} (${placeholders}) VALUES (${qs})`,
       values,
-      function (err) {
+      async function (err) {
         if (err) return res.status(500).json({ error: err.message });
-        res.status(201).json({ id: this.lastID, ...insertData });
+
+        const newId = this.lastID;
+
+        // AUDIT LOG
+        await logAction({
+          householdId: req.hhId,
+          userId: req.user.id,
+          action: `${table.toUpperCase()}_CREATE`,
+          entityType: table,
+          entityId: newId,
+          metadata: {
+            name: insertData.name || insertData.bank_name || insertData.employer || table,
+          },
+          req,
+        });
+
+        res.status(201).json({ id: newId, ...insertData });
       }
     );
   });
@@ -103,8 +120,20 @@ const handleUpdateItem = (table) => (req, res) => {
     req.tenantDb.run(
       `UPDATE ${table} SET ${sets} WHERE id = ? AND household_id = ?`,
       [...values, req.params.itemId, req.hhId],
-      function (err) {
+      async function (err) {
         if (err) return res.status(500).json({ error: err.message });
+
+        // AUDIT LOG
+        await logAction({
+          householdId: req.hhId,
+          userId: req.user.id,
+          action: `${table.toUpperCase()}_UPDATE`,
+          entityType: table,
+          entityId: parseInt(req.params.itemId),
+          metadata: { updates: Object.keys(updateData) },
+          req,
+        });
+
         res.json({ message: 'Updated' });
       }
     );
@@ -115,8 +144,19 @@ const handleDeleteItem = (table) => (req, res) => {
   req.tenantDb.run(
     `DELETE FROM ${table} WHERE id = ? AND household_id = ?`,
     [req.params.itemId, req.hhId],
-    function (err) {
+    async function (err) {
       if (err) return res.status(500).json({ error: err.message });
+
+      // AUDIT LOG
+      await logAction({
+        householdId: req.hhId,
+        userId: req.user.id,
+        action: `${table.toUpperCase()}_DELETE`,
+        entityType: table,
+        entityId: parseInt(req.params.itemId),
+        req,
+      });
+
       res.json({ message: 'Deleted' });
     }
   );
@@ -171,8 +211,20 @@ const handleSubCreate = (childTable, parentTable, parentKey) => (req, res) => {
         req.tenantDb.run(
           `INSERT INTO ${childTable} (${fields.join(', ')}) VALUES (${fields.map(() => '?').join(', ')})`,
           Object.values(insertData),
-          function (iErr) {
+          async function (iErr) {
             if (iErr) return res.status(500).json({ error: iErr.message });
+
+            // AUDIT LOG
+            await logAction({
+              householdId: req.hhId,
+              userId: req.user.id,
+              action: `${childTable.toUpperCase()}_CREATE`,
+              entityType: childTable,
+              entityId: this.lastID,
+              metadata: { parentId, parentTable },
+              req,
+            });
+
             res.status(201).json({ id: this.lastID, ...insertData });
           }
         );
@@ -186,10 +238,22 @@ const handleSubDelete = (childTable, parentTable, parentKey) => (req, res) => {
   const itemId = req.params.itemId;
   const foreignKey = parentKey.replace('Id', '_id');
   const sql = `DELETE FROM ${childTable} WHERE id = ? AND ${foreignKey} IN (SELECT id FROM ${parentTable} WHERE id = ? AND household_id = ?)`;
-  req.tenantDb.run(sql, [itemId, parentId, req.hhId], function (err) {
+  req.tenantDb.run(sql, [itemId, parentId, req.hhId], async function (err) {
     if (err) return res.status(500).json({ error: err.message });
     if (this.changes === 0)
       return res.status(404).json({ error: 'Item not found or access denied' });
+
+    // AUDIT LOG
+    await logAction({
+      householdId: req.hhId,
+      userId: req.user.id,
+      action: `${childTable.toUpperCase()}_DELETE`,
+      entityType: childTable,
+      entityId: parseInt(itemId),
+      metadata: { parentId, parentTable },
+      req,
+    });
+
     res.json({ message: 'Deleted' });
   });
 };
@@ -224,8 +288,20 @@ const handleSubUpdate = (childTable, parentTable, parentKey) => (req, res) => {
         req.tenantDb.run(
           `UPDATE ${childTable} SET ${sets} WHERE id = ? AND ${foreignKey} = ?`,
           [...Object.values(updateData), itemId, parentId],
-          function (uErr) {
+          async function (uErr) {
             if (uErr) return res.status(500).json({ error: uErr.message });
+
+            // AUDIT LOG
+            await logAction({
+              householdId: req.hhId,
+              userId: req.user.id,
+              action: `${childTable.toUpperCase()}_UPDATE`,
+              entityType: childTable,
+              entityId: parseInt(itemId),
+              metadata: { parentId, parentTable, updates: Object.keys(updateData) },
+              req,
+            });
+
             res.json({ message: 'Updated' });
           }
         );
@@ -252,8 +328,19 @@ const handleAssignMember = (req, res) => {
       req.tenantDb.run(
         `INSERT OR IGNORE INTO finance_assignments (household_id, entity_type, entity_id, member_id) VALUES (?, ?, ?, ?)`,
         [req.hhId, entity_type, entity_id, member_id],
-        function (iErr) {
+        async function (iErr) {
           if (iErr) return res.status(500).json({ error: iErr.message });
+
+          // AUDIT LOG
+          await logAction({
+            householdId: req.hhId,
+            userId: req.user.id,
+            action: 'FINANCE_ASSIGNMENT_CREATE',
+            entityType: 'finance_assignment',
+            metadata: { entity_type, entity_id, member_id },
+            req,
+          });
+
           res.status(201).json({ message: 'Assigned' });
         }
       );
@@ -266,8 +353,19 @@ const handleUnassignMember = (req, res) => {
   req.tenantDb.run(
     `DELETE FROM finance_assignments WHERE household_id = ? AND entity_type = ? AND entity_id = ? AND member_id = ?`,
     [req.hhId, entity_type, entity_id, member_id],
-    function (err) {
+    async function (err) {
       if (err) return res.status(500).json({ error: err.message });
+
+      // AUDIT LOG
+      await logAction({
+        householdId: req.hhId,
+        userId: req.user.id,
+        action: 'FINANCE_ASSIGNMENT_DELETE',
+        entityType: 'finance_assignment',
+        metadata: { entity_type, entity_id, member_id },
+        req,
+      });
+
       res.json({ message: 'Unassigned' });
     }
   );
@@ -369,8 +467,20 @@ const handleCreateDebt = (categoryId) => (req, res) => {
       financial_profile_id || null,
       bank_account_id || null,
     ],
-    function (err) {
+    async function (err) {
       if (err) return res.status(500).json({ error: err.message });
+
+      // AUDIT LOG
+      await logAction({
+        householdId: req.hhId,
+        userId: req.user.id,
+        action: 'DEBT_CREATE',
+        entityType: 'recurring_cost',
+        entityId: this.lastID,
+        metadata: { categoryId, name: finalName },
+        req,
+      });
+
       res.status(201).json({ id: this.lastID, ...req.body });
     }
   );
@@ -418,8 +528,20 @@ const handleUpdateDebt = (categoryId) => (req, res) => {
       req.hhId,
       categoryId,
     ],
-    function (err) {
+    async function (err) {
       if (err) return res.status(500).json({ error: err.message });
+
+      // AUDIT LOG
+      await logAction({
+        householdId: req.hhId,
+        userId: req.user.id,
+        action: 'DEBT_UPDATE',
+        entityType: 'recurring_cost',
+        entityId: parseInt(req.params.itemId),
+        metadata: { categoryId, name: finalName },
+        req,
+      });
+
       res.json({ message: 'Updated' });
     }
   );
@@ -871,11 +993,22 @@ router.delete(
     req.tenantDb.serialize(() => {
       req.tenantDb.run('BEGIN TRANSACTION');
       req.tenantDb.run(sqlCycle, params);
-      req.tenantDb.run(sqlProg, params, (err) => {
+      req.tenantDb.run(sqlProg, params, async (err) => {
         if (err) {
           req.tenantDb.run('ROLLBACK');
           return res.status(500).json({ error: err.message });
         }
+
+        // AUDIT LOG
+        await logAction({
+          householdId: req.hhId,
+          userId: req.user.id,
+          action: 'BUDGET_CYCLE_DELETE',
+          entityType: 'budget_cycle',
+          metadata: { cycleStart, financial_profile_id },
+          req,
+        });
+
         req.tenantDb.run('COMMIT', () => {
           res.json({ message: 'Cycle reset' });
         });
@@ -908,11 +1041,21 @@ router.post(
                 bank_account_id = excluded.bank_account_id
         `,
         [req.hhId, financial_profile_id, cycle_start, actual_pay, current_balance, bank_account_id],
-        function (err) {
+        async function (err) {
           if (err) {
             req.tenantDb.run('ROLLBACK');
             return res.status(500).json({ error: err.message });
           }
+
+          // AUDIT LOG
+          await logAction({
+            householdId: req.hhId,
+            userId: req.user.id,
+            action: 'BUDGET_CYCLE_UPDATE',
+            entityType: 'budget_cycle',
+            metadata: { cycle_start, financial_profile_id },
+            req,
+          });
 
           // 2. If bank_account_id is provided, sync the balance to the current account
           if (bank_account_id) {
@@ -972,8 +1115,6 @@ router.post(
         }
 
         // 2. Bank Balance Sync Logic (Budget -> Real World)
-        // If it's a payment (negative impact on balance)
-        // We assume item_key.startsWith('income_') is positive, others are negative
         const isIncome = item_key.startsWith('income_');
         const multiplier = isIncome ? 1 : -1;
 
@@ -1004,11 +1145,21 @@ router.post(
               newAmount,
               actual_date,
             ],
-            (pErr) => {
+            async (pErr) => {
               if (pErr) {
                 req.tenantDb.run('ROLLBACK');
                 return res.status(500).json({ error: pErr.message });
               }
+
+              // AUDIT LOG
+              await logAction({
+                householdId: req.hhId,
+                userId: req.user.id,
+                action: 'BUDGET_PROGRESS_UPDATE',
+                entityType: 'budget_progress',
+                metadata: { cycle_start, item_key, is_paid: newPaid, amount: newAmount },
+                req,
+              });
 
               const finalize = () => {
                 // Update the main Budget Cycle Balance and Linked Bank Account if applicable
@@ -1144,11 +1295,21 @@ router.delete(
             req.tenantDb.run(
               `DELETE FROM finance_budget_progress WHERE household_id = ? AND financial_profile_id = ? AND cycle_start = ? AND item_key = ?`,
               [req.hhId, financial_profile_id, cycleStart, itemKey],
-              (delErr) => {
+              async (delErr) => {
                 if (delErr) {
                   req.tenantDb.run('ROLLBACK');
                   return res.status(500).json({ error: delErr.message });
                 }
+
+                // AUDIT LOG
+                await logAction({
+                  householdId: req.hhId,
+                  userId: req.user.id,
+                  action: 'BUDGET_PROGRESS_DELETE',
+                  entityType: 'budget_progress',
+                  metadata: { cycleStart, itemKey, financial_profile_id },
+                  req,
+                });
 
                 if (balanceDelta !== 0) {
                   req.tenantDb.get(

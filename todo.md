@@ -31,8 +31,8 @@ _Goal: Secure data persistence, type-safe communication, and centralized state._
 - [x] **Item 6: Edge Validation (Zod)** - Shared entity schemas created in `@hearth/shared`.
 - [x] **Item 13: Client State (Zustand)** - Global store created in `web/src/stores`.
 - [x] **Item 12: Server State (TanStack Query)** - Replaced manual `useEffect` fetching across Finance, Shopping, Meals, People, Vehicles, Assets, Chores, and all Home Dashboard widgets.
-- [ ] **Item 53: API Rate Limiting** - Protect endpoints with Redis-based limits.
-- [ ] **Item 54: Immutable Audit Logging** - Track sensitive user actions.
+- [x] **Item 53: API Rate Limiting** - Multi-tier rate limiting implemented (Standard, Auth, Sensitive) with `express-rate-limit`.
+- [x] **Item 54: Immutable Audit Logging** - Systemic audit trail implemented, backed by PostgreSQL.
 - [x] **Item 55: Encryption at Rest** - Systemic middleware implemented for automatic field-level encryption/decryption (AES-256-GCM).
 - [ ] **Item 48: Deterministic Seeding** - Build a robust test data generator with Faker.js.
 - [ ] **Item 49: Secrets Management (Doppler/Infisical)** - Move secrets out of `.env` files.

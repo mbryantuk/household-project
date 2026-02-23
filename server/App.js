@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
@@ -14,6 +13,9 @@ const { SECRET_KEY } = require('./config');
 const { globalDb } = require('./db');
 console.log('System Initialized with Secret Key Length:', SECRET_KEY ? SECRET_KEY.length : 0);
 require('./services/crypto');
+
+// Rate Limiters
+const { apiLimiter, authLimiter, sensitiveLimiter } = require('./middleware/rate_limiter');
 
 // Routes
 const authRoutes = require('./routes/auth');
@@ -35,13 +37,8 @@ const { createBackup, cleanOldBackups } = require('./services/backup');
 
 const app = express();
 
-// SUPER EARLY DEBUG LOGGING
-app.use((req, res, next) => {
-  if (process.env.DEBUG === 'true') {
-    console.log(`[EARLY DEBUG] ${req.method} ${req.path} - Headers:`, JSON.stringify(req.headers));
-  }
-  next();
-});
+// Set Trust Proxy
+app.set('trust proxy', 1);
 
 // Security Middleware
 app.use(
@@ -51,7 +48,7 @@ app.use(
   })
 );
 
-// Robust CORS Configuration to allow x-bypass-maintenance
+// Robust CORS Configuration
 app.use(
   cors({
     origin: '*',
@@ -62,6 +59,16 @@ app.use(
 );
 
 app.use(express.json());
+
+// --- RATE LIMITING ---
+// In test environment, limiters can cause flakiness.
+// We only apply them globally in production/dev.
+if (process.env.NODE_ENV !== 'test') {
+  app.use(['/auth', '/api/auth', '/passkeys', '/api/passkeys'], authLimiter);
+  app.use(['/api/households/:id/backups', '/api/export'], sensitiveLimiter);
+  app.use('/api', apiLimiter);
+}
+// --------------------
 
 // Global Version Header
 app.use((req, res, next) => {
@@ -86,27 +93,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Rate Limiter
-// const authLimiter = rateLimit({
-//     windowMs: 15 * 60 * 1000,
-//     max: 1000, // Increased for stability during rapid test cycles
-//     message: "Too many login attempts, please try again later."
-// });
-// app.use('/auth/login', authLimiter);
-// app.use('/auth/register', authLimiter);
-// app.use('/api/auth/login', authLimiter);
-// app.use('/api/auth/register', authLimiter);
-
-// DEBUG LOGGING
-app.use((req, res, next) => {
-  if (process.env.DEBUG === 'true') {
-    console.log(
-      `[DEBUG] ${req.method} ${req.path} - Auth Header: ${req.headers['authorization'] ? 'Present' : 'Missing'}`
-    );
-  }
-  next();
-});
-
 // Logging
 app.use((req, res, next) => {
   if (process.env.NODE_ENV !== 'test') {
@@ -116,7 +102,6 @@ app.use((req, res, next) => {
 });
 
 // MOUNT API ROUTES
-// We mount everything at both root and /api for maximum compatibility with various proxy setups
 const allRouters = [
   { path: '/auth', router: authRoutes },
   { path: '/passkeys', router: passkeyRoutes },

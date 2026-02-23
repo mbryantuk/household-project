@@ -4,6 +4,7 @@ const { dbAll, dbRun } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { useTenantDb } = require('../middleware/tenant');
 const { autoEncrypt, decryptData } = require('../middleware/encryption');
+const { logAction } = require('../services/audit');
 
 const SCHEMA_CACHE = {}; // { table: ['col1', 'col2'] }
 
@@ -51,6 +52,17 @@ const handleUpdateSingle = (table) => async (req, res) => {
     const sql = `INSERT OR REPLACE INTO ${table} (${placeholders}) VALUES (${qs})`;
 
     const result = await dbRun(req.tenantDb, sql, values);
+
+    // AUDIT LOG
+    await logAction({
+      householdId: req.hhId,
+      userId: req.user.id,
+      action: `${table.toUpperCase()}_UPDATE`,
+      entityType: table,
+      metadata: { updates: Object.keys(updateData).filter((k) => k !== 'household_id') },
+      req,
+    });
+
     res.json({ message: result.changes > 0 ? 'Updated' : 'Created' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -102,6 +114,18 @@ const handleCreateItem = (table) => async (req, res) => {
       `INSERT INTO ${table} (${placeholders}) VALUES (${qs})`,
       values
     );
+
+    // AUDIT LOG
+    await logAction({
+      householdId: req.hhId,
+      userId: req.user.id,
+      action: `${table.toUpperCase().replace(/S$/, '')}_CREATE`,
+      entityType: table.replace(/s$/, ''),
+      entityId: result.id,
+      metadata: { name: insertData.name || insertData.make || table },
+      req,
+    });
+
     res.status(201).json({ id: result.id, ...insertData });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -133,6 +157,18 @@ const handleUpdateItem = (table) => async (req, res) => {
       req.params.itemId,
       req.hhId,
     ]);
+
+    // AUDIT LOG
+    await logAction({
+      householdId: req.hhId,
+      userId: req.user.id,
+      action: `${table.toUpperCase().replace(/S$/, '')}_UPDATE`,
+      entityType: table.replace(/s$/, ''),
+      entityId: parseInt(req.params.itemId),
+      metadata: { updates: Object.keys(updateData) },
+      req,
+    });
+
     res.json({ message: 'Updated' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -143,8 +179,19 @@ const handleDeleteItem = (table) => (req, res) => {
   req.tenantDb.run(
     `DELETE FROM ${table} WHERE id = ? AND household_id = ?`,
     [req.params.itemId, req.hhId],
-    function (err) {
+    async function (err) {
       if (err) return res.status(500).json({ error: err.message });
+
+      // AUDIT LOG
+      await logAction({
+        householdId: req.hhId,
+        userId: req.user.id,
+        action: `${table.toUpperCase().replace(/S$/, '')}_DELETE`,
+        entityType: table.replace(/s$/, ''),
+        entityId: parseInt(req.params.itemId),
+        req,
+      });
+
       res.json({ message: 'Deleted' });
     }
   );
@@ -251,8 +298,20 @@ router.post(
       req.tenantDb.run(
         `INSERT INTO vehicle_services (${fields.join(', ')}) VALUES (${fields.map(() => '?').join(', ')})`,
         Object.values(insertData),
-        function (err) {
+        async function (err) {
           if (err) return res.status(500).json({ error: err.message });
+
+          // AUDIT LOG
+          await logAction({
+            householdId: req.hhId,
+            userId: req.user.id,
+            action: 'VEHICLE_SERVICE_CREATE',
+            entityType: 'vehicle_service',
+            entityId: this.lastID,
+            metadata: { vehicleId: req.params.vehicleId },
+            req,
+          });
+
           res.status(201).json({ id: this.lastID, ...insertData });
         }
       );
@@ -268,8 +327,20 @@ router.delete(
     req.tenantDb.run(
       `DELETE FROM vehicle_services WHERE id = ? AND vehicle_id = ? AND household_id = ?`,
       [req.params.itemId, req.params.vehicleId, req.hhId],
-      function (err) {
+      async function (err) {
         if (err) return res.status(500).json({ error: err.message });
+
+        // AUDIT LOG
+        await logAction({
+          householdId: req.hhId,
+          userId: req.user.id,
+          action: 'VEHICLE_SERVICE_DELETE',
+          entityType: 'vehicle_service',
+          entityId: parseInt(req.params.itemId),
+          metadata: { vehicleId: req.params.vehicleId },
+          req,
+        });
+
         res.json({ message: 'Deleted' });
       }
     );

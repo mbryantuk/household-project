@@ -13,9 +13,11 @@ describe('⚡ SQLite Concurrency Stress', () => {
   beforeAll(async () => {
     await request(app)
       .post('/api/auth/register')
+      .set('x-bypass-maintenance', 'true')
       .send({ householdName: 'Stress Test', email: ADMIN_EMAIL, password: PASSWORD, is_test: 1 });
     const login = await request(app)
       .post('/api/auth/login')
+      .set('x-bypass-maintenance', 'true')
       .send({ email: ADMIN_EMAIL, password: PASSWORD });
     token = login.body.token;
     householdId = login.body.user.default_household_id;
@@ -23,20 +25,23 @@ describe('⚡ SQLite Concurrency Stress', () => {
     if (!householdId) {
       const hList = await request(app)
         .get('/api/auth/my-households')
-        .set('Authorization', `Bearer ${token}`);
+        .set('Authorization', `Bearer ${token}`)
+        .set('x-bypass-maintenance', 'true');
       householdId = hList.body[0]?.id;
     }
 
     await request(app)
       .post(`/api/households/${householdId}/select`)
-      .set('Authorization', `Bearer ${token}`);
+      .set('Authorization', `Bearer ${token}`)
+      .set('x-bypass-maintenance', 'true');
   });
 
   afterAll(async () => {
     if (householdId)
       await request(app)
         .delete(`/api/households/${householdId}`)
-        .set('Authorization', `Bearer ${token}`);
+        .set('Authorization', `Bearer ${token}`)
+        .set('x-bypass-maintenance', 'true');
     if (server && server.close) server.close();
   });
 
@@ -47,6 +52,7 @@ describe('⚡ SQLite Concurrency Stress', () => {
         request(app)
           .put(`/api/households/${householdId}/details`)
           .set('Authorization', `Bearer ${token}`)
+          .set('x-bypass-maintenance', 'true')
           .send({ notes: `Stress Write ${i}` })
       );
     }

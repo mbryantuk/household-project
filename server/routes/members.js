@@ -4,6 +4,7 @@ const { dbAll } = require('../db');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { useTenantDb } = require('../middleware/tenant');
 const { autoEncrypt, decryptData } = require('../middleware/encryption');
+const { logAction } = require('../services/audit');
 
 // 1. LIST MEMBERS
 router.get(
@@ -129,9 +130,23 @@ router.post(
       req.tenantDb.run(
         `INSERT INTO members (${placeholders}) VALUES (${qs})`,
         values,
-        function (err) {
+        async function (err) {
           if (err) return res.status(500).json({ error: err.message });
-          res.status(201).json({ id: this.lastID, ...insertData });
+
+          const newId = this.lastID;
+
+          // AUDIT LOG
+          await logAction({
+            householdId: req.hhId,
+            userId: req.user.id,
+            action: 'MEMBER_CREATE',
+            entityType: 'member',
+            entityId: newId,
+            metadata: { name: insertData.name, type: insertData.type },
+            req,
+          });
+
+          res.status(201).json({ id: newId, ...insertData });
         }
       );
     } catch (err) {
@@ -172,8 +187,20 @@ router.put(
       req.tenantDb.run(
         `UPDATE members SET ${sets} WHERE id = ? AND household_id = ?`,
         [...values, req.params.itemId, req.hhId],
-        function (err) {
+        async function (err) {
           if (err) return res.status(500).json({ error: err.message });
+
+          // AUDIT LOG
+          await logAction({
+            householdId: req.hhId,
+            userId: req.user.id,
+            action: 'MEMBER_UPDATE',
+            entityType: 'member',
+            entityId: parseInt(req.params.itemId),
+            metadata: { updates: Object.keys(updateData) },
+            req,
+          });
+
           res.json({ message: 'Updated' });
         }
       );
@@ -193,8 +220,19 @@ router.delete(
     req.tenantDb.run(
       `DELETE FROM members WHERE id = ? AND household_id = ?`,
       [req.params.itemId, req.hhId],
-      function (err) {
+      async function (err) {
         if (err) return res.status(500).json({ error: err.message });
+
+        // AUDIT LOG
+        await logAction({
+          householdId: req.hhId,
+          userId: req.user.id,
+          action: 'MEMBER_DELETE',
+          entityType: 'member',
+          entityId: parseInt(req.params.itemId),
+          req,
+        });
+
         res.json({ message: 'Deleted' });
       }
     );
