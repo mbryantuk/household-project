@@ -3,7 +3,6 @@ import logger from './utils/logger';
 
 /**
  * ENVIRONMENT VALIDATOR (TypeScript)
- * Ensures all required environment variables are present and correctly typed.
  */
 const envSchema = z.object({
   PORT: z.string().default('4001').transform(Number),
@@ -25,26 +24,60 @@ const envSchema = z.object({
   // Auth Provider (Clerk)
   CLERK_PUBLISHABLE_KEY: z.string().optional(),
   CLERK_SECRET_KEY: z.string().optional(),
+
+  // Secrets Management (Infisical)
+  INFISICAL_CLIENT_ID: z.string().optional(),
+  INFISICAL_CLIENT_SECRET: z.string().optional(),
+  INFISICAL_PROJECT_ID: z.string().optional(),
 });
 
-const env = {
+/**
+ * ASYNCHRONOUS SECRET LOADER
+ */
+async function loadSecrets() {
+  const env = { ...process.env };
+
+  if (process.env.INFISICAL_CLIENT_ID && process.env.INFISICAL_CLIENT_SECRET) {
+    try {
+      const { InfisicalClient } = await import('@infisical/sdk');
+      const client = new InfisicalClient({
+        clientId: process.env.INFISICAL_CLIENT_ID,
+        clientSecret: process.env.INFISICAL_CLIENT_SECRET,
+      });
+
+      const secrets = await client.listSecrets({
+        environment: process.env.NODE_ENV === 'production' ? 'prod' : 'dev',
+        projectId: process.env.INFISICAL_PROJECT_ID!,
+      });
+
+      secrets.forEach((s) => {
+        env[s.secretKey] = s.secretValue;
+      });
+      logger.info('🔐 Secrets loaded successfully from Infisical.');
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      logger.error('❌ Failed to load secrets from Infisical:', error.message);
+    }
+  }
+
+  const parsed = envSchema.safeParse(env);
+  if (!parsed.success) {
+    logger.error('❌ Invalid environment variables: %o', parsed.error.format());
+    process.exit(1);
+  }
+
+  return parsed.data;
+}
+
+// Initial synchronous parse
+const config = envSchema.parse({
   ...process.env,
-  SECRET_KEY: process.env.SECRET_KEY || process.env.JWT_SECRET,
-};
+  SECRET_KEY: process.env.SECRET_KEY || 'super_secret_dev_key_must_be_long_enough',
+});
 
-// Provide defaults for development if not set
-if (env.NODE_ENV !== 'production') {
-  env.SECRET_KEY = env.SECRET_KEY || 'super_secret_dev_key_must_be_long_enough';
-}
-
-const parsed = envSchema.safeParse(env);
-
-if (!parsed.success) {
-  logger.error('❌ Invalid environment variables: %o', parsed.error.format());
-  process.exit(1);
-}
-
-const config = parsed.data;
 export default config;
-// For CommonJS compatibility during transition
+export { loadSecrets };
+
+// CJS compatibility
 module.exports = config;
+module.exports.loadSecrets = loadSecrets;

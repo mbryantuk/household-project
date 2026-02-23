@@ -1,22 +1,33 @@
-const app = require('./App');
-const { globalDb } = require('./db');
+const { loadSecrets } = require('./config');
 const { bootstrap } = require('./bootstrap');
 const { startShoppingScheduler } = require('./services/shopping_scheduler');
 
-const PORT = process.env.PORT || 4001;
+async function startServer() {
+  try {
+    // 1. Load Secrets (from Infisical if configured)
+    const config = await loadSecrets();
 
-bootstrap(globalDb)
-  .then(() => {
+    // 2. Import App after config is loaded
+    const app = require('./App');
+    const { globalDb } = require('./db');
+
+    // 3. Bootstrap and Start
+    await bootstrap(globalDb);
+
     if (process.env.NODE_ENV !== 'test') {
-      app.listen(PORT, '0.0.0.0', () => {
-        console.log(`🚀 Server LIVE on port ${PORT}`);
+      app.listen(config.PORT, '0.0.0.0', () => {
+        console.log(`🚀 Server LIVE on port ${config.PORT}`);
         startShoppingScheduler();
       });
     }
-  })
-  .catch((err) => {
-    console.error('Critical Failure: Bootstrap failed', err);
+  } catch (err) {
+    console.error('Critical Failure: Server startup failed', err);
     process.exit(1);
-  });
+  }
+}
 
-module.exports = { app };
+if (require.main === module) {
+  startServer();
+}
+
+module.exports = { startServer };
