@@ -1,32 +1,71 @@
-name: Hearth CI
+name: Hearthstone CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Use Node.js 20.x
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version: 20
           cache: 'npm'
+      - run: npm install --legacy-peer-deps
+      - run: npm run lint
 
-      - name: Install Dependencies
-        run: |
-          npm install
-          cd server && npm install
-          cd ../web && npm install
-
+  test-backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: hearth_user
+          POSTGRES_PASSWORD: hearth_password
+          POSTGRES_DB: hearthstone_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm install --legacy-peer-deps
       - name: Run Backend Tests
+        env:
+          DATABASE_URL: postgres://hearth_user:hearth_password@localhost:5432/hearthstone_test
+          REDIS_URL: redis://localhost:6379
+          SECRET_KEY: super_secret_test_key_long_enough
+          NODE_ENV: test
         run: cd server && npm test
 
-      - name: Run Frontend Lint
-        run: cd web && npm run lint
+  build-docker:
+    needs: [lint, test-backend]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false # Future: Add registry credentials to push
+          tags: hearthstone:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
