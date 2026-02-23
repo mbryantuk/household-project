@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { Box, Button, Input, Typography, Stack, Card, Divider } from '@mui/joy';
+import { Box, Typography, Stack, Card, Divider } from '@mui/joy';
 import { SignIn } from '@clerk/clerk-react';
 import { APP_NAME } from '../constants';
+import AppButton from '../components/ui/AppButton';
+import AppInput from '../components/ui/AppInput';
 
 export default function Login({ onLogin, onMfaLogin }) {
   const [email, setEmail] = useState('');
@@ -60,14 +62,14 @@ export default function Login({ onLogin, onMfaLogin }) {
             <Stack spacing={2}>
               {!mfaData ? (
                 <>
-                  <Input
+                  <AppInput
                     placeholder="Email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
-                  <Input
+                  <AppInput
                     placeholder="Password"
                     type="password"
                     value={password}
@@ -78,7 +80,7 @@ export default function Login({ onLogin, onMfaLogin }) {
               ) : (
                 <>
                   <Typography level="body-sm">Enter 2FA Code</Typography>
-                  <Input
+                  <AppInput
                     placeholder="000000"
                     value={mfaCode}
                     onChange={(e) => setMfaDataCode(e.target.value)}
@@ -91,9 +93,9 @@ export default function Login({ onLogin, onMfaLogin }) {
                   {error}
                 </Typography>
               )}
-              <Button type="submit" loading={loading} fullWidth>
+              <AppButton type="submit" loading={loading} fullWidth>
                 {mfaData ? 'Verify Code' : 'Login'}
-              </Button>
+              </AppButton>
             </Stack>
           </form>
         </Card>
