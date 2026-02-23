@@ -16,8 +16,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
+      '@mui/material': resolve(__dirname, 'node_modules/@mui/material'),
+      '@mui/icons-material': resolve(__dirname, 'node_modules/@mui/icons-material'),
     },
-    dedupe: ['react', 'react-dom'],
+    dedupe: ['react', 'react-dom', '@mui/material', '@mui/joy'],
   },
   server: {
     port: 5173,
@@ -25,11 +27,8 @@ export default defineConfig({
       '/api': 'http://localhost:4001',
       '/auth': 'http://localhost:4001',
       '/households': 'http://localhost:4001',
-      '/members': 'http://localhost:4001',
       '/admin': 'http://localhost:4001',
-      '/users': 'http://localhost:4001',
       '/system': 'http://localhost:4001',
-      '/my-households': 'http://localhost:4001',
     },
   },
   build: {

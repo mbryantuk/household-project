@@ -63,6 +63,7 @@ const FinanceView = lazy(() => import('./features/FinanceView'));
 const ChoresView = lazy(() => import('./features/ChoresView'));
 const AssetsView = lazy(() => import('./features/AssetsView'));
 const HouseholdDetailsView = lazy(() => import('./features/HouseholdDetailsView'));
+const SecurityAuditView = lazy(() => import('./features/SecurityAuditView'));
 const OnboardingWizard = lazy(() => import('./pages/OnboardingWizard'));
 
 const API_BASE = window.location.origin;
@@ -459,6 +460,10 @@ function AppInner({
               <Route path="people" element={<PeopleView />} />
               <Route path="house/assets" element={<AssetsView />} />
               <Route path="house/details" element={<HouseholdDetailsView />} />
+              <Route
+                path="house/security"
+                element={<SecurityAuditView api={authAxios} householdId={household?.id} />}
+              />
               <Route path="house" element={<HouseView />} />
               <Route path="vehicles" element={<VehiclesView />} />
               <Route path="profile" element={<ProfileView />} />

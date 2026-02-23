@@ -136,6 +136,24 @@ export default function SettingsView() {
                 General
               </ListItemButton>
 
+              <ListItemButton
+                variant="plain"
+                color="neutral"
+                onClick={() => navigate(`/household/${household?.id}/house/security`)}
+                sx={{
+                  justifyContent: 'flex-start',
+                  py: 1.5,
+                  borderRadius: '8px',
+                  fontWeight: 'md',
+                  fontSize: 'sm',
+                }}
+              >
+                <ListItemDecorator sx={{ color: 'text.secondary' }}>
+                  <Security />
+                </ListItemDecorator>
+                Security Log
+              </ListItemButton>
+
               <Tab variant="plain" color="neutral">
                 <Palette sx={{ mr: 2 }} /> Appearance
               </Tab>
