@@ -355,7 +355,10 @@ export default function MealPlannerView() {
   }
 
   return (
-    <Box sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box
+      data-testid="meals-view"
+      sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}
+    >
       {/* HEADER */}
       <Box
         sx={{
@@ -368,7 +371,11 @@ export default function MealPlannerView() {
         }}
       >
         <Box>
-          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
+          <Typography
+            level="h2"
+            data-testid="meals-heading"
+            sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}
+          >
             Meal Planner
           </Typography>
           <Typography level="body-md" color="neutral">

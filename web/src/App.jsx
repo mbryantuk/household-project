@@ -97,6 +97,7 @@ const useUser = () => {
 
 const PageLoader = () => (
   <Box
+    data-testid="page-loader"
     sx={{
       display: 'flex',
       height: '100%',
@@ -483,6 +484,9 @@ function AppInner({
                 }
               />
               <Route path="people" element={<PeopleView />} />
+              <Route path="people/:personId" element={<PeopleView />} />
+              <Route path="pets" element={<PetsView />} />
+              <Route path="pets/:petId" element={<PetsView />} />
               <Route path="house/assets" element={<AssetsView />} />
               <Route path="house/details" element={<HouseholdDetailsView />} />
               <Route

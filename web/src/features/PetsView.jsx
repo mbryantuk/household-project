@@ -74,7 +74,7 @@ export default function PetsView() {
   // --- LIST VIEW ---
   if (!petId) {
     return (
-      <Box>
+      <Box data-testid="pets-view">
         <Box
           sx={{
             mb: 4,
@@ -86,7 +86,11 @@ export default function PetsView() {
           }}
         >
           <Box>
-            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
+            <Typography
+              level="h2"
+              data-testid="pets-heading"
+              sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}
+            >
               Pets & Animals
             </Typography>
             <Typography level="body-md" color="neutral">
@@ -156,10 +160,7 @@ export default function PetsView() {
   return (
     <GenericObjectView
       key={petId}
-      type="pet" // API uses type='pet' inside members table, but we might need to handle this specially if endpoint is /members
-      // Wait, the API endpoint for pets is /households/:id/members but with type='pet'.
-      // My GenericObjectView posts to `endpoint`.
-      // If I use `endpoint` as `/households/${householdId}/members`, it will work if I include `type: 'pet'` in data.
+      type="pet"
       id={petId}
       householdId={householdId}
       api={api}

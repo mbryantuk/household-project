@@ -83,14 +83,12 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
       fs.appendFileSync(LOG_FILE, `[${timestamp}] [PAGE ERROR] ${err.message}\n${err.stack}\n`);
     });
 
-    if (!householdId) {
-      const id = await loginAndGetId(page);
-      if (id) {
-        householdId = id;
-        console.log('Smoke Test Household ID Locked:', householdId);
-      } else {
-        throw new Error('Failed to retrieve Household ID during login.');
-      }
+    const id = await loginAndGetId(page);
+    if (id) {
+      householdId = id;
+      console.log('Smoke Test Household ID Locked:', householdId);
+    } else {
+      throw new Error('Failed to retrieve Household ID during login.');
     }
   });
 
@@ -109,28 +107,27 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
 
   test('People Page', async ({ page }) => {
     await page.goto(`${getBaseUrl()}/people`, { waitUntil: 'networkidle' });
-    await expect(page.locator('h2', { hasText: 'People' })).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId('people-heading')).toBeVisible({ timeout: 20000 });
   });
 
   test('Pets Page', async ({ page }) => {
     await page.goto(`${getBaseUrl()}/pets`, { waitUntil: 'networkidle' });
-    await expect(page.locator('h2', { hasText: 'Pets' })).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId('pets-heading')).toBeVisible({ timeout: 20000 });
   });
 
   test('Vehicles Page', async ({ page }) => {
     await page.goto(`${getBaseUrl()}/vehicles`, { waitUntil: 'networkidle' });
-    await expect(page.locator('h2', { hasText: 'Vehicles' })).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId('vehicles-heading')).toBeVisible({ timeout: 20000 });
   });
 
   test('Meals Page', async ({ page }) => {
     await page.goto(`${getBaseUrl()}/meals`, { waitUntil: 'networkidle' });
-    await expect(
-      page.locator('h2', { hasText: 'Meals' }).or(page.locator('h2', { hasText: 'Planner' }))
-    ).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId('meals-heading')).toBeVisible({ timeout: 20000 });
   });
 
   test('Groceries Page & Import Button', async ({ page }) => {
     await page.goto(`${getBaseUrl()}/shopping`, { waitUntil: 'networkidle' });
+    await expect(page.getByTestId('shopping-heading')).toBeVisible({ timeout: 20000 });
     await expect(page.getByText(/Import Historical Receipt/i).first()).toBeVisible({
       timeout: 20000,
     });
@@ -138,11 +135,12 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
 
   test('Chores Page', async ({ page }) => {
     await page.goto(`${getBaseUrl()}/chores`, { waitUntil: 'networkidle' });
-    await expect(page.locator('h2', { hasText: 'Chores' })).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId('chores-heading')).toBeVisible({ timeout: 20000 });
   });
 
   test('Finance Page & Banking Import', async ({ page }) => {
     await page.goto(`${getBaseUrl()}/finance`, { waitUntil: 'networkidle' });
+    await expect(page.getByTestId('finance-view')).toBeVisible({ timeout: 20000 });
 
     await expect(page.getByText(/Loading Financial Data/i)).not.toBeVisible({ timeout: 15000 });
     await page.waitForTimeout(1000);
@@ -172,30 +170,29 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
 
   test('House Overview Page', async ({ page }) => {
     await page.goto(`${getBaseUrl()}/house`, { waitUntil: 'networkidle' });
-    await expect(page.locator('h2', { hasText: 'House' })).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId('house-view')).toBeVisible({ timeout: 20000 });
   });
 
   test('Property Details Page', async ({ page }) => {
     await page.goto(`${getBaseUrl()}/house/details`, { waitUntil: 'networkidle' });
-    await expect(page.getByText(/Household Details/i).first()).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId('generic-object-view')).toBeVisible({ timeout: 20000 });
   });
 
   test('Asset Register Page', async ({ page }) => {
     await page.goto(`${getBaseUrl()}/house/assets`, { waitUntil: 'networkidle' });
-    await expect(
-      page.locator('h2', { hasText: 'Register' }).or(page.locator('h2', { hasText: 'Assets' }))
-    ).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId('assets-view')).toBeVisible({ timeout: 20000 });
   });
 
   test('User Profile Page', async ({ page }) => {
     await page.goto(`${getBaseUrl()}/profile`, { waitUntil: 'networkidle' });
-    await expect(page.locator('h2', { hasText: 'Your Profile' })).toBeVisible();
+    await expect(page.getByTestId('profile-view')).toBeVisible();
   });
 
   test('Settings Pages (All Tabs)', async ({ page }) => {
     const base = getBaseUrl();
 
     await page.goto(`${base}/settings?tab=0`, { waitUntil: 'networkidle' });
+    await expect(page.getByTestId('settings-view')).toBeVisible();
     await expect(page.getByText(/Personal Information/i).first()).toBeVisible();
 
     await page.goto(`${base}/settings?tab=1`, { waitUntil: 'networkidle' });

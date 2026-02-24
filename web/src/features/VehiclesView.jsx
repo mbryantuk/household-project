@@ -100,7 +100,7 @@ export default function VehiclesView() {
 
   if (!vehicleId) {
     return (
-      <Box>
+      <Box data-testid="vehicles-view">
         <Box
           sx={{
             mb: 4,
@@ -112,7 +112,11 @@ export default function VehiclesView() {
           }}
         >
           <Box>
-            <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
+            <Typography
+              level="h2"
+              data-testid="vehicles-heading"
+              sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}
+            >
               Vehicle Management
             </Typography>
             <Typography level="body-md" color="neutral">

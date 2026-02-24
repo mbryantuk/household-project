@@ -184,11 +184,11 @@ export default function ChoresView() {
   }
 
   return (
-    <Box sx={{ width: '100%', mx: 'auto', pb: 10 }}>
+    <Box data-testid="chores-view" sx={{ width: '100%', mx: 'auto', pb: 10 }}>
       {/* Header */}
       <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Box>
-          <Typography level="h2" startDecorator={<CleaningServices />}>
+          <Typography level="h2" data-testid="chores-heading" startDecorator={<CleaningServices />}>
             Chores Tracker
           </Typography>
           <Typography level="body-md" color="neutral">

@@ -164,7 +164,7 @@ export default function ShoppingListView() {
   }, [items, budgetLimit]);
 
   return (
-    <Box sx={{ width: '100%', mx: 'auto', pb: 10 }}>
+    <Box data-testid="shopping-view" sx={{ width: '100%', mx: 'auto', pb: 10 }}>
       {/* Header & Weekly Nav */}
       <Box
         sx={{
@@ -177,7 +177,7 @@ export default function ShoppingListView() {
         }}
       >
         <Box>
-          <Typography level="h2" startDecorator={<ShoppingBag />}>
+          <Typography level="h2" data-testid="shopping-heading" startDecorator={<ShoppingBag />}>
             Groceries
           </Typography>
           <Typography level="body-md" color="neutral">

@@ -87,7 +87,7 @@ export default function ProfileView() {
   };
 
   return (
-    <Box>
+    <Box data-testid="profile-view">
       <Box sx={{ mb: 4 }}>
         <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
           Your Profile

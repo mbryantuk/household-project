@@ -201,7 +201,7 @@ export default function AssetsView() {
     );
 
   return (
-    <Box>
+    <Box data-testid="assets-view">
       <Box
         sx={{
           mb: 4,

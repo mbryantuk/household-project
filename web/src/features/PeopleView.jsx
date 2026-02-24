@@ -87,9 +87,13 @@ export default function PeopleView() {
     }
 
     return (
-      <Box>
+      <Box data-testid="people-view">
         <Box sx={{ mb: 4 }}>
-          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
+          <Typography
+            level="h2"
+            data-testid="people-heading"
+            sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}
+          >
             People & Residents
           </Typography>
           <Typography level="body-md" color="neutral">

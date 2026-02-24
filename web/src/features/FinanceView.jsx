@@ -354,7 +354,7 @@ export default function FinanceView() {
   // Dashboard Grid View
   if (!activeTabKey) {
     return (
-      <Box>
+      <Box data-testid="finance-view">
         <AppHeader
           title="Financial Matrix"
           description="Select a domain to manage your household wealth and liabilities."

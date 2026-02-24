@@ -180,7 +180,7 @@ export default function GenericObjectView({
   }
 
   return (
-    <Box sx={{ width: '100%', mx: 'auto', pb: 10 }}>
+    <Box data-testid="generic-object-view" sx={{ width: '100%', mx: 'auto', pb: 10 }}>
       {/* Breadcrumbs */}
       <Breadcrumbs separator={<ChevronRight fontSize="sm" />} sx={{ px: 0, mb: 2 }}>
         <Link color="neutral" href={`/household/${householdId}/dashboard`}>
