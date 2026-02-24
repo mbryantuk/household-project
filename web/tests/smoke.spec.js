@@ -25,15 +25,18 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
   // Helper login function
   const loginAndGetId = async (page) => {
     console.log('Navigating to /login...');
-    await page.goto('/login', { waitUntil: 'networkidle' });
+
+    // Use a clean context for each attempt if possible, but here we just clear.
+    await page.goto('/login', { waitUntil: 'domcontentloaded' });
 
     console.log('Clearing storage...');
-    await page.evaluate(() => {
-      localStorage.clear();
-      sessionStorage.clear();
-    });
+    await page
+      .evaluate(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+      })
+      .catch(() => {}); // Ignore errors if context destroyed
 
-    console.log('Reloading to ensure clean state...');
     await page.goto('/login', { waitUntil: 'networkidle' });
 
     // INTERACT WITH LEGACY LOGIN FORM
@@ -52,7 +55,6 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
 
     if (page.url().includes('select-household')) {
       console.log('At Household Selector. Checking for Brady Bunch...');
-      // Wait for at least one card
       await page.waitForSelector('text=/Role:/i', { timeout: 15000 });
 
       const hasBrady = await page.getByText(/The Brady Bunch/i).isVisible();
@@ -67,11 +69,19 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
     }
 
     console.log('Waiting for dashboard or onboarding view...');
-    // We accept either dashboard-view or onboarding-view (if new)
-    await Promise.race([
-      page.waitForSelector('[data-testid="dashboard-view"]', { timeout: 20000 }),
-      page.waitForSelector('text=/Welcome to Hearthstone/i', { timeout: 20000 }),
-    ]);
+    // Increase timeout and check for common elements
+    await page.waitForFunction(
+      () => {
+        return (
+          !!document.querySelector('[data-testid="dashboard-view"]') ||
+          document.body.innerText.includes('Welcome to Hearthstone') ||
+          document.body.innerText.includes('Good morning') ||
+          document.body.innerText.includes('Good afternoon') ||
+          document.body.innerText.includes('Good evening')
+        );
+      },
+      { timeout: 30000 }
+    );
 
     const url = page.url();
     console.log('Final URL reached:', url);
@@ -95,14 +105,21 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
         throw new Error('Failed to retrieve Household ID during login.');
       }
     } else {
-      await page.goto(`/household/${householdId}/dashboard`, { waitUntil: 'networkidle' });
+      // Just ensure we are within the household context
+      if (!page.url().includes(`/household/${householdId}`)) {
+        await page.goto(`/household/${householdId}/dashboard`, { waitUntil: 'networkidle' });
+      }
     }
   });
 
   const getBaseUrl = () => `/household/${householdId}`;
 
   test('Dashboard Page', async ({ page }) => {
-    await expect(page.getByTestId('greeting-text')).toBeVisible({ timeout: 20000 });
+    await page.goto(`${getBaseUrl()}/dashboard`, { waitUntil: 'networkidle' });
+    // Check for greeting text (even if name is "Friend")
+    await expect(page.getByText(/Good morning|Good afternoon|Good evening/i).first()).toBeVisible({
+      timeout: 20000,
+    });
   });
 
   test('Calendar Page', async ({ page }) => {

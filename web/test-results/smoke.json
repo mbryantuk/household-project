@@ -88,25 +88,25 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 25890,
+                      "duration": 1519,
                       "error": {
-                        "message": "TimeoutError: page.waitForSelector: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"dashboard-view\"]') to be visible\u001b[22m\n",
-                        "stack": "TimeoutError: page.waitForSelector: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"dashboard-view\"]') to be visible\u001b[22m\n\n    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:72:12)\n    at /home/matt/household-project/web/tests/smoke.spec.js:90:18",
+                        "message": "Error: page.evaluate: Execution context was destroyed, most likely because of a navigation",
+                        "stack": "Error: page.evaluate: Execution context was destroyed, most likely because of a navigation\n    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:31:16)\n    at /home/matt/household-project/web/tests/smoke.spec.js:90:18",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 12,
-                          "line": 72
+                          "column": 16,
+                          "line": 31
                         },
-                        "snippet": "  70 |     // We accept either dashboard-view or onboarding-view (if new)\n  71 |     await Promise.race([\n> 72 |       page.waitForSelector('[data-testid=\"dashboard-view\"]', { timeout: 20000 }),\n     |            ^\n  73 |       page.waitForSelector('text=/Welcome to Hearthstone/i', { timeout: 20000 }),\n  74 |     ]);\n  75 |"
+                        "snippet": "  29 |\n  30 |     console.log('Clearing storage...');\n> 31 |     await page.evaluate(() => {\n     |                ^\n  32 |       localStorage.clear();\n  33 |       sessionStorage.clear();\n  34 |     });"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 12,
-                            "line": 72
+                            "column": 16,
+                            "line": 31
                           },
-                          "message": "TimeoutError: page.waitForSelector: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"dashboard-view\"]') to be visible\u001b[22m\n\n\n  70 |     // We accept either dashboard-view or onboarding-view (if new)\n  71 |     await Promise.race([\n> 72 |       page.waitForSelector('[data-testid=\"dashboard-view\"]', { timeout: 20000 }),\n     |            ^\n  73 |       page.waitForSelector('text=/Welcome to Hearthstone/i', { timeout: 20000 }),\n  74 |     ]);\n  75 |\n    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:72:12)\n    at /home/matt/household-project/web/tests/smoke.spec.js:90:18"
+                          "message": "Error: page.evaluate: Execution context was destroyed, most likely because of a navigation\n\n  29 |\n  30 |     console.log('Clearing storage...');\n> 31 |     await page.evaluate(() => {\n     |                ^\n  32 |       localStorage.clear();\n  33 |       sessionStorage.clear();\n  34 |     });\n    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:31:16)\n    at /home/matt/household-project/web/tests/smoke.spec.js:90:18"
                         }
                       ],
                       "stdout": [
@@ -115,29 +115,11 @@
                         },
                         {
                           "text": "Clearing storage...\n"
-                        },
-                        {
-                          "text": "Reloading to ensure clean state...\n"
-                        },
-                        {
-                          "text": "Filling legacy login form...\n"
-                        },
-                        {
-                          "text": "Clicking Login button...\n"
-                        },
-                        {
-                          "text": "Waiting for navigation...\n"
-                        },
-                        {
-                          "text": "Current URL after login: http://localhost:4001/household/6775/dashboard\n"
-                        },
-                        {
-                          "text": "Waiting for dashboard or onboarding view...\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:36:47.658Z",
+                      "startTime": "2026-02-24T11:57:54.799Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -149,12 +131,17 @@
                           "name": "video",
                           "contentType": "video/webm",
                           "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Dashboard-Page-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Dashboard-Page-chromium/error-context.md"
                         }
                       ],
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 12,
-                        "line": 72
+                        "column": 16,
+                        "line": 31
                       }
                     }
                   ],
@@ -187,7 +174,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:37:13.969Z",
+                      "startTime": "2026-02-24T11:57:56.787Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -221,7 +208,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:37:13.969Z",
+                      "startTime": "2026-02-24T11:57:56.787Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -255,7 +242,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:37:13.970Z",
+                      "startTime": "2026-02-24T11:57:56.788Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -289,7 +276,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:37:13.970Z",
+                      "startTime": "2026-02-24T11:57:56.788Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -323,7 +310,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:37:13.970Z",
+                      "startTime": "2026-02-24T11:57:56.788Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -357,7 +344,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:37:13.971Z",
+                      "startTime": "2026-02-24T11:57:56.788Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -391,7 +378,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:37:13.971Z",
+                      "startTime": "2026-02-24T11:57:56.789Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -425,7 +412,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:37:13.971Z",
+                      "startTime": "2026-02-24T11:57:56.789Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -459,7 +446,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:37:13.971Z",
+                      "startTime": "2026-02-24T11:57:56.790Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -493,7 +480,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:37:13.972Z",
+                      "startTime": "2026-02-24T11:57:56.790Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -527,7 +514,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:37:13.972Z",
+                      "startTime": "2026-02-24T11:57:56.790Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -561,7 +548,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:37:13.972Z",
+                      "startTime": "2026-02-24T11:57:56.790Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -595,7 +582,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:37:13.972Z",
+                      "startTime": "2026-02-24T11:57:56.791Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -629,7 +616,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:37:13.972Z",
+                      "startTime": "2026-02-24T11:57:56.791Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -649,8 +636,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-24T11:36:45.104Z",
-    "duration": 28885.318,
+    "startTime": "2026-02-24T11:57:52.704Z",
+    "duration": 4106.610000000001,
     "expected": 0,
     "skipped": 14,
     "unexpected": 1,
