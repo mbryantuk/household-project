@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo, useCallback, useRef, lazy, Suspense } from 'react';
 import axios from 'axios';
+import { Toaster, toast } from 'sonner';
 import {
   Box,
   CssVarsProvider,
   Button,
-  Snackbar,
   Modal,
   ModalDialog,
   DialogTitle,
@@ -212,11 +212,6 @@ function AppInner({
     household?.id
   );
 
-  const [notification, setNotification] = useState({
-    open: false,
-    message: '',
-    severity: 'neutral',
-  });
   const [confirmDialog, setConfirmDialog] = useState({
     open: false,
     title: '',
@@ -246,16 +241,18 @@ function AppInner({
   };
 
   const showNotification = useCallback((message, severity = 'neutral') => {
-    const joySeverity =
-      severity === 'error' ? 'danger' : severity === 'info' ? 'neutral' : severity;
-    setNotification({ open: true, message, severity: joySeverity });
-
     // Haptic Feedback
-    if (severity === 'error' || severity === 'danger') haptics.error();
-    else if (severity === 'success') haptics.success();
-    else haptics.light();
+    if (severity === 'error' || severity === 'danger') {
+      haptics.error();
+      toast.error(message);
+    } else if (severity === 'success') {
+      haptics.success();
+      toast.success(message);
+    } else {
+      haptics.light();
+      toast(message);
+    }
   }, []);
-  const hideNotification = () => setNotification((prev) => ({ ...prev, open: false }));
 
   const confirmAction = useCallback((title, message, onConfirm) => {
     haptics.selection();
@@ -534,17 +531,7 @@ function AppInner({
           </Route>
         </Routes>
       </Suspense>
-      <Snackbar
-        open={notification.open}
-        autoHideDuration={4000}
-        onClose={hideNotification}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        variant="soft"
-        color={notification.severity}
-        sx={{ zIndex: 3000, bottom: '50px !important' }}
-      >
-        {notification.message}
-      </Snackbar>
+      <Toaster position="bottom-center" />
       <Modal open={confirmDialog.open} onClose={handleConfirmClose}>
         <ModalDialog variant="outlined" role="alertdialog">
           <DialogTitle>{confirmDialog.title}</DialogTitle>

@@ -11,6 +11,7 @@ const envSchema = z.object({
   DATABASE_URL: z.string().optional(),
   REDIS_URL: z.string().default('redis://localhost:6379'),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+  ALLOWED_ORIGINS: z.string().default('http://localhost:4001,http://localhost:5173'),
 
   // Storage Config
   STORAGE_DRIVER: z.enum(['local', 's3']).default('local'),

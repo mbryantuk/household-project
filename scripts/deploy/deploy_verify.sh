@@ -55,7 +55,8 @@ unset BYPASS_MAINTENANCE
 # 3. Commit & Push
 echo "💾 Committing changes..."
 git add .
-git commit -m "v$NEW_VERSION - $CLEAN_MESSAGE"
+# Item 164: Conventional Commits. Do not prepend version as it breaks commitlint.
+git commit -m "$CLEAN_MESSAGE"
 CURRENT_BRANCH=$(git branch --show-current)
 git push origin "$CURRENT_BRANCH"
 

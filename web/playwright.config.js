@@ -10,6 +10,7 @@ export default defineConfig({
   reporter: [['list'], ['json', { outputFile: 'test-results/smoke.json' }]],
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:4001',
+    testIdAttribute: 'data-testid', // Enforce decoupled test IDs over brittle CSS classes
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

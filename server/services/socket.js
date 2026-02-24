@@ -1,5 +1,6 @@
 const { Server } = require('socket.io');
 const logger = require('../utils/logger').default;
+const notificationRouter = require('./notification_router');
 
 let io;
 
@@ -13,6 +14,8 @@ function initSocket(server) {
       methods: ['GET', 'POST'],
     },
   });
+
+  notificationRouter.setSocketServer(io);
 
   io.on('connection', (socket) => {
     const { householdId } = socket.handshake.query;

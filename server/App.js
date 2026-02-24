@@ -38,15 +38,47 @@ app.set('trust proxy', 1);
 // Security Middleware
 app.use(
   helmet({
-    contentSecurityPolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://cdn.jsdelivr.net'],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          'https://fonts.googleapis.com',
+          'https://cdn.jsdelivr.net',
+        ],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        imgSrc: ["'self'", 'data:', 'blob:', 'https://*'],
+        connectSrc: ["'self'", 'https://*'],
+      },
+    },
     crossOriginEmbedderPolicy: false,
   })
 );
 
+// Compression Middleware
+const compressionConfig = require('./middleware/compression');
+app.use(compressionConfig);
+
 // Robust CORS Configuration
+const { ALLOWED_ORIGINS } = require('./config');
+const allowedOrigins = ALLOWED_ORIGINS.split(',').map((o) => o.trim());
+
 app.use(
   cors({
-    origin: '*',
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      // In test mode, allow everything
+      if (process.env.NODE_ENV === 'test') return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: [
       'Content-Type',
@@ -59,7 +91,20 @@ app.use(
   })
 );
 
-app.use(express.json());
+// Payload Limits (10MB for JSON and URL-encoded to prevent DOS)
+app.use(express.json({ limit: '10mb' }));
+app.use(express.text({ type: 'text/plain', limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Deep Sanitization (Item 125)
+const deepSanitize = require('./middleware/sanitize');
+app.use(deepSanitize);
+
+// Idempotency & Dry-Run
+const idempotency = require('./middleware/idempotency');
+const dryRun = require('./middleware/dryRun');
+app.use(idempotency);
+app.use(dryRun);
 
 // --- RATE LIMITING ---
 if (process.env.NODE_ENV !== 'test') {
@@ -144,6 +189,24 @@ systemRouter.get('/holidays', async (req, res) => {
   }
 });
 
+systemRouter.post('/vitals', (req, res) => {
+  // Item 159: Core Web Vitals Tracking receiver
+  if (process.env.NODE_ENV !== 'test') {
+    const body = req.body;
+    try {
+      // In a real production scenario, this might push to Datadog, PostHog, or a DB.
+      // We parse the JSON text received from sendBeacon
+      const vitalData = typeof body === 'string' ? JSON.parse(body) : body;
+      if (vitalData && vitalData.name) {
+        console.log(`[VITALS] ${vitalData.name}: ${vitalData.value} (Rating: ${vitalData.rating})`);
+      }
+    } catch (err) {
+      // Silent catch
+    }
+  }
+  res.status(204).end();
+});
+
 // 1. Mount at root
 allRouters.forEach((r) => {
   app.use(r.path, r.router);
@@ -170,9 +233,26 @@ if (fs.existsSync(testResultsPath)) {
 }
 
 if (fs.existsSync(frontendPath)) {
-  // 1. Static files
-  app.use('/assets', express.static(path.join(frontendPath, 'assets')));
-  app.use(express.static(frontendPath, { index: false }));
+  // 1. Static files with aggressive edge caching for Vite-hashed assets
+  app.use(
+    '/assets',
+    express.static(path.join(frontendPath, 'assets'), {
+      maxAge: '1y',
+      immutable: true,
+    })
+  );
+
+  app.use(
+    express.static(frontendPath, {
+      index: false,
+      setHeaders: (res, pathStr) => {
+        if (pathStr.endsWith('.html')) {
+          // Never cache the HTML entry point to ensure users get the latest asset hashes
+          res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        }
+      },
+    })
+  );
 
   // 2. SPA Fallback - Only for non-API requests
   app.get('*', (req, res, next) => {

@@ -11,7 +11,7 @@ async function getBankHolidays() {
   }
 
   try {
-    const response = await axios.get('https://www.gov.uk/bank-holidays.json');
+    const response = await axios.get('https://www.gov.uk/bank-holidays.json', { timeout: 3000 });
     // We care about england-and-wales for now, but could be extended
     const events = response.data['england-and-wales'].events;
     cachedBankHolidays = events.map((e) => e.date);

@@ -1,6 +1,6 @@
-# Solution Architecture
+# Hearthstone Pro: Solution Architecture
 
-Hearthstone is architected as a **Self-Contained Multi-Tenant SaaS** designed for deployment on low-cost hardware (e.g., Raspberry Pi) or cloud containers. It prioritizes data privacy, low latency, and ease of backup.
+Hearthstone is architected as a **Mission-Critical Multi-Tenant Household Management System**. It is designed for low-cost hardware (e.g., Raspberry Pi) or cloud containers while prioritizing strict data isolation, low latency, and comprehensive observability.
 
 ---
 
@@ -8,90 +8,123 @@ Hearthstone is architected as a **Self-Contained Multi-Tenant SaaS** designed fo
 
 ```mermaid
 graph TD
-    Client[Browser (React 19)] <--> API[Node.js Express API]
-    API <--> GlobalDB[(Global SQLite Registry)]
-    API <--> Router{Tenant Router}
-    Router <--> DB1[(Household A DB)]
-    Router <--> DB2[(Household B DB)]
-    Router <--> DB3[(Household ... DB)]
+    User((User)) <--> Client[Browser: React 18 + Joy UI]
+    Client <--> API[API Server: Node.js 22 Express]
+
+    subgraph "Global Service Layer (PostgreSQL)"
+        API <--> GlobalDB[(Global Registry)]
+        GlobalDB --- Users[Users & Identity]
+        GlobalDB --- Sessions[Sessions & Passkeys]
+        GlobalDB --- Tenants[Household Directory]
+        GlobalDB --- Telemetry[Nightly Health & Audit]
+    end
+
+    subgraph "Tenant Data Layer (SQLite)"
+        API <--> Router{Tenant Router}
+        Router <--> DB1[(Household A .db)]
+        Router <--> DB2[(Household B .db)]
+        Router <--> DB_N[(Household ... .db)]
+    end
+
+    subgraph "Operational Services"
+        API <--> Cache[Redis: Rate Limits & Caching]
+        API <--> Queue[BullMQ: Background Jobs]
+        API <--> PostHog[PostHog: Privacy-First Analytics]
+        API <--> OTel[OpenTelemetry: Distributed Tracing]
+    end
 ```
-
-- **Client:** Single Page Application (SPA) served via Vite/Nginx.
-- **Server:** Monolithic Node.js process handling API requests, auth, and scheduled tasks.
-- **Storage:** File-based SQLite databases. One global file, plus one file per household.
-
----
-
-## 2. Backend Architecture (Node.js)
-
-### Design Patterns
-
-- **Middleware-Driven Context:**
-  - Authentication Middleware verifies JWT.
-  - **Context Middleware** inspects the `X-Household-ID` header.
-  - It locates the correct SQLite file for that household (`server/data/household-{id}.db`) and attaches a database connection to the `req` object.
-  - **Security:** This ensures that a request for Household A literally _cannot_ query Household B's data, as it lacks the database handle.
-- **Service Layer (Partial):**
-  - Complex logic (e.g., Backup generation, Crypto) resides in `services/`.
-  - CRUD logic currently resides primarily in `routes/` (Controllers), with a move towards consolidation.
-- **Polymorphic Recurring Costs:**
-  - A single `recurring_costs` table handles all periodic outflows (Subscriptions, Mortgage, Vehicle Tax), linking dynamically to other entities via `object_type` and `object_id`.
-
-### Security Implementation
-
-- **At-Rest Encryption:** Sensitive fields (bank account numbers, sort codes, birth dates) are encrypted using AES-256 before storage in SQLite.
-- **JWT Auth:** Stateless session management.
-- **Role-Based Access Control (RBAC):** Middleware enforces `admin`, `member`, or `viewer` roles per route.
-
----
-
-## 3. Frontend Architecture (React)
-
-### Frameworks
-
-- **React 19:** Utilizing modern hooks and functional components.
-- **MUI Joy UI:** A modern, design-system-first UI library. We use `extendTheme` for a robust CSS variable system supporting 50+ themes.
-- **Vite:** High-performance build tool.
 
 ### Key Components
 
-- **`AppInner`:** Handles global state (User, Theme, Session Timeout).
-- **`HouseholdLayout`:** The shell for authenticated sessions. Manages the "Taskbar", Navigation, and Household Context switching.
-- **`FloatingWindow` Pattern:** Calculators, Calendars, and Note tools can be "popped out" into separate browser windows while maintaining state synchronization (via local storage or re-fetching).
-
-### State Management
-
-- **Server State:** Managed via `axios` and `useEffect` hooks (Migrating to TanStack Query is a future roadmap item).
-- **UI State:** Local React state + Context API for Theme/User.
+- **Frontend:** Single Page Application (SPA) built with React 18, utilizing **MUI Joy UI** for a design-system-first experience.
+- **Backend:** Monolithic Node.js 22 process using Express. Optimized for performance with Gzip compression and strict payload limits.
+- **Hybrid Storage:**
+  - **PostgreSQL:** Centralized store for metadata, identity, and tenancy mapping. Managed via **Drizzle ORM**.
+  - **SQLite:** Physical file-per-tenant isolation for all private household data. Ensures maximum privacy and easy portability.
 
 ---
 
-## 4. DevOps & Reliability
+## 2. Backend Design Patterns
 
-### "Nightly" Philosophy
+### Middleware-Driven Context
 
-Hearthstone employs a **Nightly Quality Gate**:
+The system uses a strict "Context Injection" pattern:
 
-1.  **Automated Smoke Tests:** Run every night via cron.
-2.  **Database Health:** `cleanup_test_data.js` runs to purge transient test artifacts.
-3.  **Reporting:** Results are stored in the `test_results` table and surfaced in the Settings UI under **Settings > Nightly Health**.
+1. **Auth Middleware:** Verifies JWT or Clerk session.
+2. **Tenant Middleware:** Inspects the `x-household-id` header and verifies the user has access via the Global Registry.
+3. **Database Injection:** Dynamically opens/locates the correct SQLite file (`server/data/household-{id}.db`) and attaches the connection to `req.tenantDb`.
 
-### Backup Strategy
+### Unified Error Handling (Item 85)
 
-- **Automated Zips:** The system creates nightly ZIP archives of every household database.
-- **Tenant Export:** Admins can trigger a manual "Tenant Export" which packages the household database, global metadata (name, settings), and associated user accounts into a portable ZIP for cross-instance migration.
-- **Retention Policy:** Configurable retention (default 7 days).
+All errors are normalized through a centralized `AppError` class hierarchy, ensuring consistent API responses and proper logging with **Pino**.
+
+### Idempotency & Safety (Item 104, 112)
+
+- **Idempotency-Key:** All `POST`/`PUT` requests support idempotency keys to prevent duplicate processing on network retries.
+- **Dry-Run:** Destructive or complex endpoints support a `x-dry-run` header to validate logic without committing changes to the database.
 
 ---
 
-## 5. Directory Structure Strategy
+## 3. Frontend State & UI Architecture
 
-- `/server`: The backend API.
-  - `/data`: Contains the live SQLite databases (Gitignored).
-  - `/backups`: Zipped backups (Gitignored).
-  - `/routes`: API Endpoints.
-  - `/middleware`: Auth and Tenant context logic.
-- `/web`: The Frontend.
-  - `/src/features`: Screen-based organization (Finance, Calendar, People).
-  - `/src/components/ui`: Shared, brand-compliant atomic components.
-- `/scripts`: DevOps and Maintenance automation (Deploy, Seed, Test).
+### Server State (Item 12)
+
+Managed exclusively via **TanStack Query (v5)**.
+
+- **Key Factories:** Centralized query key management to prevent cache collisions.
+- **Optimistic UI:** Targeted implementation for high-frequency actions like checking shopping items.
+
+### Atomic Design System
+
+Strict adherence to shared primitives in `web/src/components/ui/`:
+
+- `<AppButton />`, `<AppInput />`, `<AppSelect />` wrap MUI Joy UI to enforce branding and accessibility standards.
+- **Theme Engine v2:** Supports 50+ vibrant themes with dynamic HSL background generation for emojis.
+
+---
+
+## 4. Security & Isolation
+
+### Multi-Tenancy Isolation (The Prime Directive)
+
+Data isolation is enforced at the physical layer (separate SQLite files) and the application layer (middleware verification). User A cannot physically query User B's file because the file path is constructed from verified session data.
+
+### Data Protection
+
+- **Field-Level Encryption:** PII (Account numbers, DOBs) is encrypted at rest using AES-256-GCM.
+- **Security Headers:** Strict **Content Security Policy (CSP)** and **CORS** whitelists are enforced from Day 1.
+- **Deep Sanitization:** All incoming user input is recursively stripped of malicious HTML/JS via an `xss`-powered middleware.
+
+---
+
+## 5. Observability & Ops (Phase 6)
+
+### Distributed Tracing (Item 148)
+
+Integrated with **OpenTelemetry**. Every request is traced across Express, PostgreSQL, and Redis, providing deep visibility into latency bottlenecks.
+
+### Real-time Telemetry
+
+- **Core Web Vitals:** Frontend performance (LCP, FID, CLS) is beaconed to the backend to monitor real-user experience.
+- **Memory Profiling:** Admin-only heap dump capability for diagnosing leaks in long-running Node processes.
+- **Nightly Health:** A comprehensive verification suite runs every 24 hours, recording results to the global registry for dashboard visibility.
+
+---
+
+## 6. Directory Structure
+
+```text
+/
+├── packages/shared/   # Unified Zod schemas, types, and error classes
+├── server/            # Node.js Express Backend
+│   ├── db/            # Postgres Schema & Drizzle config
+│   ├── middleware/    # Security, Tenancy, and Validation
+│   ├── routes/        # Domain-driven API endpoints
+│   ├── services/      # Complex business logic (Analytics, Tracing, Jobs)
+│   └── tests/         # Jest integration & containerized tests
+├── web/               # React Frontend (Vite)
+│   ├── src/features/  # Domain-specific views and components
+│   ├── src/hooks/     # Reusable logic (Data fetching, Haptics)
+│   └── src/theme/     # Joy UI theme extensions & Totem specs
+└── scripts/           # DevOps automation & Nightly suite
+```

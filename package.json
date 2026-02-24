@@ -1,6 +1,6 @@
 {
   "name": "household-project",
-  "version": "3.2.395",
+  "version": "3.2.401",
   "private": true,
   "workspaces": [
     "server",
@@ -8,10 +8,13 @@
     "packages/*"
   ],
   "scripts": {
+    "setup": "./scripts/ops/setup_dev.sh",
     "test": "cd server && npm test",
+    "test:coverage": "cd server && npm test -- --coverage",
     "test:full": "cd server && npm run test:full",
     "test:perf": "cd server && npm run test:perf",
     "test:ui": "cd web && npm run test:smoke",
+    "build:server": "cd server && npm run build",
     "deploy": "./scripts/deploy/deploy_verify.sh",
     "bump": "node scripts/utils/bump_version.js",
     "prepare": "if [ \"$NODE_ENV\" != \"production\" ]; then husky; fi",
@@ -28,11 +31,12 @@
     ]
   },
   "dependencies": {
-    "@google/genai": "^1.36.0",
     "nodemailer": "^7.0.12",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.0.2"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.4.2",
+    "@commitlint/config-conventional": "^20.4.2",
     "@typescript-eslint/eslint-plugin": "^8.56.0",
     "@typescript-eslint/parser": "^8.56.0",
     "eslint-config-prettier": "^10.1.8",

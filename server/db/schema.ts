@@ -8,49 +8,72 @@ import {
   jsonb,
   real,
   primaryKey,
+  pgEnum,
+  index,
 } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 
 /**
  * HEARTHSTONE PRO CORE SCHEMA (Postgres)
  * This is the source of truth for Identity, Tenancy, and Audit.
  */
 
-export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
-  email: text('email').notNull().unique(),
-  username: text('username').unique(),
-  passwordHash: text('password_hash'), // Nullable for Passkey-only users
-  firstName: text('first_name'),
-  lastName: text('last_name'),
-  avatar: text('avatar'),
-  systemRole: text('system_role').default('user'),
-  dashboardLayout: text('dashboard_layout'),
-  stickyNote: text('sticky_note'),
-  budgetSettings: text('budget_settings'),
-  theme: text('theme').default('hearth'),
-  customTheme: text('custom_theme'), // PERSISTENCE FIX: Added missing custom_theme column
-  mode: text('mode').default('system'),
-  defaultHouseholdId: integer('default_household_id'),
-  lastHouseholdId: integer('last_household_id'),
-  isTest: integer('is_test').default(0),
-  isActive: boolean('is_active').default(true),
-  mfaEnabled: boolean('mfa_enabled').default(false),
-  mfaSecret: text('mfa_secret'),
-  currentChallenge: text('current_challenge'),
-  createdAt: timestamp('created_at').defaultNow(),
-});
+export const systemRoleEnum = pgEnum('system_role', ['admin', 'user']);
+export const themeModeEnum = pgEnum('theme_mode', ['light', 'dark', 'system']);
 
-export const userSessions = pgTable('user_sessions', {
-  id: text('id').primaryKey(),
-  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }),
-  deviceInfo: text('device_info'),
-  ipAddress: text('ip_address'),
-  userAgent: text('user_agent'),
-  lastActive: timestamp('last_active').defaultNow(),
-  expiresAt: timestamp('expires_at'),
-  isRevoked: boolean('is_revoked').default(false),
-  createdAt: timestamp('created_at').defaultNow(),
-});
+export const users = pgTable(
+  'users',
+  {
+    id: serial('id').primaryKey(),
+    email: text('email').notNull().unique(),
+    username: text('username').unique(),
+    passwordHash: text('password_hash'), // Nullable for Passkey-only users
+    firstName: text('first_name'),
+    lastName: text('last_name'),
+    avatar: text('avatar'),
+    systemRole: systemRoleEnum('system_role').default('user'),
+    dashboardLayout: text('dashboard_layout'),
+    stickyNote: text('sticky_note'),
+    budgetSettings: text('budget_settings'),
+    theme: text('theme').default('hearth'),
+    customTheme: text('custom_theme'), // PERSISTENCE FIX: Added missing custom_theme column
+    mode: themeModeEnum('mode').default('system'),
+    defaultHouseholdId: integer('default_household_id'),
+    lastHouseholdId: integer('last_household_id'),
+    isTest: integer('is_test').default(0),
+    isActive: boolean('is_active').default(true),
+    mfaEnabled: boolean('mfa_enabled').default(false),
+    mfaSecret: text('mfa_secret'),
+    currentChallenge: text('current_challenge'),
+    createdAt: timestamp('created_at').defaultNow(),
+    deletedAt: timestamp('deleted_at'),
+  },
+  (table) => ({
+    activeIdx: index('active_user_idx')
+      .on(table.isActive)
+      .where(sql`${table.isActive} = true`),
+  })
+);
+
+export const userSessions = pgTable(
+  'user_sessions',
+  {
+    id: text('id').primaryKey(),
+    userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    deviceInfo: text('device_info'),
+    ipAddress: text('ip_address'),
+    userAgent: text('user_agent'),
+    lastActive: timestamp('last_active').defaultNow(),
+    expiresAt: timestamp('expires_at'),
+    isRevoked: boolean('is_revoked').default(false),
+    createdAt: timestamp('created_at').defaultNow(),
+  },
+  (table) => ({
+    activeSessionIdx: index('active_session_idx')
+      .on(table.isRevoked)
+      .where(sql`${table.isRevoked} = false`),
+  })
+);
 
 export const passkeys = pgTable('passkeys', {
   id: text('id').primaryKey(),
@@ -65,25 +88,36 @@ export const passkeys = pgTable('passkeys', {
   lastUsedAt: timestamp('last_used_at'),
 });
 
-export const households = pgTable('households', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  addressStreet: text('address_street'),
-  addressCity: text('address_city'),
-  addressZip: text('address_zip'),
-  avatar: text('avatar'),
-  dateFormat: text('date_format').default('DD/MM/YYYY'),
-  currency: text('currency').default('GBP'),
-  decimals: integer('decimals').default(2),
-  enabledModules: text('enabled_modules').default('["pets", "vehicles", "meals"]'),
-  metadataSchema: text('metadata_schema'),
-  autoBackup: boolean('auto_backup').default(true),
-  backupRetention: integer('backup_retention').default(7),
-  isTest: integer('is_test').default(0),
-  debugMode: integer('debug_mode').default(0),
-  nightlyVersionFilter: text('nightly_version_filter'),
-  createdAt: timestamp('created_at').defaultNow(),
-});
+export const households = pgTable(
+  'households',
+  {
+    id: serial('id').primaryKey(),
+    name: text('name').notNull(),
+    addressStreet: text('address_street'),
+    addressCity: text('address_city'),
+    addressZip: text('address_zip'),
+    avatar: text('avatar'),
+    dateFormat: text('date_format').default('DD/MM/YYYY'),
+    currency: text('currency').default('GBP'),
+    decimals: integer('decimals').default(2),
+    enabledModules: text('enabled_modules').default('["pets", "vehicles", "meals"]'),
+    metadataSchema: text('metadata_schema'),
+    autoBackup: boolean('auto_backup').default(true),
+    backupRetention: integer('backup_retention').default(7),
+    isTest: integer('is_test').default(0),
+    debugMode: integer('debug_mode').default(0),
+    nightlyVersionFilter: text('nightly_version_filter'),
+    createdAt: timestamp('created_at').defaultNow(),
+    deletedAt: timestamp('deleted_at'),
+  },
+  (table) => ({
+    productionHhIdx: index('production_hh_idx')
+      .on(table.isTest)
+      .where(sql`${table.isTest} = 0`),
+  })
+);
+
+export const userRoleEnum = pgEnum('user_role', ['admin', 'member', 'viewer']);
 
 export const userHouseholds = pgTable(
   'user_households',
@@ -94,12 +128,16 @@ export const userHouseholds = pgTable(
     householdId: integer('household_id')
       .notNull()
       .references(() => households.id, { onDelete: 'cascade' }),
-    role: text('role').default('member'),
+    role: userRoleEnum('role').default('member'),
     isActive: boolean('is_active').default(true),
     joinedAt: timestamp('joined_at').defaultNow(),
+    deletedAt: timestamp('deleted_at'),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.userId, table.householdId] }),
+    activeHhLinkIdx: index('active_hh_link_idx')
+      .on(table.isActive)
+      .where(sql`${table.isActive} = true`),
   })
 );
 
@@ -133,5 +171,15 @@ export const versionHistory = pgTable('version_history', {
   id: serial('id').primaryKey(),
   version: text('version'),
   comment: text('comment'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const featureFlags = pgTable('feature_flags', {
+  id: text('id').primaryKey(), // Flag key, e.g., 'new-dashboard'
+  description: text('description'),
+  isEnabled: boolean('is_enabled').default(false),
+  rolloutPercentage: integer('rollout_percentage').default(0), // 0-100
+  criteria: jsonb('criteria'), // e.g. { "household_ids": [60, 61] }
+  updatedAt: timestamp('updated_at').defaultNow(),
   createdAt: timestamp('created_at').defaultNow(),
 });

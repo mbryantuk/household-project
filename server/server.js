@@ -1,7 +1,14 @@
+// Initialize OpenTelemetry Tracing before anything else
+require('./tracing');
+
+// Enforce UTC Timezone globally for the backend
+process.env.TZ = 'UTC';
+
 const { loadSecrets } = require('./config');
 const { bootstrap } = require('./bootstrap');
 const { startShoppingScheduler } = require('./services/shopping_scheduler');
 const { initSocket } = require('./services/socket');
+const { shutdownAnalytics } = require('./services/analytics');
 const http = require('http');
 
 async function startServer() {
@@ -11,7 +18,7 @@ async function startServer() {
 
     // 2. Import App after config
     const app = require('./App');
-    const { globalDb } = require('./db');
+    const { db } = require('./db/index');
 
     // 3. Create HTTP Server
     const server = http.createServer(app);
@@ -20,7 +27,7 @@ async function startServer() {
     initSocket(server);
 
     // 5. Bootstrap and Start
-    await bootstrap(globalDb);
+    await bootstrap(db);
 
     if (process.env.NODE_ENV !== 'test') {
       server.listen(config.PORT, '0.0.0.0', () => {
@@ -28,6 +35,10 @@ async function startServer() {
         startShoppingScheduler();
       });
     }
+
+    process.on('SIGTERM', () => {
+      shutdownAnalytics();
+    });
   } catch (err) {
     console.error('Critical Failure: Server startup failed', err);
     process.exit(1);

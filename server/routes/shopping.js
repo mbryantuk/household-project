@@ -2,45 +2,107 @@ const express = require('express');
 const router = express.Router({ mergeParams: true });
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { useTenantDb } = require('../middleware/tenant');
-const { decryptData } = require('../middleware/encryption');
-const { auditLog } = require('../services/audit');
+const SqliteShoppingRepository = require('../domain/shopping/adapters/SqliteShoppingRepository');
+const ShoppingService = require('../domain/shopping/application/ShoppingService');
+
+/**
+ * HELPER: Initialize service with tenant DB
+ * @param {Object} req
+ * @returns {ShoppingService}
+ */
+function getShoppingService(req) {
+  const repository = new SqliteShoppingRepository(req.tenantDb, req.hhId);
+  return new ShoppingService(repository);
+}
+
+/**
+ * Mapper: Entity to API Model
+ * @param {Object} item
+ */
+function toApiModel(item) {
+  return {
+    id: item.id,
+    household_id: item.householdId,
+    name: item.name,
+    category: item.category,
+    quantity: item.quantity,
+    estimated_cost: item.estimatedCost,
+    week_start: item.weekStart,
+    is_checked: item.isChecked ? 1 : 0,
+    updated_at: item.updatedAt,
+    created_at: item.createdAt,
+  };
+}
 
 /**
  * GET /api/households/:id/shopping-list
  */
-router.get('/', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
-  req.tenantDb.all(
-    'SELECT * FROM shopping_items WHERE household_id = ?',
-    [req.hhId],
-    (err, rows) => {
-      if (err) return res.status(500).json({ error: err.message });
-      const items = decryptData('shopping_items', rows || []);
-      const totalEstimated = items.reduce((acc, item) => acc + (item.estimated_cost || 0), 0);
+router.get(
+  '/',
+  authenticateToken,
+  requireHouseholdRole('viewer'),
+  useTenantDb,
+  async (req, res) => {
+    try {
+      const service = getShoppingService(req);
+      const items = await service.listItems(req.hhId);
+      const apiItems = items.map(toApiModel);
+      const totalEstimated = apiItems.reduce((acc, item) => acc + (item.estimated_cost || 0), 0);
       res.json({
-        items,
+        items: apiItems,
         summary: {
-          total_items: items.length,
+          total_items: apiItems.length,
           total_estimated_cost: totalEstimated,
         },
       });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
     }
-  );
-});
+  }
+);
 
 /**
  * POST /api/households/:id/shopping-list
  */
-router.post('/', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-  const { name, category, quantity, estimated_cost, week_start, is_checked } = req.body;
-  req.tenantDb.run(
-    'INSERT INTO shopping_items (household_id, name, category, quantity, estimated_cost, week_start, is_checked) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    [req.hhId, name, category, quantity, estimated_cost, week_start, is_checked ? 1 : 0],
-    async function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-      res.status(201).json({ id: this.lastID, ...req.body });
+router.post(
+  '/',
+  authenticateToken,
+  requireHouseholdRole('member'),
+  useTenantDb,
+  async (req, res) => {
+    try {
+      const service = getShoppingService(req);
+      const item = await service.addItem(req.hhId, req.body);
+      res.status(201).json(toApiModel(item));
+    } catch (err) {
+      res.status(500).json({ error: err.message });
     }
-  );
-});
+  }
+);
+
+/**
+ * POST /api/households/:id/shopping-list/bulk
+ * Item 108: Bulk Action Pattern
+ */
+router.post(
+  '/bulk',
+  authenticateToken,
+  requireHouseholdRole('member'),
+  useTenantDb,
+  async (req, res) => {
+    try {
+      const { actions } = req.body;
+      if (!Array.isArray(actions) || actions.length === 0) {
+        return res.status(400).json({ error: 'Actions array is required and must not be empty' });
+      }
+      const service = getShoppingService(req);
+      await service.bulkAction(req.hhId, actions);
+      res.json({ message: 'Bulk action completed successfully', count: actions.length });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
 
 /**
  * PUT /api/households/:id/shopping-list/:itemId
@@ -50,49 +112,15 @@ router.put(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
-  (req, res) => {
-    const { name, category, quantity, estimated_cost, is_checked } = req.body;
-    const updates = [];
-    const params = [];
-
-    if (name !== undefined) {
-      updates.push('name = ?');
-      params.push(name);
+  async (req, res) => {
+    try {
+      const service = getShoppingService(req);
+      const item = await service.updateItem(req.params.itemId, req.hhId, req.body);
+      if (!item) return res.status(404).json({ error: 'Item not found' });
+      res.json(toApiModel(item));
+    } catch (err) {
+      res.status(500).json({ error: err.message });
     }
-    if (category !== undefined) {
-      updates.push('category = ?');
-      params.push(category);
-    }
-    if (quantity !== undefined) {
-      updates.push('quantity = ?');
-      params.push(quantity);
-    }
-    if (estimated_cost !== undefined) {
-      updates.push('estimated_cost = ?');
-      params.push(estimated_cost);
-    }
-    if (is_checked !== undefined) {
-      updates.push('is_checked = ?');
-      params.push(is_checked ? 1 : 0);
-    }
-
-    if (updates.length === 0) return res.status(400).json({ error: 'No fields to update' });
-
-    params.push(req.params.itemId, req.hhId);
-
-    req.tenantDb.run(
-      `UPDATE shopping_items SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND household_id = ?`,
-      params,
-      function (err) {
-        if (err) return res.status(500).json({ error: err.message });
-        if (this.changes === 0) return res.status(404).json({ error: 'Item not found' });
-        res.json({
-          id: parseInt(req.params.itemId),
-          ...req.body,
-          is_checked: is_checked !== undefined ? (is_checked ? 1 : 0) : undefined,
-        });
-      }
-    );
   }
 );
 
@@ -104,15 +132,14 @@ router.delete(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
-  (req, res) => {
-    req.tenantDb.run(
-      'DELETE FROM shopping_items WHERE household_id = ? AND is_checked = 1',
-      [req.hhId],
-      function (err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: 'Checked items cleared', changes: this.changes });
-      }
-    );
+  async (req, res) => {
+    try {
+      const service = getShoppingService(req);
+      const changes = await service.clearChecked(req.hhId);
+      res.json({ message: 'Checked items cleared', changes });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   }
 );
 
@@ -124,16 +151,15 @@ router.delete(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
-  (req, res) => {
-    req.tenantDb.run(
-      'DELETE FROM shopping_items WHERE id = ? AND household_id = ?',
-      [req.params.itemId, req.hhId],
-      function (err) {
-        if (err) return res.status(500).json({ error: err.message });
-        if (this.changes === 0) return res.status(404).json({ error: 'Item not found' });
-        res.json({ message: 'Item deleted' });
-      }
-    );
+  async (req, res) => {
+    try {
+      const service = getShoppingService(req);
+      const deleted = await service.deleteItem(req.params.itemId, req.hhId);
+      if (!deleted) return res.status(404).json({ error: 'Item not found' });
+      res.json({ message: 'Item deleted' });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   }
 );
 

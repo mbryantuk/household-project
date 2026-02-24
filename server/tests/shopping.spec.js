@@ -168,4 +168,42 @@ describe('Shopping List API', () => {
     const deletedItem = listRes.body.items.find((i) => i.id === itemRes.body.id);
     expect(deletedItem).toBeUndefined();
   });
+
+  test('should perform bulk actions (Item 108)', async () => {
+    // 1. Create items
+    const item1 = await request(app)
+      .post(`/households/${householdId}/shopping-list`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'Bulk 1' });
+    const item2 = await request(app)
+      .post(`/households/${householdId}/shopping-list`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'Bulk 2' });
+
+    // 2. Bulk Action
+    const res = await request(app)
+      .post(`/households/${householdId}/shopping-list/bulk`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        actions: [
+          { type: 'update', id: item1.body.id, data: { name: 'Bulk 1 Updated', is_checked: 1 } },
+          { type: 'delete', id: item2.body.id },
+        ],
+      });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.count).toBe(2);
+
+    // 3. Verify
+    const listRes = await request(app)
+      .get(`/households/${householdId}/shopping-list`)
+      .set('Authorization', `Bearer ${token}`);
+
+    const updatedItem = listRes.body.items.find((i) => i.id === item1.body.id);
+    expect(updatedItem.name).toBe('Bulk 1 Updated');
+    expect(updatedItem.is_checked).toBe(1);
+
+    const deletedItem = listRes.body.items.find((i) => i.id === item2.body.id);
+    expect(deletedItem).toBeUndefined();
+  });
 });

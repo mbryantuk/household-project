@@ -1,72 +1,137 @@
 # Database Schema Reference
 
-Hearthstone uses a **Hybrid Multi-Tenant Database Architecture**.
-
-- **Global Registry (`global.db`):** Manages users, authentication, system configuration, and the directory of households.
-- **Tenant Databases (`household-{id}.db`):** Each household has its own isolated SQLite database containing its private data (members, assets, finance, etc.).
+Hearthstone uses a **Hybrid Multi-Tenant Architecture** to balance global management with total tenant data privacy.
 
 ---
 
-## 1. Global Registry (`global.db`)
+## 1. Global Registry (PostgreSQL)
 
-Shared system-wide data.
+The Global Registry handles identity, cross-household access, and system-wide orchestration.
 
-| Table                 | Description                                     | Key Columns                                                                                        |
-| :-------------------- | :---------------------------------------------- | :------------------------------------------------------------------------------------------------- |
-| **`users`**           | Global user accounts (SSO).                     | `id`, `email`, `password_hash`, `default_household_id`, `budget_settings`, `theme`, `custom_theme` |
-| **`households`**      | Directory of all tenant workspaces.             | `id`, `name`, `currency`, `enabled_modules`, `nightly_version_filter`, `metadata_schema`           |
-| **`user_households`** | Many-to-Many link between Users and Households. | `user_id`, `household_id`, `role` (admin/member/viewer)                                            |
-| **`version_history`** | System deployment log.                          | `version`, `comment`, `created_at`                                                                 |
-| **`test_results`**    | Storage for automated nightly test reports.     | `suite_name`, `passes`, `fails`, `report_json`, `version`                                          |
+```mermaid
+erDiagram
+    USERS ||--o{ USER_SESSIONS : "has"
+    USERS ||--o{ PASSKEYS : "registered"
+    USERS ||--o{ USER_HOUSEHOLDS : "belongs to"
+    HOUSEHOLDS ||--o{ USER_HOUSEHOLDS : "contains"
 
----
+    USERS {
+        serial id PK
+        text email UK
+        text password_hash
+        integer default_household_id
+        integer last_household_id
+        text theme
+        text mode
+        boolean mfa_enabled
+        timestamp deleted_at
+    }
 
-## 2. Tenant Database (`household-{id}.db`)
+    HOUSEHOLDS {
+        serial id PK
+        text name
+        text currency
+        text enabled_modules
+        timestamp deleted_at
+    }
 
-Private data, completely isolated per household.
+    USER_HOUSEHOLDS {
+        integer user_id FK
+        integer household_id FK
+        text role
+        boolean is_active
+    }
 
-### Core Entities
-
-| Table               | Description                                           | Key Columns                                                                           |
-| :------------------ | :---------------------------------------------------- | :------------------------------------------------------------------------------------ |
-| **`members`**       | People and Pets in the household.                     | `id`, `name`, `type` (adult/child/pet), `dob` (Encrypted), `will_details` (Encrypted) |
-| **`dates`**         | Unified calendar events (birthdays, holidays, tasks). | `date`, `type`, `recurrence`, `parent_type`, `parent_id`                              |
-| **`house_details`** | Property metadata and config.                         | `property_type`, `wifi_password`, `emergency_contacts`                                |
-
-### Assets & Inventory
-
-| Table                  | Description                              | Key Columns                                                                          |
-| :--------------------- | :--------------------------------------- | :----------------------------------------------------------------------------------- |
-| **`assets`**           | Physical items (Electronics, Furniture). | `purchase_value`, `replacement_cost`, `warranty_expiry`, `serial_number` (Encrypted) |
-| **`vehicles`**         | Cars, Bikes, etc.                        | `make`, `model`, `vin` (Encrypted), `mot_due`, `tax_due`, `purchase_value`           |
-| **`vehicle_services`** | Service history log.                     | `vehicle_id`, `cost`, `mileage`, `description`                                       |
-
-### Financial Core
-
-| Table                          | Description                                                | Key Columns                                                                                         |
-| :----------------------------- | :--------------------------------------------------------- | :-------------------------------------------------------------------------------------------------- |
-| **`finance_income`**           | Salary and income streams.                                 | `amount`, `frequency`, `member_id`, `bank_account_id`                                               |
-| **`finance_current_accounts`** | Bank accounts.                                             | `bank_name`, `account_number` (Encrypted), `current_balance`                                        |
-| **`finance_savings`**          | Savings accounts.                                          | `interest_rate`, `current_balance`, `goal_target`                                                   |
-| **`finance_savings_pots`**     | Sub-divisions of savings (e.g., "Holiday Fund").           | `target_amount`, `current_amount`                                                                   |
-| **`finance_investments`**      | Stocks, Crypto, Bonds.                                     | `symbol`, `units`, `current_value`                                                                  |
-| **`finance_pensions`**         | Retirement pots.                                           | `provider`, `current_value`, `monthly_contribution`                                                 |
-| **`finance_credit_cards`**     | Credit liabilities.                                        | `limit`, `balance`, `apr`                                                                           |
-| **`recurring_costs`**          | **Centralized Bill/Sub Register.** Replaces legacy tables. | `category_id` (utility, mortgage, sub), `amount`, `frequency`, `object_type` (linked asset/vehicle) |
-| **`finance_budget_progress`**  | Tracking for monthly budget execution.                     | `cycle_start`, `item_key`, `actual_amount`, `is_paid`                                               |
-| **`finance_budget_cycles`**    | Snapshot of monthly budget closure.                        | `cycle_start`, `actual_pay`, `current_balance`                                                      |
-
-### Meal Planning
-
-| Table            | Description                  | Key Columns                         |
-| :--------------- | :--------------------------- | :---------------------------------- |
-| **`meals`**      | Library of recipes/meals.    | `name`, `category`, `last_prepared` |
-| **`meal_plans`** | Weekly schedule assignments. | `date`, `meal_id`, `member_id`      |
+    USER_SESSIONS {
+        text id PK
+        integer user_id FK
+        text device_info
+        timestamp expires_at
+        boolean is_revoked
+    }
+```
 
 ---
 
-## Key Relationships
+## 2. Tenant Database (SQLite)
 
-- **Ownership:** Most tables link to `members(id)` to show who owns an asset or account.
-- **Recurring Costs:** The `recurring_costs` table is polymorphic. It can link to a `vehicle` (tax/insurance), an `asset` (insurance), or exist independently (Netflix subscription).
-- **Calendar:** The `dates` table acts as a cache for some events, but `recurring_costs` are dynamically projected onto the calendar view at runtime.
+Each household has its own isolated `.db` file. This diagram represents the structure repeated for every tenant.
+
+```mermaid
+erDiagram
+    MEMBERS ||--o{ RECURRING_COSTS : "pays"
+    MEMBERS ||--o{ FINANCE_INCOME : "earns"
+    MEMBERS ||--o{ MEAL_PLANS : "assigned"
+
+    VEHICLES ||--o{ VEHICLE_SERVICES : "serviced"
+    VEHICLES ||--o{ RECURRING_COSTS : "linked"
+
+    ASSETS ||--o{ RECURRING_COSTS : "linked"
+
+    FINANCE_SAVINGS ||--o{ FINANCE_SAVINGS_POTS : "contains"
+
+    MEMBERS {
+        integer id PK
+        text name
+        text type "adult/child/pet"
+        text dob "Encrypted"
+    }
+
+    ASSETS {
+        integer id PK
+        text name
+        real purchase_value
+        real replacement_cost
+        date warranty_expiry
+    }
+
+    VEHICLES {
+        integer id PK
+        text make
+        text model
+        text registration "Encrypted"
+        date mot_due
+    }
+
+    RECURRING_COSTS {
+        integer id PK
+        text category_id "mortgage/utility/sub"
+        real amount
+        text frequency
+        text object_type "vehicle/asset/member"
+        integer object_id
+    }
+
+    FINANCE_INCOME {
+        integer id PK
+        integer member_id FK
+        real amount
+        text frequency
+        boolean nearest_working_day
+    }
+```
+
+---
+
+## 3. Data Protection Strategy
+
+### Encrypted Fields (AES-256-GCM)
+
+The following fields are encrypted at the application layer before being written to disk:
+
+- **MEMBERS:** `dob`, `will_details`, `life_insurance_provider`.
+- **VEHICLES:** `registration`.
+- **ASSETS:** `serial_number`.
+- **FINANCE_CURRENT_ACCOUNTS:** `account_number`, `sort_code`.
+
+### Soft Deletes (Item 94)
+
+Core entities include a `deleted_at` timestamp. Queries filter for `NULL` to prevent data loss while maintaining referential integrity for historical financial calculations.
+
+### Postgres Enums (Item 95)
+
+Status and Role columns in the Global Registry use native PostgreSQL `ENUM` types to prevent invalid state transitions.
+
+- `system_role`: `['admin', 'user']`
+- `user_role`: `['admin', 'member', 'viewer']`
+- `theme_mode`: `['light', 'dark', 'system']`

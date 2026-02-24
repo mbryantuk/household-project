@@ -8,19 +8,61 @@ const {
   testResults,
   versionHistory,
   auditLogs,
+  featureFlags,
 } = require('../db/schema');
-const { eq, sql, desc } = require('drizzle-orm');
+const { eq, sql, desc, lt, and } = require('drizzle-orm');
 const { authenticateToken, requireSystemRole } = require('../middleware/auth');
 
 router.use(authenticateToken);
 
 /**
+ * GET /admin/feature-flags
+ */
+router.get('/feature-flags', requireSystemRole('admin'), async (req, res) => {
+  try {
+    const flags = await db.select().from(featureFlags);
+    res.json(flags);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * POST /admin/feature-flags
+ */
+router.post('/feature-flags', requireSystemRole('admin'), async (req, res) => {
+  try {
+    const { id, description, isEnabled, rolloutPercentage, criteria } = req.body;
+    await db
+      .insert(featureFlags)
+      .values({
+        id,
+        description,
+        isEnabled,
+        rolloutPercentage,
+        criteria,
+        updatedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: featureFlags.id,
+        set: { description, isEnabled, rolloutPercentage, criteria, updatedAt: new Date() },
+      });
+    res.json({ message: 'Flag saved' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
  * GET /admin/audit-logs
  * System admin sees all, or filter by householdId
+ * Item 91: Cursor-Based Pagination
  */
 router.get('/audit-logs', async (req, res) => {
   try {
     const hhId = req.query.householdId ? parseInt(req.query.householdId) : null;
+    const cursor = req.query.cursor ? parseInt(req.query.cursor) : null;
+    const limit = Math.min(parseInt(req.query.limit) || 50, 100);
 
     // Authorization: User must be system admin OR admin of the target household
     if (
@@ -30,13 +72,29 @@ router.get('/audit-logs', async (req, res) => {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    let query = db.select().from(auditLogs);
-    if (hhId) {
-      query = query.where(eq(auditLogs.householdId, hhId));
-    }
+    let filters = [];
+    if (hhId) filters.push(eq(auditLogs.householdId, hhId));
+    if (cursor) filters.push(lt(auditLogs.id, cursor));
 
-    const logs = await query.orderBy(desc(auditLogs.createdAt)).limit(100);
-    res.json(logs);
+    const logs = await db
+      .select()
+      .from(auditLogs)
+      .where(and(...filters))
+      .orderBy(desc(auditLogs.id))
+      .limit(limit + 1); // Fetch one extra to check for next page
+
+    const hasMore = logs.length > limit;
+    const data = hasMore ? logs.slice(0, limit) : logs;
+    const nextCursor = hasMore ? data[data.length - 1].id : null;
+
+    res.json({
+      data,
+      meta: {
+        next_cursor: nextCursor,
+        has_more: hasMore,
+        count: data.length,
+      },
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -132,6 +190,29 @@ router.delete('/households/:id', async (req, res) => {
     res.json({ message: 'Household destroyed' });
   } catch (err) {
     res.status(500).json({ error: 'Destruction failed: ' + err.message });
+  }
+});
+
+/**
+ * GET /api/admin/heapdump
+ * Generate a heap snapshot for Item 160: Memory Profiling
+ */
+router.get('/heapdump', (req, res) => {
+  const v8 = require('v8');
+  const fs = require('fs');
+  const path = require('path');
+  try {
+    const filename = `hearthstone-heap-${Date.now()}.heapsnapshot`;
+    const filepath = path.join(__dirname, '..', 'data', filename);
+    v8.writeHeapSnapshot(filepath);
+    res.download(filepath, filename, (err) => {
+      if (err) {
+        console.error('Heapdump download failed', err);
+      }
+      fs.unlink(filepath, () => {}); // Cleanup after sending
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Heapdump failed: ' + err.message });
   }
 });
 

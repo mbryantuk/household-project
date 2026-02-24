@@ -389,7 +389,7 @@ const TENANT_SCHEMA = [
         PRIMARY KEY (entity_type, entity_id, member_id)
     )`,
   `CREATE TABLE IF NOT EXISTS shopping_items (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id TEXT PRIMARY KEY,
         household_id INTEGER,
         name TEXT NOT NULL,
         category TEXT DEFAULT 'general',

@@ -1,1 +1,2 @@
+./scripts/utils/check_secrets.sh
 npx lint-staged

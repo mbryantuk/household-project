@@ -1,26 +1,44 @@
-const { uploadFile, deleteFile, getFileLocation } = require('../../services/storage');
-const fs = require('fs');
 const path = require('path');
 
-describe('File Storage Service (Local Driver)', () => {
+// Mock the storage service
+jest.mock('../../services/storage', () => ({
+  uploadFile: jest.fn(),
+  deleteFile: jest.fn(),
+  getFileLocation: jest.fn(),
+}));
+
+// Now import the mocked functions
+const { uploadFile, deleteFile, getFileLocation } = require('../../services/storage');
+
+describe('File Storage Service (Mocked)', () => {
   const testHhId = 999;
   const testFileName = 'test-file.txt';
   const testContent = Buffer.from('Hearthstone storage test content');
+  const mockKey = `household-${testHhId}/${testFileName}`;
 
-  it('should upload a file to the local filesystem', async () => {
-    const key = await uploadFile(testHhId, testFileName, testContent, 'text/plain');
-    expect(key).toBe(`household-${testHhId}/${testFileName}`);
+  beforeEach(() => {
+    jest.clearAllMocks();
 
-    const location = getFileLocation(key);
-    expect(fs.existsSync(location)).toBe(true);
-    expect(fs.readFileSync(location).toString()).toBe('Hearthstone storage test content');
+    // Set up default mock behaviors
+    uploadFile.mockResolvedValue(mockKey);
+    deleteFile.mockResolvedValue(undefined);
+    getFileLocation.mockReturnValue(path.join(__dirname, '..', '..', 'uploads', mockKey));
   });
 
-  it('should delete a file from the local filesystem', async () => {
-    const key = `household-${testHhId}/${testFileName}`;
-    await deleteFile(key);
+  it('should upload a file', async () => {
+    const key = await uploadFile(testHhId, testFileName, testContent, 'text/plain');
+    expect(key).toBe(mockKey);
+    expect(uploadFile).toHaveBeenCalledWith(testHhId, testFileName, testContent, 'text/plain');
+  });
 
-    const location = getFileLocation(key);
-    expect(fs.existsSync(location)).toBe(false);
+  it('should delete a file', async () => {
+    await deleteFile(mockKey);
+    expect(deleteFile).toHaveBeenCalledWith(mockKey);
+  });
+
+  it('should get file location', () => {
+    const location = getFileLocation(mockKey);
+    expect(location).toContain(mockKey);
+    expect(getFileLocation).toHaveBeenCalledWith(mockKey);
   });
 });

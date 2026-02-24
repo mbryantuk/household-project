@@ -41,11 +41,12 @@ echo "=== NIGHTLY RUN $RUN_ID STARTED ==="
 echo "📝 Verbose Log: $LOG_FILE"
 
 # Parse arguments
+TEST_ARGS=""
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     --skip-docker) SKIP_DOCKER=true ;;
-    --skip-backend) SKIP_BACKEND=true ;;
-    --skip-frontend) SKIP_FRONTEND=true ;;
+    --skip-backend) SKIP_BACKEND=true; TEST_ARGS="$TEST_ARGS --skip-backend" ;;
+    --skip-frontend) SKIP_FRONTEND=true; TEST_ARGS="$TEST_ARGS --skip-frontend" ;;
     --skip-purge) SKIP_PURGE=true ;;
     --no-email) SKIP_EMAIL=true ;;
     --version) VERSION_FILTER="$2"; shift ;;
@@ -75,114 +76,48 @@ fi
 
 # 1. Refresh Containers
 if [ "$SKIP_DOCKER" = false ] && [ "$IS_CONTAINER" = false ]; then
-    echo "🚀 [1/6] Refreshing containers..."
+    echo "🚀 [1/5] Refreshing containers..."
     if ! docker compose up -d --build; then
         echo "❌ Docker Compose Failed. Aborting."
         exit 1
     fi
     echo "✅ Containers ready."
+else
+    if [ "$SKIP_DOCKER" = true ]; then
+        echo "⏭️  [1/5] Skipping container refresh (--skip-docker)."
+    fi
 fi
 
 # 1b. Sync Legacy SQLite to Postgres
 if [ "$IS_CONTAINER" = false ]; then
-    echo "🔄 [1b/6] Syncing Legacy SQLite to Postgres..."
+    echo "🔄 [1b/5] Syncing Legacy SQLite to Postgres..."
     docker exec hearth-app npx tsx ../scripts/ops/migrate_to_postgres.js || true
 fi
 
-# 2. Backend Tests
-if [ "$SKIP_BACKEND" = false ]; then
-    echo "🏗️  [2/6] Running Backend Tests..."
-    cd "$PROJECT_ROOT/server"
-    export DATABASE_URL="postgres://hearth_user:hearth_password@127.0.0.1:5432/hearthstone"
-    if npm test -- --json --outputFile=test-report.json; then
-        echo "   🟢 Backend: SUCCESS"
-        cd "$PROJECT_ROOT"
-        node scripts/ops/record_test_results.js backend "success" || true
-    else
-        echo "   🔴 Backend: FAILED"
-        cd "$PROJECT_ROOT"
-        node scripts/utils/notify_slack_on_failure.js "$PROJECT_ROOT/server/test-report.json" || true
-        node scripts/ops/record_test_results.js backend "failure" || true
-        EXIT_CODE=1
-    fi
+# 2. Run Centralized Test Suite
+echo "🧪 [2/5] Executing Centralized Test Suite..."
+if ! "$PROJECT_ROOT/scripts/ops/run_test_suite.sh" $TEST_ARGS; then
+    EXIT_CODE=1
 fi
 
-# PHYSICAL CLEANUP (Safety)
-echo "🧹 Physical cleanup of test databases..."
-rm -f /tmp/brady_context.json
-find "$PROJECT_ROOT/server/data" -name "household_*.db*" ! -name "household_60.db*" -delete
-
-# 3. Frontend Tests
-if [ "$SKIP_FRONTEND" = true ]; then
-    echo "⏭️  [3/6] Skipping Frontend Tests."
-else
-    echo "🌐 [3/6] Running Frontend Test Suite (RunID: $RUN_ID)..."
-    cd "$PROJECT_ROOT/web"
-    
-    # Helper to run verify
-    run_stage() {
-        NAME=$1
-        CMD=$2
-        REPORT=$3
-        KEY=$4
-        echo "   📍 Running $NAME..."
-        if eval "$CMD"; then
-            echo "   🟢 $NAME: SUCCESS"
-            cd "$PROJECT_ROOT"
-            node scripts/ops/record_test_results.js "$KEY" "success" || true
-        else
-            echo "   🔴 $NAME: FAILED"
-            cd "$PROJECT_ROOT"
-            node scripts/utils/notify_slack_on_failure.js "$REPORT" || true
-            node scripts/ops/record_test_results.js "$KEY" "failure" || true
-            EXIT_CODE=1
-        fi
-        cd "$PROJECT_ROOT/web"
-    }
-
-    # STAGE 1-3: Legacy Lifecycle Tests (Removed/Missing)
-    # run_stage "Stage 1: Foundation" ...
-    
-    # STAGE 3.5: UNIT TESTS
-    if [ -d "tests/unit" ] && [ "$(ls -A tests/unit)" ]; then
-        run_stage "Stage 3.5: Unit Tests" \
-            "npx vitest run tests/unit --reporter=json --outputFile=test-results/unit.json" \
-            "$PROJECT_ROOT/web/test-results/unit.json" \
-            "frontend_unit"
-    else
-        echo "   ⏭️  Stage 3.5: Unit Tests (Skipped - No tests found)"
-    fi
-
-    # STAGE 4: SMOKE TESTS (ROUTING & AVAILABILITY)
-    run_stage "Stage 4: Frontend Smoke Tests (Routing)" \
-        "npx playwright test tests/smoke.spec.js --config playwright.config.js" \
-        "$PROJECT_ROOT/web/test-results/smoke.json" \
-        "frontend_smoke"
-
-    # Archive Playwright Log
-    if [ -f "$PROJECT_ROOT/web/playwright-smoke.log" ]; then
-        cp "$PROJECT_ROOT/web/playwright-smoke.log" "$PROJECT_ROOT/logs/frontend_smoke_$RUN_ID.log"
-    fi
-fi
-
-# 4. Cleanup
-echo "🧹 [4/6] Cleaning up test data..."
+# 3. Cleanup
+echo "🧹 [3/5] Cleaning up test data..."
 cd "$PROJECT_ROOT"
 node server/scripts/cleanup_test_data.js || true
 echo "✅ Cleanup complete."
 
-# 5. Report
+# 4. Report
 if [ "$SKIP_EMAIL" = true ]; then
-    echo "📧 [5/6] Email report skipped (--no-email)."
+    echo "📧 [4/5] Email report skipped (--no-email)."
 else
-    echo "📧 [5/6] Emailing report..."
+    echo "📧 [4/5] Emailing report..."
     node scripts/utils/send_report.js || true
     echo "✅ Report task finished."
 fi
 
-# 6. Docker Prune
+# 5. Docker Prune
 if [ "$SKIP_PURGE" = false ] && [ "$IS_CONTAINER" = false ]; then
-    echo "🧹 [6/6] Purging Docker cache..."
+    echo "🧹 [5/5] Purging Docker cache..."
     docker system prune -f || true
     echo "✅ Reclaimed space."
 fi

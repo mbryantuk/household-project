@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
       - run: npm install --legacy-peer-deps
       - run: npm run lint
@@ -42,7 +42,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
       - run: npm install --legacy-peer-deps
       - name: Run Backend Tests
@@ -51,7 +51,7 @@ jobs:
           REDIS_URL: redis://localhost:6379
           SECRET_KEY: super_secret_test_key_long_enough
           NODE_ENV: test
-        run: cd server && npm test
+        run: cd server && npm run test:full
 
   build-docker:
     needs: [lint, test-backend]

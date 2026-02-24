@@ -13,6 +13,9 @@ import logger from '../utils/logger';
 const getPool = () => {
   return new Pool({
     connectionString: process.env.DATABASE_URL || config.DATABASE_URL,
+    max: 20, // Max connections in the pool
+    idleTimeoutMillis: 30000, // Close idle connections after 30s
+    connectionTimeoutMillis: 2000, // Timeout after 2s when acquiring connection
   });
 };
 

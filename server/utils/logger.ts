@@ -6,17 +6,9 @@ import pino from 'pino';
  */
 const logger = pino({
   level: process.env.LOG_LEVEL || 'info',
-  transport:
-    process.env.NODE_ENV !== 'production'
-      ? {
-          target: 'pino-pretty',
-          options: {
-            colorize: true,
-            ignore: 'pid,hostname',
-            translateTime: 'SYS:standard',
-          },
-        }
-      : undefined,
+  // Transport is omitted to avoid dependency on pino-pretty (Item 10 debloat).
+  // For local development with pretty logs, pipe the output to pino-pretty CLI:
+  // node server.js | npx pino-pretty
   base: {
     env: process.env.NODE_ENV,
     version: process.env.npm_package_version,
