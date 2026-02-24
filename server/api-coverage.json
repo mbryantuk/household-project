@@ -1,19 +1,19 @@
 {
-  "timestamp": "2026-02-24T10:04:26.958Z",
+  "timestamp": "2026-02-24T10:17:52.402Z",
   "accounts": {
-    "admin": "admin_1771927441249@test.com",
-    "viewer": "viewer_1771927441249@test.com"
+    "admin": "admin_1771928265460@test.com",
+    "viewer": "viewer_1771928265460@test.com"
   },
   "steps": [
-    "10:04:01: Loading Swagger schema for strict sync enforcement.",
-    "10:04:01: Initializing test environment.",
-    "10:04:26: Cleaning up: Deleting test household."
+    "10:17:45: Loading Swagger schema for strict sync enforcement.",
+    "10:17:45: Initializing test environment.",
+    "10:17:52: Cleaning up: Deleting test household."
   ],
   "summary": {
-    "total_endpoints": 79,
-    "passed": 77,
-    "failed": 2,
-    "swagger_coverage_pct": "88.8"
+    "total_endpoints": 84,
+    "passed": 83,
+    "failed": 1,
+    "swagger_coverage_pct": "94.4"
   },
   "results": {
     "POST /auth/register": "PASS",
@@ -82,7 +82,12 @@
     "DELETE /households/{id}/shopping-list/{itemId}": "PASS",
     "DELETE /households/{id}/shopping-list/clear": "PASS",
     "GET /households/{id}/details": "PASS",
-    "PUT /households/{id}/details": "FAIL (403)",
+    "PUT /households/{id}/details": "PASS",
+    "POST /households/{id}/assets": "PASS",
+    "GET /households/{id}/assets": "PASS",
+    "GET /households/{id}/assets/{itemId}": "PASS",
+    "PUT /households/{id}/assets/{itemId}": "PASS",
+    "DELETE /households/{id}/assets/{itemId}": "PASS",
     "POST /households/{id}/finance/mortgages": "PASS",
     "GET /households/{id}/finance/mortgages": "PASS",
     "PUT /households/{id}/finance/mortgages/{itemId}": "PASS",
@@ -99,11 +104,6 @@
   "swagger_discrepancies": {
     "missing_in_swagger": [],
     "not_tested_from_swagger": [
-      "GET /households/{id}/assets",
-      "POST /households/{id}/assets",
-      "GET /households/{id}/assets/{itemId}",
-      "PUT /households/{id}/assets/{itemId}",
-      "DELETE /households/{id}/assets/{itemId}",
       "GET /households/{id}/finance/current-accounts",
       "POST /households/{id}/finance/current-accounts",
       "GET /households/{id}/finance/current-accounts/{itemId}",

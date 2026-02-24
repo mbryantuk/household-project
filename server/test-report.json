@@ -1,8 +1,8 @@
 {
-  "numFailedTestSuites": 3,
-  "numFailedTests": 5,
-  "numPassedTestSuites": 16,
-  "numPassedTests": 55,
+  "numFailedTestSuites": 1,
+  "numFailedTests": 1,
+  "numPassedTestSuites": 18,
+  "numPassedTests": 59,
   "numPendingTestSuites": 0,
   "numPendingTests": 0,
   "numRuntimeErrorTestSuites": 0,
@@ -26,21 +26,21 @@
     "unmatched": 0,
     "updated": 0
   },
-  "startTime": 1771927438419,
+  "startTime": 1771928262767,
   "success": false,
   "testResults": [
     {
       "leaks": false,
-      "numFailingTests": 2,
-      "numPassingTests": 10,
+      "numFailingTests": 1,
+      "numPassingTests": 11,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771927467015,
-        "runtime": 28491,
+        "end": 1771928272451,
+        "runtime": 9600,
         "slow": true,
-        "start": 1771927438524
+        "start": 1771928262851
       },
       "skipped": false,
       "snapshot": {
@@ -58,7 +58,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 272,
+          "duration": 134,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🔑 Authentication & Setup",
@@ -73,7 +73,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 278,
+          "duration": 64,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🏠 Household Management",
@@ -88,7 +88,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 13999,
+          "duration": 337,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🔄 Module: Recurring Costs (Consolidated)",
@@ -103,7 +103,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 1208,
+          "duration": 206,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 👥 Module: People",
@@ -118,7 +118,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 1405,
+          "duration": 177,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🚗 Module: Vehicles",
@@ -133,7 +133,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 3906,
+          "duration": 863,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 💰 Module: Finance (Core)",
@@ -148,7 +148,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 147,
+          "duration": 55,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🍱 Module: Meals",
@@ -163,7 +163,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 850,
+          "duration": 242,
           "failureDetails": [
             {
               "matcherResult": {
@@ -176,7 +176,7 @@
             }
           ],
           "failureMessages": [
-            "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 200\nReceived: 404\n    at Object.toBe (/home/matt/household-project/server/tests/security/api_coverage_and_rbac.test.js:399:25)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+            "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 200\nReceived: 404\n    at Object.toBe (/home/matt/household-project/server/tests/security/api_coverage_and_rbac.test.js:388:25)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
           ],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🧹 Module: Chores",
           "invocations": 1,
@@ -190,7 +190,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 518,
+          "duration": 267,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 📅 Module: Calendar",
@@ -205,7 +205,7 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 405,
+          "duration": 163,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🛒 Module: Shopping",
@@ -220,34 +220,22 @@
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 23,
-          "failureDetails": [
-            {
-              "matcherResult": {
-                "actual": 403,
-                "expected": 200,
-                "message": "expect(received).toBe(expected) // Object.is equality\n\nExpected: 200\nReceived: 403",
-                "name": "toBe",
-                "pass": false
-              }
-            }
-          ],
-          "failureMessages": [
-            "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 200\nReceived: 403\n    at Object.toBe (/home/matt/household-project/server/tests/security/api_coverage_and_rbac.test.js:450:25)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
-          ],
+          "duration": 190,
+          "failureDetails": [],
+          "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🏠 Module: House Details",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 1,
+          "numPassingAsserts": 7,
           "retryReasons": [],
-          "status": "failed",
+          "status": "passed",
           "title": "🏠 Module: House Details"
         },
         {
           "ancestorTitles": [
             "🛡️ Comprehensive Backend API & RBAC Verification"
           ],
-          "duration": 1414,
+          "duration": 3192,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🏦 Module: Finance (Extended)",
@@ -259,20 +247,78 @@
           "title": "🏦 Module: Finance (Extended)"
         }
       ],
-      "failureMessage": "  ● 🛡️ Comprehensive Backend API & RBAC Verification › 🧹 Module: Chores\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 200\n    Received: 404\n\n      397 |       .set('Authorization', `Bearer ${tokens.viewer}`);\n      398 |     logResult(statsEp, sRes.status === 200 ? 'PASS' : 'FAIL', sRes);\n    > 399 |     expect(sRes.status).toBe(200);\n          |                         ^\n      400 |   });\n      401 |\n      402 |   test('📅 Module: Calendar', async () => {\n\n      at Object.toBe (tests/security/api_coverage_and_rbac.test.js:399:25)\n\n  ● 🛡️ Comprehensive Backend API & RBAC Verification › 🏠 Module: House Details\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 200\n    Received: 403\n\n      448 |       .send({ addressStreet: '123 New St' }); // use valid field\n      449 |     logResult(updateEp, uRes.status === 200 ? 'PASS' : 'FAIL', uRes);\n    > 450 |     expect(uRes.status).toBe(200);\n          |                         ^\n      451 |\n      452 |     await runCrudTest(\n      453 |       'Assets',\n\n      at Object.toBe (tests/security/api_coverage_and_rbac.test.js:450:25)\n"
+      "failureMessage": "  ● 🛡️ Comprehensive Backend API & RBAC Verification › 🧹 Module: Chores\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 200\n    Received: 404\n\n      386 |       .set('Authorization', `Bearer ${tokens.viewer}`);\n      387 |     logResult(statsEp, sRes.status === 200 ? 'PASS' : 'FAIL', sRes);\n    > 388 |     expect(sRes.status).toBe(200);\n          |                         ^\n      389 |   });\n      390 |\n      391 |   test('📅 Module: Calendar', async () => {\n\n      at Object.toBe (tests/security/api_coverage_and_rbac.test.js:388:25)\n"
     },
     {
       "leaks": false,
-      "numFailingTests": 2,
-      "numPassingTests": 1,
+      "numFailingTests": 0,
+      "numPassingTests": 2,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771927467981,
-        "runtime": 893,
+        "end": 1771928273888,
+        "runtime": 1377,
         "slow": false,
-        "start": 1771927467088
+        "start": 1771928272511
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/security/destroy_tenant.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "💣 Tenant Destruction & Cleanup"
+          ],
+          "duration": 279,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "💣 Tenant Destruction & Cleanup 🧨 Destroy Tenant: Regular Admin should remove all traces",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 4,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "🧨 Destroy Tenant: Regular Admin should remove all traces"
+        },
+        {
+          "ancestorTitles": [
+            "💣 Tenant Destruction & Cleanup"
+          ],
+          "duration": 61,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "💣 Tenant Destruction & Cleanup 👑 Destroy Tenant: System Admin should be able to destroy ANY household",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 5,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "👑 Destroy Tenant: System Admin should be able to destroy ANY household"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 3,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1771928274992,
+        "runtime": 1097,
+        "slow": false,
+        "start": 1771928273895
       },
       "skipped": false,
       "snapshot": {
@@ -290,34 +336,22 @@
           "ancestorTitles": [
             "🛡️ Tenant Export Verification"
           ],
-          "duration": 50,
-          "failureDetails": [
-            {
-              "matcherResult": {
-                "actual": 500,
-                "expected": 200,
-                "message": "expect(received).toBe(expected) // Object.is equality\n\nExpected: 200\nReceived: 500",
-                "name": "toBe",
-                "pass": false
-              }
-            }
-          ],
-          "failureMessages": [
-            "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 200\nReceived: 500\n    at Object.toBe (/home/matt/household-project/server/tests/security/export_tenant.test.js:42:24)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
-          ],
+          "duration": 79,
+          "failureDetails": [],
+          "failureMessages": [],
           "fullName": "🛡️ Tenant Export Verification GET /api/admin/households/:id/export should return a backup filename (System Admin)",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 0,
+          "numPassingAsserts": 4,
           "retryReasons": [],
-          "status": "failed",
+          "status": "passed",
           "title": "GET /api/admin/households/:id/export should return a backup filename (System Admin)"
         },
         {
           "ancestorTitles": [
             "🛡️ Tenant Export Verification"
           ],
-          "duration": 131,
+          "duration": 181,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🛡️ Tenant Export Verification Non-system-admin should not be able to export (even if household admin)",
@@ -332,25 +366,19 @@
           "ancestorTitles": [
             "🛡️ Tenant Export Verification"
           ],
-          "duration": 20,
-          "failureDetails": [
-            {
-              "code": "ERR_INVALID_ARG_TYPE"
-            }
-          ],
-          "failureMessages": [
-            "TypeError: The \"path\" argument must be of type string. Received undefined\n    at Object.join (node:path:1269:7)\n    at Object.join (/home/matt/household-project/server/tests/security/export_tenant.test.js:79:27)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
-          ],
+          "duration": 23,
+          "failureDetails": [],
+          "failureMessages": [],
           "fullName": "🛡️ Tenant Export Verification Export should contain manifest.json in the zip",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 0,
+          "numPassingAsserts": 4,
           "retryReasons": [],
-          "status": "failed",
+          "status": "passed",
           "title": "Export should contain manifest.json in the zip"
         }
       ],
-      "failureMessage": "  ● 🛡️ Tenant Export Verification › GET /api/admin/households/:id/export should return a backup filename (System Admin)\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 200\n    Received: 500\n\n      40 |       .set('Authorization', `Bearer ${adminToken}`);\n      41 |\n    > 42 |     expect(res.status).toBe(200);\n         |                        ^\n      43 |     expect(res.body.message).toBe('Export ready');\n      44 |     expect(res.body.filename).toBeDefined();\n      45 |     expect(res.body.filename).toContain(`household-${householdId}`);\n\n      at Object.toBe (tests/security/export_tenant.test.js:42:24)\n\n  ● 🛡️ Tenant Export Verification › Export should contain manifest.json in the zip\n\n    TypeError: The \"path\" argument must be of type string. Received undefined\n\n      77 |     const admZip = require('adm-zip');\n      78 |     const backupDir = path.join(__dirname, '../../backups');\n    > 79 |     const filePath = path.join(backupDir, filename);\n         |                           ^\n      80 |\n      81 |     expect(fs.existsSync(filePath)).toBe(true);\n      82 |     const zip = new admZip(filePath);\n\n      at Object.join (tests/security/export_tenant.test.js:79:27)\n"
+      "failureMessage": null
     },
     {
       "leaks": false,
@@ -360,10 +388,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771927475694,
-        "runtime": 7709,
+        "end": 1771928294499,
+        "runtime": 19503,
         "slow": true,
-        "start": 1771927467985
+        "start": 1771928274996
       },
       "skipped": false,
       "snapshot": {
@@ -381,7 +409,7 @@
           "ancestorTitles": [
             "👪 Master Seed: The Brady Bunch"
           ],
-          "duration": 7263,
+          "duration": 19088,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "👪 Master Seed: The Brady Bunch Should successfully seed the entire Brady Bunch household via API",
@@ -398,15 +426,103 @@
     {
       "leaks": false,
       "numFailingTests": 0,
+      "numPassingTests": 4,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1771928297581,
+        "runtime": 3074,
+        "slow": false,
+        "start": 1771928294507
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/security/advanced_integrity.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "🛡️ Advanced System Integrity & Security"
+          ],
+          "duration": 2264,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🛡️ Advanced System Integrity & Security 📅 Friday Rule: Creation with valid payload",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "📅 Friday Rule: Creation with valid payload"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Advanced System Integrity & Security"
+          ],
+          "duration": 118,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🛡️ Advanced System Integrity & Security ♻️ Idempotency: Duplicate creation check",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "♻️ Idempotency: Duplicate creation check"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Advanced System Integrity & Security"
+          ],
+          "duration": 23,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🛡️ Advanced System Integrity & Security 🛑 Security: Path Traversal prevention",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 3,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "🛑 Security: Path Traversal prevention"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Advanced System Integrity & Security"
+          ],
+          "duration": 22,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🛡️ Advanced System Integrity & Security 💾 Integrity: Backup Trigger",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "💾 Integrity: Backup Trigger"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
       "numPassingTests": 3,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771927480427,
-        "runtime": 4723,
+        "end": 1771928302477,
+        "runtime": 4890,
         "slow": false,
-        "start": 1771927475704
+        "start": 1771928297587
       },
       "skipped": false,
       "snapshot": {
@@ -424,7 +540,7 @@
           "ancestorTitles": [
             "💰 Finance Routing Verification"
           ],
-          "duration": 3762,
+          "duration": 3955,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/pots should not return 404",
@@ -454,7 +570,7 @@
           "ancestorTitles": [
             "💰 Finance Routing Verification"
           ],
-          "duration": 55,
+          "duration": 53,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "💰 Finance Routing Verification GET /api/households/:id/finance/savings/999999 should return 404",
@@ -476,156 +592,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771927484481,
-        "runtime": 4046,
+        "end": 1771928307169,
+        "runtime": 4687,
         "slow": false,
-        "start": 1771927480435
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/security/audit_logging.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "Immutable Audit Logging"
-          ],
-          "duration": 3305,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Immutable Audit Logging should log a MEMBER_CREATE action",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 4,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should log a MEMBER_CREATE action"
-        },
-        {
-          "ancestorTitles": [
-            "Immutable Audit Logging"
-          ],
-          "duration": 129,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Immutable Audit Logging should log a MEMBER_UPDATE action",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 3,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should log a MEMBER_UPDATE action"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
-      "numPassingTests": 4,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1771927489497,
-        "runtime": 5011,
-        "slow": true,
-        "start": 1771927484486
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/security/advanced_integrity.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "🛡️ Advanced System Integrity & Security"
-          ],
-          "duration": 4076,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Advanced System Integrity & Security 📅 Friday Rule: Creation with valid payload",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "📅 Friday Rule: Creation with valid payload"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Advanced System Integrity & Security"
-          ],
-          "duration": 128,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Advanced System Integrity & Security ♻️ Idempotency: Duplicate creation check",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "♻️ Idempotency: Duplicate creation check"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Advanced System Integrity & Security"
-          ],
-          "duration": 27,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Advanced System Integrity & Security 🛑 Security: Path Traversal prevention",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 3,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "🛑 Security: Path Traversal prevention"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Advanced System Integrity & Security"
-          ],
-          "duration": 26,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Advanced System Integrity & Security 💾 Integrity: Backup Trigger",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "💾 Integrity: Backup Trigger"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
-      "numPassingTests": 2,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1771927494195,
-        "runtime": 4693,
-        "slow": false,
-        "start": 1771927489502
+        "start": 1771928302482
       },
       "skipped": false,
       "snapshot": {
@@ -643,7 +613,7 @@
           "ancestorTitles": [
             "🚀 JSON Tenant Export Verification"
           ],
-          "duration": 40,
+          "duration": 36,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🚀 JSON Tenant Export Verification GET /api/export/:id should return a full JSON package",
@@ -658,7 +628,7 @@
           "ancestorTitles": [
             "🚀 JSON Tenant Export Verification"
           ],
-          "duration": 103,
+          "duration": 112,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "🚀 JSON Tenant Export Verification Unauthorized user should not be able to export",
@@ -675,15 +645,15 @@
     {
       "leaks": false,
       "numFailingTests": 0,
-      "numPassingTests": 1,
+      "numPassingTests": 2,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771927496285,
-        "runtime": 2086,
+        "end": 1771928311912,
+        "runtime": 4733,
         "slow": false,
-        "start": 1771927494199
+        "start": 1771928307179
       },
       "skipped": false,
       "snapshot": {
@@ -695,22 +665,37 @@
         "unmatched": 0,
         "updated": 0
       },
-      "testFilePath": "/home/matt/household-project/server/tests/performance/concurrency.test.js",
+      "testFilePath": "/home/matt/household-project/server/tests/security/audit_logging.test.js",
       "testResults": [
         {
           "ancestorTitles": [
-            "⚡ SQLite Concurrency Stress"
+            "Immutable Audit Logging"
           ],
-          "duration": 1095,
+          "duration": 4084,
           "failureDetails": [],
           "failureMessages": [],
-          "fullName": "⚡ SQLite Concurrency Stress 🧬 WAL Mode Concurrency (20 Parallel Writes)",
+          "fullName": "Immutable Audit Logging should log a MEMBER_CREATE action",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 1,
+          "numPassingAsserts": 4,
           "retryReasons": [],
           "status": "passed",
-          "title": "🧬 WAL Mode Concurrency (20 Parallel Writes)"
+          "title": "should log a MEMBER_CREATE action"
+        },
+        {
+          "ancestorTitles": [
+            "Immutable Audit Logging"
+          ],
+          "duration": 61,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Immutable Audit Logging should log a MEMBER_UPDATE action",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 3,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should log a MEMBER_UPDATE action"
         }
       ],
       "failureMessage": null
@@ -723,10 +708,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771927499981,
-        "runtime": 3690,
-        "slow": false,
-        "start": 1771927496291
+        "end": 1771928317689,
+        "runtime": 5771,
+        "slow": true,
+        "start": 1771928311918
       },
       "skipped": false,
       "snapshot": {
@@ -744,7 +729,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 1924,
+          "duration": 3982,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Shopping List API should add a shopping item",
@@ -759,7 +744,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 124,
+          "duration": 121,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Shopping List API should list shopping items and calculate budget",
@@ -774,7 +759,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 122,
+          "duration": 147,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Shopping List API should update an item",
@@ -789,7 +774,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 130,
+          "duration": 146,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Shopping List API should delete an item",
@@ -804,7 +789,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 256,
+          "duration": 286,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Shopping List API should NOT see items from another household (Tenancy Rule)",
@@ -819,7 +804,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 303,
+          "duration": 284,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Shopping List API should clear checked items",
@@ -835,16 +820,16 @@
     },
     {
       "leaks": false,
-      "numFailingTests": 1,
+      "numFailingTests": 0,
       "numPassingTests": 1,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771927501504,
-        "runtime": 1518,
+        "end": 1771928318833,
+        "runtime": 1138,
         "slow": false,
-        "start": 1771927499986
+        "start": 1771928317695
       },
       "skipped": false,
       "snapshot": {
@@ -856,52 +841,25 @@
         "unmatched": 0,
         "updated": 0
       },
-      "testFilePath": "/home/matt/household-project/server/tests/security/destroy_tenant.test.js",
+      "testFilePath": "/home/matt/household-project/server/tests/performance/concurrency.test.js",
       "testResults": [
         {
           "ancestorTitles": [
-            "💣 Tenant Destruction & Cleanup"
+            "⚡ SQLite Concurrency Stress"
           ],
-          "duration": 293,
+          "duration": 441,
           "failureDetails": [],
           "failureMessages": [],
-          "fullName": "💣 Tenant Destruction & Cleanup 🧨 Destroy Tenant: Regular Admin should remove all traces",
+          "fullName": "⚡ SQLite Concurrency Stress 🧬 WAL Mode Concurrency (20 Parallel Writes)",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 4,
+          "numPassingAsserts": 1,
           "retryReasons": [],
           "status": "passed",
-          "title": "🧨 Destroy Tenant: Regular Admin should remove all traces"
-        },
-        {
-          "ancestorTitles": [
-            "💣 Tenant Destruction & Cleanup"
-          ],
-          "duration": 126,
-          "failureDetails": [
-            {
-              "matcherResult": {
-                "actual": false,
-                "expected": true,
-                "message": "expect(received).toBe(expected) // Object.is equality\n\nExpected: true\nReceived: false",
-                "name": "toBe",
-                "pass": false
-              }
-            }
-          ],
-          "failureMessages": [
-            "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: true\nReceived: false\n    at Object.toBe (/home/matt/household-project/server/tests/security/destroy_tenant.test.js:125:41)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
-          ],
-          "fullName": "💣 Tenant Destruction & Cleanup 👑 Destroy Tenant: System Admin should be able to destroy ANY household",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 0,
-          "retryReasons": [],
-          "status": "failed",
-          "title": "👑 Destroy Tenant: System Admin should be able to destroy ANY household"
+          "title": "🧬 WAL Mode Concurrency (20 Parallel Writes)"
         }
       ],
-      "failureMessage": "  ● 💣 Tenant Destruction & Cleanup › 👑 Destroy Tenant: System Admin should be able to destroy ANY household\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: true\n    Received: false\n\n      123 |\n      124 |     const targetDbPath = path.join(DATA_DIR, `household_${targetHhId}.db`);\n    > 125 |     expect(fs.existsSync(targetDbPath)).toBe(true);\n          |                                         ^\n      126 |\n      127 |     // 2. System Admin (who is NOT a member) tries to delete it\n      128 |     const delRes = await request(app)\n\n      at Object.toBe (tests/security/destroy_tenant.test.js:125:41)\n"
+      "failureMessage": null
     },
     {
       "leaks": false,
@@ -911,10 +869,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771927502560,
-        "runtime": 1051,
+        "end": 1771928320064,
+        "runtime": 1226,
         "slow": false,
-        "start": 1771927501509
+        "start": 1771928318838
       },
       "skipped": false,
       "snapshot": {
@@ -932,7 +890,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 64,
+          "duration": 136,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should measure login speed (Heavy Bcrypt)",
@@ -947,7 +905,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 86,
+          "duration": 89,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should measure GET assets speed (Plain Read)",
@@ -962,7 +920,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 80,
+          "duration": 78,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should measure GET finance savings speed (Decryption Overhead)",
@@ -977,7 +935,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 31,
+          "duration": 33,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should measure POST asset speed (Plain Write)",
@@ -992,7 +950,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 322,
+          "duration": 287,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Performance & Speed Tests should handle \"Load\" (Concurrent requests)",
@@ -1009,58 +967,15 @@
     {
       "leaks": false,
       "numFailingTests": 0,
-      "numPassingTests": 1,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1771927503238,
-        "runtime": 664,
-        "slow": false,
-        "start": 1771927502574
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/routes/export.spec.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "Export Route"
-          ],
-          "duration": 34,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Export Route should export household data as JSON",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 5,
-          "retryReasons": [],
-          "status": "passed",
-          "title": "should export household data as JSON"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
       "numPassingTests": 2,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771927503916,
-        "runtime": 672,
+        "end": 1771928320782,
+        "runtime": 711,
         "slow": false,
-        "start": 1771927503244
+        "start": 1771928320071
       },
       "skipped": false,
       "snapshot": {
@@ -1078,7 +993,7 @@
           "ancestorTitles": [
             "GET /api/export/:household_id"
           ],
-          "duration": 6,
+          "duration": 12,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "GET /api/export/:household_id should return 404 if household_id is missing (route not matched)",
@@ -1093,7 +1008,7 @@
           "ancestorTitles": [
             "GET /api/export/:household_id"
           ],
-          "duration": 30,
+          "duration": 26,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "GET /api/export/:household_id should return 200 and export data if household_id is valid",
@@ -1110,15 +1025,58 @@
     {
       "leaks": false,
       "numFailingTests": 0,
+      "numPassingTests": 1,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1771928321390,
+        "runtime": 602,
+        "slow": false,
+        "start": 1771928320788
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/routes/export.spec.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "Export Route"
+          ],
+          "duration": 43,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Export Route should export household data as JSON",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 5,
+          "retryReasons": [],
+          "status": "passed",
+          "title": "should export household data as JSON"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
       "numPassingTests": 3,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771927504558,
-        "runtime": 638,
+        "end": 1771928321878,
+        "runtime": 484,
         "slow": false,
-        "start": 1771927503920
+        "start": 1771928321394
       },
       "skipped": false,
       "snapshot": {
@@ -1136,7 +1094,7 @@
           "ancestorTitles": [
             "Profile API"
           ],
-          "duration": 23,
+          "duration": 12,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Profile API should retrieve the user profile with custom_theme",
@@ -1151,7 +1109,7 @@
           "ancestorTitles": [
             "Profile API"
           ],
-          "duration": 60,
+          "duration": 26,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Profile API should update the user theme",
@@ -1166,7 +1124,7 @@
           "ancestorTitles": [
             "Profile API"
           ],
-          "duration": 55,
+          "duration": 20,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Profile API should update the custom_theme",
@@ -1188,10 +1146,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771927505080,
-        "runtime": 518,
+        "end": 1771928322421,
+        "runtime": 539,
         "slow": false,
-        "start": 1771927504562
+        "start": 1771928321882
       },
       "skipped": false,
       "snapshot": {
@@ -1209,7 +1167,7 @@
           "ancestorTitles": [
             "Security Audit Proof of Concept"
           ],
-          "duration": 1,
+          "duration": 2,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Security Audit Proof of Concept Vulnerability 1: Hardcoded SECRET_KEY",
@@ -1224,7 +1182,7 @@
           "ancestorTitles": [
             "Security Audit Proof of Concept"
           ],
-          "duration": 23,
+          "duration": 30,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Security Audit Proof of Concept Vulnerability 2: Path Traversal in Backup Download (FIXED)",
@@ -1239,7 +1197,7 @@
           "ancestorTitles": [
             "Security Audit Proof of Concept"
           ],
-          "duration": 112,
+          "duration": 120,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Security Audit Proof of Concept Vulnerability 3: Admin Escalation - Adding user to another household (FIXED)",
@@ -1276,10 +1234,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771927505571,
-        "runtime": 479,
+        "end": 1771928322900,
+        "runtime": 475,
         "slow": false,
-        "start": 1771927505092
+        "start": 1771928322425
       },
       "skipped": false,
       "snapshot": {
@@ -1334,10 +1292,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771927505887,
-        "runtime": 313,
+        "end": 1771928323213,
+        "runtime": 310,
         "slow": false,
-        "start": 1771927505574
+        "start": 1771928322903
       },
       "skipped": false,
       "snapshot": {
@@ -1355,7 +1313,7 @@
           "ancestorTitles": [
             "API Rate Limiting Middleware"
           ],
-          "duration": 31,
+          "duration": 23,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "API Rate Limiting Middleware should block auth requests after too many attempts",
@@ -1370,7 +1328,7 @@
           "ancestorTitles": [
             "API Rate Limiting Middleware"
           ],
-          "duration": 14,
+          "duration": 16,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "API Rate Limiting Middleware should bypass limit when bypass header is present",
@@ -1392,10 +1350,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771927506142,
-        "runtime": 251,
+        "end": 1771928323509,
+        "runtime": 292,
         "slow": false,
-        "start": 1771927505891
+        "start": 1771928323217
       },
       "skipped": false,
       "snapshot": {
@@ -1413,7 +1371,7 @@
           "ancestorTitles": [
             "Background Job Queue (BullMQ)"
           ],
-          "duration": 35,
+          "duration": 82,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Background Job Queue (BullMQ) should add a job to the queue",
@@ -1428,7 +1386,7 @@
           "ancestorTitles": [
             "Background Job Queue (BullMQ)"
           ],
-          "duration": 13,
+          "duration": 6,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Background Job Queue (BullMQ) should handle jobs without householdId with a warning",
@@ -1450,10 +1408,10 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771927506359,
-        "runtime": 212,
+        "end": 1771928323701,
+        "runtime": 187,
         "slow": false,
-        "start": 1771927506147
+        "start": 1771928323514
       },
       "skipped": false,
       "snapshot": {
@@ -1486,7 +1444,7 @@
           "ancestorTitles": [
             "Frontend Build Smoke Test"
           ],
-          "duration": 1,
+          "duration": 0,
           "failureDetails": [],
           "failureMessages": [],
           "fullName": "Frontend Build Smoke Test index.html should contain root div",
