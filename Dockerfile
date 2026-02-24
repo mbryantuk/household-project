@@ -1,5 +1,5 @@
 # Stage 1: Build Shared and Frontend
-FROM node:22.14.0-slim AS builder
+FROM node:25.6.1-slim AS builder
 WORKDIR /app
 ENV HUSKY=0
 
@@ -22,7 +22,7 @@ COPY web/ ./web/
 RUN npm run build -w household-web
 
 # Stage 2: Production Runtime
-FROM node:22.14.0-slim
+FROM node:25.6.1-slim
 WORKDIR /app
 ENV HUSKY=0
 
