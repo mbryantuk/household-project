@@ -1,4 +1,4 @@
 {
-  "commitMessage": "v3.2.360 - Full Stability Fix: Resolve 403s, 404s, Jest hangs, and Smoke Test sub-text matching",
-  "date": "Tue 24 Feb 12:12:39 GMT 2026"
+  "commitMessage": "v3.2.360 - stability: resolved linting and sub-panel navigation",
+  "date": "Tue 24 Feb 13:09:31 GMT 2026"
 }

@@ -88,7 +88,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 8345,
+                      "duration": 8211,
                       "errors": [],
                       "stdout": [
                         {
@@ -121,7 +121,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T12:11:10.735Z",
+                      "startTime": "2026-02-24T12:25:23.712Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -131,7 +131,7 @@
               ],
               "id": "2c14808d47b386fba9eb-cf40674c38354f943714",
               "file": "smoke.spec.js",
-              "line": 117,
+              "line": 113,
               "column": 3
             },
             {
@@ -150,31 +150,31 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 7227,
+                      "duration": 19124,
                       "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeAttached\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/Calendar/i).first()\nExpected: attached\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeAttached\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/Calendar/i).first()\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeAttached\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/Calendar/i).first()\nExpected: attached\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeAttached\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/Calendar/i).first()\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:128:55",
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/Track events, holidays/i).first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/Track events, holidays/i).first()\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/Track events, holidays/i).first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/Track events, holidays/i).first()\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:124:69",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 55,
-                          "line": 128
+                          "column": 69,
+                          "line": 124
                         },
-                        "snippet": "  126 |     const base = getBaseUrl();\n  127 |     await page.goto(`${base}/calendar`, { waitUntil: 'domcontentloaded' });\n> 128 |     await expect(page.getByText(/Calendar/i).first()).toBeAttached();\n      |                                                       ^\n  129 |   });\n  130 |\n  131 |   test('People Page', async ({ page }) => {"
+                        "snippet": "  122 |     await page.goto(`${base}/calendar`, { waitUntil: 'networkidle' });\n  123 |     // Use a more reliable text check\n> 124 |     await expect(page.getByText(/Track events, holidays/i).first()).toBeVisible({ timeout: 15000 });\n      |                                                                     ^\n  125 |   });\n  126 |\n  127 |   test('People Page', async ({ page }) => {"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 55,
-                            "line": 128
+                            "column": 69,
+                            "line": 124
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeAttached\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/Calendar/i).first()\nExpected: attached\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeAttached\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/Calendar/i).first()\u001b[22m\n\n\n  126 |     const base = getBaseUrl();\n  127 |     await page.goto(`${base}/calendar`, { waitUntil: 'domcontentloaded' });\n> 128 |     await expect(page.getByText(/Calendar/i).first()).toBeAttached();\n      |                                                       ^\n  129 |   });\n  130 |\n  131 |   test('People Page', async ({ page }) => {\n    at /home/matt/household-project/web/tests/smoke.spec.js:128:55"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/Track events, holidays/i).first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/Track events, holidays/i).first()\u001b[22m\n\n\n  122 |     await page.goto(`${base}/calendar`, { waitUntil: 'networkidle' });\n  123 |     // Use a more reliable text check\n> 124 |     await expect(page.getByText(/Track events, holidays/i).first()).toBeVisible({ timeout: 15000 });\n      |                                                                     ^\n  125 |   });\n  126 |\n  127 |   test('People Page', async ({ page }) => {\n    at /home/matt/household-project/web/tests/smoke.spec.js:124:69"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T12:11:19.417Z",
+                      "startTime": "2026-02-24T12:25:32.391Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -195,8 +195,8 @@
                       ],
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 55,
-                        "line": 128
+                        "column": 69,
+                        "line": 124
                       }
                     }
                   ],
@@ -205,7 +205,7 @@
               ],
               "id": "2c14808d47b386fba9eb-65dcf704c9e1ebea0f13",
               "file": "smoke.spec.js",
-              "line": 125,
+              "line": 120,
               "column": 3
             },
             {
@@ -229,7 +229,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T12:11:26.767Z",
+                      "startTime": "2026-02-24T12:25:51.644Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -239,7 +239,7 @@
               ],
               "id": "2c14808d47b386fba9eb-171e6d3e655016c9b313",
               "file": "smoke.spec.js",
-              "line": 131,
+              "line": 127,
               "column": 3
             },
             {
@@ -263,7 +263,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T12:11:26.768Z",
+                      "startTime": "2026-02-24T12:25:51.645Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -273,7 +273,7 @@
               ],
               "id": "2c14808d47b386fba9eb-d5debc6616350aaa15fd",
               "file": "smoke.spec.js",
-              "line": 137,
+              "line": 133,
               "column": 3
             },
             {
@@ -297,7 +297,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T12:11:26.769Z",
+                      "startTime": "2026-02-24T12:25:51.646Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -307,7 +307,7 @@
               ],
               "id": "2c14808d47b386fba9eb-530580c26c0460afd264",
               "file": "smoke.spec.js",
-              "line": 143,
+              "line": 141,
               "column": 3
             },
             {
@@ -331,7 +331,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T12:11:26.769Z",
+                      "startTime": "2026-02-24T12:25:51.646Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -365,7 +365,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T12:11:26.770Z",
+                      "startTime": "2026-02-24T12:25:51.646Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -399,7 +399,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T12:11:26.770Z",
+                      "startTime": "2026-02-24T12:25:51.647Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -409,7 +409,7 @@
               ],
               "id": "2c14808d47b386fba9eb-564f135c59d12d104526",
               "file": "smoke.spec.js",
-              "line": 164,
+              "line": 166,
               "column": 3
             },
             {
@@ -433,7 +433,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T12:11:26.770Z",
+                      "startTime": "2026-02-24T12:25:51.647Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -443,7 +443,7 @@
               ],
               "id": "2c14808d47b386fba9eb-8b07f9a7ad5a03a1f09a",
               "file": "smoke.spec.js",
-              "line": 170,
+              "line": 172,
               "column": 3
             },
             {
@@ -467,7 +467,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T12:11:26.771Z",
+                      "startTime": "2026-02-24T12:25:51.647Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -477,7 +477,7 @@
               ],
               "id": "2c14808d47b386fba9eb-44e19c2ea2651f1a3536",
               "file": "smoke.spec.js",
-              "line": 194,
+              "line": 196,
               "column": 3
             },
             {
@@ -501,7 +501,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T12:11:26.771Z",
+                      "startTime": "2026-02-24T12:25:51.648Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -511,7 +511,7 @@
               ],
               "id": "2c14808d47b386fba9eb-fe31e0fc5c4bd3b315e3",
               "file": "smoke.spec.js",
-              "line": 202,
+              "line": 203,
               "column": 3
             },
             {
@@ -535,7 +535,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T12:11:26.772Z",
+                      "startTime": "2026-02-24T12:25:51.648Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -545,7 +545,7 @@
               ],
               "id": "2c14808d47b386fba9eb-b08a53b9d7bc197b2c33",
               "file": "smoke.spec.js",
-              "line": 208,
+              "line": 209,
               "column": 3
             },
             {
@@ -569,7 +569,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T12:11:26.772Z",
+                      "startTime": "2026-02-24T12:25:51.648Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -579,7 +579,7 @@
               ],
               "id": "2c14808d47b386fba9eb-899023ab40d288f36a8a",
               "file": "smoke.spec.js",
-              "line": 214,
+              "line": 215,
               "column": 3
             },
             {
@@ -603,7 +603,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T12:11:26.773Z",
+                      "startTime": "2026-02-24T12:25:51.649Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -613,7 +613,7 @@
               ],
               "id": "2c14808d47b386fba9eb-8ded83d61d120dd46f10",
               "file": "smoke.spec.js",
-              "line": 220,
+              "line": 221,
               "column": 3
             },
             {
@@ -637,7 +637,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T12:11:26.773Z",
+                      "startTime": "2026-02-24T12:25:51.649Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -647,7 +647,7 @@
               ],
               "id": "2c14808d47b386fba9eb-b7b11855d8085866d29d",
               "file": "smoke.spec.js",
-              "line": 226,
+              "line": 227,
               "column": 3
             }
           ]
@@ -657,8 +657,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-24T12:11:08.372Z",
-    "duration": 18447.505,
+    "startTime": "2026-02-24T12:25:21.488Z",
+    "duration": 30191.153000000002,
     "expected": 1,
     "skipped": 13,
     "unexpected": 1,

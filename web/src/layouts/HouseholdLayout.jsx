@@ -1,41 +1,18 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom';
-import {
-  Box,
-  IconButton,
-  Drawer,
-  Typography,
-  Sheet,
-  Stack,
-  Badge,
-  Avatar,
-  Tooltip,
-  Menu,
-  MenuItem,
-  ListItemDecorator,
-  Divider,
-} from '@mui/joy';
+import { Box, IconButton, Drawer, Typography, Sheet, Stack, Badge, Avatar } from '@mui/joy';
 import HomeIcon from '@mui/icons-material/Home';
 import EventIcon from '@mui/icons-material/Event';
 import MoreIcon from '@mui/icons-material/MoreHoriz';
-import PeopleIcon from '@mui/icons-material/Groups';
-import PetsIcon from '@mui/icons-material/Pets';
-import AssetsIcon from '@mui/icons-material/Inventory2';
-import VehicleIcon from '@mui/icons-material/DirectionsCar';
-import SettingsIcon from '@mui/icons-material/Settings';
-import ProfileIcon from '@mui/icons-material/Person';
-import Download from '@mui/icons-material/Download';
-import Calculate from '@mui/icons-material/Calculate';
-import Payments from '@mui/icons-material/Payments';
-import NoteAlt from '@mui/icons-material/NoteAlt';
 import SwapHoriz from '@mui/icons-material/SwapHoriz';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import RestaurantMenu from '@mui/icons-material/RestaurantMenu';
 import Logout from '@mui/icons-material/Logout';
 import AccountBalance from '@mui/icons-material/AccountBalance';
-import CalendarMonth from '@mui/icons-material/CalendarMonth';
-import Add from '@mui/icons-material/Add';
-import AttachMoney from '@mui/icons-material/AttachMoney';
+import SettingsIcon from '@mui/icons-material/Settings';
+import NoteAlt from '@mui/icons-material/NoteAlt';
+import Calculate from '@mui/icons-material/Calculate';
+import Payments from '@mui/icons-material/Payments';
 import CleaningServices from '@mui/icons-material/CleaningServices';
 import ShoppingBag from '@mui/icons-material/ShoppingBag';
 
@@ -57,6 +34,7 @@ const ROUTE_META = {
   meals: { title: 'Meal Planner' },
   settings: { title: 'Settings' },
   profile: { title: 'Profile' },
+  calendar: { title: 'Calendar' },
 };
 
 const MenuTile = ({ icon, label, to, onClick, sx = {} }) => {
@@ -154,10 +132,7 @@ export default function HouseholdLayout({
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState('main');
 
-  // New: Global Status Bar State
   const [statusBarData, setStatusBarData] = useState(null);
-
-  // Polling for Notifications
   const [notifications, setNotifications] = useState({ urgent: [], upcoming: [], info: [] });
 
   useEffect(() => {
@@ -167,38 +142,15 @@ export default function HouseholdLayout({
       try {
         const res = await api.get(`/households/${household.id}/notifications`);
         setNotifications(res.data);
-
-        // Local Notification Trigger
-        const urgentCount = res.data?.urgent?.length || 0;
-        if (urgentCount > 0 && Notification.permission === 'granted') {
-          const lastNotified = localStorage.getItem('last_notification_time');
-          const now = Date.now();
-          // Notify if not notified in last 6 hours
-          if (!lastNotified || now - parseInt(lastNotified) > 6 * 60 * 60 * 1000) {
-            new Notification(`${household.name}: Urgent Attention`, {
-              body: `You have ${urgentCount} urgent items (Bills, Chores, etc).`,
-              icon: '/icon.png', // Assuming icon exists, or fallback
-            });
-            localStorage.setItem('last_notification_time', now.toString());
-          }
-        }
       } catch (err) {
         console.error('Failed to poll notifications', err);
       }
     };
 
-    // Initial Fetch
     fetchNotifications();
-
-    // Request Permission
-    if (Notification.permission === 'default') {
-      Notification.requestPermission();
-    }
-
-    // Poll every 5 minutes
     const interval = setInterval(fetchNotifications, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [api, household?.id, household?.name]);
+  }, [api, household?.id]);
 
   const totalNotifications =
     (notifications.urgent?.length || 0) + (notifications.upcoming?.length || 0);
@@ -207,18 +159,14 @@ export default function HouseholdLayout({
   useEffect(() => {
     const targetId = parseInt(id);
     const targetHousehold = (households || []).find((h) => h && h.id === targetId);
-
-    // Fallback: If not in list (e.g. just created), check if it matches the globally active household
     const effectiveHousehold =
       targetHousehold || (household && household.id === targetId ? household : null);
 
     if (effectiveHousehold) {
-      // Guard: Only switch if the App's current household doesn't match the URL
       if (!household || household.id !== effectiveHousehold.id) {
         onSelectHousehold(effectiveHousehold);
       }
     } else if (households && households.length > 0) {
-      // Only redirect if we have loaded households and the target isn't found/valid
       navigate('/');
     }
   }, [id, households, onSelectHousehold, navigate, household]);
@@ -264,16 +212,9 @@ export default function HouseholdLayout({
       <Box
         sx={{
           display: 'flex',
-
           height: '100dvh',
-
           flexDirection: { xs: 'column', md: 'row' },
-
           bgcolor: 'background.body',
-
-          background: isDark
-            ? 'linear-gradient(135deg, var(--joy-palette-background-body) 0%, var(--joy-palette-background-level1) 100%)'
-            : 'linear-gradient(135deg, var(--joy-palette-background-body) 0%, var(--joy-palette-background-level1) 100%)',
         }}
       >
         <NavSidebar
@@ -297,21 +238,13 @@ export default function HouseholdLayout({
           <Sheet
             sx={{
               display: { xs: 'flex', md: 'none' },
-
               alignItems: 'center',
-
               justifyContent: 'space-between',
-
               p: 1.5,
-
               borderBottom: '1px solid',
-
               borderColor: 'divider',
-
               bgcolor: 'background.surface',
-
               zIndex: 100,
-
               boxShadow: 'sm',
             }}
           >
@@ -326,7 +259,6 @@ export default function HouseholdLayout({
                 fontWeight: 'bold',
                 letterSpacing: '1px',
                 textTransform: 'uppercase',
-
                 cursor: 'pointer',
               }}
             >
@@ -334,12 +266,7 @@ export default function HouseholdLayout({
             </Typography>
 
             <IconButton variant="plain" onClick={() => setNotificationOpen(true)} size="sm">
-              <Badge
-                color="danger"
-                size="sm"
-                invisible={false}
-                sx={{ '& .MuiBadge-badge': { right: 4, top: 4 } }}
-              >
+              <Badge color="danger" size="sm" invisible={!badgeCount}>
                 <Box component="span" sx={{ fontSize: '1.2rem' }}>
                   🔔
                 </Box>
@@ -351,46 +278,27 @@ export default function HouseholdLayout({
             component="main"
             sx={{
               flexGrow: 1,
-
               minHeight: 0,
-
               p: { xs: 2, md: 3 },
-
               pb: { xs: 10, md: 3 },
-
               overflowY: 'auto',
-
-              WebkitOverflowScrolling: 'touch',
             }}
           >
             <Outlet
               context={{
                 api,
-
                 id,
-
                 onUpdateHousehold,
-
                 members,
-
                 vehicles,
-
                 fetchHhMembers,
-
                 fetchVehicles,
-
                 user,
-
                 isDark,
-
                 showNotification,
-
                 confirmAction,
-
                 onUpdateProfile,
-
                 setStatusBarData,
-
                 household: household,
               }}
             />
@@ -403,31 +311,18 @@ export default function HouseholdLayout({
           <Sheet
             sx={{
               display: { xs: 'flex', md: 'none' },
-
               position: 'fixed',
-
               bottom: 0,
-
               left: 0,
-
               right: 0,
-
               height: 70,
-
               borderTop: '1px solid',
-
               borderColor: 'divider',
-
               bgcolor: 'background.surface',
-
               px: 1,
-
               justifyContent: 'space-around',
-
               alignItems: 'center',
-
               zIndex: 1000,
-
               boxShadow: '0 -2px 10px rgba(0,0,0,0.05)',
             }}
           >
@@ -438,8 +333,6 @@ export default function HouseholdLayout({
               sx={{
                 flex: 1,
                 cursor: 'pointer',
-                transition: 'transform 0.2s',
-                '&:active': { transform: 'scale(0.95)' },
               }}
             >
               <HomeIcon
@@ -447,7 +340,6 @@ export default function HouseholdLayout({
                   color: isTabActive('dashboard') ? 'primary.plainColor' : 'neutral.plainColor',
                 }}
               />
-
               <Typography
                 level="body-xs"
                 sx={{
@@ -466,15 +358,9 @@ export default function HouseholdLayout({
                 setActiveMenu('switch');
                 setDrawerOpen(true);
               }}
-              sx={{
-                flex: 1,
-                cursor: 'pointer',
-                transition: 'transform 0.2s',
-                '&:active': { transform: 'scale(0.95)' },
-              }}
+              sx={{ flex: 1, cursor: 'pointer' }}
             >
               <SwapHoriz sx={{ color: 'neutral.plainColor' }} />
-
               <Typography level="body-xs" color="neutral">
                 Switch
               </Typography>
@@ -487,15 +373,9 @@ export default function HouseholdLayout({
                 setActiveMenu('main');
                 setDrawerOpen(true);
               }}
-              sx={{
-                flex: 1,
-                cursor: 'pointer',
-                transition: 'transform 0.2s',
-                '&:active': { transform: 'scale(0.95)' },
-              }}
+              sx={{ flex: 1, cursor: 'pointer' }}
             >
               <MoreIcon sx={{ color: drawerOpen ? 'primary.plainColor' : 'neutral.plainColor' }} />
-
               <Typography
                 level="body-xs"
                 sx={{
@@ -522,7 +402,6 @@ export default function HouseholdLayout({
                 maxHeight: '80vh',
                 borderTopLeftRadius: '24px',
                 borderTopRightRadius: '24px',
-                boxShadow: 'none',
               },
             },
           }}
@@ -564,28 +443,30 @@ export default function HouseholdLayout({
                     to="house"
                     onClick={() => setDrawerOpen(false)}
                   />
-
                   <MenuTile
                     icon={<AccountBalance />}
                     label="Finance"
                     to="finance"
                     onClick={() => setDrawerOpen(false)}
                   />
-
+                  <MenuTile
+                    icon={<EventIcon />}
+                    label="Calendar"
+                    to="calendar"
+                    onClick={() => setDrawerOpen(false)}
+                  />
                   <MenuTile
                     icon={<RestaurantMenu />}
                     label="Meals"
                     to="meals"
                     onClick={() => setDrawerOpen(false)}
                   />
-
                   <MenuTile
                     icon={<CleaningServices />}
                     label="Chores"
                     to="chores"
                     onClick={() => setDrawerOpen(false)}
                   />
-
                   <MenuTile
                     icon={<ShoppingBag />}
                     label="Groceries"
@@ -648,7 +529,6 @@ export default function HouseholdLayout({
                     to="tools/calculator"
                     onClick={() => setDrawerOpen(false)}
                   />
-
                   <MenuTile
                     icon={<AccountBalance />}
                     label="Finance"

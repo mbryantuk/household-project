@@ -252,7 +252,7 @@ export default function NavSidebar({
   onOpenNotifications,
   notificationCount,
 }) {
-  const { mode: muiMode, systemMode } = useColorScheme();
+  const { mode: muiMode, systemMode, setMode } = useColorScheme();
   const isDark = muiMode === 'dark' || (muiMode === 'system' && systemMode === 'dark');
 
   const location = useLocation();
@@ -268,8 +268,6 @@ export default function NavSidebar({
     confirmAction,
     households = [],
     onSelectHousehold,
-    mode,
-    onModeChange,
   } = useHousehold();
 
   const [hoveredCategory, setHoveredCategory] = useState(null);
@@ -313,6 +311,7 @@ export default function NavSidebar({
     if (path.includes('/shopping')) return 'shopping';
     if (path.includes('/dashboard')) return 'dashboard';
     if (path.includes('/settings')) return 'account';
+    if (path.includes('/calendar')) return 'calendar';
     // Check for house/people/pets last or use stricter matching
     if (
       path.match(/\/house($|\/)/) ||
@@ -605,6 +604,18 @@ export default function NavSidebar({
               }
               label="Alerts"
               onClick={onOpenNotifications}
+              location={location}
+              activeCategory={activeCategory}
+              hoveredCategory={hoveredCategory}
+              onHover={setHoveredCategory}
+              handleNav={handleNav}
+              isMobile={isMobile}
+            />
+            <RailIcon
+              icon={<Event />}
+              label="Calendar"
+              category="calendar"
+              to={`/household/${household.id}/calendar`}
               location={location}
               activeCategory={activeCategory}
               hoveredCategory={hoveredCategory}
@@ -1112,8 +1123,8 @@ export default function NavSidebar({
                     <ToggleButtonGroup
                       variant="soft"
                       size="sm"
-                      value={mode}
-                      onChange={(e, v) => v && onModeChange(v)}
+                      value={muiMode}
+                      onChange={(e, v) => v && setMode(v)}
                       sx={{ width: '100%', justifyContent: 'center' }}
                     >
                       <Button value="light" sx={{ flex: 1 }} startDecorator={<LightMode />}>
