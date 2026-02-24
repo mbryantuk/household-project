@@ -63,6 +63,8 @@ const HouseholdDetailsView = lazy(() => import('./features/HouseholdDetailsView'
 const SecurityAuditView = lazy(() => import('./features/SecurityAuditView'));
 const OnboardingWizard = lazy(() => import('./pages/OnboardingWizard'));
 
+import haptics from './utils/haptics';
+
 const API_BASE = window.location.origin;
 const API_URL = `${API_BASE}/api`;
 
@@ -247,10 +249,16 @@ function AppInner({
     const joySeverity =
       severity === 'error' ? 'danger' : severity === 'info' ? 'neutral' : severity;
     setNotification({ open: true, message, severity: joySeverity });
+
+    // Haptic Feedback
+    if (severity === 'error' || severity === 'danger') haptics.error();
+    else if (severity === 'success') haptics.success();
+    else haptics.light();
   }, []);
   const hideNotification = () => setNotification((prev) => ({ ...prev, open: false }));
 
   const confirmAction = useCallback((title, message, onConfirm) => {
+    haptics.selection();
     setConfirmDialog({ open: true, title, message, onConfirm });
   }, []);
   const handleConfirmClose = () => setConfirmDialog((prev) => ({ ...prev, open: false }));

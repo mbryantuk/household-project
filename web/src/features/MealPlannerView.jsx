@@ -40,6 +40,7 @@ import {
 } from '@mui/icons-material';
 import { useQueryClient } from '@tanstack/react-query';
 import EmojiPicker from '../components/EmojiPicker';
+import haptics from '../utils/haptics';
 import { useMeals, useMealPlans } from '../hooks/useHouseholdData';
 
 // Helpers
@@ -127,6 +128,7 @@ export default function MealPlannerView() {
       return;
     }
 
+    haptics.selection();
     try {
       // Assign for each selected member
       const promises = selectedMemberIds.map((mid) =>

@@ -41,6 +41,7 @@ import ReceiptImporter from './shopping/components/ReceiptImporter';
 import ShoppingSchedules from './shopping/components/ShoppingSchedules';
 import ShoppingTrends from './shopping/components/ShoppingTrends';
 import { useShoppingList } from '../hooks/useHouseholdData';
+import haptics from '../utils/haptics';
 
 const formatCurrency = (val) => {
   const num = parseFloat(val) || 0;
@@ -118,6 +119,7 @@ export default function ShoppingListView() {
   };
 
   const handleToggle = async (item) => {
+    haptics.selection();
     try {
       await api.put(`/households/${householdId}/shopping-list/${item.id}`, {
         is_checked: !item.is_checked,

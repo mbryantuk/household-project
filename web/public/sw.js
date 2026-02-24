@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hearth-cache-v5';
+const CACHE_NAME = 'hearth-cache-v6';
 const ASSETS = ['/', '/index.html', '/manifest.json', '/favicon.svg', '/favicon.png'];
 
 // Install Event - Caching Assets

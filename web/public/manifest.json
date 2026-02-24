@@ -11,12 +11,52 @@
     {
       "src": "favicon.svg",
       "type": "image/svg+xml",
-      "sizes": "any"
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/dashboard",
   "display": "standalone",
-  "orientation": "any",
+  "orientation": "portrait",
   "theme_color": "#374151",
-  "background_color": "#FFFBEB"
+  "background_color": "#FFFBEB",
+  "shortcuts": [
+    {
+      "name": "Log Finance",
+      "short_name": "Finance",
+      "description": "Quickly log an expense or view your budget",
+      "url": "/finance",
+      "icons": [{ "src": "favicon.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Shopping List",
+      "short_name": "Shopping",
+      "description": "View your weekly grocery list",
+      "url": "/shopping",
+      "icons": [{ "src": "favicon.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Calendar",
+      "short_name": "Calendar",
+      "description": "View household events",
+      "url": "/calendar",
+      "icons": [{ "src": "favicon.png", "sizes": "192x192" }]
+    }
+  ],
+  "categories": ["lifestyle", "finance", "productivity"],
+  "screenshots": [
+    {
+      "src": "favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Hearthstone Dashboard"
+    }
+  ]
 }
