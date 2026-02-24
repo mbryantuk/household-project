@@ -16,6 +16,7 @@ router.get('/', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, 
 
 /**
  * GET /api/households/:id/chores/stats
+ * MOVED ABOVE /:itemId to avoid route collision
  */
 router.get('/stats', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
   res.json({ total: 0, completed: 0 });

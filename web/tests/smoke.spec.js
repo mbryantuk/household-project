@@ -25,9 +25,7 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
   // Helper login function
   const loginAndGetId = async (page) => {
     console.log('Navigating to /login...');
-
-    // Use a clean context for each attempt if possible, but here we just clear.
-    await page.goto('/login', { waitUntil: 'domcontentloaded' });
+    await page.goto('/login', { waitUntil: 'networkidle' });
 
     console.log('Clearing storage...');
     await page
@@ -35,7 +33,7 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
         localStorage.clear();
         sessionStorage.clear();
       })
-      .catch(() => {}); // Ignore errors if context destroyed
+      .catch(() => {});
 
     await page.goto('/login', { waitUntil: 'networkidle' });
 
@@ -63,13 +61,12 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
         await page.click('text=/The Brady Bunch/i');
       } else {
         console.log('The Brady Bunch not found. Clicking first available household...');
-        await page.click('button:has-text("Open")');
+        await page.click('button:has-text("Open")').first();
       }
       await page.waitForURL(/.*(dashboard|onboarding)/, { timeout: 20000 });
     }
 
     console.log('Waiting for dashboard or onboarding view...');
-    // Increase timeout and check for common elements
     await page.waitForFunction(
       () => {
         return (
@@ -105,7 +102,6 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
         throw new Error('Failed to retrieve Household ID during login.');
       }
     } else {
-      // Just ensure we are within the household context
       if (!page.url().includes(`/household/${householdId}`)) {
         await page.goto(`/household/${householdId}/dashboard`, { waitUntil: 'networkidle' });
       }
@@ -116,7 +112,6 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
 
   test('Dashboard Page', async ({ page }) => {
     await page.goto(`${getBaseUrl()}/dashboard`, { waitUntil: 'networkidle' });
-    // Check for greeting text (even if name is "Friend")
     await expect(page.getByText(/Good morning|Good afternoon|Good evening/i).first()).toBeVisible({
       timeout: 20000,
     });
@@ -124,38 +119,45 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
 
   test('Calendar Page', async ({ page }) => {
     const base = getBaseUrl();
-    await page.goto(`${base}/calendar`, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText(/Calendar/i).first()).toBeAttached();
+    await page.goto(`${base}/calendar`, { waitUntil: 'networkidle' });
+    // Use a more reliable text check
+    await expect(page.getByText(/Track events, holidays/i).first()).toBeVisible({ timeout: 15000 });
   });
 
   test('People Page', async ({ page }) => {
     const base = getBaseUrl();
-    await page.goto(`${base}/people`, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText(/People/i).first()).toBeAttached();
+    await page.goto(`${base}/people`, { waitUntil: 'networkidle' });
+    await expect(page.getByText(/Manage the people/i).first()).toBeVisible({ timeout: 15000 });
   });
 
   test('Pets Page', async ({ page }) => {
     const base = getBaseUrl();
-    await page.goto(`${base}/pets`, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText(/Pets/i).first()).toBeAttached();
+    await page.goto(`${base}/pets`, { waitUntil: 'networkidle' });
+    await expect(page.getByText(/Keep track of your furry/i).first()).toBeVisible({
+      timeout: 15000,
+    });
   });
 
   test('Vehicles Page', async ({ page }) => {
     const base = getBaseUrl();
-    await page.goto(`${base}/vehicles`, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText(/Vehicle/i).first()).toBeAttached();
+    await page.goto(`${base}/vehicles`, { waitUntil: 'networkidle' });
+    await expect(page.getByText(/Manage your family vehicles/i).first()).toBeVisible({
+      timeout: 15000,
+    });
   });
 
   test('Meals Page', async ({ page }) => {
     const base = getBaseUrl();
-    await page.goto(`${base}/meals`, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText(/Meal/i).first()).toBeAttached();
+    await page.goto(`${base}/meals`, { waitUntil: 'networkidle' });
+    await expect(page.getByText(/Plan your weekly meals/i).first()).toBeVisible({ timeout: 15000 });
   });
 
   test('Groceries Page & Import Button', async ({ page }) => {
     const base = getBaseUrl();
-    await page.goto(`${base}/shopping`, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText(/Groceries|Shopping/i).first()).toBeAttached();
+    await page.goto(`${base}/shopping`, { waitUntil: 'networkidle' });
+    await expect(page.getByText(/Your shared shopping list/i).first()).toBeVisible({
+      timeout: 15000,
+    });
 
     const importBtn = page.getByRole('button', { name: /Import Historical Receipt/i });
     await expect(importBtn).toBeVisible();
@@ -163,13 +165,13 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
 
   test('Chores Page', async ({ page }) => {
     const base = getBaseUrl();
-    await page.goto(`${base}/chores`, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText(/Chores/i).first()).toBeAttached();
+    await page.goto(`${base}/chores`, { waitUntil: 'networkidle' });
+    await expect(page.getByText(/Assign and track/i).first()).toBeVisible({ timeout: 15000 });
   });
 
   test('Finance Page & Banking Import', async ({ page }) => {
     const base = getBaseUrl();
-    await page.goto(`${base}/finance`);
+    await page.goto(`${base}/finance`, { waitUntil: 'networkidle' });
 
     await expect(page.getByText(/Loading Financial Data/i)).not.toBeVisible({ timeout: 15000 });
     await page.waitForTimeout(1000);
@@ -193,53 +195,52 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
 
   test('Onboarding Page', async ({ page }) => {
     const base = getBaseUrl();
-    await page.goto(`${base}/onboarding`);
+    await page.goto(`${base}/onboarding`, { waitUntil: 'networkidle' });
     await expect(page.locator('role=progressbar')).not.toBeVisible({ timeout: 15000 });
-    expect(page.url()).toContain('/onboarding');
-    await expect(page.getByText(/Welcome/i)).toBeVisible();
+    await expect(page.getByText(/Welcome to Hearthstone/i)).toBeVisible({ timeout: 15000 });
   });
 
   test('House Overview Page', async ({ page }) => {
     const base = getBaseUrl();
-    await page.goto(`${base}/house`);
-    await expect(page.getByText(/House/i).first()).toBeVisible();
+    await page.goto(`${base}/house`, { waitUntil: 'networkidle' });
+    await expect(page.getByText(/House|Property/i).first()).toBeVisible();
   });
 
   test('Property Details Page', async ({ page }) => {
     const base = getBaseUrl();
-    await page.goto(`${base}/house/details`);
-    await expect(page.getByText(/Properties|Household/i).first()).toBeVisible();
+    await page.goto(`${base}/house/details`, { waitUntil: 'networkidle' });
+    await expect(page.getByText(/Manage the details of your property/i).first()).toBeVisible();
   });
 
   test('Asset Register Page', async ({ page }) => {
     const base = getBaseUrl();
-    await page.goto(`${base}/house/assets`);
-    await expect(page.getByText(/Asset|Register/i).first()).toBeVisible();
+    await page.goto(`${base}/house/assets`, { waitUntil: 'networkidle' });
+    await expect(page.getByText(/Keep track of valuable items/i).first()).toBeVisible();
   });
 
   test('User Profile Page', async ({ page }) => {
     const base = getBaseUrl();
-    await page.goto(`${base}/profile`);
+    await page.goto(`${base}/profile`, { waitUntil: 'networkidle' });
     await expect(page.locator('h2', { hasText: 'Your Profile' })).toBeVisible();
   });
 
   test('Settings Pages (All Tabs)', async ({ page }) => {
     const base = getBaseUrl();
 
-    await page.goto(`${base}/settings?tab=0`);
-    await expect(page.getByText(/Profile/i).first()).toBeVisible();
+    await page.goto(`${base}/settings?tab=0`, { waitUntil: 'networkidle' });
+    await expect(page.getByText(/Personal Information/i).first()).toBeVisible();
 
-    await page.goto(`${base}/settings?tab=1`);
-    await expect(page.getByText(/Security/i).first()).toBeVisible();
+    await page.goto(`${base}/settings?tab=1`, { waitUntil: 'networkidle' });
+    await expect(page.getByText(/Security Settings/i).first()).toBeVisible();
 
-    await page.goto(`${base}/settings?tab=2`);
-    await expect(page.getByText(/Appearance/i).first()).toBeVisible();
+    await page.goto(`${base}/settings?tab=2`, { waitUntil: 'networkidle' });
+    await expect(page.getByText(/Theme and Appearance/i).first()).toBeVisible();
 
-    await page.goto(`${base}/settings?tab=3`);
-    await expect(page.getByText(/API/i).first()).toBeVisible();
+    await page.goto(`${base}/settings?tab=3`, { waitUntil: 'networkidle' });
+    await expect(page.getByText(/Developer API Keys/i).first()).toBeVisible();
 
-    await page.goto(`${base}/settings?tab=4`);
-    await expect(page.getByText(/Admin/i).first()).toBeVisible();
+    await page.goto(`${base}/settings?tab=4`, { waitUntil: 'networkidle' });
+    await expect(page.getByText(/Household Administration/i).first()).toBeVisible();
   });
 
   test.afterAll(() => {
