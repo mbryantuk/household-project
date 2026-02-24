@@ -194,19 +194,19 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
 
     await page.goto(`${base}/settings?tab=0`, { waitUntil: 'networkidle' });
     await expect(page.getByTestId('settings-view')).toBeVisible();
-    await expect(page.getByText(/Personal Information/i).first()).toBeVisible();
+    await expect(page.getByText(/Public Profile/i).first()).toBeVisible();
 
     await page.goto(`${base}/settings?tab=1`, { waitUntil: 'networkidle' });
-    await expect(page.getByText(/Security Settings/i).first()).toBeVisible();
+    await expect(page.getByText(/Security Center/i).first()).toBeVisible();
 
     await page.goto(`${base}/settings?tab=2`, { waitUntil: 'networkidle' });
-    await expect(page.getByText(/Theme and Appearance/i).first()).toBeVisible();
+    await expect(page.getByText(/System Appearance/i).first()).toBeVisible();
 
     await page.goto(`${base}/settings?tab=3`, { waitUntil: 'networkidle' });
-    await expect(page.getByText(/Developer API Keys/i).first()).toBeVisible();
+    await expect(page.getByText(/API Access & Documentation/i).first()).toBeVisible();
 
     await page.goto(`${base}/settings?tab=4`, { waitUntil: 'networkidle' });
-    await expect(page.getByText(/Household Administration/i).first()).toBeVisible();
+    await expect(page.getByText(/System Administration/i).first()).toBeVisible();
   });
 
   test.afterAll(() => {

@@ -37,6 +37,9 @@ services:
       - SECRET_KEY=super_secret_pi_key_v2_long_enough
       - DATABASE_URL=postgres://hearth_user:hearth_password@db:5432/hearthstone
       - REDIS_URL=redis://redis:6379
+      - CLERK_PUBLISHABLE_KEY=pk_test_Y2xvc2luZy10ZXJyYXBpbi01Ni5jbGVyay5hY2NvdW50cy5kZXYk
+      - CLERK_SECRET_KEY=sk_test_J1AUPpcG7lgYRQAWhiLvsXOxbwtdfn0pp0KCCaUQ5f
+      - VITE_CLERK_PUBLISHABLE_KEY=pk_test_Y2xvc2luZy10ZXJyYXBpbi01Ni5jbGVyay5hY2NvdW50cy5kZXYk
 
 volumes:
   totem_db_data:

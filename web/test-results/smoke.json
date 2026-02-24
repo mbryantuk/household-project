@@ -88,7 +88,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 6318,
+                      "duration": 5116,
                       "errors": [],
                       "stdout": [
                         {
@@ -118,7 +118,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:26:51.865Z",
+                      "startTime": "2026-02-24T15:42:07.671Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -147,7 +147,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4550,
+                      "duration": 4234,
                       "errors": [],
                       "stdout": [
                         {
@@ -177,7 +177,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:26:58.608Z",
+                      "startTime": "2026-02-24T15:42:12.975Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -206,7 +206,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4483,
+                      "duration": 4082,
                       "errors": [],
                       "stdout": [
                         {
@@ -236,7 +236,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:27:03.186Z",
+                      "startTime": "2026-02-24T15:42:17.236Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -265,7 +265,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4112,
+                      "duration": 4131,
                       "errors": [],
                       "stdout": [
                         {
@@ -295,7 +295,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:27:07.699Z",
+                      "startTime": "2026-02-24T15:42:21.340Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -324,7 +324,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4058,
+                      "duration": 4060,
                       "errors": [],
                       "stdout": [
                         {
@@ -354,7 +354,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:27:11.837Z",
+                      "startTime": "2026-02-24T15:42:25.498Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -383,7 +383,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4394,
+                      "duration": 4256,
                       "errors": [],
                       "stdout": [
                         {
@@ -413,7 +413,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:27:15.918Z",
+                      "startTime": "2026-02-24T15:42:29.580Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -442,7 +442,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4559,
+                      "duration": 4222,
                       "errors": [],
                       "stdout": [
                         {
@@ -472,7 +472,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:27:20.333Z",
+                      "startTime": "2026-02-24T15:42:33.855Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -501,7 +501,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4028,
+                      "duration": 3890,
                       "errors": [],
                       "stdout": [
                         {
@@ -531,7 +531,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:27:24.914Z",
+                      "startTime": "2026-02-24T15:42:38.096Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -546,7 +546,7 @@
             },
             {
               "title": "Finance Page & Banking Import",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -559,28 +559,9 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 26159,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('finance-view')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('finance-view')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('finance-view')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('finance-view')\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:143:52",
-                        "location": {
-                          "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 52,
-                          "line": 143
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 141 |\u001b[39m   test(\u001b[32m'Finance Page & Banking Import'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 142 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m`${getBaseUrl()}/finance`\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 143 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'finance-view'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m20000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 144 |\u001b[39m\n \u001b[90m 145 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[35m/Loading Financial Data/i\u001b[39m))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 146 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m1000\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 52,
-                            "line": 143
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('finance-view')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('finance-view')\u001b[22m\n\n\n\u001b[0m \u001b[90m 141 |\u001b[39m   test(\u001b[32m'Finance Page & Banking Import'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 142 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m`${getBaseUrl()}/finance`\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 143 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'finance-view'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m20000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 144 |\u001b[39m\n \u001b[90m 145 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[35m/Loading Financial Data/i\u001b[39m))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 146 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m1000\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:143:52\u001b[22m"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 5525,
+                      "errors": [],
                       "stdout": [
                         {
                           "text": "Navigating to /login...\n"
@@ -609,33 +590,12 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:27:28.965Z",
+                      "startTime": "2026-02-24T15:42:42.006Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Finance-Page-Banking-Import-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Finance-Page-Banking-Import-chromium/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Finance-Page-Banking-Import-chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 52,
-                        "line": 143
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-8b07f9a7ad5a03a1f09a",
@@ -656,20 +616,45 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4645,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
+                        },
+                        {
+                          "text": "Clicking Login button...\n"
+                        },
+                        {
+                          "text": "Waiting for navigation...\n"
+                        },
+                        {
+                          "text": "Current URL after login: http://localhost:4001/household/732/dashboard\n"
+                        },
+                        {
+                          "text": "Waiting for dashboard or onboarding view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/732/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 732\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:27:55.235Z",
+                      "startTime": "2026-02-24T15:42:47.552Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-44e19c2ea2651f1a3536",
@@ -690,25 +675,50 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3919,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
+                        },
+                        {
+                          "text": "Clicking Login button...\n"
+                        },
+                        {
+                          "text": "Waiting for navigation...\n"
+                        },
+                        {
+                          "text": "Current URL after login: http://localhost:4001/household/732/dashboard\n"
+                        },
+                        {
+                          "text": "Waiting for dashboard or onboarding view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/732/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 732\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:27:55.236Z",
+                      "startTime": "2026-02-24T15:42:52.216Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-fe31e0fc5c4bd3b315e3",
               "file": "smoke.spec.js",
-              "line": 171,
+              "line": 172,
               "column": 3
             },
             {
@@ -724,25 +734,50 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4215,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
+                        },
+                        {
+                          "text": "Clicking Login button...\n"
+                        },
+                        {
+                          "text": "Waiting for navigation...\n"
+                        },
+                        {
+                          "text": "Current URL after login: http://localhost:4001/household/732/dashboard\n"
+                        },
+                        {
+                          "text": "Waiting for dashboard or onboarding view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/732/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 732\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:27:55.237Z",
+                      "startTime": "2026-02-24T15:42:56.172Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-b08a53b9d7bc197b2c33",
               "file": "smoke.spec.js",
-              "line": 176,
+              "line": 177,
               "column": 3
             },
             {
@@ -758,25 +793,50 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4056,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
+                        },
+                        {
+                          "text": "Clicking Login button...\n"
+                        },
+                        {
+                          "text": "Waiting for navigation...\n"
+                        },
+                        {
+                          "text": "Current URL after login: http://localhost:4001/household/732/dashboard\n"
+                        },
+                        {
+                          "text": "Waiting for dashboard or onboarding view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/732/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 732\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:27:55.238Z",
+                      "startTime": "2026-02-24T15:43:00.409Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-899023ab40d288f36a8a",
               "file": "smoke.spec.js",
-              "line": 181,
+              "line": 182,
               "column": 3
             },
             {
@@ -792,25 +852,50 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4226,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
+                        },
+                        {
+                          "text": "Clicking Login button...\n"
+                        },
+                        {
+                          "text": "Waiting for navigation...\n"
+                        },
+                        {
+                          "text": "Current URL after login: http://localhost:4001/household/732/dashboard\n"
+                        },
+                        {
+                          "text": "Waiting for dashboard or onboarding view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/732/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 732\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:27:55.239Z",
+                      "startTime": "2026-02-24T15:43:04.486Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-8ded83d61d120dd46f10",
               "file": "smoke.spec.js",
-              "line": 186,
+              "line": 187,
               "column": 3
             },
             {
@@ -826,25 +911,50 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8450,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
+                        },
+                        {
+                          "text": "Clicking Login button...\n"
+                        },
+                        {
+                          "text": "Waiting for navigation...\n"
+                        },
+                        {
+                          "text": "Current URL after login: http://localhost:4001/household/732/dashboard\n"
+                        },
+                        {
+                          "text": "Waiting for dashboard or onboarding view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/732/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 732\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:27:55.240Z",
+                      "startTime": "2026-02-24T15:43:08.731Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-b7b11855d8085866d29d",
               "file": "smoke.spec.js",
-              "line": 191,
+              "line": 192,
               "column": 3
             }
           ]
@@ -854,11 +964,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-24T15:26:49.629Z",
-    "duration": 65631.426,
-    "expected": 8,
-    "skipped": 6,
-    "unexpected": 1,
+    "startTime": "2026-02-24T15:42:05.499Z",
+    "duration": 71781.411,
+    "expected": 15,
+    "skipped": 0,
+    "unexpected": 0,
     "flaky": 0
   }
 }
