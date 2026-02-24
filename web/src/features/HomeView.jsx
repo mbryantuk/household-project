@@ -23,14 +23,11 @@ import {
   CleaningServices,
   WbSunny,
 } from '@mui/icons-material';
-import RGL from 'react-grid-layout';
+import { Responsive, WidthProvider } from 'react-grid-layout/legacy';
 import DashboardWidget from '../components/DashboardWidget';
 import AnalyticsWidget from '../components/widgets/AnalyticsWidget';
 import { useFinanceSummary } from '../hooks/useFinanceData';
 
-// Vite/ESM Compatibility Fix for react-grid-layout
-const WidthProvider = RGL.WidthProvider || RGL.default?.WidthProvider;
-const Responsive = RGL.Responsive || RGL.default?.Responsive;
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const Sparkline = ({ color = '#22c55e', height = 40 }) => (
