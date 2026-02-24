@@ -261,7 +261,7 @@ export default function HomeView() {
   };
 
   return (
-    <Box sx={{ width: '100%', maxWidth: 1600, mx: 'auto', pb: 10 }}>
+    <Box sx={{ width: '100%', maxWidth: 1600, mx: 'auto', pb: 10 }} data-testid="dashboard-view">
       <Box
         sx={{
           mb: 4,
@@ -275,6 +275,7 @@ export default function HomeView() {
         <Box>
           <Typography
             level="h1"
+            data-testid="greeting-text"
             sx={{
               fontSize: { xs: '2rem', md: '3.25rem' },
               mb: 0.5,

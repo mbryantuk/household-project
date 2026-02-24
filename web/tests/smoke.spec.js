@@ -25,15 +25,8 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
   // Helper login function
   const loginAndGetId = async (page) => {
     console.log('Navigating to /login...');
-    try {
-      await page.goto('/login');
-      await page.waitForLoadState('networkidle');
-    } catch (e) {
-      console.log('Navigation error (might be redirect):', e.message);
-    }
-
-    const initialToken = await page.evaluate(() => localStorage.getItem('token'));
-    console.log(`Initial Token: ${initialToken ? 'PRESENT' : 'MISSING'}`);
+    await page.goto('/login');
+    await page.waitForLoadState('networkidle');
 
     console.log('Clearing storage...');
     await page.evaluate(() => {
@@ -47,11 +40,16 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
 
     // INTERACT WITH LEGACY LOGIN FORM
     console.log('Filling legacy login form...');
-    await page.getByPlaceholder('Email').fill('mbryantuk@gmail.com');
+    const emailInput = page.getByPlaceholder('Email');
+    await expect(emailInput).toBeVisible({ timeout: 10000 });
+    await emailInput.fill('mbryantuk@gmail.com');
     await page.getByPlaceholder('Password').fill('Password123!');
-    await page.getByRole('button', { name: 'Login', exact: true }).click();
 
-    await page.waitForURL(/.*(select-household|dashboard)/, { timeout: 30000 });
+    // Click Login and wait for navigation
+    await Promise.all([
+      page.waitForURL(/.*(select-household|dashboard)/, { timeout: 30000 }),
+      page.getByRole('button', { name: 'Login', exact: true }).click(),
+    ]);
 
     if (page.url().includes('select-household')) {
       console.log('Selecting Brady Bunch household...');
@@ -60,7 +58,7 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
     }
 
     // Wait for dashboard to actually hydrate/settle
-    await page.waitForTimeout(2000);
+    await expect(page.getByTestId('dashboard-view')).toBeVisible({ timeout: 20000 });
 
     const url = page.url();
     const match = url.match(/household\/(\d+)\//);
@@ -87,8 +85,7 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
   test('Dashboard Page', async ({ page }) => {
     const base = getBaseUrl();
     await page.goto(`${base}/dashboard`, { waitUntil: 'networkidle' });
-    await expect(page.locator('body')).toBeAttached();
-    await expect(page.getByText(/Dashboard|Welcome|Good/i).first()).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId('greeting-text')).toBeVisible({ timeout: 20000 });
   });
 
   test('Calendar Page', async ({ page }) => {

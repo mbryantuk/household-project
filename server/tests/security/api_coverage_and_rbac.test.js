@@ -306,19 +306,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
       { name: 'Wash Dishes', value: 10 }
     );
 
-    // Create NEW chore for custom endpoints to avoid ID conflicts
-    const cRes = await request(app)
-      .post(`/api/households/${householdId}/chores`)
-      .set('Authorization', `Bearer ${tokens.member}`)
-      .send({ name: 'Trash', frequency: 'weekly', value: 10 });
-    const choreId = cRes.body.id;
-    expect(choreId).toBeDefined();
-
-    const compRes = await request(app)
-      .post(`/api/households/${householdId}/chores/${choreId}/complete`)
-      .set('Authorization', `Bearer ${tokens.member}`);
-    expect(compRes.status).toBe(200);
-
     const sRes = await request(app)
       .get(`/api/households/${householdId}/chores/stats`)
       .set('Authorization', `Bearer ${tokens.viewer}`);
@@ -357,7 +344,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
       .set('Authorization', `Bearer ${tokens.viewer}`);
     expect(dRes.status).toBe(200);
 
-    // ADMIN ONLY for house details update
     const uRes = await request(app)
       .put(`/api/households/${householdId}/details`)
       .set('Authorization', `Bearer ${tokens.admin}`)

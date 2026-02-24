@@ -15,6 +15,13 @@ router.get('/', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, 
 });
 
 /**
+ * GET /api/households/:id/chores/stats
+ */
+router.get('/stats', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
+  res.json({ total: 0, completed: 0 });
+});
+
+/**
  * GET /api/households/:id/chores/:itemId
  */
 router.get(
@@ -168,12 +175,5 @@ router.post(
     res.json({ message: 'Chore completed' });
   }
 );
-
-/**
- * GET /api/households/:id/chores/stats
- */
-router.get('/stats', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
-  res.json({ total: 0, completed: 0 });
-});
 
 module.exports = router;
