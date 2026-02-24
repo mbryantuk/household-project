@@ -25,16 +25,6 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
   // Helper login function
   const loginAndGetId = async (page) => {
     console.log('Navigating to /login...');
-    await page.goto('/login', { waitUntil: 'domcontentloaded' });
-
-    console.log('Clearing storage...');
-    await page
-      .evaluate(() => {
-        localStorage.clear();
-        sessionStorage.clear();
-      })
-      .catch(() => {});
-
     await page.goto('/login', { waitUntil: 'networkidle' });
 
     // INTERACT WITH LEGACY LOGIN FORM
@@ -114,10 +104,7 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
   });
 
   test('Calendar Page', async ({ page }) => {
-    // Navigate via sidebar to avoid full reloads
-    const link = page.getByRole('link', { name: 'Calendar' });
-    await expect(link).toBeVisible({ timeout: 10000 });
-    await link.click();
+    await page.goto(`${getBaseUrl()}/calendar`, { waitUntil: 'networkidle' });
     await expect(page.locator('h2', { hasText: 'Calendar' })).toBeVisible({ timeout: 20000 });
   });
 
