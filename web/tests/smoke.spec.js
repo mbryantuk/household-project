@@ -98,14 +98,13 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
 
   test('Dashboard Page', async ({ page }) => {
     await page.goto(`${getBaseUrl()}/dashboard`, { waitUntil: 'networkidle' });
-    await expect(page.getByText(/Good morning|Good afternoon|Good evening/i).first()).toBeVisible({
-      timeout: 20000,
-    });
+    await expect(page.getByTestId('dashboard-view')).toBeVisible({ timeout: 20000 });
   });
 
   test('Calendar Page', async ({ page }) => {
     await page.goto(`${getBaseUrl()}/calendar`, { waitUntil: 'networkidle' });
-    await expect(page.locator('h2', { hasText: 'Calendar' })).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId('calendar-view')).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId('calendar-heading')).toBeVisible({ timeout: 10000 });
   });
 
   test('People Page', async ({ page }) => {

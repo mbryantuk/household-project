@@ -183,11 +183,9 @@ export default function CalendarView({ showNotification }) {
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('📅');
 
-  // Default to TIMELINE
   const [date, setDate] = useState(new Date());
   const [view, setView] = useState(CUSTOM_VIEWS.TIMELINE);
 
-  // Form State
   const [recurrence, setRecurrence] = useState('none');
 
   const fetchDates = useCallback(() => {
@@ -358,7 +356,10 @@ export default function CalendarView({ showNotification }) {
   };
 
   return (
-    <Box sx={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column' }}>
+    <Box
+      sx={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column' }}
+      data-testid="calendar-view"
+    >
       <Box
         sx={{
           mb: 2,
@@ -372,6 +373,7 @@ export default function CalendarView({ showNotification }) {
         <Box>
           <Typography
             level="h2"
+            data-testid="calendar-heading"
             sx={{ fontWeight: 'lg', mb: 0.5, fontSize: { xs: '1.5rem', md: '2rem' } }}
           >
             Calendar
