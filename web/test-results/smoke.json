@@ -88,25 +88,25 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 3116,
+                      "duration": 26085,
                       "error": {
-                        "message": "Error: page.goto: Navigation to \"http://localhost:4001/login\" is interrupted by another navigation to \"http://localhost:4001/login\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/login\", waiting until \"load\"\u001b[22m\n",
-                        "stack": "Error: page.goto: Navigation to \"http://localhost:4001/login\" is interrupted by another navigation to \"http://localhost:4001/login\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/login\", waiting until \"load\"\u001b[22m\n\n    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:38:16)\n    at /home/matt/household-project/web/tests/smoke.spec.js:75:16",
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('dashboard-view')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('dashboard-view')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('dashboard-view')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('dashboard-view')\u001b[22m\n\n    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:62:54)\n    at /home/matt/household-project/web/tests/smoke.spec.js:82:18",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 16,
-                          "line": 38
+                          "column": 54,
+                          "line": 62
                         },
-                        "snippet": "  36 |\n  37 |     console.log('Reloading to ensure clean state...');\n> 38 |     await page.goto('/login');\n     |                ^\n  39 |     await page.waitForLoadState('networkidle');\n  40 |\n  41 |     // INTERACT WITH LEGACY LOGIN FORM"
+                        "snippet": "  60 |\n  61 |     // Wait for dashboard marker\n> 62 |     await expect(page.getByTestId('dashboard-view')).toBeVisible({ timeout: 20000 });\n     |                                                      ^\n  63 |\n  64 |     const url = page.url();\n  65 |     const match = url.match(/household\\/(\\d+)\\//);"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 16,
-                            "line": 38
+                            "column": 54,
+                            "line": 62
                           },
-                          "message": "Error: page.goto: Navigation to \"http://localhost:4001/login\" is interrupted by another navigation to \"http://localhost:4001/login\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/login\", waiting until \"load\"\u001b[22m\n\n\n  36 |\n  37 |     console.log('Reloading to ensure clean state...');\n> 38 |     await page.goto('/login');\n     |                ^\n  39 |     await page.waitForLoadState('networkidle');\n  40 |\n  41 |     // INTERACT WITH LEGACY LOGIN FORM\n    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:38:16)\n    at /home/matt/household-project/web/tests/smoke.spec.js:75:16"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('dashboard-view')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('dashboard-view')\u001b[22m\n\n\n  60 |\n  61 |     // Wait for dashboard marker\n> 62 |     await expect(page.getByTestId('dashboard-view')).toBeVisible({ timeout: 20000 });\n     |                                                      ^\n  63 |\n  64 |     const url = page.url();\n  65 |     const match = url.match(/household\\/(\\d+)\\//);\n    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:62:54)\n    at /home/matt/household-project/web/tests/smoke.spec.js:82:18"
                         }
                       ],
                       "stdout": [
@@ -114,15 +114,12 @@
                           "text": "Navigating to /login...\n"
                         },
                         {
-                          "text": "Clearing storage...\n"
-                        },
-                        {
-                          "text": "Reloading to ensure clean state...\n"
+                          "text": "Filling legacy login form...\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:10:03.023Z",
+                      "startTime": "2026-02-24T11:23:20.944Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -134,17 +131,12 @@
                           "name": "video",
                           "contentType": "video/webm",
                           "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Dashboard-Page-chromium/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Dashboard-Page-chromium/error-context.md"
                         }
                       ],
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 16,
-                        "line": 38
+                        "column": 54,
+                        "line": 62
                       }
                     }
                   ],
@@ -153,7 +145,7 @@
               ],
               "id": "2c14808d47b386fba9eb-cf40674c38354f943714",
               "file": "smoke.spec.js",
-              "line": 85,
+              "line": 96,
               "column": 3
             },
             {
@@ -177,7 +169,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:10:06.733Z",
+                      "startTime": "2026-02-24T11:23:47.582Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -187,7 +179,7 @@
               ],
               "id": "2c14808d47b386fba9eb-65dcf704c9e1ebea0f13",
               "file": "smoke.spec.js",
-              "line": 91,
+              "line": 100,
               "column": 3
             },
             {
@@ -211,7 +203,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:10:06.735Z",
+                      "startTime": "2026-02-24T11:23:47.582Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -221,7 +213,7 @@
               ],
               "id": "2c14808d47b386fba9eb-171e6d3e655016c9b313",
               "file": "smoke.spec.js",
-              "line": 97,
+              "line": 106,
               "column": 3
             },
             {
@@ -245,7 +237,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:10:06.735Z",
+                      "startTime": "2026-02-24T11:23:47.583Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -255,7 +247,7 @@
               ],
               "id": "2c14808d47b386fba9eb-d5debc6616350aaa15fd",
               "file": "smoke.spec.js",
-              "line": 103,
+              "line": 112,
               "column": 3
             },
             {
@@ -279,7 +271,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:10:06.736Z",
+                      "startTime": "2026-02-24T11:23:47.583Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -289,7 +281,7 @@
               ],
               "id": "2c14808d47b386fba9eb-530580c26c0460afd264",
               "file": "smoke.spec.js",
-              "line": 109,
+              "line": 118,
               "column": 3
             },
             {
@@ -313,7 +305,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:10:06.737Z",
+                      "startTime": "2026-02-24T11:23:47.583Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -323,7 +315,7 @@
               ],
               "id": "2c14808d47b386fba9eb-b8a32d849858bef88d91",
               "file": "smoke.spec.js",
-              "line": 115,
+              "line": 124,
               "column": 3
             },
             {
@@ -347,7 +339,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:10:06.738Z",
+                      "startTime": "2026-02-24T11:23:47.583Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -357,7 +349,7 @@
               ],
               "id": "2c14808d47b386fba9eb-cc2ee4597680c1b7cb6d",
               "file": "smoke.spec.js",
-              "line": 121,
+              "line": 130,
               "column": 3
             },
             {
@@ -381,7 +373,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:10:06.739Z",
+                      "startTime": "2026-02-24T11:23:47.584Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -391,7 +383,7 @@
               ],
               "id": "2c14808d47b386fba9eb-564f135c59d12d104526",
               "file": "smoke.spec.js",
-              "line": 130,
+              "line": 139,
               "column": 3
             },
             {
@@ -415,7 +407,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:10:06.739Z",
+                      "startTime": "2026-02-24T11:23:47.584Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -425,7 +417,7 @@
               ],
               "id": "2c14808d47b386fba9eb-8b07f9a7ad5a03a1f09a",
               "file": "smoke.spec.js",
-              "line": 136,
+              "line": 145,
               "column": 3
             },
             {
@@ -449,7 +441,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:10:06.740Z",
+                      "startTime": "2026-02-24T11:23:47.585Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -459,7 +451,7 @@
               ],
               "id": "2c14808d47b386fba9eb-44e19c2ea2651f1a3536",
               "file": "smoke.spec.js",
-              "line": 160,
+              "line": 169,
               "column": 3
             },
             {
@@ -483,7 +475,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:10:06.740Z",
+                      "startTime": "2026-02-24T11:23:47.585Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -493,7 +485,7 @@
               ],
               "id": "2c14808d47b386fba9eb-fe31e0fc5c4bd3b315e3",
               "file": "smoke.spec.js",
-              "line": 168,
+              "line": 177,
               "column": 3
             },
             {
@@ -517,7 +509,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:10:06.740Z",
+                      "startTime": "2026-02-24T11:23:47.585Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -527,7 +519,7 @@
               ],
               "id": "2c14808d47b386fba9eb-b08a53b9d7bc197b2c33",
               "file": "smoke.spec.js",
-              "line": 174,
+              "line": 183,
               "column": 3
             },
             {
@@ -551,7 +543,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:10:06.741Z",
+                      "startTime": "2026-02-24T11:23:47.585Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -561,7 +553,7 @@
               ],
               "id": "2c14808d47b386fba9eb-899023ab40d288f36a8a",
               "file": "smoke.spec.js",
-              "line": 180,
+              "line": 189,
               "column": 3
             },
             {
@@ -585,7 +577,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:10:06.741Z",
+                      "startTime": "2026-02-24T11:23:47.586Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -595,7 +587,7 @@
               ],
               "id": "2c14808d47b386fba9eb-8ded83d61d120dd46f10",
               "file": "smoke.spec.js",
-              "line": 186,
+              "line": 195,
               "column": 3
             },
             {
@@ -619,7 +611,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T11:10:06.741Z",
+                      "startTime": "2026-02-24T11:23:47.586Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -629,7 +621,7 @@
               ],
               "id": "2c14808d47b386fba9eb-b7b11855d8085866d29d",
               "file": "smoke.spec.js",
-              "line": 192,
+              "line": 201,
               "column": 3
             }
           ]
@@ -639,8 +631,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-24T11:10:01.015Z",
-    "duration": 5748.207,
+    "startTime": "2026-02-24T11:23:18.719Z",
+    "duration": 28887.765,
     "expected": 0,
     "skipped": 14,
     "unexpected": 1,
