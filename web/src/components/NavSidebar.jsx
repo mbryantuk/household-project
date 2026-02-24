@@ -434,7 +434,7 @@ export default function NavSidebar({
       setProfiles((prev) => [...prev, res.data]);
       handleProfileSelect(res.data.id);
       setProfileCreateOpen(false);
-      setNewProfileName('');
+      newProfileName('');
       setNewProfileEmoji('💰');
     } catch (err) {
       alert('Failed: ' + err.message);
