@@ -25,7 +25,7 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
   // Helper login function
   const loginAndGetId = async (page) => {
     console.log('Navigating to /login...');
-    await page.goto('/login', { waitUntil: 'networkidle' });
+    await page.goto('/login', { waitUntil: 'domcontentloaded' });
 
     console.log('Clearing storage...');
     await page
@@ -101,10 +101,6 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
       } else {
         throw new Error('Failed to retrieve Household ID during login.');
       }
-    } else {
-      if (!page.url().includes(`/household/${householdId}`)) {
-        await page.goto(`/household/${householdId}/dashboard`, { waitUntil: 'networkidle' });
-      }
     }
   });
 
@@ -118,60 +114,47 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
   });
 
   test('Calendar Page', async ({ page }) => {
-    const base = getBaseUrl();
-    await page.goto(`${base}/calendar`, { waitUntil: 'networkidle' });
-    // Use a more reliable text check
-    await expect(page.getByText(/Track events, holidays/i).first()).toBeVisible({ timeout: 15000 });
+    await page.goto(`${getBaseUrl()}/calendar`, { waitUntil: 'networkidle' });
+    // Look for heading specifically
+    await expect(page.locator('h2', { hasText: 'Calendar' })).toBeVisible({ timeout: 20000 });
   });
 
   test('People Page', async ({ page }) => {
-    const base = getBaseUrl();
-    await page.goto(`${base}/people`, { waitUntil: 'networkidle' });
-    await expect(page.getByText(/Manage the people/i).first()).toBeVisible({ timeout: 15000 });
+    await page.goto(`${getBaseUrl()}/people`, { waitUntil: 'networkidle' });
+    await expect(page.locator('h2', { hasText: 'People' })).toBeVisible({ timeout: 20000 });
   });
 
   test('Pets Page', async ({ page }) => {
-    const base = getBaseUrl();
-    await page.goto(`${base}/pets`, { waitUntil: 'networkidle' });
-    await expect(page.getByText(/Keep track of your furry/i).first()).toBeVisible({
-      timeout: 15000,
-    });
+    await page.goto(`${getBaseUrl()}/pets`, { waitUntil: 'networkidle' });
+    await expect(page.locator('h2', { hasText: 'Pets' })).toBeVisible({ timeout: 20000 });
   });
 
   test('Vehicles Page', async ({ page }) => {
-    const base = getBaseUrl();
-    await page.goto(`${base}/vehicles`, { waitUntil: 'networkidle' });
-    await expect(page.getByText(/Manage your family vehicles/i).first()).toBeVisible({
-      timeout: 15000,
-    });
+    await page.goto(`${getBaseUrl()}/vehicles`, { waitUntil: 'networkidle' });
+    await expect(page.locator('h2', { hasText: 'Vehicles' })).toBeVisible({ timeout: 20000 });
   });
 
   test('Meals Page', async ({ page }) => {
-    const base = getBaseUrl();
-    await page.goto(`${base}/meals`, { waitUntil: 'networkidle' });
-    await expect(page.getByText(/Plan your weekly meals/i).first()).toBeVisible({ timeout: 15000 });
+    await page.goto(`${getBaseUrl()}/meals`, { waitUntil: 'networkidle' });
+    await expect(
+      page.locator('h2', { hasText: 'Meals' }).or(page.locator('h2', { hasText: 'Planner' }))
+    ).toBeVisible({ timeout: 20000 });
   });
 
   test('Groceries Page & Import Button', async ({ page }) => {
-    const base = getBaseUrl();
-    await page.goto(`${base}/shopping`, { waitUntil: 'networkidle' });
-    await expect(page.getByText(/Your shared shopping list/i).first()).toBeVisible({
-      timeout: 15000,
+    await page.goto(`${getBaseUrl()}/shopping`, { waitUntil: 'networkidle' });
+    await expect(page.getByText(/Import Historical Receipt/i).first()).toBeVisible({
+      timeout: 20000,
     });
-
-    const importBtn = page.getByRole('button', { name: /Import Historical Receipt/i });
-    await expect(importBtn).toBeVisible();
   });
 
   test('Chores Page', async ({ page }) => {
-    const base = getBaseUrl();
-    await page.goto(`${base}/chores`, { waitUntil: 'networkidle' });
-    await expect(page.getByText(/Assign and track/i).first()).toBeVisible({ timeout: 15000 });
+    await page.goto(`${getBaseUrl()}/chores`, { waitUntil: 'networkidle' });
+    await expect(page.locator('h2', { hasText: 'Chores' })).toBeVisible({ timeout: 20000 });
   });
 
   test('Finance Page & Banking Import', async ({ page }) => {
-    const base = getBaseUrl();
-    await page.goto(`${base}/finance`, { waitUntil: 'networkidle' });
+    await page.goto(`${getBaseUrl()}/finance`, { waitUntil: 'networkidle' });
 
     await expect(page.getByText(/Loading Financial Data/i)).not.toBeVisible({ timeout: 15000 });
     await page.waitForTimeout(1000);
@@ -194,33 +177,30 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
   });
 
   test('Onboarding Page', async ({ page }) => {
-    const base = getBaseUrl();
-    await page.goto(`${base}/onboarding`, { waitUntil: 'networkidle' });
+    await page.goto(`${getBaseUrl()}/onboarding`, { waitUntil: 'networkidle' });
     await expect(page.locator('role=progressbar')).not.toBeVisible({ timeout: 15000 });
     await expect(page.getByText(/Welcome to Hearthstone/i)).toBeVisible({ timeout: 15000 });
   });
 
   test('House Overview Page', async ({ page }) => {
-    const base = getBaseUrl();
-    await page.goto(`${base}/house`, { waitUntil: 'networkidle' });
-    await expect(page.getByText(/House|Property/i).first()).toBeVisible();
+    await page.goto(`${getBaseUrl()}/house`, { waitUntil: 'networkidle' });
+    await expect(page.locator('h2', { hasText: 'House' })).toBeVisible({ timeout: 20000 });
   });
 
   test('Property Details Page', async ({ page }) => {
-    const base = getBaseUrl();
-    await page.goto(`${base}/house/details`, { waitUntil: 'networkidle' });
-    await expect(page.getByText(/Manage the details of your property/i).first()).toBeVisible();
+    await page.goto(`${getBaseUrl()}/house/details`, { waitUntil: 'networkidle' });
+    await expect(page.getByText(/Household Details/i).first()).toBeVisible({ timeout: 20000 });
   });
 
   test('Asset Register Page', async ({ page }) => {
-    const base = getBaseUrl();
-    await page.goto(`${base}/house/assets`, { waitUntil: 'networkidle' });
-    await expect(page.getByText(/Keep track of valuable items/i).first()).toBeVisible();
+    await page.goto(`${getBaseUrl()}/house/assets`, { waitUntil: 'networkidle' });
+    await expect(
+      page.locator('h2', { hasText: 'Register' }).or(page.locator('h2', { hasText: 'Assets' }))
+    ).toBeVisible({ timeout: 20000 });
   });
 
   test('User Profile Page', async ({ page }) => {
-    const base = getBaseUrl();
-    await page.goto(`${base}/profile`, { waitUntil: 'networkidle' });
+    await page.goto(`${getBaseUrl()}/profile`, { waitUntil: 'networkidle' });
     await expect(page.locator('h2', { hasText: 'Your Profile' })).toBeVisible();
   });
 

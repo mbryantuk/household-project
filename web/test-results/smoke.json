@@ -88,7 +88,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 9161,
+                      "duration": 7358,
                       "errors": [],
                       "stdout": [
                         {
@@ -107,21 +107,21 @@
                           "text": "Waiting for navigation...\n"
                         },
                         {
-                          "text": "Current URL after login: http://localhost:4001/household/6775/dashboard\n"
+                          "text": "Current URL after login: http://localhost:4001/household/732/dashboard\n"
                         },
                         {
                           "text": "Waiting for dashboard or onboarding view...\n"
                         },
                         {
-                          "text": "Final URL reached: http://localhost:4001/household/6775/dashboard\n"
+                          "text": "Final URL reached: http://localhost:4001/household/732/dashboard\n"
                         },
                         {
-                          "text": "Smoke Test Household ID Locked: 6775\n"
+                          "text": "Smoke Test Household ID Locked: 732\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T13:24:51.346Z",
+                      "startTime": "2026-02-24T13:38:08.095Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -150,7 +150,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 19259,
+                      "duration": 19108,
                       "error": {
                         "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/Track events, holidays/i).first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/Track events, holidays/i).first()\u001b[22m\n",
                         "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/Track events, holidays/i).first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/Track events, holidays/i).first()\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:124:69",
@@ -174,7 +174,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T13:25:01.055Z",
+                      "startTime": "2026-02-24T13:38:15.798Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -229,7 +229,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T13:25:20.494Z",
+                      "startTime": "2026-02-24T13:38:35.052Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -263,7 +263,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T13:25:20.495Z",
+                      "startTime": "2026-02-24T13:38:35.053Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -297,7 +297,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T13:25:20.496Z",
+                      "startTime": "2026-02-24T13:38:35.053Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -331,7 +331,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T13:25:20.496Z",
+                      "startTime": "2026-02-24T13:38:35.054Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -365,7 +365,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T13:25:20.497Z",
+                      "startTime": "2026-02-24T13:38:35.054Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -399,7 +399,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T13:25:20.497Z",
+                      "startTime": "2026-02-24T13:38:35.054Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -433,7 +433,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T13:25:20.497Z",
+                      "startTime": "2026-02-24T13:38:35.055Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -467,7 +467,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T13:25:20.498Z",
+                      "startTime": "2026-02-24T13:38:35.055Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -501,7 +501,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T13:25:20.498Z",
+                      "startTime": "2026-02-24T13:38:35.055Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -535,7 +535,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T13:25:20.498Z",
+                      "startTime": "2026-02-24T13:38:35.056Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -569,7 +569,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T13:25:20.499Z",
+                      "startTime": "2026-02-24T13:38:35.056Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -603,7 +603,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T13:25:20.500Z",
+                      "startTime": "2026-02-24T13:38:35.056Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -637,7 +637,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T13:25:20.500Z",
+                      "startTime": "2026-02-24T13:38:35.056Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -657,8 +657,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-24T13:24:49.295Z",
-    "duration": 31223.165,
+    "startTime": "2026-02-24T13:38:06.044Z",
+    "duration": 29046.889,
     "expected": 1,
     "skipped": 13,
     "unexpected": 1,
