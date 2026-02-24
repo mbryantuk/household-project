@@ -103,6 +103,9 @@ app.use(deepSanitize);
 // Idempotency & Dry-Run
 const idempotency = require('./middleware/idempotency');
 const dryRun = require('./middleware/dryRun');
+const context = require('./context');
+
+app.use(context.inject());
 app.use(idempotency);
 app.use(dryRun);
 

@@ -1,6 +1,6 @@
 {
   "name": "totem-server",
-  "version": "3.2.401",
+  "version": "3.2.403",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -9,6 +9,7 @@
     "test:tidy": "NODE_ENV=test node scripts/cleanup_test_data.js",
     "test:full": "NODE_ENV=test jest --config jest.config.js --verbose; npm run test:tidy",
     "test:perf": "NODE_ENV=test jest tests/performance; npm run test:tidy",
+    "generate:types": "openapi-typescript swagger.json --output ../packages/shared/src/api-types.ts",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
@@ -71,6 +72,7 @@
     "@types/sqlite3": "^3.1.11",
     "babel-jest": "^30.2.0",
     "jest": "^30.2.0",
+    "openapi-typescript": "^7.13.0",
     "supertest": "^6.3.3",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"

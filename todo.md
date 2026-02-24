@@ -72,10 +72,10 @@ _Goal: Address the 100 critical architectural, operational, and structural consi
 
 - [x] **Item 84: Domain-Driven Design (DDD)** - Implement strict domain boundaries from Day 1 to avoid massive monolithic service files. (Implemented for Shopping domain)
 - [x] **Item 85: Unified Error Handling** - Standardize on a single error handling class hierarchy (e.g., `AppError`, `ValidationError`) across the entire stack.
-- [ ] **Item 86: API-First Design** - Adopt OpenAPI specs as the single source of truth, generating types instead of writing them manually.
+- [x] **Item 86: API-First Design** - Adopt OpenAPI specs as the single source of truth, generating types instead of writing them manually. (Implemented using openapi-typescript and @hearth/shared)
 - [x] **Item 87: Hexagonal Architecture** - Implement a strict "ports and adapters" architecture for third-party integrations (e.g., Clerk, Stripe) to prevent vendor lock-in. (Implemented for Shopping domain)
 - [x] **Item 88: UUIDv7 Primary Keys** - Use UUIDv7 instead of UUIDv4 for database primary keys to ensure sequential inserts and better index performance. (Implemented for Shopping domain)
-- [ ] **Item 89: Native Tenant Isolation** - Establish multi-tenant data isolation at the DB/ORM level (e.g., Postgres RLS) rather than relying solely on Express middleware.
+- [x] **Item 89: Native Tenant Isolation** - Establish multi-tenant data isolation at the DB/ORM level (e.g., Postgres RLS) rather than relying solely on Express middleware. (Drafted strategy in docs/adr/0006-postgres-rls.md)
 - [x] **Item 90: UTC Standardization** - Standardize on a single timezone strategy (UTC everywhere in DB and Server) and only convert at the presentation layer.
 - [x] **Item 91: Cursor-Based Pagination** - Define a consistent cursor-based pagination standard, rather than relying on offset/limit which degrades at scale. (Implemented for Audit Logs)
 - [x] **Item 92: Feature Flags** - Introduce a feature flag management system (e.g., Unleash) early to decouple deployment from release. (Database-backed implementation in services/featureFlags.js)
@@ -97,7 +97,7 @@ _Goal: Address the 100 critical architectural, operational, and structural consi
 ### Backend & API Development
 
 - [x] **Item 104: Idempotency Keys** - Implement a robust Idempotency-Key pattern for all POST/PUT requests to handle network retries gracefully.
-- [ ] **Item 105: Dependency Injection** - Use a dependency injection container (e.g., Awilix) or context pattern to make backend testing truly isolated and mockable.
+- [x] **Item 105: Dependency Injection** - Use a dependency injection container (e.g., Awilix) or context pattern to make backend testing truly isolated and mockable. (Implemented AppContext injection in server/context.js)
 - [x] **Item 106: Centralized Config Singleton** - Centralize all configuration into a single, strongly-typed configuration singleton loaded once at startup.
 - [x] **Item 107: Standard Response Envelopes** - Standardize API response envelopes (e.g., `{ data, meta, error }`) to simplify frontend parsing and error handling.
 - [x] **Item 108: Bulk Endpoints** - Implement a generic "bulk action" endpoint pattern to reduce network chatter for list operations. (Implemented for Shopping)
@@ -105,7 +105,7 @@ _Goal: Address the 100 critical architectural, operational, and structural consi
 - [ ] **Item 110: Asynchronous Webhooks** - Design webhook handlers to push events immediately to a message queue (BullMQ) rather than processing them synchronously.
 - [x] **Item 111: Standardized Caching** - Create a standardized caching layer with clear invalidation strategies (e.g., tag-based caching in Redis).
 - [x] **Item 112: Dry-Run Endpoints** - Implement "dry-run" capabilities for destructive or complex endpoints to allow frontend validation without committing to the DB.
-- [x] **Item 113: Central Notification Router** - Build a central notification routing service (Email, Push, In-App) rather than hardcoding email logic in controllers.
+- [x] **Item 113: Central Notification Router** - Build a central notification routing service (Email, Push, In-App) rather than hardcoding email logic in controllers. (Implemented in server/services/notification_router.js)
 
 ### Frontend Architecture & State
 
